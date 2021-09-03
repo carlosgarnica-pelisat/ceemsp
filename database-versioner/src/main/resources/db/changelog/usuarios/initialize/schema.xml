@@ -1,0 +1,50 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2021-08-24-crear-tabla-usuarios" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="USUARIOS">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="USERNAME" type="varchar(20)"></column>
+            <column name="EMAIL" type="varchar(255)"></column>
+            <column name="PASSWORD" type="varchar(64)"></column>
+            <column name="NOMBRES" type="varchar(60)"></column>
+            <column name="APELLIDOS" type="varchar(60)"></column>
+            <column name="EMPRESA" type="VARCHAR(30)"></column>
+            <column name="ROL" type="VARCHAR(30)"></column>
+            <column name="ELIMINADO" type="bit" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="int"></column>
+            <column name="FECHA_ACTUALIZACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="int"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="USUARIOS" columnNames="ID" />
+        <addAutoIncrement tableName="USUARIOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="USUARIOS" columnNames="UUID" />
+        <addUniqueConstraint tableName="USUARIOS" columnNames="USERNAME" />
+        <addUniqueConstraint tableName="USUARIOS" columnNames="EMAIL" />
+
+        <insert tableName="USUARIOS">
+            <column name="ID" value="1"></column>
+            <column name="UUID" value="1094L9SBR45R"></column>
+            <column name="USERNAME" value="jcgarnica"></column>
+            <column name="EMAIL" value="carlos.garnica@pelisat.com.mx"></column>
+            <column name="PASSWORD" value="7AF0E0164BF03683077A7228888B1ADB537C4F6B8B7DADC5FEA3C11914F3B9B4"></column>
+            <column name="NOMBRES" value="JUAN CARLOS"></column>
+            <column name="APELLIDOS" value="GARNICA GUTIERREZ"></column>
+            <column name="ROL" type="SUPERUSER"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
