@@ -1,0 +1,128 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2021-09-15-crear-tabla-submodalidades" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="SUBMODALIDADES">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="NOMBRE" type="VARCHAR(500)"></column>
+            <column name="DESCRIPCION" type="VARCHAR(500)"></column>
+            <column name="CATEGORIA" type="INT"></column>
+            <column name="ELIMINADO" type="BIT" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="DATETIME" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="INT"></column>
+            <column name="FECHA_ACTUALIZACION" type="DATETIME" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="INT"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="SUBMODALIDADES" columnNames="ID" />
+        <addAutoIncrement tableName="SUBMODALIDADES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="SUBMODALIDADES" columnNames="UUID" />
+
+        <insert tableName="SUBMODALIDADES">
+            <column name="ID" value="1"></column>
+            <column name="UUID" value="edRCa30Oftzu"></column>
+            <column name="NOMBRE" value="a) De bienes muebles o inmuebles"></column>
+            <column name="DESCRIPCION" value="Submodalidad enfocada para bienes muebles o inmuebles"></column>
+            <column name="CATEGORIA" value="1"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="SUBMODALIDADES">
+            <column name="ID" value="2"></column>
+            <column name="UUID" value="4Q9cHpja5w5T"></column>
+            <column name="NOMBRE" value="b) De personas fisicas"></column>
+            <column name="DESCRIPCION" value="Submodalidad enfocada para proteger personas fisicas"></column>
+            <column name="CATEGORIA" value="1"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="SUBMODALIDADES">
+            <column name="ID" value="3"></column>
+            <column name="UUID" value="5rxAQNXrfptA"></column>
+            <column name="NOMBRE" value="a) Especial (traslado)"></column>
+            <column name="DESCRIPCION" value="Submodalidad enfocada para el traslado de bienes o valores"></column>
+            <column name="CATEGORIA" value="9"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="SUBMODALIDADES">
+            <column name="ID" value="4"></column>
+            <column name="UUID" value="aeKGo7Nl4vwU"></column>
+            <column name="NOMBRE" value="b) Vigilancia (custodia)"></column>
+            <column name="DESCRIPCION" value="Submodalidad enfocada para el traslado de bienes o valores"></column>
+            <column name="CATEGORIA" value="9"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="SUBMODALIDADES">
+            <column name="ID" value="5"></column>
+            <column name="UUID" value="J6Sf7M020LF7"></column>
+            <column name="NOMBRE" value="a) La actividad relacionada, directa o indirectamente, con la instalacion o comercializacion de sistemas de blindaje en todo tipo de vehiculos automotores"></column>
+            <column name="DESCRIPCION" value="Submodalidad enfocada para servicios de seguridad privada"></column>
+            <column name="CATEGORIA" value="13"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="SUBMODALIDADES">
+            <column name="ID" value="6"></column>
+            <column name="UUID" value="XIFdWxQyhwBG"></column>
+            <column name="NOMBRE" value="b) La actividad relacionada, directa o indirectamente, con la instalacion o comercializacion de: equipos, dispositivos, aparatos, sistemas o procedimientos tecnicos especializados, chalecos blindados, prendas de vestir con proteccion balistica, circuitos cerrados de television (CCTV), sistemas de posicionamiento global (GPS), controles de acceso, cercas electrificadas"></column>
+            <column name="DESCRIPCION" value="Submodalidad enfocada para servicios de seguridad privada"></column>
+            <column name="CATEGORIA" value="13"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="SUBMODALIDADES">
+            <column name="ID" value="7"></column>
+            <column name="UUID" value="wuvXIycZ7DHN"></column>
+            <column name="NOMBRE" value="a) De bienes muebles o inmuebles"></column>
+            <column name="DESCRIPCION" value="Submodalidad enfocada para servicios propios de"></column>
+            <column name="CATEGORIA" value="14"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+
+    </changeSet>
+</databaseChangeLog>
+
+
+
+
+
+
+

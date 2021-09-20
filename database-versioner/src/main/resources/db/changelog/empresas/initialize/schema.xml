@@ -16,6 +16,8 @@
             <column name="RFC" type="VARCHAR(13)"></column>
             <column name="CURP" type="VARCHAR(20)"></column>
             <column name="SEXO" type="VARCHAR(10)"></column>
+            <column name="CORREO_ELECTRONICO" type="VARCHAR(255)"></column>
+            <column name="TELEFONO" type="VARCHAR(20)"></column>
             <column name="ELIMINADO" type="bit" defaultValue="0"></column>
             <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
             <column name="CREADO_POR" type="int"></column>

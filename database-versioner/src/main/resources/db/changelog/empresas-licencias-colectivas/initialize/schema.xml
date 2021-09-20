@@ -1,0 +1,36 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2021-09-15-crear-tabla-empresa-licencias-colectivas" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="EMPRESAS_LICENCIAS_COLECTIVAS">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="EMPRESA" type="int"></column>
+            <column name="NUMERO_OFICIO" type="varchar(50)"></column>
+            <column name="MODALIDAD" type="INT"></column>
+            <column name="SUBMODALIDAD" type="INT"></column>
+            <column name="FECHA_INICIO" type="DATE"></column>
+            <column name="FECHA_FIN" type="DATE"></column>
+            <column name="RUTA_DOCUMENTO" type="VARCHAR(255)"></column>
+            <column name="ELIMINADO" type="bit" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="int"></column>
+            <column name="FECHA_ACTUALIZACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="int"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="EMPRESAS_LICENCIAS_COLECTIVAS" columnNames="ID" />
+        <addAutoIncrement tableName="EMPRESAS_LICENCIAS_COLECTIVAS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="EMPRESAS_LICENCIAS_COLECTIVAS" columnNames="UUID" />
+
+        <!-- Setting the relationship -->
+        <addForeignKeyConstraint baseTableName="EMPRESAS_LICENCIAS_COLECTIVAS" baseColumnNames="EMPRESA" constraintName="FK_EMPRESAS_LICENCIAS_COLECTIVAS" referencedTableName="EMPRESAS"
+                                 referencedColumnNames="ID" />
+    </changeSet>
+</databaseChangeLog>

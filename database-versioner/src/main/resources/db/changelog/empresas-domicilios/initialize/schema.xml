@@ -29,12 +29,14 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="EMPRESAS" columnNames="ID" />
-        <addAutoIncrement tableName="EMPRESAS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="EMPRESAS_DOMICILIOS" columnNames="ID" />
+        <addAutoIncrement tableName="EMPRESAS_DOMICILIOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="EMPRESAS" columnNames="UUID" />
-        <addUniqueConstraint tableName="EMPRESAS" columnNames="RFC" />
-        <addUniqueConstraint tableName="EMPRESAS" columnNames="CURP" />
+        <addUniqueConstraint tableName="EMPRESAS_DOMICILIOS" columnNames="UUID" />
+
+        <!-- Setting the relationship -->
+        <addForeignKeyConstraint baseTableName="EMPRESAS_DOMICILIOS" baseColumnNames="EMPRESA" constraintName="FK_EMPRESAS_DOMICILIOS" referencedTableName="EMPRESAS"
+                                 referencedColumnNames="ID" />
     </changeSet>
 </databaseChangeLog>

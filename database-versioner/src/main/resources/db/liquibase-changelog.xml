@@ -8,19 +8,24 @@
     <!-- USUARIOS -->
     <include file="changelog/usuarios/master.xml" relativeToChangelogFile="true"></include>
 
+
+    <!-- CATALOGOS DE MODALIDADES -->
+    <include file="changelog/submodalidades/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/modalidades/master.xml" relativeToChangelogFile="true"></include>
+
     <!-- EMPRESAS -->
-    <!--include file="changelog/empresas/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/empresas/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/empresas-domicilios/master.xml" relativeToChangelogFile="true"></include>
-    <include file="changelog/empresas-licencias-colectivas/master.xml" relativeToChangelogFile="true"></include-->
+    <include file="changelog/empresas-licencias-colectivas/master.xml" relativeToChangelogFile="true"></include>
 
     <!-- CANES -->
-    <!--include file="changelog/canes-razas/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/canes-razas/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/canes-cartillas-vacunacion/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/canes-constancias-salud/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/canes-fotografias/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/canes/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/canes-tipos-adiestramiento/master.xml" relativeToChangelogFile="true"></include>
-    <include file="changelog/canes-adiestramientos/master.xml" relativeToChangelogFile="true"></include-->
+    <include file="changelog/canes-adiestramientos/master.xml" relativeToChangelogFile="true"></include>
 
     <!-- ARMAS -->
     <!--include file="changelog/armas-marcas/master.xml" relativeToChangelogFile="true"></include>

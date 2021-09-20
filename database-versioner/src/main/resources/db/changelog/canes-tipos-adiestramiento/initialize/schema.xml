@@ -3,16 +3,13 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
 
-    <changeSet id="2021-09-18-crear-tabla-canes-constancias-salud" author="carlos.garnica@pelisat.com.mx">
+    <changeSet id="2021-09-18-crear-tabla-canes-tipos-adiestramiento" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="CANES_CONSTANCIAS_SALUD">
+        <createTable tableName="CANES_TIPOS_ADIESTRAMIENTO">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
-            <column name="CAN" type="int"></column>
-            <column name="EXPEDIDO_POR" type="varchar(100)"></column>
-            <column name="CEDULA" type="varchar(20)"></column>
-            <column name="FECHA_EXPEDICION" type="DATE"></column>
-            <column name="RUTA_DOCUMENTO" type="VARCHAR(512)"></column>
+            <column name="NOMBRE" type="VARCHAR(100)"></column>
+            <column name="DESCRIPCION" type="varchar(100)"></column>
             <column name="ELIMINADO" type="bit" defaultValue="0"></column>
             <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
             <column name="CREADO_POR" type="int"></column>
@@ -21,10 +18,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="CANES_CONSTANCIAS_SALUD" columnNames="ID" />
-        <addAutoIncrement tableName="CANES_CONSTANCIAS_SALUD" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="CANES_TIPOS_ADIESTRAMIENTO" columnNames="ID" />
+        <addAutoIncrement tableName="CANES_TIPOS_ADIESTRAMIENTO" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="CANES_CONSTANCIAS_SALUD" columnNames="UUID" />
+        <addUniqueConstraint tableName="CANES_TIPOS_ADIESTRAMIENTO" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

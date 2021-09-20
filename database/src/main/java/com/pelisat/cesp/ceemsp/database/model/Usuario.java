@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Table(name = "USUARIOS")
 @Getter
 @Setter
-public class User extends CommonModel {
+public class Usuario extends CommonModel {
     @Column(name = "USERNAME", nullable = false)
     private String username;
 
@@ -33,4 +33,8 @@ public class User extends CommonModel {
     @Column(name = "ROL")
     @Enumerated(EnumType.STRING)
     RolTypeEnum rol;
+
+    public Usuario() {
+        super();
+    }
 }

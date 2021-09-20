@@ -8,7 +8,7 @@
         <createTable tableName="CANES_RAZAS">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
-            <column name="NOMBRE_RAZA" type="varchar(100)"></column>
+            <column name="NOMBRE" type="varchar(100)"></column>
             <column name="DESCRIPCION" type="varchar(100)"></column>
             <column name="ELIMINADO" type="bit" defaultValue="0"></column>
             <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
@@ -23,5 +23,161 @@
 
         <!-- Setting the unique constraints -->
         <addUniqueConstraint tableName="CANES_RAZAS" columnNames="UUID" />
+
+        <insert tableName="CANES_RAZAS">
+            <column name="ID" value="1"></column>
+            <column name="UUID" value="VY8eCzWoly3I"></column>
+            <column name="NOMBRE" value="Pastor belga"></column>
+            <column name="DESCRIPCION" value="Raza pastor belga"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="CANES_RAZAS">
+            <column name="ID" value="2"></column>
+            <column name="UUID" value="C4s4NRFoBQoR"></column>
+            <column name="NOMBRE" value="Pastor aleman"></column>
+            <column name="DESCRIPCION" value="Raza pastor aleman"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="CANES_RAZAS">
+            <column name="ID" value="3"></column>
+            <column name="UUID" value="Tbqu67b4Z7G0"></column>
+            <column name="NOMBRE" value="Cane corso"></column>
+            <column name="DESCRIPCION" value="Raza cane corso"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="CANES_RAZAS">
+            <column name="ID" value="4"></column>
+            <column name="UUID" value="b3xU7z0jkKMA"></column>
+            <column name="NOMBRE" value="Doberman"></column>
+            <column name="DESCRIPCION" value="Raza doberman"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="CANES_RAZAS">
+            <column name="ID" value="5"></column>
+            <column name="UUID" value="022GN00kVa2G"></column>
+            <column name="NOMBRE" value="Rottweiler"></column>
+            <column name="DESCRIPCION" value="Raza rottweiler"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="CANES_RAZAS">
+            <column name="ID" value="6"></column>
+            <column name="UUID" value="FS0PtBguA7ut"></column>
+            <column name="NOMBRE" value="Bullmastiff"></column>
+            <column name="DESCRIPCION" value="Raza bullmastiff"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="CANES_RAZAS">
+            <column name="ID" value="7"></column>
+            <column name="UUID" value="g76WcJJZ3Ffy"></column>
+            <column name="NOMBRE" value="Labrador retriever"></column>
+            <column name="DESCRIPCION" value="Raza labrador retriever"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="CANES_RAZAS">
+            <column name="ID" value="8"></column>
+            <column name="UUID" value="ssx2fSlC33Q2"></column>
+            <column name="NOMBRE" value="Pastor holandes"></column>
+            <column name="DESCRIPCION" value="Raza pastor holandes"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="CANES_RAZAS">
+            <column name="ID" value="9"></column>
+            <column name="UUID" value="iTrtuwSySbva"></column>
+            <column name="NOMBRE" value="Schnauzer gigante"></column>
+            <column name="DESCRIPCION" value="Raza schnauzer gigante"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="CANES_RAZAS">
+            <column name="ID" value="10"></column>
+            <column name="UUID" value="iSqTgeryspao"></column>
+            <column name="NOMBRE" value="Boxer"></column>
+            <column name="DESCRIPCION" value="Raza boxer"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="CANES_RAZAS">
+            <column name="ID" value="11"></column>
+            <column name="UUID" value="ZNon4q6puTJZ"></column>
+            <column name="NOMBRE" value="Mastin"></column>
+            <column name="DESCRIPCION" value="Raza mastin"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="CANES_RAZAS">
+            <column name="ID" value="12"></column>
+            <column name="UUID" value="i6Tb5fvtsF0r"></column>
+            <column name="NOMBRE" value="Braco aleman"></column>
+            <column name="DESCRIPCION" value="Raza braco aleman"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="CANES_RAZAS">
+            <column name="ID" value="13"></column>
+            <column name="UUID" value="zZ2M44Rrwrxc"></column>
+            <column name="NOMBRE" value="Otro"></column>
+            <column name="DESCRIPCION" value="Otro tipo de razas"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
     </changeSet>
 </databaseChangeLog>
