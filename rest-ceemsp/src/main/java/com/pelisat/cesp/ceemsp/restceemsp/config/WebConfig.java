@@ -14,6 +14,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 @EntityScan("com.pelisat.cesp.ceemsp.database.model")
 @EnableJpaRepositories("com.pelisat.cesp.ceemsp.database.repository")
+@ComponentScan("com.pelisat.cesp.ceemsp.infrastructure.utils")
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry corsRegistry) {

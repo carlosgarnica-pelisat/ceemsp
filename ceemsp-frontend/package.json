@@ -27,6 +27,7 @@
     "ag-grid-angular": "^25.3.0",
     "ag-grid-community": "^25.3.0",
     "bootstrap": "^4.6.0",
+    "bs-stepper": "^1.7.0",
     "email-validator": "^2.0.4",
     "jquery": "^3.6.0",
     "popper.js": "^1.16.1",

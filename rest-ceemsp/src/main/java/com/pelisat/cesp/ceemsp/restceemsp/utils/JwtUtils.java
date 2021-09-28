@@ -2,7 +2,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pelisat.armadurasjalisco.infrastructure.exception.InvalidDataException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

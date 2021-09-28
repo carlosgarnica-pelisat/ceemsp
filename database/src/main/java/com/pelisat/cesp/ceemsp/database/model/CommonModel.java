@@ -19,7 +19,7 @@ public abstract class CommonModel {
     protected String uuid;
 
     @Column(name = "ELIMINADO", nullable = false)
-    protected Boolean isDeleted;
+    protected Boolean eliminado;
 
     @Column(name = "FECHA_CREACION", nullable = false, updatable = false)
     protected LocalDateTime fechaCreacion;
@@ -39,5 +39,65 @@ public abstract class CommonModel {
             this.fechaCreacion = LocalDateTime.now();
         }
         this.uuid = RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS);
+    }
+
+    public static Integer getMaximumUuidChars() {
+        return MAXIMUM_UUID_CHARS;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public Boolean getEliminado() {
+        return eliminado;
+    }
+
+    public void setEliminado(Boolean eliminado) {
+        this.eliminado = eliminado;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public Integer getCreadoPor() {
+        return creadoPor;
+    }
+
+    public void setCreadoPor(Integer creadoPor) {
+        this.creadoPor = creadoPor;
+    }
+
+    public LocalDateTime getFechaActualizacion() {
+        return fechaActualizacion;
+    }
+
+    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
+        this.fechaActualizacion = fechaActualizacion;
+    }
+
+    public Integer getActualizadoPor() {
+        return actualizadoPor;
+    }
+
+    public void setActualizadoPor(Integer actualizadoPor) {
+        this.actualizadoPor = actualizadoPor;
     }
 }

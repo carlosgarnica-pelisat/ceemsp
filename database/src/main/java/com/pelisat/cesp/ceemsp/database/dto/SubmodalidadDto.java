@@ -5,5 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserDto {
+public class SubmodalidadDto {
+    private String nombre;
+    private String descripcion;
 }

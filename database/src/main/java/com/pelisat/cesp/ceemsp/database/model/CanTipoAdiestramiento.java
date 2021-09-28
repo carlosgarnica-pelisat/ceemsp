@@ -11,7 +11,7 @@ import javax.persistence.Table;
 @Table(name = "CANES_TIPOS_ADIESTRAMIENTO")
 @Getter
 @Setter
-public class CanesTiposAdiestramiento extends CommonModel {
+public class CanTipoAdiestramiento extends CommonModel {
     @Column(name = "NOMBRE", nullable = false)
     private String nombre;
 

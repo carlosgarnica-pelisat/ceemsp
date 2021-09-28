@@ -17,4 +17,8 @@ public class CanRaza extends CommonModel {
 
     @Column(name = "DESCRIPCION")
     private String descripcion;
+
+    public CanRaza() {
+        super();
+    }
 }
