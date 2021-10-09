@@ -10,6 +10,8 @@ import java.util.List;
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     Usuario getUsuarioByEmail(String email);
 
+    Usuario getUsuarioByUuidAndEliminadoFalse(String uuid);
+
     @Query("SELECT u FROM Usuario u WHERE u.email = :email AND u.password = :password")
     Usuario getUsuarioByCredential(@Param("email") String email, @Param("password") String password);
 

@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {CanesService} from "../../../_services/canes.service";
+import {ToastService} from "../../../_services/toast.service";
+import {ArmasService} from "../../../_services/armas.service";
 
 @Component({
   selector: 'app-armas',
@@ -25,14 +29,21 @@ export class ArmasComponent implements OnInit {
   uuid: string;
   modal: NgbModalRef;
   frameworkComponents: any;
+  closeResult: string;
   rowDataClicked = {
     uuid: undefined
   };
 
+  crearTipoArmaForm: FormGroup;
 
-  constructor(private modalService: NgbModal) { }
+  constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
+              private armaService: ArmasService, private toastService: ToastService) { }
 
   ngOnInit(): void {
+    this.crearTipoArmaForm = this.formBuilder.group({
+      nombre: ['', Validators.required],
+      descripcion: ['']
+    })
   }
 
   onGridReady(params) {
@@ -52,6 +63,20 @@ export class ArmasComponent implements OnInit {
   }
 
   delete(rowData) {
+
+  }
+
+  mostrarModalCrear(modal) {
+    this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  guardarTipoArma(form) {
 
   }
 

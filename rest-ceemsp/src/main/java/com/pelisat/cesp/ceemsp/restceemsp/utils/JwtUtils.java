@@ -9,16 +9,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
 public class JwtUtils {
-
     private final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
     public String getUserFromToken(String token) throws Exception {
         if(StringUtils.isBlank(token)) {
-            logger.warn("The token is coming as empty.");
+            logger.warn("The token is coming as empty. ");
             throw new InvalidDataException();
         }
 
@@ -32,12 +32,16 @@ public class JwtUtils {
     }
 
     private Map<String, String> decodifyFromJson(String token) throws Exception {
+        Map<String, String> jsonMap = new HashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            return objectMapper.readValue(token, new TypeReference<Map<String, String>>() {});
-        } catch(Exception ex) {
+            jsonMap = objectMapper.readValue(token, new TypeReference<Map<String, String>>() {});
+            return jsonMap;
+        } catch (Exception ex) {
             throw ex;
         }
     }
+
+
 }

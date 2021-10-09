@@ -13,6 +13,8 @@ public interface UsuarioService {
 
     UsuarioDto getUserByUsername(String username);
 
+    UsuarioDto getUserByEmail(String email);
+
     UsuarioDto getUserById(int id);
 
     UsuarioDto updateUserByUuid(String uuid, UsuarioDto usuarioDto, String username);

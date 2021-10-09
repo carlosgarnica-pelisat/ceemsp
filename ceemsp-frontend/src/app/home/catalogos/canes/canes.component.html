@@ -5,7 +5,7 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Canes - Razas</h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">Crear nuevo</button>
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearRazaModal)">Crear nuevo</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Opciones
@@ -51,50 +51,19 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <form [formGroup]="sellingOrderDetailForm">
+          <form [formGroup]="crearCanRazaForm">
             <div class="row">
-              <div class="col-sm-2">
-                <label for="quantity">
-                  <b>Cant. *</b>
+              <div class="col-sm-6">
+                <label for="nombre">
+                  <b>Nombre *</b>
                 </label>
-                <input id="quantity" type="number" class="form-control" placeholder="Decimales" formControlName="quantity" #quantity>
+                <input id="nombre" type="text" class="form-control" placeholder="Ejemplo: Pastor aleman" formControlName="nombre" #nombre>
               </div>
-              <div class="col-sm-3">
-                <label for="item">
-                  <b>Producto *</b>
+              <div class="col-sm-6">
+                <label for="descripcion">
+                  <b>Descripcion</b>
                 </label>
-                <div class="dropdown" id="item">
-                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                    {{item === undefined ? 'Ninguno' : item.name}}
-                  </a>
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <form [formGroup]="itemSearchForm" class="px-4 py-3">
-                      <label for="itemSearchQuery">Buscar por nombre</label>
-                      <input type="text" class="form-control" id="itemSearchQuery">
-                    </form>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" *ngFor="let i of items" (click)="pickProduct(i.uuid)">{{i.name}}</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">Añadir nuevo</a>
-                    <a class="dropdown-item" *ngIf="item !== undefined">Quitar</a>
-                  </div>
-                </div>
-              </div>
-              <div class="col-sm-4">
-                <label for="description">
-                  <b>Descripcion *</b>
-                </label>
-                <input id="description" type="text" class="form-control" placeholder="Informacion relevante del producto" formControlName="description" #description>
-              </div>
-              <div class="col-sm-2">
-                <label for="unitPrice">
-                  <b>P. U. *</b>
-                </label>
-                <input id="unitPrice" type="number" class="form-control" placeholder="Valor del producto" formControlName="unitPrice" #unitPrice>
-              </div>
-              <div class="col-sm-1">
-                <a (click)="saveDetail(sellingOrderDetailForm)" class="fakelink text-primary"><fa-icon [icon]="faPencilAlt"></fa-icon></a>
-                <a (click)="cancelChanges(detail?.uuid)" class="fakelink text-primary" style="margin-left: 5px;"><fa-icon [icon]="faTrash"></fa-icon></a>
+                <input id="descripcion" type="text" class="form-control" placeholder="Ejemplo: Perro con tales caracteristicas" formControlName="descripcion" #descripcion>
               </div>
             </div>
           </form>
@@ -102,6 +71,7 @@
       </div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarCanRaza(crearCanRazaForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>

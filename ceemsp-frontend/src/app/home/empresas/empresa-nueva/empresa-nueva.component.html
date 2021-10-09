@@ -1,1 +1,362 @@
-<p>empresa-nueva works!</p>
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Crear nueva empresa</h1>
+
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <div id="stepper1" class="bs-stepper">
+        <div class="bs-stepper-header">
+          <div class="step" data-target="#test-l-1">
+            <button class="step-trigger">
+              <span class="bs-stepper-circle">1</span>
+              <span class="bs-stepper-label">Empresa</span>
+            </button>
+          </div>
+          <div class="line"></div>
+          <div class="step" data-target="#test-l-2">
+            <button class="step-trigger">
+              <span class="bs-stepper-circle">2</span>
+              <span class="bs-stepper-label">Domicilios</span>
+            </button>
+          </div>
+          <div class="line"></div>
+          <div class="step" data-target="#test-l-3">
+            <button class="step-trigger">
+              <span class="bs-stepper-circle">3</span>
+              <span class="bs-stepper-label">Legal</span>
+            </button>
+          </div>
+          <div class="line"></div>
+          <div class="step" data-target="#test-l-4">
+            <button class="step-trigger">
+              <span class="bs-stepper-circle">4</span>
+              <span class="bs-stepper-label">Formas de Ejecucion</span>
+            </button>
+          </div>
+          <div class="line"></div>
+          <div class="step" data-target="#test-l-5">
+            <button class="step-trigger">
+              <span class="bs-stepper-circle">5</span>
+              <span class="bs-stepper-label">Resumen</span>
+            </button>
+          </div>
+        </div>
+        <div class="bs-stepper-content">
+          <!-- STEP NUMBER 1 - USER INFORMATION -->
+          <div id="test-l-1" class="content">
+            <form [formGroup]="empresaCreacionForm">
+              <div class="form-row">
+                <div class="col-sm-4">
+                  <label for="tipoTramite">
+                    <b>Tipo de tramite *</b>
+                    <span
+                      *ngIf="empresaCreacionForm.controls['tipoTramite'].invalid && (empresaCreacionForm.controls['tipoTramite'].dirty || empresaCreacionForm.controls['tipoTramite'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['tipoTramite'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                  </label>
+                  <select id="tipoTramite" class="form-control" formControlName="tipoTramite" (change)="cambiarTipoTramite($event.target)">
+                    <option value="EAFJAL">TRAMITE FEDERAL (EAFJAL)</option>
+                    <option value="SPSMD">TRAMITE ESTATAL (SPSMD)</option>
+                    <option value="RESPRO">SERVICIOS PROPIOS (RESPRO)</option>
+                  </select>
+                </div>
+                <div class="col-sm-4">
+                  <label for="registro">
+                    <b>Registro (autogenerado) *</b>
+                    <span
+                      *ngIf="empresaCreacionForm.controls['registro'].invalid && (empresaCreacionForm.controls['registro'].dirty || empresaCreacionForm.controls['registro'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['registro'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                  </label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">CESP/EAFJAL/</span>
+                    </div>
+                    <input class="form-control" id="registro" type="text" formControlName="registro" placeholder="Se generara automaticamente">
+                    <div class="input-group-append">
+                      <span class="input-group-text">/2021</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <label for="tipoPersona">
+                    <b>Tipo de persona *</b>
+                    <span
+                      *ngIf="empresaCreacionForm.controls['tipoPersona'].invalid && (empresaCreacionForm.controls['tipoPersona'].dirty || empresaCreacionForm.controls['tipoPersona'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['tipoPersona'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                  </label>
+                  <select id="tipoPersona" class="form-control" formControlName="tipoPersona" (change)="cambiarTipoPersona($event.target)">
+                    <option value="FISICA">FISICA</option>
+                    <option value="MORAL">MORAL</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="col-sm-3">
+                  <label for="razonSocial">
+                    <b>Razon Social *</b>
+                    <span
+                      *ngIf="empresaCreacionForm.controls['razonSocial'].invalid && (empresaCreacionForm.controls['razonSocial'].dirty || empresaCreacionForm.controls['razonSocial'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['razonSocial'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                  </label>
+                  <input class="form-control" id="razonSocial" type="text" formControlName="razonSocial" placeholder="Ejemplo. Hola S.A. de C.V.">
+                </div>
+                <div class="col-sm-3">
+                  <label for="nombreComercial">
+                    <b>Nombre comercial *</b>
+                    <span
+                      *ngIf="empresaCreacionForm.controls['nombreComercial'].invalid && (empresaCreacionForm.controls['nombreComercial'].dirty || empresaCreacionForm.controls['nombreComercial'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['nombreComercial'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                  </label>
+                  <input class="form-control" id="nombreComercial" type="text" formControlName="nombreComercial" placeholder="Ejemplo. Hola Empresa">
+                </div>
+                <div class="col-sm-3" *ngIf="tipoPersona === 'FISICA'">
+                  <label for="curp">
+                    <b>CURP</b>
+                  </label>
+                  <input class="form-control" id="curp" type="text" formControlName="curp" placeholder="Ejemplo. XAXX010101ABCDEFGH">
+                </div>
+                <div class="col-sm-3" *ngIf="tipoPersona === 'FISICA'">
+                  <label for="sexo">
+                    <b>Sexo</b>
+                  </label>
+                  <select id="sexo" class="form-control" formControlName="sexo">
+                    <option>HOMBRE</option>
+                    <option>MUJER</option>
+                  </select>
+                </div>
+              </div>
+              <hr>
+            </form>
+            <div class="row">
+              <div class="col-sm-12">
+                <button (click)="next('PSYCHOLOGISTS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
+                  Domicilios
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2 - Psychologist information -->
+          <div id="test-l-2" class="content">
+
+            <form [formGroup]="empresaDomiciliosForm">
+              <div class="row">
+                <div class="col-sm-6">
+                  <label for="nombre">
+                    <b>Nombre del domicilio *</b>
+                    <span *ngIf="empresaDomiciliosForm.controls['nombre'].invalid && (empresaDomiciliosForm.controls['nombre'].dirty || empresaDomiciliosForm.controls['nombre'].touched)" class="text-danger"> - Requerido</span>
+                  </label>
+                  <input id="nombre" type="text" class="form-control" placeholder="Ej. Sucursal del norte, Matriz" formControlName="nombre" #nombre>
+                </div>
+                <div class="col-sm-3">
+                  <label for="matriz">
+                    <b>Matriz *</b>
+                    <span *ngIf="empresaDomiciliosForm.controls['matriz'].invalid && (empresaDomiciliosForm.controls['matriz'].dirty || empresaDomiciliosForm.controls['matriz'].touched)" class="text-danger"> - Requerido</span>
+                  </label>
+                  <select id="matriz" formControlName="matriz" class="form-control">
+                    <option value="true">SI</option>
+                    <option value="false">NO</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-sm-4">
+                  <label for="domicilio1">
+                    <b>Domicilio * </b>
+                    <span *ngIf="empresaDomiciliosForm.controls['domicilio1'].invalid && (empresaDomiciliosForm.controls['domicilio1'].dirty || empresaDomiciliosForm.controls['domicilio1'].touched)" class="text-danger"> - Requerido</span>
+                  </label>
+                  <input id="domicilio1" type="text" class="form-control" placeholder="Ej. Av. Malecon 1000" formControlName="domicilio1" #address1>
+                </div>
+                <div class="col-sm-4">
+                  <label for="domicilio2">
+                    <b>Colonia *</b>
+                    <span *ngIf="empresaDomiciliosForm.controls['domicilio2'].invalid && (empresaDomiciliosForm.controls['domicilio2'].dirty || empresaDomiciliosForm.controls['domicilio2'].touched)" class="text-danger"> - Requerido</span>
+                  </label>
+                  <input id="domicilio2" type="text" class="form-control" placeholder="Ej. Colonia 20 de Noviembre" formControlName="domicilio2" #domicilio2>
+                </div>
+                <div class="col-sm-4">
+                  <label for="domicilio3">
+                    <b>Municipio *</b>
+                    <span *ngIf="empresaDomiciliosForm.controls['domicilio3'].invalid && (empresaDomiciliosForm.controls['domicilio3'].dirty || empresaDomiciliosForm.controls['domicilio3'].touched)" class="text-danger"> - Requerido</span>
+                  </label>
+                  <input id="domicilio3" type="text" class="form-control" placeholder="Ej. Tonala" formControlName="domicilio3" #domicilio3>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-sm-3">
+                  <label for="estado">
+                    <b>Estado *</b>
+                    <span *ngIf="empresaDomiciliosForm.controls['estado'].invalid && (empresaDomiciliosForm.controls['estado'].dirty || empresaDomiciliosForm.controls['estado'].touched)" class="text-danger"> - Requerido</span>
+                  </label>
+                  <select id="estado" formControlName="estado" class="form-control">
+                    <option value="AGUASCALIENTES">Aguascalientes</option>
+                    <option value="BAJA CALIFORNIA">Baja California</option>
+                    <option value="BAJA CALIFORNIA SUR">Baja California Sur</option>
+                    <option value="CAMPECHE">Campeche</option>
+                    <option value="CIUDAD DE MEXICO">Baja California</option>
+                    <option value="COAHUILA">Coahuila</option>
+                    <option value="COLIMA">Colima</option>
+                    <option value="CHIAPAS">Chiapas</option>
+                    <option value="CHIHUAHUA">Chihuahua</option>
+                    <option value="DURANGO">Durango</option>
+                    <option value="ESTADO DE MEXICO">Estado de Mexico</option>
+                    <option value="GUANAJUATO">Guanajuato</option>
+                    <option value="GUERRERO">Guerrero</option>
+                    <option value="HIDALGO">Hidalgo</option>
+                    <option value="JALISCO">Jalisco</option>
+                    <option value="MICHOACAN">Michoacan</option>
+                    <option value="MORELOS">Morelos</option>
+                    <option value="NAYARIT">Nayarit</option>
+                    <option value="NUEVO LEON">Nuevo Leon</option>
+                    <option value="OAXACA">Oaxaca</option>
+                    <option value="PUEBLA">Puebla</option>
+                    <option value="QUERETARO">Queretaro</option>
+                    <option value="QUINTANA ROO">Quintana Roo</option>
+                    <option value="SAN LUIS POTOSI">San Luis Potosi</option>
+                    <option value="SINALOA">Sinaloa</option>
+                    <option value="SONORA">Sonora</option>
+                    <option value="TABASCO">Tabasco</option>
+                    <option value="TAMAULIPAS">Tamaulipas</option>
+                    <option value="TLAXCALA">Tlaxcala</option>
+                    <option value="VERACRUZ">Veracruz</option>
+                    <option value="YUCATAN">Yucatan</option>
+                    <option value="ZACATECAS">Zacatecas</option>
+                  </select>
+                </div>
+                <div class="col-sm-3">
+                  <label for="pais">
+                    <b>Pais *</b>
+                    <span *ngIf="empresaDomiciliosForm.controls['pais'].invalid && (empresaDomiciliosForm.controls['pais'].dirty || empresaDomiciliosForm.controls['pais'].touched)" class="text-danger"> - Requerido</span>
+                  </label>
+                  <input id="pais" type="text" class="form-control" placeholder="Ej. Mexico" formControlName="pais" #pais>
+                </div>
+                <div class="col-sm-3">
+                  <label for="codigoPostal">
+                    <b>Codigo Postal *</b>
+                    <span *ngIf="empresaDomiciliosForm.controls['codigoPostal'].invalid && (empresaDomiciliosForm.controls['codigoPostal'].dirty || empresaDomiciliosForm.controls['codigoPostal'].touched)" class="text-danger"> - Requerido</span>
+                  </label>
+                  <input id="codigoPostal" type="text" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
+                </div>
+                <div class="col-sm-3">
+                  <label for="domicilio4">
+                    <b>Referencia</b>
+                  </label>
+                  <input id="domicilio4" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-3">
+                  <label for="telefonoFijo">
+                    <b>Telefono Fijo</b>
+                  </label>
+                  <input id="telefonoFijo" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoFijo" #telefonoFijo>
+                </div>
+                <div class="col-sm-3">
+                  <label for="telefonoMovil">
+                    <b>Telefono Movil</b>
+                  </label>
+                  <input id="telefonoMovil" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoMovil" #telefonoMovil>
+                </div>
+                <!--div class="col-sm-3">
+                  <label for="address4">
+                    <b>Foto fachada</b>
+                  </label>
+                  <input id="address4" type="file" class="form-control" formControlName="address4" #address4>
+                </div-->
+              </div>
+            </form>
+            <div class="row" style="margin-top: 20px;">
+              <div class="col-sm-12">
+                <button class="btn btn-outline-primary">Agregar</button>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <table class="table">
+                  <tr>
+                    <td>Nombre</td>
+                    <td>Tipo</td>
+                    <td>Matriz</td>
+                    <td>Domicilio</td>
+                    <td>Colonia</td>
+                    <td>Municipio</td>
+                    <td>Estado</td>
+                    <td>Pais</td>
+                    <td>Codigo postal</td>
+                    <td>Referencia</td>
+                    <td>Telefono fijo</td>
+                    <td>Telefono movil</td>
+                    <td>Foto</td>
+                    <td>Acciones</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-12">
+                <button (click)="previous()" class="btn btn-primary">Anterior:
+                  Empresa
+                </button>
+                <button (click)="next('PSYCHOLOGISTS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
+                  Legal
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3 - SUMMARY -->
+          <div id="test-l-3" class="content">
+            <div class="row">
+              <div class="col-sm-12">
+                <button (click)="previous()" class="btn btn-primary">Anterior:
+                  Domicilios
+                </button>
+                <button (click)="next('PSYCHOLOGISTS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
+                  Legal
+                </button>
+              </div>
+            </div>
+          </div>
+          <div id="test-l-4" class="content">
+            <div class="row">
+              <div class="col-sm-12">
+                <button (click)="previous()" class="btn btn-primary">Anterior:
+                  Legal
+                </button>
+                <button (click)="next('PSYCHOLOGISTS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
+                  Resumen
+                </button>
+              </div>
+            </div>
+          </div>
+          <div id="test-l-5" class="content">
+            <div class="row">
+              <div class="col-sm-12">
+                <button (click)="previous()" class="btn btn-primary">Anterior:
+                  Permisos
+                </button>
+                <button (click)="next('PSYCHOLOGISTS', empresaCreacionForm)" class="btn btn-primary">
+                  Guardar empresa
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

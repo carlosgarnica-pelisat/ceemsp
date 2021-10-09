@@ -92,7 +92,7 @@ public class CanTipoAdiestramientoServiceImpl implements CanTipoAdiestramientoSe
 
         logger.info("Creando nuevo tipo de adiestramiento");
 
-        UsuarioDto usuario = usuarioService.getUserByUsername(username);
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
 
         if(usuario == null) {
             logger.warn("El usuario no existe en la base de datos");

@@ -9,13 +9,15 @@ import {FontAwesomeModule} from "@fortawesome/angular-fontawesome";
 import {AgGridModule} from "ag-grid-angular";
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {JwtInterceptor} from "../../_helpers/jwt.interceptor";
+import {ToastComponent} from "../../_components/toast/toast.component";
 
 
 
 @NgModule({
   declarations: [
     HomeComponent,
-    DashboardComponent
+    DashboardComponent,
+    ToastComponent
   ],
   imports: [
     CommonModule,
@@ -31,6 +33,7 @@ import {JwtInterceptor} from "../../_helpers/jwt.interceptor";
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
   ],
   exports: [
+    ToastComponent
   ]
 })
 export class HomeModule { }

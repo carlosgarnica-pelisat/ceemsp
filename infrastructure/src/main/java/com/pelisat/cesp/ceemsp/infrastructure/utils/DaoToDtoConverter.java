@@ -1,13 +1,7 @@
 package com.pelisat.cesp.ceemsp.infrastructure.utils;
 
-import com.pelisat.cesp.ceemsp.database.dto.CanRazaDto;
-import com.pelisat.cesp.ceemsp.database.dto.CanTipoAdiestramientoDto;
-import com.pelisat.cesp.ceemsp.database.dto.ModalidadDto;
-import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.CanRaza;
-import com.pelisat.cesp.ceemsp.database.model.CanTipoAdiestramiento;
-import com.pelisat.cesp.ceemsp.database.model.Modalidad;
-import com.pelisat.cesp.ceemsp.database.model.Usuario;
+import com.pelisat.cesp.ceemsp.database.dto.*;
+import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -70,5 +64,66 @@ public class DaoToDtoConverter {
         return modelMapper.map(modalidad, ModalidadDto.class);
     }
 
+    public ArmaClaseDto convertDaoToDtoArmaClase(ArmaClase armaClase) {
+        if(armaClase == null) {
+            logger.warn("La clase de arma a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
 
+        return modelMapper.map(armaClase, ArmaClaseDto.class);
+    }
+
+    public ArmaMarcaDto convertDaoToDtoArmaMarca(ArmaMarca armaMarca) {
+        if(armaMarca == null) {
+            logger.warn("La marca del arma a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(armaMarca, ArmaMarcaDto.class);
+    }
+
+    public ArmaTipoDto convertDaoToDtoArmaTipo(ArmaTipo armaTipo) {
+        if(armaTipo == null) {
+            logger.warn("El tipo del arma a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(armaTipo, ArmaTipoDto.class);
+    }
+
+    public VehiculoMarcaDto convertDaoToDtoVehiculoMarca(VehiculoMarca vehiculoMarca) {
+        if(vehiculoMarca == null) {
+            logger.warn("La marca del vehiculo a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(vehiculoMarca, VehiculoMarcaDto.class);
+    }
+
+    public VehiculoSubmarcaDto convertDaoToDtoVehiculoSubmarca(VehiculoSubmarca vehiculoSubmarca) {
+        if(vehiculoSubmarca == null) {
+            logger.warn("La submarca del vehiculo a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(vehiculoSubmarca, VehiculoSubmarcaDto.class);
+    }
+
+    public VehiculoTipoDto convertDaoToDtoVehiculoTipo(VehiculoTipo vehiculoTipo) {
+        if(vehiculoTipo == null) {
+            logger.warn("El tipo del vehiculo a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(vehiculoTipo, VehiculoTipoDto.class);
+    }
+
+    public EmpresaDto convertDaoToDtoEmpresa(Empresa empresa) {
+        if(empresa == null) {
+            logger.warn("La empresa a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresa, EmpresaDto.class);
+    }
 }

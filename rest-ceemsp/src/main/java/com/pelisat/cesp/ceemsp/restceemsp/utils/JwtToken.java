@@ -17,7 +17,7 @@ public class JwtToken {
     private static final long serialVersionUID = -2550185165626007488L;
     public static final int JWT_TOKEN_VALIDITY = 5*60*60;
 
-    @Value("{bcrypt}Ceem5pEmpr")
+    @Value("{bcrypt}$Arm4dur45")
     private String secret;
 
     public String getUsernameFromToken(String token) {
@@ -57,4 +57,6 @@ public class JwtToken {
         final String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
+
+
 }

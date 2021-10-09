@@ -29,6 +29,8 @@ import { BuzonSalidaComponent } from './home/comunicados/buzon-salida/buzon-sali
 import { VisitasComponent } from './home/visitas/visitas.component';
 import { ReporteoComponent } from './home/reporteo/reporteo.component';
 import { ModalidadesComponent } from './home/catalogos/modalidades/modalidades.component';
+import { ToastComponent } from './_components/toast/toast.component';
+import { AgButtonComponent } from './_components/ag-button/ag-button.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +51,8 @@ import { ModalidadesComponent } from './home/catalogos/modalidades/modalidades.c
     BuzonSalidaComponent,
     VisitasComponent,
     ReporteoComponent,
-    ModalidadesComponent
+    ModalidadesComponent,
+    AgButtonComponent
   ],
   imports: [
     BrowserModule,

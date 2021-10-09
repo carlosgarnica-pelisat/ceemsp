@@ -19,7 +19,7 @@ public abstract class CommonModel {
     protected String uuid;
 
     @Column(name = "ELIMINADO", nullable = false)
-    protected Boolean eliminado;
+    protected boolean eliminado;
 
     @Column(name = "FECHA_CREACION", nullable = false, updatable = false)
     protected LocalDateTime fechaCreacion;

@@ -1,8 +1,6 @@
 package com.pelisat.cesp.ceemsp.infrastructure.utils;
 
-import com.pelisat.cesp.ceemsp.database.dto.CanRazaDto;
-import com.pelisat.cesp.ceemsp.database.dto.CanTipoAdiestramientoDto;
-import com.pelisat.cesp.ceemsp.database.dto.ModalidadDto;
+import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -86,6 +84,112 @@ public class DtoToDaoConverter {
 
         return modalidad;
     }
+
+    public ArmaClase convertDtoToDaoArmaClase(ArmaClaseDto armaClaseDto) {
+        if(armaClaseDto == null) {
+            logger.warn("La clase del arma viene como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        ArmaClase armaClase = modelMapper.map(armaClaseDto, ArmaClase.class);
+        if(StringUtils.isBlank(armaClase.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            armaClase.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return armaClase;
+    }
+
+    public ArmaMarca convertDtoToDaoArmaMarca(ArmaMarcaDto armaMarcaDto) {
+        if(armaMarcaDto == null) {
+            logger.warn("La marca del arma viene como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        ArmaMarca armaMarca = modelMapper.map(armaMarcaDto, ArmaMarca.class);
+        if(StringUtils.isBlank(armaMarca.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            armaMarca.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return armaMarca;
+    }
+
+    public ArmaTipo convertDtoToDaoArmaTipo(ArmaTipoDto armaTipoDto) {
+        if(armaTipoDto == null) {
+            logger.warn("El tipo del arma viene como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        ArmaTipo armaTipo = modelMapper.map(armaTipoDto, ArmaTipo.class);
+        if(StringUtils.isBlank(armaTipo.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            armaTipo.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return armaTipo;
+    }
+
+    public VehiculoMarca convertDtoToDaoVehiculoMarca(VehiculoMarcaDto vehiculoMarcaDto) {
+        if(vehiculoMarcaDto == null) {
+            logger.warn("La marca del vehiculo viene como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        VehiculoMarca vehiculoMarca = modelMapper.map(vehiculoMarcaDto, VehiculoMarca.class);
+        if(StringUtils.isBlank(vehiculoMarca.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            vehiculoMarca.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return vehiculoMarca;
+    }
+
+    public VehiculoSubmarca convertDtoToDaoVehiculoSubmarca(VehiculoSubmarcaDto vehiculoSubmarcaDto) {
+        if(vehiculoSubmarcaDto == null) {
+            logger.warn("La submarca del vehiculo viene como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        VehiculoSubmarca vehiculoSubmarca = modelMapper.map(vehiculoSubmarcaDto, VehiculoSubmarca.class);
+        if(StringUtils.isBlank(vehiculoSubmarca.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            vehiculoSubmarca.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return vehiculoSubmarca;
+    }
+
+    public VehiculoTipo convertDtoToDaoVehiculoTipo(VehiculoTipoDto vehiculoTipoDto) {
+        if(vehiculoTipoDto == null) {
+            logger.warn("El tipo de vehiculo viene como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        VehiculoTipo vehiculoTipo = modelMapper.map(vehiculoTipoDto, VehiculoTipo.class);
+        if(StringUtils.isBlank(vehiculoTipo.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            vehiculoTipo.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return vehiculoTipo;
+    }
+
+    public Empresa convertDtoToDaoEmpresa(EmpresaDto empresaDto) {
+        if(empresaDto == null) {
+            logger.warn("La empresa viene como vacia o nula");
+            throw new InvalidDataException();
+        }
+
+        Empresa empresa = modelMapper.map(empresaDto, Empresa.class);
+        if(StringUtils.isBlank(empresa.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresa.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresa;
+    }
+
 
 
 }

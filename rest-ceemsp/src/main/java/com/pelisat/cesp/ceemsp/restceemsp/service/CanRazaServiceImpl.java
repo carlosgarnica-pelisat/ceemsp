@@ -94,7 +94,7 @@ public class CanRazaServiceImpl implements CanRazaService {
 
         CanRaza canRaza = dtoToDaoConverter.convertDtoToDaoCanRaza(canRazaDto);
 
-        UsuarioDto usuario = usuarioService.getUserByUsername(username);
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
 
         if(usuario == null) {
             logger.warn("El usuario no existe en la base de datos");

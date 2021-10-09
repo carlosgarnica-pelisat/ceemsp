@@ -1,5 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import {ModalDismissReasons, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
+import {Component, OnInit} from '@angular/core';
+import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {CanesService} from "../../../../_services/canes.service";
+import {ToastService} from "../../../../_services/toast.service";
+import CanEntrenamiento from "../../../../_models/CanEntrenamiento";
+import {ToastType} from "../../../../_enums/ToastType";
 
 @Component({
   selector: 'app-canes-entrenamientos',
@@ -25,13 +30,31 @@ export class CanesEntrenamientosComponent implements OnInit {
   uuid: string;
   modal: NgbModalRef;
   frameworkComponents: any;
+  closeResult: string;
   rowDataClicked = {
     uuid: undefined
   };
 
-  constructor() { }
+  crearTipoAdiestramientoForm: FormGroup;
+
+  constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
+              private canesService: CanesService, private toastService: ToastService) { }
 
   ngOnInit(): void {
+    this.canesService.getAllEntrenamientos().subscribe((response: CanEntrenamiento[]) => {
+      this.rowData = response
+    }, (error => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los entrenamientos. ${error}`,
+        ToastType.ERROR
+      )
+    }))
+
+    this.crearTipoAdiestramientoForm = this.formBuilder.group({
+      nombre: ['', Validators.required],
+      descripcion: ['']
+    })
   }
 
   onGridReady(params) {
@@ -52,6 +75,48 @@ export class CanesEntrenamientosComponent implements OnInit {
 
   delete(rowData) {
 
+  }
+
+  mostrarModalCrear(modal) {
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  guardarCanEntrenamiento(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que no han sido llenados",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let value = form.value;
+
+    let canEntrenamiento: CanEntrenamiento = new CanEntrenamiento();
+    canEntrenamiento.nombre = value.nombre;
+    canEntrenamiento.descripcion = value.descripcion;
+
+    this.canesService.saveEntrenamiento(canEntrenamiento).subscribe((response) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "El entrenamiento se ha guardado con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload()
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El entrenamiento no se ha podido guardar. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
   }
 
   private getDismissReason(reason: any): string {

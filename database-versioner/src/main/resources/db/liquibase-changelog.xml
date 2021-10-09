@@ -28,16 +28,16 @@
     <include file="changelog/canes-adiestramientos/master.xml" relativeToChangelogFile="true"></include>
 
     <!-- ARMAS -->
-    <!--include file="changelog/armas-marcas/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/armas-marcas/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/armas-clases/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/armas-tipos/master.xml" relativeToChangelogFile="true"></include>
-    <include file="changelog/armas/master.xml" relativeToChangelogFile="true"></include-->
+    <!--include file="changelog/armas/master.xml" relativeToChangelogFile="true"></include-->
 
     <!-- VEHICULOS -->
-<!--    <include file="changelog/vehiculos-tipos/master.xml" relativeToChangelogFile="true"></include>-->
-<!--    <include file="changelog/vehiculos-marcas/master.xml" relativeToChangelogFile="true"></include>-->
-<!--    <include file="changelog/vehiculos-submarcas/master.xml" relativeToChangelogFile="true"></include>-->
-<!--    <include file="changelog/vehiculos/master.xml" relativeToChangelogFile="true"></include>-->
+    <include file="changelog/vehiculos-tipos/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/vehiculos-marcas/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/vehiculos-submarcas/master.xml" relativeToChangelogFile="true"></include>
+    <!--include file="changelog/vehiculos/master.xml" relativeToChangelogFile="true"></include-->
 <!--    <include file="changelog/vehiculos-fotografias/master.xml" relativeToChangelogFile="true"></include>-->
 
 </databaseChangeLog>

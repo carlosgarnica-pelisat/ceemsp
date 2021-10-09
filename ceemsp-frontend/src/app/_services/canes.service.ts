@@ -32,15 +32,15 @@ export class CanesService {
 
   // Operaciones para entrenamientos
   getAllEntrenamientos() {
-    return this.http.get(`${this.uri}/catalogos/canes/entrenamientos`)
+    return this.http.get(`${this.uri}/catalogos/canes/adiestramientos`)
   }
 
   getEntrenamientoByUuid(uuid: String) {
-    return this.http.get(`${this.uri}/catalogos/canes/entrenamientos/${uuid}`)
+    return this.http.get(`${this.uri}/catalogos/canes/adiestramientos/${uuid}`)
   }
 
   saveEntrenamiento(canEntrenamiento: CanEntrenamiento) {
-    return this.http.post(`${this.uri}/catalogos/canes/entrenamientos`, canEntrenamiento)
+    return this.http.post(`${this.uri}/catalogos/canes/adiestramientos`, canEntrenamiento)
   }
 
   deleteEntrenamientoByUuid(uuid: String) {
