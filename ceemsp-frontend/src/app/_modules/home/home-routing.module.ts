@@ -18,6 +18,15 @@ import {VisitasComponent} from "../../home/visitas/visitas.component";
 import {IncidenciasComponent} from "../../home/incidencias/incidencias.component";
 import {ReporteoComponent} from "../../home/reporteo/reporteo.component";
 import {ConfiguracionComponent} from "../../home/configuracion/configuracion.component";
+import {ModalidadesComponent} from "../../home/catalogos/modalidades/modalidades.component";
+import {EmpresaDetallesComponent} from "../../home/empresas/empresa-detalles/empresa-detalles.component";
+import {EmpresaDomiciliosComponent} from "../../home/empresas/empresa-domicilios/empresa-domicilios.component";
+import {EmpresaLegalComponent} from "../../home/empresas/empresa-legal/empresa-legal.component";
+import {EmpresaLicenciasComponent} from "../../home/empresas/empresa-licencias/empresa-licencias.component";
+import {EmpresaCanesComponent} from "../../home/empresas/empresa-canes/empresa-canes.component";
+import {EmpresaArmasComponent} from "../../home/empresas/empresa-armas/empresa-armas.component";
+import {EmpresaVehiculosComponent} from "../../home/empresas/empresa-vehiculos/empresa-vehiculos.component";
+import {EmpresaIncidenciasComponent} from "../../home/empresas/empresa-incidencias/empresa-incidencias.component";
 
 
 const routes: Routes = [
@@ -38,6 +47,38 @@ const routes: Routes = [
       {
         path: 'empresas/nueva',
         component: EmpresaNuevaComponent
+      },
+      {
+        path: 'empresas/:uuid',
+        component: EmpresaDetallesComponent
+      },
+      {
+        path: 'empresas/:uuid/domicilios',
+        component: EmpresaDomiciliosComponent
+      },
+      {
+        path: 'empresas/:uuid/legal',
+        component: EmpresaLegalComponent
+      },
+      {
+        path: 'empresas/:uuid/licencias',
+        component: EmpresaLicenciasComponent
+      },
+      {
+        path: 'empresas/:uuid/canes',
+        component: EmpresaCanesComponent
+      },
+      {
+        path: 'empresas/:uuid/armas',
+        component: EmpresaArmasComponent
+      },
+      {
+        path: 'empresas/:uuid/vehiculos',
+        component: EmpresaVehiculosComponent
+      },
+      {
+        path: 'empresas/:uuid/incidencias',
+        component: EmpresaIncidenciasComponent
       },
 
       // Catalogos
@@ -71,6 +112,11 @@ const routes: Routes = [
       {
         path: 'catalogos/armas/clases',
         component: ArmasClasesComponent
+      },
+      // Modalidades
+      {
+        path: 'catalogos/modalidades',
+        component: ModalidadesComponent
       },
 
       // Comunicados

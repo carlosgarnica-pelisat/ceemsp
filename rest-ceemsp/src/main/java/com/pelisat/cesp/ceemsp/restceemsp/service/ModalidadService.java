@@ -7,6 +7,8 @@ import java.util.List;
 public interface ModalidadService {
     List<ModalidadDto> obtenerModalidades();
 
+    List<ModalidadDto> obtenerModalidadesFiltradoPor(String filterBy, String filterValue);
+
     ModalidadDto obtenerModalidadPorUuid(String uuid);
 
     ModalidadDto obtenerModalidadPorId(Integer id);

@@ -190,6 +190,19 @@ public class DtoToDaoConverter {
         return empresa;
     }
 
+    public EmpresaDomicilio convertDtoToDaoEmpresaDomicilio(EmpresaDomicilioDto empresaDomicilioDto) {
+        if(empresaDomicilioDto == null) {
+            logger.warn("El domicilio de la empresa viene como vacia o nula");
+            throw new InvalidDataException();
+        }
 
+        EmpresaDomicilio empresaDomicilio = modelMapper.map(empresaDomicilioDto, EmpresaDomicilio.class);
+        if(StringUtils.isBlank(empresaDomicilio.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresaDomicilio.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaDomicilio;
+    }
 
 }

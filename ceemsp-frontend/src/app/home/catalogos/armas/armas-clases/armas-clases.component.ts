@@ -63,8 +63,6 @@ export class ArmasClasesComponent implements OnInit {
   }
 
   checkForDetails(data) {
-    //this.modal = this.modalService.open(showCustomerDetailsModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
-
     this.uuid = data.uuid;
   }
 

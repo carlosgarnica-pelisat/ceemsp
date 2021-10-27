@@ -31,6 +31,14 @@ import { ReporteoComponent } from './home/reporteo/reporteo.component';
 import { ModalidadesComponent } from './home/catalogos/modalidades/modalidades.component';
 import { ToastComponent } from './_components/toast/toast.component';
 import { AgButtonComponent } from './_components/ag-button/ag-button.component';
+import { EmpresaDetallesComponent } from './home/empresas/empresa-detalles/empresa-detalles.component';
+import { EmpresaDomiciliosComponent } from './home/empresas/empresa-domicilios/empresa-domicilios.component';
+import { EmpresaLegalComponent } from './home/empresas/empresa-legal/empresa-legal.component';
+import { EmpresaLicenciasComponent } from './home/empresas/empresa-licencias/empresa-licencias.component';
+import { EmpresaCanesComponent } from './home/empresas/empresa-canes/empresa-canes.component';
+import { EmpresaArmasComponent } from './home/empresas/empresa-armas/empresa-armas.component';
+import { EmpresaVehiculosComponent } from './home/empresas/empresa-vehiculos/empresa-vehiculos.component';
+import { EmpresaIncidenciasComponent } from './home/empresas/empresa-incidencias/empresa-incidencias.component';
 
 @NgModule({
   declarations: [
@@ -52,7 +60,15 @@ import { AgButtonComponent } from './_components/ag-button/ag-button.component';
     VisitasComponent,
     ReporteoComponent,
     ModalidadesComponent,
-    AgButtonComponent
+    AgButtonComponent,
+    EmpresaDetallesComponent,
+    EmpresaDomiciliosComponent,
+    EmpresaLegalComponent,
+    EmpresaLicenciasComponent,
+    EmpresaCanesComponent,
+    EmpresaArmasComponent,
+    EmpresaVehiculosComponent,
+    EmpresaIncidenciasComponent
   ],
   imports: [
     BrowserModule,

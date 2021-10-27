@@ -17,6 +17,7 @@
     <include file="changelog/empresas/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/empresas-domicilios/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/empresas-licencias-colectivas/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/empresas-modalidades/master.xml" relativeToChangelogFile="true"></include>
 
     <!-- CANES -->
     <include file="changelog/canes-razas/master.xml" relativeToChangelogFile="true"></include>
@@ -37,7 +38,7 @@
     <include file="changelog/vehiculos-tipos/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/vehiculos-marcas/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/vehiculos-submarcas/master.xml" relativeToChangelogFile="true"></include>
-    <!--include file="changelog/vehiculos/master.xml" relativeToChangelogFile="true"></include-->
+    <include file="changelog/vehiculos/master.xml" relativeToChangelogFile="true"></include>
 <!--    <include file="changelog/vehiculos-fotografias/master.xml" relativeToChangelogFile="true"></include>-->
 
 </databaseChangeLog>

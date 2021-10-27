@@ -1,0 +1,42 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2021-10-26-crear-tabla-vehiculos" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="VEHICULOS">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="EMPRESA" type="INT"></column>
+            <column name="TIPO" type="INT"></column>
+            <column name="MARCA" type="INT"></column>
+            <column name="SUBMARCA" type="INT"></column>
+            <column name="ANIO" type="VARCHAR(4)"></column>
+            <column name="COLOR" type="VARCHAR(20)"></column>
+            <column name="ROTULADO" type="bit" defaultValue="0"></column>
+            <column name="PLACAS" type="VARCHAR(15)"></column>
+            <column name="SERIE" type="VARCHAR(30)"></column>
+            <column name="ORIGEN" type="VARCHAR(20)"></column>
+            <column name="BLINDADO" type="BIT" defaultValue="0"></column>
+            <column name="SERIE_BLINDAJE" type="VARCHAR(30)"></column>
+            <column name="FECHA_BLINDAJE" type="DATETIME"></column>
+            <column name="NUMERO_HOLOGRAMA" type="VARCHAR(30)"></column>
+            <column name="PLACA_METALICA" type="VARCHAR(30)"></column>
+            <column name="EMPRESA_BLINDAJE" type="VARCHAR(50)"></column>
+            <column name="NIVEL_BLINDAJE" type="VARCHAR(50)"></column>
+            <column name="ELIMINADO" type="bit" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="int"></column>
+            <column name="FECHA_ACTUALIZACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="int"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="VEHICULOS" columnNames="ID" />
+        <addAutoIncrement tableName="VEHICULOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="VEHICULOS" columnNames="UUID" />
+    </changeSet>
+</databaseChangeLog>

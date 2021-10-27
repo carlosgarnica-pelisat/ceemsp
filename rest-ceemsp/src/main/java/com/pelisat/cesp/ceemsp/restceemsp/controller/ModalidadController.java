@@ -3,6 +3,8 @@ package com.pelisat.cesp.ceemsp.restceemsp.controller;
 import com.pelisat.cesp.ceemsp.database.dto.ModalidadDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.ModalidadService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +26,17 @@ public class ModalidadController {
     }
 
     @GetMapping(value = MODALIDAD_URI, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<ModalidadDto> obtenerModalidades() {
-        return modalidadService.obtenerModalidades();
+    public List<ModalidadDto> obtenerModalidades(
+            @RequestParam(name = "filterBy") String filterBy,
+            @RequestParam(name = "filterValue") String filterValue
+    ) {
+        if(StringUtils.isBlank(filterBy)) {
+            return modalidadService.obtenerModalidades();
+        }
+        return modalidadService.obtenerModalidadesFiltradoPor(
+                StringEscapeUtils.escapeXml10(filterBy),
+                StringEscapeUtils.escapeXml11(filterValue)
+        );
     }
 
     @GetMapping(value = MODALIDAD_URI + "/{modalidadUuid}", produces = MediaType.APPLICATION_JSON_VALUE)

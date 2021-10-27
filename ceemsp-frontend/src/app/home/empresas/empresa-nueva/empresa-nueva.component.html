@@ -75,11 +75,11 @@
                   </label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text">CESP/EAFJAL/</span>
+                      <span class="input-group-text">CESP/{{tipoTranite}}/</span>
                     </div>
                     <input class="form-control" id="registro" type="text" formControlName="registro" placeholder="Se generara automaticamente">
                     <div class="input-group-append">
-                      <span class="input-group-text">/2021</span>
+                      <span class="input-group-text">/{{year}}</span>
                     </div>
                   </div>
                 </div>
@@ -129,16 +129,117 @@
                     <b>Sexo</b>
                   </label>
                   <select id="sexo" class="form-control" formControlName="sexo">
-                    <option>HOMBRE</option>
-                    <option>MUJER</option>
+                    <option value="MASCULINO">MASCULINO</option>
+                    <option value="FEMENINO">FEMENINO</option>
                   </select>
                 </div>
               </div>
-              <hr>
+              <div class="form-row">
+                <div class="col-sm-4">
+                  <label for="rfc">
+                    <b>RFC *</b>
+                    <span
+                      *ngIf="empresaCreacionForm.controls['rfc'].invalid && (empresaCreacionForm.controls['rfc'].dirty || empresaCreacionForm.controls['rfc'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['rfc'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                  </label>
+                  <input class="form-control" id="rfc" type="text" formControlName="rfc" placeholder="Ejemplo. XAXX010101AAA">
+                </div>
+                <div class="col-sm-4">
+                  <label for="correoElectronico">
+                    <b>Correo principal *</b>
+                    <span
+                      *ngIf="empresaCreacionForm.controls['correoElectronico'].invalid && (empresaCreacionForm.controls['correoElectronico'].dirty || empresaCreacionForm.controls['correoElectronico'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['correoElectronico'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                  </label>
+                  <input class="form-control" id="correoElectronico" type="text" formControlName="correoElectronico" placeholder="Ejemplo hola@hola.com">
+                </div>
+                <div class="col-sm-4">
+                  <label for="telefono">
+                    <b>Telefono *</b>
+                    <span
+                      *ngIf="empresaCreacionForm.controls['telefono'].invalid && (empresaCreacionForm.controls['telefono'].dirty || empresaCreacionForm.controls['telefono'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['telefono'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                  </label>
+                  <input class="form-control" id="telefono" type="text" formControlName="telefono" placeholder="Ejemplo 3312345678">
+                </div>
+              </div>
             </form>
+            <form [formGroup]="empresaModalidadForm" style="margin-top: 10px;">
+              <div class="form-row">
+                <div class="col-sm-2">
+                  <label for="modalidad">
+                    <b>Modalidad *</b>
+                    <span
+                      *ngIf="empresaModalidadForm.controls['modalidad'].invalid && (empresaModalidadForm.controls['modalidad'].dirty || empresaModalidadForm.controls['modalidad'].touched)">
+                      <i *ngIf="empresaModalidadForm.controls['modalidad'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                  </label>
+                  <select id="modalidad" class="form-control" formControlName="modalidad" (change)="seleccionarModalidad($event.target)">
+                    <option *ngFor="let m of modalidades" value="{{m?.uuid}}">{{m?.nombre}}</option>
+                  </select>
+                </div>
+                <div class="col-sm-2" *ngIf="modalidad?.tieneSubmodalidades">
+                  <label for="submodalidad">
+                    <b>Submodalidad</b>
+                  </label>
+                  <select id="submodalidad" class="form-control" formControlName="submodalidad">
+                    <option *ngFor="let s of modalidad?.submodalidades" value="{{s?.uuid}}">{{s?.nombre}}</option>
+                  </select>
+                </div>
+                <div class="col-sm-2" *ngIf="modalidad?.tipo === 'EAFJAL'">
+                  <label for="numeroRegistroFederal">
+                    <b>No. de Registro Federal</b>
+                  </label>
+                  <input class="form-control" id="numeroRegistroFederal" type="text" formControlName="numeroRegistroFederal" placeholder="Ejemplo. 156861215">
+                </div>
+                <div class="col-sm-2" *ngIf="modalidad?.tipo === 'EAFJAL'">
+                  <label for="fechaInicio">
+                    <b>Fecha de Inicio</b>
+                  </label>
+                  <input class="form-control" id="fechaInicio" type="date" formControlName="fechaInicio" placeholder="Fecha inicio">
+                </div>
+                <div class="col-sm-2" *ngIf="modalidad?.tipo === 'EAFJAL'">
+                  <label for="fechaFin">
+                    <b>Fecha de Fin</b>
+                  </label>
+                  <input class="form-control" id="fechaFin" type="date" formControlName="fechaFin" placeholder="Fecha fin">
+                </div>
+                <div class="col-sm-2" style="margin-top: 8px;">
+                  <br>
+                  <button class="btn btn-outline-primary" (click)="agregarModalidad(empresaModalidadForm)">
+                    Agregar
+                  </button>
+                </div>
+              </div>
+            </form>
+            <div class="row" style="margin-top: 20px;">
+              <div class="col-sm-12">
+                <table class="table">
+                  <tr>
+                    <td><b>Modalidad</b></td>
+                    <td><b>Submodalidad</b></td>
+                    <td><b>No. de Registro Federal</b></td>
+                    <td><b>Fecha de Inicio</b></td>
+                    <td><b>Fecha de Fin</b></td>
+                    <td><b>Acciones</b></td>
+                  </tr>
+                  <tr *ngFor="let m of empresaModalidades">
+                    <td>{{m.modalidad.nombre.substring(0, 40)}}</td>
+                    <td>{{m.submodalidad?.nombre.substring(0, 40)}}</td>
+                    <td>{{m.numeroRegistroFederal}}</td>
+                    <td>{{m.fechaInicio}}</td>
+                    <td>{{m.fechaFin}}</td>
+                    <td></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
             <div class="row">
               <div class="col-sm-12">
-                <button (click)="next('PSYCHOLOGISTS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
+                <button (click)="next('DOMICILIOS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
                   Domicilios
                 </button>
               </div>

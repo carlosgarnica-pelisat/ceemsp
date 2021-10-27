@@ -1,0 +1,75 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Detalles de empresa</h1>
+    <div class="btn-group">
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">Editar</button>
+      <div class="dropdown">
+        <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Opciones
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#">Agregar modalidad</a>
+          <a class="dropdown-item" href="#">Descargar ficha informativa</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <div class="col-sm-3">
+      <div class="list-group">
+        <a routerLink="/home/empresas/{{empresa?.uuid}}" class="list-group-item list-group-item-action active">
+          Detalles
+        </a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/licencias" class="list-group-item list-group-item-action">Licencias colectivas</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/canes" class="list-group-item list-group-item-action">Canes</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/armas" class="list-group-item list-group-item-action">Armas</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
+      </div>
+    </div>
+    <div class="col-sm-9" style="background: white">
+      <table class="table">
+        <tr>
+          <td><b>Registro</b></td>
+          <td>{{empresa?.registro}}</td>
+        </tr>
+        <tr>
+          <td><b>Nombre comercial</b></td>
+          <td>{{empresa?.nombreComercial}}</td>
+        </tr>
+        <tr>
+          <td><b>Razon social</b></td>
+          <td>{{empresa?.razonSocial}}</td>
+        </tr>
+        <tr>
+          <td><b>RFC</b></td>
+          <td>{{empresa?.rfc}}</td>
+        </tr>
+        <tr>
+          <td><b>Tipo de persona</b></td>
+          <td>{{empresa?.tipoPersona}}</td>
+        </tr>
+        <tr>
+          <td><b>Tipo de tramite</b></td>
+          <td>{{empresa?.tipoTramite}}</td>
+        </tr>
+
+        <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
+          <td><b>CURP</b></td>
+          <td>{{empresa?.curp}}</td>
+        </tr>
+        <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
+          <td><b>Sexo</b></td>
+          <td>{{empresa?.sexo}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

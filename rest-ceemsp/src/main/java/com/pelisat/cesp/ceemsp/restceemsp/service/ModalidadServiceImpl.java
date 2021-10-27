@@ -1,15 +1,19 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.ModalidadDto;
+import com.pelisat.cesp.ceemsp.database.dto.SubmodalidadDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CanTipoAdiestramiento;
 import com.pelisat.cesp.ceemsp.database.model.Modalidad;
+import com.pelisat.cesp.ceemsp.database.model.Submodalidad;
 import com.pelisat.cesp.ceemsp.database.repository.ModalidadRepository;
 import com.pelisat.cesp.ceemsp.database.repository.SubmodalidadRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoTramiteEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,17 +28,17 @@ import java.util.stream.Collectors;
 public class ModalidadServiceImpl implements ModalidadService {
     private final Logger logger = LoggerFactory.getLogger(ModalidadService.class);
     private final ModalidadRepository modalidadRepository;
-    private final SubmodalidadRepository submodalidadRepository;
+    private final SubmodalidadService submodalidadService;
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
     private final UsuarioService usuarioService;
 
     @Autowired
-    public ModalidadServiceImpl(ModalidadRepository modalidadRepository, SubmodalidadRepository submodalidadRepository,
+    public ModalidadServiceImpl(ModalidadRepository modalidadRepository, SubmodalidadService submodalidadService,
                                 DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                                 UsuarioService usuarioService) {
         this.modalidadRepository = modalidadRepository;
-        this.submodalidadRepository = submodalidadRepository;
+        this.submodalidadService = submodalidadService;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.usuarioService = usuarioService;
@@ -47,6 +51,33 @@ public class ModalidadServiceImpl implements ModalidadService {
         return modalidades.stream()
                 .map(modalidad -> daoToDtoConverter.convertDaoToDtoModalidad(modalidad))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ModalidadDto> obtenerModalidadesFiltradoPor(String filterBy, String filterValue) {
+        if(StringUtils.isBlank(filterBy) || StringUtils.isBlank(filterValue)) {
+            logger.warn("Any of both filterby or filtervalue are coming as null or empty");
+            throw new InvalidDataException();
+        }
+
+        switch(filterBy) {
+            case "TIPO":
+                TipoTramiteEnum tipoTramite = TipoTramiteEnum.valueOf(filterValue);
+                List<Modalidad> modalidades = modalidadRepository.findAllByTipoAndEliminadoFalse(tipoTramite);
+                List<ModalidadDto> modalidadDtos = modalidades.stream()
+                        .map(daoToDtoConverter::convertDaoToDtoModalidad)
+                        .collect(Collectors.toList());
+
+                modalidadDtos.forEach(m -> {
+                    List<SubmodalidadDto> submodalidades = submodalidadService.obtenerSubmodalidadesPorModalidad(m.getId());
+                    m.setSubmodalidades(submodalidades);
+                });
+
+                return modalidadDtos;
+            default:
+                logger.warn("Se esta intentando realizar la busqueda por medio del filtro {} y valor {}. No mames, esto no esta implementado!", filterBy, filterValue);
+                throw new NotImplementedException("Este tipo de filtro aun no esta configurado. Por que lo estas buscando asi!?");
+        }
     }
 
     @Override

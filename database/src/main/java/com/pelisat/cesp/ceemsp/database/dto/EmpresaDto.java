@@ -6,6 +6,8 @@ import com.pelisat.cesp.ceemsp.database.type.TipoTramiteEnum;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class EmpresaDto {
@@ -21,4 +23,5 @@ public class EmpresaDto {
     private SexoEnum sexo;
     private String correoElectronico;
     private String telefono;
+    private List<EmpresaModalidadDto> modalidades;
 }

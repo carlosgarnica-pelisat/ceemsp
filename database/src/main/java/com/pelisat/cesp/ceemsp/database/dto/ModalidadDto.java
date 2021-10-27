@@ -9,6 +9,8 @@ import java.util.List;
 @Getter
 @Setter
 public class ModalidadDto {
+    private int id;
+    private String uuid;
     private String nombre;
     private String descripcion;
     private TipoTramiteEnum tipo;

@@ -64,6 +64,15 @@ public class DaoToDtoConverter {
         return modelMapper.map(modalidad, ModalidadDto.class);
     }
 
+    public SubmodalidadDto convertDaoToDtoSubmodalidad(Submodalidad submodalidad) {
+        if(submodalidad == null) {
+            logger.warn("La submodalidad a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(submodalidad, SubmodalidadDto.class);
+    }
+
     public ArmaClaseDto convertDaoToDtoArmaClase(ArmaClase armaClase) {
         if(armaClase == null) {
             logger.warn("La clase de arma a convertir viene como nula o vacia");
@@ -125,5 +134,23 @@ public class DaoToDtoConverter {
         }
 
         return modelMapper.map(empresa, EmpresaDto.class);
+    }
+
+    public EmpresaModalidadDto convertDaoToDtoEmpresaModalidad(EmpresaModalidad empresaModalidad) {
+        if(empresaModalidad == null) {
+            logger.warn("La modalidad de la empresa viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaModalidad, EmpresaModalidadDto.class);
+    }
+
+    public EmpresaDomicilioDto convertDaoToDtoEmpresaDomicilio(EmpresaDomicilio empresaDomicilio) {
+        if(empresaDomicilio == null) {
+            logger.warn("El domicilio de la empresa viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaDomicilio, EmpresaDomicilioDto.class);
     }
 }

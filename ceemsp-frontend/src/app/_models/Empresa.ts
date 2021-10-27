@@ -1,4 +1,6 @@
 import { Deserializable } from "./Deserializable";
+import Modalidad from "./Modalidad";
+import EmpresaModalidad from "./EmpresaModalidad";
 
 export default class Empresa implements Deserializable {
   id: number;
@@ -13,6 +15,8 @@ export default class Empresa implements Deserializable {
   sexo: string;
   correoElectronico: string;
   telefono: string;
+
+  modalidades: EmpresaModalidad[];
 
   deserialize(input: any): this {
     Object.assign(this, input);
