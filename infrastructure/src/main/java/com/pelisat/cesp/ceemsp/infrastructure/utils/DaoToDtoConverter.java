@@ -153,4 +153,40 @@ public class DaoToDtoConverter {
 
         return modelMapper.map(empresaDomicilio, EmpresaDomicilioDto.class);
     }
+
+    public EmpresaEscrituraDto convertDaoToDtoEmpresaEscritura(EmpresaEscritura empresaEscritura) {
+        if(empresaEscritura == null) {
+            logger.warn("La escritura de la empresa viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaEscritura, EmpresaEscrituraDto.class);
+    }
+
+    public EmpresaEscrituraApoderadoDto convertDaoToDtoEmpresaEscrituraApoderado(EmpresaEscrituraApoderado empresaEscrituraApoderado) {
+        if(empresaEscrituraApoderado == null) {
+            logger.warn("El apoderado de la escritura de la empresa viene nula o vacía");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaEscrituraApoderado, EmpresaEscrituraApoderadoDto.class);
+    }
+
+    public EmpresaEscrituraRepresentanteDto convertDaoToDtoEmpresaEscrituraRepresentante(EmpresaEscrituraRepresentante empresaEscrituraRepresentante) {
+        if(empresaEscrituraRepresentante == null) {
+            logger.warn("El representante de la escritura de la empresa viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaEscrituraRepresentante, EmpresaEscrituraRepresentanteDto.class);
+    }
+
+    public EmpresaLicenciaColectivaDto convertDaoToDtoEmpresaLicenciaColectiva(EmpresaLicenciaColectiva empresaLicenciaColectiva) {
+        if(empresaLicenciaColectiva == null) {
+            logger.warn("La licencia colectiva de la empresa viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaLicenciaColectiva, EmpresaLicenciaColectivaDto.class);
+    }
 }

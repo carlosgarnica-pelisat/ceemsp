@@ -3,9 +3,9 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
 
-    <changeSet id="2021-10-29-crear-tabla-armas" author="carlos.garnica@pelisat.com.mx">
+    <changeSet id="2021-10-30-crear-tabla-clientes" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="ARMAS">
+        <createTable tableName="CLIENTES">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="LICENCIA_COLECTIVA" type="INT"></column>

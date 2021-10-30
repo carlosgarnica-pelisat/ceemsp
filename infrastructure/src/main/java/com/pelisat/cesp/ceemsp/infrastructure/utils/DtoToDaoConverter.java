@@ -205,4 +205,64 @@ public class DtoToDaoConverter {
         return empresaDomicilio;
     }
 
+    public EmpresaEscritura convertDtoToDaoEmpresaEscritura(EmpresaEscrituraDto empresaEscrituraDto) {
+        if(empresaEscrituraDto == null) {
+            logger.warn("La escritura de la empresa viene como vacia o nula");
+            throw new InvalidDataException();
+        }
+
+        EmpresaEscritura empresaEscritura = modelMapper.map(empresaEscrituraDto, EmpresaEscritura.class);
+        if(StringUtils.isBlank(empresaEscritura.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresaEscritura.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaEscritura;
+    }
+
+    public EmpresaEscrituraApoderado convertDtoToDaoEmpresaEscrituraApoderado(EmpresaEscrituraApoderadoDto empresaEscrituraApoderadoDto) {
+        if(empresaEscrituraApoderadoDto == null) {
+            logger.warn("El apoderado de la escritura de la empresa viene como vacia o nula");
+            throw new InvalidDataException();
+        }
+
+        EmpresaEscrituraApoderado empresaEscrituraApoderado = modelMapper.map(empresaEscrituraApoderadoDto, EmpresaEscrituraApoderado.class);
+        if(StringUtils.isBlank(empresaEscrituraApoderado.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresaEscrituraApoderado.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaEscrituraApoderado;
+    }
+
+    public EmpresaEscrituraSocio convertDtoToDaoEmpresaEscrituraSocio(EmpresaEscrituraSocioDto empresaEscrituraSocioDto) {
+        if(empresaEscrituraSocioDto == null) {
+            logger.warn("El socio de la escritura de la empresa viene como vacia o nula");
+            throw new InvalidDataException();
+        }
+
+        EmpresaEscrituraSocio empresaEscrituraSocio = modelMapper.map(empresaEscrituraSocioDto, EmpresaEscrituraSocio.class);
+        if(StringUtils.isBlank(empresaEscrituraSocio.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresaEscrituraSocio.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaEscrituraSocio;
+    }
+
+    public EmpresaEscrituraRepresentante convertDtoToDaoEmpresaRepresentante(EmpresaEscrituraRepresentanteDto empresaEscrituraRepresentanteDto) {
+        if(empresaEscrituraRepresentanteDto == null) {
+            logger.warn("El representante de la escritura de la empresa viene como vacia o nula");
+            throw new InvalidDataException();
+        }
+
+        EmpresaEscrituraRepresentante empresaEscrituraRepresentante = modelMapper.map(empresaEscrituraRepresentanteDto, EmpresaEscrituraRepresentante.class);
+        if(StringUtils.isBlank(empresaEscrituraRepresentante.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresaEscrituraRepresentante.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaEscrituraRepresentante;
+    }
+
 }

@@ -4,9 +4,12 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoMarcaDto;
 import com.pelisat.cesp.ceemsp.database.model.ArmaTipo;
 import com.pelisat.cesp.ceemsp.database.model.VehiculoMarca;
+import com.pelisat.cesp.ceemsp.database.model.VehiculoSubmarca;
 import com.pelisat.cesp.ceemsp.database.repository.ArmaTipoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoMarcaRepository;
+import com.pelisat.cesp.ceemsp.database.repository.VehiculoSubmarcaRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
 public class VehiculoMarcaServiceImpl implements VehiculoMarcaService {
 
     private final VehiculoMarcaRepository vehiculoMarcaRepository;
+    private final VehiculoSubmarcaRepository vehiculoSubmarcaRepository;
     private final UsuarioService usuarioService;
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
@@ -30,11 +34,13 @@ public class VehiculoMarcaServiceImpl implements VehiculoMarcaService {
 
     @Autowired
     public VehiculoMarcaServiceImpl(VehiculoMarcaRepository vehiculoMarcaRepository, UsuarioService usuarioService,
-                                    DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter) {
+                                    DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
+                                    VehiculoSubmarcaRepository vehiculoSubmarcaRepository) {
         this.vehiculoMarcaRepository = vehiculoMarcaRepository;
         this.usuarioService = usuarioService;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
+        this.vehiculoSubmarcaRepository = vehiculoSubmarcaRepository;
     }
 
     @Override
@@ -48,7 +54,28 @@ public class VehiculoMarcaServiceImpl implements VehiculoMarcaService {
 
     @Override
     public VehiculoMarcaDto obtenerPorUuid(String uuid) {
-        return null;
+        if(StringUtils.isBlank(uuid)) {
+            logger.warn("El uuid de la marca del vehiculo a consultar viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        VehiculoMarca vehiculoMarca = vehiculoMarcaRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(vehiculoMarca == null) {
+            logger.warn("La marca del vehiculo con uuid [{}] viene como nula o vacia", uuid);
+            throw new NotFoundResourceException();
+        }
+
+        List<VehiculoSubmarca> vehiculoSubmarcas = vehiculoSubmarcaRepository.getAllByMarcaAndEliminadoFalse(vehiculoMarca.getId());
+
+        VehiculoMarcaDto vehiculoMarcaDto = daoToDtoConverter.convertDaoToDtoVehiculoMarca(vehiculoMarca);
+
+        vehiculoMarcaDto.setSubmarcas(
+                vehiculoSubmarcas.stream().map(daoToDtoConverter::convertDaoToDtoVehiculoSubmarca)
+                        .collect(Collectors.toList())
+        );
+
+        return vehiculoMarcaDto;
     }
 
     @Override

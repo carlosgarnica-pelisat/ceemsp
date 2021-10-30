@@ -18,10 +18,10 @@ public class VehiculoSubmarca extends CommonModel {
     @Column(name = "DESCRIPCION")
     private String descripcion;
 
+    @Column(name = "MARCA", nullable = false)
+    private int marca;
+
     public VehiculoSubmarca() {
         super();
     }
-
-    /*@Column(name = "CATEGORIA", nullable = false)
-    private int categoria;*/
 }

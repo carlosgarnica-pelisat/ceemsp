@@ -35,13 +35,53 @@
         [columnDefs]="columnDefs"
         (gridReady)="onGridReady($event)"
         [frameworkComponents]="frameworkComponents"
-        (rowDoubleClicked)="checkForDetails($event.data)"
+        (rowDoubleClicked)="checkForDetails($event.data, mostrarVehiculoMarcaModal)"
         #agGrid
       ></ag-grid-angular>
     </div>
   </div>
 
-  <ng-template #crearArmaMarcaModal let-modal>
+  <ng-template #mostrarVehiculoMarcaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-vehiculo">Consultando marca de vehiculo</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link active">Detalles</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" (click)="">Submarcas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Nombre:</b></td>
+              <td>{{vehiculoMarca.nombre}}</td>
+            </tr>
+            <tr>
+              <td><b>Descripción:</b></td>
+              <td>{{vehiculoMarca.descripcion}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #crearVehiculoMarcaModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="modal-survey-response">Nueva marca de vehiculo</h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">

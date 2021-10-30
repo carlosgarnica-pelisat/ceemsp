@@ -5,7 +5,6 @@ import {ToastService} from "../../../_services/toast.service";
 import {VehiculosService} from "../../../_services/vehiculos.service";
 import VehiculoMarca from "../../../_models/VehiculoMarca";
 import {ToastType} from "../../../_enums/ToastType";
-import ArmaMarca from "../../../_models/ArmaMarca";
 
 @Component({
   selector: 'app-vehiculos',
@@ -37,6 +36,11 @@ export class VehiculosComponent implements OnInit {
   };
 
   crearVehiculoMarcaForm: FormGroup;
+  crearVehiculoSubmarcaForm: FormGroup;
+
+  vehiculoMarca: VehiculoMarca;
+
+  currentTab: string = "DETALLES";
 
   constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
               private vehiculoService: VehiculosService, private toastService: ToastService) { }
@@ -53,6 +57,11 @@ export class VehiculosComponent implements OnInit {
     })
 
     this.crearVehiculoMarcaForm = this.formBuilder.group({
+      submarcaNombre: ['', Validators.required],
+      submarcaDescripcion: ['']
+    })
+
+    this.crearVehiculoSubmarcaForm = this.formBuilder.group({
       nombre: ['', Validators.required],
       descripcion: ['']
     })
@@ -64,10 +73,25 @@ export class VehiculosComponent implements OnInit {
     this.gridColumnApi = params.gridApi;
   }
 
-  checkForDetails(data) {
-    //this.modal = this.modalService.open(showCustomerDetailsModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+  checkForDetails(data, modal) {
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
     this.uuid = data.uuid;
+
+    this.vehiculoService.obtenerVehiculoMarcaPorUuid(this.uuid).subscribe((data: VehiculoMarca) => {
+      this.vehiculoMarca = data;
+      this.modal.result.then((result) => {
+        this.closeResult = `Closed with ${result}`;
+      }, (error) => {
+        this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+      });
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "La informacion de la marca del vehiculo no se descargo. Motivo: ",
+        ToastType.ERROR
+      );
+    })
   }
 
   modify(rowData) {

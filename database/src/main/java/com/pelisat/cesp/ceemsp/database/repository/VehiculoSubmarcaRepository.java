@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface VehiculoSubmarcaRepository extends JpaRepository<VehiculoSubmarca, Integer> {
     List<VehiculoSubmarca> getAllByEliminadoFalse();
+
+    List<VehiculoSubmarca> getAllByMarcaAndEliminadoFalse(int marca);
 }
