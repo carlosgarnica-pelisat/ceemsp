@@ -3,7 +3,7 @@
 
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Domicilios</h1>
+    <h1 class="h3 mb-0 text-gray-800">Escrituras</h1>
     <div class="btn-group">
       <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearEscritura)">Nueva escritura</button>
       <div class="dropdown">
@@ -11,7 +11,7 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Descargar direcciones como Excel (csv)</a>
+          <a class="dropdown-item" href="#">Descargar escrituras como Excel (csv)</a>
         </div>
       </div>
     </div>
@@ -22,7 +22,7 @@
     <div class="col-sm-3">
       <div class="list-group">
         <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action">
-          Nueva escritura
+          Detalles
         </a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
         <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action active">Legal</a>
@@ -31,6 +31,8 @@
         <a routerLink="/home/empresas/{{uuid}}/armas" class="list-group-item list-group-item-action">Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
+        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
+        <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -48,7 +50,7 @@
 
   <ng-template #crearEscritura let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="modal-survey-response">Nuevo domicilio </h4>
+      <h4 class="modal-title" id="modal-survey-response">Nueva escritura </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -56,7 +58,68 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
+          <form [formGroup]="nuevaEscrituraForm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="numeroEscritura">
+                  <b>Numero de escritura *</b>
+                  <span *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].invalid && (nuevaEscrituraForm.controls['numeroEscritura'].dirty || nuevaEscrituraForm.controls['numeroEscritura'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="numeroEscritura" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" #numeroEscritura>
+              </div>
+              <div class="col-sm-4">
+                <label for="fechaEscritura">
+                  <b>Fecha de escritura *</b>
+                  <span *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].invalid && (nuevaEscrituraForm.controls['fechaEscritura'].dirty || nuevaEscrituraForm.controls['fechaEscritura'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="fechaEscritura" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaEscritura" #fechaEscritura>
+              </div>
+              <div class="col-sm-4">
+                <label for="ciudad">
+                  <b>Ciudad *</b>
+                  <span *ngIf="nuevaEscrituraForm.controls['ciudad'].invalid && (nuevaEscrituraForm.controls['ciudad'].dirty || nuevaEscrituraForm.controls['ciudad'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="ciudad" type="text" class="form-control" placeholder="Ej. Guadalajara" formControlName="ciudad" #ciudad>
+              </div>
+            </div>
 
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="tipoFedatario">
+                  <b>Tipo de Fedatario *</b>
+                  <span *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].invalid && (nuevaEscrituraForm.controls['tipoFedatario'].dirty || nuevaEscrituraForm.controls['tipoFedatario'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <select id="tipoFedatario" class="form-control" formControlName="tipoFedatario">
+                  <option value="CORREDOR">Corredor</option>
+                  <option value="NOTARIO">Notario</option>
+                </select>
+              </div>
+              <div class="col-sm-4">
+                <label for="numero">
+                  <b>Numero *</b>
+                  <span *ngIf="nuevaEscrituraForm.controls['numero'].invalid && (nuevaEscrituraForm.controls['numero'].dirty || nuevaEscrituraForm.controls['numero'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="numero" type="number" class="form-control" placeholder="Ej. 73" formControlName="numero" min="1" #numero>
+              </div>
+              <div class="col-sm-4">
+                <label for="nombreFedatario">
+                  <b>Tipo de Fedatario *</b>
+                  <span *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].invalid && (nuevaEscrituraForm.controls['nombreFedatario'].dirty || nuevaEscrituraForm.controls['nombreFedatario'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="nombreFedatario" type="text" class="form-control" placeholder="Ej. Juan Carlos Garnica" formControlName="nombreFedatario" #nombreFedatario>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <label for="descripcion">
+                  <b>Detalles de la escritura *</b>
+                  <span *ngIf="nuevaEscrituraForm.controls['descripcion'].invalid && (nuevaEscrituraForm.controls['descripcion'].dirty || nuevaEscrituraForm.controls['descripcion'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <textarea id="descripcion" class="form-control" placeholder="Por favor, explique de manera detallada la razon de la escritura." formControlName="descripcion" #descripcion></textarea>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>

@@ -6,8 +6,9 @@
     <h1 class="h3 mb-0 text-gray-800">Detalles de empresa</h1>
     <div class="btn-group">
       <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">Editar</button>
+      <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">Ver modalidades</button>
       <div class="dropdown">
-        <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -32,6 +33,8 @@
         <a routerLink="/home/empresas/{{empresa?.uuid}}/armas" class="list-group-item list-group-item-action">Armas</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">

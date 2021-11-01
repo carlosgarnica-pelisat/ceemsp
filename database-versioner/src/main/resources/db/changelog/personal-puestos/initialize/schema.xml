@@ -3,18 +3,16 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
 
-    <changeSet id="2021-10-30-crear-tabla-clientes" author="carlos.garnica@pelisat.com.mx">
+    <changeSet id="2021-10-30-crear-tabla-personal-puestos" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="CLIENTES">
+        <createTable tableName="PERSONAL_PUESTOS">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
-            <column name="LICENCIA_COLECTIVA" type="INT"></column>
-            <column name="TIPO" type="VARCHAR(10)"></column>
-            <column name="CLASE" type="INT"></column>
-            <column name="MARCA" type="INT"></column>
-            <column name="CALIBRE" type="VARCHAR(10)"></column>
-            <column name="BUNKER" type="INT"></column>
-            <column name="STATUS" type="VARCHAR(15)"></column>
+            <column name="NOMBRE" type="VARCHAR(60)"></column>
+            <column name="DESCRIPCION" type="VARCHAR(100)"></column>
+            <column name="REQUIERE_MODALIDAD" type="BIT"></column>
+            <column name="REQUIERE_CUIP" type="BIT"></column>
+            <column name="TIENE_PORTACION" type="BIT"></column>
             <column name="ELIMINADO" type="bit" defaultValue="0"></column>
             <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
             <column name="CREADO_POR" type="int"></column>
@@ -23,11 +21,11 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="CLIENTES" columnNames="ID" />
-        <addAutoIncrement tableName="CLIENTES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="PERSONAL_PUESTOS" columnNames="ID" />
+        <addAutoIncrement tableName="PERSONAL_PUESTOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="CLIENTES" columnNames="UUID" />
+        <addUniqueConstraint tableName="PERSONAL_PUESTOS" columnNames="UUID" />
 
 
     </changeSet>

@@ -39,6 +39,8 @@ import { EmpresaCanesComponent } from './home/empresas/empresa-canes/empresa-can
 import { EmpresaArmasComponent } from './home/empresas/empresa-armas/empresa-armas.component';
 import { EmpresaVehiculosComponent } from './home/empresas/empresa-vehiculos/empresa-vehiculos.component';
 import { EmpresaIncidenciasComponent } from './home/empresas/empresa-incidencias/empresa-incidencias.component';
+import { EmpresaPersonalComponent } from './home/empresas/empresa-personal/empresa-personal.component';
+import { EmpresaClientesComponent } from './home/empresas/empresa-clientes/empresa-clientes.component';
 
 @NgModule({
   declarations: [
@@ -68,7 +70,9 @@ import { EmpresaIncidenciasComponent } from './home/empresas/empresa-incidencias
     EmpresaCanesComponent,
     EmpresaArmasComponent,
     EmpresaVehiculosComponent,
-    EmpresaIncidenciasComponent
+    EmpresaIncidenciasComponent,
+    EmpresaPersonalComponent,
+    EmpresaClientesComponent
   ],
   imports: [
     BrowserModule,

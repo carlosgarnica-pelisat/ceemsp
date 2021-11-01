@@ -3,14 +3,14 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
 
-    <changeSet id="2021-10-30-crear-tabla-clientes" author="carlos.garnica@pelisat.com.mx">
+    <changeSet id="2021-10-30-crear-tabla-cliente-modalidades" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="CLIENTES">
+        <createTable tableName="CLIENTE_MODALIDADES">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
-            <column name="LICENCIA_COLECTIVA" type="INT"></column>
-            <column name="TIPO" type="VARCHAR(10)"></column>
-            <column name="CLASE" type="INT"></column>
+            <column name="CLIENTE" type="INT"></column>
+            <column name="MODALIDAD" type="VARCHAR(10)"></column>
+            <column name="SUBMODALIDAD" type="INT"></column>
             <column name="MARCA" type="INT"></column>
             <column name="CALIBRE" type="VARCHAR(10)"></column>
             <column name="BUNKER" type="INT"></column>
@@ -23,11 +23,11 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="CLIENTES" columnNames="ID" />
-        <addAutoIncrement tableName="CLIENTES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="CLIENTE_MODALIDADES" columnNames="ID" />
+        <addAutoIncrement tableName="CLIENTE_MODALIDADES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="CLIENTES" columnNames="UUID" />
+        <addUniqueConstraint tableName="CLIENTE_MODALIDADES" columnNames="UUID" />
 
 
     </changeSet>

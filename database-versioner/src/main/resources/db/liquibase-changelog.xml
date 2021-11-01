@@ -44,4 +44,7 @@
     <include file="changelog/vehiculos/master.xml" relativeToChangelogFile="true"></include>
 <!--    <include file="changelog/vehiculos-fotografias/master.xml" relativeToChangelogFile="true"></include>-->
 
+    <include file="changelog/clientes/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/clientes-modalidades/master.xml" relativeToChangelogFile="true"></include>
+
 </databaseChangeLog>

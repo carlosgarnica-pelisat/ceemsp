@@ -31,6 +31,8 @@
         <a routerLink="/home/empresas/{{uuid}}/armas" class="list-group-item list-group-item-action">Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
+        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
+        <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -48,7 +50,7 @@
 
   <ng-template #crearLicencia let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="modal-survey-response">Nuevo domicilio </h4>
+      <h4 class="modal-title" id="modal-survey-response">Nueva licencia </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -56,7 +58,37 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-
+          <form [formGroup]="crearEmpresaLicenciaForm">
+            <div class="row">
+              <div class="col-sm-3">
+                <label for="numeroOficio">
+                  <b>Numero de oficio *</b>
+                  <span *ngIf="crearEmpresaLicenciaForm.controls['numeroOficio'].invalid && (crearEmpresaLicenciaForm.controls['numeroOficio'].dirty || crearEmpresaLicenciaForm.controls['numeroOficio'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="numeroOficio" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroOficio" #numeroOficio>
+              </div>
+              <div class="col-sm-3">
+                <!--label for="modalidad">
+                  <b>Numero de oficio *</b>
+                  <span *ngIf="crearEmpresaLicenciaForm.controls['modalidad'].invalid && (crearEmpresaLicenciaForm.controls['modalidad'].dirty || crearEmpresaLicenciaForm.controls['modalidad'].touched)" class="text-danger"> - Requerido</span>
+                </label-->
+              </div>
+              <div class="col-sm-3">
+                <label for="fechaInicio">
+                  <b>Fecha de Inicio *</b>
+                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaInicio'].invalid && (crearEmpresaLicenciaForm.controls['fechaInicio'].dirty || crearEmpresaLicenciaForm.controls['fechaInicio'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="fechaInicio" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaInicio" #fechaInicio>
+              </div>
+              <div class="col-sm-3">
+                <label for="fechaFin">
+                  <b>Fecha de fin *</b>
+                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaFin'].invalid && (crearEmpresaLicenciaForm.controls['fechaFin'].dirty || crearEmpresaLicenciaForm.controls['fechaFin'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="fechaFin" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaFin" #fechaFin>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>
