@@ -16,11 +16,11 @@ public class EmpresaModalidad extends CommonModel {
     @Column(name = "EMPRESA", nullable = false)
     private int empresa;
 
-    @Column(name = "MODALIDAD")
+    @Column(name = "MODALIDAD", nullable = false)
     private int modalidad;
 
     @Column(name = "SUBMODALIDAD")
-    private int submodalidad;
+    private Integer submodalidad;
 
     @Column(name = "FECHA_INICIO")
     private LocalDate fechaInicio;

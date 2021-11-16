@@ -41,6 +41,9 @@ import { EmpresaVehiculosComponent } from './home/empresas/empresa-vehiculos/emp
 import { EmpresaIncidenciasComponent } from './home/empresas/empresa-incidencias/empresa-incidencias.component';
 import { EmpresaPersonalComponent } from './home/empresas/empresa-personal/empresa-personal.component';
 import { EmpresaClientesComponent } from './home/empresas/empresa-clientes/empresa-clientes.component';
+import { VehiculosUsosComponent } from './home/catalogos/vehiculos/vehiculos-usos/vehiculos-usos.component';
+import { PersonalComponent } from './home/catalogos/personal/personal.component';
+import { NacionalidadesComponent } from './home/catalogos/personal/nacionalidades/nacionalidades.component';
 
 @NgModule({
   declarations: [
@@ -72,7 +75,10 @@ import { EmpresaClientesComponent } from './home/empresas/empresa-clientes/empre
     EmpresaVehiculosComponent,
     EmpresaIncidenciasComponent,
     EmpresaPersonalComponent,
-    EmpresaClientesComponent
+    EmpresaClientesComponent,
+    VehiculosUsosComponent,
+    PersonalComponent,
+    NacionalidadesComponent
   ],
   imports: [
     BrowserModule,

@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {VehiculosService} from "../../../../_services/vehiculos.service";
 import {ToastService} from "../../../../_services/toast.service";
+import {ToastType} from "../../../../_enums/ToastType";
+import VehiculoTipo from "../../../../_models/VehiculoTipo";
 
 @Component({
   selector: 'app-vehiculos-tipos',
@@ -42,6 +44,16 @@ export class VehiculosTiposComponent implements OnInit {
     this.crearVehiculoTipoForm = this.formBuilder.group({
       nombre: ['', Validators.required],
       descripcion: ['']
+    });
+
+    this.vehiculoService.obtenerVehiculosTipos().subscribe((data: VehiculoTipo[]) => {
+      this.rowData = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudieron descargar los tipos de los vehiculos. ${error}`,
+        ToastType.ERROR
+      )
     })
   }
 
@@ -63,6 +75,34 @@ export class VehiculosTiposComponent implements OnInit {
 
   delete(rowData) {
 
+  }
+
+  guardarTipoVehiculo(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que necesitan llenarse",
+        ToastType.WARNING
+      )
+      return;
+    }
+
+    let formData: VehiculoTipo = form.value;
+
+    this.vehiculoService.guardarVehiculoTipo(formData).subscribe((data: VehiculoTipo) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado el tipo del vehiculo con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar el tipo del vehiculo. ${error}`,
+        ToastType.ERROR
+      )
+    })
   }
 
   mostrarModalCrear(modal) {

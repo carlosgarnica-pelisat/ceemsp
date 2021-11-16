@@ -27,6 +27,11 @@ import {EmpresaCanesComponent} from "../../home/empresas/empresa-canes/empresa-c
 import {EmpresaArmasComponent} from "../../home/empresas/empresa-armas/empresa-armas.component";
 import {EmpresaVehiculosComponent} from "../../home/empresas/empresa-vehiculos/empresa-vehiculos.component";
 import {EmpresaIncidenciasComponent} from "../../home/empresas/empresa-incidencias/empresa-incidencias.component";
+import {EmpresaPersonalComponent} from "../../home/empresas/empresa-personal/empresa-personal.component";
+import {EmpresaClientesComponent} from "../../home/empresas/empresa-clientes/empresa-clientes.component";
+import {VehiculosUsosComponent} from "../../home/catalogos/vehiculos/vehiculos-usos/vehiculos-usos.component";
+import {PersonalComponent} from "../../home/catalogos/personal/personal.component";
+import {NacionalidadesComponent} from "../../home/catalogos/personal/nacionalidades/nacionalidades.component";
 
 
 const routes: Routes = [
@@ -80,6 +85,14 @@ const routes: Routes = [
         path: 'empresas/:uuid/incidencias',
         component: EmpresaIncidenciasComponent
       },
+      {
+        path: 'empresas/:uuid/clientes',
+        component: EmpresaClientesComponent
+      },
+      {
+        path: 'empresas/:uuid/personal',
+        component: EmpresaPersonalComponent
+      },
 
       // Catalogos
       // Canes
@@ -100,6 +113,10 @@ const routes: Routes = [
         path: 'catalogos/vehiculos/tipos',
         component: VehiculosTiposComponent
       },
+      {
+        path: 'catalogos/vehiculos/usos',
+        component: VehiculosUsosComponent
+      },
       // Armas
       {
         path: 'catalogos/armas',
@@ -117,6 +134,15 @@ const routes: Routes = [
       {
         path: 'catalogos/modalidades',
         component: ModalidadesComponent
+      },
+      // Personal
+      {
+        path: 'catalogos/personal',
+        component: PersonalComponent
+      },
+      {
+        path: 'catalogos/personal/nacionalidades',
+        component: NacionalidadesComponent
       },
 
       // Comunicados

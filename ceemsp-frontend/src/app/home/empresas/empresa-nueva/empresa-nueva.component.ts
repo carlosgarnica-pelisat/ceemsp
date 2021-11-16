@@ -8,6 +8,8 @@ import {ToastType} from "../../../_enums/ToastType";
 import EmpresaModalidad from "../../../_models/EmpresaModalidad";
 import Empresa from "../../../_models/Empresa";
 import {EmpresaService} from "../../../_services/empresa.service";
+import {PublicService} from "../../../_services/public.service";
+import ProximoRegistro from "../../../_models/ProximoRegistro";
 
 @Component({
   selector: 'app-empresa-nueva',
@@ -35,7 +37,8 @@ export class EmpresaNuevaComponent implements OnInit {
   empresa: Empresa;
 
   constructor(private formBuilder: FormBuilder, private modalidadService: ModalidadesService,
-              private toastService: ToastService, private empresaService: EmpresaService) { }
+              private toastService: ToastService, private empresaService: EmpresaService,
+              private publicService: PublicService) { }
 
   ngOnInit(): void {
     this.empresaCreacionForm = this.formBuilder.group({
@@ -71,7 +74,6 @@ export class EmpresaNuevaComponent implements OnInit {
       matriz: ['', Validators.required], // TODO: Quitar el si/no y agregar tipo de domicilio como matriz / sucursal
       telefonoFijo: ['', Validators.required],
       telefonoMovil: ['', Validators.required]
-      //telefonoMovil: ['', Validators.required]
     });
 
     this.empresaLegalForm = this.formBuilder.group({
@@ -149,6 +151,17 @@ export class EmpresaNuevaComponent implements OnInit {
   // Funciones para la primera pagina (informacion de la empresa)
   cambiarTipoTramite(event) {
     this.tipoTranite = event.value;
+    this.publicService.obtenerSiguienteNumero({tipo: this.tipoTranite}).subscribe((data: ProximoRegistro) => {
+      this.empresaCreacionForm.patchValue({
+        registro: data.numeroSiguiente
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "No se ha podido descargar el siguiente numero",
+        ToastType.ERROR
+      );
+    })
 
     this.modalidadService.obtenerModalidadesPorFiltro("TIPO", this.tipoTranite).subscribe((data: Modalidad[]) => {
       this.modalidades = data;

@@ -25,6 +25,7 @@
           Marcas
         </a>
         <a routerLink="/home/catalogos/vehiculos/tipos" class="list-group-item list-group-item-action">Tipos</a>
+        <a routerLink="/home/catalogos/vehiculos/usos" class="list-group-item list-group-item-action">Usos</a>
       </div>
     </div>
     <div class="col-sm-9">
@@ -53,24 +54,44 @@
         <div class="col-sm-12">
           <ul class="nav nav-pills nav-fill">
             <li class="nav-item">
-              <a class="nav-link active">Detalles</a>
+              <a class="nav-link" [ngClass]="{ 'active': currentTab === 'DETALLES' }" style="cursor: pointer;" (click)="cambiarADetalles()">Detalles</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" (click)="changeToSubmarcas()">Submarcas</a>
+              <a class="nav-link" [ngClass]="{ 'active': currentTab === 'SUBMARCAS' }" style="cursor: pointer;" (click)="cambiarASubmarcas()">Submarcas</a>
             </li>
           </ul>
         </div>
       </div>
-      <div class="row">
+      <div class="row" *ngIf="currentTab === 'DETALLES'">
         <div class="col-sm-12">
           <table class="table">
             <tr>
               <td><b>Nombre:</b></td>
-              <td>{{vehiculoMarca.nombre}}</td>
+              <td>{{vehiculoMarca?.nombre}}</td>
             </tr>
             <tr>
               <td><b>Descripción:</b></td>
-              <td>{{vehiculoMarca.descripcion}}</td>
+              <td>{{vehiculoMarca?.descripcion}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="currentTab === 'SUBMARCAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Nombre</b></td>
+              <td><b>Descripcion</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let s of vehiculoMarca?.submarcas">
+              <td>{{s.nombre}}</td>
+              <td>{{s.descripcion}}</td>
+              <td>
+                <fa-icon [icon]="faPencilAlt"></fa-icon>
+                <fa-icon [icon]="faTrash"></fa-icon>
+              </td>
             </tr>
           </table>
         </div>

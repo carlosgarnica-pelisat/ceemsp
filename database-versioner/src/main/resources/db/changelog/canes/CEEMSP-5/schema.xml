@@ -1,0 +1,20 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2021-11-14-agregar-columnas-nombre-asignaciones" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <addColumn tableName="CANES">
+            <column name="NOMBRE" type="VARCHAR(50)"></column>
+            <column name="RAZA_OTRO" type="VARCHAR(50)"></column>
+            <column name="RAZON_SOCIAL" type="VARCHAR(100)"></column>
+            <column name="FECHA_INICIO" type="DATE"></column>
+            <column name="FECHA_FIN" type="DATE"></column>
+            <column name="ELEMENTO_ASIGNADO" type="INT"></column>
+            <column name="CLIENTE_ASIGNADO" type="INT"></column>
+            <column name="DOMICILIO_CLIENTE_ASIGNADO" type="INT"></column>
+            <column name="MOTIVOS" type="TEXT"></column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

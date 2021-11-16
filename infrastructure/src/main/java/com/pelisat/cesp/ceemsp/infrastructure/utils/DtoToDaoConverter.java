@@ -265,4 +265,66 @@ public class DtoToDaoConverter {
         return empresaEscrituraRepresentante;
     }
 
+    public EmpresaLicenciaColectiva convertDtoToDaoEmpresaLicenciaColectiva(EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto) {
+        if(empresaLicenciaColectivaDto == null) {
+            logger.warn("La licencia coelctiva de la empresa viene como vacia o nula");
+            throw new InvalidDataException();
+        }
+
+        EmpresaLicenciaColectiva empresaLicenciaColectiva = modelMapper.map(empresaLicenciaColectivaDto, EmpresaLicenciaColectiva.class);
+        if(StringUtils.isBlank(empresaLicenciaColectiva.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresaLicenciaColectiva.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaLicenciaColectiva;
+    }
+
+    public Cliente convertDtoToDaoCliente(ClienteDto clienteDto) {
+        if(clienteDto == null) {
+            logger.warn("El cliente de la empresa viene como vacia o nula");
+            throw new InvalidDataException();
+        }
+
+        Cliente cliente = modelMapper.map(clienteDto, Cliente.class);
+        if(StringUtils.isBlank(cliente.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            cliente.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return cliente;
+    }
+
+    public TipoInfraestructura convertDtoToDaoTipoInfraestructura(TipoInfraestructuraDto tipoInfraestructuraDto) {
+        if(tipoInfraestructuraDto == null) {
+            logger.warn("El tipo de infraestructura viene como vacia o nula");
+            throw new InvalidDataException();
+        }
+
+        TipoInfraestructura tipoInfraestructura = modelMapper.map(tipoInfraestructuraDto, TipoInfraestructura.class);
+        if(StringUtils.isBlank(tipoInfraestructura.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            tipoInfraestructura.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return tipoInfraestructura;
+    }
+
+    public VehiculoUso convertDtoToDaoVehiculoUso(VehiculoUsoDto vehiculoUsoDto) {
+        if(vehiculoUsoDto == null) {
+            logger.warn("El uso del vehiculo viene como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        VehiculoUso vehiculoUso = modelMapper.map(vehiculoUsoDto, VehiculoUso.class);
+        if(StringUtils.isBlank(vehiculoUso.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            vehiculoUso.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return vehiculoUso;
+    }
+
+
+
 }

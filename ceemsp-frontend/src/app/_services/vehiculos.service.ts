@@ -6,6 +6,7 @@ import ArmaMarca from "../_models/ArmaMarca";
 import ArmaClase from "../_models/ArmaClase";
 import VehiculoMarca from "../_models/VehiculoMarca";
 import VehiculoTipo from "../_models/VehiculoTipo";
+import VehiculoUso from "../_models/VehiculoUso";
 
 @Injectable({
   providedIn: 'root'
@@ -49,5 +50,21 @@ export class VehiculosService {
     return this.http.delete(`${this.uri}/catalogos/vehiculos/tipos/${uuid}`)
   }
 
+  // Oerapciones para usos
+  obtenerVehiculosUsos() {
+    return this.http.get(`${this.uri}/catalogos/vehiculos/usos`);
+  }
 
+  obtenerVehiculoUsoPorUuid(uuid: String) {
+    return this.http.get(`${this.uri}/catalogos/vehiculos/usos/${uuid}`)
+  };
+
+  guardarVehiculoUso(vehiculoUso: VehiculoUso) {
+    return this.http.post(`${this.uri}/catalogos/vehiculos/usos`, vehiculoUso)
+  }
 }
+
+
+
+
+

@@ -2,10 +2,12 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaLicenciaColectivaDto;
+import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaLicenciaColectiva;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaLicenciaColectivaRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,6 +75,24 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
 
     @Override
     public EmpresaLicenciaColectivaDto guardarLicenciaColectiva(String empresaUuid, String username, EmpresaLicenciaColectivaDto licenciaColectivaDto) {
-        return null;
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(username) || licenciaColectivaDto == null) {
+            logger.warn("Alguno de los parametros ingresados es invalido");
+            throw new InvalidDataException();
+        }
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        EmpresaLicenciaColectiva empresaLicenciaColectiva = new EmpresaLicenciaColectiva();
+        empresaLicenciaColectiva.setModalidad(licenciaColectivaDto.getModalidad().getId());
+        empresaLicenciaColectiva.setSubmodalidad(licenciaColectivaDto.getSubmodalidad().getId());
+        empresaLicenciaColectiva.setNumeroOficio(licenciaColectivaDto.getNumeroOficio());
+        empresaLicenciaColectiva.setFechaInicio(LocalDate.parse(licenciaColectivaDto.getFechaInicio()));
+        empresaLicenciaColectiva.setFechaFin(LocalDate.parse(licenciaColectivaDto.getFechaFin()));
+        empresaLicenciaColectiva.setEmpresa(empresaDto.getId());
+        daoHelper.fulfillAuditorFields(true, empresaLicenciaColectiva, usuarioDto.getId());
+
+        EmpresaLicenciaColectiva licenciaColectivaCreada = empresaLicenciaColectivaRepository.save(empresaLicenciaColectiva);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaLicenciaColectiva(licenciaColectivaCreada);
     }
 }

@@ -25,6 +25,7 @@
           Marcas
         </a>
         <a routerLink="/home/catalogos/vehiculos/tipos" class="list-group-item list-group-item-action active">Tipos</a>
+        <a routerLink="/home/catalogos/vehiculos/usos" class="list-group-item list-group-item-action">Usos</a>
       </div>
     </div>
     <div class="col-sm-9">
@@ -56,13 +57,13 @@
                 <label for="nombre">
                   <b>Nombre *</b>
                 </label>
-                <input id="nombre" type="text" class="form-control" placeholder="Ejemplo: Volkswagen" formControlName="nombre" #nombre>
+                <input id="nombre" type="text" class="form-control" placeholder="Ejemplo: Automovil" formControlName="nombre" #nombre>
               </div>
               <div class="col-sm-4">
                 <label for="descripcion">
                   <b>Descripcion</b>
                 </label>
-                <input id="descripcion" type="text" class="form-control" placeholder="Ejemplo: Marca alemana de vehiculos" formControlName="descripcion" #descripcion>
+                <input id="descripcion" type="text" class="form-control" placeholder="Ejemplo: Automovil de desplazamiento" formControlName="descripcion" #descripcion>
               </div>
             </div>
           </form>
@@ -70,7 +71,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="guardarArmaClase(crearTipoArmaForm)">Guardar</button>
+      <button class="btn btn-primary" (click)="guardarTipoVehiculo(crearVehiculoTipoForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>

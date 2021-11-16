@@ -9,6 +9,8 @@ import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepresentanteRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraSocioRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -71,7 +73,40 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
 
     @Override
     public EmpresaEscrituraDto obtenerEscrituraPorUuid(String empresaUuid, String escrituraUuid, boolean soloEntidad) {
-        return null;
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid)) {
+            logger.warn("El uuid de la empresa o de la escritura vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo la escritura con el uuid [{}]", escrituraUuid);
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        EmpresaEscritura empresaEscritura = empresaEscrituraRepository.findByUuidAndEliminadoFalse(escrituraUuid);
+
+        if(empresaEscritura == null) {
+            logger.warn("La escritura no existe con el uuid [{}]", escrituraUuid);
+            throw new NotFoundResourceException();
+        }
+
+        if(empresaEscritura.getEmpresa() != empresaDto.getId()) {
+            logger.warn("La escritura no pertenece a la empresa");
+            throw new MissingRelationshipException();
+        }
+
+        EmpresaEscrituraDto response = daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscritura);
+
+        if(!soloEntidad) {
+            logger.info("Descargando informacion de los socios");
+            List<EmpresaEscrituraSocio> socios = empresaEscrituraSociosRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
+            List<EmpresaEscrituraApoderado> apoderados = empresaEscrituraApoderadoRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
+            List<EmpresaEscrituraRepresentante> representantes = empresaEscrituraRepresentanteRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
+
+            response.setSocios(socios.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraSocio).collect(Collectors.toList()));
+            response.setApoderados(apoderados.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraApoderado).collect(Collectors.toList()));
+            response.setRepresentantes(representantes.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraRepresentante).collect(Collectors.toList()));
+        }
+
+        return response;
     }
 
     @Override
@@ -85,7 +120,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
 
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
 
-        UsuarioDto usuarioDto = usuarioService.getUserByUsername(username);
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
 
         EmpresaEscritura empresaEscritura = dtoToDaoConverter.convertDtoToDaoEmpresaEscritura(empresaEscrituraDto);
         empresaEscritura.setEmpresa(empresaDto.getId());
@@ -93,7 +128,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
 
         EmpresaEscritura empresaEscrituraCreada = empresaEscrituraRepository.save(empresaEscritura);
 
-        if(empresaEscrituraDto.getApoderados() != null || empresaEscrituraDto.getApoderados().size() > 0) {
+        if(empresaEscrituraDto.getApoderados() != null && empresaEscrituraDto.getApoderados().size() > 0) {
             logger.info("Se encontraron apoderados. Agregando [{}] nuevos apoderados",
                     empresaEscrituraDto.getApoderados().size());
             List<EmpresaEscrituraApoderado> empresaEscrituraApoderados = empresaEscrituraDto.getApoderados()
@@ -108,7 +143,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
             empresaEscrituraApoderadoRepository.saveAll(empresaEscrituraApoderados);
         }
 
-        if(empresaEscrituraDto.getSocios() != null || empresaEscrituraDto.getSocios().size() > 0) {
+        if(empresaEscrituraDto.getSocios() != null && empresaEscrituraDto.getSocios().size() > 0) {
             logger.info("Se encontraron socios. Agregando [{}] nuevos socios",
                     empresaEscrituraDto.getSocios().size());
 
@@ -124,7 +159,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
             empresaEscrituraSociosRepository.saveAll(empresaEscrituraSocios);
         }
 
-        if(empresaEscrituraDto.getRepresentantes() != null || empresaEscrituraDto.getRepresentantes().size() > 0) {
+        if(empresaEscrituraDto.getRepresentantes() != null && empresaEscrituraDto.getRepresentantes().size() > 0) {
             logger.info("Se encontraron representantes. Agregando [{}] nuevos representantes",
                     empresaEscrituraDto.getSocios().size());
 

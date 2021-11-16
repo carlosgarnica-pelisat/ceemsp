@@ -6,6 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EmpresaLicenciaColectivaDto {
+    private int id;
+    private String uuid;
     private String numeroOficio;
     private ModalidadDto modalidad;
     private SubmodalidadDto submodalidad;

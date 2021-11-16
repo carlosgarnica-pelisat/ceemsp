@@ -48,4 +48,17 @@ public class SubmodalidadServiceImpl implements SubmodalidadService{
                 .map(daoToDtoConverter::convertDaoToDtoSubmodalidad)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public SubmodalidadDto obtenerSubmodalidadPorId(int modalidadId) {
+        if(modalidadId < 1) {
+            logger.warn("El id esta viniendo como nulo o vacio.");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo la submodalidad con el id [{}]", modalidadId);
+        Submodalidad submodalidad = submodalidadRepository.getOne(modalidadId);
+
+        return daoToDtoConverter.convertDaoToDtoSubmodalidad(submodalidad);
+    }
 }

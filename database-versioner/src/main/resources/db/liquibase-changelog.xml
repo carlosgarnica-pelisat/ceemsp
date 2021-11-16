@@ -11,6 +11,7 @@
     <!-- CATALOGOS DE MODALIDADES -->
     <include file="changelog/submodalidades/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/modalidades/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/tipo-infraestructura/master.xml" relativeToChangelogFile="true"></include>
 
     <!-- EMPRESAS -->
     <include file="changelog/empresas/master.xml" relativeToChangelogFile="true"></include>
@@ -41,10 +42,16 @@
     <include file="changelog/vehiculos-tipos/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/vehiculos-marcas/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/vehiculos-submarcas/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/vehiculos-usos/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/vehiculos/master.xml" relativeToChangelogFile="true"></include>
 <!--    <include file="changelog/vehiculos-fotografias/master.xml" relativeToChangelogFile="true"></include>-->
 
     <include file="changelog/clientes/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/clientes-modalidades/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/clientes-domicilios/master.xml" relativeToChangelogFile="true"></include>
+
+    <!-- PERSONAL -->
+    <include file="changelog/personal-puestos/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/personal-nacionalidades/master.xml" relativeToChangelogFile="true"></include>
 
 </databaseChangeLog>

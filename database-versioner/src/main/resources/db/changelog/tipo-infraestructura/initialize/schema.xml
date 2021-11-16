@@ -1,0 +1,191 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2021-09-15-crear-tabla-tipo-infraestructura" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="NOMBRE" type="VARCHAR(500)"></column>
+            <column name="DESCRIPCION" type="VARCHAR(500)"></column>
+            <column name="ELIMINADO" type="BIT" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="DATETIME" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="INT"></column>
+            <column name="FECHA_ACTUALIZACION" type="DATETIME" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="INT"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="TIPO_INFRAESTRUCTURA" columnNames="ID" />
+        <addAutoIncrement tableName="TIPO_INFRAESTRUCTURA" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="TIPO_INFRAESTRUCTURA" columnNames="UUID" />
+
+        <insert tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" value="1"></column>
+            <column name="UUID" value="pfjzvPygSH6K"></column>
+            <column name="NOMBRE" value="Bodega"></column>
+            <column name="DESCRIPCION" value="Bodega"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" value="2"></column>
+            <column name="UUID" value="DnOvsNcRdifJ"></column>
+            <column name="NOMBRE" value="Tienda"></column>
+            <column name="DESCRIPCION" value="Tienda"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" value="3"></column>
+            <column name="UUID" value="zsVmX6V3Tlw2"></column>
+            <column name="NOMBRE" value="Edificio"></column>
+            <column name="DESCRIPCION" value="Edificio"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" value="4"></column>
+            <column name="UUID" value="y50wH8XVQURV"></column>
+            <column name="NOMBRE" value="Hospital"></column>
+            <column name="DESCRIPCION" value="Hospital"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" value="5"></column>
+            <column name="UUID" value="lofPwjf7V1LC"></column>
+            <column name="NOMBRE" value="Institucion financiera"></column>
+            <column name="DESCRIPCION" value="Institucion financiera"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" value="6"></column>
+            <column name="UUID" value="g9mmLXyGa8ks"></column>
+            <column name="NOMBRE" value="Casa"></column>
+            <column name="DESCRIPCION" value="Casa"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" value="7"></column>
+            <column name="UUID" value="09NrHG2LuthO"></column>
+            <column name="NOMBRE" value="Escuela"></column>
+            <column name="DESCRIPCION" value="Escuela"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" value="8"></column>
+            <column name="UUID" value="WFH2XhJTk6Fr"></column>
+            <column name="NOMBRE" value="Plaza comercial"></column>
+            <column name="DESCRIPCION" value="Plaza comercial"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" value="9"></column>
+            <column name="UUID" value="qXqNLcbpWjeB"></column>
+            <column name="NOMBRE" value="Local comercial"></column>
+            <column name="DESCRIPCION" value="Local comercial"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" value="10"></column>
+            <column name="UUID" value="DlqByMada7tp"></column>
+            <column name="NOMBRE" value="Fraccionamiento"></column>
+            <column name="DESCRIPCION" value="Fraccionamiento"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" value="11"></column>
+            <column name="UUID" value="ilxsSHl11MSA"></column>
+            <column name="NOMBRE" value="Condominio"></column>
+            <column name="DESCRIPCION" value="Condominio"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" value="12"></column>
+            <column name="UUID" value="eKwv3Y7DzNOU"></column>
+            <column name="NOMBRE" value="Tienda de autoservicio"></column>
+            <column name="DESCRIPCION" value="Tienda de autoservicio"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="TIPO_INFRAESTRUCTURA">
+            <column name="ID" value="13"></column>
+            <column name="UUID" value="qYuSUWiH1EOE"></column>
+            <column name="NOMBRE" value="Otro"></column>
+            <column name="DESCRIPCION" value="Otro"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+    </changeSet>
+</databaseChangeLog>
+
+
+
+
+
+
+

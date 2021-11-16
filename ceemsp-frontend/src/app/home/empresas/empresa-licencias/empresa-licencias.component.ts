@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import VehiculoMarca from "../../../_models/VehiculoMarca";
 import {EmpresaService} from "../../../_services/empresa.service";
 import {ToastService} from "../../../_services/toast.service";
 import {ActivatedRoute} from "@angular/router";
+import {ToastType} from "../../../_enums/ToastType";
+import EmpresaLicenciaColectiva from "../../../_models/EmpresaLicenciaColectiva";
+import EmpresaModalidad from "../../../_models/EmpresaModalidad";
 
 @Component({
   selector: 'app-empresa-licencias',
@@ -18,14 +20,15 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
-    {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+    {headerName: 'Numero de oficio', field: 'numeroOficio', sortable: true, filter: true },
+    {headerName: 'Fecha de Inicio', field: 'fechaInicio', sortable: true, filter: true},
+    {headerName: 'Fecha de Termino', field: 'fechaFin', sortable: true, filter: true},
     {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
         modify: this.modify.bind(this),
         delete: this.delete.bind(this)
       }}
   ];
-  rowData = [];
+  rowData: EmpresaLicenciaColectiva[] = [];
 
   uuid: string;
   modal: NgbModalRef;
@@ -34,6 +37,8 @@ export class EmpresaLicenciasComponent implements OnInit {
   rowDataClicked = {
     uuid: undefined
   };
+
+  modalidades: EmpresaModalidad[];
 
   crearEmpresaLicenciaForm: FormGroup;
 
@@ -46,8 +51,19 @@ export class EmpresaLicenciasComponent implements OnInit {
     this.crearEmpresaLicenciaForm = this.formBuilder.group({
       numeroOficio: ['', Validators.required],
       modalidad: ['', Validators.required],
+      submodalidad: [''],
       fechaInicio: ['', Validators.required],
       fechaFin: ['', Validators.required]
+    });
+
+    this.empresaService.obtenerLicenciasColectivas(this.uuid).subscribe((data: EmpresaLicenciaColectiva[]) => {
+      this.rowData = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las licencias colectivas. ${error}`,
+        ToastType.ERROR
+      )
     })
   }
 
@@ -58,6 +74,16 @@ export class EmpresaLicenciasComponent implements OnInit {
       this.closeResult = `Closed with ${result}`;
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    });
+
+    this.empresaService.obtenerModalidades(this.uuid).subscribe((data: EmpresaModalidad[]) => {
+      this.modalidades = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudieron descargar las modalidades de la empresa. ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 
@@ -73,6 +99,47 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   delete() {
 
+  }
+
+  guardarLicencia(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que no estan siendo llenados",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando la licencia",
+      ToastType.INFO
+    );
+
+    let formValue = form.value;
+    let licencia: EmpresaLicenciaColectiva = new EmpresaLicenciaColectiva();
+
+    licencia.numeroOficio = formValue.numeroOficio;
+    licencia.modalidad = this.modalidades.filter(x => x.modalidad.uuid === formValue.modalidad)[0].modalidad;
+    licencia.submodalidad = this.modalidades.filter(x => x.submodalidad.uuid === formValue.submodalidad)[0].submodalidad;
+    licencia.fechaInicio = formValue.fechaInicio;
+    licencia.fechaFin = formValue.fechaFin;
+
+    this.empresaService.guardarLicenciaColectiva(this.uuid, licencia).subscribe((data: EmpresaLicenciaColectiva) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado la licencia con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la licencia. ${error}`,
+        ToastType.ERROR
+      );
+    });
   }
 
   private getDismissReason(reason: any): string {

@@ -1,0 +1,12 @@
+package com.pelisat.cesp.ceemsp.restceemsp.service;
+
+import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraApoderadoDto;
+import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraRepresentanteDto;
+
+import java.util.List;
+
+public interface EmpresaEscrituraApoderadoService {
+    List<EmpresaEscrituraApoderadoDto> obtenerApoderadosPorEscritura(String empresaUuid, String escrituraUuid);
+    EmpresaEscrituraApoderadoDto obtenerRepresentantePorUuid(String empresaUuid, String escrituraUuid, boolean soloEntidad);
+    EmpresaEscrituraApoderadoDto crearApoderado(String empresaUuid, String escrituraUuid, String username, EmpresaEscrituraApoderadoDto empresaEscrituraApoderadoDto);
+}

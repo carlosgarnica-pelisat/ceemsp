@@ -8,13 +8,16 @@
         <createTable tableName="CLIENTES">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
-            <column name="LICENCIA_COLECTIVA" type="INT"></column>
-            <column name="TIPO" type="VARCHAR(10)"></column>
-            <column name="CLASE" type="INT"></column>
-            <column name="MARCA" type="INT"></column>
-            <column name="CALIBRE" type="VARCHAR(10)"></column>
-            <column name="BUNKER" type="INT"></column>
-            <column name="STATUS" type="VARCHAR(15)"></column>
+            <column name="EMPRESA" type="int"></column>
+            <column name="TIPO_PERSONA" type="VARCHAR(8)"></column>
+            <column name="RFC" type="VARCHAR(13)"></column>
+            <column name="NOMBRE_COMERCIAL" type="VARCHAR(100)"></column>
+            <column name="RAZON_SOCIAL" type="VARCHAR(100)"></column>
+            <column name="CANES" type="BOOLEAN"></column>
+            <column name="ARMAS" type="BOOLEAN"></column>
+            <column name="FECHA_INICIO" type="DATE"></column>
+            <column name="FECHA_FIN" type="DATE"></column>
+            <column name="RUTA_ARCHIVO_CONTRATO" type="VARCHAR(512)"></column>
             <column name="ELIMINADO" type="bit" defaultValue="0"></column>
             <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
             <column name="CREADO_POR" type="int"></column>

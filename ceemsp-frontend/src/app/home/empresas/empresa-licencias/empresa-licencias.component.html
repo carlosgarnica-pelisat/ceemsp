@@ -59,28 +59,22 @@
       <div class="row">
         <div class="col-sm-12">
           <form [formGroup]="crearEmpresaLicenciaForm">
-            <div class="row">
-              <div class="col-sm-3">
+            <div class="form-row">
+              <div class="col-sm-4">
                 <label for="numeroOficio">
                   <b>Numero de oficio *</b>
                   <span *ngIf="crearEmpresaLicenciaForm.controls['numeroOficio'].invalid && (crearEmpresaLicenciaForm.controls['numeroOficio'].dirty || crearEmpresaLicenciaForm.controls['numeroOficio'].touched)" class="text-danger"> - Requerido</span>
                 </label>
                 <input id="numeroOficio" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroOficio" #numeroOficio>
               </div>
-              <div class="col-sm-3">
-                <!--label for="modalidad">
-                  <b>Numero de oficio *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['modalidad'].invalid && (crearEmpresaLicenciaForm.controls['modalidad'].dirty || crearEmpresaLicenciaForm.controls['modalidad'].touched)" class="text-danger"> - Requerido</span>
-                </label-->
-              </div>
-              <div class="col-sm-3">
+              <div class="col-sm-4">
                 <label for="fechaInicio">
                   <b>Fecha de Inicio *</b>
                   <span *ngIf="crearEmpresaLicenciaForm.controls['fechaInicio'].invalid && (crearEmpresaLicenciaForm.controls['fechaInicio'].dirty || crearEmpresaLicenciaForm.controls['fechaInicio'].touched)" class="text-danger"> - Requerido</span>
                 </label>
                 <input id="fechaInicio" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaInicio" #fechaInicio>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-4">
                 <label for="fechaFin">
                   <b>Fecha de fin *</b>
                   <span *ngIf="crearEmpresaLicenciaForm.controls['fechaFin'].invalid && (crearEmpresaLicenciaForm.controls['fechaFin'].dirty || crearEmpresaLicenciaForm.controls['fechaFin'].touched)" class="text-danger"> - Requerido</span>
@@ -88,12 +82,31 @@
                 <input id="fechaFin" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaFin" #fechaFin>
               </div>
             </div>
+            <div class="form-row">
+              <div class="col-sm-4">
+                <label for="modalidad">
+                  <b>Modalidad *</b>
+                  <span *ngIf="crearEmpresaLicenciaForm.controls['modalidad'].invalid && (crearEmpresaLicenciaForm.controls['modalidad'].dirty || crearEmpresaLicenciaForm.controls['modalidad'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <select id="modalidad" class="form-control" formControlName="modalidad">
+                  <option *ngFor="let m of modalidades" value="{{m.modalidad.uuid}}">{{m.modalidad.nombre}}</option>
+                </select>
+              </div>
+              <div class="col-sm-4">
+                <label for="submodalidad">
+                  <b>Submodalidad</b>
+                </label>
+                <select id="submodalidad" class="form-control" formControlName="submodalidad">
+                  <option *ngFor="let m of modalidades" value="{{m.submodalidad.uuid}}">{{m.submodalidad.nombre}}</option>
+                </select>
+              </div>
+            </div>
           </form>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary">Guardar</button>
+      <button class="btn btn-primary" (click)="guardarLicencia(crearEmpresaLicenciaForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>

@@ -30,7 +30,7 @@ public class EmpresaEscrituraController {
         return empresaEscrituraService.obtenerEscriturasEmpresaPorUuid(empresaUuid);
     }
 
-    @GetMapping(value = EMPRESA_ESCRITURA_URI + "{escrituraUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = EMPRESA_ESCRITURA_URI + "/{escrituraUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public EmpresaEscrituraDto obtenerEscrituraPorUuid(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "escrituraUuid") String escrituraUuid

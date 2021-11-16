@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface SubmodalidadService {
     List<SubmodalidadDto> obtenerSubmodalidadesPorModalidad(int modalidadId);
+
+    SubmodalidadDto obtenerSubmodalidadPorId(int modalidadId);
 }

@@ -1,0 +1,43 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2021-11-09-crear-tabla-cliente-domicilios" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="CLIENTES_DOMICILIOS">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="CLIENTE" type="int"></column>
+            <column name="NOMBRE" type="varchar(100)"></column>
+            <column name="DOMICILIO_1" type="varchar(100)"></column>
+            <column name="DOMICILIO_2" type="varchar(100)"></column>
+            <column name="DOMICILIO_3" type="varchar(100)"></column>
+            <column name="DOMICILIO_4" type="varchar(100)"></column>
+            <column name="CODIGO_POSTAL" type="varchar(5)"></column>
+            <column name="ESTADO" type="varchar(50)"></column>
+            <column name="PAIS" type="varchar(100)"></column>
+            <column name="MATRIZ" type="bit"></column>
+            <column name="CONTACTO" type="varchar(100)"></column>
+            <column name="TELEFONO_FIJO" type="varchar(20)"></column>
+            <column name="TELEFONO_MOVIL" type="varchar(20)"></column>
+            <column name="CORREO_ELECTRONICO" type="varchar(255)"></column>
+            <column name="TIPO_INFRAESTRUCTURA" type="INT"></column>
+            <column name="TIPO_INFRAESTRUCTURA_OTRO" type="VARCHAR(100)"></column>
+            <column name="ELIMINADO" type="bit" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="int"></column>
+            <column name="FECHA_ACTUALIZACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="int"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="CLIENTES_DOMICILIOS" columnNames="ID" />
+        <addAutoIncrement tableName="CLIENTES_DOMICILIOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="CLIENTES_DOMICILIOS" columnNames="UUID" />
+
+
+    </changeSet>
+</databaseChangeLog>

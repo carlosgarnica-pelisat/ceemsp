@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class DaoToDtoConverter {
@@ -142,6 +143,9 @@ public class DaoToDtoConverter {
             throw new InvalidDataException();
         }
 
+        /*EmpresaModalidadDto empresaModalidadDto = new EmpresaModalidadDto();
+        empresaModalidadDto.setFechaInicio(empresaModalidad.getFechaInicio().format(DateTimeFormatter.ofPattern("dd LLLL yyyy")));*/
+
         return modelMapper.map(empresaModalidad, EmpresaModalidadDto.class);
     }
 
@@ -172,6 +176,15 @@ public class DaoToDtoConverter {
         return modelMapper.map(empresaEscrituraApoderado, EmpresaEscrituraApoderadoDto.class);
     }
 
+    public EmpresaEscrituraSocioDto convertDaoToDtoEmpresaEscrituraSocio(EmpresaEscrituraSocio empresaEscrituraSocio) {
+        if(empresaEscrituraSocio == null) {
+            logger.warn("El socio de la escritura de la empresa viene nula o vacía");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaEscrituraSocio, EmpresaEscrituraSocioDto.class);
+    }
+
     public EmpresaEscrituraRepresentanteDto convertDaoToDtoEmpresaEscrituraRepresentante(EmpresaEscrituraRepresentante empresaEscrituraRepresentante) {
         if(empresaEscrituraRepresentante == null) {
             logger.warn("El representante de la escritura de la empresa viene como nula o vacia");
@@ -188,5 +201,41 @@ public class DaoToDtoConverter {
         }
 
         return modelMapper.map(empresaLicenciaColectiva, EmpresaLicenciaColectivaDto.class);
+    }
+
+    public ClienteDto convertDaoToDtoCliente(Cliente cliente) {
+        if(cliente == null) {
+            logger.warn("El cliente de la empresa viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(cliente, ClienteDto.class);
+    }
+
+    public TipoInfraestructuraDto convertDaoToDtoTipoInfraestructura(TipoInfraestructura tipoInfraestructura) {
+        if(tipoInfraestructura == null) {
+            logger.warn("El tipo de infraestructura viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(tipoInfraestructura, TipoInfraestructuraDto.class);
+    }
+
+    public VehiculoDto convertDaoToDtoVehiculo(Vehiculo vehiculo) {
+        if(vehiculo == null) {
+            logger.warn("El vehiculo viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(vehiculo, VehiculoDto.class);
+    }
+
+    public VehiculoUsoDto convertDaoToDtoVehiculoUso(VehiculoUso vehiculoUso) {
+        if(vehiculoUso == null) {
+            logger.warn("El uso del vehiculo viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(vehiculoUso, VehiculoUsoDto.class);
     }
 }

@@ -5,10 +5,12 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.ArmaClase;
 import com.pelisat.cesp.ceemsp.database.model.ArmaMarca;
 import com.pelisat.cesp.ceemsp.database.model.CanRaza;
+import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.repository.ArmaClaseRepository;
 import com.pelisat.cesp.ceemsp.database.repository.CanRazaRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
 import org.apache.commons.lang3.StringUtils;
@@ -29,14 +31,17 @@ public class ArmaClaseServiceImpl implements ArmaClaseService {
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
     private final Logger logger = LoggerFactory.getLogger(ArmaClaseServiceImpl.class);
+    private final DaoHelper<CommonModel> daoHelper;
 
     @Autowired
     public ArmaClaseServiceImpl(ArmaClaseRepository armaClaseRepository, UsuarioService usuarioService,
-                                DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter) {
+                                DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
+                                DaoHelper<CommonModel> daoHelper) {
         this.armaClaseRepository = armaClaseRepository;
         this.usuarioService = usuarioService;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
+        this.daoHelper = daoHelper;
     }
 
     @Override
@@ -96,19 +101,8 @@ public class ArmaClaseServiceImpl implements ArmaClaseService {
         logger.info("Creando nueva clase de arma con nombre: [{}]", armaClaseDto.getNombre());
 
         UsuarioDto usuario = usuarioService.getUserByEmail(username);
-
-        if(usuario == null) {
-            logger.warn("El usuario no existe en la base de datos");
-            throw new InvalidDataException();
-        }
-
         ArmaClase armaClase = dtoToDaoConverter.convertDtoToDaoArmaClase(armaClaseDto);
-
-        armaClase.setFechaCreacion(LocalDateTime.now());
-        armaClase.setCreadoPor(usuario.getId());
-        armaClase.setActualizadoPor(usuario.getId());
-        armaClase.setFechaActualizacion(LocalDateTime.now());
-
+        daoHelper.fulfillAuditorFields(true, armaClase, usuario.getId());
         ArmaClase armaClaseCreada = armaClaseRepository.save(armaClase);
 
         return daoToDtoConverter.convertDaoToDtoArmaClase(armaClaseCreada);

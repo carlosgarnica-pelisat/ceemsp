@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -15,6 +16,9 @@ import java.util.Date;
 @Getter
 @Setter
 public class Can extends CommonModel {
+    @Column(name = "NOMBRE", nullable = false)
+    private String nombre;
+
     @Column(name = "EMPRESA", nullable = false)
     private Integer empresa;
 
@@ -25,6 +29,9 @@ public class Can extends CommonModel {
     // TODO: Cambiar a relationships de JPA
     @Column(name = "RAZA", nullable = false)
     private Integer raza;
+
+    @Column(name = "RAZA_OTRO")
+    private String razaOtro;
 
     @Column(name = "DOMICILIO_ASIGNADO", nullable = false)
     private Integer domicilioAsignado;
@@ -55,5 +62,24 @@ public class Can extends CommonModel {
     @Column(name = "TATUAJE", nullable = false)
     private Boolean tatuaje;
 
+    @Column(name = "RAZON_SOCIAL")
+    private String razonSocial;
 
+    @Column(name = "FECHA_INICIO")
+    private LocalDate fechaInicio;
+
+    @Column(name = "FECHA_FIN")
+    private LocalDate fechaFin;
+
+    @Column(name = "ELEMENTO_ASIGNADO")
+    private Integer elementoAsignado;
+
+    @Column(name = "CLIENTE_ASIGNADO")
+    private Integer clienteAsignado;
+
+    @Column(name = "DOMICILIO_CLIENTE_ASIGNADO")
+    private Integer domicilioClienteAsignado;
+
+    @Column(name = "MOTIVOS")
+    private String motivos;
 }

@@ -1,11 +1,11 @@
 package com.pelisat.cesp.ceemsp.database.model;
 
+import com.pelisat.cesp.ceemsp.database.type.NivelBlindajeEnum;
+import com.pelisat.cesp.ceemsp.database.type.VehiculoOrigenEnum;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
@@ -41,7 +41,8 @@ public class Vehiculo extends CommonModel {
     private String serie;
 
     @Column(name = "USERNAME", nullable = false)
-    private String origen;
+    @Enumerated(EnumType.STRING)
+    private VehiculoOrigenEnum origen;
 
     @Column(name = "BLINDADO")
     private boolean blindado;
@@ -62,7 +63,8 @@ public class Vehiculo extends CommonModel {
     private String empresaBlindaje;
 
     @Column(name = "NIVEL_BLINDAJE")
-    private String nivelBlindaje;
+    @Enumerated(EnumType.STRING)
+    private NivelBlindajeEnum nivelBlindaje;
 
     public Vehiculo() {
         super();

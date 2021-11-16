@@ -24,19 +24,19 @@ public class VehiculoTipoController {
     }
 
     @GetMapping(value = VEHICULOS_TIPOS_URI, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<VehiculoTipoDto> obtenerArmasMarcas() {
+    public List<VehiculoTipoDto> obtenerVehiculosTipos() {
         return vehiculoTipoService.obtenerTodos();
     }
 
     @GetMapping(value = VEHICULOS_TIPOS_URI + "/{vehiculoTipoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public VehiculoTipoDto obtenerArmaMarcaPorUuid(
+    public VehiculoTipoDto obtenerTipoVehiculoPorUuid(
             @PathVariable(value = "vehiculoTipoUuid") String vehiculoTipoUuid
     ) {
         return vehiculoTipoService.obtenerPorUuid(vehiculoTipoUuid);
     }
 
     @PostMapping(value = VEHICULOS_TIPOS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public VehiculoTipoDto guardarArmaMarca(
+    public VehiculoTipoDto guardarTipoVehiculo(
             HttpServletRequest request,
             @RequestBody VehiculoTipoDto VehiculoTipoDto
     ) throws Exception {

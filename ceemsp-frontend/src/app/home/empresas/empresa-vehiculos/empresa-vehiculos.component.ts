@@ -1,9 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
-import {FormBuilder, FormGroup} from "@angular/forms";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import VehiculoMarca from "../../../_models/VehiculoMarca";
 import {ToastService} from "../../../_services/toast.service";
 import {EmpresaService} from "../../../_services/empresa.service";
+import VehiculoSubmarca from "../../../_models/VehiculoSubmarca";
+import {VehiculosService} from "../../../_services/vehiculos.service";
+import {ToastType} from "../../../_enums/ToastType";
+import VehiculoTipo from "../../../_models/VehiculoTipo";
+import {ActivatedRoute} from "@angular/router";
+import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
+import VehiculoUso from "../../../_models/VehiculoUso";
 
 @Component({
   selector: 'app-empresa-vehiculos',
@@ -37,12 +44,49 @@ export class EmpresaVehiculosComponent implements OnInit {
   crearVehiculoMarcaForm: FormGroup;
   crearVehiculoSubmarcaForm: FormGroup;
 
-  vehiculoMarca: VehiculoMarca;
+  crearVehiculoForm: FormGroup;
+
+  marca: VehiculoMarca;
+  marcas: VehiculoMarca[];
+  submarcas: VehiculoSubmarca[];
+  tipos: VehiculoTipo[];
+  domicilios: EmpresaDomicilio[] = [];
+  usos: VehiculoUso[] = [];
+
+  blindado: boolean = false;
+  origen: string = "";
 
   constructor(private modalService: NgbModal, private toastService: ToastService,
-              private empresaService: EmpresaService, private formBuilder: FormBuilder) { }
+              private empresaService: EmpresaService, private formBuilder: FormBuilder,
+              private vehiculosService: VehiculosService, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
+    this.uuid = this.route.snapshot.paramMap.get("uuid");
+
+    this.crearVehiculoForm = this.formBuilder.group({
+      placas: ['', Validators.required],
+      serie: ['', Validators.required],
+      tipo: ['', Validators.required],
+      marca: ['', Validators.required],
+      submarca: ['', Validators.required],
+      anio: ['', Validators.required],
+      color: ['', Validators.required],
+      rotulado: ['', Validators.required],
+      uso: ['', Validators.required],
+      domicilio: ['', Validators.required],
+      origen: ['', Validators.required],
+      blindado: ['', Validators.required],
+      serieBlindaje: [''],
+      fechaBlindaje: [''],
+      numeroHolograma: [''],
+      placaMetalica: [''],
+      empresaBlindaje: [''],
+      nivelBlindaje: [''],
+      razonSocial: [''],
+      fechaInicio: [''],
+      fechaFin: ['']
+      // TODO: Agregar campos para fotos y documentos; asi como constancia de blindaje
+    })
   }
 
   modify() {
@@ -59,14 +103,89 @@ export class EmpresaVehiculosComponent implements OnInit {
     this.gridColumnApi = params.gridApi;
   }
 
+  seleccionarBlindado(event) {
+    this.blindado = event.value;
+  }
+
+  seleccionarOrigen(event) {
+    this.origen = event.value;
+  }
+
+  seleccionarMarca(event) {
+    let marcaUuid = event.value;
+
+    this.vehiculosService.obtenerVehiculoMarcaPorUuid(marcaUuid).subscribe((data: VehiculoMarca) => {
+      this.marca = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la informacion de la marca. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
   mostrarModalCrear(modal) {
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     });
+
+    // Obteniendo la informacion
+    this.vehiculosService.obtenerVehiculosMarcas().subscribe((data: VehiculoMarca[]) => {
+      this.marcas = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudo descargar la informacion de las marcas. ${error}`,
+        ToastType.ERROR
+      );
+    })
+
+    // Obteniendo el resto de informacion
+    this.vehiculosService.obtenerVehiculosUsos().subscribe((data: VehiculoUso[]) => {
+      this.usos = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudo descargar la informacion de los usos de vehiculos. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+
+    this.vehiculosService.obtenerVehiculosTipos().subscribe((data: VehiculoTipo[]) => {
+      this.tipos = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudo descargar la informacion de los tipos de vehiculo. ${error}`,
+        ToastType.ERROR
+      );
+    });
+
+    this.empresaService.obtenerDomicilios(this.uuid).subscribe((data: EmpresaDomicilio[]) => {
+      this.domicilios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudieron descargar los domicilios de la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
+  }
+
+  guardarVehiculo(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que necesitan ser rellenados",
+        ToastType.WARNING
+      );
+      return;
+    }
   }
 
   private getDismissReason(reason: any): string {

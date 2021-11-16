@@ -9,6 +9,8 @@ import java.util.List;
 @Getter
 @Setter
 public class EmpresaEscrituraDto {
+    private int id;
+    private String uuid;
     private String numeroEscritura;
     private String fechaEscritura;
     private String ciudad;

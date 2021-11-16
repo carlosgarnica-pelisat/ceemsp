@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.database.dto;
 
+import com.pelisat.cesp.ceemsp.database.type.NivelBlindajeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,5 +24,5 @@ public class VehiculoDto {
     private String numeroHolograma;
     private String placaMetalica;
     private String empresaBlindaje;
-    private String nivelBlindaje;
+    private NivelBlindajeEnum nivelBlindaje;
 }

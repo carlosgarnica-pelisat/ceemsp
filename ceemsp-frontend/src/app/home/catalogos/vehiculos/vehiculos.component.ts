@@ -5,6 +5,7 @@ import {ToastService} from "../../../_services/toast.service";
 import {VehiculosService} from "../../../_services/vehiculos.service";
 import VehiculoMarca from "../../../_models/VehiculoMarca";
 import {ToastType} from "../../../_enums/ToastType";
+import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 
 @Component({
   selector: 'app-vehiculos',
@@ -12,6 +13,9 @@ import {ToastType} from "../../../_enums/ToastType";
   styleUrls: ['./vehiculos.component.css']
 })
 export class VehiculosComponent implements OnInit {
+
+  faPencilAlt = faPencilAlt;
+  faTrash = faTrash;
 
   private gridApi;
   private gridColumnApi;
@@ -154,8 +158,12 @@ export class VehiculosComponent implements OnInit {
     }
   }
 
-  changeToSubmarcas() {
+  cambiarASubmarcas() {
+    this.currentTab = "SUBMARCAS";
+  }
 
+  cambiarADetalles() {
+    this.currentTab = "DETALLES"
   }
 
 }

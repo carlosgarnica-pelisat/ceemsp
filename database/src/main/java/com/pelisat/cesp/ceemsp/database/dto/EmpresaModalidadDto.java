@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class EmpresaModalidadDto {
     private ModalidadDto modalidad;
     private SubmodalidadDto submodalidad;
-    private LocalDate fechaInicio;
-    private LocalDate fechaFin;
+    private String fechaInicio;
+    private String fechaFin;
     private String numeroRegistroFederal;
 }
