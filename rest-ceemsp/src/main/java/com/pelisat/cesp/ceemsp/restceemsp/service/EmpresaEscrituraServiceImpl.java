@@ -4,10 +4,7 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.*;
-import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraApoderadoRepository;
-import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
-import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepresentanteRepository;
-import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraSocioRepository;
+import com.pelisat.cesp.ceemsp.database.repository.*;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -32,6 +29,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
     private final EmpresaEscrituraApoderadoRepository empresaEscrituraApoderadoRepository;
     private final EmpresaEscrituraRepresentanteRepository empresaEscrituraRepresentanteRepository;
     private final EmpresaEscrituraSocioRepository empresaEscrituraSociosRepository;
+    private final EmpresaEscrituraConsejoRepository empresaEscrituraConsejoRepository;
     private final EmpresaService empresaService;
     private final UsuarioService usuarioService;
     private final DaoToDtoConverter daoToDtoConverter;
@@ -43,7 +41,8 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
             EmpresaEscrituraRepository empresaEscrituraRepository, EmpresaEscrituraApoderadoRepository empresaEscrituraApoderadoRepository,
             EmpresaEscrituraRepresentanteRepository empresaEscrituraRepresentanteRepository, EmpresaService empresaService,
             DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper,
-            UsuarioService usuarioService, EmpresaEscrituraSocioRepository empresaEscrituraSociosRepository
+            UsuarioService usuarioService, EmpresaEscrituraSocioRepository empresaEscrituraSociosRepository,
+            EmpresaEscrituraConsejoRepository empresaEscrituraConsejoRepository
     ) {
         this.empresaEscrituraApoderadoRepository = empresaEscrituraApoderadoRepository;
         this.empresaEscrituraRepository = empresaEscrituraRepository;
@@ -54,6 +53,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
         this.usuarioService = usuarioService;
+        this.empresaEscrituraConsejoRepository = empresaEscrituraConsejoRepository;
     }
 
     @Override
@@ -100,10 +100,12 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
             List<EmpresaEscrituraSocio> socios = empresaEscrituraSociosRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
             List<EmpresaEscrituraApoderado> apoderados = empresaEscrituraApoderadoRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
             List<EmpresaEscrituraRepresentante> representantes = empresaEscrituraRepresentanteRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
+            List<EmpresaEscrituraConsejo> consejos = empresaEscrituraConsejoRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
 
             response.setSocios(socios.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraSocio).collect(Collectors.toList()));
             response.setApoderados(apoderados.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraApoderado).collect(Collectors.toList()));
             response.setRepresentantes(representantes.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraRepresentante).collect(Collectors.toList()));
+            response.setConsejos(consejos.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraConsejo).collect(Collectors.toList()));
         }
 
         return response;

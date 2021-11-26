@@ -423,11 +423,11 @@
               <td><b>Puesto</b></td>
               <td><b>Acciones</b></td>
             </tr>
-            <tr *ngFor="let representante of escritura?.representantes">
-              <td>{{representante.nombres}}</td>
-              <td>{{representante.apellidos}}</td>
-              <td>{{representante.sexo}}</td>
-              <td></td>
+            <tr *ngFor="let c of escritura?.consejos">
+              <td>{{c.nombres}}</td>
+              <td>{{c.apellidos}}</td>
+              <td>{{c.sexo}}</td>
+              <td>{{c.puesto}}</td>
               <td>
                 <fa-icon [icon]="faPencil"></fa-icon>
                 <fa-icon [icon]="faTrash"></fa-icon>
@@ -444,28 +444,41 @@
                   <div class="col-sm-12">
                     <form [formGroup]="nuevoRepresentanteForm">
                       <div class="form-row">
-                        <div class="col-sm-4">
-                          <label for="representanteNombre">
+                        <div class="col-sm-3">
+                          <label for="consejoNombre">
                             <b>Nombre(s) *</b>
-                            <span *ngIf="nuevoRepresentanteForm.controls['nombres'].invalid && (nuevoRepresentanteForm.controls['nombres'].dirty || nuevoRepresentanteForm.controls['nombres'].touched)" class="text-danger"> - Requerido</span>
+                            <span *ngIf="nuevoConsejoAdministracionForm.controls['nombres'].invalid && (nuevoConsejoAdministracionForm.controls['nombres'].dirty || nuevoConsejoAdministracionForm.controls['nombres'].touched)" class="text-danger"> - Requerido</span>
                           </label>
-                          <input id="representanteNombre" type="text" class="form-control" placeholder="Ej. Carlos Jose" formControlName="nombres" #nombres>
+                          <input id="consejoNombre" type="text" class="form-control" placeholder="Ej. Carlos Jose" formControlName="nombres" #nombres>
                         </div>
-                        <div class="col-sm-4">
-                          <label for="representanteApellidos">
+                        <div class="col-sm-3">
+                          <label for="consejoApellidos">
                             <b>Apellido(s) *</b>
                             <span *ngIf="nuevoRepresentanteForm.controls['apellidos'].invalid && (nuevoRepresentanteForm.controls['apellidos'].dirty || nuevoRepresentanteForm.controls['apellidos'].touched)" class="text-danger"> - Requerido</span>
                           </label>
-                          <input id="representanteApellidos" type="text" class="form-control" placeholder="Ej. Gonzalez Gonzalez" formControlName="apellidos" #apellidos>
+                          <input id="consejoApellidos" type="text" class="form-control" placeholder="Ej. Gonzalez Gonzalez" formControlName="apellidos" #apellidos>
                         </div>
-                        <div class="col-sm-4">
-                          <label for="representanteSexo">
+                        <div class="col-sm-3">
+                          <label for="consejoSexo">
                             <b>Sexo *</b>
                             <span *ngIf="nuevoRepresentanteForm.controls['sexo'].invalid && (nuevoRepresentanteForm.controls['sexo'].dirty || nuevoRepresentanteForm.controls['sexo'].touched)" class="text-danger"> - Requerido</span>
                           </label>
-                          <select id="representanteSexo" class="form-control" formControlName="sexo">
+                          <select id="consejoSexo" class="form-control" formControlName="sexo">
                             <option value="MASCULINO">MASCULINO</option>
                             <option value="FEMENINO">FEMENINO</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="consejoPuesto">
+                            <b>Puesto *</b>
+                            <span *ngIf="nuevoRepresentanteForm.controls['puesto'].invalid && (nuevoRepresentanteForm.controls['puesto'].dirty || nuevoRepresentanteForm.controls['puesto'].touched)" class="text-danger"> - Requerido</span>
+                          </label>
+                          <select id="consejoPuesto" class="form-control" formControlName="puesto">
+                            <option value="PRESIDENTE">Presidente</option>
+                            <option value="VICEPRESIDENTE">Vicepresidente</option>
+                            <option value="SECRETARIO">Secretario</option>
+                            <option value="TESORERO">Tesorero</option>
+                            <option value="VOCAL">Vocal</option>
                           </select>
                         </div>
                       </div>
@@ -475,8 +488,8 @@
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button class="btn btn-primary btn-sm" (click)="guardarRepresentante(nuevoRepresentanteForm)">Guardar</button>
-                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevoSocio()">Cancelar</button>
+                    <button class="btn btn-primary btn-sm" (click)="guardarConsejo(nuevoRepresentanteForm)">Guardar</button>
+                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevoConsejo()">Cancelar</button>
                   </div>
                 </div>
               </td>

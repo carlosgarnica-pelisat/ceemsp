@@ -22,4 +22,5 @@ public class EmpresaEscrituraDto {
     private List<EmpresaEscrituraSocioDto> socios;
     private List<EmpresaEscrituraApoderadoDto> apoderados;
     private List<EmpresaEscrituraRepresentanteDto> representantes;
+    private List<EmpresaEscrituraConsejoDto> consejos;
 }

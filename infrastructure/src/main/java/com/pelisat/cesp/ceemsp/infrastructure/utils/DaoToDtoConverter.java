@@ -194,6 +194,15 @@ public class DaoToDtoConverter {
         return modelMapper.map(empresaEscrituraRepresentante, EmpresaEscrituraRepresentanteDto.class);
     }
 
+    public EmpresaEscrituraConsejoDto convertDaoToDtoEmpresaEscrituraConsejo(EmpresaEscrituraConsejo empresaEscrituraConsejo) {
+        if(empresaEscrituraConsejo == null) {
+            logger.warn("El consejo de la escritura de la empresa viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaEscrituraConsejo, EmpresaEscrituraConsejoDto.class);
+    }
+
     public EmpresaLicenciaColectivaDto convertDaoToDtoEmpresaLicenciaColectiva(EmpresaLicenciaColectiva empresaLicenciaColectiva) {
         if(empresaLicenciaColectiva == null) {
             logger.warn("La licencia colectiva de la empresa viene como nula o vacia");

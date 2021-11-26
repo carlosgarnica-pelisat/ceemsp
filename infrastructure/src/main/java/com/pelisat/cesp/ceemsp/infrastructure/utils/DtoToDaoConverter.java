@@ -235,6 +235,21 @@ public class DtoToDaoConverter {
         return empresaEscrituraApoderado;
     }
 
+    public EmpresaEscrituraConsejo convertDtoToDaoEmpresaEscrituraConsejo(EmpresaEscrituraConsejoDto empresaEscrituraConsejoDto) {
+        if(empresaEscrituraConsejoDto == null) {
+            logger.warn("El consejo de la escritura de la empresa viene como vacia o nula");
+            throw new InvalidDataException();
+        }
+
+        EmpresaEscrituraConsejo empresaEscrituraConsejo = modelMapper.map(empresaEscrituraConsejoDto, EmpresaEscrituraConsejo.class);
+        if(StringUtils.isBlank(empresaEscrituraConsejo.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresaEscrituraConsejo.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaEscrituraConsejo;
+    }
+
     public EmpresaEscrituraSocio convertDtoToDaoEmpresaEscrituraSocio(EmpresaEscrituraSocioDto empresaEscrituraSocioDto) {
         if(empresaEscrituraSocioDto == null) {
             logger.warn("El socio de la escritura de la empresa viene como vacia o nula");

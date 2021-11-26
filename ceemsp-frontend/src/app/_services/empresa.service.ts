@@ -11,6 +11,7 @@ import EmpresaEscrituraSocio from "../_models/EmpresaEscrituraSocio";
 import EmpresaEscrituraApoderado from "../_models/EmpresaEscrituraApoderado";
 import EmpresaEscrituraRepresentante from "../_models/EmpresaEscrituraRepresentante";
 import Cliente from "../_models/Cliente";
+import EmpresaEscrituraConsejo from "../_models/EmpresaEscrituraConsejo";
 
 @Injectable({
   providedIn: 'root'
@@ -80,6 +81,15 @@ export class EmpresaService {
 
   guardarEscrituraRepresentante(empresaUuid: string, escrituraUuid: string, escrituraRepresentante: EmpresaEscrituraRepresentante) {
     return this.http.post(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/representantes`, escrituraRepresentante);
+  }
+
+  // Escrituras consejos
+  obtenerEscrituraConsejos(empresaUuid: string, escrituraUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/consejos`);
+  }
+
+  guardarEscrituraConsejos(empresaUuid: string, escrituraUuid: string, escrituraConsejo: EmpresaEscrituraConsejo) {
+    return this.http.post(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/consejos`, escrituraConsejo);
   }
 
   // Escrituras apoderados

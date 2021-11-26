@@ -10,6 +10,7 @@ import EmpresaEscrituraSocio from "../../../_models/EmpresaEscrituraSocio";
 import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 import EmpresaEscrituraApoderado from "../../../_models/EmpresaEscrituraApoderado";
 import EmpresaEscrituraRepresentante from "../../../_models/EmpresaEscrituraRepresentante";
+import EmpresaEscrituraConsejo from "../../../_models/EmpresaEscrituraConsejo";
 
 @Component({
   selector: 'app-empresa-legal',
@@ -31,7 +32,7 @@ export class EmpresaLegalComponent implements OnInit {
   nuevoSocioForm: FormGroup;
   nuevoApoderadoForm: FormGroup;
   nuevoRepresentanteForm: FormGroup;
-  nuevoConsejoAdministracion: FormGroup;
+  nuevoConsejoAdministracionForm: FormGroup;
 
   modal: NgbModalRef;
   closeResult: string;
@@ -99,7 +100,7 @@ export class EmpresaLegalComponent implements OnInit {
       sexo: ['', Validators.required]
     })
 
-    this.nuevoConsejoAdministracion = this.formBuilder.group({
+    this.nuevoConsejoAdministracionForm = this.formBuilder.group({
       nombres: ['', Validators.required],
       apellidos: ['', Validators.required],
       sexo: ['', Validators.required],
@@ -198,6 +199,40 @@ export class EmpresaLegalComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se ha podido guardar el apoderado. ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  guardarConsejo(nuevoConsejoForm) {
+    if(!nuevoConsejoForm.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Faltan campos requeridos por rellenar. Favor de rellenarlos",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando el nuevo consejo",
+      ToastType.INFO
+    );
+
+    let formValue: EmpresaEscrituraConsejo = nuevoConsejoForm.value;
+
+    this.empresaService.guardarEscrituraConsejos(this.uuid, this.escritura.uuid, formValue).subscribe((data: EmpresaEscrituraRepresentante) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha registrado el consejo con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar el consejo. ${error}`,
         ToastType.ERROR
       );
     })

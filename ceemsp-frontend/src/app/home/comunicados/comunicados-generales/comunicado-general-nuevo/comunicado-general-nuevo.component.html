@@ -17,18 +17,4 @@
     </div>
   </div>
 
-  <!-- Content Row -->
-  <div class="row">
-    <div class="col-sm-12">
-      <ag-grid-angular
-        style="height: 80vh; width: 100%;"
-        class="ag-theme-alpine"
-        [rowData]="rowData"
-        [columnDefs]="columnDefs"
-        (gridReady)="onGridReady($event)"
-        [frameworkComponents]="frameworkComponents"
-        (rowDoubleClicked)="checkForDetails($event.data)"
-        #agGrid
-      ></ag-grid-angular>
-    </div>
-  </div>
+</div>
