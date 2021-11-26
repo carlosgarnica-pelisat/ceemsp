@@ -21,6 +21,7 @@ export class EmpresaLegalComponent implements OnInit {
   showSocioForm: boolean = false;
   showApoderadoForm: boolean = false;
   showRepresentanteForm: boolean = false;
+  showConsejoForm: boolean = false;
 
   uuid: string;
   pestanaActual: string = "DETALLES";
@@ -30,6 +31,7 @@ export class EmpresaLegalComponent implements OnInit {
   nuevoSocioForm: FormGroup;
   nuevoApoderadoForm: FormGroup;
   nuevoRepresentanteForm: FormGroup;
+  nuevoConsejoAdministracion: FormGroup;
 
   modal: NgbModalRef;
   closeResult: string;
@@ -97,6 +99,13 @@ export class EmpresaLegalComponent implements OnInit {
       sexo: ['', Validators.required]
     })
 
+    this.nuevoConsejoAdministracion = this.formBuilder.group({
+      nombres: ['', Validators.required],
+      apellidos: ['', Validators.required],
+      sexo: ['', Validators.required],
+      puesto: ['', Validators.required]
+    })
+
     this.empresaService.obtenerEscrituras(this.uuid).subscribe((data: EmpresaEscritura[]) => {
       this.rowData = data;
     }, (error) => {
@@ -118,6 +127,10 @@ export class EmpresaLegalComponent implements OnInit {
 
   mostrarFormularioNuevoRepresentante() {
     this.showRepresentanteForm = !this.showRepresentanteForm;
+  }
+
+  mostrarFormularioNuevoConsejo() {
+    this.showConsejoForm = !this.showConsejoForm;
   }
 
   guardarSocio(nuevoSocioform) {

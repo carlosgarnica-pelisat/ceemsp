@@ -1,0 +1,34 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2021-11-26-crear-tabla-empresas-escrituras-consejos" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="EMPRESAS_ESCRITURAS_CONSEJOS">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="ESCRITURA" type="INT"></column>
+            <column name="NOMBRES" type="VARCHAR(60)"></column>
+            <column name="APELLIDOS" type="VARCHAR(60)"></column>
+            <column name="SEXO" type="VARCHAR(10)"></column>
+            <column name="PUESTO" type="VARCHAR(40)"></column>
+            <column name="ELIMINADO" type="bit" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="int"></column>
+            <column name="FECHA_ACTUALIZACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="int"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="EMPRESAS_ESCRITURAS_CONSEJOS" columnNames="ID" />
+        <addAutoIncrement tableName="EMPRESAS_ESCRITURAS_CONSEJOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="EMPRESAS_ESCRITURAS_CONSEJOS" columnNames="UUID" />
+
+        <!-- Setting the relationship -->
+        <addForeignKeyConstraint baseTableName="EMPRESAS_ESCRITURAS_CONSEJOS" baseColumnNames="ESCRITURA" constraintName="FK_EMPRESAS_ESCRITURAS_CONSEJOS_ESCRITURAS" referencedTableName="EMPRESAS_ESCRITURAS"
+                                 referencedColumnNames="ID" />
+    </changeSet>
+</databaseChangeLog>

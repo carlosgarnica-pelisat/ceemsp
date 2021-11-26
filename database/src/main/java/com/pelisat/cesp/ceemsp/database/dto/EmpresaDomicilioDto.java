@@ -19,4 +19,6 @@ public class EmpresaDomicilioDto {
     private boolean matriz;
     private String telefonoFijo;
     private String telefonoMovil;
+    private String latitud;
+    private String longitud;
 }

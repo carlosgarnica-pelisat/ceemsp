@@ -11,6 +11,7 @@ import VehiculoTipo from "../../../_models/VehiculoTipo";
 import {ActivatedRoute} from "@angular/router";
 import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
 import VehiculoUso from "../../../_models/VehiculoUso";
+import Stepper from "bs-stepper";
 
 @Component({
   selector: 'app-empresa-vehiculos',
@@ -45,6 +46,7 @@ export class EmpresaVehiculosComponent implements OnInit {
   crearVehiculoSubmarcaForm: FormGroup;
 
   crearVehiculoForm: FormGroup;
+  crearColorForm: FormGroup;
 
   marca: VehiculoMarca;
   marcas: VehiculoMarca[];
@@ -55,6 +57,8 @@ export class EmpresaVehiculosComponent implements OnInit {
 
   blindado: boolean = false;
   origen: string = "";
+
+  stepper: Stepper;
 
   constructor(private modalService: NgbModal, private toastService: ToastService,
               private empresaService: EmpresaService, private formBuilder: FormBuilder,
@@ -70,7 +74,6 @@ export class EmpresaVehiculosComponent implements OnInit {
       marca: ['', Validators.required],
       submarca: ['', Validators.required],
       anio: ['', Validators.required],
-      color: ['', Validators.required],
       rotulado: ['', Validators.required],
       uso: ['', Validators.required],
       domicilio: ['', Validators.required],
@@ -86,6 +89,11 @@ export class EmpresaVehiculosComponent implements OnInit {
       fechaInicio: [''],
       fechaFin: ['']
       // TODO: Agregar campos para fotos y documentos; asi como constancia de blindaje
+    })
+
+    this.crearColorForm = this.formBuilder.group({
+      color: ['', Validators.required],
+      descripcion: ['', Validators.required]
     })
   }
 
@@ -127,6 +135,12 @@ export class EmpresaVehiculosComponent implements OnInit {
 
   mostrarModalCrear(modal) {
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.stepper = new Stepper(document.querySelector('#stepper1'), {
+      linear: true,
+      animation: true
+    })
+
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -176,6 +190,25 @@ export class EmpresaVehiculosComponent implements OnInit {
       )
     });
   }
+
+  next(stepName: string, form) {
+    /*if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Faltan algunos campos obligatorios por llenarse",
+        ToastType.WARNING
+      );
+      return;
+    }*/
+
+    let formData = form.value;
+    this.stepper.next();
+  }
+
+  previous() {
+    //this.stepper.previous()
+  }
+
 
   guardarVehiculo(form) {
     if(!form.valid) {

@@ -11,7 +11,7 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Descargar direcciones como Excel (csv)</a>
+          <a class="dropdown-item" href="#">Descargar vehiculos como Excel (csv)</a>
         </div>
       </div>
     </div>
@@ -58,222 +58,299 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <form [formGroup]="crearVehiculoForm">
-            <div class="form-row">
-              <div class="col-sm-4">
-                <label for="placas">
-                  <b>Placas (con guiones) *</b>
-                  <span *ngIf="crearVehiculoForm.controls['placas'].invalid && (crearVehiculoForm.controls['placas'].dirty || crearVehiculoForm.controls['placas'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="placas" type="text" class="form-control" placeholder="Ej. JGM-4766" formControlName="placas" #placas>
+
+          <div id="stepper1" class="bs-stepper" #stepper1>
+            <div class="bs-stepper-header">
+              <div class="step" data-target="#test-l-1">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">1</span>
+                  <span class="bs-stepper-label">Info. Vehiculo</span>
+                </button>
               </div>
-              <div class="col-sm-4">
-                <label for="serie">
-                  <b>Numero de serie *</b>
-                  <span *ngIf="crearVehiculoForm.controls['serie'].invalid && (crearVehiculoForm.controls['serie'].dirty || crearVehiculoForm.controls['serie'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="serie" type="text" class="form-control" placeholder="Ej. VW3NMFU9ABS8BDS" formControlName="serie" #serie>
+              <div class="line"></div>
+              <div class="step" data-target="#test-l-2">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">2</span>
+                  <span class="bs-stepper-label">Colores</span>
+                </button>
               </div>
-              <div class="col-sm-4">
-                <label for="tipo">
-                  <b>Tipo *</b>
-                  <span *ngIf="crearVehiculoForm.controls['tipo'].invalid && (crearVehiculoForm.controls['tipo'].dirty || crearVehiculoForm.controls['tipo'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <select id="tipo" class="form-control" formControlName="tipo">
-                  <option *ngFor="let t of tipos" value="{{t.uuid}}">{{t.nombre}}</option>
-                </select>
+              <div class="line"></div>
+              <div class="step" data-target="#test-l-3">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">3</span>
+                  <span class="bs-stepper-label">Fotografias</span>
+                </button>
+              </div>
+              <div class="line"></div>
+              <div class="step" data-target="#test-l-4">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">4</span>
+                  <span class="bs-stepper-label">Resumen</span>
+                </button>
               </div>
             </div>
+            <div class="bs-stepper-content">
+              <!-- STEP NUMBER 1 - USER INFORMATION -->
+              <div id="test-l-1" class="content">
+                <form [formGroup]="crearVehiculoForm">
+                  <div class="form-row">
+                    <div class="col-sm-4">
+                      <label for="placas">
+                        <b>Placas (con guiones) *</b>
+                        <span *ngIf="crearVehiculoForm.controls['placas'].invalid && (crearVehiculoForm.controls['placas'].dirty || crearVehiculoForm.controls['placas'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <input id="placas" type="text" class="form-control" placeholder="Ej. JGM-4766" formControlName="placas" #placas>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="serie">
+                        <b>Numero de serie *</b>
+                        <span *ngIf="crearVehiculoForm.controls['serie'].invalid && (crearVehiculoForm.controls['serie'].dirty || crearVehiculoForm.controls['serie'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <input id="serie" type="text" class="form-control" placeholder="Ej. VW3NMFU9ABS8BDS" formControlName="serie" #serie>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="tipo">
+                        <b>Tipo *</b>
+                        <span *ngIf="crearVehiculoForm.controls['tipo'].invalid && (crearVehiculoForm.controls['tipo'].dirty || crearVehiculoForm.controls['tipo'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="tipo" class="form-control" formControlName="tipo">
+                        <option *ngFor="let t of tipos" value="{{t.uuid}}">{{t.nombre}}</option>
+                      </select>
+                    </div>
+                  </div>
 
-            <div class="form-row">
-              <div class="col-sm-3">
-                <label for="marca">
-                  <b>Marca *</b>
-                  <span *ngIf="crearVehiculoForm.controls['marca'].invalid && (crearVehiculoForm.controls['marca'].dirty || crearVehiculoForm.controls['marca'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <select id="marca" class="form-control" formControlName="marca" (change)="seleccionarMarca($event.target)">
-                  <option *ngFor="let m of marcas"  value="{{m.uuid}}">{{m.nombre}}</option>
-                </select>
+                  <div class="form-row">
+                    <div class="col-sm-3">
+                      <label for="marca">
+                        <b>Marca *</b>
+                        <span *ngIf="crearVehiculoForm.controls['marca'].invalid && (crearVehiculoForm.controls['marca'].dirty || crearVehiculoForm.controls['marca'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="marca" class="form-control" formControlName="marca" (change)="seleccionarMarca($event.target)">
+                        <option *ngFor="let m of marcas"  value="{{m.uuid}}">{{m.nombre}}</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="submarca">
+                        <b>Submarca *</b>
+                        <span *ngIf="crearVehiculoForm.controls['submarca'].invalid && (crearVehiculoForm.controls['submarca'].dirty || crearVehiculoForm.controls['submarca'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="submarca" class="form-control" formControlName="submarca">
+                        <option *ngFor="let s of marca?.submarcas" value="{{s.uuid}}">{{s.nombre}}</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="anio">
+                        <b>Año *</b>
+                        <span *ngIf="crearVehiculoForm.controls['anio'].invalid && (crearVehiculoForm.controls['anio'].dirty || crearVehiculoForm.controls['anio'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="anio" class="form-control" formControlName="anio">
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                        <option value="2018">2018</option>
+                        <option value="2017">2017</option>
+                        <option value="2016">2016</option>
+                        <option value="2015">2015</option>
+                        <option value="2014">2014</option>
+                        <option value="2013">2013</option>
+                        <option value="2012">2012</option>
+                        <option value="2011">2011</option>
+                        <option value="2010">2010</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-sm-3">
+                      <label for="rotulado">
+                        <b>Rotulado *</b>
+                        <span *ngIf="crearVehiculoForm.controls['rotulado'].invalid && (crearVehiculoForm.controls['rotulado'].dirty || crearVehiculoForm.controls['rotulado'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="rotulado" class="form-control" formControlName="rotulado">
+                        <option value="true">SI</option>
+                        <option value="false">NO</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="uso">
+                        <b>Uso *</b>
+                        <span *ngIf="crearVehiculoForm.controls['uso'].invalid && (crearVehiculoForm.controls['uso'].dirty || crearVehiculoForm.controls['uso'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="uso" class="form-control" formControlName="uso">
+                        <option *ngFor="let u of usos" value="{{u.uuid}}">{{u.nombre}}</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="domicilio">
+                        <b>Domicilio *</b>
+                        <span *ngIf="crearVehiculoForm.controls['domicilio'].invalid && (crearVehiculoForm.controls['domicilio'].dirty || crearVehiculoForm.controls['domicilio'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="domicilio" class="form-control" formControlName="domicilio">
+                        <option *ngFor="let d of domicilios" value="{{d.uuid}}">{{d.domicilio1 + ". Colonia: " + d.domicilio2}}</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="blindado">
+                        <b>Blindado *</b>
+                        <span *ngIf="crearVehiculoForm.controls['blindado'].invalid && (crearVehiculoForm.controls['blindado'].dirty || crearVehiculoForm.controls['blindado'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="blindado" class="form-control" formControlName="blindado" (change)="seleccionarBlindado($event.target)">
+                        <option value="true">SI</option>
+                        <option value="false">NO</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Blindaje -->
+                  <div class="form-row" *ngIf="blindado">
+                    <div class="col-sm-4">
+                      <label for="serieBlindaje">
+                        <b>Numero de serie del blindaje</b>
+                      </label>
+                      <input id="serieBlindaje" type="text" class="form-control" placeholder="Ej. MAS1231232141" formControlName="serieBlindaje" #serieBlindaje>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="fechaBlindaje">
+                        <b>Fecha del blindaje</b>
+                      </label>
+                      <input id="fechaBlindaje" type="date" class="form-control" formControlName="fechaBlindaje" #fechaBlindaje>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="numeroHolograma">
+                        <b>Numero del holograma</b>
+                      </label>
+                      <input id="numeroHolograma" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="numeroHolograma" #numeroHolograma>
+                    </div>
+                  </div>
+
+                  <div class="form-row" *ngIf="blindado">
+                    <div class="col-sm-4">
+                      <label for="placaMetalica">
+                        <b>Numero de placa metalica</b>
+                      </label>
+                      <input id="placaMetalica" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="placaMetalica" #placaMetalica>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="empresaBlindaje">
+                        <b>Empresa de blindaje</b>
+                      </label>
+                      <input id="empresaBlindaje" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="empresaBlindaje" #empresaBlindaje>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="nivelBlindaje">
+                        <b>Nivel de blindaje</b>
+                      </label>
+                      <select id="nivelBlindaje" class="form-control" formControlName="nivelBlindaje">
+                        <option value="NIVEL_1">Nivel 1</option>
+                        <option value="NIVEL_2">Nivel 2</option>
+                        <option value="NIVEL_3">Nivel 3</option>
+                        <option value="NIVEL_4">Nivel 4</option>
+                        <option value="NIVEL_5">Nivel 5</option>
+                        <option value="NIVEL_6">Nivel 6</option>
+                        <option value="NIVEL_7">Nivel 7</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-sm-3">
+                      <label for="origen">
+                        <b>Origen *</b>
+                        <span *ngIf="crearVehiculoForm.controls['origen'].invalid && (crearVehiculoForm.controls['origen'].dirty || crearVehiculoForm.controls['origen'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="origen" class="form-control" formControlName="origen" (change)="seleccionarOrigen($event.target)">
+                        <option value="PROPIO">Propio</option>
+                        <option value="COMODATO">Comodato</option>
+                        <option value="ARRENDAMIENTO">Arrendamiento</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="razonSocial">
+                        <b>Razon social del emisor *</b>
+                        <span *ngIf="crearVehiculoForm.controls['razonSocial'].invalid && (crearVehiculoForm.controls['razonSocial'].dirty || crearVehiculoForm.controls['razonSocial'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <input id="razonSocial" type="text" placeholder="Ej. Volkswagen de Mexico" class="form-control" formControlName="razonSocial" #razonSocial>
+                    </div>
+
+                    <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
+                      <label for="fechaInicio">
+                        <b>Fecha de inicio *</b>
+                      </label>
+                      <input id="fechaInicio" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
+                    </div>
+
+                    <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
+                      <label for="fechaFin">
+                        <b>Fecha de fin *</b>
+                      </label>
+                      <input id="fechaFin" type="date" class="form-control" formControlName="fechaFin" #fechaFin>
+                    </div>
+                  </div>
+                </form>
               </div>
 
-              <div class="col-sm-3">
-                <label for="submarca">
-                  <b>Submarca *</b>
-                  <span *ngIf="crearVehiculoForm.controls['submarca'].invalid && (crearVehiculoForm.controls['submarca'].dirty || crearVehiculoForm.controls['submarca'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <select id="submarca" class="form-control" formControlName="submarca">
-                  <option *ngFor="let s of marca?.submarcas" value="{{s.uuid}}">{{s.nombre}}</option>
-                </select>
+              <!-- STEP 2 - Psychologist information -->
+              <div id="test-l-2" class="content">
+                <form formControlName="crearColorForm">
+                  <div class="form-row">
+                    <div class="col-sm-6">
+                      <label for="color">
+                        <b>Color *</b>
+                      </label>
+                      <input id="color" type="text" placeholder="Ej. Azul" class="form-control" formControlName="razonSocial" #razonSocial>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="color">
+                        <b>Descripcion</b>
+                      </label>
+                      <input id="descripcion" type="text" placeholder="Ej. Color principal, color secundario" class="form-control" formControlName="descripcion">
+                    </div>
+                    <div class="col-sm-3">
+                      <br>
+                      <button class="btn btn-info">Agregar</button>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="col-sm-12">
+                      <table class="table">
+                        <tr>
+                          <td><b>Color</b></td>
+                          <td><b>Descripcion</b></td>
+                          <td><b>Acciones</b></td>
+                        </tr>
+                        <tr>
+
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                </form>
               </div>
 
-              <div class="col-sm-3">
-                <label for="anio">
-                  <b>Año *</b>
-                  <span *ngIf="crearVehiculoForm.controls['anio'].invalid && (crearVehiculoForm.controls['anio'].dirty || crearVehiculoForm.controls['anio'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <select id="anio" class="form-control" formControlName="anio">
-                  <option value="2022">2022</option>
-                  <option value="2021">2021</option>
-                  <option value="2020">2020</option>
-                  <option value="2019">2019</option>
-                  <option value="2018">2018</option>
-                  <option value="2017">2017</option>
-                  <option value="2016">2016</option>
-                  <option value="2015">2015</option>
-                  <option value="2014">2014</option>
-                  <option value="2013">2013</option>
-                  <option value="2012">2012</option>
-                  <option value="2011">2011</option>
-                  <option value="2010">2010</option>
-                </select>
-              </div>
+              <!-- STEP 3 - SUMMARY -->
+              <div id="test-l-3" class="content">
+                <div class="row">
 
-              <div class="col-sm-3">
-                <label for="color">
-                  <b>Color *</b>
-                  <span *ngIf="crearVehiculoForm.controls['color'].invalid && (crearVehiculoForm.controls['color'].dirty || crearVehiculoForm.controls['color'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="color" type="text" class="form-control" placeholder="Ej. Azul Marino" formControlName="color" #color>
+                </div>
+              </div>
+              <div id="test-l-4" class="content">
+
               </div>
             </div>
-
-            <div class="form-row">
-              <div class="col-sm-3">
-                <label for="rotulado">
-                  <b>Rotulado *</b>
-                  <span *ngIf="crearVehiculoForm.controls['rotulado'].invalid && (crearVehiculoForm.controls['rotulado'].dirty || crearVehiculoForm.controls['rotulado'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <select id="rotulado" class="form-control" formControlName="rotulado">
-                  <option value="true">SI</option>
-                  <option value="false">NO</option>
-                </select>
-              </div>
-
-              <div class="col-sm-3">
-                <label for="uso">
-                  <b>Uso *</b>
-                  <span *ngIf="crearVehiculoForm.controls['uso'].invalid && (crearVehiculoForm.controls['uso'].dirty || crearVehiculoForm.controls['uso'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <select id="uso" class="form-control" formControlName="uso">
-                  <option *ngFor="let u of usos" value="{{u.uuid}}">{{u.nombre}}</option>
-                </select>
-              </div>
-
-              <div class="col-sm-3">
-                <label for="domicilio">
-                  <b>Domicilio *</b>
-                  <span *ngIf="crearVehiculoForm.controls['domicilio'].invalid && (crearVehiculoForm.controls['domicilio'].dirty || crearVehiculoForm.controls['domicilio'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <select id="domicilio" class="form-control" formControlName="domicilio">
-                  <option *ngFor="let d of domicilios" value="{{d.uuid}}">{{d.domicilio1 + ". Colonia: " + d.domicilio2}}</option>
-                </select>
-              </div>
-
-              <div class="col-sm-3">
-                <label for="blindado">
-                  <b>Blindado *</b>
-                  <span *ngIf="crearVehiculoForm.controls['blindado'].invalid && (crearVehiculoForm.controls['blindado'].dirty || crearVehiculoForm.controls['blindado'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <select id="blindado" class="form-control" formControlName="blindado" (change)="seleccionarBlindado($event.target)">
-                  <option value="true">SI</option>
-                  <option value="false">NO</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Blindaje -->
-            <div class="form-row" *ngIf="blindado">
-              <div class="col-sm-4">
-                <label for="serieBlindaje">
-                  <b>Numero de serie del blindaje</b>
-                </label>
-                <input id="serieBlindaje" type="text" class="form-control" placeholder="Ej. MAS1231232141" formControlName="serieBlindaje" #serieBlindaje>
-              </div>
-              <div class="col-sm-4">
-                <label for="fechaBlindaje">
-                  <b>Fecha del blindaje</b>
-                </label>
-                <input id="fechaBlindaje" type="date" class="form-control" formControlName="fechaBlindaje" #fechaBlindaje>
-              </div>
-              <div class="col-sm-4">
-                <label for="numeroHolograma">
-                  <b>Numero del holograma</b>
-                </label>
-                <input id="numeroHolograma" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="numeroHolograma" #numeroHolograma>
-              </div>
-            </div>
-
-            <div class="form-row" *ngIf="blindado">
-              <div class="col-sm-4">
-                <label for="placaMetalica">
-                  <b>Numero de placa metalica</b>
-                </label>
-                <input id="placaMetalica" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="placaMetalica" #placaMetalica>
-              </div>
-              <div class="col-sm-4">
-                <label for="empresaBlindaje">
-                  <b>Empresa de blindaje</b>
-                </label>
-                <input id="empresaBlindaje" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="empresaBlindaje" #empresaBlindaje>
-              </div>
-              <div class="col-sm-4">
-                <label for="nivelBlindaje">
-                  <b>Nivel de blindaje</b>
-                </label>
-                <select id="nivelBlindaje" class="form-control" formControlName="nivelBlindaje">
-                  <option value="NIVEL_1">Nivel 1</option>
-                  <option value="NIVEL_2">Nivel 2</option>
-                  <option value="NIVEL_3">Nivel 3</option>
-                  <option value="NIVEL_4">Nivel 4</option>
-                  <option value="NIVEL_5">Nivel 5</option>
-                  <option value="NIVEL_6">Nivel 6</option>
-                  <option value="NIVEL_7">Nivel 7</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="col-sm-3">
-                <label for="origen">
-                  <b>Origen *</b>
-                  <span *ngIf="crearVehiculoForm.controls['origen'].invalid && (crearVehiculoForm.controls['origen'].dirty || crearVehiculoForm.controls['origen'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <select id="origen" class="form-control" formControlName="origen" (change)="seleccionarOrigen($event.target)">
-                  <option value="PROPIO">Propio</option>
-                  <option value="COMODATO">Comodato</option>
-                  <option value="ARRENDAMIENTO">Arrendamiento</option>
-                </select>
-              </div>
-
-              <div class="col-sm-3">
-                <label for="razonSocial">
-                  <b>Razon social del emisor *</b>
-                  <span *ngIf="crearVehiculoForm.controls['razonSocial'].invalid && (crearVehiculoForm.controls['razonSocial'].dirty || crearVehiculoForm.controls['razonSocial'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="razonSocial" type="text" placeholder="Ej. Volkswagen de Mexico" class="form-control" formControlName="razonSocial" #razonSocial>
-              </div>
-
-              <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
-                <label for="fechaInicio">
-                  <b>Fecha de inicio *</b>
-                </label>
-                <input id="fechaInicio" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
-              </div>
-
-              <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
-                <label for="fechaFin">
-                  <b>Fecha de fin *</b>
-                </label>
-                <input id="fechaFin" type="date" class="form-control" formControlName="fechaFin" #fechaFin>
-              </div>
-            </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="guardarVehiculo(crearVehiculoForm)">Guardar</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+      <button class="btn btn-primary" (click)="next('DOMICILIOS', crearVehiculoForm)">Siguiente</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cancelar</button>
     </div>
   </ng-template>
 </div>

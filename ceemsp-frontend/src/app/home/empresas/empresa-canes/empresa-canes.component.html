@@ -50,7 +50,7 @@
 
   <ng-template #crearLicencia let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="modal-survey-response">Nueva licencia </h4>
+      <h4 class="modal-title" id="modal-survey-response">Nuevo can </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -58,37 +58,309 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <form [formGroup]="crearEmpresaLicenciaForm">
-            <div class="row">
-              <div class="col-sm-3">
-                <label for="numeroOficio">
-                  <b>Numero de oficio *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['numeroOficio'].invalid && (crearEmpresaLicenciaForm.controls['numeroOficio'].dirty || crearEmpresaLicenciaForm.controls['numeroOficio'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="numeroOficio" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroOficio" #numeroOficio>
+          <div id="stepper1" class="bs-stepper" #stepper1>
+            <div class="bs-stepper-header">
+              <div class="step" data-target="#test-l-1">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">1</span>
+                  <span class="bs-stepper-label">Info. del can</span>
+                </button>
               </div>
-              <div class="col-sm-3">
-                <!--label for="modalidad">
-                  <b>Numero de oficio *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['modalidad'].invalid && (crearEmpresaLicenciaForm.controls['modalidad'].dirty || crearEmpresaLicenciaForm.controls['modalidad'].touched)" class="text-danger"> - Requerido</span>
-                </label-->
+              <div class="line"></div>
+              <div class="step" data-target="#test-l-2">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">2</span>
+                  <span class="bs-stepper-label">Cert. de Salud</span>
+                </button>
               </div>
-              <div class="col-sm-3">
-                <label for="fechaInicio">
-                  <b>Fecha de Inicio *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaInicio'].invalid && (crearEmpresaLicenciaForm.controls['fechaInicio'].dirty || crearEmpresaLicenciaForm.controls['fechaInicio'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="fechaInicio" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaInicio" #fechaInicio>
+              <div class="line"></div>
+              <div class="step" data-target="#test-l-3">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">3</span>
+                  <span class="bs-stepper-label">Vacunacion</span>
+                </button>
               </div>
-              <div class="col-sm-3">
-                <label for="fechaFin">
-                  <b>Fecha de fin *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaFin'].invalid && (crearEmpresaLicenciaForm.controls['fechaFin'].dirty || crearEmpresaLicenciaForm.controls['fechaFin'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="fechaFin" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaFin" #fechaFin>
+              <div class="line"></div>
+              <div class="step" data-target="#test-l-4">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">4</span>
+                  <span class="bs-stepper-label">Entrenamiento</span>
+                </button>
+              </div>
+              <div class="step" data-target="#test-l-5">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">5</span>
+                  <span class="bs-stepper-label">Resumen</span>
+                </button>
               </div>
             </div>
-          </form>
+            <div class="bs-stepper-content">
+              <!-- STEP NUMBER 1 - USER INFORMATION -->
+              <div id="test-l-1" class="content">
+                <form [formControl]="crearEmpresaCanForm">
+                  <div class="form-row">
+                    <div class="col-sm-4">
+                      <label for="nombre">
+                        <b>Nombre del can *</b>
+                      </label>
+                      <input id="nombre" type="text" class="form-control" placeholder="Ejemplo: Pochi" formControlName="nombre">
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="genero">
+                        <b>Genero *</b>
+                      </label>
+                      <select id="genero" class="form-control" formControlName="genero">
+                        <option value="MACHO">Macho</option>
+                        <option value="HEMBRA">Hembra</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="fechaIngreso">
+                        <b>Fecha de ingreso</b>
+                      </label>
+                      <input id="fechaIngreso" type="date" class="form-control" formControlName="fechaIngreso">
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-sm-4">
+                      <label for="apellidoPaterno">
+                        <b>Apellido paterno *</b>
+                      </label>
+                      <input id="apellidoPaterno" type="text" class="form-control" placeholder="Ejemplo: Garcia" formControlName="apellidoPaterno" #apellidoPaterno>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="apellidoMaterno">
+                        <b>Apellido paterno *</b>
+                      </label>
+                      <input id="apellidoMaterno" type="text" class="form-control" placeholder="Ejemplo: Garcia" formControlName="apellidoMaterno" #apellidoMaterno>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="nombres">
+                        <b>Nombres *</b>
+                      </label>
+                      <input id="nombres" type="text" class="form-control" placeholder="Ejemplo: Jose" formControlName="nombres" #nombres>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-sm-3">
+                      <label for="sexo">
+                        <b>Sexo *</b>
+                      </label>
+                      <select id="sexo" class="form-control" formControlName="sexo">
+                        <option value="MASCULINO">Masculino</option>
+                        <option value="FEMENINO">Femenino</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="fechaNacimiento">
+                        <b>Fecha de nacimiento *</b>
+                      </label>
+                      <input id="fechaNacimiento" type="date" class="form-control" placeholder="Ejemplo: Garcia" formControlName="fechaNacimiento" #fechaNacimiento>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="tipoSangre">
+                        <b>Tipo de sangre *</b>
+                      </label>
+                      <select id="tipoSangre" class="form-control" formControlName="tipoSangre">
+                        <option value="O_POSITIVO">O+ (O positivo)</option>
+                        <option value="O_NEGATIVO">O- (O negativo)</option>
+                        <option value="A_POSITIVO">A+ (A positivo)</option>
+                        <option value="A_NEGATIVO">A- (A negativo)</option>
+                        <option value="B_POSITIVO">B+ (B positivo)</option>
+                        <option value="B_NEGATIVO">B- (B negativo)</option>
+                        <option value="AB_POSITIVO">AB+ (AB positivo)</option>
+                        <option value="AB_NEGATIVO">AB- (AB negativo)</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="estadoCivil">
+                        <b>Estado civil *</b>
+                      </label>
+                      <select id="estadoCivil" class="form-control" formControlName="estadoCivil">
+                        <option value="SOLTERO">Soltero</option>
+                        <option value="CASADO">Casado</option>
+                        <option value="DIVORCIADO">Divorciado</option>
+                        <option value="VIUDO">Viudo</option>
+                        <option value="UNION_LIBRE">Union libre</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-sm-3">
+                      <label for="domicilio1">
+                        <b>Domicilio *</b>
+                      </label>
+                      <input id="domicilio1" type="text" class="form-control" placeholder="Ejemplo: Av. La Paz" formControlName="domicilio1" #domicilio1>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="domicilio2">
+                        <b>Colonia *</b>
+                      </label>
+                      <input id="domicilio2" type="text" class="form-control" placeholder="Ejemplo: Centro" formControlName="domicilio2" #domicilio2>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="domicilio3">
+                        <b>Municipio *</b>
+                      </label>
+                      <input id="domicilio3" type="text" class="form-control" placeholder="Ejemplo: Guadalajara" formControlName="domicilio3" #domicilio3>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="domicilio4">
+                        <b>Referencia</b>
+                      </label>
+                      <input id="domicilio4" type="text" class="form-control" placeholder="Ejemplo: Edificio Mulbar" formControlName="domicilio4" #domicilio4>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-sm-4">
+                      <label for="estado">
+                        <b>Estado *</b>
+                      </label>
+                      <select id="estado" formControlName="estado" class="form-control">
+                        <option value="AGUASCALIENTES">Aguascalientes</option>
+                        <option value="BAJA CALIFORNIA">Baja California</option>
+                        <option value="BAJA CALIFORNIA SUR">Baja California Sur</option>
+                        <option value="CAMPECHE">Campeche</option>
+                        <option value="CIUDAD DE MEXICO">Baja California</option>
+                        <option value="COAHUILA">Coahuila</option>
+                        <option value="COLIMA">Colima</option>
+                        <option value="CHIAPAS">Chiapas</option>
+                        <option value="CHIHUAHUA">Chihuahua</option>
+                        <option value="DURANGO">Durango</option>
+                        <option value="ESTADO DE MEXICO">Estado de Mexico</option>
+                        <option value="GUANAJUATO">Guanajuato</option>
+                        <option value="GUERRERO">Guerrero</option>
+                        <option value="HIDALGO">Hidalgo</option>
+                        <option value="JALISCO">Jalisco</option>
+                        <option value="MICHOACAN">Michoacan</option>
+                        <option value="MORELOS">Morelos</option>
+                        <option value="NAYARIT">Nayarit</option>
+                        <option value="NUEVO LEON">Nuevo Leon</option>
+                        <option value="OAXACA">Oaxaca</option>
+                        <option value="PUEBLA">Puebla</option>
+                        <option value="QUERETARO">Queretaro</option>
+                        <option value="QUINTANA ROO">Quintana Roo</option>
+                        <option value="SAN LUIS POTOSI">San Luis Potosi</option>
+                        <option value="SINALOA">Sinaloa</option>
+                        <option value="SONORA">Sonora</option>
+                        <option value="TABASCO">Tabasco</option>
+                        <option value="TAMAULIPAS">Tamaulipas</option>
+                        <option value="TLAXCALA">Tlaxcala</option>
+                        <option value="VERACRUZ">Veracruz</option>
+                        <option value="YUCATAN">Yucatan</option>
+                        <option value="ZACATECAS">Zacatecas</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="pais">
+                        <b>Pais *</b>
+                      </label>
+                      <input id="pais" type="text" class="form-control" placeholder="Ejemplo: Centro" formControlName="pais" #pais>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="codigoPostal">
+                        <b>Codigo postal *</b>
+                      </label>
+                      <input id="codigoPostal" type="text" class="form-control" placeholder="Ejemplo: 44630" formControlName="codigoPostal" #codigoPostal>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-sm-6">
+                      <label for="telefono">
+                        <b>Telefono *</b>
+                      </label>
+                      <input id="telefono" type="text" class="form-control" placeholder="Ejemplo: 3312345678" formControlName="telefono" #telefono>
+                    </div>
+                    <div class="col-sm-6">
+                      <label for="correoElectronico">
+                        <b>Correo electronico *</b>
+                      </label>
+                      <input id="correoElectronico" type="email" class="form-control" placeholder="Ejemplo: test@test.com" formControlName="correoElectronico" #correoElectronico>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <!-- STEP 2 - Psychologist information -->
+              <div id="test-l-2" class="content">
+                <form>
+                  <div class="form-row">
+                    <div class="col-sm-4">
+                      <label for="puesto">
+                        <b>Puesto *</b>
+                      </label>
+                      <select id="puesto" class="form-control" formControlName="puesto">
+                        <option *ngFor="let p of puestosTrabajo" value="{{p.uuid}}">{{p.nombre}}</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-4">
+                    </div>
+
+                    <div class="col-sm-4">
+                      <label for="domicilioAsignado">
+                        <b>Domicilio asignado *</b>
+                      </label>
+                      <select id="domicilioAsignado" class="form-control" formControlName="domicilioAsignado">
+                        <option *ngFor="let d of domicilios" value="{{d.uuid}}">{{d.domicilio1 + ". Colonia: " + d.domicilio2}}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="col-sm-12">
+                      <label for="detallesPuesto">
+                        <b>Descripcion detallada del puesto *</b>
+                      </label>
+                      <textarea id="detallesPuesto" class="form-control" formControlName="detallesPuesto"></textarea>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <!-- STEP 3 - SUMMARY -->
+              <div id="test-l-3" class="content">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button (click)="previous()" class="btn btn-primary">Anterior:
+                      Domicilios
+                    </button>
+                    <button (click)="next('PSYCHOLOGISTS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
+                      Legal
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div id="test-l-4" class="content">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button (click)="previous()" class="btn btn-primary">Anterior:
+                      Legal
+                    </button>
+                    <button (click)="next('PSYCHOLOGISTS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
+                      Resumen
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div id="test-l-5" class="content">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button (click)="previous()" class="btn btn-primary">Anterior:
+                      Legal
+                    </button>
+                    <button (click)="next('PSYCHOLOGISTS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
+                      Resumen
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

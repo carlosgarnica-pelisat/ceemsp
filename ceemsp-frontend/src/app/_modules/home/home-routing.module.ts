@@ -32,6 +32,7 @@ import {EmpresaClientesComponent} from "../../home/empresas/empresa-clientes/emp
 import {VehiculosUsosComponent} from "../../home/catalogos/vehiculos/vehiculos-usos/vehiculos-usos.component";
 import {PersonalComponent} from "../../home/catalogos/personal/personal.component";
 import {NacionalidadesComponent} from "../../home/catalogos/personal/nacionalidades/nacionalidades.component";
+import {ComunicadoGeneralNuevoComponent} from "../../home/comunicados/comunicados-generales/comunicado-general-nuevo/comunicado-general-nuevo.component";
 
 
 const routes: Routes = [
@@ -150,6 +151,10 @@ const routes: Routes = [
       {
         path: 'comunicados/generales',
         component: ComunicadosGeneralesComponent
+      },
+      {
+        path: 'comunicados/generales/nuevo',
+        component: ComunicadoGeneralNuevoComponent
       },
       // Buzon salida
       {

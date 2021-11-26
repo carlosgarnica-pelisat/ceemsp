@@ -10,9 +10,6 @@
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(60)"></column>
             <column name="DESCRIPCION" type="VARCHAR(100)"></column>
-            <column name="REQUIERE_MODALIDAD" type="BIT"></column>
-            <column name="REQUIERE_CUIP" type="BIT"></column>
-            <column name="TIENE_PORTACION" type="BIT"></column>
             <column name="ELIMINADO" type="bit" defaultValue="0"></column>
             <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
             <column name="CREADO_POR" type="int"></column>

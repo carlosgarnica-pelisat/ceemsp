@@ -61,7 +61,9 @@ export class EmpresaDomiciliosComponent implements OnInit {
       pais: ['Mexico', Validators.required],
       matriz: ['', Validators.required], // TODO: Quitar el si/no y agregar tipo de domicilio como matriz / sucursal
       telefonoFijo: ['', Validators.required],
-      telefonoMovil: ['', Validators.required]
+      telefonoMovil: ['', Validators.required],
+      latitud: ['', Validators.required],
+      longitud: ['', Validators.required]
     })
 
     this.empresaService.obtenerDomicilios(this.uuid).subscribe((data: EmpresaDomicilio[]) => {

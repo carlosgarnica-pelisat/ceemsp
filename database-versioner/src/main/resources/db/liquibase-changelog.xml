@@ -22,6 +22,7 @@
     <include file="changelog/empresas-escrituras-socios/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/empresas-escrituras-apoderados/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/empresas-escrituras-representantes/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/empresas-escrituras-consejos/master.xml" relativeToChangelogFile="true"></include>
 
     <!-- CANES -->
     <include file="changelog/canes-razas/master.xml" relativeToChangelogFile="true"></include>
@@ -52,6 +53,9 @@
 
     <!-- PERSONAL -->
     <include file="changelog/personal-puestos/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/personal-subpuestos/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/personal-nacionalidades/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/personal-fotografias/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/personal/master.xml" relativeToChangelogFile="true"></include>
 
 </databaseChangeLog>

@@ -1,0 +1,54 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2021-11-15-crear-tabla-personal" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="PERSONAL">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="EMPRESA" type="int"></column>
+            <column name="NACIONALIDAD" type="int"></column>
+            <column name="CURP" type="VARCHAR(18)"></column>
+            <column name="APELLIDO_PATERNO" type="VARCHAR(60)"></column>
+            <column name="APELLIDO_MATERNO" type="VARCHAR(60)"></column>
+            <column name="NOMBRES" type="VARCHAR(60)"></column>
+            <column name="FECHA_NACIMIENTO" type="DATE"></column>
+            <column name="SEXO" type="VARCHAR(10)"></column>
+            <column name="TIPO_SANGRE" type="VARCHAR(5)"></column>
+            <column name="FECHA_INGRESO" type="DATE"></column>
+            <column name="ESTADO_CIVIL" type="VARCHAR(20)"></column>
+            <column name="DOMICILIO_1" type="VARCHAR(100)"></column>
+            <column name="DOMICILIO_2" type="VARCHAR(100)"></column>
+            <column name="DOMICILIO_3" type="VARCHAR(100)"></column>
+            <column name="DOMICILIO_4" type="VARCHAR(100)"></column>
+            <column name="ESTADO" type="VARCHAR(100)"></column>
+            <column name="PAIS" type="VARCHAR(100)"></column>
+            <column name="CODIGO_POSTAL" type="VARCHAR(100)"></column>
+            <column name="TELEFONO" type="VARCHAR(20)"></column>
+            <column name="CORREO_ELECTRONICO" type="VARCHAR(255)"></column>
+            <column name="PUESTO" type="INT"></column>
+            <column name="SUBPUESTO" type="INT"></column>
+            <column name="DETALLES_PUESTO" type="TEXT"></column>
+            <column name="DOMICILIO_ASIGNADO" type="INT"></column>
+            <column name="ESTATUS_CUIP" type="VARCHAR(30)"></column>
+            <column name="CUIP" type="VARCHAR(30)"></column>
+            <column name="NUMERO_VOLANTE_CUIP" type="VARCHAR(30)"></column>
+            <column name="FECHA_VOLANTE_CUIP" type="DATE"></column>
+            <column name="MODALIDAD" type="INT"></column>
+            <column name="ELIMINADO" type="bit" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="int"></column>
+            <column name="FECHA_ACTUALIZACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="int"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="PERSONAL" columnNames="ID" />
+        <addAutoIncrement tableName="PERSONAL" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="PERSONAL" columnNames="UUID" />
+    </changeSet>
+</databaseChangeLog>

@@ -3,6 +3,7 @@ import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-boots
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ActivatedRoute} from "@angular/router";
 import {ToastService} from "../../../_services/toast.service";
+import Stepper from "bs-stepper";
 
 @Component({
   selector: 'app-empresa-armas',
@@ -35,6 +36,8 @@ export class EmpresaArmasComponent implements OnInit {
 
   crearArmaForm: FormGroup;
 
+  stepper: Stepper;
+
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
               private toastService: ToastService, private modalService: NgbModal) { }
 
@@ -50,6 +53,11 @@ export class EmpresaArmasComponent implements OnInit {
 
   mostrarModalCrear(modal) {
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.stepper = new Stepper(document.querySelector('#stepper1'), {
+      linear: true,
+      animation: true
+    })
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;

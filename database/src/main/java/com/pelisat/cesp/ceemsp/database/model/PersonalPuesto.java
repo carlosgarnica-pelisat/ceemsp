@@ -19,11 +19,15 @@ public class PersonalPuesto extends CommonModel {
     private String descripcion;
 
     @Column(name = "REQUIERE_MODALIDAD")
-    private boolean requiereModalidad;
+    @Deprecated
+    // TODO: Remover las siguientes 3 columnas, todo estara colocado en los subpuestos
+    private boolean requiereModalidad = false;
 
     @Column(name = "REQUIERE_CUIP")
-    private boolean requiereCuip;
+    @Deprecated
+    private boolean requiereCuip = false;
 
     @Column(name = "TIENE_PORTACION")
-    private boolean tienePortacion;
+    @Deprecated
+    private boolean tienePortacion = false;
 }

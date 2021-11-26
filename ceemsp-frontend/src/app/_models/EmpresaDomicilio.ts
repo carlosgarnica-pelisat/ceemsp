@@ -16,6 +16,8 @@ export default class EmpresaDomicilio implements Deserializable {
   matriz: string;
   telefonoFijo: string;
   telefonoMovil: string;
+  latitud: string;
+  longitud: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);

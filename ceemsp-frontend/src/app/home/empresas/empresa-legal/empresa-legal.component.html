@@ -153,6 +153,9 @@
             <li class="nav-item">
               <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'REPRESENTANTES' }" (click)="cambiarPestana('REPRESENTANTES')">Representantes</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'CONSEJOS' }" (click)="cambiarPestana('CONSEJOS')">Consejos</a>
+            </li>
           </ul>
         </div>
       </div>
@@ -410,6 +413,77 @@
             </tr>
           </table>
         </div>
+
+        <div class="col-sm-12" *ngIf="pestanaActual === 'CONSEJOS'">
+          <table class="table">
+            <tr>
+              <td><b>Nombre(s)</b></td>
+              <td><b>Apellido(s)</b></td>
+              <td><b>Sexo</b></td>
+              <td><b>Puesto</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let representante of escritura?.representantes">
+              <td>{{representante.nombres}}</td>
+              <td>{{representante.apellidos}}</td>
+              <td>{{representante.sexo}}</td>
+              <td></td>
+              <td>
+                <fa-icon [icon]="faPencil"></fa-icon>
+                <fa-icon [icon]="faTrash"></fa-icon>
+              </td>
+            </tr>
+            <tr *ngIf="!showConsejoForm">
+              <td colspan="4">
+                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevoConsejo()">Agregar consejo</button>
+              </td>
+            </tr>
+            <tr *ngIf="showConsejoForm">
+              <td colspan="4">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <form [formGroup]="nuevoRepresentanteForm">
+                      <div class="form-row">
+                        <div class="col-sm-4">
+                          <label for="representanteNombre">
+                            <b>Nombre(s) *</b>
+                            <span *ngIf="nuevoRepresentanteForm.controls['nombres'].invalid && (nuevoRepresentanteForm.controls['nombres'].dirty || nuevoRepresentanteForm.controls['nombres'].touched)" class="text-danger"> - Requerido</span>
+                          </label>
+                          <input id="representanteNombre" type="text" class="form-control" placeholder="Ej. Carlos Jose" formControlName="nombres" #nombres>
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="representanteApellidos">
+                            <b>Apellido(s) *</b>
+                            <span *ngIf="nuevoRepresentanteForm.controls['apellidos'].invalid && (nuevoRepresentanteForm.controls['apellidos'].dirty || nuevoRepresentanteForm.controls['apellidos'].touched)" class="text-danger"> - Requerido</span>
+                          </label>
+                          <input id="representanteApellidos" type="text" class="form-control" placeholder="Ej. Gonzalez Gonzalez" formControlName="apellidos" #apellidos>
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="representanteSexo">
+                            <b>Sexo *</b>
+                            <span *ngIf="nuevoRepresentanteForm.controls['sexo'].invalid && (nuevoRepresentanteForm.controls['sexo'].dirty || nuevoRepresentanteForm.controls['sexo'].touched)" class="text-danger"> - Requerido</span>
+                          </label>
+                          <select id="representanteSexo" class="form-control" formControlName="sexo">
+                            <option value="MASCULINO">MASCULINO</option>
+                            <option value="FEMENINO">FEMENINO</option>
+                          </select>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary btn-sm" (click)="guardarRepresentante(nuevoRepresentanteForm)">Guardar</button>
+                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevoSocio()">Cancelar</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
       </div>
     </div>
   </ng-template>

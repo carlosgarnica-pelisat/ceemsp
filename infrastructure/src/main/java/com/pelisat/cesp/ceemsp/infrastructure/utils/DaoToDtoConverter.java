@@ -238,4 +238,40 @@ public class DaoToDtoConverter {
 
         return modelMapper.map(vehiculoUso, VehiculoUsoDto.class);
     }
+
+    public PersonalPuestoDeTrabajoDto convertDaoToDtoPersonalPuestoDeTrabajo(PersonalPuesto personalPuesto) {
+        if(personalPuesto == null) {
+            logger.warn("El puesto de trabajo viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(personalPuesto, PersonalPuestoDeTrabajoDto.class);
+    }
+
+    public PersonalSubpuestoDeTrabajoDto convertDaoToDtoPersonalSubpuestoDeTrabajo(PersonalSubpuesto personalSubpuesto) {
+        if(personalSubpuesto == null) {
+            logger.warn("El subpuesto de trabajo viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(personalSubpuesto, PersonalSubpuestoDeTrabajoDto.class);
+    }
+
+    public PersonalNacionalidadDto convertDaoToDtoPersonalNacionalidad(PersonalNacionalidad personalNacionalidad) {
+        if(personalNacionalidad == null) {
+            logger.warn("La nacionalidad viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(personalNacionalidad, PersonalNacionalidadDto.class);
+    }
+
+    public ClienteDomicilioDto convertDaoToDtoClienteDomicilio(ClienteDomicilio clienteDomicilio) {
+        if(clienteDomicilio == null) {
+            logger.warn("El domicilio del cliente viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(clienteDomicilio, ClienteDomicilioDto.class);
+    }
 }

@@ -325,6 +325,64 @@ public class DtoToDaoConverter {
         return vehiculoUso;
     }
 
+    public PersonalPuesto convertDtoToDaoPuestoTrabajo(PersonalPuestoDeTrabajoDto personalPuestoDeTrabajoDto) {
+        if(personalPuestoDeTrabajoDto == null) {
+            logger.warn("El puesto de trabajo viene como vacio o nulo");
+            throw new InvalidDataException();
+        }
 
+        PersonalPuesto personalPuesto = modelMapper.map(personalPuestoDeTrabajoDto, PersonalPuesto.class);
+        if(StringUtils.isBlank(personalPuesto.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            personalPuesto.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return personalPuesto;
+    }
+
+    public PersonalSubpuesto convertDtoToDaoSubpuestoTrabajo(PersonalSubpuestoDeTrabajoDto personalSubpuestoDeTrabajoDto) {
+        if(personalSubpuestoDeTrabajoDto == null) {
+            logger.warn("El subpuesto de trabajo viene como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        PersonalSubpuesto personalSubpuesto = modelMapper.map(personalSubpuestoDeTrabajoDto, PersonalSubpuesto.class);
+        if(StringUtils.isBlank(personalSubpuesto.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            personalSubpuesto.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return personalSubpuesto;
+    }
+
+    public PersonalNacionalidad convertDtoToDaoNacionalidad(PersonalNacionalidadDto personalNacionalidadDto) {
+        if(personalNacionalidadDto == null) {
+            logger.warn("La nacionalidad viene como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        PersonalNacionalidad personalNacionalidad = modelMapper.map(personalNacionalidadDto, PersonalNacionalidad.class);
+        if(StringUtils.isBlank(personalNacionalidad.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            personalNacionalidad.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return personalNacionalidad;
+    }
+
+    public ClienteDomicilio convertDtoToDaoClienteDomicilio(ClienteDomicilioDto clienteDomicilioDto) {
+        if(clienteDomicilioDto == null) {
+            logger.warn("El domicilio del cliente viene como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        ClienteDomicilio clienteDomicilio = modelMapper.map(clienteDomicilioDto, ClienteDomicilio.class);
+        if(StringUtils.isBlank(clienteDomicilio.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            clienteDomicilio.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return clienteDomicilio;
+    }
 
 }

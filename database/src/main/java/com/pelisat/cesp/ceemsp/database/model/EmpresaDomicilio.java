@@ -50,4 +50,10 @@ public class EmpresaDomicilio extends CommonModel {
 
     @Column(name = "TELEFONO_MOVIL", nullable = false)
     private String telefonoMovil;
+
+    @Column(name = "LATITUD", nullable = false)
+    private String latitud;
+
+    @Column(name = "LONGITUD", nullable = false)
+    private String longitud;
 }

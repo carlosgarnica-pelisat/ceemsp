@@ -6,6 +6,10 @@ import {EmpresaService} from "../../../_services/empresa.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ToastType} from "../../../_enums/ToastType";
 import Cliente from "../../../_models/Cliente";
+import Stepper from "bs-stepper";
+import ClienteDomicilio from "../../../_models/ClienteDomicilio";
+import {TipoInfraestructuraService} from "../../../_services/tipo-infraestructura.service";
+import TipoInfraestructura from "../../../_models/TipoInfraestructura";
 
 @Component({
   selector: 'app-empresa-clientes',
@@ -18,6 +22,8 @@ export class EmpresaClientesComponent implements OnInit {
 
   modal: NgbModalRef;
   closeResult: string;
+
+  stepper: Stepper;
 
   private gridApi;
   private gridColumnApi;
@@ -41,10 +47,16 @@ export class EmpresaClientesComponent implements OnInit {
   };
 
   nuevoClienteForm: FormGroup;
+  nuevoClienteDomicilioForm: FormGroup;
+
+  domicilios: ClienteDomicilio[] = [];
+
+  tiposInfraestructura: TipoInfraestructura[] = [];
+  tipoInfraestructura: TipoInfraestructura = undefined;
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
-              private formBuilder: FormBuilder) { }
+              private formBuilder: FormBuilder, private tipoInfraestructuraService: TipoInfraestructuraService) { }
 
   ngOnInit(): void {
     this.uuid = this.route.snapshot.paramMap.get("uuid");
@@ -57,6 +69,24 @@ export class EmpresaClientesComponent implements OnInit {
       canes: ['', Validators.required],
       armas: ['', Validators.required],
       fechaInicio: ['', Validators.required]
+    });
+
+    this.nuevoClienteDomicilioForm = this.formBuilder.group({
+      nombre: ['', Validators.required],
+      domicilio1: ['', Validators.required],
+      domicilio2: ['', Validators.required],
+      domicilio3: ['', Validators.required],
+      domicilio4: [''],
+      codigoPostal: ['', Validators.required],
+      estado: ['', Validators.required],
+      pais: ['Mexico', Validators.required],
+      matriz: ['', Validators.required], // TODO: Quitar el si/no y agregar tipo de domicilio como matriz / sucursal
+      contacto: ['', Validators.required],
+      telefonoFijo: ['', Validators.required],
+      telefonoMovil: ['', Validators.required],
+      correoElectronico: ['', Validators.required],
+      tipoInfraestructura: ['', Validators.required],
+      tipoInfraestructuraOtro: ['']
     })
 
     this.empresaService.obtenerClientes(this.uuid).subscribe((data: Cliente[]) => {
@@ -65,6 +95,16 @@ export class EmpresaClientesComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se pudieron descargar los clientes. ${error}`,
+        ToastType.ERROR
+      )
+    });
+
+    this.tipoInfraestructuraService.obtenerTiposInfraestructura().subscribe((data: TipoInfraestructura[]) => {
+      this.tiposInfraestructura = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los tipos de infraestructura. Motivo: ${error}`,
         ToastType.ERROR
       )
     })
@@ -78,6 +118,11 @@ export class EmpresaClientesComponent implements OnInit {
 
   mostrarModalCrear(crearDomicilioModal) {
     this.modal = this.modalService.open(crearDomicilioModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.stepper = new Stepper(document.querySelector('#stepper1'), {
+      linear: true,
+      animation: true
+    })
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -94,32 +139,80 @@ export class EmpresaClientesComponent implements OnInit {
 
   }
 
-  guardarCliente(form) {
+  seleccionarTipoInfraestructura(target) {
+    let uuid = target.value;
+    console.log(uuid);
+    this.tipoInfraestructura = this.tiposInfraestructura.filter(x => x.uuid === uuid)[0];
+
+    console.log(this.tipoInfraestructura);
+  }
+
+  next(stepName: string, form) {
+    /*if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Faltan algunos campos obligatorios por llenarse",
+        ToastType.WARNING
+      );
+      return;
+    }*/
+    this.stepper.next();
+
+    switch (stepName) {
+      /*case "INFORMACION":
+        let formData: Cliente = form.value;
+        let formValue: Cliente = form.value;
+
+        this.empresaService.guardarCliente(this.uuid, formValue).subscribe((data: Cliente) => {
+          this.toastService.showGenericToast(
+            "Listo",
+            "Se ha guardado el cliente con exito",
+            ToastType.SUCCESS
+          );
+          this.stepper.next();
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se ha podido guardar el cliente. ${error}`,
+            ToastType.ERROR
+          )
+        });
+        break;
+      case "DOMICILIOS":
+
+        break;*/
+    }
+
+
+    this.stepper.next();
+  }
+
+  previous() {
+    this.stepper.previous();
+  }
+
+  agregarDomicilio(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        "Hay campos obligatorios que no se han rellenados. Favor de rellenarlos",
+        "Faltan algunos campos obligatorios por llenar",
         ToastType.WARNING
       );
       return;
     }
 
-    let formValue: Cliente = form.value;
-
-    this.empresaService.guardarCliente(this.uuid, formValue).subscribe((data: Cliente) => {
-      this.toastService.showGenericToast(
-        "Listo",
-        "Se ha guardado el cliente con exito",
-        ToastType.SUCCESS
-      );
-      window.location.reload();
-    }, (error) => {
+    let formData: ClienteDomicilio = form.value;
+    formData.tipoInfraestructura = this.tipoInfraestructura;
+    if(formData.tipoInfraestructura.nombre === "Otro" && formData.tipoInfraestructuraOtro === undefined) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        `No se ha podido guardar el cliente. ${error}`,
-        ToastType.ERROR
-      )
-    })
+        "El tipo de infraestructura es otro y no se especifico el tipo",
+        ToastType.WARNING
+      );
+      return;
+    }
+    this.domicilios.push(formData);
+    this.nuevoClienteDomicilioForm.reset();
   }
 
   private getDismissReason(reason: any): string {

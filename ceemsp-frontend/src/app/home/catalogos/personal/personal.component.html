@@ -35,15 +35,15 @@
         [columnDefs]="columnDefs"
         (gridReady)="onGridReady($event)"
         [frameworkComponents]="frameworkComponents"
-        (rowDoubleClicked)="checkForDetails($event.data)"
+        (rowDoubleClicked)="checkForDetails($event.data, mostrarPuestoDetallesModal)"
         #agGrid
       ></ag-grid-angular>
     </div>
   </div>
 
-  <ng-template #crearPuestoTrabajoModal let-modal>
+  <ng-template #mostrarPuestoDetallesModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="modal-survey-response">Nuevo tipo de arma </h4>
+      <h4 class="modal-title" id="modal-uso-vehiculo-detalles">Ver detalles del puesto de trabajo</h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -51,19 +51,83 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <form [formGroup]="crearTipoArmaForm">
-            <div class="row">
-              <div class="col-sm-4">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'SUBPUESTOS' }" (click)="cambiarPestana('SUBPUESTOS')">Subpuestos</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'DETALLES'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Nombre:</b></td>
+              <td>{{puestoTrabajo.nombre}}</td>
+            </tr>
+            <tr>
+              <td><b>Descripcion:</b></td>
+              <td>{{puestoTrabajo.descripcion}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'SUBPUESTOS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Nombre</b></td>
+              <td><b>Descripcion</b></td>
+              <td><b>Portacion</b></td>
+              <td><b>CUIP</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let s of puestoTrabajo?.subpuestos">
+              <td>{{s.nombre}}</td>
+              <td>{{s.descripcion}}</td>
+              <td>{{s.portacion}}</td>
+              <td>{{s.cuip}}</td>
+            </tr>
+            <tr>
+
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #crearPuestoTrabajoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-survey-response">Nuevo puesto de trabajo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearPuestoDeTrabajoForm">
+            <div class="form-row">
+              <div class="col-sm-6">
                 <label for="nombre">
                   <b>Nombre *</b>
                 </label>
-                <input id="nombre" type="text" class="form-control" placeholder="Ejemplo: Colt" formControlName="nombre" #nombre>
+                <input id="nombre" type="text" class="form-control" placeholder="Ejemplo: Administrativo" formControlName="nombre" #nombre>
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-6">
                 <label for="descripcion">
                   <b>Descripcion</b>
                 </label>
-                <input id="descripcion" type="text" class="form-control" placeholder="Ejemplo: Conocida por pistolas" formControlName="descripcion" #descripcion>
+                <input id="descripcion" type="text" class="form-control" placeholder="Describa que realiza este trabajo" formControlName="descripcion" #descripcion>
               </div>
             </div>
           </form>
@@ -71,7 +135,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="guardarTipoArma(crearTipoArmaForm)">Guardar</button>
+      <button class="btn btn-primary" (click)="guardarPuestoTrabajo(crearPuestoDeTrabajoForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>

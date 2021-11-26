@@ -36,7 +36,7 @@
         [columnDefs]="columnDefs"
         (gridReady)="onGridReady($event)"
         [frameworkComponents]="frameworkComponents"
-        (rowDoubleClicked)="checkForDetails($event.data)"
+        (rowDoubleClicked)="checkForDetails($event.data, mostrarUsoVehiculoDetallesModal)"
         #agGrid
       ></ag-grid-angular>
     </div>
