@@ -46,7 +46,7 @@ public class PublicServiceImpl implements PublicService {
         } else {
             String currentNumber = empresa.getRegistro().split("/")[2];
             int nextNumber = Integer.parseInt(currentNumber);
-            nextNumber = nextNumber++;
+            nextNumber = nextNumber+1;
             String nextNumberString = Integer.toString(nextNumber);
             while(nextNumberString.length() < 5) {
                 nextNumberString = "0" + nextNumberString;

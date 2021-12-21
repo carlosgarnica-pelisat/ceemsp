@@ -8,6 +8,7 @@
         <createTable tableName="ARMAS">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
+            <column name="EMPRESA" type="INT"></column>
             <column name="LICENCIA_COLECTIVA" type="INT"></column>
             <column name="TIPO" type="VARCHAR(10)"></column>
             <column name="CLASE" type="INT"></column>

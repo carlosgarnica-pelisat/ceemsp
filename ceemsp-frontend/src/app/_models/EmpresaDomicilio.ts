@@ -7,6 +7,8 @@ export default class EmpresaDomicilio implements Deserializable {
   uuid: string;
   nombre: string;
   domicilio1: string;
+  numeroExterior: string;
+  numeroInterior: string;
   domicilio2: string;
   domicilio3: string;
   domicilio4: string;

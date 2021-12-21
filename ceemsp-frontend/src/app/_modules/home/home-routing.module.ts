@@ -74,10 +74,10 @@ const routes: Routes = [
         path: 'empresas/:uuid/canes',
         component: EmpresaCanesComponent
       },
-      {
+      /*{
         path: 'empresas/:uuid/armas',
         component: EmpresaArmasComponent
-      },
+      },*/
       {
         path: 'empresas/:uuid/vehiculos',
         component: EmpresaVehiculosComponent

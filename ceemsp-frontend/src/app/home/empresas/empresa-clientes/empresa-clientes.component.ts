@@ -22,6 +22,8 @@ export class EmpresaClientesComponent implements OnInit {
 
   modal: NgbModalRef;
   closeResult: string;
+  cliente: Cliente;
+  showDomicilioForm: boolean = false;
 
   stepper: Stepper;
 
@@ -53,6 +55,8 @@ export class EmpresaClientesComponent implements OnInit {
 
   tiposInfraestructura: TipoInfraestructura[] = [];
   tipoInfraestructura: TipoInfraestructura = undefined;
+
+  pestanaActual: string = "DETALLES";
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
@@ -116,6 +120,13 @@ export class EmpresaClientesComponent implements OnInit {
     this.gridColumnApi = params.gridApi;
   }
 
+  cambiarPestana(status) {
+    if(status == this.pestanaActual) {
+      return;
+    }
+    this.pestanaActual = status;
+  }
+
   mostrarModalCrear(crearDomicilioModal) {
     this.modal = this.modalService.open(crearDomicilioModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
@@ -141,10 +152,7 @@ export class EmpresaClientesComponent implements OnInit {
 
   seleccionarTipoInfraestructura(target) {
     let uuid = target.value;
-    console.log(uuid);
     this.tipoInfraestructura = this.tiposInfraestructura.filter(x => x.uuid === uuid)[0];
-
-    console.log(this.tipoInfraestructura);
   }
 
   next(stepName: string, form) {
@@ -189,6 +197,78 @@ export class EmpresaClientesComponent implements OnInit {
 
   previous() {
     this.stepper.previous();
+  }
+
+  mostrarModalDetalles(rowData, modal) {
+
+    let clienteUuid = rowData.uuid;
+
+    this.empresaService.obtenerClientePorUuid(this.uuid, clienteUuid).subscribe((data: Cliente) => {
+      this.cliente = data;
+      this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+      this.modal.result.then((result) => {
+        this.closeResult = `Closed with ${result}`;
+      }, (error) => {
+        this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudo descargar la informacion del cliente. ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  mostrarNuevoDomicilioForm() {
+    this.showDomicilioForm = !this.showDomicilioForm;
+  }
+
+  guardarDomicilio(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Faltan algunos campos obligatorios por llenar",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espera un momento",
+      "Estamos guardando el domicilio del cliente",
+      ToastType.INFO
+    );
+
+    let domicilio: ClienteDomicilio = form.value;
+    let tipoInfraestructura: TipoInfraestructura = this.tiposInfraestructura.filter(x => x.uuid === form.value.tipoInfraestructura)[0];
+
+    if(tipoInfraestructura !== undefined && tipoInfraestructura.nombre === "Otro" && domicilio.tipoInfraestructuraOtro === "") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Cuando el tipo de infraestructura es otro, se debe especificar el tipo. Favor de especificarlo",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    domicilio.tipoInfraestructura = tipoInfraestructura;
+    let tempArray: ClienteDomicilio[] = [domicilio];
+
+    this.empresaService.guardarDomicilioCliente(this.uuid, this.cliente.uuid, tempArray).subscribe((data: ClienteDomicilio) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado el domicilio del cliente con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar el domicilio. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
   }
 
   agregarDomicilio(form) {

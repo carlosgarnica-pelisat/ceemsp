@@ -1,0 +1,40 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2021-12-09-crear-tabla-personal-certificaciones" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="PERSONAL_CERTIFICACIONES">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="PERSONAL" type="int"></column>
+            <column name="NOMBRE" type="VARCHAR(100)"></column>
+            <column name="NOMBRE_INSTRUCTOR" type="VARCHAR(100)"></column>
+            <column name="DURACION" type="DECIMAL(10,2)"></column>
+            <column name="FECHA_INICIO" type="DATE"></column>
+            <column name="FECHA_FIN" type="DATE"></column>
+            <column name="RUTA_ARCHIVO" type="VARCHAR(512)"></column>
+            <column name="ELIMINADO" type="BIT" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="DATETIME" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="INT"></column>
+            <column name="FECHA_ACTUALIZACION" type="DATETIME" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="INT"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="PERSONAL_CERTIFICACIONES" columnNames="ID" />
+        <addAutoIncrement tableName="PERSONAL_CERTIFICACIONES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="PERSONAL_CERTIFICACIONES" columnNames="UUID" />
+
+    </changeSet>
+</databaseChangeLog>
+
+
+
+
+
+
+

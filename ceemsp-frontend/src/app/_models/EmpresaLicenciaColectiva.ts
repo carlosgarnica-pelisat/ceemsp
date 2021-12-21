@@ -3,6 +3,8 @@ import Modalidad from "./Modalidad";
 import Submodalidad from "./Submodalidad";
 
 export default class EmpresaLicenciaColectiva implements Deserializable {
+  id: number;
+  uuid: string;
   numeroOficio: string;
   modalidad: Modalidad;
   submodalidad: Submodalidad;

@@ -28,17 +28,32 @@
       </div>
       <div class="card card2">
         <div class="my-auto mx-md-5 px-md-5 right">
-          <h3 class="text-white">AVISO IMPORTANTE</h3>
-          <small class="text-white">
-            <p>Guadalajara, Jalisco a los 09 días del mes de julio del 2021.</p>
-            <p>A los prestadores de servicios de seguridad privada:</p>
-            <p>Se hace de su conocimiento que a partir del presente mes se establece el nuevo padrón de empresas que cuentan con registro y/o autorización activa por esta Dirección de los Servicios Privados de Seguridad del Consejo Estatal de Seguridad Publica, mismo que podrá ser consultado en la siguiente liga: https://coordinacionseguridad.jalisco.gob.mx/empresas-seguridad-privada, el cual será actualizado de manera mensual en la página de la Coordinación Estratégica de Seguridad.</p>
-            <p>En caso de que se advierta alguna inconsistencia en su información comunicarse vía telefónica a la Dirección de los Servicios Privados de Seguridad a los siguientes números: (33) 36302276 y (33) 3818 1480, extensiones: 13012, 13040, 13053, 13065 y 13087 para realizar la actualización correspondiente.</p>
-            <p>DIRECCIÓN DE LOS SERVICIOS PRIVADOS DE SEGURIDAD DEL <br>SECRETARIADO EJECUTIVO DEL CONSEJO ESTATAL DE SEGURIDAD PÚBLICA </p>
-            <p></p>
+          <h3 class="text-white">{{comunicadoGeneral?.titulo}}</h3>
+          <small class="text-white" [innerHTML]="comunicadoGeneral?.descripcion">
           </small>
+          <hr>
+          <a style="cursor: pointer;" class="text-white" (click)="verHistorialComunicados(mostrarHistorialComunicadosModal)">Ver historico de comunicados</a>
         </div>
       </div>
     </div>
   </div>
+
+  <ng-template #mostrarHistorialComunicadosModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarHistorialComunicadosModal">Ver historial de comunicados </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
 </div>

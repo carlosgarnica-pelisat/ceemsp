@@ -1,5 +1,8 @@
 package com.pelisat.cesp.ceemsp.database.type;
 
+import lombok.Getter;
+
+@Getter
 public enum EstadoCivilEnum {
     SOLTERO("SOLTERO", "Soltero", "Estado civil soltero"),
     CASADO("CASADO", "Casado", "Estado civil casado"),
@@ -16,17 +19,5 @@ public enum EstadoCivilEnum {
         this.codigo = codigo;
         this.nombre = nombre;
         this.descripcion = descripcion;
-    }
-
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
     }
 }

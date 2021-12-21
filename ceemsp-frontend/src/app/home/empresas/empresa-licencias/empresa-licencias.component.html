@@ -26,13 +26,13 @@
         </a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
         <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
-        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action active">Licencias colectivas</a>
+        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action active">Licencias colectivas / Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action">Canes</a>
-        <a routerLink="/home/empresas/{{uuid}}/armas" class="list-group-item list-group-item-action">Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
         <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
+        <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -43,10 +43,139 @@
         [columnDefs]="columnDefs"
         (gridReady)="onGridReady($event)"
         [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data, mostrarLicenciaDetallesModal)"
         #agGrid
       ></ag-grid-angular>
     </div>
   </div>
+
+  <ng-template #mostrarLicenciaDetallesModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarLicenciaDetallesModal">Ver detalles de la licencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'ARMAS' }" (click)="cambiarPestana('ARMAS')">Armas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12" *ngIf="pestanaActual === 'DETALLES'">
+          <table class="table">
+            <tr>
+              <td><b>Numero de oficio:</b></td>
+              <td>{{licencia?.numeroOficio}}</td>
+            </tr>
+            <tr>
+              <td><b>Fecha de inicio:</b></td>
+              <td>{{licencia?.fechaInicio}}</td>
+            </tr>
+            <tr>
+              <td><b>Fecha de fin:</b></td>
+              <td>{{licencia?.fechaFin}}</td>
+            </tr>
+            <tr>
+              <td><b>Modalidad:</b></td>
+              <td>{{licencia?.modalidad.nombre + " " + licencia?.modalidad.descripcion}}</td>
+            </tr>
+            <tr>
+              <td><b>Submodalidad:</b></td>
+              <td>{{licencia?.submodalidad.nombre}}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-sm-12" *ngIf="pestanaActual === 'ARMAS'">
+          <table class="table">
+            <tr>
+              <td><b>ID</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Tipo</b></td>
+              <td><b>Clase</b></td>
+              <td><b>Bunker</b></td>
+              <td><b>Status</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let a of armas">
+              <td>{{a?.uuid}}</td>
+              <td>{{a?.marca?.nombre}}</td>
+              <td>{{a?.tipo}}</td>
+              <td>{{a?.clase?.nombre}}</td>
+              <td>{{a?.bunker?.domicilio1}}</td>
+              <td>{{a?.status}}</td>
+              <td>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-primary btn-sm" (click)="mostrarCambioStatusForm()"><fa-icon [icon]="faSync"></fa-icon> Cambiar status</button>
+                  <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="sr-only">Toggle Dropdown</span>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"><fa-icon [icon]="faEdit"></fa-icon> Modificar</a>
+                    <a class="dropdown-item" href="#"><fa-icon [icon]="faTrash"></fa-icon> Eliminar</a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="mostrarModificarStatusArma">
+              <td colspan="7">
+                <form formGroup="modificarStatusArmaForm">
+                  <div class="form-row">
+                    <div class="col-sm-4">
+                      <label for="status">
+                        <b>Status *</b>
+                      </label>
+                      <select class="form-control" id="status" (change)="seleccionarStatus($event.target)">
+                        <option value="ACTIVA">Activa</option>
+                        <option value="DEPOSITO">Deposito</option>
+                        <option value="CUSTODIA">En resguardo</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-4" *ngIf="status === 'ACTIVA'">
+                      <label for="personal">
+                        <b>Personal a asignar *</b>
+                      </label>
+                      <select class="form-control" id="personal" (change)="seleccionarPersona($event.target)">
+                        <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-4" *ngIf="status === 'CUSTODIA'">
+                      <label for="documentoFundatorio">
+                        <b>Documento fundatorio</b>
+                      </label>
+                      <input id="documentoFundatorio" type="file" class="form-control">
+                    </div>
+                  </div>
+                  <div class="form-row" *ngIf="status === 'CUSTODIA'">
+                    <label>
+                      <b>Relato de hechos *</b>
+                    </label>
+                    <div class="col-sm-12">
+
+                    </div>
+                  </div>
+                </form>
+              </td>
+            </tr>
+            <tr *ngIf="mostrarModificarStatusArma">
+              <td colspan="7">
+                <button class="btn btn-sm btn-primary">Guardar cambios</button>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </ng-template>
 
   <ng-template #crearLicencia let-modal>
     <div class="modal-header">
@@ -89,7 +218,7 @@
                   <span *ngIf="crearEmpresaLicenciaForm.controls['modalidad'].invalid && (crearEmpresaLicenciaForm.controls['modalidad'].dirty || crearEmpresaLicenciaForm.controls['modalidad'].touched)" class="text-danger"> - Requerido</span>
                 </label>
                 <select id="modalidad" class="form-control" formControlName="modalidad">
-                  <option *ngFor="let m of modalidades" value="{{m.modalidad.uuid}}">{{m.modalidad.nombre}}</option>
+                  <option *ngFor="let m of modalidades" value="{{m?.modalidad?.uuid}}">{{m?.modalidad?.nombre}}</option>
                 </select>
               </div>
               <div class="col-sm-4">
@@ -97,7 +226,7 @@
                   <b>Submodalidad</b>
                 </label>
                 <select id="submodalidad" class="form-control" formControlName="submodalidad">
-                  <option *ngFor="let m of modalidades" value="{{m.submodalidad.uuid}}">{{m.submodalidad.nombre}}</option>
+                  <option *ngFor="let m of modalidades" value="{{m?.submodalidad?.uuid}}">{{m?.submodalidad?.nombre}}</option>
                 </select>
               </div>
             </div>

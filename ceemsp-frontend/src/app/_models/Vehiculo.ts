@@ -4,6 +4,8 @@ import VehiculoMarca from "./VehiculoMarca";
 import VehiculoSubmarca from "./VehiculoSubmarca";
 
 export default class Vehiculo implements Deserializable {
+  id: number;
+  uuid: string;
   tipo: VehiculoTipo;
   marca: VehiculoMarca;
   submarca: VehiculoSubmarca;

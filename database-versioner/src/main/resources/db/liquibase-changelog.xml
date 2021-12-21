@@ -37,13 +37,14 @@
     <include file="changelog/armas-marcas/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/armas-clases/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/armas-tipos/master.xml" relativeToChangelogFile="true"></include>
-    <!--include file="changelog/armas/master.xml" relativeToChangelogFile="true"></include-->
+    <include file="changelog/armas/master.xml" relativeToChangelogFile="true"></include>
 
     <!-- VEHICULOS -->
     <include file="changelog/vehiculos-tipos/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/vehiculos-marcas/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/vehiculos-submarcas/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/vehiculos-usos/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/vehiculos-colores/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/vehiculos/master.xml" relativeToChangelogFile="true"></include>
 <!--    <include file="changelog/vehiculos-fotografias/master.xml" relativeToChangelogFile="true"></include>-->
 
@@ -56,6 +57,18 @@
     <include file="changelog/personal-subpuestos/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/personal-nacionalidades/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/personal-fotografias/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/personal-certificaciones/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/personal/master.xml" relativeToChangelogFile="true"></include>
 
+    <!-- COMUNICADOS -->
+    <include file="changelog/comunicados-generales/master.xml" relativeToChangelogFile="true"></include>
+
+    <!-- INCIDENCIAS -->
+    <include file="changelog/incidencias/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/incidencias-armas/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/incidencias-archivos/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/incidencias-canes/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/incidencias-personas/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/incidencias-comentarios/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/incidencias-vehiculos/master.xml" relativeToChangelogFile="true"></include>
 </databaseChangeLog>

@@ -12,6 +12,15 @@ import EmpresaEscrituraApoderado from "../_models/EmpresaEscrituraApoderado";
 import EmpresaEscrituraRepresentante from "../_models/EmpresaEscrituraRepresentante";
 import Cliente from "../_models/Cliente";
 import EmpresaEscrituraConsejo from "../_models/EmpresaEscrituraConsejo";
+import ClienteDomicilio from "../_models/ClienteDomicilio";
+import Persona from "../_models/Persona";
+import Can from "../_models/Can";
+import Arma from "../_models/Arma";
+import VehiculoColor from "../_models/VehiculoColor";
+import PersonaCertificacion from "../_models/PersonaCertificacion";
+import CanAdiestramiento from "../_models/CanAdiestramiento";
+import CanConstanciaSalud from "../_models/CanConstanciaSalud";
+import CanCartillaVacunacion from "../_models/CanCartillaVacunacion";
 
 @Injectable({
   providedIn: 'root'
@@ -46,6 +55,10 @@ export class EmpresaService {
   // Domicilios
   obtenerDomicilios(uuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/domicilios`);
+  }
+
+  obtenerDomicilioPorUuid(uuid: string, domicilioUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/domicilios/${domicilioUuid}`)
   }
 
   guardarDomicilio(uuid: string, empresaDomicilio: EmpresaDomicilio) {
@@ -106,6 +119,10 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/licencias`);
   }
 
+  obtenerLicenciaColectivaPorUuid(uuid: string, licenciaColectivaUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}`)
+  }
+
   guardarLicenciaColectiva(uuid: string, licenciaColectiva: EmpresaLicenciaColectiva) {
     return this.http.post(`${this.uri}/empresas/${uuid}/licencias`, licenciaColectiva);
   }
@@ -115,8 +132,16 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/vehiculos`);
   }
 
+  obtenerVehiculoPorUuid(uuid: string, vehiculoUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}`);
+  }
+
   guardarVehiculo(uuid: string, vehiculo: Vehiculo) {
     return this.http.post(`${this.uri}/empresas/${uuid}/vehiculos`, vehiculo);
+  }
+
+  guardarVehiculoColor(uuid: string, vehiculoUuid: string, color: VehiculoColor) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}/colores`, color);
   }
 
   // Clientes
@@ -130,5 +155,69 @@ export class EmpresaService {
 
   guardarCliente(uuid: string, cliente: Cliente) {
     return this.http.post(`${this.uri}/empresas/${uuid}/clientes`, cliente)
+  }
+
+  // Clientes domicilios
+  guardarDomicilioCliente(uuidEmpresa: string, uuidCliente: string, clienteDomicilio: ClienteDomicilio[]) {
+    return this.http.post(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/domicilios`, clienteDomicilio  )
+  }
+
+  // Personal
+  obtenerPersonal(uuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/personas`)
+  }
+
+  obtenerPersonalPorUuid(uuid: string, personaUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/personas/${personaUuid}`)
+  }
+
+  guardarPersonal(uuid: string, persona: Persona) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/personas`, persona);
+  }
+
+  // Personal certificaciones
+  obtenerCertificacionesPersonalPorUuid(empresaUuid: string, personaUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/certificaciones`)
+  }
+
+  guardarPersonalCertificacion(empresaUuid: string, personaUuid: string, certificacion: PersonaCertificacion) {
+    return this.http.post(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/certificaciones`, certificacion);
+  }
+
+  // Canes
+  obtenerCanes(uuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes`);
+  }
+
+  obtenerCanPorUuid(uuid: string, canUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes/${canUuid}`);
+  }
+
+  guardarCan(uuid: string, can: Can) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/canes`, can);
+  }
+
+  // Canes adiestramiento
+  guardarCanAdiestramiento(uuid: string, canUuid: string, adiestramiento: CanAdiestramiento) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/canes/${canUuid}/adiestramientos`, adiestramiento);
+  }
+
+  // Constancias de salud
+  guardarCanConstanciaSalud(uuid: string, canUuid: string, constanciaSalud: CanConstanciaSalud) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/canes/${canUuid}/constancias`, constanciaSalud);
+  }
+
+  // Cartillas vacunacion
+  guardarCanCartillaVacunacion(uuid: string, canUuid: string, cartillaVacunacion: CanCartillaVacunacion) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/canes/${canUuid}/cartillas`, cartillaVacunacion);
+  }
+
+  // Armas
+  obtenerArmasPorLicenciaColectivaUuid(uuid: string, licenciaColectivaUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas`);
+  }
+
+  guardarArma(uuid: string, licenciaColectivaUuid: string, arma: Arma) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas`, arma);
   }
 }

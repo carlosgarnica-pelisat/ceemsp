@@ -14,4 +14,12 @@ export class PublicService {
   obtenerSiguienteNumero(body) {
     return this.http.post(`${this.uri}/public/register/next`, body)
   }
+
+  obtenerUltimoComunicado() {
+    return this.http.get(`${this.uri}/public/comunicados/ultimo`)
+  }
+
+  obtenerComunicados() {
+    return this.http.get(`${this.uri}/public/comunicados`)
+  }
 }

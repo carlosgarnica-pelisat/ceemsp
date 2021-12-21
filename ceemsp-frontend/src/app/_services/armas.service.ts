@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
 import CanRaza from "../_models/CanRaza";
-import CanEntrenamiento from "../_models/CanEntrenamiento";
+import TipoEntrenamiento from "../_models/TipoEntrenamiento";
 import ArmaTipo from "../_models/ArmaTipo";
 import ArmaMarca from "../_models/ArmaMarca";
 import ArmaClase from "../_models/ArmaClase";

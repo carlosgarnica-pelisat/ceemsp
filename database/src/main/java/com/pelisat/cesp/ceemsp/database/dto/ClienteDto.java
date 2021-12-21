@@ -4,6 +4,8 @@ import com.pelisat.cesp.ceemsp.database.type.TipoPersonaEnum;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class ClienteDto {
@@ -18,4 +20,5 @@ public class ClienteDto {
     private String fechaInicio;
     private String fechaFin;
     private String rutaArchivoContrato;
+    private List<ClienteDomicilioDto> domicilios;
 }

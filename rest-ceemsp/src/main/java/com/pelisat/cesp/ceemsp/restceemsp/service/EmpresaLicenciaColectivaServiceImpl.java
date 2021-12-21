@@ -29,6 +29,8 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
     private final EmpresaLicenciaColectivaRepository empresaLicenciaColectivaRepository;
     private final EmpresaService empresaService;
     private final UsuarioService usuarioService;
+    private final ModalidadService modalidadService;
+    private final SubmodalidadService submodalidadService;
     private final DaoHelper<CommonModel> daoHelper;
     private final Logger logger = LoggerFactory.getLogger(EmpresaLicenciaColectivaService.class);
 
@@ -36,13 +38,16 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
     public EmpresaLicenciaColectivaServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                                                EmpresaLicenciaColectivaRepository empresaLicenciaColectivaRepository,
                                                UsuarioService usuarioService, DaoHelper<CommonModel> daoHelper,
-                                               EmpresaService empresaService) {
+                                               EmpresaService empresaService, ModalidadService modalidadService,
+                                               SubmodalidadService submodalidadService) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.empresaLicenciaColectivaRepository = empresaLicenciaColectivaRepository;
         this.usuarioService = usuarioService;
         this.daoHelper = daoHelper;
         this.empresaService = empresaService;
+        this.modalidadService = modalidadService;
+        this.submodalidadService = submodalidadService;
     }
 
     @Override
@@ -69,8 +74,26 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
             throw new InvalidDataException();
         }
 
+        logger.info("Obteniendo la licencia colectiva con el uuid [{}]", licenciaUuid);
 
-        return null;
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        EmpresaLicenciaColectiva licenciaColectiva = empresaLicenciaColectivaRepository.findByUuidAndEliminadoFalse(licenciaUuid);
+
+        if(licenciaColectiva == null) {
+            logger.warn("La licencia colectiva no existe");
+            throw new NotFoundResourceException();
+        }
+
+        EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto = daoToDtoConverter.convertDaoToDtoEmpresaLicenciaColectiva(licenciaColectiva);
+
+        if(!soloEntidad) {
+            empresaLicenciaColectivaDto.setModalidad(modalidadService.obtenerModalidadPorId(licenciaColectiva.getModalidad()));
+            if(licenciaColectiva.getSubmodalidad() > 0) {
+                empresaLicenciaColectivaDto.setSubmodalidad(submodalidadService.obtenerSubmodalidadPorId(licenciaColectiva.getId()));
+            }
+        }
+
+        return empresaLicenciaColectivaDto;
     }
 
     @Override

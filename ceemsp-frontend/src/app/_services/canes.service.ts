@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from "../../environments/environment";
 import { HttpClient } from "@angular/common/http";
 import CanRaza from "../_models/CanRaza";
-import CanEntrenamiento from "../_models/CanEntrenamiento";
+import TipoEntrenamiento from "../_models/TipoEntrenamiento";
 
 @Injectable({
   providedIn: 'root'
@@ -39,7 +39,7 @@ export class CanesService {
     return this.http.get(`${this.uri}/catalogos/canes/adiestramientos/${uuid}`)
   }
 
-  saveEntrenamiento(canEntrenamiento: CanEntrenamiento) {
+  saveEntrenamiento(canEntrenamiento: TipoEntrenamiento) {
     return this.http.post(`${this.uri}/catalogos/canes/adiestramientos`, canEntrenamiento)
   }
 

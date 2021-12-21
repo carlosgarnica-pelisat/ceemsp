@@ -21,6 +21,12 @@ public class EmpresaDomicilio extends CommonModel {
     @Column(name = "DOMICILIO_1", nullable = false)
     private String domicilio1;
 
+    @Column(name = "NUMERO_EXTERIOR", nullable = false)
+    private String numeroExterior;
+
+    @Column(name = "NUMERO_INTERIOR")
+    private String numeroInterior;
+
     @Column(name = "DOMICILIO_2", nullable = false)
     private String domicilio2;
 

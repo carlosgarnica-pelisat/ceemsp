@@ -1,5 +1,8 @@
 package com.pelisat.cesp.ceemsp.database.type;
 
+import lombok.Getter;
+
+@Getter
 public enum CanStatusEnum {
     ACTIVO("ACTIVO", "Activo", "El can se encuentra activo y en ejercicio"),
     BAJA("BAJA", "Baja", "El can se encuentra dado de baja o inactivo"),
@@ -13,17 +16,5 @@ public enum CanStatusEnum {
         this.codigo = codigo;
         this.nombre = nombre;
         this.descripcion = descripcion;
-    }
-
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
     }
 }

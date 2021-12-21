@@ -1,5 +1,8 @@
 package com.pelisat.cesp.ceemsp.database.type;
 
+import lombok.Getter;
+
+@Getter
 public enum CanOrigenEnum {
     PROPIO("PROPIO", "Origen propio", "Consiste en que el can es de un origen propio"),
     COMODATO("COMODATO", "Origen por contrato de comodato", "Consiste en el "),
@@ -14,17 +17,5 @@ public enum CanOrigenEnum {
         this.codigo = codigo;
         this.nombre = nombre;
         this.descripcion = descripcion;
-    }
-
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
     }
 }

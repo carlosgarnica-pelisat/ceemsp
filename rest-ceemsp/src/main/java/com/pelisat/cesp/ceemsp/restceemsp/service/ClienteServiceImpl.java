@@ -31,19 +31,22 @@ public class ClienteServiceImpl implements ClienteService {
     private final UsuarioService usuarioService;
     private final EmpresaService empresaService;
     private final DaoHelper<CommonModel> daoHelper;
+    private final ClienteDomicilioService clienteDomicilioService;
 
     private final Logger logger = LoggerFactory.getLogger(ClienteService.class);
 
     @Autowired
     public ClienteServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                               ClienteRepository clienteRepository, UsuarioService usuarioService,
-                              EmpresaService empresaService, DaoHelper<CommonModel> daoHelper) {
+                              EmpresaService empresaService, DaoHelper<CommonModel> daoHelper,
+                              ClienteDomicilioService clienteDomicilioService) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.clienteRepository = clienteRepository;
         this.usuarioService = usuarioService;
         this.empresaService = empresaService;
         this.daoHelper = daoHelper;
+        this.clienteDomicilioService = clienteDomicilioService;
     }
 
 
@@ -58,6 +61,24 @@ public class ClienteServiceImpl implements ClienteService {
         List<Cliente> clientes = clienteRepository.findAllByEmpresaAndEliminadoFalse(empresaDto.getId());
         return clientes.stream().map(daoToDtoConverter::convertDaoToDtoCliente)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ClienteDto obtenerClientePorId(Integer id) {
+        if(id == null || id < 1) {
+            logger.warn("El id viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo el cliente con el id [{}]", id);
+        Cliente cliente = clienteRepository.getOne(id);
+
+        if(cliente == null || cliente.getEliminado()) {
+            logger.warn("El cliente no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return daoToDtoConverter.convertDaoToDtoCliente(cliente);
     }
 
     @Override
@@ -80,7 +101,13 @@ public class ClienteServiceImpl implements ClienteService {
             throw new MissingRelationshipException();
         }
 
-        return daoToDtoConverter.convertDaoToDtoCliente(cliente);
+        ClienteDto response = daoToDtoConverter.convertDaoToDtoCliente(cliente);
+
+        if(!soloEntidad) {
+            response.setDomicilios(clienteDomicilioService.obtenerDomiciliosPorCliente(response.getId()));
+        }
+
+        return response;
     }
 
     @Override

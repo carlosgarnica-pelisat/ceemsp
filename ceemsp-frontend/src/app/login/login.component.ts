@@ -4,6 +4,11 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {AuthenticationService} from "../_services/authentication.service";
 import {first} from "rxjs/operators";
 import Credential from "../_models/Credential";
+import {ComunicadosGeneralesService} from "../_services/comunicados-generales.service";
+import ComunicadoGeneral from "../_models/ComunicadoGeneral";
+import {PublicService} from "../_services/public.service";
+import {error} from "jodit/types/core/helpers";
+import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-login',
@@ -16,6 +21,10 @@ export class LoginComponent implements OnInit {
   loading = false;
   submitted = false;
   returnUrl: string | undefined;
+  comunicadoGeneral: ComunicadoGeneral;
+
+  modal: NgbModalRef;
+  closeResult: string;
 
   private credential: Credential = new Credential();
 
@@ -23,7 +32,10 @@ export class LoginComponent implements OnInit {
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private authenticationService: AuthenticationService
+    private authenticationService: AuthenticationService,
+    private comunicadosGeneralesService: ComunicadosGeneralesService,
+    private publicService: PublicService,
+    private modalService: NgbModal
   ) {
     if(this.authenticationService.currentUserValue) {
       this.router.navigate(['/']);
@@ -36,30 +48,30 @@ export class LoginComponent implements OnInit {
       password: ['', Validators.required]
     });
 
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    this.obtenerComunicadosGenerales()
+  }
+
+  obtenerComunicadosGenerales() {
+    this.publicService.obtenerUltimoComunicado().subscribe((data: ComunicadoGeneral) => {
+      this.comunicadoGeneral = data
+    }, (error) => {
+
+    })
+  }
+
+  mostrarHistorialComunicados(modal) {
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
   }
 
   get f() {
     return this.loginForm.controls;
   }
-
-  /*verifyEmail() {
-    let email = this.f.email.value;
-    if(email === undefined || email === null) {
-      return;
-    }
-
-    if(!EmailValidator.validate(email)) {
-      console.warn("Given email is not valid");
-      return;
-    }
-
-    this.commonService.checkEmailExistence(email).subscribe((response: PublicExists) => {
-      console.log(response);
-    }, () => {
-      console.error("Error when the email was queried on database");
-    })
-  }*/
 
   login() {
     this.submitted = true;
@@ -82,6 +94,30 @@ export class LoginComponent implements OnInit {
       }, (error) => {
         this.loading = false;
       })
+  }
+
+  verHistorialComunicados(modal) {
+    this.publicService.obtenerComunicados().subscribe((data: ComunicadoGeneral) => {
+      this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+      this.modal.result.then((result) => {
+        this.closeResult = `Closed with ${result}`;
+      }, (error) => {
+        this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+      })
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  private getDismissReason(reason: any): string {
+    if (reason == ModalDismissReasons.ESC) {
+      return `by pressing ESC`;
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return `by clicking on a backdrop`;
+    } else {
+      return `with ${reason}`;
+    }
   }
 
 }

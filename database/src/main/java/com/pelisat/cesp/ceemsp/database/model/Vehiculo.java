@@ -40,7 +40,7 @@ public class Vehiculo extends CommonModel {
     @Column(name = "SERIE", nullable = false)
     private String serie;
 
-    @Column(name = "USERNAME", nullable = false)
+    @Column(name = "ORIGEN", nullable = false)
     @Enumerated(EnumType.STRING)
     private VehiculoOrigenEnum origen;
 

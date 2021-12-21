@@ -3,15 +3,43 @@
 
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Comunicados generales</h1>
-    <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" routerLink="nuevo">Crear nuevo</button>
-      <div class="dropdown">
-        <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Opciones
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Descargar como Excel (csv)</a>
+    <h1 class="h3 mb-0 text-gray-800">Crear nuevo comunicado</h1>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <form [formGroup]="nuevoComunicadoForm">
+        <div class="form-row">
+          <div class="col-sm-9">
+            <label for="titulo">
+              <b>Titulo *</b>
+              <span *ngIf="nuevoComunicadoForm.controls['titulo'].invalid && (nuevoComunicadoForm.controls['titulo'].dirty || nuevoComunicadoForm.controls['titulo'].touched)" class="text-danger"> - Requerido</span>
+            </label>
+            <input id="titulo" type="text" class="form-control" placeholder="Ej. Colonia 20 de Noviembre" formControlName="titulo" #titulo>
+          </div>
+          <div class="col-sm-3">
+            <label for="fechaPublicacion">
+              <b>Fecha de publicacion *</b>
+              <span *ngIf="nuevoComunicadoForm.controls['fechaPublicacion'].invalid && (nuevoComunicadoForm.controls['fechaPublicacion'].dirty || nuevoComunicadoForm.controls['fechaPublicacion'].touched)" class="text-danger"> - Requerido</span>
+            </label>
+            <input id="fechaPublicacion" type="date" class="form-control" formControlName="fechaPublicacion" #fechaPublicacion>
+          </div>
+        </div>
+      </form>
+      <div class="row">
+        <div class="col-sm-12">
+          <label>
+            <b>Cuerpo del comunicado</b>
+          </label>
+          <ckeditor [(ngModel)]="model.editorData"></ckeditor>
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-sm-12">
+          <button class="btn btn-info" (click)="guardarComunicado(nuevoComunicadoForm)">
+            Guardar comunicado
+          </button>
         </div>
       </div>
     </div>

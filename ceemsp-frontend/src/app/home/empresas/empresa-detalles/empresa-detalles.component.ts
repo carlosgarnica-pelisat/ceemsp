@@ -61,6 +61,16 @@ export class EmpresaDetallesComponent implements OnInit {
     })
   }
 
+  mostrarModalFormasEjecucion(modal) {
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
   mostrarModalModalidades(modal) {
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 

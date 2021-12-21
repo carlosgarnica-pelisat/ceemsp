@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
+import ComunicadoGeneral from "../../../_models/ComunicadoGeneral";
+import {ToastType} from "../../../_enums/ToastType";
+import {ComunicadosGeneralesService} from "../../../_services/comunicados-generales.service";
+import {ToastService} from "../../../_services/toast.service";
 
 @Component({
   selector: 'app-comunicados-generales',
@@ -13,8 +17,8 @@ export class ComunicadosGeneralesComponent implements OnInit {
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
-    {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+    {headerName: 'Titulo', field: 'titulo', sortable: true, filter: true },
+    {headerName: 'Fecha de publicacion', field: 'fechaPublicacion', sortable: true, filter: true},
     {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
         modify: this.modify.bind(this),
         delete: this.delete.bind(this)
@@ -30,9 +34,19 @@ export class ComunicadosGeneralesComponent implements OnInit {
   };
 
 
-  constructor(private modalService: NgbModal) { }
+  constructor(private modalService: NgbModal, private comunicadosGeneralesService: ComunicadosGeneralesService,
+              private toastService: ToastService) { }
 
   ngOnInit(): void {
+    this.comunicadosGeneralesService.obtenerComunicados().subscribe((data: ComunicadoGeneral[]) => {
+      this.rowData = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudieron descargar los comunicados. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   onGridReady(params) {

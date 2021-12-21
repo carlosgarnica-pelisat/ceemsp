@@ -45,6 +45,8 @@ import { VehiculosUsosComponent } from './home/catalogos/vehiculos/vehiculos-uso
 import { PersonalComponent } from './home/catalogos/personal/personal.component';
 import { NacionalidadesComponent } from './home/catalogos/personal/nacionalidades/nacionalidades.component';
 import { ComunicadoGeneralNuevoComponent } from './home/comunicados/comunicados-generales/comunicado-general-nuevo/comunicado-general-nuevo.component';
+import {CKEditor4, CKEditorModule} from "ckeditor4-angular";
+import { SanitizeHtmlPipe } from './_pipes/sanitize-html.pipe';
 
 @NgModule({
   declarations: [
@@ -80,7 +82,8 @@ import { ComunicadoGeneralNuevoComponent } from './home/comunicados/comunicados-
     VehiculosUsosComponent,
     PersonalComponent,
     NacionalidadesComponent,
-    ComunicadoGeneralNuevoComponent
+    ComunicadoGeneralNuevoComponent,
+    SanitizeHtmlPipe
   ],
   imports: [
     BrowserModule,
@@ -90,13 +93,15 @@ import { ComunicadoGeneralNuevoComponent } from './home/comunicados/comunicados-
     HttpClientModule,
     FormsModule,
     FontAwesomeModule,
-    AgGridModule
+    AgGridModule,
+    CKEditorModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    SanitizeHtmlPipe
   ],
-  exports: [],
+  exports: [SanitizeHtmlPipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

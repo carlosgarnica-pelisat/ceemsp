@@ -1,14 +1,13 @@
 import {Deserializable} from "./Deserializable";
 
-export default class CanEntrenamiento implements Deserializable {
-  id: number;
-  uuid: string;
-  nombre: string;
-  descripcion?: string;
+export default class CanConstanciaSalud implements Deserializable {
+
+  expedidoPor: string;
+  cedula: string;
+  fechaExpedicion: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);
     return this;
   }
-
 }

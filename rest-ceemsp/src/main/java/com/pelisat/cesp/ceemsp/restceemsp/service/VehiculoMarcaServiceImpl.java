@@ -80,7 +80,19 @@ public class VehiculoMarcaServiceImpl implements VehiculoMarcaService {
 
     @Override
     public VehiculoMarcaDto obtenerPorId(Integer id) {
-        return null;
+        if(id == null || id < 1) {
+            logger.warn("El id viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+        logger.info("Descargando la marca del vehiculo con el id [{}]", id);
+        VehiculoMarca vehiculoMarca = vehiculoMarcaRepository.getOne(id);
+
+        if(vehiculoMarca == null) {
+            logger.warn("La marca del vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return daoToDtoConverter.convertDaoToDtoVehiculoMarca(vehiculoMarca);
     }
 
     @Override

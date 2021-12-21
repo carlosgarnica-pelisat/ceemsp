@@ -69,7 +69,15 @@ public class ArmaMarcaServiceImpl implements ArmaMarcaService {
 
     @Override
     public ArmaMarcaDto obtenerPorId(Integer id) {
-        return null;
+        if(id == null || id < 1) {
+            logger.warn("El id viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo la marca del arma con el id [{}]", id);
+
+        ArmaMarca armaMarca = armaMarcaRepository.getOne(id);
+        return daoToDtoConverter.convertDaoToDtoArmaMarca(armaMarca);
     }
 
     @Override

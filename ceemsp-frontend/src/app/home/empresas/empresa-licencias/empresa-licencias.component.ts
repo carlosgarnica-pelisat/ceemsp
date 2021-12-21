@@ -7,6 +7,9 @@ import {ActivatedRoute} from "@angular/router";
 import {ToastType} from "../../../_enums/ToastType";
 import EmpresaLicenciaColectiva from "../../../_models/EmpresaLicenciaColectiva";
 import EmpresaModalidad from "../../../_models/EmpresaModalidad";
+import Arma from "../../../_models/Arma";
+import {faEdit, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
+import Persona from "../../../_models/Persona";
 
 @Component({
   selector: 'app-empresa-licencias',
@@ -17,6 +20,10 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   private gridApi;
   private gridColumnApi;
+
+  faSync = faSync;
+  faEdit = faEdit;
+  faTrash = faTrash;
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
@@ -34,13 +41,20 @@ export class EmpresaLicenciasComponent implements OnInit {
   modal: NgbModalRef;
   frameworkComponents: any;
   closeResult: string;
+  licencia: EmpresaLicenciaColectiva;
+  pestanaActual: string = "DETALLES";
+  armas: Arma[];
+  personal: Persona[] = [];
+  status: string = "ACTIVA";
+
   rowDataClicked = {
     uuid: undefined
   };
 
   modalidades: EmpresaModalidad[];
-
   crearEmpresaLicenciaForm: FormGroup;
+  modificarStatusArmaForm: FormGroup;
+  mostrarModificarStatusArma: boolean = false;
 
   constructor(private modalService: NgbModal, private empresaService: EmpresaService, private toastService: ToastService,
               private route: ActivatedRoute, private formBuilder: FormBuilder) { }
@@ -56,15 +70,43 @@ export class EmpresaLicenciasComponent implements OnInit {
       fechaFin: ['', Validators.required]
     });
 
+    this.modificarStatusArmaForm = this.formBuilder.group({
+      status: ['', Validators.required],
+      motivo: [''],
+      personalAsignado: ['']
+    });
+
     this.empresaService.obtenerLicenciasColectivas(this.uuid).subscribe((data: EmpresaLicenciaColectiva[]) => {
       this.rowData = data;
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        `No se han podido descargar las licencias colectivas. ${error}`,
+        `No se han podido descargar las licencias colectivas. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
+
+    this.empresaService.obtenerPersonal(this.uuid).subscribe((data: Persona[]) => {
+      this.personal = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `no se han podido descargar las licencias colectivas. Motivo: ${error}`,
         ToastType.ERROR
       )
     })
+  }
+
+  cambiarPestana(pestana) {
+    this.pestanaActual = pestana;
+  }
+
+  seleccionarStatus(event) {
+    this.status = event.value;
+  }
+
+  seleccionarPersona(event) {
+    this.status = event.value;
   }
 
   mostrarModalCrear(modal) {
@@ -87,6 +129,31 @@ export class EmpresaLicenciasComponent implements OnInit {
     })
   }
 
+  mostrarModalDetalles(rowData, modal) {
+    let licenciaUuid = rowData.uuid;
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: "modal-basic-title", size: 'xl'});
+
+    this.empresaService.obtenerLicenciaColectivaPorUuid(this.uuid, licenciaUuid).subscribe((data: EmpresaLicenciaColectiva) => {
+      this.licencia = data;
+
+      this.empresaService.obtenerArmasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
+        this.armas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `Las armas de la licencia colectiva no se pudieron descargar. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudo descargar la informacion de la licencia. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
   onGridReady(params) {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
@@ -99,6 +166,11 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   delete() {
 
+  }
+
+  mostrarCambioStatusForm() {
+    this.mostrarModificarStatusArma = !this.mostrarModificarStatusArma;
+    console.log(this.mostrarModificarStatusArma);
   }
 
   guardarLicencia(form) {

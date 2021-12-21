@@ -24,6 +24,8 @@ export class EmpresaDomiciliosComponent implements OnInit {
   private gridApi;
   private gridColumnApi;
 
+  domicilio: EmpresaDomicilio;
+
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
@@ -53,6 +55,8 @@ export class EmpresaDomiciliosComponent implements OnInit {
     this.nuevoDomicilioForm = this.formbuilder.group({
       nombre: ['', Validators.required],
       domicilio1: ['', Validators.required],
+      numeroExterior: ['', Validators.required],
+      numeroInterior: [''],
       domicilio2: ['', Validators.required],
       domicilio3: ['', Validators.required],
       domicilio4: [''],
@@ -81,6 +85,29 @@ export class EmpresaDomiciliosComponent implements OnInit {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
     this.gridColumnApi = params.gridApi;
+  }
+
+  mostrarDetalles(rowData, modal) {
+    let uuid = rowData.uuid;
+    this.empresaService.obtenerDomicilioPorUuid(this.uuid, uuid).subscribe((data: EmpresaDomicilio) => {
+      this.domicilio = data;
+      this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+      this.modal.result.then((result) => {
+        this.closeResult = `Closed with ${result}`;
+      }, (error) => {
+        this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el domicilio. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
+
+
+
   }
 
   mostrarModalCrear(modal) {

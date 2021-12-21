@@ -8,7 +8,9 @@ import java.util.List;
 public interface ClienteDomicilioService {
     List<ClienteDomicilioDto> obtenerDomiciliosPorCliente(int clienteId);
 
-    List<ClienteDomicilioDto> obtenerDomiciliosPorClienteUuid(String clienteUuid);
+    List<ClienteDomicilioDto> obtenerDomiciliosPorClienteUuid(String empresaUuid, String clienteUuid);
 
-    List<ClienteDomicilioDto> crearDomicilio(String username, String clienteUuid, List<ClienteDomicilioDto> clienteDomicilioDto);
+    List<ClienteDomicilioDto> crearDomicilio(String username, String empresaUuid, String clienteUuid, List<ClienteDomicilioDto> clienteDomicilioDto);
+
+    ClienteDomicilioDto obtenerPorId(Integer id);
 }

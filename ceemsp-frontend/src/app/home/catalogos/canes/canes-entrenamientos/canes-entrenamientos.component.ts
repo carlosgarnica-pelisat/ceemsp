@@ -3,7 +3,7 @@ import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-boots
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {CanesService} from "../../../../_services/canes.service";
 import {ToastService} from "../../../../_services/toast.service";
-import CanEntrenamiento from "../../../../_models/CanEntrenamiento";
+import TipoEntrenamiento from "../../../../_models/TipoEntrenamiento";
 import {ToastType} from "../../../../_enums/ToastType";
 
 @Component({
@@ -41,7 +41,7 @@ export class CanesEntrenamientosComponent implements OnInit {
               private canesService: CanesService, private toastService: ToastService) { }
 
   ngOnInit(): void {
-    this.canesService.getAllEntrenamientos().subscribe((response: CanEntrenamiento[]) => {
+    this.canesService.getAllEntrenamientos().subscribe((response: TipoEntrenamiento[]) => {
       this.rowData = response
     }, (error => {
       this.toastService.showGenericToast(
@@ -99,7 +99,7 @@ export class CanesEntrenamientosComponent implements OnInit {
 
     let value = form.value;
 
-    let canEntrenamiento: CanEntrenamiento = new CanEntrenamiento();
+    let canEntrenamiento: TipoEntrenamiento = new TipoEntrenamiento();
     canEntrenamiento.nombre = value.nombre;
     canEntrenamiento.descripcion = value.descripcion;
 

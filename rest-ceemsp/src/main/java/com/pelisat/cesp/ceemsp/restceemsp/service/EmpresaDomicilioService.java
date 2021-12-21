@@ -10,5 +10,9 @@ public interface EmpresaDomicilioService {
 
     List<EmpresaDomicilioDto> obtenerPorEmpresaUuid(String empresaUuid);
 
+    EmpresaDomicilioDto obtenerPorId(int id);
+
+    EmpresaDomicilioDto obtenerPorUuid(String uuid, String domicilioUuid);
+
     EmpresaDomicilioDto guardar(String empresaUuid, String username, EmpresaDomicilioDto empresaDomicilioDto);
 }

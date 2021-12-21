@@ -1,7 +1,10 @@
 import {Deserializable} from "./Deserializable";
 import PersonalNacionalidad from "./PersonalNacionalidad";
+import PersonaCertificacion from "./PersonaCertificacion";
 
 export default class Persona implements Deserializable {
+  id: string;
+  uuid: string;
   nacionalidad: PersonalNacionalidad;
   curp: string;
   apellidoPaterno: string;
@@ -20,6 +23,8 @@ export default class Persona implements Deserializable {
   codigoPostal: string;
   telefono: string;
   correoElectronico: string;
+
+  certificaciones: PersonaCertificacion[];
 
   deserialize(input: any): this {
     Object.assign(this, input);

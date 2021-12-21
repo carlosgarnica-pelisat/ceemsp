@@ -27,18 +27,20 @@ public class ClienteDomicilioController {
 
     @GetMapping(value = CLIENTE_DOMICILIOS_URI, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ClienteDomicilioDto> obtenerClienteDomicilioPorUuid(
-            @PathVariable(value = "empresaUuid") String empresaUuid
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "clienteUuid") String clienteUuid
     ) {
-        return clienteDomicilioService.obtenerDomiciliosPorClienteUuid(empresaUuid);
+        return clienteDomicilioService.obtenerDomiciliosPorClienteUuid(empresaUuid, clienteUuid);
     }
 
     @PostMapping(value = CLIENTE_DOMICILIOS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public List<ClienteDomicilioDto> guardarClienteDomicilio(
             @RequestBody List<ClienteDomicilioDto> clienteDomicilioDtos,
             HttpServletRequest request,
-            @PathVariable(value = "empresaUuid") String empresaUuid
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "clienteUuid") String clienteUuid
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return clienteDomicilioService.crearDomicilio(empresaUuid, username, clienteDomicilioDtos);
+        return clienteDomicilioService.crearDomicilio(username, empresaUuid, clienteUuid, clienteDomicilioDtos);
     }
 }

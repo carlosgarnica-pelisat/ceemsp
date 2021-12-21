@@ -32,6 +32,14 @@ public class EmpresaDomicilioController {
         return empresaDomicilioService.obtenerPorEmpresaUuid(empresaUuid);
     }
 
+    @GetMapping(value = EMPRESA_DOMICILIOS_URI + "/{domicilioUuid}")
+    public EmpresaDomicilioDto obtenerDomicilioPorUuid(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "domicilioUuid") String domicilioUuid
+    ) {
+        return empresaDomicilioService.obtenerPorUuid(empresaUuid, domicilioUuid);
+    }
+
     @PostMapping(value = EMPRESA_DOMICILIOS_URI, consumes = MediaType.APPLICATION_JSON_VALUE)
     public EmpresaDomicilioDto guardarDomicilioEmpresa(
             @RequestBody EmpresaDomicilioDto empresaDomicilioDto,

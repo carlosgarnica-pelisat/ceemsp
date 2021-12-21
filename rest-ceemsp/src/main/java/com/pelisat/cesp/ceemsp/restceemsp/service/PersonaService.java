@@ -12,5 +12,5 @@ public interface PersonaService {
 
     PersonaDto obtenerPorId(String empresaUuid, Integer id);
 
-    PersonaDto crearNuevo(PersonaDto personalNacionalidadDto, String username, String empresaUuid);
+    PersonaDto crearNuevo(PersonaDto personalDto, String username, String empresaUuid);
 }

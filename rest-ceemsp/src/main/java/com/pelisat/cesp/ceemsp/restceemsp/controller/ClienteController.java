@@ -26,10 +26,18 @@ public class ClienteController {
     }
 
     @GetMapping(value = EMPRESA_CLIENTES_URI, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<ClienteDto> obtenerClientePorUuid(
+    public List<ClienteDto> obtenerClientesPorUuidEmpresa(
             @PathVariable(value = "empresaUuid") String empresaUuid
     ) {
         return clienteService.obtenerClientesPorEmpresa(empresaUuid);
+    }
+
+    @GetMapping(value = EMPRESA_CLIENTES_URI + "/{clienteUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ClienteDto obtenerClientePorUuid(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "clienteUuid") String clienteUuid
+    ) {
+        return clienteService.obtenerClientePorUuid(empresaUuid, clienteUuid, false);
     }
 
     @PostMapping(value = EMPRESA_CLIENTES_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)

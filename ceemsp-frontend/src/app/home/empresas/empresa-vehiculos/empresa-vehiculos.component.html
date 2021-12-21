@@ -26,13 +26,13 @@
         </a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
         <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
-        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action">Licencias colectivas</a>
+        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action">Licencias colectivas / Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action">Canes</a>
-        <a routerLink="/home/empresas/{{uuid}}/armas" class="list-group-item list-group-item-action">Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action active">Vehiculos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
         <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
+        <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -43,10 +43,156 @@
         [columnDefs]="columnDefs"
         (gridReady)="onGridReady($event)"
         [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data, mostrarDetallesVehiculoModal)"
         #agGrid
       ></ag-grid-angular>
     </div>
   </div>
+
+  <ng-template #mostrarDetallesVehiculoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarDetallesVehiculoModal">Ver detalles del vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'COLORES' }" (click)="cambiarPestana('COLORES')">Colores</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'FOTOGRAFIAS' }" (click)="cambiarPestana('FOTOGRAFIAS')">Fotografias</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'DETALLES'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Tipo</b></td>
+              <td>{{vehiculo?.tipo.nombre}}</td>
+            </tr>
+            <tr>
+              <td><b>Marca</b></td>
+              <td>{{vehiculo?.marca.nombre}}</td>
+            </tr>
+            <tr>
+              <td><b>Submarca</b></td>
+              <td>{{vehiculo?.submarca.nombre}}</td>
+            </tr>
+            <tr>
+              <td><b>Año</b></td>
+              <td>{{vehiculo?.anio}}</td>
+            </tr>
+            <tr>
+              <td><b>Rotulado</b></td>
+              <td>{{vehiculo?.rotulado}}</td>
+            </tr>
+            <tr>
+              <td><b>Placas</b></td>
+              <td>{{vehiculo?.placas}}</td>
+            </tr>
+            <tr>
+              <td><b>Numero de serie</b></td>
+              <td>{{vehiculo?.serie}}</td>
+            </tr>
+            <tr>
+              <td><b>Blindado</b></td>
+              <td>{{vehiculo?.blindado}}</td>
+            </tr>
+            <tr *ngIf="vehiculo?.blindado">
+              <td><b>Serie del blindaje</b></td>
+              <td>{{vehiculo?.serieBlindaje}}</td>
+            </tr>
+            <tr *ngIf="vehiculo?.blindado">
+              <td><b>Fecha del blindaje</b></td>
+              <td>{{vehiculo.fechaBlindaje}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'COLORES'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Color</b></td>
+              <td><b>Descripcion</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr *ngIf="!showColorForm">
+              <td colspan="3"><button class="btn btn-sm btn-primary" (click)="mostrarFormularioColor()">Agregar nuevo</button></td>
+            </tr>
+            <tr *ngIf="showColorForm">
+              <div class="row">
+                <div class="col-sm-12">
+                  <form [formGroup]="crearColorForm">
+                    <div class="form-row">
+                      <div class="col-sm-6">
+                        <label for="nuevoColor">
+                          <b>Color *</b>
+                          <span *ngIf="crearColorForm.controls['color'].invalid && (crearColorForm.controls['color'].dirty || crearColorForm.controls['color'].touched)" class="text-danger"> - Requerido</span>
+                        </label>
+                        <select id="nuevoColor" class="form-control" formControlName="color">
+                          <option value="ROJO">Rojo</option>
+                          <option value="VERDE_CLARO">Verde claro</option>
+                          <option value="VERDE_OSCURO">Verde oscuro</option>
+                          <option value="AZUL_CIELO">Azul cielo</option>
+                          <option value="AZUL_MARINO">Azul marino</option>
+                          <option value="NARANJA">Naranja</option>
+                          <option value="AMARILLO">Amarillo</option>
+                          <option value="BLANCO">Blanco</option>
+                          <option value="NEGRO">Negro</option>
+                          <option value="GRIS_CLARO">Gris claro</option>
+                          <option value="GRIS_OSCURO">Gris oscuro</option>
+                          <option value="MORADO">Morado</option>
+                          <option value="ROSA">Rosa</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-6">
+                        <label for="descripcionColor">
+                          <b>Descripcion</b>
+                          <span *ngIf="crearColorForm.controls['descripcion'].invalid && (crearColorForm.controls['descripcion'].dirty || crearColorForm.controls['descripcion'].touched)" class="text-danger"> - Requerido</span>
+                        </label>
+                        <input id="descripcionColor" type="text" class="form-control" placeholder="Ej. Primario, Secundario" formControlName="descripcion" #nombres>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <hr>
+              <div class="row">
+                <div class="col-sm-12">
+                  <button class="btn btn-primary btn-sm" (click)="guardarColor(crearColorForm)">Guardar</button>
+                  <button class="btn btn-danger btn-sm" (click)="mostrarFormularioColor()">Cancelar</button>
+                </div>
+              </div>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'FOTOGRAFIAS'">
+        <div class="col-sm-12">
+
+        </div>
+      </div>
+    </div>
+  </ng-template>
 
   <ng-template #crearVehiculoModal let-modal>
     <div class="modal-header">
@@ -293,6 +439,14 @@
                       <input id="fechaFin" type="date" class="form-control" formControlName="fechaFin" #fechaFin>
                     </div>
                   </div>
+
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <button (click)="next('INFORMACION', crearVehiculoForm)" class="btn btn-primary">Siguiente: Colores
+                      </button>
+                    </div>
+                  </div>
                 </form>
               </div>
 
@@ -347,10 +501,6 @@
           </div>
         </div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" (click)="next('DOMICILIOS', crearVehiculoForm)">Siguiente</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cancelar</button>
     </div>
   </ng-template>
 </div>

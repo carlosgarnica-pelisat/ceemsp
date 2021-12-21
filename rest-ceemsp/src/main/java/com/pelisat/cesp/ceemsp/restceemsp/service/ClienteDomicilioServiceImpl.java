@@ -2,6 +2,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.ClienteDomicilioDto;
 import com.pelisat.cesp.ceemsp.database.dto.ClienteDto;
+import com.pelisat.cesp.ceemsp.database.dto.TipoInfraestructuraDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.Cliente;
 import com.pelisat.cesp.ceemsp.database.model.ClienteDomicilio;
@@ -32,17 +33,19 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
     private final DaoHelper<CommonModel> daoHelper;
     private final UsuarioService usuarioService;
     private final ClienteRepository clienteRepository;
+    private final TipoInfraestructuraService tipoInfraestructuraService;
 
     @Autowired
     public ClienteDomicilioServiceImpl(ClienteDomicilioRepository clienteDomicilioRepository, DaoToDtoConverter daoToDtoConverter,
                                    DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper, UsuarioService usuarioService,
-                                   ClienteRepository clienteRepository) {
+                                   ClienteRepository clienteRepository, TipoInfraestructuraService tipoInfraestructuraService) {
         this.clienteDomicilioRepository = clienteDomicilioRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
         this.usuarioService = usuarioService;
         this.clienteRepository = clienteRepository;
+        this.tipoInfraestructuraService = tipoInfraestructuraService;
     }
 
     @Override
@@ -56,16 +59,11 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
 
         List<ClienteDomicilio> clienteDomicilios = clienteDomicilioRepository.getAllByClienteAndEliminadoFalse(clienteId);
 
-        if(clienteDomicilios == null || clienteDomicilios.size() < 1) {
-            logger.warn("No hay domicilios guardados para este cliente");
-            throw new NotFoundResourceException();
-        }
-
         return clienteDomicilios.stream().map(daoToDtoConverter::convertDaoToDtoClienteDomicilio).collect(Collectors.toList());
     }
 
     @Override
-    public List<ClienteDomicilioDto> obtenerDomiciliosPorClienteUuid(String clienteUuid) {
+    public List<ClienteDomicilioDto> obtenerDomiciliosPorClienteUuid(String empresaUuid, String clienteUuid) {
         if(StringUtils.isBlank(clienteUuid)) {
             logger.warn("El uuid del cliente viene como nula o vacia");
             throw new InvalidDataException();
@@ -77,8 +75,8 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
     }
 
     @Override
-    public List<ClienteDomicilioDto> crearDomicilio(String username, String clienteUuid, List<ClienteDomicilioDto> clienteDomicilioDto) {
-        if(StringUtils.isBlank(username) || StringUtils.isBlank(clienteUuid) || clienteDomicilioDto == null) {
+    public List<ClienteDomicilioDto> crearDomicilio(String username, String empresaUuid, String clienteUuid, List<ClienteDomicilioDto> clienteDomicilioDto) {
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(clienteUuid) || clienteDomicilioDto == null) {
             logger.warn("Hay alguno de los parametros que no es valido");
             throw new InvalidDataException();
         }
@@ -94,10 +92,30 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
             ClienteDomicilio c = dtoToDaoConverter.convertDtoToDaoClienteDomicilio(m);
             daoHelper.fulfillAuditorFields(true, c, usuario.getId());
             c.setCliente(cliente.getId());
+            c.setTipoInfraestructura(m.getTipoInfraestructura().getId());
+
             return c;
         }).collect(Collectors.toList());
         List<ClienteDomicilio> clienteDomicilioCreado = clienteDomicilioRepository.saveAll(clienteDomicilios);
 
-        return clienteDomicilios.stream().map(daoToDtoConverter::convertDaoToDtoClienteDomicilio).collect(Collectors.toList());
+        return clienteDomicilioCreado.stream().map(daoToDtoConverter::convertDaoToDtoClienteDomicilio).collect(Collectors.toList());
+    }
+
+    @Override
+    public ClienteDomicilioDto obtenerPorId(Integer id) {
+        if(id == null || id < 1) {
+            logger.warn("El id viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo el domicilio con el id [{}]", id);
+
+        ClienteDomicilio clienteDomicilio = clienteDomicilioRepository.getOne(id);
+        if(clienteDomicilio == null || clienteDomicilio.getEliminado()) {
+            logger.warn("El domicilio del cliente no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return daoToDtoConverter.convertDaoToDtoClienteDomicilio(clienteDomicilio);
     }
 }

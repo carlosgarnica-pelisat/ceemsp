@@ -6,6 +6,7 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaDomicilioRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
 import org.apache.commons.lang3.StringUtils;
@@ -66,6 +67,36 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
 
         List<EmpresaDomicilio> empresaDomicilios = empresaDomicilioRepository.findAllByEmpresaAndEliminadoFalse(empresaDto.getId());
         return empresaDomicilios.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaDomicilio).collect(Collectors.toList());
+    }
+
+    @Override
+    public EmpresaDomicilioDto obtenerPorId(int id) {
+        if(id < 1) {
+            logger.warn("El id viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        EmpresaDomicilio empresaDomicilio = empresaDomicilioRepository.getOne(id);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilio);
+    }
+
+    @Override
+    public EmpresaDomicilioDto obtenerPorUuid(String uuid, String domicilioUuid) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(domicilioUuid)) {
+            logger.warn("El uuid del domicilio o de la empresa viene como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo el domicilio con uuid [{}]", domicilioUuid);
+
+        EmpresaDomicilio empresaDomicilio = empresaDomicilioRepository.findByUuidAndEliminadoFalse(domicilioUuid);
+        if(empresaDomicilio == null) {
+            logger.warn("El domiciio de la empresa no existe en la bsase de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilio);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.pelisat.cesp.ceemsp.database.dto;
 
 import com.pelisat.cesp.ceemsp.database.type.NivelBlindajeEnum;
+import com.pelisat.cesp.ceemsp.database.type.VehiculoOrigenEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class VehiculoDto {
+    private int id;
+    private String uuid;
     private VehiculoTipoDto tipo;
     private VehiculoMarcaDto marca;
     private VehiculoSubmarcaDto submarca;
@@ -17,7 +20,7 @@ public class VehiculoDto {
     private boolean rotulado;
     private String placas;
     private String serie;
-    private String origen;
+    private VehiculoOrigenEnum origen;
     private boolean blindado;
     private String serieBlindaje;
     private String fechaBlindaje;

@@ -27,8 +27,8 @@ public class ModalidadController {
 
     @GetMapping(value = MODALIDAD_URI, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ModalidadDto> obtenerModalidades(
-            @RequestParam(name = "filterBy") String filterBy,
-            @RequestParam(name = "filterValue") String filterValue
+            @RequestParam(name = "filterBy", required = false) String filterBy,
+            @RequestParam(name = "filterValue", required = false) String filterValue
     ) {
         if(StringUtils.isBlank(filterBy)) {
             return modalidadService.obtenerModalidades();

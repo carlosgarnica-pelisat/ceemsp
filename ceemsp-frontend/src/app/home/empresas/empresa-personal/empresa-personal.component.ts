@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ActivatedRoute} from "@angular/router";
@@ -11,6 +11,8 @@ import {EmpresaService} from "../../../_services/empresa.service";
 import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
 import EmpresaModalidad from "../../../_models/EmpresaModalidad";
 import Stepper from "bs-stepper";
+import Persona from "../../../_models/Persona";
+import PersonaCertificacion from "../../../_models/PersonaCertificacion";
 
 @Component({
   selector: 'app-empresa-personal',
@@ -22,11 +24,13 @@ export class EmpresaPersonalComponent implements OnInit {
   private gridColumnApi;
 
   stepper: Stepper;
+  pestanaActual: string = "DETALLES";
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
-    {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+    {headerName: 'Apellido paterno', field: 'apellidoPaterno', sortable: true, filter: true },
+    {headerName: 'Apellido materno', field: 'apellidoMaterno', sortable: true, filter: true},
+    {headerName: 'Nombre(s)', field: 'nombres', sortable: true, filter: true},
     {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
         modify: this.modify.bind(this),
         delete: this.delete.bind(this)
@@ -49,6 +53,13 @@ export class EmpresaPersonalComponent implements OnInit {
 
   crearPersonalForm: FormGroup;
   crearPersonalPuestoForm: FormGroup;
+  crearPersonalCertificadoForm: FormGroup;
+  crearPersonaFotografiaForm: FormGroup;
+
+  persona: Persona;
+
+  showCertificadoForm: boolean;
+  showFotografiaForm: boolean;
 
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
               private toastService: ToastService, private modalService: NgbModal,
@@ -89,6 +100,28 @@ export class EmpresaPersonalComponent implements OnInit {
       'numeroVolanteCuip': [''],
       'fechaVolanteCuip': [''],
       'modalidad': ['']
+    });
+
+    this.crearPersonalCertificadoForm = this.formBuilder.group({
+      'nombre': ['', Validators.required],
+      'nombreInstructor': ['', Validators.required],
+      'duracion': ['', Validators.required],
+      'fechaInicio': ['', Validators.required],
+      'fechaFin': ['', Validators.required]
+    })
+
+    this.crearPersonaFotografiaForm = this.formBuilder.group({
+      'file': ['', Validators.required]
+    })
+
+    this.empresaService.obtenerPersonal(this.uuid).subscribe((data: Persona[]) => {
+      this.rowData = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar el personal. ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 
@@ -96,6 +129,29 @@ export class EmpresaPersonalComponent implements OnInit {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
     this.gridColumnApi = params.gridApi;
+  }
+
+  mostrarModalDetalles(data, modal) {
+    this.empresaService.obtenerPersonalPorUuid(this.uuid, data.uuid).subscribe((data: Persona) => {
+      this.persona = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la informacion del personal. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  cambiarPestana(nombrePestana) {
+    this.pestanaActual = nombrePestana;
   }
 
   next(stepName: string, form) {
@@ -107,9 +163,31 @@ export class EmpresaPersonalComponent implements OnInit {
       );
       return;
     }*/
+    switch (stepName) {
+      case "INFORMACION":
+        let formValue: Persona = form.value;
 
-    let formData = form.value;
-    this.stepper.next();
+        formValue.nacionalidad = this.nacionalidades.filter(x => x.uuid === form.value.marca)[0];
+
+        this.empresaService.guardarPersonal(this.uuid, formValue).subscribe((data: Persona) => {
+          this.toastService.showGenericToast(
+            "Listo",
+            "Se ha guardado la persona con exito",
+            ToastType.SUCCESS
+          );
+          this.stepper.next();
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se ha podido guardar la persona. ${error}`,
+            ToastType.ERROR
+          )
+        });
+        break;
+      /*case "DOMICILIOS":
+
+        break;*/
+    }
   }
 
   previous() {
@@ -179,6 +257,82 @@ export class EmpresaPersonalComponent implements OnInit {
 
   delete() {
 
+  }
+
+  guardarCertificacion(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que no se han llenado",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando la certificacion en el personal",
+      ToastType.INFO
+    );
+
+    let formValue: PersonaCertificacion = form.value;
+
+    this.empresaService.guardarPersonalCertificacion(this.uuid, this.persona.uuid, formValue).subscribe((data: PersonaCertificacion) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se guardo la certificacion con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudo guardar la certificacion del personal. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
+  }
+
+  mostrarFormularioNuevoCertificado() {
+    this.showCertificadoForm = !this.showCertificadoForm;
+  }
+
+  mostrarFormularioNuevaFotografia() {
+    this.showFotografiaForm = !this.showFotografiaForm;
+  }
+
+  onFileChange(event) {
+    if (event.target.files.length > 0) {
+      const file = event.target.files[0];
+      this.crearPersonaFotografiaForm.patchValue({
+        fileSource: file
+      });
+    }
+  }
+
+  guardarFotografia(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos pendientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando la fotografia del elemento",
+      ToastType.INFO
+    );
+
+    let formData = new FormData();
+    formData.append('foto', form.get('file').value);
+    let formValue = form.value;
+    console.log(formValue);
+
+    console.log(formData);
+    console.log();
   }
 
   private getDismissReason(reason: any): string {

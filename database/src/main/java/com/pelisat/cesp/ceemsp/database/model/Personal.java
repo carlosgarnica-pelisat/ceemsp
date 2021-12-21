@@ -1,15 +1,106 @@
 package com.pelisat.cesp.ceemsp.database.model;
 
+import com.pelisat.cesp.ceemsp.database.type.EstadoCivilEnum;
+import com.pelisat.cesp.ceemsp.database.type.SexoEnum;
+import com.pelisat.cesp.ceemsp.database.type.TipoSangreEnum;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.time.LocalDate;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "PERSONAL")
 public class Personal extends CommonModel {
+    @Column(name = "EMPRESA", nullable = false)
+    private int empresa;
 
+    @Column(name = "NACIONALIDAD", nullable = false)
+    private int nacionalidad;
+
+    @Column(name = "CURP")
+    private String curp;
+
+    @Column(name = "APELLIDO_PATERNO", nullable = false)
+    private String apellidoPaterno;
+
+    @Column(name = "APELLIDO_MATERNO", nullable = false)
+    private String apellidoMaterno;
+
+    @Column(name = "NOMBRES", nullable = false)
+    private String nombres;
+
+    @Column(name = "FECHA_NACIMIENTO", nullable = false)
+    private LocalDate fechaNacimiento;
+
+    @Column(name = "SEXO", nullable = false)
+    private SexoEnum sexo;
+
+    @Column(name = "TIPO_SANGRE", nullable = false)
+    private TipoSangreEnum tipoSangre;
+
+    @Column(name = "FECHA_INGRESO", nullable = false)
+    private LocalDate fechaIngreso;
+
+    @Column(name = "ESTADO_CIVIL", nullable = false)
+    private EstadoCivilEnum estadoCivil;
+
+    @Column(name = "DOMICILIO_1", nullable = false)
+    private String domicilio1;
+
+    @Column(name = "DOMICILIO_2", nullable = false)
+    private String domicilio2;
+
+    @Column(name = "DOMICILIO_3", nullable = false)
+    private String domicilio3;
+
+    @Column(name = "DOMICILIO_4")
+    private String domicilio4;
+
+    @Column(name = "ESTADO", nullable = false)
+    private String estado;
+
+    @Column(name = "PAIS", nullable = false)
+    private String pais;
+
+    @Column(name = "CODIGO_POSTAL", nullable = false)
+    private String codigoPostal;
+
+    @Column(name = "TELEFONO", nullable = false)
+    private String telefono;
+
+    @Column(name = "CORREO_ELECTRONICO", nullable = false)
+    private String correoElectronico;
+
+    @Column(name = "PUESTO", nullable = false)
+    private int puesto;
+
+    @Column(name = "SUBPUESTO", nullable = false)
+    private int subpuesto;
+
+    @Column(name = "DETALLES_PUESTO", nullable = false)
+    private String detallesPuesto;
+
+    @Column(name = "DOMICILIO_ASIGNADO")
+    private int domicilioAsignado;
+
+    @Column(name = "ESTATUS_CUIP")
+    private String estatusCuip;
+
+    @Column(name = "CUIP")
+    private String cuip;
+
+    @Column(name = "NUMERO_VOLANTE_CUIP")
+    private String numeroVolanteCuip;
+
+    @Column(name = "FECHA_VOLANTE_CUIP")
+    private LocalDate fechaVolanteCuip;
+
+    @Column(name = "MODALIDAD")
+    private int modalidad;
 }
+

@@ -283,4 +283,94 @@ public class DaoToDtoConverter {
 
         return modelMapper.map(clienteDomicilio, ClienteDomicilioDto.class);
     }
+
+    public PersonaDto convertDaoToDtoPersona(Personal personal) {
+        if(personal == null) {
+            logger.warn("El personal viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(personal, PersonaDto.class);
+    }
+
+    public CanDto convertDaoToDtoCan(Can can) {
+        if(can == null) {
+            logger.warn("El can viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(can, CanDto.class);
+    }
+
+    public ArmaDto convertDaoToDtoArma(Arma arma) {
+        if(arma == null) {
+            logger.warn("El arma viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(arma, ArmaDto.class);
+    }
+
+    public ComunicadoGeneralDto convertDaoToDtoComunicadoGeneral(ComunicadoGeneral comunicadoGeneral) {
+        if (comunicadoGeneral == null) {
+            logger.warn("El comunicado general viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(comunicadoGeneral, ComunicadoGeneralDto.class);
+    }
+
+    public VehiculoColorDto convertDaoToDtoVehiculoColor(VehiculoColor vehiculoColor) {
+        if (vehiculoColor == null) {
+            logger.warn("El color del vehiculo viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(vehiculoColor, VehiculoColorDto.class);
+    }
+
+    public PersonalCertificacionDto convertDaoToDtoPersonalCertificacion(PersonalCertificacion personalCertificacion) {
+        if(personalCertificacion == null) {
+            logger.warn("La certificacion del personal viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(personalCertificacion, PersonalCertificacionDto.class);
+    }
+
+    public IncidenciaDto convertDaoToDtoIncidencia(Incidencia incidencia) {
+        if(incidencia == null) {
+            logger.warn("La incidencia viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(incidencia, IncidenciaDto.class);
+    }
+
+    public CanAdiestramientoDto convertDaoToDtoCanAdiestramiento(CanAdiestramiento canAdiestramiento) {
+        if(canAdiestramiento == null) {
+            logger.warn("El can adiestramiento viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(canAdiestramiento, CanAdiestramientoDto.class);
+    }
+
+    public CanCartillaVacunacionDto convertDaoToDtoCanCartillaVacunacion(CanCartillaVacunacion canCartillaVacunacion) {
+        if(canCartillaVacunacion == null) {
+            logger.warn("El can adiestramiento viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(canCartillaVacunacion, CanCartillaVacunacionDto.class);
+    }
+
+    public CanConstanciaSaludDto convertDaoToDtoCanConstanciaSalud(CanConstanciaSalud canConstanciaSalud) {
+        if(canConstanciaSalud == null) {
+            logger.warn("La constancia de salud del can viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(canConstanciaSalud, CanConstanciaSaludDto.class);
+    }
 }

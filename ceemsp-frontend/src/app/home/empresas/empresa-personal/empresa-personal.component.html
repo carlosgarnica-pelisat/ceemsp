@@ -26,13 +26,13 @@
         </a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
         <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
-        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action">Licencias colectivas</a>
+        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action">Licencias colectivas / Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action">Canes</a>
-        <a routerLink="/home/empresas/{{uuid}}/armas" class="list-group-item list-group-item-action">Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
         <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action active">Personal</a>
+        <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -43,10 +43,240 @@
         [columnDefs]="columnDefs"
         (gridReady)="onGridReady($event)"
         [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data, mostrarDetallesPersonaModal)"
         #agGrid
       ></ag-grid-angular>
     </div>
   </div>
+
+  <ng-template #mostrarDetallesPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarDetallesEscritura">Detalles de persona </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'PUESTO' }" (click)="cambiarPestana('PUESTO')">Puesto</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'CERTIFICACIONES' }" (click)="cambiarPestana('CERTIFICACIONES')">Capacitaciones</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'FOTOGRAFIAS' }" (click)="cambiarPestana('FOTOGRAFIAS')">Fotografias</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 20px;">
+        <div class="col-sm-12" *ngIf="pestanaActual === 'DETALLES'">
+          <table class="table">
+            <tr>
+              <td><b>Apellido paterno</b></td>
+              <td>{{persona?.apellidoPaterno}}</td>
+            </tr>
+            <tr>
+              <td><b>Apellido materno</b></td>
+              <td>{{persona?.apellidoMaterno}}</td>
+            </tr>
+            <tr>
+              <td><b>Nombre(s)</b></td>
+              <td>{{persona?.nombres}}</td>
+            </tr>
+            <tr>
+              <td><b>Domicilio</b></td>
+              <td>{{persona?.domicilio1 + ". Colonia: " + persona?.domicilio2 + ", " + persona?.domicilio3 + ", " + persona?.estado}}</td>
+            </tr>
+            <tr>
+              <td><b>Nacionalidad</b></td>
+              <td>{{persona?.nacionalidad?.nombre}}</td>
+            </tr>
+            <tr>
+              <td><b>Correo electronico</b></td>
+              <td>{{persona?.correoElectronico}}</td>
+            </tr>
+            <tr>
+              <td><b>Estado civil</b></td>
+              <td [ngSwitch]="persona?.estadoCivil">
+                <span *ngSwitchCase="'SOLTERO'">Soltero</span>
+                <span *ngSwitchCase="'CASADO'">Casado</span>
+                <span *ngSwitchCase="'DIVORCIADO'">Divorciado</span>
+                <span *ngSwitchCase="'UNION_LIBRE'">Union libre</span>
+                <span *ngSwitchCase="'VIUDO'">Viudo</span>
+              </td>
+            </tr>
+            <tr>
+              <td><b>Tipo de sangre</b></td>
+              <td [ngSwitch]="persona?.tipoSangre">
+                <span *ngSwitchCase="'AB_POSITIVO'">AB+</span>
+                <span *ngSwitchCase="'AB_NEGATIVO'">AB-</span>
+                <span *ngSwitchCase="'B_POSITIVO'">B+</span>
+                <span *ngSwitchCase="'B_NEGATIVO'">B-</span>
+                <span *ngSwitchCase="'A_POSITIVO'">A-</span>
+                <span *ngSwitchCase="'A_NEGATIVO'">A-</span>
+                <span *ngSwitchCase="'O_POSITIVO'">O+</span>
+                <span *ngSwitchCase="'O_NEGATIVO'">O-</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="col-sm-12" *ngIf="pestanaActual === 'PUESTO'">
+          <table class="table">
+            <tr>
+              <td>Puesto</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Subpuesto</td>
+              <td></td>
+            </tr>
+            <tr *ngIf="">
+
+            </tr>
+            <tr>
+              <td colspan="2">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-sm btn-primary">
+                      Agregar info. puesto
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="col-sm-12" *ngIf="pestanaActual === 'CERTIFICACIONES'">
+          <table class="table">
+            <tr>
+              <td><b>Curso</b></td>
+              <td><b>Instructor</b></td>
+              <td><b>Duracion</b></td>
+              <td><b>Fecha Inicio</b></td>
+              <td><b>Fecha Fin</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let c of persona?.certificaciones">
+              <td>{{c.nombre}}</td>
+              <td>{{c.nombreInstructor}}</td>
+              <td>{{c.duracion}} horas</td>
+              <td>{{c.fechaInicio}}</td>
+              <td>{{c.fechaFin}}</td>
+              <td></td>
+            </tr>
+            <tr *ngIf="showCertificadoForm">
+              <td colspan="6">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <form [formGroup]="crearPersonalCertificadoForm">
+                      <div class="form-row">
+                        <div class="col-sm-4">
+                          <label for="nombre">
+                            <b>Nombre(s) *</b>
+                            <span *ngIf="crearPersonalCertificadoForm.controls['nombre'].invalid && (crearPersonalCertificadoForm.controls['nombre'].dirty || crearPersonalCertificadoForm.controls['nombre'].touched)" class="text-danger"> - Requerido</span>
+                          </label>
+                          <input id="nombre" type="text" class="form-control" placeholder="Ej. Primeros auxilios" formControlName="nombre" #nombre>
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="nombreInstructor">
+                            <b>Instructor *</b>
+                            <span *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].invalid && (crearPersonalCertificadoForm.controls['nombreInstructor'].dirty || crearPersonalCertificadoForm.controls['nombreInstructor'].touched)" class="text-danger"> - Requerido</span>
+                          </label>
+                          <input id="nombreInstructor" type="text" class="form-control" placeholder="Ej. Carlos Jose Perez" formControlName="nombreInstructor" #nombreInstructor>
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="duracion">
+                            <b>Duracion *</b>
+                            <span *ngIf="crearPersonalCertificadoForm.controls['duracion'].invalid && (crearPersonalCertificadoForm.controls['duracion'].dirty || crearPersonalCertificadoForm.controls['duracion'].touched)" class="text-danger"> - Requerido</span>
+                          </label>
+                          <input id="duracion" type="number" min="1" class="form-control" placeholder="En horas" formControlName="duracion" #duracion>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="col-sm-4">
+                          <label for="fechaInicio">
+                            <b>Fecha de inicio *</b>
+                            <span *ngIf="crearPersonalCertificadoForm.controls['fechaInicio'].invalid && (crearPersonalCertificadoForm.controls['fechaInicio'].dirty || crearPersonalCertificadoForm.controls['fechaInicio'].touched)" class="text-danger"> - Requerido</span>
+                          </label>
+                          <input id="fechaInicio" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="fechaFin">
+                            <b>Fecha de fin *</b>
+                            <span *ngIf="crearPersonalCertificadoForm.controls['fechaFin'].invalid && (crearPersonalCertificadoForm.controls['fechaFin'].dirty || crearPersonalCertificadoForm.controls['fechaFin'].touched)" class="text-danger"> - Requerido</span>
+                          </label>
+                          <input id="fechaFin" type="date" class="form-control" formControlName="fechaFin" #duracion>
+                        </div>
+                        <div class="col-sm-4"></div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary btn-sm" (click)="guardarCertificacion(crearPersonalCertificadoForm)">Guardar</button>
+                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevoCertificado()">Cancelar</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!showCertificadoForm">
+              <td colspan="6">
+                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevoCertificado()">Agregar certificacion</button>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="col-sm-12" *ngIf="pestanaActual === 'FOTOGRAFIAS'">
+          <table class="table">
+            <tr>
+              <td>Archivo</td>
+              <td>Opciones</td>
+            </tr>
+            <tr *ngIf="showFotografiaForm">
+              <td colspan="2">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <form [formGroup]="crearPersonaFotografiaForm">
+                      <div class="form-row">
+                        <div class="col-sm-12">
+                          <input class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary btn-sm" (click)="guardarFotografia(crearPersonaFotografiaForm)">Guardar</button>
+                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevaFotografia()">Cancelar</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!showFotografiaForm">
+              <td colspan="2">
+                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaFotografia()">Agregar fotografia</button>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </ng-template>
 
   <ng-template #crearVehiculoModal let-modal>
     <div class="modal-header">
@@ -91,7 +321,7 @@
             <div class="bs-stepper-content">
               <!-- STEP NUMBER 1 - USER INFORMATION -->
               <div id="test-l-1" class="content">
-                <form [formControl]="crearPersonalForm">
+                <form [formGroup]="crearPersonalForm">
                   <div class="form-row">
                     <div class="col-sm-6">
                       <label for="nacionalidad">
@@ -271,6 +501,13 @@
                     </div>
                   </div>
                 </form>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button (click)="next('INFORMACION', crearPersonalForm)" class="btn btn-primary">Siguiente: Puesto
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <!-- STEP 2 - Psychologist information -->
@@ -328,10 +565,6 @@
           </div>
         </div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" (click)="next('DOMICILIOS', crearPersonalForm)">Siguiente</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cancelar</button>
     </div>
   </ng-template>
 </div>

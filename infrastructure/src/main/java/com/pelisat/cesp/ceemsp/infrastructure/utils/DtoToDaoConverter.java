@@ -6,6 +6,8 @@ import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
+import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -386,6 +388,9 @@ public class DtoToDaoConverter {
     }
 
     public ClienteDomicilio convertDtoToDaoClienteDomicilio(ClienteDomicilioDto clienteDomicilioDto) {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.typeMap(ClienteDomicilioDto.class, ClienteDomicilio.class).addMappings(mapper -> mapper.skip(ClienteDomicilio::setTipoInfraestructura));
+
         if(clienteDomicilioDto == null) {
             logger.warn("El domicilio del cliente viene como vacio o nulo");
             throw new InvalidDataException();
@@ -400,4 +405,191 @@ public class DtoToDaoConverter {
         return clienteDomicilio;
     }
 
+    public Vehiculo convertDtoToDaoVehiculo(VehiculoDto vehiculoDto) {
+        if(vehiculoDto == null) {
+            logger.warn("el vehiculo viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.typeMap(VehiculoDto.class, Vehiculo.class)
+                .addMappings(mapper -> mapper.skip(Vehiculo::setMarca))
+                .addMappings(mapper -> mapper.skip(Vehiculo::setSubmarca))
+                .addMappings(mapper -> mapper.skip(Vehiculo::setTipo));
+
+        Vehiculo vehiculo = modelMapper.map(vehiculoDto, Vehiculo.class);
+        if(StringUtils.isBlank(vehiculo.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            vehiculo.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return vehiculo;
+    }
+
+    public Personal convertDtoToDaoPersonal(PersonaDto personaDto) {
+        if(personaDto == null) {
+            logger.warn("El personal viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper
+                .typeMap(PersonaDto.class, Personal.class)
+                .addMappings(mapper -> mapper.skip(Personal::setModalidad))
+                .addMappings(mapper -> mapper.skip(Personal::setPuesto))
+                .addMappings(mapper -> mapper.skip(Personal::setSubpuesto))
+                .addMappings(mapper -> mapper.skip(Personal::setNacionalidad))
+                .addMappings(mapper -> mapper.skip(Personal::setDomicilioAsignado));
+
+        Personal personal = modelMapper.map(personaDto, Personal.class);
+        if(StringUtils.isBlank(personal.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            personal.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return personal;
+    }
+
+    public Can convertDtoToDaoCan(CanDto canDto) {
+        if(canDto == null) {
+            logger.warn("El can viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.typeMap(CanDto.class, Can.class)
+                .addMappings(mapper -> mapper.skip(Can::setClienteAsignado))
+                .addMappings(mapper -> mapper.skip(Can::setDomicilioAsignado))
+                .addMappings(mapper -> mapper.skip(Can::setDomicilioClienteAsignado))
+                .addMappings(mapper -> mapper.skip(Can::setRaza));
+
+        Can can = modelMapper.map(canDto, Can.class);
+        if(StringUtils.isBlank(can.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            can.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return can;
+    }
+
+    public Arma convertDtoToDaoArma(ArmaDto armaDto) {
+
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.typeMap(ArmaDto.class, Arma.class)
+                .addMappings(mapper -> mapper.skip(Arma::setBunker))
+                .addMappings(mapper -> mapper.skip(Arma::setMarca))
+                .addMappings(mapper -> mapper.skip(Arma::setClase))
+                .addMappings(mapper -> mapper.skip(Arma::setLicenciaColectiva));
+
+        Arma arma = modelMapper.map(armaDto, Arma.class);
+        if(StringUtils.isBlank(armaDto.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            arma.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return arma;
+    }
+
+    public ComunicadoGeneral convertDtoToDaoConverter(ComunicadoGeneralDto comunicadoGeneralDto) {
+        if(comunicadoGeneralDto == null) {
+            logger.warn("El comunicado a convertir a dao viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        ComunicadoGeneral comunicadoGeneral = modelMapper.map(comunicadoGeneralDto, ComunicadoGeneral.class);
+        if(StringUtils.isBlank(comunicadoGeneral.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            comunicadoGeneral.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return comunicadoGeneral;
+    }
+
+    public VehiculoColor convertDtoToDaoColor(VehiculoColorDto vehiculoColorDto) {
+        if(vehiculoColorDto == null) {
+            logger.warn("El color de vehiculo a convertir a dao viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        VehiculoColor vehiculoColor = modelMapper.map(vehiculoColorDto, VehiculoColor.class);
+        if(StringUtils.isBlank(vehiculoColor.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            vehiculoColor.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return vehiculoColor;
+    }
+
+    public PersonalCertificacion convertDtoToDaoPersonalCertificacion(PersonalCertificacionDto personalCertificacionDto) {
+        if(personalCertificacionDto == null) {
+            logger.warn("La certificacion del personal a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        PersonalCertificacion personalCertificacion = modelMapper.map(personalCertificacionDto, PersonalCertificacion.class);
+
+        if(StringUtils.isBlank(personalCertificacion.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            personalCertificacion.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return personalCertificacion;
+    }
+
+    public CanAdiestramiento convertDtoToDaoAdiestramiento(CanAdiestramientoDto canAdiestramientoDto) {
+        if(canAdiestramientoDto == null) {
+            logger.warn("El adiestramiento del can a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.typeMap(CanAdiestramientoDto.class, CanAdiestramiento.class)
+                .addMappings(mapper -> mapper.skip(CanAdiestramiento::setTipoAdiestramiento));
+
+        CanAdiestramiento canAdiestramiento = modelMapper.map(canAdiestramientoDto, CanAdiestramiento.class);
+
+        if(StringUtils.isBlank(canAdiestramiento.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            canAdiestramiento.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return canAdiestramiento;
+    }
+
+    public CanCartillaVacunacion convertDtoToDaoCanCartillaVacunacion(CanCartillaVacunacionDto canCartillaVacunacionDto) {
+        if(canCartillaVacunacionDto == null) {
+            logger.warn("La cartilla de vaunacion del can a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        CanCartillaVacunacion canCartillaVacunacion = modelMapper.map(canCartillaVacunacionDto, CanCartillaVacunacion.class);
+
+        if(StringUtils.isBlank(canCartillaVacunacion.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            canCartillaVacunacion.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return canCartillaVacunacion;
+    }
+
+    public CanConstanciaSalud convertDtoToDaoCanConstanciaSalud(CanConstanciaSaludDto canConstanciaSaludDto) {
+        if(canConstanciaSaludDto == null) {
+            logger.warn("La constancia de salud viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        CanConstanciaSalud canConstanciaSalud = modelMapper.map(canConstanciaSaludDto, CanConstanciaSalud.class);
+
+        if(StringUtils.isBlank(canConstanciaSalud.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            canConstanciaSalud.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return canConstanciaSalud;
+    }
 }

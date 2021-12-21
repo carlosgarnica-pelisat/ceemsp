@@ -6,9 +6,12 @@ import com.pelisat.cesp.ceemsp.database.type.TipoSangreEnum;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class PersonaDto {
+    private String uuid;
     private PersonalNacionalidadDto nacionalidad;
     private String curp;
     private String apellidoPaterno;
@@ -27,4 +30,14 @@ public class PersonaDto {
     private String codigoPostal;
     private String telefono;
     private String correoElectronico;
+    private PersonalPuestoDeTrabajoDto puestoDeTrabajo;
+    private PersonalSubpuestoDeTrabajoDto subpuestoDeTrabajo;
+    private String detallesPuesto;
+    private EmpresaDomicilioDto domicilioAsignado;
+    private String estatusCuip;
+    private String cuip;
+    private String numeroVolanteCuip;
+    private String fechaVolanteCuip;
+    private ModalidadDto modalidad;
+    private List<PersonalCertificacionDto> certificaciones;
 }
