@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,4 +29,6 @@ public class VehiculoDto {
     private String placaMetalica;
     private String empresaBlindaje;
     private NivelBlindajeEnum nivelBlindaje;
+
+    private List<VehiculoColorDto> colores;
 }

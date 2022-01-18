@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.database.model;
 
+import com.pelisat.cesp.ceemsp.database.type.EmpresaStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.SexoEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoPersonaEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoTramiteEnum;
@@ -45,4 +46,11 @@ public class Empresa extends CommonModel {
 
     @Column(name = "TELEFONO", nullable = false)
     private String telefono;
+
+    @Column(name = "STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private EmpresaStatusEnum status;
+
+    @Column(name = "OBSERVACIONES")
+    private String observaciones;
 }

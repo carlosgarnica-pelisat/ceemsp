@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.database.dto;
 
+import com.pelisat.cesp.ceemsp.database.type.CuipStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.EstadoCivilEnum;
 import com.pelisat.cesp.ceemsp.database.type.SexoEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoSangreEnum;
@@ -34,7 +35,7 @@ public class PersonaDto {
     private PersonalSubpuestoDeTrabajoDto subpuestoDeTrabajo;
     private String detallesPuesto;
     private EmpresaDomicilioDto domicilioAsignado;
-    private String estatusCuip;
+    private CuipStatusEnum estatusCuip;
     private String cuip;
     private String numeroVolanteCuip;
     private String fechaVolanteCuip;

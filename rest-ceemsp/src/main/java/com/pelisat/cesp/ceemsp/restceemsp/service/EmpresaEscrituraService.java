@@ -10,4 +10,8 @@ public interface EmpresaEscrituraService {
     EmpresaEscrituraDto obtenerEscrituraPorUuid(String empresaUuid, String escrituraUuid, boolean soloEntidad);
 
     EmpresaEscrituraDto guardarEscritura(String empresaUuid, EmpresaEscrituraDto empresaEscrituraDto, String username);
+
+    EmpresaEscrituraDto modificarEscritura(String empresaUuid, String escrituraUuid, EmpresaEscrituraDto empresaEscrituraDto, String username);
+
+    EmpresaEscrituraDto eliminarEscritura(String empresaUuid, String escrituraUuid, String username);
 }

@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -123,10 +125,14 @@ public class ClienteServiceImpl implements ClienteService {
 
         Cliente cliente = dtoToDaoConverter.convertDtoToDaoCliente(clienteDto);
         cliente.setEmpresa(empresaDto.getId());
+        cliente.setFechaInicio(LocalDate.parse(clienteDto.getFechaInicio()));
+        if(cliente.getFechaFin() != null) {
+            cliente.setFechaFin(LocalDate.parse(clienteDto.getFechaFin()));
+        }
         daoHelper.fulfillAuditorFields(true, cliente, usuarioDto.getId());
 
         Cliente clienteCreado = clienteRepository.save(cliente);
 
-        return daoToDtoConverter.convertDaoToDtoCliente(cliente);
+        return daoToDtoConverter.convertDaoToDtoCliente(clienteCreado);
     }
 }

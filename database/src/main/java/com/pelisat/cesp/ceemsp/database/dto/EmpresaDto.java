@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.database.dto;
 
+import com.pelisat.cesp.ceemsp.database.type.EmpresaStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.SexoEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoPersonaEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoTramiteEnum;
@@ -23,5 +24,8 @@ public class EmpresaDto {
     private SexoEnum sexo;
     private String correoElectronico;
     private String telefono;
+    private EmpresaStatusEnum status;
+    private String observaciones;
     private List<EmpresaModalidadDto> modalidades;
+    private List<EmpresaFormaEjecucionDto> formasEjecucion;
 }

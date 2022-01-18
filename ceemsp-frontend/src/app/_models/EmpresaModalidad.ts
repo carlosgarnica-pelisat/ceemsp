@@ -3,7 +3,7 @@ import Modalidad from "./Modalidad";
 import Submodalidad from "./Submodalidad";
 
 export default class EmpresaModalidad implements Deserializable {
-
+  uuid: string;
   modalidad: Modalidad;
   submodalidad: Submodalidad;
   fechaInicio: string;

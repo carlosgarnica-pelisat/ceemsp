@@ -3,10 +3,13 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDomicilioDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
+import com.pelisat.cesp.ceemsp.database.model.CommonModel;
+import com.pelisat.cesp.ceemsp.database.model.Empresa;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaDomicilioRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +32,7 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
     private final DtoToDaoConverter dtoToDaoConverter;
     private final UsuarioService usuarioService;
     private final EmpresaService empresaService;
+    private final DaoHelper<CommonModel> daoHelper;
 
     @Autowired
     public EmpresaDomicilioServiceImpl(
@@ -36,13 +40,15 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         DaoToDtoConverter daoToDtoConverter,
         DtoToDaoConverter dtoToDaoConverter,
         UsuarioService usuarioService,
-        EmpresaService empresaService
+        EmpresaService empresaService,
+        DaoHelper<CommonModel> daoHelper
     ) {
         this.empresaDomicilioRepository = empresaDomicilioRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.usuarioService = usuarioService;
         this.empresaService = empresaService;
+        this.daoHelper = daoHelper;
     }
 
     @Override
@@ -130,5 +136,61 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         return daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilioCreado);
     }
 
+    @Override
+    public EmpresaDomicilioDto modificarEmpresaDomicilio(String empresaUuid, String domicilioUuid, String username, EmpresaDomicilioDto empresaDomicilioDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(username) || empresaDomicilioDto == null) {
+            logger.warn("El uuid de la empresa, el domicilio, el usuario o el domicilio a modificar vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
 
+        logger.info("Modificando domicilio con el uuid [{}]", domicilioUuid);
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        EmpresaDomicilio empresaDomicilio = empresaDomicilioRepository.findByUuidAndEliminadoFalse(domicilioUuid);
+        if(empresaDomicilio == null) {
+            logger.warn("La empresa no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaDomicilio.setNombre(empresaDomicilioDto.getNombre());
+        empresaDomicilio.setDomicilio1(empresaDomicilioDto.getDomicilio1());
+        empresaDomicilio.setNumeroExterior(empresaDomicilioDto.getNumeroExterior());
+        empresaDomicilio.setNumeroInterior(empresaDomicilioDto.getNumeroInterior());
+        empresaDomicilio.setDomicilio2(empresaDomicilioDto.getDomicilio2());
+        empresaDomicilio.setDomicilio3(empresaDomicilioDto.getDomicilio3());
+        empresaDomicilio.setDomicilio4(empresaDomicilio.getDomicilio4());
+        empresaDomicilio.setEstado(empresaDomicilio.getEstado());
+        empresaDomicilio.setPais(empresaDomicilio.getPais());
+        empresaDomicilio.setCodigoPostal(empresaDomicilio.getCodigoPostal());
+        empresaDomicilio.setTelefonoFijo(empresaDomicilio.getTelefonoFijo());
+        empresaDomicilio.setTelefonoMovil(empresaDomicilio.getTelefonoMovil());
+
+        daoHelper.fulfillAuditorFields(false, empresaDomicilio, usuarioDto.getId());
+        empresaDomicilioRepository.save(empresaDomicilio);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilio);
+    }
+
+    @Override
+    public EmpresaDomicilioDto eliminarEmpresaDomicilio(String empresaUuid, String domicilioUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(username)) {
+            logger.warn("El uuid de la empresa, el domicilio o el usuario vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.warn("Borrando el domicilio de la empresa con el uuid [{}]", domicilioUuid);
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        EmpresaDomicilio empresaDomicilio = empresaDomicilioRepository.findByUuidAndEliminadoFalse(domicilioUuid);
+        if(empresaDomicilio == null) {
+            logger.warn("La empresa no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaDomicilio.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, empresaDomicilio, usuarioDto.getId());
+        empresaDomicilioRepository.save(empresaDomicilio);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilio);
+    }
 }

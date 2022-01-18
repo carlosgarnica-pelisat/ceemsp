@@ -43,4 +43,24 @@ public class EmpresaController {
     ) {
         return empresaService.obtenerPorUuid(empresaUuid);
     }
+
+    @PutMapping(value = EMPRESAS_URI + "/{empresaUuid}")
+    public EmpresaDto modificarDatosEmpresa(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            HttpServletRequest request,
+            @RequestBody EmpresaDto empresaDto
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaService.modificarEmpresa(empresaDto, username, empresaUuid);
+    }
+
+    @PutMapping(value = EMPRESAS_URI + "/{empresaUuid}/status")
+    public EmpresaDto cambiarStatusEmpresa(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            HttpServletRequest request,
+            @RequestBody EmpresaDto empresaDto
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaService.cambiarStatusEmpresa(empresaDto, username, empresaUuid);
+    }
 }

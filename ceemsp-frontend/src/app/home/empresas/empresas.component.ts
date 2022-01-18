@@ -5,6 +5,7 @@ import {EmpresaService} from "../../_services/empresa.service";
 import Empresa from "../../_models/Empresa";
 import {ToastType} from "../../_enums/ToastType";
 import {Router} from "@angular/router";
+import {faCheck} from "@fortawesome/free-solid-svg-icons";
 
 @Component({
   selector: 'app-empresas',
@@ -13,18 +14,14 @@ import {Router} from "@angular/router";
 })
 export class EmpresasComponent implements OnInit {
 
+  faCheck = faCheck;
+
   private gridApi;
   private gridColumnApi;
 
-  columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
-    {headerName: 'Nombre comercial', field: 'nombreComercial', sortable: true, filter: true },
-    {headerName: 'Razon social', field: 'razonSocial', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
-      }}
-  ];
+  columnDefs = Empresa.obtenerColumnasPorDefault();
+  allColumnDefs = Empresa.obtenerTodasLasColumnas();
+
   rowData = [];
 
   uuid: string;
@@ -66,6 +63,51 @@ export class EmpresasComponent implements OnInit {
 
   delete(rowData) {
 
+  }
+
+  isColumnListed(field: string ) {
+    return this.columnDefs.filter(s => s.field === field)[0] !== undefined;
+  }
+
+  toggleColumn(field: string) {
+    let columnDefinitionIndex = this.columnDefs.findIndex(s => s.field === field);
+    if(columnDefinitionIndex === -1) {
+      let columnDefinition = this.allColumnDefs.filter(s => s.field === field)[0];
+
+      let newColumnDef = {
+        headerName: columnDefinition.headerName,
+        field: columnDefinition.field,
+        sortable: true,
+        filter: true
+      };
+
+      this.columnDefs.push(newColumnDef);
+      this.gridApi.setColumnDefs(this.columnDefs);
+    } else {
+      this.columnDefs = this.columnDefs.filter(s => s.field !== field);
+    }
+  }
+
+  exportGridData(format) {
+    switch(format) {
+      case "CSV":
+        this.gridApi.exportDataAsCsv();
+        break;
+      case "PDF":
+        this.toastService.showGenericToast(
+          "Bajo desarrollo",
+          "Actualmente estamos desarrollando esta funcionalidad",
+          ToastType.INFO
+        )
+        break;
+      default:
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "No podemos exportar en dicho formato",
+          ToastType.WARNING
+        )
+        break;
+    }
   }
 
   private getDismissReason(reason: any): string {

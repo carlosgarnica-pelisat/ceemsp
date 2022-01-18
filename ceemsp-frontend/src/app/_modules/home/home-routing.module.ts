@@ -33,6 +33,10 @@ import {VehiculosUsosComponent} from "../../home/catalogos/vehiculos/vehiculos-u
 import {PersonalComponent} from "../../home/catalogos/personal/personal.component";
 import {NacionalidadesComponent} from "../../home/catalogos/personal/nacionalidades/nacionalidades.component";
 import {ComunicadoGeneralNuevoComponent} from "../../home/comunicados/comunicados-generales/comunicado-general-nuevo/comunicado-general-nuevo.component";
+import {EmpresaEquipoComponent} from "../../home/empresas/empresa-equipo/empresa-equipo.component";
+import {EquipoComponent} from "../../home/catalogos/equipo/equipo.component";
+import {UniformesComponent} from "../../home/catalogos/equipo/uniformes/uniformes.component";
+import {EmpresaUniformesComponent} from "../../home/empresas/empresa-uniformes/empresa-uniformes.component";
 
 
 const routes: Routes = [
@@ -94,6 +98,14 @@ const routes: Routes = [
         path: 'empresas/:uuid/personal',
         component: EmpresaPersonalComponent
       },
+      {
+        path: 'empresas/:uuid/equipo',
+        component: EmpresaEquipoComponent
+      },
+      {
+        path: 'empresas/:uuid/uniformes',
+        component: EmpresaUniformesComponent
+      },
 
       // Catalogos
       // Canes
@@ -144,6 +156,16 @@ const routes: Routes = [
       {
         path: 'catalogos/personal/nacionalidades',
         component: NacionalidadesComponent
+      },
+
+      // Equipos
+      {
+        path: 'catalogos/equipo',
+        component: EquipoComponent
+      },
+      {
+        path: 'catalogos/equipo/uniformes',
+        component: UniformesComponent
       },
 
       // Comunicados

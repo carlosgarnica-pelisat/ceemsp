@@ -47,8 +47,74 @@
     </div>
     <div class="modal-body">
       <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-6">
+          <label for="titulo">
+            <b>Titulo</b>
+          </label>
+          <input id="titulo" class="form-control" placeholder="Ejemplo: Vacaciones" type="text">
+        </div>
+        <div class="col-sm-2">
+          <label for="mes">
+            <b>Selecciona mes</b>
+          </label>
+          <select id="mes" class="form-control">
+            <option value="12">Diciembre</option>
+            <option value="11">Noviembre</option>
+            <option value="10">Octubre</option>
+            <option value="09">Septiembre</option>
+            <option value="08">Agosto</option>
+            <option value="07">Julio</option>
+            <option value="06">Junio</option>
+            <option value="05">Mayo</option>
+            <option value="04">Abril</option>
+            <option value="03">Marzo</option>
+            <option value="02">Febrero</option>
+            <option value="01">Enero</option>
+          </select>
+        </div>
+        <div class="col-sm-2">
+          <label for="ano">
+            <b>Selecciona ano</b>
+          </label>
+          <select id="ano" class="form-control">
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
+            <option value="2019">2019</option>
+          </select>
+        </div>
+        <div class="col-sm-2">
+          <br>
+          <button class="btn btn-primary">Buscar</button>
+        </div>
+      </div>
+      <hr>
+      <div class="row" >
+        <div class="col-sm-4">
+          <div class="list-group">
+            <a *ngFor="let c of comunicadosGenerales" class="list-group-item list-group-item-action fakelink" [ngClass]="{ 'active': comunicadoUuid === c?.uuid }" (click)="obtenerComunicado(c?.uuid)">
+              <b>{{c?.titulo?.length > 25 ? c?.titulo?.slice(0, 25) + "..." : c?.titulo}}</b><br>
+              Publicado el {{c?.fechaPublicacion}}
+            </a>
+          </div>
+        </div>
 
+        <div class="col-sm-8" style="border: #AAA 1px solid;">
+          <div class="row">
+            <div class="col-sm-12">
+              <h4>{{comunicado?.titulo}}</h4>
+            </div>
+            <div class="col-sm-12" [innerHTML]="comunicado?.descripcion">
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-sm-12">
+          <p class="text-center"><i>Solo se muestran los ultimos 5 comunicados. Utilice el formulario de arriba para
+          buscar comunicados anteriores</i></p>
         </div>
       </div>
     </div>

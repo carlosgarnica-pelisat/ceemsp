@@ -2,12 +2,16 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
+import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.Empresa;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaModalidad;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaModalidadRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
+import com.pelisat.cesp.ceemsp.database.type.EmpresaStatusEnum;
+import com.pelisat.cesp.ceemsp.database.type.TipoPersonaEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -31,15 +35,18 @@ public class EmpresaServiceImpl implements EmpresaService {
     private final Logger logger = LoggerFactory.getLogger(EmpresaService.class);
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
+    private final DaoHelper<CommonModel> daoHelper;
 
     @Autowired
     public EmpresaServiceImpl(UsuarioService usuarioService, EmpresaRepository empresaRepository, DaoToDtoConverter daoToDtoConverter,
-                              DtoToDaoConverter dtoToDaoConverter, EmpresaModalidadRepository empresaModalidadRepository) {
+                              DtoToDaoConverter dtoToDaoConverter, EmpresaModalidadRepository empresaModalidadRepository,
+                              DaoHelper<CommonModel> daoHelper) {
         this.usuarioService = usuarioService;
         this.empresaRepository = empresaRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.empresaModalidadRepository = empresaModalidadRepository;
+        this.daoHelper = daoHelper;
     }
 
     @Override
@@ -93,6 +100,7 @@ public class EmpresaServiceImpl implements EmpresaService {
         empresa.setCreadoPor(usuario.getId());
         empresa.setActualizadoPor(usuario.getId());
         empresa.setFechaActualizacion(LocalDateTime.now());
+        empresa.setStatus(EmpresaStatusEnum.ACTIVA);
 
         Empresa empresaCreada = empresaRepository.save(empresa);
 
@@ -124,7 +132,61 @@ public class EmpresaServiceImpl implements EmpresaService {
 
     @Override
     public EmpresaDto modificarEmpresa(EmpresaDto empresaDto, String username, String uuid) {
-        return null;
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(uuid) || empresaDto == null) {
+            logger.warn("La empresa a modificar, el uuid o el usuario vienen como nulos o vacios.");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando la empresa uuid");
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(uuid);
+        if(empresa == null) {
+            logger.warn("La empresa no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresa.setNombreComercial(empresaDto.getNombreComercial());
+        empresa.setRazonSocial(empresaDto.getRazonSocial());
+        empresa.setRfc(empresaDto.getRfc());
+        empresa.setCorreoElectronico(empresaDto.getCorreoElectronico());
+        empresa.setTelefono(empresaDto.getTelefono());
+        empresa.setTipoPersona(empresaDto.getTipoPersona());
+        if(empresa.getTipoPersona() == TipoPersonaEnum.FISICA) {
+            empresa.setCurp(empresaDto.getCurp());
+            empresa.setSexo(empresaDto.getSexo());
+        }
+
+        daoHelper.fulfillAuditorFields(false, empresa, usuarioDto.getId());
+        empresaRepository.save(empresa);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresa(empresa);
+    }
+
+    @Override
+    public EmpresaDto cambiarStatusEmpresa(EmpresaDto empresaDto, String username, String uuid) {
+        if(empresaDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(uuid)) {
+            logger.warn("El objeto, el usuario o el uuid vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        if(StringUtils.isBlank(empresaDto.getObservaciones()) || empresaDto.getStatus() == null) {
+            logger.warn("El objeto viene con campos invalidos");
+            throw new InvalidDataException();
+        }
+
+        Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(uuid);
+        if(empresa == null) {
+            logger.warn("La empresa no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresa.setStatus(empresaDto.getStatus());
+        empresa.setObservaciones(empresaDto.getObservaciones());
+
+        Empresa empresaNuevoStatus = empresaRepository.save(empresa);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresa(empresaNuevoStatus);
     }
 
     @Override

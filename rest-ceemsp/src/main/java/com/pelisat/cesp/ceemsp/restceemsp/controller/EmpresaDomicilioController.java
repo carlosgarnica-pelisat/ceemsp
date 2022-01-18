@@ -49,4 +49,25 @@ public class EmpresaDomicilioController {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return empresaDomicilioService.guardar(empresaUuid, username, empresaDomicilioDto);
     }
+
+    @PutMapping(value = EMPRESA_DOMICILIOS_URI + "/{domicilioUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaDomicilioDto modificarEmpresaDomicilio(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "domicilioUuid") String domicilioUuid,
+            @RequestBody EmpresaDomicilioDto empresaDomicilioDto,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaDomicilioService.modificarEmpresaDomicilio(empresaUuid, domicilioUuid, username, empresaDomicilioDto);
+    }
+
+    @DeleteMapping(value = EMPRESA_DOMICILIOS_URI + "/{domicilioUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaDomicilioDto eliminarEmpresaDomicilio(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "domicilioUuid") String domicilioUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaDomicilioService.eliminarEmpresaDomicilio(empresaUuid, domicilioUuid, username);
+    }
 }

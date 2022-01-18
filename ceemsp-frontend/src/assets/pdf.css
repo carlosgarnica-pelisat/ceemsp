@@ -1,0 +1,15 @@
+.no-printable {
+  display: none;
+}
+
+.table {
+  width: 100%;
+}
+
+body {
+  font-family: Arial;
+}
+
+#header, #order-footer, #route-disclaimer, #contenidoFichaInformativa {
+  display: block !important;
+}

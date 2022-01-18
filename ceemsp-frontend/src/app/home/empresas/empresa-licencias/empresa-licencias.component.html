@@ -7,11 +7,19 @@
     <div class="btn-group">
       <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearLicencia)">Nueva licencia colectiva</button>
       <div class="dropdown">
+        <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button" id="mostrarColumnasDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Mostrar / Ocultar columnas
+        </button>
+        <div class="dropdown-menu" aria-labelledby="mostrarColumnasDropdown">
+          <a class="dropdown-item" *ngFor="let columnDef of allColumnDefs" (click)="toggleColumn(columnDef.field)"><fa-icon [icon]="faCheck" *ngIf="isColumnListed(columnDef.field)"></fa-icon> {{columnDef?.headerName}}</a>
+        </div>
+      </div>
+      <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Descargar licencias como Excel (csv)</a>
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar licencias como Excel (csv)</a>
         </div>
       </div>
     </div>
@@ -32,7 +40,8 @@
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
         <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
-        <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
+        <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
+        <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -64,6 +73,9 @@
               <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DIRECCIONES' }" (click)="cambiarPestana('DIRECCIONES')">Direcciones</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'ARMAS' }" (click)="cambiarPestana('ARMAS')">Armas</a>
             </li>
           </ul>
@@ -92,6 +104,60 @@
             <tr>
               <td><b>Submodalidad:</b></td>
               <td>{{licencia?.submodalidad.nombre}}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-sm-12" *ngIf="pestanaActual === 'DIRECCIONES'">
+          <table class="table">
+            <tr>
+              <td><b>ID</b></td>
+              <td><b>Nombre</b></td>
+              <td><b>Direccion</b></td>
+              <td><b>Estado</b></td>
+              <td><b>C.P.</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let d of domiciliosLicenciaColectiva">
+              <td>{{d?.uuid}}</td>
+              <td>{{d?.nombre}}</td>
+              <td>{{d?.domicilio1 + " " + d.numeroExterior + " " + d.numeroInterior}}</td>
+              <td>{{d?.estado}}</td>
+              <td>{{d?.codigoPostal}}</td>
+              <td>
+
+              </td>
+            </tr>
+            <tr *ngIf="showDireccionForm">
+              <td colspan="6">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <form [formGroup]="crearDireccionForm">
+                      <div class="form-row">
+                        <div class="col-sm-6">
+                          <label for="direccion">
+                            <b>Direccion *</b>
+                          </label>
+                          <select id="direccion" class="form-control" formControlName="direccion">
+                            <option *ngFor="let d of domicilios" value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1 + " " + d.numeroExterior + " " + d.numeroInterior}}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary btn-sm" (click)="guardarDireccion(crearDireccionForm)">Guardar</button>
+                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevaDireccion()">Cancelar</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!showDireccionForm">
+              <td colspan="6">
+                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaDireccion()">Agregar direccion</button>
+              </td>
             </tr>
           </table>
         </div>
@@ -174,6 +240,10 @@
           </table>
         </div>
       </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="mostrarModificarLicenciaModal()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarEliminarLicenciaModal()">Eliminar</button>
     </div>
   </ng-template>
 

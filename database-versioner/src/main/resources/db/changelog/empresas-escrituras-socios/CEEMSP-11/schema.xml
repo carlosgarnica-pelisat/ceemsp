@@ -1,0 +1,13 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-01-17-agregar-columnas-porcentaje" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <addColumn tableName="EMPRESAS_ESCRITURAS_SOCIOS">
+            <column name="PORCENTAJE_ACCIONES" type="DECIMAL(10,2)"></column>
+            <column name="APELLIDO_MATERNO" type="VARCHAR(60)"></column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

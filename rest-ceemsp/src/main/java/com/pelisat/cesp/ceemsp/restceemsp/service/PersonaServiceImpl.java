@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,7 @@ public class PersonaServiceImpl implements PersonaService {
     private final PersonaRepository personaRepository;
     private final ModalidadService modalidadService;
     private final PersonalPuestoDeTrabajoService personalPuestoDeTrabajoService;
+    private final PersonalSubpuestoDeTrabajoService personalSubpuestoDeTrabajoService;
     private final EmpresaDomicilioService empresaDomicilioService;
     private final PersonalNacionalidadService personalNacionalidadService;
     private final PersonalCertificacionService personalCertificacionService;
@@ -46,7 +48,7 @@ public class PersonaServiceImpl implements PersonaService {
                               UsuarioService usuarioService, PersonaRepository personaRepository,
                               ModalidadService modalidadService, PersonalPuestoDeTrabajoServiceImpl personalPuestoDeTrabajoService,
                               EmpresaDomicilioService empresaDomicilioService, PersonalNacionalidadService personalNacionalidadService,
-                              PersonalCertificacionService personalCertificacionService) {
+                              PersonalCertificacionService personalCertificacionService, PersonalSubpuestoDeTrabajoService personalSubpuestoDeTrabajoService) {
         this.daoHelper = daoHelper;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
@@ -58,6 +60,7 @@ public class PersonaServiceImpl implements PersonaService {
         this.empresaDomicilioService = empresaDomicilioService;
         this.personalNacionalidadService = personalNacionalidadService;
         this.personalCertificacionService = personalCertificacionService;
+        this.personalSubpuestoDeTrabajoService = personalSubpuestoDeTrabajoService;
     }
 
     @Override
@@ -97,6 +100,9 @@ public class PersonaServiceImpl implements PersonaService {
         PersonaDto personaDto = daoToDtoConverter.convertDaoToDtoPersona(personal);
         personaDto.setCertificaciones(personalCertificacionService.obtenerCertificacionesPorPersona(empresaUuid, personaUuid));
         personaDto.setNacionalidad(personalNacionalidadService.obtenerPorId(personal.getNacionalidad()));
+        personaDto.setPuestoDeTrabajo(personalPuestoDeTrabajoService.obtenerPorId(personal.getPuesto()));
+        personaDto.setSubpuestoDeTrabajo(personalSubpuestoDeTrabajoService.obtenerPorId(personal.getSubpuesto()));
+        personaDto.setDomicilioAsignado(empresaDomicilioService.obtenerPorId(personal.getDomicilioAsignado()));
         return personaDto;
     }
 
@@ -135,6 +141,7 @@ public class PersonaServiceImpl implements PersonaService {
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
 
         Personal personal = dtoToDaoConverter.convertDtoToDaoPersonal(personalDto);
+        personal.setFechaNacimiento(LocalDate.parse(personalDto.getFechaDeNacimiento()));
         daoHelper.fulfillAuditorFields(true, personal, usuarioDto.getId());
         personal.setEmpresa(empresaDto.getId());
 
@@ -142,5 +149,47 @@ public class PersonaServiceImpl implements PersonaService {
 
         PersonaDto response = daoToDtoConverter.convertDaoToDtoPersona(personalCreado);
         return response;
+    }
+
+    @Override
+    public PersonaDto modificarInformacionPuesto(PersonaDto personaDto, String username, String empresaUuid, String personaUuid) {
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) | StringUtils.isBlank(personaUuid) || personaDto == null) {
+            logger.warn("El usuario, la empresa, la persona o la informacion del trabajo a modificar vienen como nulas o invalidas");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando los detalles de trabajo para la persona [{}]", personaUuid);
+
+        Personal personal = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        if(personal == null) {
+            logger.warn("La persona a cambiar la informacion no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        // TODO: Hacer las validaciones respecto al tipo
+        personal.setPuesto(personaDto.getPuestoDeTrabajo().getId());
+        personal.setSubpuesto(personaDto.getSubpuestoDeTrabajo().getId());
+        personal.setDetallesPuesto(personaDto.getDetallesPuesto());
+        personal.setDomicilioAsignado(personaDto.getDomicilioAsignado().getId());
+        personal.setEstatusCuip(personaDto.getEstatusCuip());
+        personal.setCuip(personaDto.getCuip());
+        personal.setNumeroVolanteCuip(personaDto.getCuip());
+
+        if(personaDto.getModalidad() != null) {
+            logger.info("La informacion del trabajo incluye modalidad");
+            personal.setModalidad(personaDto.getModalidad().getId());
+        }
+
+        if(!StringUtils.isBlank(personaDto.getFechaVolanteCuip())) {
+            logger.info("El volante de CUIP esta puesto. Convirtiendo");
+            personal.setFechaVolanteCuip(LocalDate.parse(personaDto.getFechaVolanteCuip()));
+        }
+
+        daoHelper.fulfillAuditorFields(false, personal, usuarioDto.getId());
+        personaRepository.save(personal);
+
+        return daoToDtoConverter.convertDaoToDtoPersona(personal);
     }
 }

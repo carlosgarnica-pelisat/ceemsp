@@ -47,4 +47,11 @@ public class PublicController {
     public ComunicadoGeneralDto obtenerUltimoComunicado() {
         return comunicadoGeneralService.obtenerUltimoComunicado();
     }
+
+    @GetMapping(value = "/public/comunicados/{comunicadoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ComunicadoGeneralDto obtenerComunicadoPorUuid(
+            @PathVariable(value = "comunicadoUuid") String comunicadoUuid
+    ) {
+        return comunicadoGeneralService.obtenerComunicadoPorUuid(comunicadoUuid);
+    }
 }

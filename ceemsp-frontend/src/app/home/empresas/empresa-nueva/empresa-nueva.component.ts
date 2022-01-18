@@ -114,7 +114,12 @@ export class EmpresaNuevaComponent implements OnInit {
         empresa.tipoPersona = formData.tipoPersona;
         empresa.correoElectronico = formData.correoElectronico;
         empresa.registro = `CESP/${this.tipoTranite}/${formData.registro}/${this.year}`;
-        empresa.sexo = formData.sexo;
+        if(empresa.tipoPersona === 'MORAL') {
+          empresa.sexo = 'NA';
+        } else {
+          empresa.sexo = formData.sexo;
+        }
+
         empresa.curp = formData.curp;
 
         empresa.modalidades = this.empresaModalidades;
@@ -189,7 +194,6 @@ export class EmpresaNuevaComponent implements OnInit {
     }
 
     let formData = form.value;
-    console.log(formData);
 
     let empresaModalidad = new EmpresaModalidad();
     empresaModalidad.modalidad = this.modalidad;

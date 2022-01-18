@@ -22,9 +22,13 @@ export class LoginComponent implements OnInit {
   submitted = false;
   returnUrl: string | undefined;
   comunicadoGeneral: ComunicadoGeneral;
+  comunicadosGenerales: ComunicadoGeneral[];
 
   modal: NgbModalRef;
   closeResult: string;
+
+  comunicadoUuid: string;
+  comunicado: ComunicadoGeneral;
 
   private credential: Credential = new Credential();
 
@@ -49,13 +53,15 @@ export class LoginComponent implements OnInit {
     });
 
     this.obtenerComunicadosGenerales()
+
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
   obtenerComunicadosGenerales() {
     this.publicService.obtenerUltimoComunicado().subscribe((data: ComunicadoGeneral) => {
       this.comunicadoGeneral = data
     }, (error) => {
-
+      console.error(error)
     })
   }
 
@@ -97,7 +103,8 @@ export class LoginComponent implements OnInit {
   }
 
   verHistorialComunicados(modal) {
-    this.publicService.obtenerComunicados().subscribe((data: ComunicadoGeneral) => {
+    this.publicService.obtenerComunicados().subscribe((data: ComunicadoGeneral[]) => {
+      this.comunicadosGenerales = data;
       this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
       this.modal.result.then((result) => {
@@ -108,6 +115,16 @@ export class LoginComponent implements OnInit {
     }, (error) => {
       console.log(error);
     });
+  }
+
+  obtenerComunicado(uuid) {
+    this.comunicadoUuid = uuid;
+
+    this.publicService.obtenerComunicadoPorUuid(this.comunicadoUuid).subscribe((data: ComunicadoGeneral) => {
+      this.comunicado = data;
+    }, (error) => {
+      console.error(error)
+    })
   }
 
   private getDismissReason(reason: any): string {

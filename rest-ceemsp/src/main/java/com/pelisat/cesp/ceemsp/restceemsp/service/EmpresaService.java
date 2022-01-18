@@ -15,5 +15,7 @@ public interface EmpresaService {
 
     EmpresaDto modificarEmpresa(EmpresaDto empresaDto, String username, String uuid);
 
+    EmpresaDto cambiarStatusEmpresa(EmpresaDto empresaDto, String username, String uuid);
+
     EmpresaDto eliminarEmpresa(String username, String uuid);
 }

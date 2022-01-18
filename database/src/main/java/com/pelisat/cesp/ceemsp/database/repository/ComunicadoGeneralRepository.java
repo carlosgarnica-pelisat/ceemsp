@@ -11,5 +11,5 @@ public interface ComunicadoGeneralRepository extends JpaRepository<ComunicadoGen
     List<ComunicadoGeneral> getAllByEliminadoFalseOrderByFechaPublicacion();
     List<ComunicadoGeneral> getAllByEliminadoFalseOrderByFechaPublicacionDesc();
     ComunicadoGeneral getByUuidAndEliminadoFalse(String uuid);
-    List<ComunicadoGeneral> getTop1ByFechaPublicacionBeforeAndEliminadoFalseOrderByFechaPublicacion(LocalDate time);
+    List<ComunicadoGeneral> getTop1ByFechaPublicacionBeforeAndEliminadoFalseOrderByFechaPublicacionDesc(LocalDate time);
 }

@@ -5,17 +5,114 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Detalles de empresa</h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">Editar</button>
-      <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm" (click)="mostrarModalModalidades(mostrarModalidadesModal)">Ver modalidades</button>
-      <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm" (click)="mostrarModalFormasEjecucion(mostrarModalidadesModal)">Ver formas de ejecucion</button>
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarEditarEmpresaModal(editarEmpresaModal)">Editar</button>
+      <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm" printSectionId="fichaInformativaData" styleSheetFile="assets/pdf.css" printTitle="Ficha infomativa" ngxPrint>Generar ficha informativa</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Descargar ficha informativa</a>
+          <a class="dropdown-item" (click)="mostrarModalModalidades(mostrarModalidadesModal)">Ver modalidades</a>
+          <a class="dropdown-item" (click)="mostrarModalFormasEjecucion(mostrarFormasEjecucionModal)">Ver formas de ejecucion</a>
+          <a class="dropdown-item" (click)="mostrarModalCambioInicioSesion()">Cambiar datos de inicio de sesion</a>
+          <a class="dropdown-item" (click)="mostrarModalCambiarStatus(editarStatusModal)">Cambiar status / Eliminar</a>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="row" id="fichaInformativaData">
+    <div class="col-sm-12">
+      <div class="row" id="header" style="display: none;">
+        <div style="width: 25%; float: left;">
+          <!--img src="https://www.armadurasdejalisco.com/img/Slogo2.jpg" alt="Logo de Armaduras de Jalisco" style="width: 60%;"-->
+        </div>
+        <div style="width: 70%; float: left;">
+          <p>
+            <b>Consejo Estatal de Seguridad Publica</b><br>
+            <b>Control Estatal de Seguridad de Empresas de Seguridad Privada</b><br>
+            Av. de la Paz 875. Colonia Mexicaltzingo, Guadalajara, Jalisco.<br>
+            <br>
+            <b>Ficha informativa</b><br>
+          </p>
+        </div>
+      </div>
+
+      <div id="contenidoFichaInformativa" class="row" style="min-height: 75vh; float: left; width: 90%; display: none;">
+        <h3>Informacion general de la empresa</h3>
+        <hr>
+        <table class="table table-borderless">
+          <tr>
+            <td><b>Razon social</b></td>
+            <td>{{empresa?.razonSocial}}</td>
+          </tr>
+          <tr>
+            <td><b>Nombre comercial</b></td>
+            <td>{{empresa?.nombreComercial}}</td>
+          </tr>
+          <tr>
+            <td><b>Fecha de autorizacion / registro:</b></td>
+            <td>{{"Pendiente"}}</td>
+          </tr>
+          <tr>
+            <td><b>Numero de expediente administrativo</b></td>
+            <td>{{empresa?.registro}}</td>
+          </tr>
+          <tr>
+            <td><b>RFC</b></td>
+            <td>{{empresa?.rfc}}</td>
+          </tr>
+          <tr>
+            <td><b>Status</b></td>
+            <td [ngSwitch]="empresa?.status">
+              <span *ngSwitchCase="'ACTIVA'">Activa</span>
+              <span *ngSwitchCase="'SUSPENDIDA'">Suspendida</span>
+              <span *ngSwitchCase="'REVOCADA'">Revocada</span>
+              <span *ngSwitchCase="'CLAUSURADA'">Clausurada</span>
+              <span *ngSwitchCase="'PERDIDA_EFICACIA'">Perdida de eficacia</span>
+            </td>
+          </tr>
+        </table>
+
+        <h3>Modalidades</h3>
+        <div class="row" *ngFor="let m of empresaModalidades">
+          <p><b>Modalidad:</b>{{m?.modalidad.nombre}}</p>
+          <p><b>Numero de registro federal:</b>{{m?.numeroRegistroFederal}}</p>
+          <p><b>Fecha de inicio:</b>{{m?.fechaInicio}}</p>
+          <p><b>Fecha de fin:</b>{{m?.fechaFin}}</p>
+        </div>
+        <hr>
+        <h3>Formas de ejecucion</h3>
+        <hr>
+        <h3>Informacion legal y notarial</h3>
+        <hr>
+        <div class="row" *ngFor="let e of escrituras">
+          <p><b>Numero de escritura:</b> {{e?.numeroEscritura}}</p>
+          <p><b>Institucion de fe:</b> {{e?.tipoFedatario + " numero " + e?.numero + " de la ciudad de " + e?.ciudad}}</p>
+          <p><b>Fedatario:</b>{{e?.nombreFedatario}}</p>
+          <p><b>Descripcion:</b>{{e?.descripcion}}</p>
+          <div class="row">
+            <b>Socios</b>
+            <table class="table">
+              <tr *ngFor="let s of e?.socios">
+                <td>{{s.nombres}}</td>
+                <td>{{s.apellidos}}</td>
+                <td>{{s.sexo}}</td>
+              </tr>
+            </table>
+          </div>
+          <hr>
+        </div>
+        <h3>Domicilios</h3>
+        <div class="row" *ngFor="let d of domicilios">
+          <p><b>Nombre del domicilio:</b>{{d.nombre}}</p>
+          <p><b>Direccion:</b>{{d.domicilio1 + " " + d.domicilio2}}</p>
+          <p><b>Codigo postal:</b>{{d.codigoPostal}}</p>
+          <p><b>Telefono fijo:</b>{{d.telefonoFijo}}</p>
+          <p><b>Telefono movil:</b>{{d.telefonoMovil}}</p>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -34,7 +131,8 @@
         <a routerLink="/home/empresas/{{empresa?.uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
-        <a routerLink="/home/empresas/{{empresa?.uuid}}/personal" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -72,13 +170,253 @@
           <td><b>Sexo</b></td>
           <td>{{empresa?.sexo}}</td>
         </tr>
+
+        <tr>
+          <td><b>Status</b></td>
+          <td [ngSwitch]="empresa?.status">
+            <span *ngSwitchCase="'ACTIVA'">Activa</span>
+            <span *ngSwitchCase="'SUSPENDIDA'">Suspendida</span>
+            <span *ngSwitchCase="'REVOCADA'">Revocada</span>
+            <span *ngSwitchCase="'CLAUSURADA'">Clausurada</span>
+            <span *ngSwitchCase="'PERDIDA_EFICACIA'">Perdida de eficacia</span>
+          </td>
+        </tr>
+        <tr>
+          <td><b>Observaciones</b></td>
+          <td>{{empresa?.observaciones}}</td>
+        </tr>
       </table>
     </div>
   </div>
 
+  <ng-template #editarStatusModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="editarStatusModal">Cambiar status de la empresa</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="empresaCambioStatusForm">
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="status">
+                  <b>Nuevo status *</b>
+                  <span
+                    *ngIf="empresaCambioStatusForm.controls['status'].invalid && (empresaCambioStatusForm.controls['status'].dirty || empresaCambioStatusForm.controls['status'].touched)">
+                      <i *ngIf="empresaCambioStatusForm.controls['status'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select class="form-control" name="status" id="status" formControlName="status">
+                  <option value="ACTIVA">Activa</option>
+                  <option value="PERDIDA_EFICACIA">Perdida de eficacia</option>
+                  <option value="SUSPENDIDA">Suspendida</option>
+                  <option value="REVOCADA">Revocada</option>
+                  <option value="CLAUSURADA">Clausurada</option>
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <label for="status">
+                  <b>Observaciones *</b>
+                  <span
+                    *ngIf="empresaCambioStatusForm.controls['observaciones'].invalid && (empresaCambioStatusForm.controls['observaciones'].dirty || empresaCambioStatusForm.controls['observaciones'].touched)">
+                      <i *ngIf="empresaCambioStatusForm.controls['observaciones'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                </label>
+                <textarea name="observaciones" id="observaciones" class="form-control" formControlName="observaciones"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="cambiarStatusEmpresa(empresaCambioStatusForm)">Guardar cambios</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #editarEmpresaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="editarEmpresaModal">Editar empresa </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="empresaCreacionForm">
+            <div class="form-row">
+              <div class="col-sm-3">
+                <label for="razonSocial">
+                  <b>Razon Social *</b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['razonSocial'].invalid && (empresaCreacionForm.controls['razonSocial'].dirty || empresaCreacionForm.controls['razonSocial'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['razonSocial'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                </label>
+                <input class="form-control" id="razonSocial" type="text" formControlName="razonSocial" placeholder="Ejemplo. Hola S.A. de C.V.">
+              </div>
+              <div class="col-sm-3">
+                <label for="nombreComercial">
+                  <b>Nombre comercial *</b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['nombreComercial'].invalid && (empresaCreacionForm.controls['nombreComercial'].dirty || empresaCreacionForm.controls['nombreComercial'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['nombreComercial'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                </label>
+                <input class="form-control" id="nombreComercial" type="text" formControlName="nombreComercial" placeholder="Ejemplo. Hola Empresa">
+              </div>
+              <div class="col-sm-3" *ngIf="tipoPersona === 'FISICA'">
+                <label for="curp">
+                  <b>CURP</b>
+                </label>
+                <input class="form-control" id="curp" type="text" formControlName="curp" placeholder="Ejemplo. XAXX010101ABCDEFGH">
+              </div>
+              <div class="col-sm-3" *ngIf="tipoPersona === 'FISICA'">
+                <label for="sexo">
+                  <b>Sexo</b>
+                </label>
+                <select id="sexo" class="form-control" formControlName="sexo">
+                  <option value="MASCULINO">MASCULINO</option>
+                  <option value="FEMENINO">FEMENINO</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-sm-3">
+                <label for="tipoPersona">
+                  <b>Tipo de persona *</b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['tipoPersona'].invalid && (empresaCreacionForm.controls['tipoPersona'].dirty || empresaCreacionForm.controls['tipoPersona'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['tipoPersona'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select id="tipoPersona" class="form-control" formControlName="tipoPersona" (change)="cambiarTipoPersona($event.target)">
+                  <option value="FISICA">FISICA</option>
+                  <option value="MORAL">MORAL</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <label for="rfc">
+                  <b>RFC *</b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['rfc'].invalid && (empresaCreacionForm.controls['rfc'].dirty || empresaCreacionForm.controls['rfc'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['rfc'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                </label>
+                <input class="form-control" id="rfc" type="text" formControlName="rfc" placeholder="Ejemplo. XAXX010101AAA">
+              </div>
+              <div class="col-sm-3">
+                <label for="correoElectronico">
+                  <b>Correo principal *</b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['correoElectronico'].invalid && (empresaCreacionForm.controls['correoElectronico'].dirty || empresaCreacionForm.controls['correoElectronico'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['correoElectronico'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                </label>
+                <input class="form-control" id="correoElectronico" type="text" formControlName="correoElectronico" placeholder="Ejemplo hola@hola.com">
+              </div>
+              <div class="col-sm-3">
+                <label for="telefono">
+                  <b>Telefono *</b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['telefono'].invalid && (empresaCreacionForm.controls['telefono'].dirty || empresaCreacionForm.controls['telefono'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['telefono'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                </label>
+                <input class="form-control" id="telefono" type="text" formControlName="telefono" placeholder="Ejemplo 3312345678">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Guardar cambios</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarFormasEjecucionModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarFormasEjecucionModal">Ver formas de ejecucion </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Forma de ejecucion</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let fe of empresaFormasEjecucion">
+              <td [ngSwitch]="fe?.formaEjecucion">
+                <span *ngSwitchCase="'ARMAS'">Con portacion de armas de fuego</span>
+                <span *ngSwitchCase="'CANES'">Con el auxilio de canes</span>
+                <span *ngSwitchCase="'INSTRUMENTOS'">Con portacion de instrumentos de apoyo para control</span>
+                <span *ngSwitchCase="'TECNOLOGIA'">Con apoyo de tecnologia</span>
+              </td>
+              <td>
+                <fa-icon [icon]="faTrash"></fa-icon>
+              </td>
+            </tr>
+            <tr *ngIf="!formularioFormasEjecucion">
+              <td colspan="3">
+                <button class="btn-primary btn-sm" (click)="mostrarFormularioFormaEjecucion()">Agregar forma de ejecucion</button>
+              </td>
+            </tr>
+            <tr *ngIf="formularioFormasEjecucion">
+              <td colspan="3">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <form [formGroup]="empresaFormaEjecucionForm" style="margin-top: 10px;">
+                      <div class="form-row">
+                        <div class="col-sm-6">
+                          <label for="formaEjecucion">
+                            <b>Forma de ejecucion *</b>
+                            <span *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].invalid && (empresaFormaEjecucionForm.controls['formaEjecucion'].dirty || empresaFormaEjecucionForm.controls['formaEjecucion'].touched)">
+                              <i *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].errors.required" class="error-text"> - Campo requerido</i>
+                            </span>
+                          </label>
+                          <select id="formaEjecucion" class="form-control" formControlName="formaEjecucion">
+                            <option value="ARMAS">Con portacion de armas de fuego</option>
+                            <option value="CANES">Con el auxilio de canes</option>
+                            <option value="INSTRUMENTOS">Con portacion de instrumentos de apoyo para control</option>
+                            <option value="TECNOLOGIA">Con apoyo de tecnologia</option>
+                          </select>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-sm btn-success" (click)="agregarFormaEjecucion(empresaFormaEjecucionForm)">Guardar cambios</button>
+                    <button class="btn btn-sm btn-danger" (click)="mostrarFormularioFormaEjecucion()">Cancelar</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
   <ng-template #mostrarModalidadesModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="modal-survey-response">Ver modalidades </h4>
+      <h4 class="modal-title" id="mostrarModalidadesModal">Ver modalidades </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>

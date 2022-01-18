@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
@@ -7,7 +7,7 @@ import {ToastService} from "../../../_services/toast.service";
 import {EmpresaService} from "../../../_services/empresa.service";
 import {ToastType} from "../../../_enums/ToastType";
 import EmpresaEscrituraSocio from "../../../_models/EmpresaEscrituraSocio";
-import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 import EmpresaEscrituraApoderado from "../../../_models/EmpresaEscrituraApoderado";
 import EmpresaEscrituraRepresentante from "../../../_models/EmpresaEscrituraRepresentante";
 import EmpresaEscrituraConsejo from "../../../_models/EmpresaEscrituraConsejo";
@@ -40,28 +40,22 @@ export class EmpresaLegalComponent implements OnInit {
 
   faPencil = faPencilAlt;
   faTrash = faTrash;
+  faCheck = faCheck;
 
   private gridApi;
   private gridColumnApi;
 
-  columnDefs = [
-    {headerName: 'ID', field: 'uuid'},
-    {headerName: 'Numero escritura', field: 'numeroEscritura', sortable: true, filter: true },
-    {headerName: 'Nombre', field: 'nombreFedatario', sortable: true, filter: true},
-    {headerName: 'Tipo Fedatario', field: 'tipoFedatario', sortable: true, filter: true},
-    {headerName: 'Numero', field: 'numero', sortable: true, filter: true},
-    {headerName: 'Ciudad', field: 'ciudad', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
-      }}
-  ];
+  columnDefs = EmpresaEscritura.obtenerColumnasPorDefault();
+  allColumnDefs = EmpresaEscritura.obtenerTodasLasColumnas();
   rowData = [];
 
   frameworkComponents: any;
   rowDataClicked = {
     uuid: undefined
   };
+
+  @ViewChild('mostrarDetallesEscrituraModal') mostrarDetallesEscrituraModal: any;
+  @ViewChild('modificarEscrituraModal') modificarEscrituraModal: any;
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
@@ -289,6 +283,25 @@ export class EmpresaLegalComponent implements OnInit {
     })
   }
 
+  toggleColumn(field: string) {
+    let columnDefinitionIndex = this.columnDefs.findIndex(s => s.field === field);
+    if(columnDefinitionIndex === -1) {
+      let columnDefinition = this.allColumnDefs.filter(s => s.field === field)[0];
+
+      let newColumnDef = {
+        headerName: columnDefinition.headerName,
+        field: columnDefinition.field,
+        sortable: true,
+        filter: true
+      };
+
+      this.columnDefs.push(newColumnDef);
+      this.gridApi.setColumnDefs(this.columnDefs);
+    } else {
+      this.columnDefs = this.columnDefs.filter(s => s.field !== field);
+    }
+  }
+
   modify(rowData) {
 
   }
@@ -316,6 +329,10 @@ export class EmpresaLegalComponent implements OnInit {
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     })
+  }
+
+  isColumnListed(field: string ) {
+    return this.columnDefs.filter(s => s.field === field)[0] !== undefined;
   }
 
   cambiarPestana(status) {
@@ -357,6 +374,84 @@ export class EmpresaLegalComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
+
+  exportGridData(format) {
+    switch(format) {
+      case "CSV":
+        this.gridApi.exportDataAsCsv();
+        break;
+      case "PDF":
+        this.toastService.showGenericToast(
+          "Bajo desarrollo",
+          "Actualmente estamos desarrollando esta funcionalidad",
+          ToastType.INFO
+        )
+        break;
+      default:
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "No podemos exportar en dicho formato",
+          ToastType.WARNING
+        )
+        break;
+    }
+  }
+
+  mostrarModificarEscrituraModal() {
+    this.nuevaEscrituraForm.setValue({
+      numeroEscritura: this.escritura.numeroEscritura,
+      fechaEscritura: this.escritura.fechaEscritura,
+      ciudad: this.escritura.ciudad,
+      tipoFedatario: this.escritura.tipoFedatario,
+      numero: this.escritura.numero,
+      nombreFedatario: this.escritura.nombreFedatario,
+      descripcion: this.escritura.descripcion
+    });
+
+    this.modalService.dismissAll();
+
+    this.modalService.open(this.modificarEscrituraModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  guardarCambiosEscritura(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que no se han rellenado",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando los cambios en la empresa",
+      ToastType.INFO
+    );
+
+    let escritura: EmpresaEscritura = form.value();
+
+    this.empresaService.modificarEscritura(this.uuid, this.escritura.uuid, escritura).subscribe((data: EmpresaEscritura) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se han guardado los cambios de la escritura con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido modificar la escritura. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
   }
 
   private getDismissReason(reason: any): string {

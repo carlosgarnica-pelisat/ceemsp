@@ -47,6 +47,11 @@ import { NacionalidadesComponent } from './home/catalogos/personal/nacionalidade
 import { ComunicadoGeneralNuevoComponent } from './home/comunicados/comunicados-generales/comunicado-general-nuevo/comunicado-general-nuevo.component';
 import {CKEditor4, CKEditorModule} from "ckeditor4-angular";
 import { SanitizeHtmlPipe } from './_pipes/sanitize-html.pipe';
+import {NgxPrintModule} from "ngx-print";
+import { EmpresaEquipoComponent } from './home/empresas/empresa-equipo/empresa-equipo.component';
+import { EquipoComponent } from './home/catalogos/equipo/equipo.component';
+import { UniformesComponent } from './home/catalogos/equipo/uniformes/uniformes.component';
+import { EmpresaUniformesComponent } from './home/empresas/empresa-uniformes/empresa-uniformes.component';
 
 @NgModule({
   declarations: [
@@ -83,7 +88,11 @@ import { SanitizeHtmlPipe } from './_pipes/sanitize-html.pipe';
     PersonalComponent,
     NacionalidadesComponent,
     ComunicadoGeneralNuevoComponent,
-    SanitizeHtmlPipe
+    SanitizeHtmlPipe,
+    EmpresaEquipoComponent,
+    EquipoComponent,
+    UniformesComponent,
+    EmpresaUniformesComponent
   ],
   imports: [
     BrowserModule,
@@ -94,7 +103,8 @@ import { SanitizeHtmlPipe } from './_pipes/sanitize-html.pipe';
     FormsModule,
     FontAwesomeModule,
     AgGridModule,
-    CKEditorModule
+    CKEditorModule,
+    NgxPrintModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

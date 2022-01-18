@@ -37,13 +37,17 @@ public class CanServiceImpl implements CanService {
     private final ClienteService clienteService;
     private final ClienteDomicilioService clienteDomicilioService;
     private final CanRazaService canRazaService;
+    private final CanCartillaVacunacionService canCartillaVacunacionService;
+    private final CanConstanciaSaludService canConstanciaSaludService;
+    private final CanAdiestramientoService canAdiestramientoService;
 
     @Autowired
     public CanServiceImpl(CanRepository canRepository, EmpresaService empresaService, UsuarioService usuarioService,
                           DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper,
                           EmpresaDomicilioService empresaDomicilioService, PersonaService personaService,
                           ClienteService clienteService, ClienteDomicilioService clienteDomicilioService,
-                          CanRazaService canRazaService) {
+                          CanRazaService canRazaService, CanCartillaVacunacionService canCartillaVacunacionService,
+                          CanConstanciaSaludService canConstanciaSaludService, CanAdiestramientoService canAdiestramientoService) {
         this.canRepository = canRepository;
         this.empresaService = empresaService;
         this.usuarioService = usuarioService;
@@ -55,6 +59,9 @@ public class CanServiceImpl implements CanService {
         this.clienteDomicilioService = clienteDomicilioService;
         this.clienteService = clienteService;
         this.canRazaService = canRazaService;
+        this.canCartillaVacunacionService = canCartillaVacunacionService;
+        this.canConstanciaSaludService = canConstanciaSaludService;
+        this.canAdiestramientoService = canAdiestramientoService;
     }
 
     @Override
@@ -97,6 +104,10 @@ public class CanServiceImpl implements CanService {
             if(can.getDomicilioClienteAsignado() != null && can.getClienteAsignado() > 0) {
                 canDto.setClienteDomicilio(clienteDomicilioService.obtenerPorId(can.getDomicilioClienteAsignado()));
             }
+
+            canDto.setCartillasVacunacion(canCartillaVacunacionService.obtenerCartillasVacunacionPorCanUuid(empresaUuid, canUuid));
+            canDto.setAdiestramientos(canAdiestramientoService.obtenerAdiestramientosPorCanUuid(empresaUuid, canUuid));
+            canDto.setConstanciasSalud(canConstanciaSaludService.obtenerConstanciasSaludPorCanUuid(empresaUuid, canUuid));
         }
 
         return canDto;

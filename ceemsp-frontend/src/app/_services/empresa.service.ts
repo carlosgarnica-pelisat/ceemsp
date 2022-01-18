@@ -21,6 +21,7 @@ import PersonaCertificacion from "../_models/PersonaCertificacion";
 import CanAdiestramiento from "../_models/CanAdiestramiento";
 import CanConstanciaSalud from "../_models/CanConstanciaSalud";
 import CanCartillaVacunacion from "../_models/CanCartillaVacunacion";
+import EmpresaFormaEjecucion from "../_models/EmpresaFormaEjecucion";
 
 @Injectable({
   providedIn: 'root'
@@ -43,6 +44,10 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}`);
   }
 
+  cambiarStatusEmpresa(uuid: string, empresa: Empresa) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/status`, empresa);
+  }
+
   // Modalidades
   obtenerModalidades(empresaUuid: string) {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/modalidades`)
@@ -50,6 +55,15 @@ export class EmpresaService {
 
   guardarModalidad(empresaUuid: string, modalidad: EmpresaModalidad) {
     return this.http.post(`${this.uri}/empresas/${empresaUuid}/modalidades`, modalidad)
+  }
+
+  // Formas de ejecucion
+  obtenerFormasEjecucion(empresaUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/formas`);
+  }
+
+  guardarFormaEjecucion(empresaUuid: string, formaEjecucion: EmpresaFormaEjecucion) {
+    return this.http.post(`${this.uri}/empresas/${empresaUuid}/formas`, formaEjecucion);
   }
 
   // Domicilios
@@ -65,6 +79,14 @@ export class EmpresaService {
     return this.http.post(`${this.uri}/empresas/${uuid}/domicilios`, empresaDomicilio)
   }
 
+  modificarDomicilio(uuid: string, domicilioUuid: string, empresaDomicilio: EmpresaDomicilio) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/domicilios/${domicilioUuid}`, empresaDomicilio);
+  }
+
+  eliminarDomicilio(uuid: string, domicilioUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/domicilios/${domicilioUuid}`);
+  }
+
   // Escrituras
   obtenerEscrituras(uuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/escrituras`);
@@ -76,6 +98,14 @@ export class EmpresaService {
 
   obtenerEscrituraPorUuid(uuid: string, uuidEscritura: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/escrituras/${uuidEscritura}`);
+  }
+
+  modificarEscritura(uuid: string, uuidEscritura: string, escritura: EmpresaEscritura) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/escrituras/${uuidEscritura}`, escritura);
+  }
+
+  eliminarEscritura(uuid: string, uuidEscritura: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/escrituras/${uuidEscritura}`);
   }
 
   // Escrituras socios
@@ -127,6 +157,14 @@ export class EmpresaService {
     return this.http.post(`${this.uri}/empresas/${uuid}/licencias`, licenciaColectiva);
   }
 
+  obtenerDomiciliosPorLicenciaColectiva(uuid: string, licenciaColectivaUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/domicilios`);
+  }
+
+  guardarDomicilioEnLicenciaColectiva(uuid: string, licenciaColectivaUuid: string, domicilio: EmpresaDomicilio) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/domicilios`, domicilio);
+  }
+
   // Vehiculos
   obtenerVehiculos(uuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/vehiculos`);
@@ -173,6 +211,10 @@ export class EmpresaService {
 
   guardarPersonal(uuid: string, persona: Persona) {
     return this.http.post(`${this.uri}/empresas/${uuid}/personas`, persona);
+  }
+
+  modificarInformacionTrabajo(uuid: string, personaUuid: string, persona: Persona) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/puestos`, persona)
   }
 
   // Personal certificaciones

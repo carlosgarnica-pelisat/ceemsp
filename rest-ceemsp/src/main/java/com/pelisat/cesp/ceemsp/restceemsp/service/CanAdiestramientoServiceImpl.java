@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,11 +33,12 @@ public class CanAdiestramientoServiceImpl implements CanAdiestramientoService {
     private final UsuarioService usuarioService;
     private final CanAdiestramientoRepository canAdiestramientoRepository;
     private final CanRepository canRepository;
+    private final CanTipoAdiestramientoService canTipoAdiestramientoService;
 
     @Autowired
     public CanAdiestramientoServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper,
                                         EmpresaService empresaService, UsuarioService usuarioService, CanAdiestramientoRepository canAdiestramientoRepository,
-                                        CanRepository canRepository) {
+                                        CanRepository canRepository, CanTipoAdiestramientoService canTipoAdiestramientoService) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
@@ -44,6 +46,7 @@ public class CanAdiestramientoServiceImpl implements CanAdiestramientoService {
         this.usuarioService = usuarioService;
         this.canAdiestramientoRepository = canAdiestramientoRepository;
         this.canRepository = canRepository;
+        this.canTipoAdiestramientoService = canTipoAdiestramientoService;
     }
 
     @Override
@@ -62,7 +65,11 @@ public class CanAdiestramientoServiceImpl implements CanAdiestramientoService {
 
         List<CanAdiestramiento> canAdiestramientos = canAdiestramientoRepository.findAllByCanAndEliminadoFalse(can.getId());
 
-        return canAdiestramientos.stream().map(daoToDtoConverter::convertDaoToDtoCanAdiestramiento).collect(Collectors.toList());
+        return canAdiestramientos.stream().map(ca -> {
+            CanAdiestramientoDto canAdiestramientoDto = daoToDtoConverter.convertDaoToDtoCanAdiestramiento(ca);
+            canAdiestramientoDto.setCanTipoAdiestramiento(canTipoAdiestramientoService.obtenerPorId(ca.getTipoAdiestramiento()));
+            return canAdiestramientoDto;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -84,6 +91,7 @@ public class CanAdiestramientoServiceImpl implements CanAdiestramientoService {
         CanAdiestramiento canAdiestramiento = dtoToDaoConverter.convertDtoToDaoAdiestramiento(canAdiestramientoDto);
         canAdiestramiento.setCan(can.getId());
         canAdiestramiento.setTipoAdiestramiento(canAdiestramientoDto.getCanTipoAdiestramiento().getId());
+        canAdiestramiento.setFechaConstancia(LocalDate.parse(canAdiestramientoDto.getFechaConstancia()));
         daoHelper.fulfillAuditorFields(true, canAdiestramiento, usuarioDto.getId());
 
         CanAdiestramiento canAdiestramientoCreado = canAdiestramientoRepository.save(canAdiestramiento);

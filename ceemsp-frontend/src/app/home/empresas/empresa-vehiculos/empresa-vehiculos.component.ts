@@ -14,6 +14,7 @@ import VehiculoUso from "../../../_models/VehiculoUso";
 import Stepper from "bs-stepper";
 import Vehiculo from "../../../_models/Vehiculo";
 import VehiculoColor from "../../../_models/VehiculoColor";
+import {faCheck} from "@fortawesome/free-solid-svg-icons";
 
 @Component({
   selector: 'app-empresa-vehiculos',
@@ -25,15 +26,9 @@ export class EmpresaVehiculosComponent implements OnInit {
   private gridApi;
   private gridColumnApi;
 
-  columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
-    {headerName: 'Anio', field: 'anio', sortable: true, filter: true },
-    {headerName: 'Placas', field: 'placas', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
-      }}
-  ];
+  columnDefs = Vehiculo.obtenerColumnasPorDefault();
+  allColumnDefs = Vehiculo.obtenerTodasLasColumnas();
+
   rowData = [];
   vehiculo: Vehiculo;
 
@@ -66,6 +61,8 @@ export class EmpresaVehiculosComponent implements OnInit {
   origen: string = "";
 
   stepper: Stepper;
+
+  faCheck = faCheck;
 
   constructor(private modalService: NgbModal, private toastService: ToastService,
               private empresaService: EmpresaService, private formBuilder: FormBuilder,
@@ -280,6 +277,25 @@ export class EmpresaVehiculosComponent implements OnInit {
     //this.stepper.previous()
   }
 
+  toggleColumn(field: string) {
+    let columnDefinitionIndex = this.columnDefs.findIndex(s => s.field === field);
+    if(columnDefinitionIndex === -1) {
+      let columnDefinition = this.allColumnDefs.filter(s => s.field === field)[0];
+
+      let newColumnDef = {
+        headerName: columnDefinition.headerName,
+        field: columnDefinition.field,
+        sortable: true,
+        filter: true
+      };
+
+      this.columnDefs.push(newColumnDef);
+      this.gridApi.setColumnDefs(this.columnDefs);
+    } else {
+      this.columnDefs = this.columnDefs.filter(s => s.field !== field);
+    }
+  }
+
 
   guardarVehiculo(form) {
     if(!form.valid) {
@@ -290,6 +306,10 @@ export class EmpresaVehiculosComponent implements OnInit {
       );
       return;
     }
+  }
+
+  isColumnListed(field: string ) {
+    return this.columnDefs.filter(s => s.field === field)[0] !== undefined;
   }
 
   guardarColor(form) {
@@ -324,6 +344,28 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.ERROR
       );
     });
+  }
+
+  exportGridData(format) {
+    switch(format) {
+      case "CSV":
+        this.gridApi.exportDataAsCsv();
+        break;
+      case "PDF":
+        this.toastService.showGenericToast(
+          "Bajo desarrollo",
+          "Actualmente estamos desarrollando esta funcionalidad",
+          ToastType.INFO
+        )
+        break;
+      default:
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "No podemos exportar en dicho formato",
+          ToastType.WARNING
+        )
+        break;
+    }
   }
 
   private getDismissReason(reason: any): string {

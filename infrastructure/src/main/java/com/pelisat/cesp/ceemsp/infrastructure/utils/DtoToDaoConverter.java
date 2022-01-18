@@ -27,13 +27,13 @@ public class DtoToDaoConverter {
         this.modelMapper = modelMapper;
     }
 
-    public Usuario convertDtoToDaoUser(Usuario userDto) {
-        if(userDto == null) {
+    public Usuario convertDtoToDaoUser(UsuarioDto usuarioDto) {
+        if(usuarioDto == null) {
             logger.warn("The userDto to be converted is coming as null");
             throw new InvalidDataException();
         }
 
-        Usuario usuario = modelMapper.map(userDto, Usuario.class);
+        Usuario usuario = modelMapper.map(usuarioDto, Usuario.class);
         if(StringUtils.isBlank(usuario.getUuid())) {
             logger.info("Uuid is coming as null. Generating a new one");
             usuario.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
@@ -591,5 +591,53 @@ public class DtoToDaoConverter {
         }
 
         return canConstanciaSalud;
+    }
+
+    public Equipo convertDtoToDaoEquipo(EquipoDto equipoDto) {
+        if(equipoDto == null) {
+            logger.warn("El equipo viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        Equipo equipo = modelMapper.map(equipoDto, Equipo.class);
+
+        if(StringUtils.isBlank(equipo.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            equipo.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return equipo;
+    }
+
+    public Uniforme convertDtoToDaoUniforme(UniformeDto uniformeDto) {
+        if(uniformeDto == null) {
+            logger.warn("El uniforme viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        Uniforme uniforme = modelMapper.map(uniformeDto, Uniforme.class);
+
+        if(StringUtils.isBlank(uniforme.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            uniforme.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return uniforme;
+    }
+
+    public EmpresaFormaEjecucion convertDtoToDaoEmpresaFormaEjecucion(EmpresaFormaEjecucionDto empresaFormaEjecucionDto) {
+        if(empresaFormaEjecucionDto == null) {
+            logger.warn("La forma de ejecucion de la empresa viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        EmpresaFormaEjecucion empresaFormaEjecucion = modelMapper.map(empresaFormaEjecucionDto, EmpresaFormaEjecucion.class);
+
+        if(StringUtils.isBlank(empresaFormaEjecucion.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresaFormaEjecucion.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaFormaEjecucion;
     }
 }

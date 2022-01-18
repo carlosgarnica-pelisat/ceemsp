@@ -1,0 +1,28 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-01-07-crear-tabla-empresa-equipos" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="EMPRESAS_EQUIPOS">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="EMPRESA" type="int"></column>
+            <column name="EQUIPO" type="INT"></column>
+            <column name="CANTIDAD" type="DECIMAL(10,2)"></column>
+            <column name="ELIMINADO" type="bit" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="int"></column>
+            <column name="FECHA_ACTUALIZACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="int"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="EMPRESAS_EQUIPOS" columnNames="ID" />
+        <addAutoIncrement tableName="EMPRESAS_EQUIPOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="EMPRESAS_EQUIPOS" columnNames="UUID" />
+    </changeSet>
+</databaseChangeLog>

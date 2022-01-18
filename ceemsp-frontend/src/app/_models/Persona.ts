@@ -1,6 +1,10 @@
 import {Deserializable} from "./Deserializable";
 import PersonalNacionalidad from "./PersonalNacionalidad";
 import PersonaCertificacion from "./PersonaCertificacion";
+import PersonalPuestoTrabajo from "./PersonalPuestoTrabajo";
+import PersonalSubpuestoTrabajo from "./PersonalSubpuestoTrabajo";
+import EmpresaDomicilio from "./EmpresaDomicilio";
+import Modalidad from "./Modalidad";
 
 export default class Persona implements Deserializable {
   id: string;
@@ -23,6 +27,17 @@ export default class Persona implements Deserializable {
   codigoPostal: string;
   telefono: string;
   correoElectronico: string;
+
+  puestoDeTrabajo: PersonalPuestoTrabajo;
+  subpuestoDeTrabajo: PersonalSubpuestoTrabajo;
+  detallesPuesto: string;
+  domicilioAsignado: EmpresaDomicilio;
+  estatusCuip: string;
+  cuip: string;
+  numeroVolanteCuip: string;
+  fechaVolanteCuip: string;
+  modalidad: Modalidad;
+
 
   certificaciones: PersonaCertificacion[];
 

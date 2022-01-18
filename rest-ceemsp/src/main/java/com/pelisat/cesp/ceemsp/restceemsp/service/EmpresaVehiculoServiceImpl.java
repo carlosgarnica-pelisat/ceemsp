@@ -35,13 +35,15 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
     private final VehiculoSubmarcaService vehiculoSubmarcaService;
     private final VehiculoUsoService vehiculoUsoService;
     private final VehiculoTipoService vehiculoTipoService;
+    private final VehiculoColorService vehiculoColorService;
 
     @Autowired
     public EmpresaVehiculoServiceImpl(VehiculoRepository vehiculoRepository, UsuarioService usuarioService,
                                       DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                                       DaoHelper<CommonModel> daoHelper, EmpresaService empresaService,
                                       VehiculoMarcaService vehiculoMarcaService, VehiculoSubmarcaService vehiculoSubmarcaService,
-                                      VehiculoUsoService vehiculoUsoService, VehiculoTipoService vehiculoTipoService) {
+                                      VehiculoUsoService vehiculoUsoService, VehiculoTipoService vehiculoTipoService,
+                                      VehiculoColorService vehiculoColorService) {
         this.vehiculoRepository = vehiculoRepository;
         this.usuarioService = usuarioService;
         this.daoToDtoConverter = daoToDtoConverter;
@@ -52,6 +54,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         this.vehiculoSubmarcaService = vehiculoSubmarcaService;
         this.vehiculoUsoService = vehiculoUsoService;
         this.vehiculoTipoService = vehiculoTipoService;
+        this.vehiculoColorService = vehiculoColorService;
     }
 
     @Override
@@ -99,6 +102,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
             vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
             vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
             vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
+            vehiculoDto.setColores(vehiculoColorService.obtenerTodosPorVehiculoUuid(vehiculoUuid, empresaUuid));
         }
 
         return vehiculoDto;

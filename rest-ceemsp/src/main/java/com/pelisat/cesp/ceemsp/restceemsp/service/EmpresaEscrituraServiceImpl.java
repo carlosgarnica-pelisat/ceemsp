@@ -179,4 +179,38 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscrituraCreada);
     }
+
+    @Override
+    public EmpresaEscrituraDto modificarEscritura(String empresaUuid, String escrituraUuid, EmpresaEscrituraDto empresaEscrituraDto, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || empresaEscrituraDto == null) {
+            logger.warn("El uuid de la empresa, la escritura, el usuario o la escritura a modificar vienen como nulas o vacias");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando la escritura con el uuid [{}]", escrituraUuid);
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        EmpresaEscritura empresaEscritura = empresaEscrituraRepository.findByUuidAndEliminadoFalse(escrituraUuid);
+        if(empresaEscritura == null) {
+            logger.warn("La empresa no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaEscritura.setNumeroEscritura(empresaEscritura.getNumeroEscritura());
+        empresaEscritura.setNombreFedatario(empresaEscritura.getNombreFedatario());
+        empresaEscritura.setTipoFedatario(empresaEscritura.getTipoFedatario());
+        empresaEscritura.setNumero(empresaEscritura.getNumero());
+        empresaEscritura.setCiudad(empresaEscritura.getCiudad());
+        empresaEscritura.setDescripcion(empresaEscritura.getDescripcion());
+
+        daoHelper.fulfillAuditorFields(false, empresaEscritura, usuarioDto.getId());
+
+        empresaEscrituraRepository.save(empresaEscritura);
+        return daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscritura);
+    }
+
+    @Override
+    public EmpresaEscrituraDto eliminarEscritura(String empresaUuid, String escrituraUuid, String username) {
+        return null;
+    }
 }

@@ -30,17 +30,8 @@ export class EmpresaClientesComponent implements OnInit {
   private gridApi;
   private gridColumnApi;
 
-  columnDefs = [
-    {headerName: 'ID', field: 'uuid'},
-    {headerName: 'RFC', field: 'rfc', sortable: true, filter: true },
-    {headerName: 'Nombre comercial', field: 'nombreComercial', sortable: true, filter: true},
-    {headerName: 'Razon Social', field: 'razonSocial', sortable: true, filter: true},
-    {headerName: 'Tipo de Persona', field: 'tipoPersona', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
-      }}
-  ];
+  columnDefs = Cliente.obtenerColumnasPorDefault();
+  allColumnDefs = Cliente.obtenerTodasLasColumnas();
   rowData = [];
 
   frameworkComponents: any;

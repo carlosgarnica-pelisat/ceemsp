@@ -5,6 +5,7 @@ import {ToastService} from "../../../_services/toast.service";
 import {PersonalService} from "../../../_services/personal.service";
 import {ToastType} from "../../../_enums/ToastType";
 import PersonalPuestoTrabajo from "../../../_models/PersonalPuestoTrabajo";
+import PersonalSubpuestoTrabajo from "../../../_models/PersonalSubpuestoTrabajo";
 
 @Component({
   selector: 'app-personal',
@@ -36,6 +37,8 @@ export class PersonalComponent implements OnInit {
   rowDataClicked = {
     uuid: undefined
   };
+
+  mostrarFormularioSubpuesto: boolean = false;
 
   crearPuestoDeTrabajoForm: FormGroup;
   crearSubpuestoDeTrabajoForm: FormGroup;
@@ -91,8 +94,46 @@ export class PersonalComponent implements OnInit {
 
   }
 
+  mostrarFormularioSubpuestos() {
+    this.mostrarFormularioSubpuesto = !this.mostrarFormularioSubpuesto;
+  }
+
+  guardarSubpuestoTrabajo(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que no han sido rellenados",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando el subpuesto de trabajo",
+      ToastType.INFO
+    );
+
+    let value: PersonalSubpuestoTrabajo = form.value;
+
+    this.personalService.guardarSubpuestoTrabajo(this.puestoTrabajo.uuid, value).subscribe((data: PersonalSubpuestoTrabajo) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado el subpuesto de trabajo con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar el subpuesto de trabajo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
   checkForDetails(data, modal) {
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.uuid = data.uuid;
 

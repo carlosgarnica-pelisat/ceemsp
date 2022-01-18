@@ -3,6 +3,7 @@ import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
 import PersonalPuestoTrabajo from "../_models/PersonalPuestoTrabajo";
 import PersonalNacionalidad from "../_models/PersonalNacionalidad";
+import PersonalSubpuestoTrabajo from "../_models/PersonalSubpuestoTrabajo";
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +24,14 @@ export class PersonalService {
 
   obtenerPuestoPorUuid(uuid: string) {
     return this.http.get(`${this.uri}/catalogos/personal/puestos/${uuid}`);
+  }
+
+  obtenerSubpuestosTrabajo(uuid: string) {
+    return this.http.get(`${this.uri}/catalogos/personal/puestos/${uuid}/subpuestos`)
+  }
+
+  guardarSubpuestoTrabajo(uuid: string, subpuestoTrabajo: PersonalSubpuestoTrabajo) {
+    return this.http.post(`${this.uri}/catalogos/personal/puestos/${uuid}/subpuestos`, subpuestoTrabajo);
   }
 
   // Operaciones para nacionalidades

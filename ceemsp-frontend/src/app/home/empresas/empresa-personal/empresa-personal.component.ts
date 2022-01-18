@@ -13,6 +13,8 @@ import EmpresaModalidad from "../../../_models/EmpresaModalidad";
 import Stepper from "bs-stepper";
 import Persona from "../../../_models/Persona";
 import PersonaCertificacion from "../../../_models/PersonaCertificacion";
+import PersonalSubpuestoTrabajo from "../../../_models/PersonalSubpuestoTrabajo";
+import Modalidad from "../../../_models/Modalidad";
 
 @Component({
   selector: 'app-empresa-personal',
@@ -30,11 +32,7 @@ export class EmpresaPersonalComponent implements OnInit {
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Apellido paterno', field: 'apellidoPaterno', sortable: true, filter: true },
     {headerName: 'Apellido materno', field: 'apellidoMaterno', sortable: true, filter: true},
-    {headerName: 'Nombre(s)', field: 'nombres', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
-      }}
+    {headerName: 'Nombre(s)', field: 'nombres', sortable: true, filter: true}
   ];
   rowData = [];
 
@@ -51,15 +49,22 @@ export class EmpresaPersonalComponent implements OnInit {
   domicilios: EmpresaDomicilio[] = [];
   modalidades: EmpresaModalidad[] = [];
 
+  puestoTrabajo: PersonalPuestoTrabajo;
+  subpuestoTrabajo: PersonalSubpuestoTrabajo;
+
   crearPersonalForm: FormGroup;
   crearPersonalPuestoForm: FormGroup;
   crearPersonalCertificadoForm: FormGroup;
   crearPersonaFotografiaForm: FormGroup;
 
   persona: Persona;
+  modalidad: Modalidad;
+  domicilio: EmpresaDomicilio;
+  cuipStatus: string;
 
   showCertificadoForm: boolean;
   showFotografiaForm: boolean;
+  showPuestoForm: boolean;
 
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
               private toastService: ToastService, private modalService: NgbModal,
@@ -95,7 +100,7 @@ export class EmpresaPersonalComponent implements OnInit {
       'subpuesto': ['', Validators.required],
       'detallesPuesto': ['', Validators.required],
       'domicilioAsignado': ['', Validators.required],
-      'estatusCuip': ['', Validators.required],
+      'estatusCuip': [''],
       'cuip': [''],
       'numeroVolanteCuip': [''],
       'fechaVolanteCuip': [''],
@@ -122,7 +127,37 @@ export class EmpresaPersonalComponent implements OnInit {
         `No se han podido descargar el personal. ${error}`,
         ToastType.ERROR
       );
+    });
+
+    this.personalService.obtenerPuestosPersonal().subscribe((data: PersonalPuestoTrabajo[]) => {
+      this.puestosTrabajo = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los puestos de trabajo`,
+        ToastType.ERROR
+      );
     })
+
+    this.empresaService.obtenerDomicilios(this.uuid).subscribe((data: EmpresaDomicilio[]) => {
+      this.domicilios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los domicilios de la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
+
+    this.empresaService.obtenerModalidades(this.uuid).subscribe((data: EmpresaModalidad[]) => {
+      this.modalidades = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los domicilios de la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
   }
 
   onGridReady(params) {
@@ -214,36 +249,6 @@ export class EmpresaPersonalComponent implements OnInit {
       );
     });
 
-    this.personalService.obtenerPuestosPersonal().subscribe((data: PersonalPuestoTrabajo[]) => {
-      this.puestosTrabajo = data;
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se han podido descargar los puestos de trabajo. Motivo: ${error}`,
-        ToastType.ERROR
-      );
-    })
-
-    this.empresaService.obtenerDomicilios(this.uuid).subscribe((data: EmpresaDomicilio[]) => {
-      this.domicilios = data;
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se han podido descargar los domicilios de la empresa. Motivo: ${error}`,
-        ToastType.ERROR
-      );
-    })
-
-    this.empresaService.obtenerModalidades(this.uuid).subscribe((data: EmpresaModalidad[]) => {
-      this.modalidades = data;
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se han podido descargar los domicilios de la empresa. Motivo: ${error}`,
-        ToastType.ERROR
-      );
-    })
-
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
     }, (error) => {
@@ -256,6 +261,70 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   delete() {
+
+  }
+
+  cambiarPuestoTrabajo(event) {
+    this.puestoTrabajo = this.puestosTrabajo.filter(x => x.uuid === event.value)[0];
+  }
+
+  cambiarModalidad(event) {
+    console.log(this.modalidades.filter(x => x?.modalidad?.uuid === event.value));
+    this.modalidad = this.modalidades.filter(x => x?.modalidad?.uuid === event.value)[0].modalidad;
+  }
+
+  cambiarSubpuestoTrabajo(event) {
+    this.subpuestoTrabajo = this.puestoTrabajo.subpuestos.filter(x => x.uuid === event.value)[0]
+    if(!this.subpuestoTrabajo.portacion || !this.subpuestoTrabajo.cuip) {
+      this.cuipStatus = "NA";
+    }
+
+    // Con la portacion, la cuip es completamente obligatoria
+    if(this.subpuestoTrabajo.portacion) {
+      this.cuipStatus = "TRAMITADA";
+    }
+  }
+
+  cambiarStatusCuip(event) {
+    this.cuipStatus = event.value;
+  }
+
+  cambiarDomicilio(event) {
+    this.domicilio = this.domicilios.filter(x => x.uuid === event.value)[0];
+  }
+
+  actualizarPuesto(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que no se han rellenado",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    // Validando los tipos
+    let value: Persona = form.value;
+
+    value.puestoDeTrabajo = this.puestoTrabajo;
+    value.subpuestoDeTrabajo = this.subpuestoTrabajo;
+    value.domicilioAsignado = this.domicilio;
+    value.modalidad = this.modalidad;
+
+    this.empresaService.modificarInformacionTrabajo(this.uuid, this.persona.uuid, value).subscribe((data: Persona) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha guardado la informacion del trabajo con exito`,
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido actualizar la informacion del trabajo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
 
   }
 
@@ -299,6 +368,10 @@ export class EmpresaPersonalComponent implements OnInit {
 
   mostrarFormularioNuevaFotografia() {
     this.showFotografiaForm = !this.showFotografiaForm;
+  }
+
+  mostrarFormularioInformacionPuesto() {
+    this.showPuestoForm = !this.showPuestoForm;
   }
 
   onFileChange(event) {

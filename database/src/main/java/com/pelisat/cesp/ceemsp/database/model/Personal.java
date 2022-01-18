@@ -1,14 +1,13 @@
 package com.pelisat.cesp.ceemsp.database.model;
 
+import com.pelisat.cesp.ceemsp.database.type.CuipStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.EstadoCivilEnum;
 import com.pelisat.cesp.ceemsp.database.type.SexoEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoSangreEnum;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDate;
 
 @Getter
@@ -38,15 +37,18 @@ public class Personal extends CommonModel {
     private LocalDate fechaNacimiento;
 
     @Column(name = "SEXO", nullable = false)
+    @Enumerated(EnumType.STRING)
     private SexoEnum sexo;
 
     @Column(name = "TIPO_SANGRE", nullable = false)
+    @Enumerated(EnumType.STRING)
     private TipoSangreEnum tipoSangre;
 
     @Column(name = "FECHA_INGRESO", nullable = false)
     private LocalDate fechaIngreso;
 
     @Column(name = "ESTADO_CIVIL", nullable = false)
+    @Enumerated(EnumType.STRING)
     private EstadoCivilEnum estadoCivil;
 
     @Column(name = "DOMICILIO_1", nullable = false)
@@ -89,7 +91,8 @@ public class Personal extends CommonModel {
     private int domicilioAsignado;
 
     @Column(name = "ESTATUS_CUIP")
-    private String estatusCuip;
+    @Enumerated(EnumType.STRING)
+    private CuipStatusEnum estatusCuip;
 
     @Column(name = "CUIP")
     private String cuip;

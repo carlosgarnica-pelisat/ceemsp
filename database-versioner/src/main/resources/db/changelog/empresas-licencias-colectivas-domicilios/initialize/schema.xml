@@ -1,0 +1,27 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2021-09-15-crear-tabla-empresa-licencias-colectivas-domicilios" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="EMPRESAS_LICENCIAS_COLECTIVAS_DOMICILIOS">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="LICENCIA_COLECTIVA" type="int"></column>
+            <column name="DOMICILIO" type="int"></column>
+            <column name="ELIMINADO" type="bit" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="int"></column>
+            <column name="FECHA_ACTUALIZACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="int"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="EMPRESAS_LICENCIAS_COLECTIVAS_DOMICILIOS" columnNames="ID" />
+        <addAutoIncrement tableName="EMPRESAS_LICENCIAS_COLECTIVAS_DOMICILIOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="EMPRESAS_LICENCIAS_COLECTIVAS_DOMICILIOS" columnNames="UUID" />
+    </changeSet>
+</databaseChangeLog>

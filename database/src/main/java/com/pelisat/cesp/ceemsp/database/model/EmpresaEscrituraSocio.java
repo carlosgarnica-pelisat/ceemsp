@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "EMPRESAS_ESCRITURAS_SOCIOS")
@@ -23,4 +24,10 @@ public class EmpresaEscrituraSocio extends CommonModel {
     @Column(name = "SEXO", nullable = false)
     @Enumerated(EnumType.STRING)
     private SexoEnum sexo;
+
+    @Column(name = "PORCENTAJE_ACCIONES", nullable = false)
+    private BigDecimal porcentajeAcciones;
+
+    @Column(name = "APELLIDO_MATERNO")
+    private String apellidoMaterno;
 }

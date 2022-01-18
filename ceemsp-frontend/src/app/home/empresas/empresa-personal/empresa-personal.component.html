@@ -32,7 +32,8 @@
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
         <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action active">Personal</a>
-        <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
+        <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
+        <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -132,22 +133,126 @@
         <div class="col-sm-12" *ngIf="pestanaActual === 'PUESTO'">
           <table class="table">
             <tr>
-              <td>Puesto</td>
-              <td></td>
+              <td><b>Puesto</b></td>
+              <td>{{persona?.puestoDeTrabajo?.nombre}}</td>
             </tr>
             <tr>
-              <td>Subpuesto</td>
-              <td></td>
-            </tr>
-            <tr *ngIf="">
-
+              <td><b>Subpuesto</b></td>
+              <td>{{persona?.subpuestoDeTrabajo?.nombre}}</td>
             </tr>
             <tr>
+              <td><b>Detalles del puesto</b></td>
+              <td>{{persona?.detallesPuesto}}</td>
+            </tr>
+            <tr>
+              <td><b>Estatus de la CUIP</b></td>
+              <td>{{persona?.estatusCuip}}</td>
+            </tr>
+            <tr>
+              <td><b>CUIP</b></td>
+              <td>{{persona?.cuip}}</td>
+            </tr>
+            <tr *ngIf="persona?.estatusCuip === 'EN_TRAMITE'">
+              <td><b>Numero de volante</b></td>
+              <td>{{persona?.numeroVolanteCuip}}</td>
+            </tr>
+            <tr *ngIf="persona?.estatusCuip === 'EN_TRAMITE'">
+              <td><b>Fecha de tramitacion de CUIP</b></td>
+              <td>{{persona?.fechaVolanteCuip}}</td>
+            </tr>
+            <tr *ngIf="showPuestoForm">
               <td colspan="2">
                 <div class="row">
                   <div class="col-sm-12">
-                    <button class="btn btn-sm btn-primary">
-                      Agregar info. puesto
+                    <form [formGroup]="crearPersonalPuestoForm">
+                      <div class="form-row">
+                        <div class="col-sm-3">
+                          <label for="crearPuesto">
+                            <b>Tipo de puesto *</b>
+                          </label>
+                          <select id="crearPuesto" formControlName="puesto" class="form-control" (change)="cambiarPuestoTrabajo($event.target)">
+                            <option *ngFor="let p of puestosTrabajo" value="{{p?.uuid}}">{{p?.nombre}}</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="crearSubpuesto">
+                            <b>Subpuesto *</b>
+                          </label>
+                          <select id="crearSubpuesto" formControlName="subpuesto" class="form-control" (change)="cambiarSubpuestoTrabajo($event.target)">
+                            <option *ngFor="let s of puestoTrabajo?.subpuestos" value="{{s?.uuid}}">{{s?.nombre}}</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="crearDetallesPuesto">
+                            <b>Detalles del puesto *</b>
+                          </label>
+                          <input id="crearDetallesPuesto" type="text" class="form-control" placeholder="Ej. Detalles del puesto" formControlName="detallesPuesto">
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="crearDomicilioPersonal">
+                            <b>Domicilio *</b>
+                          </label>
+                          <select id="crearDomicilioPersonal" formControlName="domicilioAsignado" class="form-control" (change)="cambiarDomicilio($event.target)">
+                            <option *ngFor="let d of domicilios" value="{{d?.uuid}}">{{d?.nombre + " - " + d?.domicilio1 + " " + d?.numeroExterior + " " + d?.numeroInterior}}</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="form-row">
+                        <div class="col-sm-3">
+                          <label for="crearCuip">
+                            <b>Status de la CUIP *</b>
+                          </label>
+                          <select id="crearCuip" formControlName="estatusCuip" class="form-control" (change)="cambiarStatusCuip($event.target)">
+                            <option value="EN_TRAMITE" *ngIf="!subpuestoTrabajo?.portacion">En tramite</option>
+                            <option value="TRAMITADO">Tramitado</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-3" *ngIf="subpuestoTrabajo?.portacion">
+                          <label for="crearModalidad">
+                            <b>Modalidad *</b>
+                          </label>
+                          <select id="crearModalidad" formControlName="modalidad" class="form-control" (change)="cambiarModalidad($event.target)">
+                            <option *ngFor="let m of modalidades" value="{{m?.modalidad?.uuid}}">{{m?.modalidad?.nombre}}</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-3" *ngIf="cuipStatus === 'EN_TRAMITE'">
+                          <label for="crearNumeroVolante">
+                            <b>Numero de volante *</b>
+                          </label>
+                          <input id="crearNumeroVolante" type="text" class="form-control" placeholder="Ej. 151156056156" formControlName="numeroVolanteCuip">
+                        </div>
+                        <div class="col-sm-3" *ngIf="cuipStatus === 'EN_TRAMITE'">
+                          <label for="crearNumeroVolanteFecha">
+                            <b>Fecha de volante *</b>
+                          </label>
+                          <input id="crearNumeroVolanteFecha" type="date" class="form-control" formControlName="fechaVolanteCuip">
+                        </div>
+                        <div class="col-sm-3" *ngIf="cuipStatus === 'TRAMITADO'">
+                          <label for="crearCuipNumero">
+                            <b>Numero de CUIP *</b>
+                          </label>
+                          <input id="crearCuipNumero" type="text" class="form-control" formControlName="cuip">
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary btn-sm" (click)="actualizarPuesto(crearPersonalPuestoForm)">Guardar</button>
+                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioInformacionPuesto()">Cancelar</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!showPuestoForm">
+              <td colspan="2">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-sm btn-primary" (click)="mostrarFormularioInformacionPuesto()">
+                      Agregar / Modificar info. puesto
                     </button>
                   </div>
                 </div>
@@ -242,8 +347,9 @@
         <div class="col-sm-12" *ngIf="pestanaActual === 'FOTOGRAFIAS'">
           <table class="table">
             <tr>
-              <td>Archivo</td>
-              <td>Opciones</td>
+              <td><b>Archivo</b></td>
+              <td><b>Descripcion</b></td>
+              <td><b>Opciones</b></td>
             </tr>
             <tr *ngIf="showFotografiaForm">
               <td colspan="2">
@@ -251,8 +357,17 @@
                   <div class="col-sm-12">
                     <form [formGroup]="crearPersonaFotografiaForm">
                       <div class="form-row">
-                        <div class="col-sm-12">
-                          <input class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+                        <div class="col-sm-6">
+                          <label for="foto">
+                            <b>Archivo</b>
+                          </label>
+                          <input id="foto" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+                        </div>
+                        <div class="col-sm-6">
+                          <label for="fotoDescripcion">
+                            <b>Descripcion</b>
+                          </label>
+                          <input id="fotoDescripcion" class="form-control" formControlName="file" type="text" placeholder="Ej. Foto frontal">
                         </div>
                       </div>
                     </form>

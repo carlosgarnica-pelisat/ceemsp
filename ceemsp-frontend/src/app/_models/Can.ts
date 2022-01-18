@@ -40,4 +40,28 @@ export default class Can implements Deserializable {
     return this;
   }
 
+  static obtenerColumnasPorDefault() {
+    return [
+      {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+      {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
+      {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+      {headerName: 'Status', field: 'status', sortable: true, filter: true}
+    ];
+  }
+
+  static obtenerTodasLasColumnas() {
+    return [
+      {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+      {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
+      {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+      {headerName: 'Status', field: 'status', sortable: true, filter: true},
+      {headerName: 'Genero', field: 'genero', sortable: true, filter: true},
+      {headerName: 'Raza', field: 'raza.nombre', sortable: true, filter: true},
+      {headerName: 'Edad', field: 'edad', sortable: true, filter: true},
+      {headerName: 'Peso', field: 'peso', sortable: true, filter: true},
+      {headerName: 'Chip', field: 'chip', sortable: true, filter: true},
+      {headerName: 'Status', field: 'status', sortable: true, filter: true}
+    ]
+  }
+
 }

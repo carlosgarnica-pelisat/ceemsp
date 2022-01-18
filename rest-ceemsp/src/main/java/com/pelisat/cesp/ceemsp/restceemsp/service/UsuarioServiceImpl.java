@@ -1,10 +1,12 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
+import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.Usuario;
 import com.pelisat.cesp.ceemsp.database.repository.UsuarioRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
 import org.apache.commons.lang3.StringUtils;
@@ -23,12 +25,15 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
+    private final DaoHelper<CommonModel> daoHelper;
 
     @Autowired
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, DaoToDtoConverter daoToDtoConverter,
+                              DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper) {
         this.usuarioRepository = usuarioRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
+        this.daoHelper = daoHelper;
     }
 
     @Override
@@ -47,7 +52,20 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public UsuarioDto saveUser(UsuarioDto userDto, String username) {
-        return null;
+        if(userDto == null || StringUtils.isBlank(username)) {
+            logger.warn("El usuario o el nombre de usuario vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Guardando un nuevo usuario");
+
+        UsuarioDto usuarioCreador = getUserByEmail(username);
+        Usuario usuario = dtoToDaoConverter.convertDtoToDaoUser(userDto);
+        daoHelper.fulfillAuditorFields(true, usuario, usuarioCreador.getId());
+
+        Usuario usuarioCreado = usuarioRepository.save(usuario);
+
+        return daoToDtoConverter.convertDaoToDtoUser(usuarioCreado);
     }
 
     @Override

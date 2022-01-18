@@ -23,4 +23,26 @@ export default class EmpresaEscritura implements Deserializable {
     Object.assign(this, input);
     return this;
   }
+
+  static obtenerColumnasPorDefault() {
+    return [
+      {headerName: 'ID', field: 'uuid', sortable: true, filter: true},
+      {headerName: 'No. Escritura', field: 'numeroEscritura', sortable: true, filter: true },
+      {headerName: 'Nombre', field: 'nombreFedatario', sortable: true, filter: true},
+      {headerName: 'Tipo', field: 'tipoFedatario', sortable: true, filter: true},
+      {headerName: 'Numero', field: 'numero', sortable: true, filter: true},
+      {headerName: 'Ciudad', field: 'ciudad', sortable: true, filter: true}
+    ];
+  }
+
+  static obtenerTodasLasColumnas() {
+    return [
+      {headerName: 'ID', field: 'uuid', sortable: true, filter: true},
+      {headerName: 'No. Escritura', field: 'numeroEscritura', sortable: true, filter: true },
+      {headerName: 'Nombre', field: 'nombreFedatario', sortable: true, filter: true},
+      {headerName: 'Tipo', field: 'tipoFedatario', sortable: true, filter: true},
+      {headerName: 'Numero', field: 'numero', sortable: true, filter: true},
+      {headerName: 'Ciudad', field: 'ciudad', sortable: true, filter: true}
+    ]
+  }
 }

@@ -92,9 +92,65 @@
               <td>{{s.descripcion}}</td>
               <td>{{s.portacion}}</td>
               <td>{{s.cuip}}</td>
+              <td></td>
             </tr>
-            <tr>
-
+            <tr *ngIf="mostrarFormularioSubpuesto">
+              <td colspan="5">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <form [formGroup]="crearSubpuestoDeTrabajoForm">
+                      <div class="form-row">
+                        <div class="col-sm-3">
+                          <label for="subpuestoNombre">
+                            <b>Nombre *</b>
+                          </label>
+                          <input id="subpuestoNombre" type="text" class="form-control" placeholder="Ejemplo: Vigilante" formControlName="nombre" #nombre>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="subpuestoDescripcion">
+                            <b>Descripcion *</b>
+                          </label>
+                          <input id="subpuestoDescripcion" type="text" class="form-control" placeholder="Descripcion del puesto" formControlName="descripcion" #descripcion>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="portacion">
+                            <b>Portacion *</b>
+                          </label>
+                          <select id="portacion" class="form-control" formControlName="portacion">
+                            <option value="true">SI</option>
+                            <option value="false">NO</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="cuip">
+                            <b>CUIP *</b>
+                          </label>
+                          <select id="cuip" class="form-control" formControlName="cuip">
+                            <option value="true">SI</option>
+                            <option value="false">NO</option>
+                          </select>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary btn-sm" (click)="guardarSubpuestoTrabajo(crearSubpuestoDeTrabajoForm)">Guardar</button>
+                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioSubpuestos()">Cancelar</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!mostrarFormularioSubpuesto">
+              <td colspan="5">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary btn-sm" (click)="mostrarFormularioSubpuestos()">Crear nuevo puesto de trabajo</button>
+                  </div>
+                </div>
+              </td>
             </tr>
           </table>
         </div>

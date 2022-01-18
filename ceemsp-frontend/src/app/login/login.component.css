@@ -159,3 +159,7 @@ a:hover {
     margin-bottom: 50px !important
   }
 }
+
+.fakelink {
+  cursor: pointer;
+}

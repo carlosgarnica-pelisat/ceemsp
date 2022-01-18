@@ -50,7 +50,11 @@ public class PersonalPuestoDeTrabajoServiceImpl implements PersonalPuestoDeTraba
         logger.info("Consultando todos los oyestis de trabajo guardadas en la base de datos");
         List<PersonalPuesto> personalPuestos = personalPuestoRepository.getAllByEliminadoFalse();
         return personalPuestos.stream()
-                .map(daoToDtoConverter::convertDaoToDtoPersonalPuestoDeTrabajo)
+                .map(p -> {
+                    PersonalPuestoDeTrabajoDto personalPuestoDeTrabajoDto = daoToDtoConverter.convertDaoToDtoPersonalPuestoDeTrabajo(p);
+                    personalPuestoDeTrabajoDto.setSubpuestos(personalSubpuestoDeTrabajoService.obtenerTodos(p.getUuid()));
+                    return personalPuestoDeTrabajoDto;
+                })
                 .collect(Collectors.toList());
     }
 

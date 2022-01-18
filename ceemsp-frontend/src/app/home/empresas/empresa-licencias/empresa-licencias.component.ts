@@ -8,8 +8,9 @@ import {ToastType} from "../../../_enums/ToastType";
 import EmpresaLicenciaColectiva from "../../../_models/EmpresaLicenciaColectiva";
 import EmpresaModalidad from "../../../_models/EmpresaModalidad";
 import Arma from "../../../_models/Arma";
-import {faEdit, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faEdit, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
 import Persona from "../../../_models/Persona";
+import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
 
 @Component({
   selector: 'app-empresa-licencias',
@@ -24,17 +25,10 @@ export class EmpresaLicenciasComponent implements OnInit {
   faSync = faSync;
   faEdit = faEdit;
   faTrash = faTrash;
+  faCheck = faCheck;
 
-  columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
-    {headerName: 'Numero de oficio', field: 'numeroOficio', sortable: true, filter: true },
-    {headerName: 'Fecha de Inicio', field: 'fechaInicio', sortable: true, filter: true},
-    {headerName: 'Fecha de Termino', field: 'fechaFin', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
-      }}
-  ];
+  columnDefs = EmpresaLicenciaColectiva.obtenerColumnasPorDefault();
+  allColumnDefs = EmpresaLicenciaColectiva.obtenerTodasLasColumnas();
   rowData: EmpresaLicenciaColectiva[] = [];
 
   uuid: string;
@@ -44,6 +38,8 @@ export class EmpresaLicenciasComponent implements OnInit {
   licencia: EmpresaLicenciaColectiva;
   pestanaActual: string = "DETALLES";
   armas: Arma[];
+  domicilios: EmpresaDomicilio[];
+  domiciliosLicenciaColectiva: EmpresaDomicilio[];
   personal: Persona[] = [];
   status: string = "ACTIVA";
 
@@ -54,7 +50,12 @@ export class EmpresaLicenciasComponent implements OnInit {
   modalidades: EmpresaModalidad[];
   crearEmpresaLicenciaForm: FormGroup;
   modificarStatusArmaForm: FormGroup;
+  crearDireccionForm: FormGroup;
+  crearArmaForm: FormGroup;
   mostrarModificarStatusArma: boolean = false;
+
+  showDireccionForm: boolean = false;
+  showArmaForm: boolean = false;
 
   constructor(private modalService: NgbModal, private empresaService: EmpresaService, private toastService: ToastService,
               private route: ActivatedRoute, private formBuilder: FormBuilder) { }
@@ -76,6 +77,19 @@ export class EmpresaLicenciasComponent implements OnInit {
       personalAsignado: ['']
     });
 
+    this.crearDireccionForm = this.formBuilder.group({
+      direccion: ['', Validators.required]
+    })
+
+    this.crearArmaForm = this.formBuilder.group({
+      tipo: ['', Validators.required],
+      clase: ['', Validators.required],
+      marca: ['', Validators.required],
+      calibre: ['', Validators.required],
+      bunker: ['', Validators.required],
+      status: ['']
+    })
+
     this.empresaService.obtenerLicenciasColectivas(this.uuid).subscribe((data: EmpresaLicenciaColectiva[]) => {
       this.rowData = data;
     }, (error) => {
@@ -94,7 +108,17 @@ export class EmpresaLicenciasComponent implements OnInit {
         `no se han podido descargar las licencias colectivas. Motivo: ${error}`,
         ToastType.ERROR
       )
-    })
+    });
+
+    this.empresaService.obtenerDomicilios(this.uuid).subscribe((data: EmpresaDomicilio[]) => {
+      this.domicilios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los domicilios. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
   }
 
   cambiarPestana(pestana) {
@@ -107,6 +131,48 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   seleccionarPersona(event) {
     this.status = event.value;
+  }
+
+  mostrarFormularioNuevaDireccion() {
+    this.showDireccionForm = !this.showDireccionForm;
+  }
+
+  mostrarFormularioArma() {
+    this.showArmaForm = !this.showArmaForm;
+  }
+
+  guardarDireccion(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que no se han rellenado",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando el domicilio en la licencia colectiva",
+      ToastType.INFO
+    );
+
+    let data: EmpresaDomicilio = this.domicilios.filter(x => x.uuid === form.value.direccion)[0];
+
+    this.empresaService.guardarDomicilioEnLicenciaColectiva(this.uuid, this.licencia.uuid, data).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado el domicilio con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha guardado el domicilio en la licencia colectiva. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   mostrarModalCrear(modal) {
@@ -135,6 +201,16 @@ export class EmpresaLicenciasComponent implements OnInit {
 
     this.empresaService.obtenerLicenciaColectivaPorUuid(this.uuid, licenciaUuid).subscribe((data: EmpresaLicenciaColectiva) => {
       this.licencia = data;
+
+      this.empresaService.obtenerDomiciliosPorLicenciaColectiva(this.uuid, this.licencia.uuid).subscribe((data: EmpresaDomicilio[]) => {
+        this.domiciliosLicenciaColectiva = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los domicilios de la licencia colectiva. Motivo: {error}`,
+          ToastType.ERROR
+        )
+      })
 
       this.empresaService.obtenerArmasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
         this.armas = data;
@@ -170,7 +246,6 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   mostrarCambioStatusForm() {
     this.mostrarModificarStatusArma = !this.mostrarModificarStatusArma;
-    console.log(this.mostrarModificarStatusArma);
   }
 
   guardarLicencia(form) {
@@ -212,6 +287,59 @@ export class EmpresaLicenciasComponent implements OnInit {
         ToastType.ERROR
       );
     });
+  }
+
+  exportGridData(format) {
+    switch(format) {
+      case "CSV":
+        this.gridApi.exportDataAsCsv();
+        break;
+      case "PDF":
+        this.toastService.showGenericToast(
+          "Bajo desarrollo",
+          "Actualmente estamos desarrollando esta funcionalidad",
+          ToastType.INFO
+        )
+        break;
+      default:
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "No podemos exportar en dicho formato",
+          ToastType.WARNING
+        )
+        break;
+    }
+  }
+
+  toggleColumn(field: string) {
+    let columnDefinitionIndex = this.columnDefs.findIndex(s => s.field === field);
+    if(columnDefinitionIndex === -1) {
+      let columnDefinition = this.allColumnDefs.filter(s => s.field === field)[0];
+
+      let newColumnDef = {
+        headerName: columnDefinition.headerName,
+        field: columnDefinition.field,
+        sortable: true,
+        filter: true
+      };
+
+      this.columnDefs.push(newColumnDef);
+      this.gridApi.setColumnDefs(this.columnDefs);
+    } else {
+      this.columnDefs = this.columnDefs.filter(s => s.field !== field);
+    }
+  }
+
+  isColumnListed(field: string ) {
+    return this.columnDefs.filter(s => s.field === field)[0] !== undefined;
+  }
+
+  mostrarModificarLicenciaModal() {
+
+  }
+
+  mostrarEliminarLicenciaModal() {
+
   }
 
   private getDismissReason(reason: any): string {

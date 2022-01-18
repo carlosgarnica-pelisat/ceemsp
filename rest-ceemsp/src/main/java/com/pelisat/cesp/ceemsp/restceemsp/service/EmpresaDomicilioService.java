@@ -15,4 +15,8 @@ public interface EmpresaDomicilioService {
     EmpresaDomicilioDto obtenerPorUuid(String uuid, String domicilioUuid);
 
     EmpresaDomicilioDto guardar(String empresaUuid, String username, EmpresaDomicilioDto empresaDomicilioDto);
+
+    EmpresaDomicilioDto modificarEmpresaDomicilio(String empresaUuid, String domicilioUuid, String username, EmpresaDomicilioDto empresaDomicilioDto);
+
+    EmpresaDomicilioDto eliminarEmpresaDomicilio(String empresaUuid, String domicilioUuid, String username);
 }

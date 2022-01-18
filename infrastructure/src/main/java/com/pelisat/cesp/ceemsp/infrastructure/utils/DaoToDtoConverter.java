@@ -373,4 +373,31 @@ public class DaoToDtoConverter {
 
         return modelMapper.map(canConstanciaSalud, CanConstanciaSaludDto.class);
     }
+
+    public EquipoDto convertDaoToDtoEquipo(Equipo equipo) {
+        if(equipo == null) {
+            logger.warn("El equipo viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(equipo, EquipoDto.class);
+    }
+
+    public EmpresaFormaEjecucionDto convertDaoToDtoEmpresaFormaEjecucion(EmpresaFormaEjecucion empresaFormaEjecucion) {
+        if(empresaFormaEjecucion == null) {
+            logger.warn("La forma de ejecucion viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaFormaEjecucion, EmpresaFormaEjecucionDto.class);
+    }
+
+    public UniformeDto convertDaoToDtoUniforme(Uniforme uniforme) {
+        if(uniforme == null) {
+            logger.warn("El uniforme viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(uniforme, UniformeDto.class);
+    }
 }

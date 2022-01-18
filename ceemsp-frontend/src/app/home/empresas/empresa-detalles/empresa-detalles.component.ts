@@ -9,7 +9,10 @@ import EmpresaModalidad from "../../../_models/EmpresaModalidad";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import Modalidad from "../../../_models/Modalidad";
 import {ModalidadesService} from "../../../_services/modalidades.service";
-import {faTrash, faPencilAlt} from "@fortawesome/free-solid-svg-icons";
+import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
+import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
+import EmpresaEscritura from "../../../_models/EmpresaEscritura";
+import EmpresaFormaEjecucion from "../../../_models/EmpresaFormaEjecucion";
 
 @Component({
   selector: 'app-empresa-detalles',
@@ -22,18 +25,27 @@ export class EmpresaDetallesComponent implements OnInit {
   faTrash = faTrash;
 
   empresa: Empresa;
+  domicilios: EmpresaDomicilio[];
+  escrituras: EmpresaEscritura[];
   uuid: string;
 
   modal: NgbModalRef;
   closeResult: string;
 
+  tipoPersona: string;
+
   empresaModalidadForm: FormGroup;
+  empresaCreacionForm: FormGroup;
+  empresaFormaEjecucionForm: FormGroup;
+  empresaCambioStatusForm: FormGroup;
 
   empresaModalidades: EmpresaModalidad[];
+  empresaFormasEjecucion: EmpresaFormaEjecucion[];
   modalidades: Modalidad[];
   modalidad: Modalidad;
 
   formularioModalidad: boolean = false;
+  formularioFormasEjecucion: boolean = false;
 
   constructor(private toastService: ToastService, private empresaService: EmpresaService,
               private route: ActivatedRoute, private modalService: NgbModal,
@@ -44,6 +56,46 @@ export class EmpresaDetallesComponent implements OnInit {
 
     this.empresaService.obtenerPorUuid(this.uuid).subscribe((data: Empresa) => {
       this.empresa = data;
+
+      this.empresaService.obtenerDomicilios(this.empresa.uuid).subscribe((data: EmpresaDomicilio[]) => {
+        this.domicilios = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `no se han podido descargar los domicilios de la empresa. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      });
+
+      this.empresaService.obtenerModalidades(this.uuid).subscribe((data: EmpresaModalidad[]) => {
+        this.empresaModalidades = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se pudo descargar la informacion de las modalidades de la empresa. ${error}`,
+            ToastType.ERROR
+        )
+      });
+
+      this.empresaService.obtenerFormasEjecucion(this.uuid).subscribe((data: EmpresaFormaEjecucion[]) => {
+        this.empresaFormasEjecucion = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las formas de ejecucion. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      })
+
+      this.empresaService.obtenerEscrituras(this.empresa.uuid).subscribe((data: EmpresaEscritura[]) => {
+        this.escrituras = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las escrituras de la empresa. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -52,13 +104,33 @@ export class EmpresaDetallesComponent implements OnInit {
       )
     });
 
+    this.empresaFormaEjecucionForm = this.formBuilder.group({
+      formaEjecucion: ['', Validators.required]
+    });
+
     this.empresaModalidadForm = this.formBuilder.group({
       modalidad: ['', Validators.required],
       submodalidad: [''],
       numeroRegistroFederal: [''],
       fechaInicio: [''],
       fechaFin: ['']
+    });
+
+    this.empresaCreacionForm = this.formBuilder.group({
+      tipoPersona: ['', Validators.required],
+      razonSocial: ['', Validators.required],
+      nombreComercial: ['', Validators.required],
+      rfc: ['', Validators.required],
+      curp: [''],
+      sexo: [''],
+      correoElectronico: ['', Validators.required],
+      telefono: ['', Validators.required]
     })
+
+    this.empresaCambioStatusForm = this.formBuilder.group({
+      status: ['', Validators.required],
+      observaciones: ['', Validators.required]
+    });
   }
 
   mostrarModalFormasEjecucion(modal) {
@@ -71,7 +143,7 @@ export class EmpresaDetallesComponent implements OnInit {
     })
   }
 
-  mostrarModalModalidades(modal) {
+  mostrarModalCambiarStatus(modal) {
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.modal.result.then((result) => {
@@ -79,16 +151,19 @@ export class EmpresaDetallesComponent implements OnInit {
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     })
+  }
 
-    this.empresaService.obtenerModalidades(this.uuid).subscribe((data: EmpresaModalidad[]) => {
-      this.empresaModalidades = data;
-      console.log(data);
+  cambiarTipoPersona(event) {
+    this.tipoPersona = event.value;
+  }
+
+  mostrarModalModalidades(modal) {
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
     }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se pudo descargar la informacion de las modalidades de la empresa. ${error}`,
-        ToastType.ERROR
-      )
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     })
 
     this.modalidadService.obtenerModalidadesPorFiltro("TIPO", this.empresa.tipoTramite).subscribe((data: Modalidad[]) => {
@@ -109,12 +184,60 @@ export class EmpresaDetallesComponent implements OnInit {
     }
   }
 
+  cambiarStatusEmpresa(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que no se han completado",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espera un momento",
+      "Estamos guardando el nuevo status de la empresa",
+      ToastType.INFO
+    );
+
+    let value: Empresa = form.value;
+
+    this.empresaService.cambiarStatusEmpresa(this.uuid, value).subscribe((data: Empresa) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha cambiado el status de la empresa",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido cambiar el status de la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  mostrarEditarEmpresaModal(modal) {
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
   mostrarFormularioModalidad() {
     this.formularioModalidad = true;
   }
 
   ocultarFormularioModalidad() {
     this.formularioModalidad = false;
+  }
+
+  mostrarFormularioFormaEjecucion() {
+    this.formularioFormasEjecucion = !this.formularioFormasEjecucion;
   }
 
   agregarModalidad(empresaModalidadForm) {
@@ -146,6 +269,39 @@ export class EmpresaDetallesComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se ha podido guardar la modalidad en la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  agregarFormaEjecucion(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El formulario no ha sido completado`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espera un momento",
+      "Estamos guardando la forma de ejecucion",
+      ToastType.INFO
+    );
+
+    let value: EmpresaFormaEjecucion = form.value;
+
+    this.empresaService.guardarFormaEjecucion(this.uuid, value).subscribe((data: EmpresaFormaEjecucion) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado la forma de ejecucion con exito",
+        ToastType.SUCCESS
+      )
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la forma de ejecucion. Motivo: ${error}`,
         ToastType.ERROR
       );
     })

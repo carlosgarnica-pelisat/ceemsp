@@ -10,8 +10,7 @@ import {AgGridModule} from "ag-grid-angular";
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {JwtInterceptor} from "../../_helpers/jwt.interceptor";
 import {ToastComponent} from "../../_components/toast/toast.component";
-
-
+import {NgxPrintModule} from "ngx-print";
 
 @NgModule({
   declarations: [
@@ -26,6 +25,7 @@ import {ToastComponent} from "../../_components/toast/toast.component";
     ReactiveFormsModule,
     FormsModule,
     FontAwesomeModule,
+    NgxPrintModule,
     AgGridModule.withComponents([])
   ],
   providers: [

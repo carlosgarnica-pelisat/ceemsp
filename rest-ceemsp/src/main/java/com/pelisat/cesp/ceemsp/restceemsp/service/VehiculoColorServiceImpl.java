@@ -9,7 +9,9 @@ import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
 import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
 import com.pelisat.cesp.ceemsp.database.model.VehiculoColor;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoColorRepository;
+import com.pelisat.cesp.ceemsp.database.repository.VehiculoRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -27,7 +29,7 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
 
     private final Logger logger = LoggerFactory.getLogger(VehiculoColorServiceImpl.class);
     private final VehiculoColorRepository vehiculoColorRepository;
-    private final EmpresaVehiculoService empresaVehiculoService;
+    private final VehiculoRepository vehiculoRepository;
     private final EmpresaService empresaService;
     private final UsuarioService usuarioService;
     private final DaoToDtoConverter daoToDtoConverter;
@@ -35,11 +37,11 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
     private final DaoHelper<CommonModel> daoHelper;
 
     @Autowired
-    public VehiculoColorServiceImpl(VehiculoColorRepository vehiculoColorRepository, EmpresaVehiculoService empresaVehiculoService,
+    public VehiculoColorServiceImpl(VehiculoColorRepository vehiculoColorRepository, VehiculoRepository vehiculoRepository,
                                     UsuarioService usuarioService, DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                                     DaoHelper<CommonModel> daoHelper, EmpresaService empresaService) {
         this.vehiculoColorRepository = vehiculoColorRepository;
-        this.empresaVehiculoService = empresaVehiculoService;
+        this.vehiculoRepository = vehiculoRepository;
         this.usuarioService = usuarioService;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
@@ -54,9 +56,14 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
             throw new InvalidDataException();
         }
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
-        VehiculoDto vehiculoDto = empresaVehiculoService.obtenerVehiculoPorUuid(empresaUuid, vehiculoUuid, true);
+        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
 
-        List<VehiculoColor> colores = vehiculoColorRepository.getAllByVehiculoAndEliminadoFalse(vehiculoDto.getId());
+        if(vehiculo == null) {
+            logger.warn("El vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<VehiculoColor> colores = vehiculoColorRepository.getAllByVehiculoAndEliminadoFalse(vehiculo.getId());
         return colores.stream().map(daoToDtoConverter::convertDaoToDtoVehiculoColor).collect(Collectors.toList());
     }
 
@@ -72,11 +79,11 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
             throw new InvalidDataException();
         }
 
-        VehiculoDto vehiculoDto = empresaVehiculoService.obtenerVehiculoPorUuid(empresaUuid, vehiculoUuid, true);
+        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
 
         VehiculoColor vehiculoColor = dtoToDaoConverter.convertDtoToDaoColor(vehiculoColorDto);
-        vehiculoColor.setVehiculo(vehiculoDto.getId());
+        vehiculoColor.setVehiculo(vehiculo.getId());
         daoHelper.fulfillAuditorFields(true, vehiculoColor, usuarioDto.getId());
 
         VehiculoColor vehiculoColorCreado = vehiculoColorRepository.save(vehiculoColor);

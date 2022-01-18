@@ -17,12 +17,17 @@
     <include file="changelog/empresas/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/empresas-domicilios/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/empresas-licencias-colectivas/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/empresas-licencias-colectivas-domicilios/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/empresas-modalidades/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/empresas-escrituras/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/empresas-escrituras-socios/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/empresas-escrituras-apoderados/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/empresas-escrituras-representantes/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/empresas-escrituras-consejos/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/empresas-formas-ejecucion/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/empresas-equipos/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/empresas-uniformes/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/empresas-uniformes-elementos/master.xml" relativeToChangelogFile="true"></include>
 
     <!-- CANES -->
     <include file="changelog/canes-razas/master.xml" relativeToChangelogFile="true"></include>
@@ -59,6 +64,10 @@
     <include file="changelog/personal-fotografias/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/personal-certificaciones/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/personal/master.xml" relativeToChangelogFile="true"></include>
+
+    <!-- EQUIPOS Y UNIFORMES -->
+    <include file="changelog/equipos/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/uniformes/master.xml" relativeToChangelogFile="true"></include>
 
     <!-- COMUNICADOS -->
     <include file="changelog/comunicados-generales/master.xml" relativeToChangelogFile="true"></include>
