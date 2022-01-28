@@ -7,6 +7,7 @@ import java.util.List;
 public interface EquipoService {
     List<EquipoDto> obtenerEquipos();
     EquipoDto obtenerEquipoPorUuid(String equipoUuid);
+    EquipoDto obtenerEquipoPorId(int id);
     EquipoDto guardarEquipo(EquipoDto equipoDto, String username);
     EquipoDto modificarEquipo(String equipoUuid, String username, EquipoDto equipoDto);
     EquipoDto eliminarEquipo(String equipoUuid, String username);

@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
 
     private final Logger logger = LoggerFactory.getLogger(EmpresaDomicilioService.class);
-
     private final EmpresaDomicilioRepository empresaDomicilioRepository;
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;

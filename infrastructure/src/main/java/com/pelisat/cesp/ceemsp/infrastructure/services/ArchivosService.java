@@ -7,4 +7,5 @@ import java.io.IOException;
 
 public interface ArchivosService {
     String guardarArchivoMultipart(MultipartFile multipartFile, TipoArchivoEnum tipoArchivo) throws IOException;
+    String eliminarArchivo(String directorio);
 }

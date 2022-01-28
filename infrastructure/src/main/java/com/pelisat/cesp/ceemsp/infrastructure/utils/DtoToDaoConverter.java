@@ -640,4 +640,62 @@ public class DtoToDaoConverter {
 
         return empresaFormaEjecucion;
     }
+
+    public EmpresaUniforme convertDtoToDaoEmpresaUniforme(EmpresaUniformeDto empresaUniformeDto) {
+        if(empresaUniformeDto == null) {
+            logger.warn("El uniforme de la empresa viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        EmpresaUniforme empresaUniforme = modelMapper.map(empresaUniformeDto, EmpresaUniforme.class);
+
+        if(StringUtils.isBlank(empresaUniforme.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresaUniforme.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaUniforme;
+    }
+
+    public EmpresaUniformeElemento convertDtoToDaoEmpresaUniformeElemento(EmpresaUniformeElementoDto empresaUniformeElementoDto) {
+        if(empresaUniformeElementoDto == null) {
+            logger.warn("El elemento del uniforme a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.typeMap(EmpresaUniformeElementoDto.class, EmpresaUniformeElemento.class)
+                .addMappings(mapper -> mapper.skip(EmpresaUniformeElemento::setElemento));
+
+        EmpresaUniformeElemento empresaUniformeElemento = modelMapper.map(empresaUniformeElementoDto, EmpresaUniformeElemento.class);
+
+        if(StringUtils.isBlank(empresaUniformeElemento.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresaUniformeElemento.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaUniformeElemento;
+    }
+
+    public EmpresaEquipo convertDtoToDaoEmpresaEquipo(EmpresaEquipoDto empresaEquipoDto) {
+        if(empresaEquipoDto == null) {
+            logger.warn("El equipo a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.typeMap(EmpresaEquipoDto.class, EmpresaUniformeElemento.class)
+                .addMappings(mapper -> mapper.skip(EmpresaUniformeElemento::setElemento));
+
+        EmpresaEquipo empresaEquipo = modelMapper.map(empresaEquipoDto, EmpresaEquipo.class);
+
+        if(StringUtils.isBlank(empresaEquipo.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresaEquipo.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaEquipo;
+    }
 }

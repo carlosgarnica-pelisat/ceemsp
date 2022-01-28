@@ -400,4 +400,31 @@ public class DaoToDtoConverter {
 
         return modelMapper.map(uniforme, UniformeDto.class);
     }
+
+    public EmpresaUniformeDto convertDaoToDtoEmpresaUniforme(EmpresaUniforme empresaUniforme) {
+        if(empresaUniforme == null) {
+            logger.warn("El uniforme de la empresa viene como nulo o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaUniforme, EmpresaUniformeDto.class);
+    }
+
+    public EmpresaUniformeElementoDto convertDaoToDtoEmpresaUniformeElemento(EmpresaUniformeElemento empresaUniformeElemento) {
+        if(empresaUniformeElemento == null) {
+            logger.warn("El elemento del uniforme de la empresa viene como nulo o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaUniformeElemento, EmpresaUniformeElementoDto.class);
+    }
+
+    public EmpresaEquipoDto convertDaoToDtoEmpresaEquipo(EmpresaEquipo empresaEquipo) {
+        if(empresaEquipo == null) {
+            logger.warn("El equipo de la empresa viene como nulo o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaEquipo, EmpresaEquipoDto.class);
+    }
 }

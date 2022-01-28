@@ -1,0 +1,295 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Licencias colectivas</h1>
+    <div class="btn-group">
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearLicencia)">Nueva licencia colectiva</button>
+      <div class="dropdown">
+        <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button" id="mostrarColumnasDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Mostrar / Ocultar columnas
+        </button>
+        <div class="dropdown-menu" aria-labelledby="mostrarColumnasDropdown">
+          <a class="dropdown-item" *ngFor="let columnDef of allColumnDefs" (click)="toggleColumn(columnDef.field)"><fa-icon [icon]="faCheck" *ngIf="isColumnListed(columnDef.field)"></fa-icon> {{columnDef?.headerName}}</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Opciones
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar licencias como Excel (csv)</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <div class="col-sm-12" style="background: white">
+      <ag-grid-angular
+        style="height: 80vh; width: 100%;"
+        class="ag-theme-alpine"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (gridReady)="onGridReady($event)"
+        [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data, mostrarLicenciaDetallesModal)"
+        #agGrid
+      ></ag-grid-angular>
+    </div>
+  </div>
+
+  <ng-template #mostrarLicenciaDetallesModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarLicenciaDetallesModal">Ver detalles de la licencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DIRECCIONES' }" (click)="cambiarPestana('DIRECCIONES')">Direcciones</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'ARMAS' }" (click)="cambiarPestana('ARMAS')">Armas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12" *ngIf="pestanaActual === 'DETALLES'">
+          <table class="table">
+            <tr>
+              <td><b>Numero de oficio:</b></td>
+              <td>{{licencia?.numeroOficio}}</td>
+            </tr>
+            <tr>
+              <td><b>Fecha de inicio:</b></td>
+              <td>{{licencia?.fechaInicio}}</td>
+            </tr>
+            <tr>
+              <td><b>Fecha de fin:</b></td>
+              <td>{{licencia?.fechaFin}}</td>
+            </tr>
+            <tr>
+              <td><b>Modalidad:</b></td>
+              <td>{{licencia?.modalidad.nombre + " " + licencia?.modalidad.descripcion}}</td>
+            </tr>
+            <tr>
+              <td><b>Submodalidad:</b></td>
+              <td>{{licencia?.submodalidad.nombre}}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-sm-12" *ngIf="pestanaActual === 'DIRECCIONES'">
+          <table class="table">
+            <tr>
+              <td><b>ID</b></td>
+              <td><b>Nombre</b></td>
+              <td><b>Direccion</b></td>
+              <td><b>Estado</b></td>
+              <td><b>C.P.</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let d of domiciliosLicenciaColectiva">
+              <td>{{d?.uuid}}</td>
+              <td>{{d?.nombre}}</td>
+              <td>{{d?.domicilio1 + " " + d.numeroExterior + " " + d.numeroInterior}}</td>
+              <td>{{d?.estado}}</td>
+              <td>{{d?.codigoPostal}}</td>
+              <td>
+
+              </td>
+            </tr>
+            <tr *ngIf="showDireccionForm">
+              <td colspan="6">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <form [formGroup]="crearDireccionForm">
+                      <div class="form-row">
+                        <div class="col-sm-6">
+                          <label for="direccion">
+                            <b>Direccion *</b>
+                          </label>
+                          <select id="direccion" class="form-control" formControlName="direccion">
+                            <option *ngFor="let d of domicilios" value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1 + " " + d.numeroExterior + " " + d.numeroInterior}}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary btn-sm" (click)="guardarDireccion(crearDireccionForm)">Guardar</button>
+                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevaDireccion()">Cancelar</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!showDireccionForm">
+              <td colspan="6">
+                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaDireccion()">Agregar direccion</button>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-sm-12" *ngIf="pestanaActual === 'ARMAS'">
+          <table class="table">
+            <tr>
+              <td><b>ID</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Tipo</b></td>
+              <td><b>Clase</b></td>
+              <td><b>Bunker</b></td>
+              <td><b>Status</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let a of armas">
+              <td>{{a?.uuid}}</td>
+              <td>{{a?.marca?.nombre}}</td>
+              <td>{{a?.tipo}}</td>
+              <td>{{a?.clase?.nombre}}</td>
+              <td>{{a?.bunker?.domicilio1}}</td>
+              <td>{{a?.status}}</td>
+              <td>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-primary btn-sm" (click)="mostrarCambioStatusForm()"><fa-icon [icon]="faSync"></fa-icon> Cambiar status</button>
+                  <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="sr-only">Toggle Dropdown</span>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"><fa-icon [icon]="faEdit"></fa-icon> Modificar</a>
+                    <a class="dropdown-item" href="#"><fa-icon [icon]="faTrash"></fa-icon> Eliminar</a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="mostrarModificarStatusArma">
+              <td colspan="7">
+                <form formGroup="modificarStatusArmaForm">
+                  <div class="form-row">
+                    <div class="col-sm-4">
+                      <label for="status">
+                        <b>Status *</b>
+                      </label>
+                      <select class="form-control" id="status" (change)="seleccionarStatus($event.target)">
+                        <option value="ACTIVA">Activa</option>
+                        <option value="DEPOSITO">Deposito</option>
+                        <option value="CUSTODIA">En resguardo</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-4" *ngIf="status === 'ACTIVA'">
+                      <label for="personal">
+                        <b>Personal a asignar *</b>
+                      </label>
+                      <select class="form-control" id="personal" (change)="seleccionarPersona($event.target)">
+                        <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-4" *ngIf="status === 'CUSTODIA'">
+                      <label for="documentoFundatorio">
+                        <b>Documento fundatorio</b>
+                      </label>
+                      <input id="documentoFundatorio" type="file" class="form-control">
+                    </div>
+                  </div>
+                  <div class="form-row" *ngIf="status === 'CUSTODIA'">
+                    <label>
+                      <b>Relato de hechos *</b>
+                    </label>
+                    <div class="col-sm-12">
+
+                    </div>
+                  </div>
+                </form>
+              </td>
+            </tr>
+            <tr *ngIf="mostrarModificarStatusArma">
+              <td colspan="7">
+                <button class="btn btn-sm btn-primary">Guardar cambios</button>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="mostrarModificarLicenciaModal()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarEliminarLicenciaModal()">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #crearLicencia let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-survey-response">Nueva licencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearEmpresaLicenciaForm">
+            <div class="form-row">
+              <div class="col-sm-4">
+                <label for="numeroOficio">
+                  <b>Numero de oficio *</b>
+                  <span *ngIf="crearEmpresaLicenciaForm.controls['numeroOficio'].invalid && (crearEmpresaLicenciaForm.controls['numeroOficio'].dirty || crearEmpresaLicenciaForm.controls['numeroOficio'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="numeroOficio" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroOficio" #numeroOficio>
+              </div>
+              <div class="col-sm-4">
+                <label for="fechaInicio">
+                  <b>Fecha de Inicio *</b>
+                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaInicio'].invalid && (crearEmpresaLicenciaForm.controls['fechaInicio'].dirty || crearEmpresaLicenciaForm.controls['fechaInicio'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="fechaInicio" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaInicio" #fechaInicio>
+              </div>
+              <div class="col-sm-4">
+                <label for="fechaFin">
+                  <b>Fecha de fin *</b>
+                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaFin'].invalid && (crearEmpresaLicenciaForm.controls['fechaFin'].dirty || crearEmpresaLicenciaForm.controls['fechaFin'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="fechaFin" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaFin" #fechaFin>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-sm-4">
+                <label for="modalidad">
+                  <b>Modalidad *</b>
+                  <span *ngIf="crearEmpresaLicenciaForm.controls['modalidad'].invalid && (crearEmpresaLicenciaForm.controls['modalidad'].dirty || crearEmpresaLicenciaForm.controls['modalidad'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <select id="modalidad" class="form-control" formControlName="modalidad">
+                  <option *ngFor="let m of modalidades" value="{{m?.modalidad?.uuid}}">{{m?.modalidad?.nombre}}</option>
+                </select>
+              </div>
+              <div class="col-sm-4">
+                <label for="submodalidad">
+                  <b>Submodalidad</b>
+                </label>
+                <select id="submodalidad" class="form-control" formControlName="submodalidad">
+                  <option *ngFor="let m of modalidades" value="{{m?.submodalidad?.uuid}}">{{m?.submodalidad?.nombre}}</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarLicencia(crearEmpresaLicenciaForm)">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+</div>

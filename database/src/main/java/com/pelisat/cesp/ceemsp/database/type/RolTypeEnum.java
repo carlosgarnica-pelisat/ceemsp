@@ -4,7 +4,8 @@ public enum RolTypeEnum {
 
     CEEMSP_SUPERUSER("CEEMSP_SUPERUSER", "Superusuario", "Puede manejar toda la plataforma"),
     CEEMSP_USER("CEEMSP_USER", "Usuario", "Usuario capaz de realizar operaciones sobre el ceemsp"),
-    ENTERPRISE_USER("ENTERPRISE_USER", "Usuario", "Usuario capaz de realizar operaciones sobre la empresa");
+    ENTERPRISE_USER("ENTERPRISE_USER", "Usuario", "Usuario capaz de realizar operaciones sobre la empresa"),
+    NA("NA", "No aplica", "Este usuario no necesita rol alguno.");
 
     private String code;
     private String name;

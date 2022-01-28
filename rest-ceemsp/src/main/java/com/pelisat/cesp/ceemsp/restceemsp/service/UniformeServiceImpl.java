@@ -3,6 +3,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.UniformeDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
+import com.pelisat.cesp.ceemsp.database.model.EmpresaUniforme;
 import com.pelisat.cesp.ceemsp.database.model.Equipo;
 import com.pelisat.cesp.ceemsp.database.model.Uniforme;
 import com.pelisat.cesp.ceemsp.database.repository.EquipoRepository;
@@ -64,6 +65,20 @@ public class UniformeServiceImpl implements UniformeService {
             logger.warn("El uniforme no existe en la base de datos");
             throw new NotFoundResourceException();
         }
+
+        return daoToDtoConverter.convertDaoToDtoUniforme(uniforme);
+    }
+
+    @Override
+    public UniformeDto obtenerUniformePorId(Integer id) {
+        if(id == null || id < 1) {
+            logger.warn("El id a consultar viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Consultanmdo el uniforme con el id [{}]", id);
+
+        Uniforme uniforme = uniformeRepository.getOne(id);
 
         return daoToDtoConverter.convertDaoToDtoUniforme(uniforme);
     }

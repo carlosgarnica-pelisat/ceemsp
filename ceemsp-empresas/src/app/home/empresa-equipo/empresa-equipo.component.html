@@ -1,0 +1,92 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Equipo / Fornituras</h1>
+    <div class="btn-group">
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+              (click)="mostrarModalCrear(crearEquipoModal)">Nuevo equipo
+      </button>
+      <div class="dropdown">
+        <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button"
+                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Opciones
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#">Descargar direcciones como Excel (csv)</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <div class="col-sm-12" style="background: white">
+      <ag-grid-angular
+        style="height: 80vh; width: 100%;"
+        class="ag-theme-alpine"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (gridReady)="onGridReady($event)"
+        [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data, equipoDetallesModal)"
+        #agGrid
+      ></ag-grid-angular>
+    </div>
+  </div>
+
+  <ng-template #equipoDetallesModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="equipoDetallesModal">Nuevo domicilio </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #crearEquipoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="crearDomicilioModal">Nuevo equipo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearEquipoForm">
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="equipo">
+                  <b>Equipo *</b>
+                  <span *ngIf="crearEquipoForm.controls['equipo'].invalid && (crearEquipoForm.controls['equipo'].dirty || crearEquipoForm.controls['equipo'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <select id="equipo" class="form-control" formControlName="equipo" (change)="seleccionarEquipo($event.target)">
+                  <option *ngFor="let e of equipos" value="{{e?.uuid}}">{{e?.nombre}}</option>
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <label for="cantidad">
+                  <b>Cantidad *</b>
+                  <span *ngIf="crearEquipoForm.controls['cantidad'].invalid && (crearEquipoForm.controls['cantidad'].dirty || crearEquipoForm.controls['cantidad'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="cantidad" type="number" class="form-control" placeholder="Mayor o igual a 0" formControlName="cantidad" #cantidad>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarEquipo(crearEquipoForm)">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+</div>

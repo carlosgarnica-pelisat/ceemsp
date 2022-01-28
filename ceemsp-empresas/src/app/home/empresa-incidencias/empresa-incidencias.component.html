@@ -1,0 +1,230 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Incidencias</h1>
+    <div class="btn-group">
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearIncidenciaModal)">Nueva incidencia</button>
+      <div class="dropdown">
+        <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Opciones
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#">Descargar incidencias como Excel (csv)</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <div class="col-sm-12" style="background: white">
+      <ag-grid-angular
+        style="height: 80vh; width: 100%;"
+        class="ag-theme-alpine"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (gridReady)="onGridReady($event)"
+        [frameworkComponents]="frameworkComponents"
+        #agGrid
+      ></ag-grid-angular>
+    </div>
+  </div>
+
+  <ng-template #crearIncidenciaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-survey-response">Nueva incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearIncidenciaForm">
+            <div class="form-row">
+              <div class="col-sm-3">
+                <label for="fechaIncidencia">
+                  <b>Fecha de incidencia *</b>
+                </label>
+                <input id="fechaIncidencia" type="date" class="form-control" formControlName="fechaIncidencia" #fechaIncidencia>
+              </div>
+              <div class="col-sm-3">
+                <label for="relevancia">
+                  <b>Relevancia *</b>
+                </label>
+                <select id="relevancia" class="form-control" formControlName="relevancia" (change)="cambiarRelevancia($event.target)">
+                  <option value="false">Sin relevancia</option>
+                  <option value="true">Con relevancia</option>
+                </select>
+              </div>
+              <div class="col-sm-3" *ngIf="relevancia">
+                <label for="clienteInvolucrado">
+                  <b>Involucra cliente *</b>
+                </label>
+                <select id="clienteInvolucrado" class="form-control" formControlName="clienteInvolucrado" (change)="cambiarInvolucramientoCliente($event.target)">
+                  <option value="false">Si</option>
+                  <option value="true">No</option>
+                </select>
+              </div>
+              <div class="col-sm-3" *ngIf="relevancia">
+                <label for="cliente">
+                  <b>Cliente *</b>
+                </label>
+                <select id="cliente" class="form-control" formControlName="cliente">
+                  <option *ngFor="let c of clientes" value="{{c.uuid}}">{{c.razonSocial}}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row" *ngIf="relevancia">
+              <div class="col-sm-12">
+                <label>
+                  <b>Relato de hechos</b>
+                </label>
+                <ckeditor [(ngModel)]="editorData"></ckeditor>
+              </div>
+            </div>
+            <hr>
+            <div class="form-row" *ngIf="relevancia">
+              <div class="col-sm-12">
+                <b>Personal involucrado</b>
+                <table class="table">
+                  <tr *ngIf="mostrarAgregarPersonalForm">
+                    <td>
+                      <div class="row">
+                        <div class="col-sm-6">
+                          <label for="personal">
+                            <b>Personal *</b>
+                          </label>
+                          <select id="personal" class="form-control">
+                            <option *ngFor="let p of personales" value="{{p.uuid}}">{{p.nombres + " " + p.apellidoPaterno + " " + p.apellidoMaterno}}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="mostrarAgregarPersonalForm">
+                    <td>
+                      <button class="btn btn-sm btn-primary" (click)="agregarPersona()">Guardar</button>
+                      <button class="btn btn-sm btn-danger" (click)="conmutarAgregarPersonalForm()">Cancelar</button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!mostrarAgregarPersonalForm">
+                    <td>
+                      <button class="btn btn-sm btn-primary" (click)="conmutarAgregarPersonalForm()">Agregar personal</button>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="form-row" *ngIf="relevancia">
+              <div class="col-sm-12">
+                <b>Armas involucradas</b>
+                <table class="table">
+                  <tr *ngIf="mostrarAgregarArmaForm">
+                    <td>
+                      <div class="row">
+                        <div class="col-sm-6">
+                          <label for="can">
+                            <b>Arma *</b>
+                          </label>
+                          <select id="arma" class="form-control">
+                            <option *ngFor="let a of armas" value="{{a.uuid}}">{{a.marca.nombre}}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="mostrarAgregarArmaForm">
+                    <td>
+                      <button class="btn btn-sm btn-primary" (click)="agregarArma()">Guardar</button>
+                      <button class="btn btn-sm btn-danger" (click)="conmutarAgregarArmaForm()">Cancelar</button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!mostrarAgregarArmaForm">
+                    <td>
+                      <button class="btn btn-sm btn-primary" (click)="conmutarAgregarArmaForm()">Agregar arma</button>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="form-row" *ngIf="relevancia">
+              <div class="col-sm-12">
+                <b>Canes involucrados</b>
+                <table class="table">
+                  <tr *ngIf="mostrarAgregarCanForm">
+                    <td>
+                      <div class="row">
+                        <div class="col-sm-6">
+                          <label for="can">
+                            <b>Can *</b>
+                          </label>
+                          <select id="can" class="form-control">
+                            <option *ngFor="let c of canes" value="{{c.uuid}}">{{c.nombre}}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="mostrarAgregarCanForm">
+                    <td>
+                      <button class="btn btn-sm btn-primary" (click)="agregarCan()">Guardar</button>
+                      <button class="btn btn-sm btn-danger" (click)="conmutarAgregarCanForm()">Cancelar</button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!mostrarAgregarCanForm">
+                    <td>
+                      <button class="btn btn-sm btn-primary" (click)="conmutarAgregarCanForm()">Agregar can</button>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="form-row" *ngIf="relevancia">
+              <div class="col-sm-12">
+                <b>Vehiculos involcurados</b>
+                <table class="table">
+                  <tr *ngIf="mostrarAgregarVehiculoForm">
+                    <td>
+                      <div class="row">
+                        <div class="col-sm-6">
+                          <label for="vehiculo">
+                            <b>Vehiculo *</b>
+                          </label>
+                          <select id="vehiculo" class="form-control">
+                            <option *ngFor="let v of vehiculos" value="{{v.uuid}}">{{v.marca.nombre + " " + v.submarca.nombre + " " + v.anio}}</option>
+                          </select>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="mostrarAgregarVehiculoForm">
+                    <td>
+                      <button class="btn btn-sm btn-primary" (click)="agregarVehiculo()">Guardar</button>
+                      <button class="btn btn-sm btn-danger" (click)="conmutarAgregarVehiculoForm()">Cancelar</button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!mostrarAgregarVehiculoForm">
+                    <td>
+                      <button class="btn btn-sm btn-primary" (click)="conmutarAgregarVehiculoForm()">Agregar vehiculo</button>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+</div>

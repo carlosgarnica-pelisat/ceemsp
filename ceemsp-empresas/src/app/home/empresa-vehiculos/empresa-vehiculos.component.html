@@ -1,0 +1,506 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Vehiculos</h1>
+    <div class="btn-group">
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearVehiculoModal)">Nuevo vehiculo</button>
+      <div class="dropdown">
+        <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button" id="mostrarColumnasDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Mostrar / Ocultar columnas
+        </button>
+        <div class="dropdown-menu" aria-labelledby="mostrarColumnasDropdown">
+          <a class="dropdown-item" *ngFor="let columnDef of allColumnDefs" (click)="toggleColumn(columnDef.field)"><fa-icon [icon]="faCheck" *ngIf="isColumnListed(columnDef.field)"></fa-icon> {{columnDef?.headerName}}</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Opciones
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar vehiculos como Excel (csv)</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <div class="col-sm-12" style="background: white">
+      <ag-grid-angular
+        style="height: 80vh; width: 100%;"
+        class="ag-theme-alpine"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (gridReady)="onGridReady($event)"
+        [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data, mostrarDetallesVehiculoModal)"
+        #agGrid
+      ></ag-grid-angular>
+    </div>
+  </div>
+
+  <ng-template #mostrarDetallesVehiculoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarDetallesVehiculoModal">Ver detalles del vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'COLORES' }" (click)="cambiarPestana('COLORES')">Colores</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'FOTOGRAFIAS' }" (click)="cambiarPestana('FOTOGRAFIAS')">Fotografias</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'DETALLES'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Tipo</b></td>
+              <td>{{vehiculo?.tipo.nombre}}</td>
+            </tr>
+            <tr>
+              <td><b>Marca</b></td>
+              <td>{{vehiculo?.marca.nombre}}</td>
+            </tr>
+            <tr>
+              <td><b>Submarca</b></td>
+              <td>{{vehiculo?.submarca.nombre}}</td>
+            </tr>
+            <tr>
+              <td><b>Año</b></td>
+              <td>{{vehiculo?.anio}}</td>
+            </tr>
+            <tr>
+              <td><b>Rotulado</b></td>
+              <td [ngSwitch]="vehiculo?.rotulado">
+                <span *ngSwitchCase="true">Si</span>
+                <span *ngSwitchCase="false">No</span>
+              </td>
+            </tr>
+            <tr>
+              <td><b>Placas</b></td>
+              <td>{{vehiculo?.placas}}</td>
+            </tr>
+            <tr>
+              <td><b>Numero de serie</b></td>
+              <td>{{vehiculo?.serie}}</td>
+            </tr>
+            <tr>
+              <td><b>Blindado</b></td>
+              <td [ngSwitch]="vehiculo?.blindado">
+                <span *ngSwitchCase="true">Si</span>
+                <span *ngSwitchCase="false">No</span>
+              </td>
+            </tr>
+            <tr *ngIf="vehiculo?.blindado">
+              <td><b>Serie del blindaje</b></td>
+              <td>{{vehiculo?.serieBlindaje}}</td>
+            </tr>
+            <tr *ngIf="vehiculo?.blindado">
+              <td><b>Fecha del blindaje</b></td>
+              <td>{{vehiculo.fechaBlindaje}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'COLORES'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Color</b></td>
+              <td><b>Descripcion</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let c of vehiculo?.colores">
+              <td>{{c?.color}}</td>
+              <td>{{c?.descripcion}}</td>
+              <td></td>
+            </tr>
+            <tr *ngIf="!showColorForm">
+              <td colspan="3"><button class="btn btn-sm btn-primary" (click)="mostrarFormularioColor()">Agregar nuevo</button></td>
+            </tr>
+            <tr *ngIf="showColorForm">
+              <td colspan="3">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <form [formGroup]="crearColorForm">
+                      <div class="form-row">
+                        <div class="col-sm-6">
+                          <label for="nuevoColor">
+                            <b>Color *</b>
+                            <span *ngIf="crearColorForm.controls['color'].invalid && (crearColorForm.controls['color'].dirty || crearColorForm.controls['color'].touched)" class="text-danger"> - Requerido</span>
+                          </label>
+                          <select id="nuevoColor" class="form-control" formControlName="color">
+                            <option value="ROJO">Rojo</option>
+                            <option value="VERDE_CLARO">Verde claro</option>
+                            <option value="VERDE_OSCURO">Verde oscuro</option>
+                            <option value="AZUL_CIELO">Azul cielo</option>
+                            <option value="AZUL_MARINO">Azul marino</option>
+                            <option value="NARANJA">Naranja</option>
+                            <option value="AMARILLO">Amarillo</option>
+                            <option value="BLANCO">Blanco</option>
+                            <option value="NEGRO">Negro</option>
+                            <option value="GRIS_CLARO">Gris claro</option>
+                            <option value="GRIS_OSCURO">Gris oscuro</option>
+                            <option value="MORADO">Morado</option>
+                            <option value="ROSA">Rosa</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-6">
+                          <label for="descripcionColor">
+                            <b>Descripcion</b>
+                            <span *ngIf="crearColorForm.controls['descripcion'].invalid && (crearColorForm.controls['descripcion'].dirty || crearColorForm.controls['descripcion'].touched)" class="text-danger"> - Requerido</span>
+                          </label>
+                          <input id="descripcionColor" type="text" class="form-control" placeholder="Ej. Primario, Secundario" formControlName="descripcion" #nombres>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary btn-sm" (click)="guardarColor(crearColorForm)">Guardar</button>
+                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioColor()">Cancelar</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'FOTOGRAFIAS'">
+        <div class="col-sm-12">
+
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #crearVehiculoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-survey-response">Nuevo vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+
+          <div id="stepper1" class="bs-stepper" #stepper1>
+            <div class="bs-stepper-header">
+              <div class="step" data-target="#test-l-1">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">1</span>
+                  <span class="bs-stepper-label">Info. Vehiculo</span>
+                </button>
+              </div>
+              <div class="line"></div>
+              <div class="step" data-target="#test-l-2">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">2</span>
+                  <span class="bs-stepper-label">Colores</span>
+                </button>
+              </div>
+              <div class="line"></div>
+              <div class="step" data-target="#test-l-3">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">3</span>
+                  <span class="bs-stepper-label">Fotografias</span>
+                </button>
+              </div>
+              <div class="line"></div>
+              <div class="step" data-target="#test-l-4">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">4</span>
+                  <span class="bs-stepper-label">Resumen</span>
+                </button>
+              </div>
+            </div>
+            <div class="bs-stepper-content">
+              <!-- STEP NUMBER 1 - USER INFORMATION -->
+              <div id="test-l-1" class="content">
+                <form [formGroup]="crearVehiculoForm">
+                  <div class="form-row">
+                    <div class="col-sm-4">
+                      <label for="placas">
+                        <b>Placas (con guiones) *</b>
+                        <span *ngIf="crearVehiculoForm.controls['placas'].invalid && (crearVehiculoForm.controls['placas'].dirty || crearVehiculoForm.controls['placas'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <input id="placas" type="text" class="form-control" placeholder="Ej. JGM-4766" formControlName="placas" #placas>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="serie">
+                        <b>Numero de serie *</b>
+                        <span *ngIf="crearVehiculoForm.controls['serie'].invalid && (crearVehiculoForm.controls['serie'].dirty || crearVehiculoForm.controls['serie'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <input id="serie" type="text" class="form-control" placeholder="Ej. VW3NMFU9ABS8BDS" formControlName="serie" #serie>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="tipo">
+                        <b>Tipo *</b>
+                        <span *ngIf="crearVehiculoForm.controls['tipo'].invalid && (crearVehiculoForm.controls['tipo'].dirty || crearVehiculoForm.controls['tipo'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="tipo" class="form-control" formControlName="tipo">
+                        <option *ngFor="let t of tipos" value="{{t.uuid}}">{{t.nombre}}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-sm-3">
+                      <label for="marca">
+                        <b>Marca *</b>
+                        <span *ngIf="crearVehiculoForm.controls['marca'].invalid && (crearVehiculoForm.controls['marca'].dirty || crearVehiculoForm.controls['marca'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="marca" class="form-control" formControlName="marca" (change)="seleccionarMarca($event.target)">
+                        <option *ngFor="let m of marcas"  value="{{m.uuid}}">{{m.nombre}}</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="submarca">
+                        <b>Submarca *</b>
+                        <span *ngIf="crearVehiculoForm.controls['submarca'].invalid && (crearVehiculoForm.controls['submarca'].dirty || crearVehiculoForm.controls['submarca'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="submarca" class="form-control" formControlName="submarca">
+                        <option *ngFor="let s of marca?.submarcas" value="{{s.uuid}}">{{s.nombre}}</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="anio">
+                        <b>Año *</b>
+                        <span *ngIf="crearVehiculoForm.controls['anio'].invalid && (crearVehiculoForm.controls['anio'].dirty || crearVehiculoForm.controls['anio'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="anio" class="form-control" formControlName="anio">
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                        <option value="2018">2018</option>
+                        <option value="2017">2017</option>
+                        <option value="2016">2016</option>
+                        <option value="2015">2015</option>
+                        <option value="2014">2014</option>
+                        <option value="2013">2013</option>
+                        <option value="2012">2012</option>
+                        <option value="2011">2011</option>
+                        <option value="2010">2010</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-sm-3">
+                      <label for="rotulado">
+                        <b>Rotulado *</b>
+                        <span *ngIf="crearVehiculoForm.controls['rotulado'].invalid && (crearVehiculoForm.controls['rotulado'].dirty || crearVehiculoForm.controls['rotulado'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="rotulado" class="form-control" formControlName="rotulado">
+                        <option value="true">SI</option>
+                        <option value="false">NO</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="uso">
+                        <b>Uso *</b>
+                        <span *ngIf="crearVehiculoForm.controls['uso'].invalid && (crearVehiculoForm.controls['uso'].dirty || crearVehiculoForm.controls['uso'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="uso" class="form-control" formControlName="uso">
+                        <option *ngFor="let u of usos" value="{{u.uuid}}">{{u.nombre}}</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="domicilio">
+                        <b>Domicilio *</b>
+                        <span *ngIf="crearVehiculoForm.controls['domicilio'].invalid && (crearVehiculoForm.controls['domicilio'].dirty || crearVehiculoForm.controls['domicilio'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="domicilio" class="form-control" formControlName="domicilio">
+                        <option *ngFor="let d of domicilios" value="{{d.uuid}}">{{d.domicilio1 + ". Colonia: " + d.domicilio2}}</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="blindado">
+                        <b>Blindado *</b>
+                        <span *ngIf="crearVehiculoForm.controls['blindado'].invalid && (crearVehiculoForm.controls['blindado'].dirty || crearVehiculoForm.controls['blindado'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="blindado" class="form-control" formControlName="blindado" (change)="seleccionarBlindado($event.target)">
+                        <option value="true">SI</option>
+                        <option value="false">NO</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Blindaje -->
+                  <div class="form-row" *ngIf="blindado">
+                    <div class="col-sm-4">
+                      <label for="serieBlindaje">
+                        <b>Numero de serie del blindaje</b>
+                      </label>
+                      <input id="serieBlindaje" type="text" class="form-control" placeholder="Ej. MAS1231232141" formControlName="serieBlindaje" #serieBlindaje>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="fechaBlindaje">
+                        <b>Fecha del blindaje</b>
+                      </label>
+                      <input id="fechaBlindaje" type="date" class="form-control" formControlName="fechaBlindaje" #fechaBlindaje>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="numeroHolograma">
+                        <b>Numero del holograma</b>
+                      </label>
+                      <input id="numeroHolograma" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="numeroHolograma" #numeroHolograma>
+                    </div>
+                  </div>
+
+                  <div class="form-row" *ngIf="blindado">
+                    <div class="col-sm-4">
+                      <label for="placaMetalica">
+                        <b>Numero de placa metalica</b>
+                      </label>
+                      <input id="placaMetalica" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="placaMetalica" #placaMetalica>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="empresaBlindaje">
+                        <b>Empresa de blindaje</b>
+                      </label>
+                      <input id="empresaBlindaje" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="empresaBlindaje" #empresaBlindaje>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="nivelBlindaje">
+                        <b>Nivel de blindaje</b>
+                      </label>
+                      <select id="nivelBlindaje" class="form-control" formControlName="nivelBlindaje">
+                        <option value="NIVEL_1">Nivel 1</option>
+                        <option value="NIVEL_2">Nivel 2</option>
+                        <option value="NIVEL_3">Nivel 3</option>
+                        <option value="NIVEL_4">Nivel 4</option>
+                        <option value="NIVEL_5">Nivel 5</option>
+                        <option value="NIVEL_6">Nivel 6</option>
+                        <option value="NIVEL_7">Nivel 7</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-sm-3">
+                      <label for="origen">
+                        <b>Origen *</b>
+                        <span *ngIf="crearVehiculoForm.controls['origen'].invalid && (crearVehiculoForm.controls['origen'].dirty || crearVehiculoForm.controls['origen'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="origen" class="form-control" formControlName="origen" (change)="seleccionarOrigen($event.target)">
+                        <option value="PROPIO">Propio</option>
+                        <option value="COMODATO">Comodato</option>
+                        <option value="ARRENDAMIENTO">Arrendamiento</option>
+                      </select>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="razonSocial">
+                        <b>Razon social del emisor *</b>
+                        <span *ngIf="crearVehiculoForm.controls['razonSocial'].invalid && (crearVehiculoForm.controls['razonSocial'].dirty || crearVehiculoForm.controls['razonSocial'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <input id="razonSocial" type="text" placeholder="Ej. Volkswagen de Mexico" class="form-control" formControlName="razonSocial" #razonSocial>
+                    </div>
+
+                    <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
+                      <label for="fechaInicio">
+                        <b>Fecha de inicio *</b>
+                      </label>
+                      <input id="fechaInicio" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
+                    </div>
+
+                    <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
+                      <label for="fechaFin">
+                        <b>Fecha de fin *</b>
+                      </label>
+                      <input id="fechaFin" type="date" class="form-control" formControlName="fechaFin" #fechaFin>
+                    </div>
+                  </div>
+
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <button (click)="next('INFORMACION', crearVehiculoForm)" class="btn btn-primary">Siguiente: Colores
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <!-- STEP 2 - Psychologist information -->
+              <div id="test-l-2" class="content">
+                <form formControlName="crearColorForm">
+                  <div class="form-row">
+                    <div class="col-sm-6">
+                      <label for="color">
+                        <b>Color *</b>
+                      </label>
+                      <input id="color" type="text" placeholder="Ej. Azul" class="form-control" formControlName="razonSocial" #razonSocial>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="color">
+                        <b>Descripcion</b>
+                      </label>
+                      <input id="descripcion" type="text" placeholder="Ej. Color principal, color secundario" class="form-control" formControlName="descripcion">
+                    </div>
+                    <div class="col-sm-3">
+                      <br>
+                      <button class="btn btn-info">Agregar</button>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="col-sm-12">
+                      <table class="table">
+                        <tr>
+                          <td><b>Color</b></td>
+                          <td><b>Descripcion</b></td>
+                          <td><b>Acciones</b></td>
+                        </tr>
+                        <tr>
+
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <!-- STEP 3 - SUMMARY -->
+              <div id="test-l-3" class="content">
+                <div class="row">
+
+                </div>
+              </div>
+              <div id="test-l-4" class="content">
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>

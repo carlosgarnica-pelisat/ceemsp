@@ -42,6 +42,4 @@ public class JwtUtils {
             throw ex;
         }
     }
-
-
 }

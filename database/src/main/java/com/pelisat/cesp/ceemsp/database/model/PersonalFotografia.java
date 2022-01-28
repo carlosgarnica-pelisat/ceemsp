@@ -10,7 +10,7 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @Entity
-@Table(name = "PERSONAL_CERTIFICACIONES")
+@Table(name = "PERSONAL_FOTOGRAFIAS")
 public class PersonalFotografia extends CommonModel {
     @Column(name = "PERSONAL", nullable = false)
     private int personal;

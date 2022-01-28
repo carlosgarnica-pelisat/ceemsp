@@ -8,6 +8,7 @@ import java.util.List;
 public interface UniformeService {
     List<UniformeDto> obtenerUniformes();
     UniformeDto obtenerUniformePorUuid(String uniformeUuid);
+    UniformeDto obtenerUniformePorId(Integer id);
     UniformeDto guardarUniforme(UniformeDto uniformeDto, String username);
     UniformeDto modificarUniforme(String uniformeUuid, String username, UniformeDto uniformeDto);
     UniformeDto eliminarUniforme(String uniformeUuid, String username);

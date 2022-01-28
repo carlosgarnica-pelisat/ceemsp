@@ -47,16 +47,15 @@
         [columnDefs]="columnDefs"
         (gridReady)="onGridReady($event)"
         [frameworkComponents]="frameworkComponents"
-        (rowDoubleClicked)="mostrarModalDetalles($event.data, clienteDetallesModal)"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data, equipoDetallesModal)"
         #agGrid
       ></ag-grid-angular>
     </div>
   </div>
 
-
-  <ng-template #crearEquipoModal let-modal>
+  <ng-template #equipoDetallesModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="crearDomicilioModal">Nuevo domicilio </h4>
+      <h4 class="modal-title" id="equipoDetallesModal">Nuevo domicilio </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -64,151 +63,38 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <form [formGroup]="nuevoDomicilioForm">
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #crearEquipoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="crearDomicilioModal">Nuevo equipo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearEquipoForm">
             <div class="row">
               <div class="col-sm-6">
-                <label for="nombre">
-                  <b>Nombre del domicilio *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['nombre'].invalid && (nuevoDomicilioForm.controls['nombre'].dirty || nuevoDomicilioForm.controls['nombre'].touched)" class="text-danger"> - Requerido</span>
+                <label for="equipo">
+                  <b>Equipo *</b>
+                  <span *ngIf="crearEquipoForm.controls['equipo'].invalid && (crearEquipoForm.controls['equipo'].dirty || crearEquipoForm.controls['equipo'].touched)" class="text-danger"> - Requerido</span>
                 </label>
-                <input id="nombre" type="text" class="form-control" placeholder="Ej. Sucursal del norte, Matriz" formControlName="nombre" #nombre>
-              </div>
-              <div class="col-sm-3">
-                <label for="matriz">
-                  <b>Tipo *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['matriz'].invalid && (nuevoDomicilioForm.controls['matriz'].dirty || nuevoDomicilioForm.controls['matriz'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <select id="matriz" formControlName="matriz" class="form-control">
-                  <option value="true">MATRIZ</option>
-                  <option value="false">SUCURSAL</option>
+                <select id="equipo" class="form-control" formControlName="equipo" (change)="seleccionarEquipo($event.target)">
+                  <option *ngFor="let e of equipos" value="{{e?.uuid}}">{{e?.nombre}}</option>
                 </select>
               </div>
-            </div>
-
-            <div class="row">
-              <div class="col-sm-4">
-                <label for="domicilio1">
-                  <b>Domicilio * </b>
-                  <span *ngIf="nuevoDomicilioForm.controls['domicilio1'].invalid && (nuevoDomicilioForm.controls['domicilio1'].dirty || nuevoDomicilioForm.controls['domicilio1'].touched)" class="text-danger"> - Requerido</span>
+              <div class="col-sm-6">
+                <label for="cantidad">
+                  <b>Cantidad *</b>
+                  <span *ngIf="crearEquipoForm.controls['cantidad'].invalid && (crearEquipoForm.controls['cantidad'].dirty || crearEquipoForm.controls['cantidad'].touched)" class="text-danger"> - Requerido</span>
                 </label>
-                <input id="domicilio1" type="text" class="form-control" placeholder="Ej. Av. Malecon" formControlName="domicilio1" #address1>
-              </div>
-              <div class="col-sm-1">
-                <label for="numeroExterior">
-                  <b>N. Ext * </b>
-                  <span *ngIf="nuevoDomicilioForm.controls['numeroExterior'].invalid && (nuevoDomicilioForm.controls['numeroExterior'].dirty || nuevoDomicilioForm.controls['numeroExterior'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="numeroExterior" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
-              </div>
-              <div class="col-sm-1">
-                <label for="numeroInterior">
-                  <b>N. Int * </b>
-                  <span *ngIf="nuevoDomicilioForm.controls['numeroInterior'].invalid && (nuevoDomicilioForm.controls['numeroInterior'].dirty || nuevoDomicilioForm.controls['numeroInterior'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="numeroInterior" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
-              </div>
-              <div class="col-sm-3">
-                <label for="domicilio2">
-                  <b>Colonia *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['domicilio2'].invalid && (nuevoDomicilioForm.controls['domicilio2'].dirty || nuevoDomicilioForm.controls['domicilio2'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="domicilio2" type="text" class="form-control" placeholder="Ej. Colonia 20 de Noviembre" formControlName="domicilio2" #domicilio2>
-              </div>
-              <div class="col-sm-3">
-                <label for="domicilio3">
-                  <b>Municipio *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['domicilio3'].invalid && (nuevoDomicilioForm.controls['domicilio3'].dirty || nuevoDomicilioForm.controls['domicilio3'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="domicilio3" type="text" class="form-control" placeholder="Ej. Tonala" formControlName="domicilio3" #domicilio3>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-sm-3">
-                <label for="estado">
-                  <b>Estado *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['estado'].invalid && (nuevoDomicilioForm.controls['estado'].dirty || nuevoDomicilioForm.controls['estado'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <select id="estado" formControlName="estado" class="form-control">
-                  <option value="AGUASCALIENTES">Aguascalientes</option>
-                  <option value="BAJA CALIFORNIA">Baja California</option>
-                  <option value="BAJA CALIFORNIA SUR">Baja California Sur</option>
-                  <option value="CAMPECHE">Campeche</option>
-                  <option value="CIUDAD DE MEXICO">Baja California</option>
-                  <option value="COAHUILA">Coahuila</option>
-                  <option value="COLIMA">Colima</option>
-                  <option value="CHIAPAS">Chiapas</option>
-                  <option value="CHIHUAHUA">Chihuahua</option>
-                  <option value="DURANGO">Durango</option>
-                  <option value="ESTADO DE MEXICO">Estado de Mexico</option>
-                  <option value="GUANAJUATO">Guanajuato</option>
-                  <option value="GUERRERO">Guerrero</option>
-                  <option value="HIDALGO">Hidalgo</option>
-                  <option value="JALISCO">Jalisco</option>
-                  <option value="MICHOACAN">Michoacan</option>
-                  <option value="MORELOS">Morelos</option>
-                  <option value="NAYARIT">Nayarit</option>
-                  <option value="NUEVO LEON">Nuevo Leon</option>
-                  <option value="OAXACA">Oaxaca</option>
-                  <option value="PUEBLA">Puebla</option>
-                  <option value="QUERETARO">Queretaro</option>
-                  <option value="QUINTANA ROO">Quintana Roo</option>
-                  <option value="SAN LUIS POTOSI">San Luis Potosi</option>
-                  <option value="SINALOA">Sinaloa</option>
-                  <option value="SONORA">Sonora</option>
-                  <option value="TABASCO">Tabasco</option>
-                  <option value="TAMAULIPAS">Tamaulipas</option>
-                  <option value="TLAXCALA">Tlaxcala</option>
-                  <option value="VERACRUZ">Veracruz</option>
-                  <option value="YUCATAN">Yucatan</option>
-                  <option value="ZACATECAS">Zacatecas</option>
-                </select>
-              </div>
-              <div class="col-sm-3">
-                <label for="pais">
-                  <b>Pais *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['pais'].invalid && (nuevoDomicilioForm.controls['pais'].dirty || nuevoDomicilioForm.controls['pais'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="pais" type="text" class="form-control" placeholder="Ej. Mexico" formControlName="pais" #pais>
-              </div>
-              <div class="col-sm-3">
-                <label for="codigoPostal">
-                  <b>Codigo Postal *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['codigoPostal'].invalid && (nuevoDomicilioForm.controls['codigoPostal'].dirty || nuevoDomicilioForm.controls['codigoPostal'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="codigoPostal" type="text" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
-              </div>
-              <div class="col-sm-3">
-                <label for="domicilio4">
-                  <b>Referencia</b>
-                </label>
-                <input id="domicilio4" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-sm-3">
-                <label for="telefonoFijo">
-                  <b>Telefono Fijo</b>
-                </label>
-                <input id="telefonoFijo" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoFijo" #telefonoFijo>
-              </div>
-              <div class="col-sm-3">
-                <label for="telefonoMovil">
-                  <b>Telefono Movil</b>
-                </label>
-                <input id="telefonoMovil" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoMovil" #telefonoMovil>
-              </div>
-              <div class="col-sm-3">
-                <label for="latitud">
-                  <b>Latitud *</b>
-                </label>
-                <input id="latitud" placeholder="19 36' 47''" type="text" class="form-control" formControlName="latitud" #latitud>
-              </div>
-              <div class="col-sm-3">
-                <label for="longitud">
-                  <b>Longitud *</b>
-                </label>
-                <input id="longitud" placeholder="99 07' 40''" type="text" class="form-control" formControlName="longitud" #longitud>
+                <input id="cantidad" type="number" class="form-control" placeholder="Mayor o igual a 0" formControlName="cantidad" #cantidad>
               </div>
             </div>
           </form>
@@ -216,7 +102,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="guardarDomicilio(nuevoDomicilioForm)">Guardar</button>
+      <button class="btn btn-primary" (click)="guardarEquipo(crearEquipoForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>

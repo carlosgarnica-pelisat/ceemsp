@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EquipoDto {
+    private int id;
     private String uuid;
     private String nombre;
     private String descripcion;

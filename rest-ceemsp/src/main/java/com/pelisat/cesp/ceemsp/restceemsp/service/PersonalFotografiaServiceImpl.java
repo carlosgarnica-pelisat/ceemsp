@@ -2,6 +2,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.PersonaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
+import com.pelisat.cesp.ceemsp.database.dto.metadata.PersonalFotografiaMetadata;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.Personal;
 import com.pelisat.cesp.ceemsp.database.model.PersonalFotografia;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 
@@ -62,8 +64,9 @@ public class PersonalFotografiaServiceImpl implements PersonalFotografiaService 
 
     }
 
+    @Transactional
     @Override
-    public void guardarPersonalFotografia(String uuid, String personalUuid, String username, MultipartFile multipartFile) {
+    public void guardarPersonalFotografia(String uuid, String personalUuid, String username, MultipartFile multipartFile, PersonalFotografiaMetadata personalFotografiaMetadata) {
         if (StringUtils.isBlank(uuid) || StringUtils.isBlank(personalUuid) || StringUtils.isBlank(username) || multipartFile == null) {
             logger.warn("El uuid de la empresa o la persona o la foto vienen como nulos o vacios");
             throw new InvalidDataException();
@@ -82,12 +85,14 @@ public class PersonalFotografiaServiceImpl implements PersonalFotografiaService 
         personalFotografia.setPersonal(persona.getId());
         daoHelper.fulfillAuditorFields(true, personalFotografia, usuarioDto.getId());
 
+        String ruta = "";
         try {
-            String ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.FOTOGRAFIA_PERSONA);
+            ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.FOTOGRAFIA_PERSONA);
             personalFotografia.setUbicacionArchivo(ruta);
             personalFotografiaRepository.save(personalFotografia);
         } catch (IOException ioException) {
             logger.warn(ioException.getMessage());
+            archivosService.eliminarArchivo(ruta);
             throw new InvalidDataException();
         }
 

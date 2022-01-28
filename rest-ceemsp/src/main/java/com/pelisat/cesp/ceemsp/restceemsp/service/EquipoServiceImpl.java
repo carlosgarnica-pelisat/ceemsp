@@ -5,6 +5,7 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.Equipo;
 import com.pelisat.cesp.ceemsp.database.model.Modalidad;
+import com.pelisat.cesp.ceemsp.database.model.Uniforme;
 import com.pelisat.cesp.ceemsp.database.repository.EquipoRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -66,6 +67,18 @@ public class EquipoServiceImpl implements EquipoService {
             throw new NotFoundResourceException();
         }
 
+        return daoToDtoConverter.convertDaoToDtoEquipo(equipo);
+    }
+
+    @Override
+    public EquipoDto obtenerEquipoPorId(int id) {
+        if(id < 1) {
+            logger.warn("El id a consultar viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Consultando el equipo con el id [{}]", id);
+        Equipo equipo = equipoRepository.getOne(id);
         return daoToDtoConverter.convertDaoToDtoEquipo(equipo);
     }
 

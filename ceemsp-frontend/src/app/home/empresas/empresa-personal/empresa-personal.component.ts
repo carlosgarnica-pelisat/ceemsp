@@ -44,6 +44,8 @@ export class EmpresaPersonalComponent implements OnInit {
     uuid: undefined
   };
 
+  tempFile;
+
   nacionalidades: PersonalNacionalidad[] = [];
   puestosTrabajo: PersonalPuestoTrabajo[] = [];
   domicilios: EmpresaDomicilio[] = [];
@@ -116,7 +118,8 @@ export class EmpresaPersonalComponent implements OnInit {
     })
 
     this.crearPersonaFotografiaForm = this.formBuilder.group({
-      'file': ['', Validators.required]
+      'file': ['', Validators.required],
+      'descripcion': ['', Validators.required]
     })
 
     this.empresaService.obtenerPersonal(this.uuid).subscribe((data: Persona[]) => {
@@ -375,12 +378,7 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   onFileChange(event) {
-    if (event.target.files.length > 0) {
-      const file = event.target.files[0];
-      this.crearPersonaFotografiaForm.patchValue({
-        fileSource: file
-      });
-    }
+    this.tempFile = event.target.files[0]
   }
 
   guardarFotografia(form) {
@@ -399,13 +397,25 @@ export class EmpresaPersonalComponent implements OnInit {
       ToastType.INFO
     );
 
-    let formData = new FormData();
-    formData.append('foto', form.get('file').value);
     let formValue = form.value;
-    console.log(formValue);
+    let formData = new FormData();
+    formData.append('fotografia', this.tempFile, this.tempFile.name);
+    formData.append('metadataArchivo', JSON.stringify(formValue));
 
-    console.log(formData);
-    console.log();
+    this.empresaService.guardarPersonaFotografia(this.uuid, this.persona.uuid, formData).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado la fotografia con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la fotografia. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
   }
 
   private getDismissReason(reason: any): string {
