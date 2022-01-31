@@ -10,6 +10,7 @@ import Arma from "../../../_models/Arma";
 import {EmpresaService} from "../../../_services/empresa.service";
 import Cliente from "../../../_models/Cliente";
 import {ToastType} from "../../../_enums/ToastType";
+import Incidencia from "../../../_models/Incidencia";
 
 @Component({
   selector: 'app-empresa-incidencias',
@@ -24,11 +25,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
-      }}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
   ];
   rowData = [];
 
@@ -39,10 +36,13 @@ export class EmpresaIncidenciasComponent implements OnInit {
   rowDataClicked = {
     uuid: undefined
   };
-  relevancia: boolean = false;
   clienteInvolucrado: boolean = false;
 
   crearIncidenciaForm: FormGroup;
+  crearPersonalIncidenciaForm: FormGroup;
+  crearVehiculoIncidenciaForm: FormGroup;
+  crearCanIncidenciaForm: FormGroup;
+  crearArmaIncidenciaForm: FormGroup;
 
   personalInvolucrado: Persona[] = [];
   vehiculosInvolucrados: Vehiculo[] = [];
@@ -60,6 +60,8 @@ export class EmpresaIncidenciasComponent implements OnInit {
   mostrarAgregarArmaForm: boolean = false;
   mostrarAgregarPersonalForm: boolean = false;
 
+  pestanaActualInvolucramiento: string = 'PERSONAL';
+
   editorData: string = "<p>Favor de escribir con detalle el relato de la incidencia</p>"
 
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
@@ -71,11 +73,26 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     this.crearIncidenciaForm = this.formBuilder.group({
       'fechaIncidencia': ['', Validators.required],
-      'relevancia': ['', Validators.required],
-      'clienteInvolucrado': [''],
+      'clienteInvolucrado': ['', Validators.required],
       'cliente': [''],
       'relatoDeHechos': ['']
     });
+
+    this.crearPersonalIncidenciaForm = this.formBuilder.group({
+      'personaInvolucrada': ['', Validators.required]
+    });
+
+    this.crearArmaIncidenciaForm = this.formBuilder.group({
+      'armaInvolucrada': ['', Validators.required]
+    });
+
+    this.crearVehiculoIncidenciaForm = this.formBuilder.group({
+      'vehiculoInvolucrado': ['', Validators.required]
+    });
+
+    this.crearCanIncidenciaForm = this.formBuilder.group({
+      'canInvolucrado': ['', Validators.required]
+    })
 
     this.empresaService.obtenerClientes(this.uuid).subscribe((data: Cliente[]) => {
       this.clientes = data;
@@ -134,10 +151,6 @@ export class EmpresaIncidenciasComponent implements OnInit {
     })
   }
 
-  cambiarRelevancia(target) {
-    this.relevancia = target.value === 'true';
-  }
-
   cambiarInvolucramientoCliente(target) {
     this.clienteInvolucrado = target.value === 'true';
   }
@@ -174,11 +187,67 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
   }
 
-  agregarPersona() {
+  agregarPersona(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        'Ocurrio un problema',
+        'Hay campos requeridos sin rellenar. Favor de rellenarlos',
+        ToastType.WARNING
+      );
+      return;
+    }
 
+    let formValue = form.value;
+
+    this.personalInvolucrado.push(this.personales.filter(x => x.uuid === formValue.personaInvolucrada)[0]);
+    //this.personales.s
+    this.conmutarAgregarPersonalForm();
   }
 
   agregarVehiculo() {
+
+  }
+
+  cambiarPestanaInvolucramientos(pestana) {
+    this.pestanaActualInvolucramiento = pestana;
+  }
+
+  guardarIncidencia(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Hay campos requeridos que no han sido rellenados`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espera un momento",
+      "Estamos registrando la incidencia",
+      ToastType.INFO
+    );
+
+    let formValue: Incidencia = form.value;
+    formValue.armasInvolucradas = this.armasInvolucradas;
+    formValue.vehiculosInvolucrados = this.vehiculosInvolucrados;
+    formValue.personasInvolucradas = this.personalInvolucrado;
+    formValue.canesInvolucrados = this.canesInvolucrados;
+
+    this.empresaService.guardarIncidencia(this.uuid, formValue).subscribe((data: Incidencia) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha guardado la incidencia con exito`,
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la incidencia en la base de datos. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
 
   }
 

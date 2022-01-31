@@ -61,31 +61,22 @@
         <div class="col-sm-12">
           <form [formGroup]="crearIncidenciaForm">
             <div class="form-row">
-              <div class="col-sm-3">
+              <div class="col-sm-4">
                 <label for="fechaIncidencia">
                   <b>Fecha de incidencia *</b>
                 </label>
                 <input id="fechaIncidencia" type="date" class="form-control" formControlName="fechaIncidencia" #fechaIncidencia>
               </div>
-              <div class="col-sm-3">
-                <label for="relevancia">
-                  <b>Relevancia *</b>
-                </label>
-                <select id="relevancia" class="form-control" formControlName="relevancia" (change)="cambiarRelevancia($event.target)">
-                  <option value="false">Sin relevancia</option>
-                  <option value="true">Con relevancia</option>
-                </select>
-              </div>
-              <div class="col-sm-3" *ngIf="relevancia">
+              <div class="col-sm-4">
                 <label for="clienteInvolucrado">
                   <b>Involucra cliente *</b>
                 </label>
                 <select id="clienteInvolucrado" class="form-control" formControlName="clienteInvolucrado" (change)="cambiarInvolucramientoCliente($event.target)">
-                  <option value="false">Si</option>
-                  <option value="true">No</option>
+                  <option value="true">Si</option>
+                  <option value="false">No</option>
                 </select>
               </div>
-              <div class="col-sm-3" *ngIf="relevancia">
+              <div class="col-sm-4" *ngIf="clienteInvolucrado">
                 <label for="cliente">
                   <b>Cliente *</b>
                 </label>
@@ -95,7 +86,7 @@
               </div>
             </div>
 
-            <div class="form-row" *ngIf="relevancia">
+            <div class="form-row">
               <div class="col-sm-12">
                 <label>
                   <b>Relato de hechos</b>
@@ -104,32 +95,64 @@
               </div>
             </div>
             <hr>
-            <div class="form-row" *ngIf="relevancia">
+            <div class="form-row">
               <div class="col-sm-12">
-                <b>Personal involucrado</b>
+                <ul class="nav nav-pills nav-fill">
+                  <li class="nav-item">
+                    <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'PERSONAL' }" (click)="cambiarPestanaInvolucramientos('PERSONAL')">Personal</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'ARMAS' }" (click)="cambiarPestanaInvolucramientos('ARMAS')">Armas</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'CANES' }" (click)="cambiarPestanaInvolucramientos('CANES')">Canes</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'VEHICULOS' }" (click)="cambiarPestanaInvolucramientos('VEHICULOS')">Vehiculos</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="form-row" *ngIf="pestanaActualInvolucramiento === 'PERSONAL'">
+              <div class="col-sm-12">
                 <table class="table">
+                  <tr>
+                    <td><b>Apellido paterno</b></td>
+                    <td><b>Apellido materno</b></td>
+                    <td><b>Nombres</b></td>
+                    <td><b>Acciones</b></td>
+                  </tr>
+                  <tr *ngFor="let p of personalInvolucrado">
+                    <td>{{p?.apellidoPaterno}}</td>
+                    <td>{{p?.apellidoMaterno}}</td>
+                    <td>{{p?.nombres}}</td>
+                    <td></td>
+                  </tr>
                   <tr *ngIf="mostrarAgregarPersonalForm">
-                    <td>
-                      <div class="row">
-                        <div class="col-sm-6">
-                          <label for="personal">
-                            <b>Personal *</b>
-                          </label>
-                          <select id="personal" class="form-control">
-                            <option *ngFor="let p of personales" value="{{p.uuid}}">{{p.nombres + " " + p.apellidoPaterno + " " + p.apellidoMaterno}}</option>
-                          </select>
+                    <td colspan="4">
+                      <form [formGroup]="crearPersonalIncidenciaForm">
+                        <div class="row">
+                          <div class="col-sm-6">
+                            <label for="personal">
+                              <b>Personal *</b>
+                            </label>
+                            <select formControlName="personaInvolucrada" id="personal" class="form-control">
+                              <option *ngFor="let p of personales" value="{{p.uuid}}">{{p.nombres + " " + p.apellidoPaterno + " " + p.apellidoMaterno}}</option>
+                            </select>
+                          </div>
                         </div>
-                      </div>
+                      </form>
+
                     </td>
                   </tr>
                   <tr *ngIf="mostrarAgregarPersonalForm">
-                    <td>
-                      <button class="btn btn-sm btn-primary" (click)="agregarPersona()">Guardar</button>
+                    <td colspan="4">
+                      <button class="btn btn-sm btn-primary" (click)="agregarPersona(crearPersonalIncidenciaForm)">Guardar</button>
                       <button class="btn btn-sm btn-danger" (click)="conmutarAgregarPersonalForm()">Cancelar</button>
                     </td>
                   </tr>
                   <tr *ngIf="!mostrarAgregarPersonalForm">
-                    <td>
+                    <td colspan="4">
                       <button class="btn btn-sm btn-primary" (click)="conmutarAgregarPersonalForm()">Agregar personal</button>
                     </td>
                   </tr>
@@ -137,9 +160,8 @@
               </div>
             </div>
 
-            <div class="form-row" *ngIf="relevancia">
+            <div class="form-row" *ngIf="pestanaActualInvolucramiento === 'ARMAS'">
               <div class="col-sm-12">
-                <b>Armas involucradas</b>
                 <table class="table">
                   <tr *ngIf="mostrarAgregarArmaForm">
                     <td>
@@ -170,9 +192,8 @@
               </div>
             </div>
 
-            <div class="form-row" *ngIf="relevancia">
+            <div class="form-row" *ngIf="pestanaActualInvolucramiento === 'CANES'">
               <div class="col-sm-12">
-                <b>Canes involucrados</b>
                 <table class="table">
                   <tr *ngIf="mostrarAgregarCanForm">
                     <td>
@@ -203,9 +224,8 @@
               </div>
             </div>
 
-            <div class="form-row" *ngIf="relevancia">
+            <div class="form-row" *ngIf="pestanaActualInvolucramiento === 'VEHICULOS'">
               <div class="col-sm-12">
-                <b>Vehiculos involcurados</b>
                 <table class="table">
                   <tr *ngIf="mostrarAgregarVehiculoForm">
                     <td>
@@ -240,7 +260,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary">Guardar</button>
+      <button class="btn btn-primary" (click)="guardarIncidencia(crearIncidenciaForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>

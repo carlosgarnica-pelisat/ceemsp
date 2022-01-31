@@ -17,4 +17,7 @@ public class PersonalFotografia extends CommonModel {
 
     @Column(name = "UBICACION_ARCHIVO", nullable = false)
     private String ubicacionArchivo;
+
+    @Column(name = "DESCRIPCION")
+    private String descripcion;
 }

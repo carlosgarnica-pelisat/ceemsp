@@ -5,9 +5,11 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.*;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -16,8 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.File;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +40,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
     private final DaoHelper<CommonModel> daoHelper;
+    private final ArchivosService archivosService;
 
     @Autowired
     public EmpresaEscrituraServiceImpl(
@@ -42,7 +48,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
             EmpresaEscrituraRepresentanteRepository empresaEscrituraRepresentanteRepository, EmpresaService empresaService,
             DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper,
             UsuarioService usuarioService, EmpresaEscrituraSocioRepository empresaEscrituraSociosRepository,
-            EmpresaEscrituraConsejoRepository empresaEscrituraConsejoRepository
+            EmpresaEscrituraConsejoRepository empresaEscrituraConsejoRepository, ArchivosService archivosService
     ) {
         this.empresaEscrituraApoderadoRepository = empresaEscrituraApoderadoRepository;
         this.empresaEscrituraRepository = empresaEscrituraRepository;
@@ -54,6 +60,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
         this.daoHelper = daoHelper;
         this.usuarioService = usuarioService;
         this.empresaEscrituraConsejoRepository = empresaEscrituraConsejoRepository;
+        this.archivosService = archivosService;
     }
 
     @Override
@@ -70,6 +77,8 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
                 .map(daoToDtoConverter::convertDaoToDtoEmpresaEscritura)
                 .collect(Collectors.toList());
     }
+
+
 
     @Override
     public EmpresaEscrituraDto obtenerEscrituraPorUuid(String empresaUuid, String escrituraUuid, boolean soloEntidad) {
@@ -114,8 +123,8 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
     @Override
     @Transactional
     public EmpresaEscrituraDto guardarEscritura(String empresaUuid, EmpresaEscrituraDto empresaEscrituraDto,
-                                                String username) {
-        if(StringUtils.isBlank(empresaUuid) || empresaEscrituraDto == null || StringUtils.isBlank(username)) {
+                                                String username, MultipartFile multipartFile) {
+        if(StringUtils.isBlank(empresaUuid) || empresaEscrituraDto == null || StringUtils.isBlank(username) || multipartFile == null) {
             logger.warn("El uuid o la escritura a crear vienen como nulos o vacios");
             throw new InvalidDataException();
         }
@@ -126,58 +135,66 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
 
         EmpresaEscritura empresaEscritura = dtoToDaoConverter.convertDtoToDaoEmpresaEscritura(empresaEscrituraDto);
         empresaEscritura.setEmpresa(empresaDto.getId());
+        empresaEscritura.setFechaEscritura(LocalDate.parse(empresaEscrituraDto.getFechaEscritura()));
         daoHelper.fulfillAuditorFields(true, empresaEscritura, usuarioDto.getId());
+        String ruta = "";
+        try {
+            ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.ESCRITURA, empresaUuid);
+            empresaEscritura.setRutaArchivo(ruta);
+            EmpresaEscritura empresaEscrituraCreada = empresaEscrituraRepository.save(empresaEscritura);
+            if(empresaEscrituraDto.getApoderados() != null && empresaEscrituraDto.getApoderados().size() > 0) {
+                logger.info("Se encontraron apoderados. Agregando [{}] nuevos apoderados",
+                        empresaEscrituraDto.getApoderados().size());
+                List<EmpresaEscrituraApoderado> empresaEscrituraApoderados = empresaEscrituraDto.getApoderados()
+                        .stream()
+                        .map(ap -> {
+                            EmpresaEscrituraApoderado eea = dtoToDaoConverter.convertDtoToDaoEmpresaEscrituraApoderado(ap);
+                            eea.setEscritura(empresaEscrituraCreada.getId());
+                            daoHelper.fulfillAuditorFields(true, eea, usuarioDto.getId());
+                            return eea;
+                        }).collect(Collectors.toList());
 
-        EmpresaEscritura empresaEscrituraCreada = empresaEscrituraRepository.save(empresaEscritura);
+                empresaEscrituraApoderadoRepository.saveAll(empresaEscrituraApoderados);
+            }
 
-        if(empresaEscrituraDto.getApoderados() != null && empresaEscrituraDto.getApoderados().size() > 0) {
-            logger.info("Se encontraron apoderados. Agregando [{}] nuevos apoderados",
-                    empresaEscrituraDto.getApoderados().size());
-            List<EmpresaEscrituraApoderado> empresaEscrituraApoderados = empresaEscrituraDto.getApoderados()
-                    .stream()
-                    .map(ap -> {
-                        EmpresaEscrituraApoderado eea = dtoToDaoConverter.convertDtoToDaoEmpresaEscrituraApoderado(ap);
-                        eea.setEscritura(empresaEscrituraCreada.getId());
-                        daoHelper.fulfillAuditorFields(true, eea, usuarioDto.getId());
-                        return eea;
-                    }).collect(Collectors.toList());
+            if(empresaEscrituraDto.getSocios() != null && empresaEscrituraDto.getSocios().size() > 0) {
+                logger.info("Se encontraron socios. Agregando [{}] nuevos socios",
+                        empresaEscrituraDto.getSocios().size());
 
-            empresaEscrituraApoderadoRepository.saveAll(empresaEscrituraApoderados);
+                List<EmpresaEscrituraSocio> empresaEscrituraSocios = empresaEscrituraDto.getSocios()
+                        .stream()
+                        .map(so -> {
+                            EmpresaEscrituraSocio ees = dtoToDaoConverter.convertDtoToDaoEmpresaEscrituraSocio(so);
+                            ees.setEscritura(empresaEscrituraCreada.getId());
+                            daoHelper.fulfillAuditorFields(true, ees, usuarioDto.getId());
+                            return ees;
+                        }).collect(Collectors.toList());
+
+                empresaEscrituraSociosRepository.saveAll(empresaEscrituraSocios);
+            }
+
+            if(empresaEscrituraDto.getRepresentantes() != null && empresaEscrituraDto.getRepresentantes().size() > 0) {
+                logger.info("Se encontraron representantes. Agregando [{}] nuevos representantes",
+                        empresaEscrituraDto.getSocios().size());
+
+                List<EmpresaEscrituraRepresentante> empresaEscrituraRepresentantes = empresaEscrituraDto.getRepresentantes()
+                        .stream()
+                        .map(re -> {
+                            EmpresaEscrituraRepresentante eer = dtoToDaoConverter.convertDtoToDaoEmpresaRepresentante(re);
+                            eer.setEscritura(empresaEscrituraCreada.getId());
+                            daoHelper.fulfillAuditorFields(true, eer, usuarioDto.getId());
+                            return eer;
+                        }).collect(Collectors.toList());
+
+                empresaEscrituraRepresentanteRepository.saveAll(empresaEscrituraRepresentantes);
+            }
+
+            return daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscrituraCreada);
+        } catch (Exception ex) {
+            logger.warn(ex.getMessage());
+            archivosService.eliminarArchivo(ruta);
+            throw new InvalidDataException();
         }
-
-        if(empresaEscrituraDto.getSocios() != null && empresaEscrituraDto.getSocios().size() > 0) {
-            logger.info("Se encontraron socios. Agregando [{}] nuevos socios",
-                    empresaEscrituraDto.getSocios().size());
-
-            List<EmpresaEscrituraSocio> empresaEscrituraSocios = empresaEscrituraDto.getSocios()
-                    .stream()
-                    .map(so -> {
-                        EmpresaEscrituraSocio ees = dtoToDaoConverter.convertDtoToDaoEmpresaEscrituraSocio(so);
-                        ees.setEscritura(empresaEscrituraCreada.getId());
-                        daoHelper.fulfillAuditorFields(true, ees, usuarioDto.getId());
-                        return ees;
-                    }).collect(Collectors.toList());
-
-            empresaEscrituraSociosRepository.saveAll(empresaEscrituraSocios);
-        }
-
-        if(empresaEscrituraDto.getRepresentantes() != null && empresaEscrituraDto.getRepresentantes().size() > 0) {
-            logger.info("Se encontraron representantes. Agregando [{}] nuevos representantes",
-                    empresaEscrituraDto.getSocios().size());
-
-            List<EmpresaEscrituraRepresentante> empresaEscrituraRepresentantes = empresaEscrituraDto.getRepresentantes()
-                    .stream()
-                    .map(re -> {
-                        EmpresaEscrituraRepresentante eer = dtoToDaoConverter.convertDtoToDaoEmpresaRepresentante(re);
-                        eer.setEscritura(empresaEscrituraCreada.getId());
-                        daoHelper.fulfillAuditorFields(true, eer, usuarioDto.getId());
-                        return eer;
-                    }).collect(Collectors.toList());
-
-            empresaEscrituraRepresentanteRepository.saveAll(empresaEscrituraRepresentantes);
-        }
-
-        return daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscrituraCreada);
     }
 
     @Override
@@ -212,5 +229,24 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
     @Override
     public EmpresaEscrituraDto eliminarEscritura(String empresaUuid, String escrituraUuid, String username) {
         return null;
+    }
+
+    @Override
+    public File obtenerEscrituraPdf(String empresaUuid, String escrituraUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid)) {
+            logger.warn("El uuid de la empresa o de la escritura vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando las escrituras en PDF para la escritura [{}]", escrituraUuid);
+
+        EmpresaEscritura empresaEscritura = empresaEscrituraRepository.findByUuidAndEliminadoFalse(escrituraUuid);
+
+        if(empresaEscritura == null) {
+            logger.warn("La escritura no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return new File(empresaEscritura.getRutaArchivo());
     }
 }

@@ -5,7 +5,7 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Personal</h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearVehiculoModal)">Nueva persona</button>
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearPersonaModal)">Nueva persona</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Opciones
@@ -248,7 +248,7 @@
               </td>
             </tr>
             <tr *ngIf="!showPuestoForm">
-              <td colspan="2">
+              <td colspan="3">
                 <div class="row">
                   <div class="col-sm-12">
                     <button class="btn btn-sm btn-primary" (click)="mostrarFormularioInformacionPuesto()">
@@ -351,6 +351,21 @@
               <td><b>Descripcion</b></td>
               <td><b>Opciones</b></td>
             </tr>
+            <tr *ngFor="let f of persona?.fotografias">
+              <td>{{f?.nombreArchivo}}</td>
+              <td>{{f?.descripcion}}</td>
+              <td>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-primary btn-sm" (click)="descargarFotografia(f?.uuid)"><fa-icon [icon]="faDownload"></fa-icon> Descargar</button>
+                  <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="sr-only">Toggle Dropdown</span>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"><fa-icon [icon]="faTrash"></fa-icon> Eliminar</a>
+                  </div>
+                </div>
+              </td>
+            </tr>
             <tr *ngIf="showFotografiaForm">
               <td colspan="3">
                 <div class="row">
@@ -383,7 +398,7 @@
               </td>
             </tr>
             <tr *ngIf="!showFotografiaForm">
-              <td colspan="2">
+              <td colspan="3">
                 <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaFotografia()">Agregar fotografia</button>
               </td>
             </tr>
@@ -393,7 +408,23 @@
     </div>
   </ng-template>
 
-  <ng-template #crearVehiculoModal let-modal>
+  <ng-template #mostrarFotoPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarFotoPersonaModal">Ver fotografia del personal </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <img [src]="imagenActual" style="width: 100%;">
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #crearPersonaModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="modal-survey-response">Nuevo personal </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">

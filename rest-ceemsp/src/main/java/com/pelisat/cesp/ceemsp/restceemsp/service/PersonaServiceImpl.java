@@ -39,6 +39,7 @@ public class PersonaServiceImpl implements PersonaService {
     private final PersonalSubpuestoDeTrabajoService personalSubpuestoDeTrabajoService;
     private final EmpresaDomicilioService empresaDomicilioService;
     private final PersonalNacionalidadService personalNacionalidadService;
+    private final PersonalFotografiaService personalFotografiaService;
     private final PersonalCertificacionService personalCertificacionService;
     private final Logger logger = LoggerFactory.getLogger(PersonaService.class);
 
@@ -48,7 +49,8 @@ public class PersonaServiceImpl implements PersonaService {
                               UsuarioService usuarioService, PersonaRepository personaRepository,
                               ModalidadService modalidadService, PersonalPuestoDeTrabajoServiceImpl personalPuestoDeTrabajoService,
                               EmpresaDomicilioService empresaDomicilioService, PersonalNacionalidadService personalNacionalidadService,
-                              PersonalCertificacionService personalCertificacionService, PersonalSubpuestoDeTrabajoService personalSubpuestoDeTrabajoService) {
+                              PersonalCertificacionService personalCertificacionService, PersonalSubpuestoDeTrabajoService personalSubpuestoDeTrabajoService,
+                              PersonalFotografiaService personalFotografiaService) {
         this.daoHelper = daoHelper;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
@@ -61,6 +63,7 @@ public class PersonaServiceImpl implements PersonaService {
         this.personalNacionalidadService = personalNacionalidadService;
         this.personalCertificacionService = personalCertificacionService;
         this.personalSubpuestoDeTrabajoService = personalSubpuestoDeTrabajoService;
+        this.personalFotografiaService = personalFotografiaService;
     }
 
     @Override
@@ -103,6 +106,7 @@ public class PersonaServiceImpl implements PersonaService {
         personaDto.setPuestoDeTrabajo(personalPuestoDeTrabajoService.obtenerPorId(personal.getPuesto()));
         personaDto.setSubpuestoDeTrabajo(personalSubpuestoDeTrabajoService.obtenerPorId(personal.getSubpuesto()));
         personaDto.setDomicilioAsignado(empresaDomicilioService.obtenerPorId(personal.getDomicilioAsignado()));
+        personaDto.setFotografias(personalFotografiaService.mostrarPersonalFotografias(empresaUuid, personaUuid));
         return personaDto;
     }
 

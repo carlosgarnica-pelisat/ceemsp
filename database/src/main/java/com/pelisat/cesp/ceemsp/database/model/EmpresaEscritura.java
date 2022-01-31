@@ -36,4 +36,7 @@ public class EmpresaEscritura extends CommonModel {
 
     @Column(name = "DESCRIPCION")
     private String descripcion;
+
+    @Column(name = "RUTA_ARCHIVO", nullable = false)
+    private String rutaArchivo;
 }

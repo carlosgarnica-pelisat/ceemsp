@@ -16,6 +16,7 @@ import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosServiceImpl;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
+import javassist.NotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +25,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.io.IOException;
 import java.io.InvalidObjectException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PersonalFotografiaServiceImpl implements PersonalFotografiaService {
@@ -55,13 +59,49 @@ public class PersonalFotografiaServiceImpl implements PersonalFotografiaService 
     }
 
     @Override
-    public void mostrarPersonalFotografias(String uuid, String personalUuid) {
+    public List<PersonalFotografiaMetadata> mostrarPersonalFotografias(String uuid, String personalUuid) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(personalUuid)) {
             logger.warn("El uuid de la empresa o la persona vienen como nulos o vacios");
             throw new InvalidDataException();
         }
 
+        logger.info("Mostrando los metadatos de las fotografias del personal con id [{}]", personalUuid);
 
+        Personal personal = personaRepository.getByUuidAndEliminadoFalse(personalUuid);
+        if(personal == null) {
+            logger.warn("La persona no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<PersonalFotografia> metadata = personalFotografiaRepository.getAllByPersonalAndEliminadoFalse(personal.getId());
+
+        return metadata.stream().map(m -> {
+            PersonalFotografiaMetadata pfm = new PersonalFotografiaMetadata();
+            String[] tokens = m.getUbicacionArchivo().split("[\\\\|/]");
+            pfm.setId(m.getId());
+            pfm.setDescripcion(m.getDescripcion());
+            pfm.setUuid(m.getUuid());
+            pfm.setNombreArchivo(tokens[tokens.length - 1]);
+            return pfm;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public File descargarFotografiaPersona(String uuid, String personalUuid, String fotografiaUuid) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(personalUuid) || StringUtils.isBlank(fotografiaUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando la fotografia con uuid [{}]", fotografiaUuid);
+        PersonalFotografia personalFotografia = personalFotografiaRepository.getByUuidAndEliminadoFalse(fotografiaUuid);
+
+        if(personalFotografia == null) {
+            logger.warn("La fotografia esta eliminada o no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return new File(personalFotografia.getUbicacionArchivo());
     }
 
     @Transactional
@@ -87,7 +127,7 @@ public class PersonalFotografiaServiceImpl implements PersonalFotografiaService 
 
         String ruta = "";
         try {
-            ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.FOTOGRAFIA_PERSONA);
+            ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.FOTOGRAFIA_PERSONA, uuid);
             personalFotografia.setUbicacionArchivo(ruta);
             personalFotografiaRepository.save(personalFotografia);
         } catch (IOException ioException) {

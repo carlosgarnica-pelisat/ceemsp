@@ -5,6 +5,7 @@ import PersonalPuestoTrabajo from "./PersonalPuestoTrabajo";
 import PersonalSubpuestoTrabajo from "./PersonalSubpuestoTrabajo";
 import EmpresaDomicilio from "./EmpresaDomicilio";
 import Modalidad from "./Modalidad";
+import PersonaFotografiaMetadata from "./PersonaFotografiaMetadata";
 
 export default class Persona implements Deserializable {
   id: string;
@@ -38,7 +39,7 @@ export default class Persona implements Deserializable {
   fechaVolanteCuip: string;
   modalidad: Modalidad;
 
-
+  fotografias: PersonaFotografiaMetadata[];
   certificaciones: PersonaCertificacion[];
 
   deserialize(input: any): this {

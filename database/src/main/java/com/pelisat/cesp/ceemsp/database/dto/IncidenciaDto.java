@@ -9,9 +9,11 @@ import java.util.List;
 @Getter
 @Setter
 public class IncidenciaDto {
+    private int id;
+    private String uuid;
     private String numero;
     private String fechaIncidencia;
-    private boolean relevancia;
+    private boolean relevancia = true; //TODO: Remover esto, ya no se necesita
     private ClienteDto cliente;
     private String latitud;
     private String longitud;

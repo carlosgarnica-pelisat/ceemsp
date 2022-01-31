@@ -6,5 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PersonalFotografiaMetadata {
+    private int id;
+    private String uuid;
+    private String nombreArchivo;
     private String descripcion;
 }

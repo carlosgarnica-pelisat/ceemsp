@@ -119,7 +119,14 @@
                 <input id="nombreFedatario" type="text" class="form-control" placeholder="Ej. Juan Carlos Garnica" formControlName="nombreFedatario" #nombreFedatario>
               </div>
             </div>
-
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="archivo">
+                  <b>Archivo (en pdf)</b>
+                </label>
+                <input id="archivo" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
+              </div>
+            </div>
             <div class="row">
               <div class="col-sm-12">
                 <label for="descripcion">

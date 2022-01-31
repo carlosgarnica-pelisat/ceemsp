@@ -27,6 +27,8 @@ export class EmpresaLicenciasComponent implements OnInit {
   faTrash = faTrash;
   faCheck = faCheck;
 
+  tempFile;
+
   columnDefs = EmpresaLicenciaColectiva.obtenerColumnasPorDefault();
   allColumnDefs = EmpresaLicenciaColectiva.obtenerTodasLasColumnas();
   rowData: EmpresaLicenciaColectiva[] = [];
@@ -68,7 +70,8 @@ export class EmpresaLicenciasComponent implements OnInit {
       modalidad: ['', Validators.required],
       submodalidad: [''],
       fechaInicio: ['', Validators.required],
-      fechaFin: ['', Validators.required]
+      fechaFin: ['', Validators.required],
+      archivo: ['', Validators.required]
     });
 
     this.modificarStatusArmaForm = this.formBuilder.group({
@@ -236,6 +239,10 @@ export class EmpresaLicenciasComponent implements OnInit {
     this.gridColumnApi = params.gridApi;
   }
 
+  onFileChange(event) {
+    this.tempFile = event.target.files[0]
+  }
+
   modify() {
 
   }
@@ -269,11 +276,15 @@ export class EmpresaLicenciasComponent implements OnInit {
 
     licencia.numeroOficio = formValue.numeroOficio;
     licencia.modalidad = this.modalidades.filter(x => x.modalidad.uuid === formValue.modalidad)[0].modalidad;
-    licencia.submodalidad = this.modalidades.filter(x => x.submodalidad.uuid === formValue.submodalidad)[0].submodalidad;
+    //licencia.submodalidad = this.modalidades.filter(x => x.submodalidad.uuid === formValue.submodalidad)[0].submodalidad; //TODO: revisar por que esta fallando esta mamada
     licencia.fechaInicio = formValue.fechaInicio;
     licencia.fechaFin = formValue.fechaFin;
 
-    this.empresaService.guardarLicenciaColectiva(this.uuid, licencia).subscribe((data: EmpresaLicenciaColectiva) => {
+    let formData = new FormData();
+    formData.append('archivo', this.tempFile, this.tempFile.name);
+    formData.append('licencia', JSON.stringify(licencia));
+
+    this.empresaService.guardarLicenciaColectiva(this.uuid, formData).subscribe((data: EmpresaLicenciaColectiva) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha guardado la licencia con exito",
@@ -287,6 +298,22 @@ export class EmpresaLicenciasComponent implements OnInit {
         ToastType.ERROR
       );
     });
+  }
+
+  descargarLicencia(uuid) {
+    this.empresaService.descargarLicenciaPdf(this.uuid, this.licencia.uuid).subscribe((data) => {
+      // @ts-ignore
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "licencia-colectiva-" + this.licencia.uuid;
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el PDF. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   exportGridData(format) {

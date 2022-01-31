@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.database.dto;
 
+import com.pelisat.cesp.ceemsp.database.dto.metadata.PersonalFotografiaMetadata;
 import com.pelisat.cesp.ceemsp.database.type.CuipStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.EstadoCivilEnum;
 import com.pelisat.cesp.ceemsp.database.type.SexoEnum;
@@ -40,5 +41,7 @@ public class PersonaDto {
     private String numeroVolanteCuip;
     private String fechaVolanteCuip;
     private ModalidadDto modalidad;
+
     private List<PersonalCertificacionDto> certificaciones;
+    private List<PersonalFotografiaMetadata> fotografias;
 }

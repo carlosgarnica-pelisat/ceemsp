@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ActivatedRoute} from "@angular/router";
@@ -15,6 +15,7 @@ import Persona from "../../../_models/Persona";
 import PersonaCertificacion from "../../../_models/PersonaCertificacion";
 import PersonalSubpuestoTrabajo from "../../../_models/PersonalSubpuestoTrabajo";
 import Modalidad from "../../../_models/Modalidad";
+import {faDownload, faTrash} from "@fortawesome/free-solid-svg-icons";
 
 @Component({
   selector: 'app-empresa-personal',
@@ -24,6 +25,11 @@ import Modalidad from "../../../_models/Modalidad";
 export class EmpresaPersonalComponent implements OnInit {
   private gridApi;
   private gridColumnApi;
+
+  faDownload = faDownload;
+  faTrash = faTrash;
+
+  @ViewChild('mostrarFotoPersonaModal') mostrarFotoPersonaModal: any;
 
   stepper: Stepper;
   pestanaActual: string = "DETALLES";
@@ -45,6 +51,7 @@ export class EmpresaPersonalComponent implements OnInit {
   };
 
   tempFile;
+  imagenActual: any;
 
   nacionalidades: PersonalNacionalidad[] = [];
   puestosTrabajo: PersonalPuestoTrabajo[] = [];
@@ -329,6 +336,32 @@ export class EmpresaPersonalComponent implements OnInit {
       );
     })
 
+  }
+
+  descargarFotografia(uuid) {
+    console.log(uuid);
+    this.empresaService.descargarPersonaFotografia(this.uuid, this.persona.uuid, uuid).subscribe((data) => {
+      // @ts-ignore
+      this.convertirImagen(data);
+      this.modalService.open(this.mostrarFotoPersonaModal);
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la fotografia de la persona`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  convertirImagen(imagen: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.imagenActual = reader.result;
+    });
+
+    if(imagen) {
+      reader.readAsDataURL(imagen);
+    }
   }
 
   guardarCertificacion(form) {

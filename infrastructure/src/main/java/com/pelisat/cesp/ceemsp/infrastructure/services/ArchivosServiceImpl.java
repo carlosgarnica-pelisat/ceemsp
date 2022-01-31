@@ -2,6 +2,8 @@ package com.pelisat.cesp.ceemsp.infrastructure.services;
 
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,13 +22,14 @@ public class ArchivosServiceImpl implements ArchivosService {
     private static final String EMPRESAS_FOLDER = "empresas/";
 
     @Override
-    public String guardarArchivoMultipart(MultipartFile multipartFile, TipoArchivoEnum tipoArchivo) throws IOException {
+    public String guardarArchivoMultipart(MultipartFile multipartFile, TipoArchivoEnum tipoArchivo, String empresaUuid) throws IOException {
         if(multipartFile == null || tipoArchivo == null) {
             logger.warn("El archivo o el tipo de archivo vienen como nulos o vacios");
             throw new InvalidDataException();
         }
 
-        File file = new File(ROOT_FS + EMPRESAS_FOLDER + tipoArchivo.getRutaCarpeta() + tipoArchivo.getPrefijoArchivo() + "test");
+        File file = new File(ROOT_FS + EMPRESAS_FOLDER + empresaUuid + "/" + tipoArchivo.getRutaCarpeta() + tipoArchivo.getPrefijoArchivo() +
+                "-" + RandomStringUtils.randomAlphanumeric(6) + FilenameUtils.getExtension(multipartFile.getName()));
         FileUtils.writeByteArrayToFile(file, multipartFile.getBytes());
 
         return file.getAbsolutePath();

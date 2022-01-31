@@ -26,6 +26,7 @@ import Uniforme from "../_models/Uniforme";
 import EmpresaUniformeElemento from "../_models/EmpresaUniformeElemento";
 import EmpresaEquipo from "../_models/EmpresaEquipo";
 import Usuario from "../_models/Usuario";
+import Incidencia from "../_models/Incidencia";
 
 @Injectable({
   providedIn: 'root'
@@ -96,8 +97,10 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/escrituras`);
   }
 
-  guardarEscritura(uuid: string, escritura: EmpresaEscritura) {
-    return this.http.post(`${this.uri}/empresas/${uuid}/escrituras`, escritura);
+  guardarEscritura(uuid: string, formData: FormData) {
+    return this.http.post(
+      `${this.uri}/empresas/${uuid}/escrituras`,
+      formData, {headers: {'X-isFile': 'true'}})
   }
 
   obtenerEscrituraPorUuid(uuid: string, uuidEscritura: string) {
@@ -157,8 +160,17 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}`)
   }
 
-  guardarLicenciaColectiva(uuid: string, licenciaColectiva: EmpresaLicenciaColectiva) {
-    return this.http.post(`${this.uri}/empresas/${uuid}/licencias`, licenciaColectiva);
+  descargarLicenciaPdf(uuid: string, licenciaColectivaUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/pdf`, httpOptions)
+  }
+
+  guardarLicenciaColectiva(uuid: string, formData: FormData) {
+    return this.http.post(
+      `${this.uri}/empresas/${uuid}/licencias`,
+      formData, {headers: {'X-isFile': 'true'}})
   }
 
   obtenerDomiciliosPorLicenciaColectiva(uuid: string, licenciaColectivaUuid: string) {
@@ -237,6 +249,14 @@ export class EmpresaService {
       formData, {headers: {'X-isFile': 'true'}})
   }
 
+  descargarPersonaFotografia(empresaUuid: string, personaUuid: string, fotografiaUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    }
+
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/fotografias/${fotografiaUuid}`, httpOptions);
+  }
+
   // Canes
   obtenerCanes(uuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/canes`);
@@ -298,6 +318,11 @@ export class EmpresaService {
 
   guardarUniformeElemento(uuid: string, uniformeUuid: string, elementoUniforme: EmpresaUniformeElemento) {
     return this.http.post(`${this.uri}/empresas/${uuid}/uniformes/${uniformeUuid}/elementos`, elementoUniforme);
+  }
+
+  // Incidencias
+  guardarIncidencia(uuid: string, incidencia: Incidencia) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/incidencias`, incidencia);
   }
 
   // Usuario

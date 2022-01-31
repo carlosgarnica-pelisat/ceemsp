@@ -49,6 +49,8 @@ export class EmpresaLegalComponent implements OnInit {
   allColumnDefs = EmpresaEscritura.obtenerTodasLasColumnas();
   rowData = [];
 
+  tempFile;
+
   frameworkComponents: any;
   rowDataClicked = {
     uuid: undefined
@@ -273,6 +275,10 @@ export class EmpresaLegalComponent implements OnInit {
     this.gridColumnApi = params.gridApi;
   }
 
+  onFileChange(event) {
+    this.tempFile = event.target.files[0]
+  }
+
   mostrarModalCrear(modal) {
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
@@ -360,7 +366,11 @@ export class EmpresaLegalComponent implements OnInit {
 
     let formValue: EmpresaEscritura = form.value;
 
-    this.empresaService.guardarEscritura(this.uuid, formValue).subscribe((data: EmpresaEscritura) => {
+    let formData = new FormData();
+    formData.append('archivo', this.tempFile, this.tempFile.name);
+    formData.append('escritura', JSON.stringify(formValue));
+
+    this.empresaService.guardarEscritura(this.uuid, formData).subscribe((data: EmpresaEscritura) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha guardado la escritura con exito",

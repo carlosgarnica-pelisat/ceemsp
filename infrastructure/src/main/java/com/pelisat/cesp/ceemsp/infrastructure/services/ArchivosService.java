@@ -6,6 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 public interface ArchivosService {
-    String guardarArchivoMultipart(MultipartFile multipartFile, TipoArchivoEnum tipoArchivo) throws IOException;
+    String guardarArchivoMultipart(MultipartFile multipartFile, TipoArchivoEnum tipoArchivo, String empresaUuid) throws IOException;
     String eliminarArchivo(String directorio);
 }

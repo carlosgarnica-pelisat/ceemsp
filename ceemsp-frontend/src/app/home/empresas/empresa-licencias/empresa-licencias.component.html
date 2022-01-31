@@ -242,6 +242,7 @@
       </div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-primary" (click)="descargarLicencia(licencia.uuid)">Descargar licencia</button>
       <button class="btn btn-primary" (click)="mostrarModificarLicenciaModal()">Modificar</button>
       <button type="button" class="btn btn-danger" (click)="mostrarEliminarLicenciaModal()">Eliminar</button>
     </div>
@@ -298,6 +299,12 @@
                 <select id="submodalidad" class="form-control" formControlName="submodalidad">
                   <option *ngFor="let m of modalidades" value="{{m?.submodalidad?.uuid}}">{{m?.submodalidad?.nombre}}</option>
                 </select>
+              </div>
+              <div class="col-sm-4">
+                <label for="archivo">
+                  <b>Archivo (en pdf)</b>
+                </label>
+                <input id="archivo" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
               </div>
             </div>
           </form>
