@@ -9,6 +9,7 @@ import com.pelisat.cesp.ceemsp.database.repository.VehiculoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoSubmarcaRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -36,6 +37,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
     private final VehiculoUsoService vehiculoUsoService;
     private final VehiculoTipoService vehiculoTipoService;
     private final VehiculoColorService vehiculoColorService;
+    private final VehiculoFotografiaService vehiculoFotografiaService;
 
     @Autowired
     public EmpresaVehiculoServiceImpl(VehiculoRepository vehiculoRepository, UsuarioService usuarioService,
@@ -43,7 +45,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
                                       DaoHelper<CommonModel> daoHelper, EmpresaService empresaService,
                                       VehiculoMarcaService vehiculoMarcaService, VehiculoSubmarcaService vehiculoSubmarcaService,
                                       VehiculoUsoService vehiculoUsoService, VehiculoTipoService vehiculoTipoService,
-                                      VehiculoColorService vehiculoColorService) {
+                                      VehiculoColorService vehiculoColorService, VehiculoFotografiaService vehiculoFotografiaService) {
         this.vehiculoRepository = vehiculoRepository;
         this.usuarioService = usuarioService;
         this.daoToDtoConverter = daoToDtoConverter;
@@ -55,6 +57,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         this.vehiculoUsoService = vehiculoUsoService;
         this.vehiculoTipoService = vehiculoTipoService;
         this.vehiculoColorService = vehiculoColorService;
+        this.vehiculoFotografiaService = vehiculoFotografiaService;
     }
 
     @Override
@@ -74,6 +77,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
             vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getId()));
             vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getId()));
             vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
+            vehiculoDto.setFotografias(vehiculoFotografiaService.mostrarVehiculoFotografias(empresaUuid, vehiculo.getUuid()));
             return vehiculoDto;
         }).collect(Collectors.toList());
 
@@ -103,9 +107,29 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
             vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
             vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
             vehiculoDto.setColores(vehiculoColorService.obtenerTodosPorVehiculoUuid(vehiculoUuid, empresaUuid));
+            vehiculoDto.setFotografias(vehiculoFotografiaService.mostrarVehiculoFotografias(empresaUuid, vehiculo.getUuid()));
         }
 
         return vehiculoDto;
+    }
+
+    @Override
+    public VehiculoDto obtenerVehiculoPorId(String empresaUuid, Integer vehiculoId) {
+        if(StringUtils.isBlank(empresaUuid) || vehiculoId == null || vehiculoId < 1) {
+            logger.warn("El uuid de la empresa o el id del vehiculo a consultar vienen como nulos o invalidos");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo el vehiculo con el id [{}]", vehiculoId);
+
+        Vehiculo vehiculo = vehiculoRepository.getOne(vehiculoId);
+
+        if(vehiculo == null) {
+            logger.warn("El vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
     }
 
     @Override

@@ -6,6 +6,10 @@ import lombok.Getter;
 public enum TipoArchivoEnum {
     FOTOGRAFIA_PERSONA("FOTOGRAFIA_PERSONA", "Fotografia de persona", "Fotografia de persona",
             "personas/fotografias/", "persona"),
+    FOTOGRAFIA_VEHICULO("FOTOGRAFIA_VEHICULO", "Fotografia de vehiculo", "Fotografia de vehiculo",
+            "vehiculos/fotografias/", "vehiculo"),
+    FOTOGRAFIA_CAN("FOTOGRAFIA_CAN", "Fotografia de can", "Fotografia de can",
+            "canes/fotografias/", "can"),
     LICENCIA_COLECTIVA("LICENCIA_COLECTIVA", "Licencia colectiva", "Licencia colectiva para uso o portacion de armas",
             "licencias-colectivas/", "licencia"),
     CLIENTE_CONTRATO_SERVICIOS("CLIENTE_CONTRATO_SERVICIOS", "Contrato de servicios del cliente", "Contrato que firma el cliente con la ESP",

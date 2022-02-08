@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import VehiculoMarca from "../../../_models/VehiculoMarca";
@@ -14,7 +14,7 @@ import VehiculoUso from "../../../_models/VehiculoUso";
 import Stepper from "bs-stepper";
 import Vehiculo from "../../../_models/Vehiculo";
 import VehiculoColor from "../../../_models/VehiculoColor";
-import {faCheck} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faDownload, faTrash} from "@fortawesome/free-solid-svg-icons";
 
 @Component({
   selector: 'app-empresa-vehiculos',
@@ -33,6 +33,7 @@ export class EmpresaVehiculosComponent implements OnInit {
   vehiculo: Vehiculo;
 
   showColorForm: boolean = false;
+  showFotografiaForm: boolean = false;
 
   pestanaActual: string = "DETALLES";
 
@@ -49,6 +50,7 @@ export class EmpresaVehiculosComponent implements OnInit {
 
   crearVehiculoForm: FormGroup;
   crearColorForm: FormGroup;
+  crearVehiculoFotografiaForm: FormGroup;
 
   marca: VehiculoMarca;
   marcas: VehiculoMarca[];
@@ -63,6 +65,13 @@ export class EmpresaVehiculosComponent implements OnInit {
   stepper: Stepper;
 
   faCheck = faCheck;
+  faTrash = faTrash;
+  faDownload = faDownload;
+
+  imagenActual;
+  tempFile;
+
+  @ViewChild('mostrarFotoVehiculoModal') mostrarFotoVehiculoModal: any;
 
   constructor(private modalService: NgbModal, private toastService: ToastService,
               private empresaService: EmpresaService, private formBuilder: FormBuilder,
@@ -100,6 +109,11 @@ export class EmpresaVehiculosComponent implements OnInit {
       descripcion: ['', Validators.required]
     })
 
+    this.crearVehiculoFotografiaForm = this.formBuilder.group({
+      'file': ['', Validators.required],
+      'descripcion': ['', Validators.required]
+    });
+
     this.empresaService.obtenerVehiculos(this.uuid).subscribe((data: Vehiculo[]) => {
       this.rowData = data;
     }, (error) => {
@@ -121,6 +135,10 @@ export class EmpresaVehiculosComponent implements OnInit {
 
   cambiarPestana(pestana) {
     this.pestanaActual = pestana;
+  }
+
+  onFileChange(event) {
+    this.tempFile = event.target.files[0]
   }
 
   onGridReady(params) {
@@ -344,6 +362,61 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.ERROR
       );
     });
+  }
+
+  guardarFotografia(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos pendientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando la fotografia del vehiculo",
+      ToastType.INFO
+    );
+
+    let formValue = form.value;
+    let formData = new FormData();
+    formData.append('fotografia', this.tempFile, this.tempFile.name);
+    formData.append('metadataArchivo', JSON.stringify(formValue));
+
+    this.empresaService.guardarVehiculoFotografia(this.uuid, this.vehiculo.uuid, formData).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado la fotografia con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la fotografia. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  mostrarFormularioNuevaFotografia() {
+    this.showFotografiaForm = !this.showFotografiaForm;
+  }
+
+  descargarFotografia(uuid) {
+    this.empresaService.descargarPersonaFotografia(this.uuid, this.vehiculo.uuid, uuid).subscribe((data) => {
+      // @ts-ignore
+      this.convertirImagen(data);
+      this.modalService.open(this.mostrarFotoVehiculoModal);
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la fotografia de la persona`,
+        ToastType.ERROR
+      )
+    })
   }
 
   exportGridData(format) {

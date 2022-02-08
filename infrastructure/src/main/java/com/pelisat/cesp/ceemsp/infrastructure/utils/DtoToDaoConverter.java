@@ -698,4 +698,26 @@ public class DtoToDaoConverter {
 
         return empresaEquipo;
     }
+
+    public Visita convertDtoToDaoVisita(VisitaDto visitaDto) {
+        if(visitaDto == null) {
+            logger.warn("La visita a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.typeMap(VisitaDto.class, Visita.class)
+                .addMappings(mapper -> mapper.skip(Visita::setEmpresa))
+                .addMappings(mapper -> mapper.skip(Visita::setResponsable));
+
+        Visita visita = modelMapper.map(visitaDto, Visita.class);
+
+        if(StringUtils.isBlank(visita.getUuid())) {
+            logger.info("El uuid viene como nulo o vacio. Generando uno nuevo");
+            visita.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return visita;
+    }
 }

@@ -66,6 +66,9 @@
                 <li class="nav-item">
                   <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'ENTRENAMIENTO' }" (click)="cambiarPestana('ENTRENAMIENTO')">Entrenamiento</a>
                 </li>
+                <li class="nav-item">
+                  <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'FOTOGRAFIAS' }" (click)="cambiarPestana('FOTOGRAFIAS')">Fotografias</a>
+                </li>
               </ul>
             </div>
           </div>
@@ -302,6 +305,66 @@
                         <button class="btn btn-danger btn-sm" (click)="mostrarEntrenamientoForm()">Cancelar</button>
                       </div>
                     </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="col-sm-12" *ngIf="pestanaActual === 'FOTOGRAFIAS'">
+              <table class="table">
+                <tr>
+                  <td><b>Archivo</b></td>
+                  <td><b>Descripcion</b></td>
+                  <td><b>Opciones</b></td>
+                </tr>
+                <tr *ngFor="let f of can?.fotografias">
+                  <td>{{f?.nombreArchivo}}</td>
+                  <td>{{f?.descripcion}}</td>
+                  <td>
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-primary btn-sm" (click)="descargarFotografia(f?.uuid)"><fa-icon [icon]="faDownload"></fa-icon> Descargar</button>
+                      <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="sr-only">Toggle Dropdown</span>
+                      </button>
+                      <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#"><fa-icon [icon]="faTrash"></fa-icon> Eliminar</a>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="showFotografiaForm">
+                  <td colspan="3">
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <form [formGroup]="crearVehiculoFotografiaForm">
+                          <div class="form-row">
+                            <div class="col-sm-6">
+                              <label for="foto">
+                                <b>Archivo</b>
+                              </label>
+                              <input id="foto" class="form-control" formControlName="file" type="file" accept="image/*" (change)="onFileChange($event)">
+                            </div>
+                            <div class="col-sm-6">
+                              <label for="fotoDescripcion">
+                                <b>Descripcion</b>
+                              </label>
+                              <input id="fotoDescripcion" class="form-control" formControlName="descripcion" type="text" placeholder="Ej. Foto frontal">
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <button class="btn btn-primary btn-sm" (click)="guardarFotografia(crearVehiculoFotografiaForm)">Guardar</button>
+                        <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevaFotografia()">Cancelar</button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="!showFotografiaForm">
+                  <td colspan="3">
+                    <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaFotografia()">Agregar fotografia</button>
                   </td>
                 </tr>
               </table>

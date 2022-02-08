@@ -1,8 +1,6 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
-import com.pelisat.cesp.ceemsp.database.dto.CanCartillaVacunacionDto;
 import com.pelisat.cesp.ceemsp.database.dto.CanConstanciaSaludDto;
-import com.pelisat.cesp.ceemsp.restceemsp.service.CanCartillaVacunacionService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.CanConstanciaSaludService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -4,8 +4,6 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
-import { HomeComponent } from './home/home.component';
-import { DashboardComponent } from './home/dashboard/dashboard.component';
 import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
@@ -29,7 +27,6 @@ import { BuzonSalidaComponent } from './home/comunicados/buzon-salida/buzon-sali
 import { VisitasComponent } from './home/visitas/visitas.component';
 import { ReporteoComponent } from './home/reporteo/reporteo.component';
 import { ModalidadesComponent } from './home/catalogos/modalidades/modalidades.component';
-import { ToastComponent } from './_components/toast/toast.component';
 import { AgButtonComponent } from './_components/ag-button/ag-button.component';
 import { EmpresaDetallesComponent } from './home/empresas/empresa-detalles/empresa-detalles.component';
 import { EmpresaDomiciliosComponent } from './home/empresas/empresa-domicilios/empresa-domicilios.component';
@@ -52,6 +49,7 @@ import { EmpresaEquipoComponent } from './home/empresas/empresa-equipo/empresa-e
 import { EquipoComponent } from './home/catalogos/equipo/equipo.component';
 import { UniformesComponent } from './home/catalogos/equipo/uniformes/uniformes.component';
 import { EmpresaUniformesComponent } from './home/empresas/empresa-uniformes/empresa-uniformes.component';
+import {PdfViewerModule} from "ng2-pdf-viewer";
 
 @NgModule({
   declarations: [
@@ -104,7 +102,8 @@ import { EmpresaUniformesComponent } from './home/empresas/empresa-uniformes/emp
     FontAwesomeModule,
     AgGridModule,
     CKEditorModule,
-    NgxPrintModule
+    NgxPrintModule,
+    PdfViewerModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

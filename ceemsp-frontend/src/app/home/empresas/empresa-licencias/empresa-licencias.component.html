@@ -99,11 +99,11 @@
             </tr>
             <tr>
               <td><b>Modalidad:</b></td>
-              <td>{{licencia?.modalidad.nombre + " " + licencia?.modalidad.descripcion}}</td>
+              <td>{{licencia?.modalidad?.nombre + " " + licencia?.modalidad.descripcion}}</td>
             </tr>
             <tr>
               <td><b>Submodalidad:</b></td>
-              <td>{{licencia?.submodalidad.nombre}}</td>
+              <td>{{licencia?.submodalidad?.nombre}}</td>
             </tr>
           </table>
         </div>
@@ -192,6 +192,73 @@
                 </div>
               </td>
             </tr>
+            <tr *ngIf="showArmaForm">
+              <td colspan="7">
+                <form [formGroup]="crearArmaForm">
+                  <div class="form-row">
+                    <div class="col-sm-6">
+                      <label for="bunker">
+                        <b>Domicilio de resguardo *</b>
+                        <span *ngIf="crearArmaForm.controls['bunker'].invalid && (crearArmaForm.controls['bunker'].dirty || crearArmaForm.controls['bunker'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="bunker" class="form-control" formControlName="bunker">
+                        <option *ngFor="let d of domiciliosLicenciaColectiva" value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1}}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-sm-3">
+                      <label for="marca">
+                        <b>Marca *</b>
+                        <span *ngIf="crearArmaForm.controls['marca'].invalid && (crearArmaForm.controls['marca'].dirty || crearArmaForm.controls['marca'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="marca" class="form-control" formControlName="marca">
+                        <option *ngFor="let m of marcas" value="{{m.uuid}}">{{m.nombre}}</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="clase">
+                        <b>Clase *</b>
+                        <span *ngIf="crearArmaForm.controls['clase'].invalid && (crearArmaForm.controls['clase'].dirty || crearArmaForm.controls['clase'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="clase" class="form-control" formControlName="clase">
+                        <option *ngFor="let c of clases" value="{{c.uuid}}">{{c.nombre}}</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="tipo">
+                        <b>Tipo *</b>
+                        <span *ngIf="crearArmaForm.controls['tipo'].invalid && (crearArmaForm.controls['tipo'].dirty || crearArmaForm.controls['tipo'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="tipo" class="form-control" formControlName="tipo">
+                        <option value="CORTA">Corta</option>
+                        <option value="LARGA">Larga</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="calibre">
+                        <b>Calibre *</b>
+                        <span *ngIf="crearArmaForm.controls['calibre'].invalid && (crearArmaForm.controls['calibre'].dirty || crearArmaForm.controls['calibre'].touched)" class="text-danger"> - Requerido</span>
+                      </label>
+                      <input type="text" class="form-control" id="calibre" formControlName="calibre" placeholder="Ejemplo: .38 Super, .22"/>
+                    </div>
+                  </div>
+                </form>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button (click)="crearArma(crearArmaForm)" class="btn btn-sm btn-primary">Guardar arma
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!showArmaForm">
+              <td colspan="7">
+                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaArma()">Agregar arma</button>
+              </td>
+            </tr>
             <tr *ngIf="mostrarModificarStatusArma">
               <td colspan="7">
                 <form formGroup="modificarStatusArmaForm">
@@ -242,9 +309,28 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="descargarLicencia(licencia.uuid)">Descargar licencia</button>
+      <button class="btn btn-primary" (click)="descargarLicencia(licencia.uuid, mostrarLicenciaPdfModal)">Descargar licencia</button>
       <button class="btn btn-primary" (click)="mostrarModificarLicenciaModal()">Modificar</button>
       <button type="button" class="btn btn-danger" (click)="mostrarEliminarLicenciaModal()">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarLicenciaPdfModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarLicenciaPdfModal">Ver adjunto de la licencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <pdf-viewer [src]="pdfActual"
+                      [render-text]="true"
+                      [original-size]="false"
+                      style="width: 100%; height: 600px"></pdf-viewer>
+        </div>
+      </div>
     </div>
   </ng-template>
 

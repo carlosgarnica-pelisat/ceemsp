@@ -7,7 +7,6 @@ import Credential from "../_models/Credential";
 import {ComunicadosGeneralesService} from "../_services/comunicados-generales.service";
 import ComunicadoGeneral from "../_models/ComunicadoGeneral";
 import {PublicService} from "../_services/public.service";
-import {error} from "jodit/types/core/helpers";
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({

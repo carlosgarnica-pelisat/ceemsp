@@ -56,14 +56,14 @@
                     <b>Tipo de tramite *</b>
                     <span
                       *ngIf="empresaCreacionForm.controls['tipoTramite'].invalid && (empresaCreacionForm.controls['tipoTramite'].dirty || empresaCreacionForm.controls['tipoTramite'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['tipoTramite'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['tipoTramite'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                   </label>
                   <select id="tipoTramite" class="form-control" formControlName="tipoTramite" (change)="cambiarTipoTramite($event.target)">
                     <option value="EAFJAL">TRAMITE FEDERAL (EAFJAL)</option>
                     <option value="SPSMD">TRAMITE ESTATAL (SPSMD)</option>
                     <option value="RESPRO">SERVICIOS PROPIOS (RESPRO)</option>
-                    <option value="XXXXXX">AUTORIZACION PROVISIONAL (XXXXXX)</option>
+                    <option value="AP">AUTORIZACION PROVISIONAL (AP)</option>
                   </select>
                 </div>
                 <div class="col-sm-4">
@@ -71,7 +71,7 @@
                     <b>Registro (autogenerado) *</b>
                     <span
                       *ngIf="empresaCreacionForm.controls['registro'].invalid && (empresaCreacionForm.controls['registro'].dirty || empresaCreacionForm.controls['registro'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['registro'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['registro'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                   </label>
                   <div class="input-group">
@@ -89,7 +89,7 @@
                     <b>Tipo de persona *</b>
                     <span
                       *ngIf="empresaCreacionForm.controls['tipoPersona'].invalid && (empresaCreacionForm.controls['tipoPersona'].dirty || empresaCreacionForm.controls['tipoPersona'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['tipoPersona'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['tipoPersona'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                   </label>
                   <select id="tipoPersona" class="form-control" formControlName="tipoPersona" (change)="cambiarTipoPersona($event.target)">
@@ -101,20 +101,21 @@
               <div class="form-row">
                 <div class="col-sm-3">
                   <label for="razonSocial">
-                    <b>Razon Social *</b>
+                    <b *ngIf="tipoPersona === 'MORAL'">Razon Social *</b>
+                    <b *ngIf="tipoPersona === 'FISICA'">Nombre Completo *</b>
                     <span
                       *ngIf="empresaCreacionForm.controls['razonSocial'].invalid && (empresaCreacionForm.controls['razonSocial'].dirty || empresaCreacionForm.controls['razonSocial'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['razonSocial'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['razonSocial'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                   </label>
-                  <input class="form-control" id="razonSocial" type="text" formControlName="razonSocial" placeholder="Ejemplo. Hola S.A. de C.V.">
+                  <input class="form-control" id="razonSocial" type="text" formControlName="razonSocial" placeholder="Ejemplo. Juan Perez Lopez o Prue S.A. de C.V.">
                 </div>
                 <div class="col-sm-3">
                   <label for="nombreComercial">
                     <b>Nombre comercial *</b>
                     <span
                       *ngIf="empresaCreacionForm.controls['nombreComercial'].invalid && (empresaCreacionForm.controls['nombreComercial'].dirty || empresaCreacionForm.controls['nombreComercial'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['nombreComercial'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['nombreComercial'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                   </label>
                   <input class="form-control" id="nombreComercial" type="text" formControlName="nombreComercial" placeholder="Ejemplo. Hola Empresa">
@@ -141,7 +142,7 @@
                     <b>RFC *</b>
                     <span
                       *ngIf="empresaCreacionForm.controls['rfc'].invalid && (empresaCreacionForm.controls['rfc'].dirty || empresaCreacionForm.controls['rfc'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['rfc'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['rfc'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                   </label>
                   <input class="form-control" id="rfc" type="text" formControlName="rfc" placeholder="Ejemplo. XAXX010101AAA">
@@ -151,7 +152,7 @@
                     <b>Correo principal *</b>
                     <span
                       *ngIf="empresaCreacionForm.controls['correoElectronico'].invalid && (empresaCreacionForm.controls['correoElectronico'].dirty || empresaCreacionForm.controls['correoElectronico'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['correoElectronico'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['correoElectronico'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                   </label>
                   <input class="form-control" id="correoElectronico" type="text" formControlName="correoElectronico" placeholder="Ejemplo hola@hola.com">
@@ -161,7 +162,7 @@
                     <b>Telefono *</b>
                     <span
                       *ngIf="empresaCreacionForm.controls['telefono'].invalid && (empresaCreacionForm.controls['telefono'].dirty || empresaCreacionForm.controls['telefono'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['telefono'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['telefono'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                   </label>
                   <input class="form-control" id="telefono" type="text" formControlName="telefono" placeholder="Ejemplo 3312345678">
@@ -175,7 +176,7 @@
                     <b>Modalidad *</b>
                     <span
                       *ngIf="empresaModalidadForm.controls['modalidad'].invalid && (empresaModalidadForm.controls['modalidad'].dirty || empresaModalidadForm.controls['modalidad'].touched)">
-                      <i *ngIf="empresaModalidadForm.controls['modalidad'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaModalidadForm.controls['modalidad'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                   </label>
                   <select id="modalidad" class="form-control" formControlName="modalidad" (change)="seleccionarModalidad($event.target)">
@@ -227,13 +228,15 @@
                     <td><b>Fecha de Fin</b></td>
                     <td><b>Acciones</b></td>
                   </tr>
-                  <tr *ngFor="let m of empresaModalidades">
+                  <tr *ngFor="let m of empresaModalidades; let i = index;">
                     <td>{{m.modalidad.nombre.substring(0, 40)}}</td>
                     <td>{{m.submodalidad?.nombre.substring(0, 40)}}</td>
                     <td>{{m.numeroRegistroFederal}}</td>
                     <td>{{m.fechaInicio}}</td>
                     <td>{{m.fechaFin}}</td>
-                    <td></td>
+                    <td>
+                      <fa-icon [icon]="faTrash" class="fakelink" (click)="eliminarModalidad(i)"></fa-icon>
+                    </td>
                   </tr>
                 </table>
               </div>
@@ -370,17 +373,11 @@
                   </label>
                   <input id="telefonoMovil" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoMovil" #telefonoMovil>
                 </div>
-                <!--div class="col-sm-3">
-                  <label for="address4">
-                    <b>Foto fachada</b>
-                  </label>
-                  <input id="address4" type="file" class="form-control" formControlName="address4" #address4>
-                </div-->
               </div>
             </form>
             <div class="row" style="margin-top: 20px;">
               <div class="col-sm-12">
-                <button class="btn btn-outline-primary">Agregar</button>
+                <button class="btn btn-outline-primary" (click)="agregarDomicilio(empresaDomiciliosForm)">Agregar</button>
               </div>
             </div>
 
@@ -388,20 +385,38 @@
               <div class="col-sm-12">
                 <table class="table">
                   <tr>
-                    <td>Nombre</td>
-                    <td>Tipo</td>
-                    <td>Matriz</td>
-                    <td>Domicilio</td>
-                    <td>Colonia</td>
-                    <td>Municipio</td>
-                    <td>Estado</td>
-                    <td>Pais</td>
-                    <td>Codigo postal</td>
-                    <td>Referencia</td>
-                    <td>Telefono fijo</td>
-                    <td>Telefono movil</td>
-                    <td>Foto</td>
-                    <td>Acciones</td>
+                    <td><b>Nombre</b></td>
+                    <td><b>Matriz</b></td>
+                    <td><b>Domicilio</b></td>
+                    <td><b>N. Ext</b></td>
+                    <td><b>N. Int</b></td>
+                    <td><b>Colonia</b></td>
+                    <td><b>Municipio</b></td>
+                    <td><b>Estado</b></td>
+                    <td><b>Pais</b></td>
+                    <td><b>Codigo postal</b></td>
+                    <td><b>Referencia</b></td>
+                    <td><b>Telefono fijo</b></td>
+                    <td><b>Telefono movil</b></td>
+                    <td><b>Acciones</b></td>
+                  </tr>
+                  <tr *ngFor="let d of empresaDomicilios; let i = index">
+                    <td>{{d.nombre}}</td>
+                    <td>{{d.matriz}}</td>
+                    <td>{{d.domicilio1}}</td>
+                    <td>{{d.numeroExterior}}</td>
+                    <td>{{d.numeroInterior}}</td>
+                    <td>{{d.domicilio2}}</td>
+                    <td>{{d.domicilio3}}</td>
+                    <td>{{d.estado}}</td>
+                    <td>{{d.pais}}</td>
+                    <td>{{d.codigoPostal}}</td>
+                    <td>{{d.domicilio4}}</td>
+                    <td>{{d.telefonoFijo}}</td>
+                    <td>{{d.telefonoMovil}}</td>
+                    <td>
+                      <fa-icon [icon]="faTrash" class="fakelink" (click)="eliminarDomicilio(i)"></fa-icon>
+                    </td>
                   </tr>
                 </table>
               </div>
@@ -412,7 +427,7 @@
                 <button (click)="previous()" class="btn btn-primary">Anterior:
                   Empresa
                 </button>
-                <button (click)="next('PSYCHOLOGISTS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
+                <button (click)="next('LEGAL', undefined)" class="btn btn-primary">Siguiente:
                   Legal
                 </button>
               </div>
@@ -422,12 +437,15 @@
           <!-- STEP 3 - SUMMARY -->
           <div id="test-l-3" class="content">
             <div class="row">
+
+            </div>
+            <div class="row">
               <div class="col-sm-12">
                 <button (click)="previous()" class="btn btn-primary">Anterior:
                   Domicilios
                 </button>
-                <button (click)="next('PSYCHOLOGISTS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
-                  Legal
+                <button (click)="next('FORMAS_EJECUCION', undefined)" class="btn btn-primary">Siguiente:
+                  Formas de ejecucion
                 </button>
               </div>
             </div>

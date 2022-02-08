@@ -1,6 +1,7 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
+import com.pelisat.cesp.ceemsp.database.dto.IncidenciaComentarioDto;
 import com.pelisat.cesp.ceemsp.database.dto.IncidenciaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.*;
@@ -38,11 +39,13 @@ public class IncidenciaServiceImpl implements IncidenciaService {
     private final IncidenciaArchivoRepository incidenciaArchivoRepository;
     private final IncidenciaCanRepository incidenciaCanRepository;
     private final IncidenciaVehiculoRepository incidenciaVehiculoRepository;
+    private final IncidenciaPersonaRepository incidenciaPersonaRepository;
     private final IncidenciaComentarioRepository incidenciaComentarioRepository;
     private final CanService canService;
     private final ArmaService armaService;
     private final EmpresaVehiculoService empresaVehiculoService;
     private final ClienteService clienteService;
+    private final PersonaService personaService;
 
     @Autowired
     public IncidenciaServiceImpl(UsuarioService usuarioService, EmpresaService empresaService, DaoToDtoConverter daoToDtoConverter,
@@ -50,7 +53,8 @@ public class IncidenciaServiceImpl implements IncidenciaService {
                                  IncidenciaArmaRepository incidenciaArmaRepository, IncidenciaArchivoRepository incidenciaArchivoRepository,
                                  IncidenciaCanRepository incidenciaCanRepository, IncidenciaVehiculoRepository incidenciaVehiculoRepository,
                                  IncidenciaComentarioRepository incidenciaComentarioRepository, CanService canService,
-                                 ArmaService armaService, EmpresaVehiculoService empresaVehiculoService, ClienteService clienteService) {
+                                 ArmaService armaService, EmpresaVehiculoService empresaVehiculoService, ClienteService clienteService,
+                                 IncidenciaPersonaRepository incidenciaPersonaRepository, PersonaService personaService) {
         this.usuarioService = usuarioService;
         this.empresaService = empresaService;
         this.daoToDtoConverter = daoToDtoConverter;
@@ -62,10 +66,12 @@ public class IncidenciaServiceImpl implements IncidenciaService {
         this.incidenciaCanRepository = incidenciaCanRepository;
         this.incidenciaVehiculoRepository = incidenciaVehiculoRepository;
         this.incidenciaComentarioRepository = incidenciaComentarioRepository;
+        this.incidenciaPersonaRepository = incidenciaPersonaRepository;
         this.canService = canService;
         this.armaService = armaService;
         this.empresaVehiculoService = empresaVehiculoService;
         this.clienteService = clienteService;
+        this.personaService = personaService;
     }
 
     @Override
@@ -90,7 +96,38 @@ public class IncidenciaServiceImpl implements IncidenciaService {
 
     @Override
     public IncidenciaDto obtenerIncidenciaPorUuid(String empresaUuid, String incidenciaUuid) {
-        return null;
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(incidenciaUuid)) {
+            logger.warn("El uuid de la empresa o de la incidencia vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo los detalles de la incidencia con el uuid [{}]", empresaUuid);
+
+        Incidencia incidencia = incidenciaRepository.getByUuidAndEliminadoFalse(incidenciaUuid);
+        // Obteniendo cada entidad involucrada dentro de la incidencia
+        IncidenciaDto incidenciaDto = daoToDtoConverter.convertDaoToDtoIncidencia(incidencia);
+
+        if(incidencia.getAsignado() != null && incidencia.getAsignado() > 0) {
+            incidenciaDto.setAsignado(usuarioService.getUserById(incidencia.getAsignado()));
+        }
+        List<IncidenciaComentario> incidenciaComentarios = incidenciaComentarioRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
+        List<IncidenciaPersona> incidendiaPersonas = incidenciaPersonaRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
+        List<IncidenciaArma> incidenciaArmas = incidenciaArmaRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
+        List<IncidenciaVehiculo> incidenciaVehiculos = incidenciaVehiculoRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
+        List<IncidenciaCan> incidenciaCanes = incidenciaCanRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
+
+        // realizando el parsing de cada uno de los elementos por medio del servicio y despues, agregarlos
+        incidenciaDto.setComentarios(incidenciaComentarios.stream().map(c -> {
+            IncidenciaComentarioDto incidenciaComentarioDto = new IncidenciaComentarioDto();
+            incidenciaComentarioDto.setComentario(c.getComentario());
+            return incidenciaComentarioDto;
+        }).collect(Collectors.toList()));
+
+        incidenciaDto.setPersonasInvolucradas(incidendiaPersonas.stream().map(p -> personaService.obtenerPorId(empresaUuid, p.getPersona())).collect(Collectors.toList()));
+        incidenciaDto.setArmasInvolucradas(incidenciaArmas.stream().map(a -> armaService.obtenerArmaPorId(empresaUuid, a.getArma())).collect(Collectors.toList()));
+        incidenciaDto.setCanesInvolucrados(incidenciaCanes.stream().map(c -> canService.obtenerCanPorId(c.getId())).collect(Collectors.toList()));
+        incidenciaDto.setVehiculosInvolucrados(incidenciaVehiculos.stream().map(v -> empresaVehiculoService.obtenerVehiculoPorId(empresaUuid, v.getVehiculo())).collect(Collectors.toList()));
+        return incidenciaDto;
     }
 
     @Transactional
@@ -127,12 +164,26 @@ public class IncidenciaServiceImpl implements IncidenciaService {
 
         Incidencia incidenciaCreada = incidenciaRepository.save(incidencia);
 
+        if(incidenciaDto.getPersonasInvolucradas() != null && incidenciaDto.getPersonasInvolucradas().size() > 0) {
+            logger.info("Hay personas involucradas");
+            List<IncidenciaPersona> personas = incidenciaDto.getPersonasInvolucradas().stream().map(persona -> {
+                IncidenciaPersona incidenciaPersona = new IncidenciaPersona();
+                incidenciaPersona.setUuid(RandomStringUtils.randomAlphanumeric(12));
+                incidenciaPersona.setIncidencia(incidenciaCreada.getId());
+                incidenciaPersona.setPersona(persona.getId());
+                daoHelper.fulfillAuditorFields(true, incidenciaPersona, usuarioDto.getId());
+                return incidenciaPersona;
+            }).collect(Collectors.toList());
+            incidenciaPersonaRepository.saveAll(personas);
+        }
+
         if(incidenciaDto.getCanesInvolucrados() != null && incidenciaDto.getCanesInvolucrados().size() > 0) {
             logger.info("Hay canes involucrados");
             List<IncidenciaCan> canes = incidenciaDto.getCanesInvolucrados().stream().map(can -> {
                 IncidenciaCan incidenciaCan = new IncidenciaCan();
+                incidenciaCan.setUuid(RandomStringUtils.randomAlphanumeric(12));
                 incidenciaCan.setIncidencia(incidenciaCreada.getId());
-                incidenciaCan.setCan(canService.obtenerCanPorId(can.getId()).getId());
+                incidenciaCan.setCan(can.getId());
                 daoHelper.fulfillAuditorFields(true, incidenciaCan, usuarioDto.getId());
                 return incidenciaCan;
             }).collect(Collectors.toList());
@@ -143,6 +194,7 @@ public class IncidenciaServiceImpl implements IncidenciaService {
             logger.info("Hay armas involucradas");
             List<IncidenciaArma> armas =  incidenciaDto.getArmasInvolucradas().stream().map(armaDto -> {
                 IncidenciaArma incidenciaArma = new IncidenciaArma();
+                incidenciaArma.setUuid(RandomStringUtils.randomAlphanumeric(12));
                 incidenciaArma.setIncidencia(incidenciaCreada.getId());
                 incidenciaArma.setArma(armaDto.getId());
                 daoHelper.fulfillAuditorFields(true, incidenciaArma, usuarioDto.getId());
@@ -156,6 +208,7 @@ public class IncidenciaServiceImpl implements IncidenciaService {
             List<IncidenciaVehiculo> vehiculos = incidenciaDto.getVehiculosInvolucrados().stream().map(vehiculoDto -> {
                 IncidenciaVehiculo incidenciaVehiculo = new IncidenciaVehiculo();
                 incidenciaVehiculo.setIncidencia(incidenciaCreada.getId());
+                incidenciaVehiculo.setVehiculo(vehiculoDto.getId());
                 daoHelper.fulfillAuditorFields(true, incidenciaVehiculo, usuarioDto.getId());
                 return incidenciaVehiculo;
             }).collect(Collectors.toList());

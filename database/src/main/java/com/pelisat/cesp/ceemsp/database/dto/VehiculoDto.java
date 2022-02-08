@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.database.dto;
 
+import com.pelisat.cesp.ceemsp.database.dto.metadata.VehiculoFotografiaMetadata;
 import com.pelisat.cesp.ceemsp.database.type.NivelBlindajeEnum;
 import com.pelisat.cesp.ceemsp.database.type.VehiculoOrigenEnum;
 import lombok.Getter;
@@ -31,4 +32,5 @@ public class VehiculoDto {
     private NivelBlindajeEnum nivelBlindaje;
 
     private List<VehiculoColorDto> colores;
+    private List<VehiculoFotografiaMetadata> fotografias;
 }

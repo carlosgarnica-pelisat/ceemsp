@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface PersonaRepository extends JpaRepository<Personal, Integer> {
     List<Personal> getAllByEmpresaAndEliminadoFalse(int empresa);
-
     Personal getByUuidAndEliminadoFalse(String uuid);
+    Personal getByCurpAndEliminadoFalse(String curp);
 }

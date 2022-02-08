@@ -141,7 +141,6 @@ export class EmpresaArmasComponent implements OnInit {
   }
 
   crearArma(form) {
-    console.log(form.value);
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",

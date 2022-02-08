@@ -11,6 +11,7 @@ import {EmpresaService} from "../../../_services/empresa.service";
 import Cliente from "../../../_models/Cliente";
 import {ToastType} from "../../../_enums/ToastType";
 import Incidencia from "../../../_models/Incidencia";
+import IncidenciaComentario from "../../../_models/IncidenciaComentario";
 
 @Component({
   selector: 'app-empresa-incidencias',
@@ -23,9 +24,10 @@ export class EmpresaIncidenciasComponent implements OnInit {
   private gridColumnApi;
 
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
-    {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
+    {headerName: 'Numero', field: 'numero', sortable: true, filter: true },
+    {headerName: 'Asignado', field: 'asignado === null ? Sin asignar : asignado.nombre', sortable: true, filter: true },
+    {headerName: 'Fecha', field: 'fechaIncidencia', sortable: true, filter: true },
+    {headerName: 'Status', field: 'status', sortable: true, filter: true}
   ];
   rowData = [];
 
@@ -44,6 +46,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
   crearCanIncidenciaForm: FormGroup;
   crearArmaIncidenciaForm: FormGroup;
 
+  cliente: Cliente;
   personalInvolucrado: Persona[] = [];
   vehiculosInvolucrados: Vehiculo[] = [];
   canesInvolucrados: Can[] = [];
@@ -61,8 +64,11 @@ export class EmpresaIncidenciasComponent implements OnInit {
   mostrarAgregarPersonalForm: boolean = false;
 
   pestanaActualInvolucramiento: string = 'PERSONAL';
+  incidenciaActualTab: string = 'COMENTARIOS';
 
   editorData: string = "<p>Favor de escribir con detalle el relato de la incidencia</p>"
+
+  incidencia: Incidencia;
 
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
               private toastService: ToastService, private modalService: NgbModal,
@@ -132,7 +138,17 @@ export class EmpresaIncidenciasComponent implements OnInit {
         `No se pudieron descargar los personales. Motivo: ${error}`,
         ToastType.ERROR
       );
-    })
+    });
+
+    this.empresaService.obtenerIncidenciasPorEmpresa(this.uuid).subscribe((data: Incidencia[]) => {
+      this.rowData = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las incidencias. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
   }
 
   onGridReady(params) {
@@ -179,12 +195,43 @@ export class EmpresaIncidenciasComponent implements OnInit {
     this.mostrarAgregarVehiculoForm = !this.mostrarAgregarVehiculoForm;
   }
 
+  mostrarModalDetalles(rowData, modal) {
+    console.log(rowData);
+    let uuid = rowData.uuid;
+    this.empresaService.obtenerIncidenciaPorUuid(this.uuid, uuid).subscribe((data: Incidencia) => {
+      this.incidencia = data;
+
+      this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+      this.modal.result.then((result) => {
+        this.closeResult = `Closed with ${result}`;
+      }, (error) => {
+        this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la informacion de la incidencia. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
+  }
+
   agregarArma() {
 
   }
 
   agregarCan() {
 
+  }
+
+  cambiarIncidenciaActualTab(tab) {
+    this.incidenciaActualTab = tab;
+  }
+
+  seleccionarCliente(event) {
+    let uuid = event.value;
+    this.cliente = this.clientes.filter(x => x.uuid === uuid)[0];
   }
 
   agregarPersona(form) {
@@ -200,7 +247,6 @@ export class EmpresaIncidenciasComponent implements OnInit {
     let formValue = form.value;
 
     this.personalInvolucrado.push(this.personales.filter(x => x.uuid === formValue.personaInvolucrada)[0]);
-    //this.personales.s
     this.conmutarAgregarPersonalForm();
   }
 
@@ -233,6 +279,13 @@ export class EmpresaIncidenciasComponent implements OnInit {
     formValue.vehiculosInvolucrados = this.vehiculosInvolucrados;
     formValue.personasInvolucradas = this.personalInvolucrado;
     formValue.canesInvolucrados = this.canesInvolucrados;
+    formValue.comentarios = [];
+
+    let comentario = new IncidenciaComentario();
+    comentario.comentario = this.editorData;
+
+    formValue.comentarios.push(comentario);
+    formValue.cliente = this.cliente;
 
     this.empresaService.guardarIncidencia(this.uuid, formValue).subscribe((data: Incidencia) => {
       this.toastService.showGenericToast(

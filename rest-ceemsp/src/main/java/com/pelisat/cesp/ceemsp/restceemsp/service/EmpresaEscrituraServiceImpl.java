@@ -74,7 +74,19 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
 
         List<EmpresaEscritura> empresaEscrituras = empresaEscrituraRepository.findAllByEmpresaAndEliminadoFalse(empresaDto.getId());
         return empresaEscrituras.stream()
-                .map(daoToDtoConverter::convertDaoToDtoEmpresaEscritura)
+                .map(empresaEscritura -> {
+                    EmpresaEscrituraDto empresaEscrituraDto = daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscritura);
+                    List<EmpresaEscrituraSocio> socios = empresaEscrituraSociosRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
+                    List<EmpresaEscrituraApoderado> apoderados = empresaEscrituraApoderadoRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
+                    List<EmpresaEscrituraRepresentante> representantes = empresaEscrituraRepresentanteRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
+                    List<EmpresaEscrituraConsejo> consejos = empresaEscrituraConsejoRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
+
+                    empresaEscrituraDto.setSocios(socios.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraSocio).collect(Collectors.toList()));
+                    empresaEscrituraDto.setApoderados(apoderados.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraApoderado).collect(Collectors.toList()));
+                    empresaEscrituraDto.setRepresentantes(representantes.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraRepresentante).collect(Collectors.toList()));
+                    empresaEscrituraDto.setConsejos(consejos.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraConsejo).collect(Collectors.toList()));
+                    return empresaEscrituraDto;
+                })
                 .collect(Collectors.toList());
     }
 

@@ -427,4 +427,13 @@ public class DaoToDtoConverter {
 
         return modelMapper.map(empresaEquipo, EmpresaEquipoDto.class);
     }
+
+    public VisitaDto convertDaoToDtoVisita(Visita visita) {
+        if(visita == null) {
+            logger.warn("La visita a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(visita, VisitaDto.class);
+    }
 }

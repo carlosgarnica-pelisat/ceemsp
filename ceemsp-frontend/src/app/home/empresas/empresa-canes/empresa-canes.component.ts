@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ActivatedRoute} from "@angular/router";
@@ -14,7 +14,7 @@ import Vehiculo from "../../../_models/Vehiculo";
 import Can from "../../../_models/Can";
 import TipoEntrenamiento from "../../../_models/TipoEntrenamiento";
 import CanAdiestramiento from "../../../_models/CanAdiestramiento";
-import {faCheck, faTrash, faPencilAlt} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faTrash, faPencilAlt, faDownload} from "@fortawesome/free-solid-svg-icons";
 import CanCartillaVacunacion from "../../../_models/CanCartillaVacunacion";
 import CanConstanciaSalud from "../../../_models/CanConstanciaSalud";
 
@@ -31,6 +31,7 @@ export class EmpresaCanesComponent implements OnInit {
   faCheck = faCheck;
   faTrash = faTrash;
   faPencilAlt = faPencilAlt;
+  faDownload = faDownload;
 
   domicilios: EmpresaDomicilio[] = [];
   clientes: Cliente[] = [];
@@ -53,6 +54,7 @@ export class EmpresaCanesComponent implements OnInit {
   crearEmpresaCanCertificadoSaludForm: FormGroup;
   crearEmpresaCanCartillaVacunacionForm: FormGroup;
   crearEmpresaCanEntrenamientoForm: FormGroup;
+  crearCanFotografiaForm: FormGroup;
 
   origen: string = "";
 
@@ -61,11 +63,17 @@ export class EmpresaCanesComponent implements OnInit {
   pestanaActual: string = "DETALLES";
   can: Can;
 
+  tempFile;
+  imagenActual;
+
   showEntrenamientoForm: boolean;
   showCertificadoForm: boolean;
   showVacunacionForm: boolean;
+  showFotografiaForm: boolean;
 
   tipoAdiestramiento: TipoEntrenamiento;
+  @ViewChild('mostrarFotoCanesModal') mostrarFotoCanModal: any;
+
 
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
               private toastService: ToastService, private modalService: NgbModal,
@@ -115,6 +123,11 @@ export class EmpresaCanesComponent implements OnInit {
       fechaConstancia: ['', Validators.required]
     })
 
+    this.crearCanFotografiaForm = this.formBuilder.group({
+      file: ['', Validators.required],
+      descripcion: ['', Validators.required]
+    })
+
     this.canesService.getAllEntrenamientos().subscribe((data: TipoEntrenamiento[]) => {
       this.tiposAdiestramiento = data;
     }, (error) => {
@@ -161,6 +174,10 @@ export class EmpresaCanesComponent implements OnInit {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
     this.gridColumnApi = params.gridApi;
+  }
+
+  onFileChange(event) {
+    this.tempFile = event.target.files[0]
   }
 
   seleccionarOrigen(event) {
@@ -217,6 +234,10 @@ export class EmpresaCanesComponent implements OnInit {
 
   mostrarVacunacionForm() {
     this.showVacunacionForm = !this.showVacunacionForm;
+  }
+
+  mostrarFormularioNuevaFotografia() {
+    this.showFotografiaForm = !this.showFotografiaForm;
   }
 
   cambiarTipoAdiestramiento(event) {
@@ -400,6 +421,20 @@ export class EmpresaCanesComponent implements OnInit {
     //this.stepper.previous()
   }
 
+  descargarFotografia(uuid) {
+    this.empresaService.descargarPersonaFotografia(this.uuid, this.can.uuid, uuid).subscribe((data) => {
+      // @ts-ignore
+      this.convertirImagen(data);
+      this.modalService.open(this.mostrarFotoCanModal);
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la fotografia de la persona. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
   exportGridData(format) {
     switch(format) {
       case "CSV":
@@ -420,6 +455,43 @@ export class EmpresaCanesComponent implements OnInit {
         )
         break;
     }
+  }
+
+  guardarFotografia(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos pendientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando la fotografia del can",
+      ToastType.INFO
+    );
+
+    let formValue = form.value;
+    let formData = new FormData();
+    formData.append('fotografia', this.tempFile, this.tempFile.name);
+    formData.append('metadataArchivo', JSON.stringify(formValue));
+
+    this.empresaService.guardarPersonaFotografia(this.uuid, this.can.uuid, formData).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado la fotografia con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la fotografia. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
   }
 
   private getDismissReason(reason: any): string {

@@ -4,7 +4,7 @@ public enum TipoTramiteEnum {
     SPSMD("SPSMD", "Registro estatal", "Tipo de tramite enfocado para la prestacion de servicios a nivel estatal"),
     EAFJAL("EAFJAL", "Registro federal", "Tipo de tramite enfocado para la prestacion de servicios a nivel federal"),
     RESPRO("RESPRO", "Registro de servicios propios", "Tipo de tramite enfocado para los servicios propios"),
-    XXXXXX("XXXXXX", "Autorizacion provisional", "Autorizacion provisional, pendiente de definir siglas");
+    AP("AP", "Autorizacion provisional", "Autorizacion provisional");
 
     private String codigo;
     private String nombre;

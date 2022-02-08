@@ -6,7 +6,7 @@
     <h1 class="h3 mb-0 text-gray-800">Detalles de empresa</h1>
     <div class="btn-group">
       <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarEditarEmpresaModal(editarEmpresaModal)">Editar</button>
-      <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm" printSectionId="fichaInformativaData" styleSheetFile="assets/pdf.css" printTitle="Ficha infomativa" ngxPrint>Generar ficha informativa</button>
+      <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm" printSectionId="fichaInformativaData" styleSheetFile="assets/pdf.css" printTitle="Ficha infomativa: {{empresa?.registro}}" ngxPrint>Generar ficha informativa</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Opciones
@@ -34,8 +34,8 @@
             <b>Control Estatal de Seguridad de Empresas de Seguridad Privada</b><br>
             Av. de la Paz 875. Colonia Mexicaltzingo, Guadalajara, Jalisco.<br>
             <br>
-            <b>Ficha informativa</b><br>
           </p>
+          <h2>Ficha informativa</h2>
         </div>
       </div>
 
@@ -44,7 +44,8 @@
         <hr>
         <table class="table table-borderless">
           <tr>
-            <td><b>Razon social</b></td>
+            <td *ngIf="empresa?.tipoPersona === 'MORAL'"><b>Razon social</b></td>
+            <td *ngIf="empresa?.tipoPersona === 'FISICA'"><b>Nombre completo</b></td>
             <td>{{empresa?.razonSocial}}</td>
           </tr>
           <tr>
@@ -63,6 +64,14 @@
             <td><b>RFC</b></td>
             <td>{{empresa?.rfc}}</td>
           </tr>
+          <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
+            <td><b>CURP:</b></td>
+            <td>{{empresa?.curp}}</td>
+          </tr>
+          <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
+            <td><b>Sexo:</b></td>
+            <td>{{empresa?.sexo}}</td>
+          </tr>
           <tr>
             <td><b>Status</b></td>
             <td [ngSwitch]="empresa?.status">
@@ -73,41 +82,123 @@
               <span *ngSwitchCase="'PERDIDA_EFICACIA'">Perdida de eficacia</span>
             </td>
           </tr>
+          <tr>
+            <td><b>Observaciones:</b></td>
+            <td>{{empresa?.observaciones}}</td>
+          </tr>
         </table>
+        <br>
 
         <h3>Modalidades</h3>
-        <div class="row" *ngFor="let m of empresaModalidades">
-          <p><b>Modalidad:</b>{{m?.modalidad.nombre}}</p>
+        <hr>
+        <div class="row" *ngFor="let m of empresaModalidades; let i = index">
+          <h4>Modalidad: {{i + 1}}</h4>
+          <p><b>Nombre:</b>{{m?.modalidad.nombre}}</p>
           <p><b>Numero de registro federal:</b>{{m?.numeroRegistroFederal}}</p>
           <p><b>Fecha de inicio:</b>{{m?.fechaInicio}}</p>
           <p><b>Fecha de fin:</b>{{m?.fechaFin}}</p>
+          <br>
         </div>
-        <hr>
+        <br>
+
         <h3>Formas de ejecucion</h3>
         <hr>
+        <div class="row" *ngFor="let f of empresaFormasEjecucion; let i = index">
+          <h4>Forma de ejecucion: {{i + 1}}</h4>
+          <p><b>Nombre:</b>{{f?.formaEjecucion}}</p>
+          <br>
+        </div>
+        <br>
+
         <h3>Informacion legal y notarial</h3>
         <hr>
-        <div class="row" *ngFor="let e of escrituras">
+        <div class="row" *ngFor="let e of escrituras; let i = index">
+          <h4>Escritura: {{i + 1}}</h4>
           <p><b>Numero de escritura:</b> {{e?.numeroEscritura}}</p>
           <p><b>Institucion de fe:</b> {{e?.tipoFedatario + " numero " + e?.numero + " de la ciudad de " + e?.ciudad}}</p>
           <p><b>Fedatario:</b>{{e?.nombreFedatario}}</p>
           <p><b>Descripcion:</b>{{e?.descripcion}}</p>
           <div class="row">
             <b>Socios</b>
-            <table class="table">
+            <table class="table table-bordered" style="border: 1px solid;">
+              <tr>
+                <td><b>Nombre(s)</b></td>
+                <td><b>Apellido(s)</b></td>
+                <td><b>Sexo</b></td>
+                <td><b>Porcentaje</b></td>
+              </tr>
               <tr *ngFor="let s of e?.socios">
                 <td>{{s.nombres}}</td>
                 <td>{{s.apellidos}}</td>
                 <td>{{s.sexo}}</td>
+                <td>{{s.porcentajeAcciones}}</td>
               </tr>
             </table>
           </div>
-          <hr>
+          <br>
+          <div class="row">
+            <b>Apoderados</b>
+            <table class="table" style="border: 1px solid;">
+              <tr>
+                <td><b>Nombre(s)</b></td>
+                <td><b>Apellido(s)</b></td>
+                <td><b>Sexo</b></td>
+                <td><b>F. Inicio</b></td>
+                <td><b>F. Termino</b></td>
+              </tr>
+              <tr *ngFor="let a of e?.apoderados">
+                <td>{{a.nombres}}</td>
+                <td>{{a.apellidos}}</td>
+                <td>{{a.sexo}}</td>
+                <td>{{a.fechaInicio}}</td>
+                <td>{{a.fechaFin}}</td>
+              </tr>
+            </table>
+          </div>
+          <br>
+          <div class="row">
+            <b>Representantes</b>
+            <table class="table" style="border: 1px solid;">
+              <tr>
+                <td><b>Nombre(s)</b></td>
+                <td><b>Apellido(s)</b></td>
+                <td><b>Sexo</b></td>
+              </tr>
+              <tr *ngFor="let r of e?.representantes">
+                <td>{{r.nombres}}</td>
+                <td>{{r.apellidos}}</td>
+                <td>{{r.sexo}}</td>
+              </tr>
+            </table>
+          </div>
+          <br>
+          <div class="row">
+            <b>Consejos</b>
+            <table class="table" style="border: 1px solid;">
+              <tr >
+                <td><b>Nombre(s)</b></td>
+                <td><b>Apellido(s)</b></td>
+                <td><b>Sexo</b></td>
+                <td><b>Puesto</b></td>
+              </tr>
+              <tr *ngFor="let c of e?.consejos">
+                <td>{{c.nombres}}</td>
+                <td>{{c.apellidos}}</td>
+                <td>{{c.sexo}}</td>
+                <td>{{c.puesto}}</td>
+              </tr>
+            </table>
+          </div>
+          <br>
         </div>
+        <br>
+
         <h3>Domicilios</h3>
-        <div class="row" *ngFor="let d of domicilios">
+        <hr>
+        <div class="row" *ngFor="let d of domicilios;  let i = index">
+          <h4>Domicilio: {{i + 1}}</h4>
           <p><b>Nombre del domicilio:</b>{{d.nombre}}</p>
-          <p><b>Direccion:</b>{{d.domicilio1 + " " + d.domicilio2}}</p>
+          <p><b>Direccion:</b>{{d.domicilio1 + " " + d.numeroExterior + ". Colonia: " + d.domicilio2 + ", " + d.domicilio3 + ", " + d.estado + ". Codigo postal: " + d.codigoPostal}}</p>
           <p><b>Codigo postal:</b>{{d.codigoPostal}}</p>
           <p><b>Telefono fijo:</b>{{d.telefonoFijo}}</p>
           <p><b>Telefono movil:</b>{{d.telefonoMovil}}</p>

@@ -16,5 +16,5 @@ public class IncidenciaPersona extends CommonModel {
     private int incidencia;
 
     @Column(name = "PERSONA", nullable = false)
-    private int persona;
+    private Integer persona;
 }

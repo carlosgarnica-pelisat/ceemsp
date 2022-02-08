@@ -11,6 +11,9 @@ import Arma from "../../../_models/Arma";
 import {faCheck, faEdit, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
 import Persona from "../../../_models/Persona";
 import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
+import ArmaMarca from "../../../_models/ArmaMarca";
+import ArmaClase from "../../../_models/ArmaClase";
+import {ArmasService} from "../../../_services/armas.service";
 
 @Component({
   selector: 'app-empresa-licencias',
@@ -26,6 +29,9 @@ export class EmpresaLicenciasComponent implements OnInit {
   faEdit = faEdit;
   faTrash = faTrash;
   faCheck = faCheck;
+
+  marcas: ArmaMarca[] = [];
+  clases: ArmaClase[] = [];
 
   tempFile;
 
@@ -49,6 +55,8 @@ export class EmpresaLicenciasComponent implements OnInit {
     uuid: undefined
   };
 
+  pdfActual;
+
   modalidades: EmpresaModalidad[];
   crearEmpresaLicenciaForm: FormGroup;
   modificarStatusArmaForm: FormGroup;
@@ -60,7 +68,7 @@ export class EmpresaLicenciasComponent implements OnInit {
   showArmaForm: boolean = false;
 
   constructor(private modalService: NgbModal, private empresaService: EmpresaService, private toastService: ToastService,
-              private route: ActivatedRoute, private formBuilder: FormBuilder) { }
+              private route: ActivatedRoute, private formBuilder: FormBuilder, private armaService: ArmasService) { }
 
   ngOnInit(): void {
     this.uuid = this.route.snapshot.paramMap.get("uuid");
@@ -122,6 +130,26 @@ export class EmpresaLicenciasComponent implements OnInit {
         ToastType.ERROR
       );
     });
+
+    this.armaService.obtenerArmaMarcas().subscribe((data: ArmaMarca[]) => {
+      this.marcas = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las maracas de las armas. Motivo: ${error}`,
+          ToastType.ERROR
+      );
+    })
+
+    this.armaService.obtenerArmaClases().subscribe((data: ArmaClase[]) => {
+      this.clases = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las maracas de las armas. Motivo: ${error}`,
+          ToastType.ERROR
+      );
+    });
   }
 
   cambiarPestana(pestana) {
@@ -142,6 +170,17 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   mostrarFormularioArma() {
     this.showArmaForm = !this.showArmaForm;
+  }
+
+  convertirPdf(pdf: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.pdfActual = reader.result;
+    });
+
+    if(pdf) {
+      reader.readAsDataURL(pdf);
+    }
   }
 
   guardarDireccion(form) {
@@ -300,13 +339,16 @@ export class EmpresaLicenciasComponent implements OnInit {
     });
   }
 
-  descargarLicencia(uuid) {
-    this.empresaService.descargarLicenciaPdf(this.uuid, this.licencia.uuid).subscribe((data) => {
-      // @ts-ignore
-      let link = document.createElement('a');
+  descargarLicencia(uuid, modal) {
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+
+    this.empresaService.descargarLicenciaPdf(this.uuid, this.licencia.uuid).subscribe((data: Blob) => {
+      this.convertirPdf(data);
+      // TODO: Manejar esta opcion para descargar
+      /*let link = document.createElement('a');
       link.href = window.URL.createObjectURL(data);
       link.download = "licencia-colectiva-" + this.licencia.uuid;
-      link.click();
+      link.click();*/
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -367,6 +409,50 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   mostrarEliminarLicenciaModal() {
 
+  }
+
+  mostrarFormularioNuevaArma() {
+    this.showArmaForm = !this.showArmaForm;
+  }
+
+  crearArma(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "Hay algunos campos requeridos sin rellenar",
+          ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+        "Espere un momento",
+        "Estamos guardando el arma",
+        ToastType.INFO
+    );
+
+    let formData: Arma = form.value;
+
+    formData.bunker = this.domicilios.filter(x => x.uuid === form.value.bunker)[0];
+    formData.clase = this.clases.filter(x => x.uuid === form.value.clase)[0];
+    formData.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
+    formData.status = "DEPOSITO";
+
+    this.empresaService.guardarArma(this.uuid, this.licencia.uuid, formData).subscribe((data: Arma) => {
+      this.toastService.showGenericToast(
+          "Listo",
+          "Se ha guardado el arma con exito",
+          ToastType.SUCCESS
+      );
+
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `no se pudo guarar el arma. Motivo: ${error}`,
+          ToastType.ERROR
+      );
+    })
   }
 
   private getDismissReason(reason: any): string {

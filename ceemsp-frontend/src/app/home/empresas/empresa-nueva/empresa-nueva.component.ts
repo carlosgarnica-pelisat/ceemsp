@@ -10,6 +10,9 @@ import Empresa from "../../../_models/Empresa";
 import {EmpresaService} from "../../../_services/empresa.service";
 import {PublicService} from "../../../_services/public.service";
 import ProximoRegistro from "../../../_models/ProximoRegistro";
+import {faTrash} from "@fortawesome/free-solid-svg-icons";
+import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
+import EmpresaEscritura from "../../../_models/EmpresaEscritura";
 
 @Component({
   selector: 'app-empresa-nueva',
@@ -35,6 +38,11 @@ export class EmpresaNuevaComponent implements OnInit {
   empresaModalidades: EmpresaModalidad[] = [];
 
   empresa: Empresa;
+  empresaDomicilios: EmpresaDomicilio[];
+  empresaEscrituras: EmpresaEscritura[];
+  empresaEscritura: EmpresaEscritura;
+
+  faTrash = faTrash;
 
   constructor(private formBuilder: FormBuilder, private modalidadService: ModalidadesService,
               private toastService: ToastService, private empresaService: EmpresaService,
@@ -87,7 +95,8 @@ export class EmpresaNuevaComponent implements OnInit {
   }
 
   next(stepName: string, form) {
-    if(!form.valid) {
+
+    if(form !== undefined && !form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "Faltan algunos campos obligatorios por llenarse",
@@ -96,10 +105,10 @@ export class EmpresaNuevaComponent implements OnInit {
       return;
     }
 
-    let formData = form.value;
-
     switch (stepName) {
       case 'DOMICILIOS':
+        let formData = form.value;
+
         this.toastService.showGenericToast(
           "Espere un momento",
           "Estamos guardando la empresa en la base de datos",
@@ -135,10 +144,51 @@ export class EmpresaNuevaComponent implements OnInit {
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
-            `No se ha podido guardar la empresa. ${error}`,
+            `No se ha podido guardar la empresa. Motivo: ${error}`,
             ToastType.ERROR
           )
         })
+        break;
+      case 'LEGAL':
+        if(this.empresaDomicilios.length < 1) {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            "No hay domicilios creados aun para la empresa.",
+            ToastType.WARNING
+          );
+          return;
+        }
+
+        this.toastService.showGenericToast(
+          "Espere un momento",
+          "Estamos guardando los domicilios",
+          ToastType.INFO
+        );
+
+        let allAddressesStored: boolean = true;
+
+        this.empresaDomicilios.forEach(ed => {
+          this.empresaService.guardarDomicilio(this.empresa.uuid, ed).subscribe((data) => {
+            this.toastService.showGenericToast(
+              "Listo",
+              `Se ha guardado el domicilio ${ed.domicilio1} con exito`,
+              ToastType.SUCCESS
+            );
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se ha podido guardar el domicilio ${ed.domicilio1}. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+            allAddressesStored = false;
+          });
+        })
+
+        if(allAddressesStored) {
+          this.stepper.next();
+        }
+        break;
+      case 'FORMAS_EJECUCION':
         break;
       default:
         this.toastService.showGenericToast(
@@ -183,6 +233,29 @@ export class EmpresaNuevaComponent implements OnInit {
     this.tipoPersona = event.value;
   }
 
+  eliminarModalidad(index) {
+    this.empresaModalidades.splice(index, 1);
+  }
+
+  eliminarDomicilio(index) {
+    this.empresaDomicilios.splice(index, 1);
+  }
+
+  agregarDomicilio(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos requeridos que estan vacios",
+        ToastType.ERROR
+      );
+      return;
+    }
+
+    let formData: EmpresaDomicilio = form.value;
+    this.empresaDomicilios.push(formData);
+    form.reset();
+  }
+
   agregarModalidad(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
@@ -211,6 +284,17 @@ export class EmpresaNuevaComponent implements OnInit {
   }
 
   seleccionarModalidad(event) {
+    let existeModalidad = this.empresaModalidades.filter(m => m.modalidad.uuid === event.value)[0];
+    if(existeModalidad !== undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta modalidad ya se encuentra registrada en la empresa. Favor de seleccionar otra",
+        ToastType.WARNING
+      );
+      this.modalidad = undefined;
+      return;
+    }
+
     this.modalidad = this.modalidades.filter(m => m.uuid === event.value)[0];
     if(this.modalidad.submodalidades.length > 0) {
       this.modalidad.tieneSubmodalidades = true;

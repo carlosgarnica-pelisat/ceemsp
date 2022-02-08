@@ -50,6 +50,7 @@ export class EmpresaLegalComponent implements OnInit {
   rowData = [];
 
   tempFile;
+  pdfActual;
 
   frameworkComponents: any;
   rowDataClicked = {
@@ -406,6 +407,36 @@ export class EmpresaLegalComponent implements OnInit {
         )
         break;
     }
+  }
+
+  convertirPdf(pdf: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.pdfActual = reader.result;
+    });
+
+    if(pdf) {
+      reader.readAsDataURL(pdf);
+    }
+  }
+
+  mostrarEscritura(modal) {
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+
+    this.empresaService.descargarEscrituraPdf(this.uuid, this.escritura.uuid).subscribe((data: Blob) => {
+      this.convertirPdf(data);
+      // TODO: Manejar esta opcion para descargar
+      /*let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "licencia-colectiva-" + this.licencia.uuid;
+      link.click();*/
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el PDF. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   mostrarModificarEscrituraModal() {

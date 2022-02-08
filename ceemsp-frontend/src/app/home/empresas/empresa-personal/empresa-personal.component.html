@@ -117,14 +117,14 @@
             <tr>
               <td><b>Tipo de sangre</b></td>
               <td [ngSwitch]="persona?.tipoSangre">
-                <span *ngSwitchCase="'AB_POSITIVO'">AB+</span>
-                <span *ngSwitchCase="'AB_NEGATIVO'">AB-</span>
-                <span *ngSwitchCase="'B_POSITIVO'">B+</span>
-                <span *ngSwitchCase="'B_NEGATIVO'">B-</span>
-                <span *ngSwitchCase="'A_POSITIVO'">A-</span>
-                <span *ngSwitchCase="'A_NEGATIVO'">A-</span>
-                <span *ngSwitchCase="'O_POSITIVO'">O+</span>
-                <span *ngSwitchCase="'O_NEGATIVO'">O-</span>
+                <span *ngSwitchCase="'AB_P'">AB+</span>
+                <span *ngSwitchCase="'AB_N'">AB-</span>
+                <span *ngSwitchCase="'B_P'">B+</span>
+                <span *ngSwitchCase="'B_N'">B-</span>
+                <span *ngSwitchCase="'A_P'">A-</span>
+                <span *ngSwitchCase="'A_N'">A-</span>
+                <span *ngSwitchCase="'O_P'">O+</span>
+                <span *ngSwitchCase="'O_N'">O-</span>
               </td>
             </tr>
           </table>
@@ -472,6 +472,7 @@
                     <div class="col-sm-6">
                       <label for="nacionalidad">
                         <b>Nacionalidad *</b>
+                        <span *ngIf="crearPersonalForm.controls['nacionalidad'].invalid && (crearPersonalForm.controls['nacionalidad'].dirty || crearPersonalForm.controls['nacionalidad'].touched)" class="text-danger"> - Requerido</span>
                       </label>
                       <select id="nacionalidad" class="form-control" formControlName="nacionalidad">
                         <option *ngFor="let n of nacionalidades" value="{{n.uuid}}">{{n.nombre}}</option>
@@ -481,7 +482,7 @@
                       <label for="curp">
                         <b>CURP *</b>
                       </label>
-                      <input id="curp" type="text" class="form-control" placeholder="Ejemplo: XAXX010101ABCD00" formControlName="curp" #curp>
+                      <input id="curp" type="text" class="form-control" placeholder="Ejemplo: XAXX010101ABCD00" formControlName="curp" (focusout)="verificarPersonal()" #curp>
                     </div>
                   </div>
 
@@ -489,18 +490,21 @@
                     <div class="col-sm-4">
                       <label for="apellidoPaterno">
                         <b>Apellido paterno *</b>
+                        <span *ngIf="crearPersonalForm.controls['apellidoPaterno'].invalid && (crearPersonalForm.controls['apellidoPaterno'].dirty || crearPersonalForm.controls['apellidoPaterno'].touched)" class="text-danger"> - Requerido</span>
                       </label>
                       <input id="apellidoPaterno" type="text" class="form-control" placeholder="Ejemplo: Garcia" formControlName="apellidoPaterno" #apellidoPaterno>
                     </div>
                     <div class="col-sm-4">
                       <label for="apellidoMaterno">
                         <b>Apellido paterno *</b>
+                        <span *ngIf="crearPersonalForm.controls['apellidoMaterno'].invalid && (crearPersonalForm.controls['apellidoMaterno'].dirty || crearPersonalForm.controls['apellidoMaterno'].touched)" class="text-danger"> - Requerido</span>
                       </label>
                       <input id="apellidoMaterno" type="text" class="form-control" placeholder="Ejemplo: Garcia" formControlName="apellidoMaterno" #apellidoMaterno>
                     </div>
                     <div class="col-sm-4">
                       <label for="nombres">
                         <b>Nombres *</b>
+                        <span *ngIf="crearPersonalForm.controls['nombres'].invalid && (crearPersonalForm.controls['nombres'].dirty || crearPersonalForm.controls['nombres'].touched)" class="text-danger"> - Requerido</span>
                       </label>
                       <input id="nombres" type="text" class="form-control" placeholder="Ejemplo: Jose" formControlName="nombres" #nombres>
                     </div>

@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface IncidenciaRepository extends JpaRepository<Incidencia, Integer> {
     List<Incidencia> findAllByEmpresaAndEliminadoFalse(int empresa);
+    Incidencia getByUuidAndEliminadoFalse(String uuid);
 }

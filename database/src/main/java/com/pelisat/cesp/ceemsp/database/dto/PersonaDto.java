@@ -13,6 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 public class PersonaDto {
+    private int id;
     private String uuid;
     private PersonalNacionalidadDto nacionalidad;
     private String curp;

@@ -44,10 +44,108 @@
         [columnDefs]="columnDefs"
         (gridReady)="onGridReady($event)"
         [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data, mostrarIncidenciaDetallesModal)"
         #agGrid
       ></ag-grid-angular>
     </div>
   </div>
+
+  <ng-template #mostrarIncidenciaDetallesModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarIncidenciaDetallesModal">Mostrando incidencia {{incidencia?.numero}} </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Fecha de la incidencia:</b></td>
+              <td>{{incidencia?.fechaIncidencia}}</td>
+            </tr>
+            <tr>
+              <td><b>Asignado a:</b></td>
+              <td>{{incidencia?.asignado === null ? 'Sin asignar' : incidencia?.asignado?.givenNames}} <a href="">(Asignar a)</a>
+                <a href="">(Asignarmelo a mi)</a></td>
+            </tr>
+            <tr>
+              <td><b>Status:</b></td>
+              <td>{{incidencia?.status}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': incidenciaActualTab === 'COMENTARIOS' }" (click)="cambiarIncidenciaActualTab('COMENTARIOS')">Comentarios</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': incidenciaActualTab === 'PERSONAL' }" (click)="cambiarIncidenciaActualTab('PERSONAL')">Personal</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': incidenciaActualTab === 'ARMAS' }" (click)="cambiarIncidenciaActualTab('ARMAS')">Armas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': incidenciaActualTab === 'CANES' }" (click)="cambiarIncidenciaActualTab('CANES')">Canes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': incidenciaActualTab === 'VEHICULOS' }" (click)="cambiarIncidenciaActualTab('VEHICULOS')">Vehiculos</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row" *ngIf="incidenciaActualTab === 'COMENTARIOS'">
+        <div class="col-sm-12" style="margin-top: 20px;">
+          <div class="card" *ngFor="let c of incidencia?.comentarios">
+            <div class="card-header">
+              Comentario de:
+            </div>
+            <div class="card-body" [innerHTML]="c?.comentario">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row" *ngIf="incidenciaActualTab === 'PERSONAL'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Apellido Paterno</b></td>
+              <td><b>Apellido Materno</b></td>
+              <td><b>Nombres</b></td>
+            </tr>
+            <tr *ngFor="let p of incidencia?.personasInvolucradas">
+              <td>{{p?.apellidoPaterno}}</td>
+              <td>{{p?.apellidoMaterno}}</td>
+              <td>{{p?.nombres}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="row" *ngIf="incidenciaActualTab === 'ARMAS'">
+        <div class="col-sm-12">
+
+        </div>
+      </div>
+      <div class="row" *ngIf="incidenciaActualTab === 'CANES'">
+        <div class="col-sm-12">
+
+        </div>
+      </div>
+      <div class="row" *ngIf="incidenciaActualTab === 'VEHICULOS'">
+        <div class="col-sm-12">
+
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
 
   <ng-template #crearIncidenciaModal let-modal>
     <div class="modal-header">
@@ -80,7 +178,7 @@
                 <label for="cliente">
                   <b>Cliente *</b>
                 </label>
-                <select id="cliente" class="form-control" formControlName="cliente">
+                <select id="cliente" class="form-control" formControlName="cliente" (change)="seleccionarCliente($event.target)">
                   <option *ngFor="let c of clientes" value="{{c.uuid}}">{{c.razonSocial}}</option>
                 </select>
               </div>

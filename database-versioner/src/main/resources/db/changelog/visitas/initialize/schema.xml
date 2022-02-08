@@ -1,0 +1,43 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-02-01-crear-tabla-visitas" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="VISITAS">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="EMPRESA" type="INT"></column>
+            <column name="TIPO" type="VARCHAR(20)"></column>
+            <column name="NUMERO_REGISTRO" type="VARCHAR(40)"></column>
+            <column name="NUMERO_ORDEN" type="varchar(40)"></column>
+            <column name="FECHA_VISITA" type="DATE"></column>
+            <column name="REQUERIMIENTO" type="BIT"></column>
+            <column name="OBSERVACIONES" type="TEXT"></column>
+            <column name="FECHA_TERMINO" type="DATE"></column>
+            <column name="RESPONSABLE" type="INT"></column>
+            <column name="DOMICILIO_1" type="varchar(100)"></column>
+            <column name="NUMERO_EXTERIOR" type="varchar(20)"></column>
+            <column name="NUMERO_INTERIOR" type="varchar(20)"></column>
+            <column name="DOMICILIO_2" type="varchar(100)"></column>
+            <column name="DOMICILIO_3" type="varchar(100)"></column>
+            <column name="DOMICILIO_4" type="varchar(100)"></column>
+            <column name="CODIGO_POSTAL" type="varchar(5)"></column>
+            <column name="ESTADO" type="varchar(50)"></column>
+            <column name="PAIS" type="varchar(100)"></column>
+            <column name="ELIMINADO" type="bit" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="int"></column>
+            <column name="FECHA_ACTUALIZACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="int"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="VISITAS" columnNames="ID" />
+        <addAutoIncrement tableName="VISITAS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="VISITAS" columnNames="UUID" />
+    </changeSet>
+</databaseChangeLog>

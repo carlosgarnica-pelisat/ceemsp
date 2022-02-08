@@ -7,8 +7,10 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.Arma;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
+import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
 import com.pelisat.cesp.ceemsp.database.repository.ArmaRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -93,6 +95,7 @@ public class ArmaServiceImpl implements ArmaService {
             ArmaDto armaDto = daoToDtoConverter.convertDaoToDtoArma(arma);
             armaDto.setBunker(empresaDomicilioService.obtenerPorId(arma.getBunker()));
             armaDto.setMarca(armaMarcaService.obtenerPorId(arma.getMarca()));
+            armaDto.setClase(armaClaseService.obtenerPorId(arma.getClase()));
 
             return armaDto;
         }).collect(Collectors.toList());
@@ -103,6 +106,25 @@ public class ArmaServiceImpl implements ArmaService {
     @Override
     public ArmaDto obtenerArmaPorUuid(String uuid, String armaUuid) {
         return null;
+    }
+
+    @Override
+    public ArmaDto obtenerArmaPorId(String empresaUuid, Integer armaId) {
+        if(StringUtils.isBlank(empresaUuid) || armaId == null || armaId < 1) {
+            logger.warn("El uuid de la empresa o el id del vehiculo a consultar vienen como nulos o invalidos");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo el arma con el id [{}]", armaId);
+
+        Arma arma = armaRepository.getOne(armaId);
+
+        if(arma == null) {
+            logger.warn("El arma no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return daoToDtoConverter.convertDaoToDtoArma(arma);
     }
 
     @Override

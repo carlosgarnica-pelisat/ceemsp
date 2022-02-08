@@ -115,6 +115,13 @@ export class EmpresaService {
     return this.http.delete(`${this.uri}/empresas/${uuid}/escrituras/${uuidEscritura}`);
   }
 
+  descargarEscrituraPdf(uuid: string, escrituraUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${uuid}/escrituras/${escrituraUuid}/pdf`, httpOptions)
+  }
+
   // Escrituras socios
   obtenerEscrituraSocios(empresaUuid: string, escrituraUuid: string) {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/socios`);
@@ -198,6 +205,20 @@ export class EmpresaService {
     return this.http.post(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}/colores`, color);
   }
 
+  guardarVehiculoFotografia(empresaUuid: string, vehiculoUuid: string, formData: FormData) {
+    return this.http.post(
+      `${this.uri}/empresas/${empresaUuid}/vehiculos/${vehiculoUuid}/fotografias`,
+      formData, {headers: {'X-isFile': 'true'}})
+  }
+
+  descargarVehiculoFotografia(empresaUuid: string, vehiculoUuid: string, fotografiaUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    }
+
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/vehiculos/${vehiculoUuid}/fotografias/${fotografiaUuid}`, httpOptions);
+  }
+
   // Clientes
   obtenerClientes(uuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/clientes`);
@@ -270,6 +291,12 @@ export class EmpresaService {
     return this.http.post(`${this.uri}/empresas/${uuid}/canes`, can);
   }
 
+  guardarCanFotografia(empresaUuid: string, canUuid: string, formData: FormData) {
+    return this.http.post(
+      `${this.uri}/empresas/${empresaUuid}/canes/${canUuid}/fotografias`,
+      formData, {headers: {'X-isFile': 'true'}})
+  }
+
   // Canes adiestramiento
   guardarCanAdiestramiento(uuid: string, canUuid: string, adiestramiento: CanAdiestramiento) {
     return this.http.post(`${this.uri}/empresas/${uuid}/canes/${canUuid}/adiestramientos`, adiestramiento);
@@ -321,6 +348,14 @@ export class EmpresaService {
   }
 
   // Incidencias
+  obtenerIncidenciasPorEmpresa(uuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/incidencias`);
+  }
+
+  obtenerIncidenciaPorUuid(uuid: string, incidenciaUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}`);
+  }
+
   guardarIncidencia(uuid: string, incidencia: Incidencia) {
     return this.http.post(`${this.uri}/empresas/${uuid}/incidencias`, incidencia);
   }

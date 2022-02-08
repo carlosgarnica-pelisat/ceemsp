@@ -176,6 +176,12 @@ export class EmpresaPersonalComponent implements OnInit {
     this.gridColumnApi = params.gridApi;
   }
 
+  verificarPersonal() {
+    let curp = this.crearPersonalForm.controls.curp;
+
+
+  }
+
   mostrarModalDetalles(data, modal) {
     this.empresaService.obtenerPersonalPorUuid(this.uuid, data.uuid).subscribe((data: Persona) => {
       this.persona = data;
@@ -339,7 +345,6 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   descargarFotografia(uuid) {
-    console.log(uuid);
     this.empresaService.descargarPersonaFotografia(this.uuid, this.persona.uuid, uuid).subscribe((data) => {
       // @ts-ignore
       this.convertirImagen(data);
