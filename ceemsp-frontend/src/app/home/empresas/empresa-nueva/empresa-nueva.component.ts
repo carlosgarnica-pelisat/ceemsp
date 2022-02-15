@@ -10,9 +10,12 @@ import Empresa from "../../../_models/Empresa";
 import {EmpresaService} from "../../../_services/empresa.service";
 import {PublicService} from "../../../_services/public.service";
 import ProximoRegistro from "../../../_models/ProximoRegistro";
-import {faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
 import EmpresaEscritura from "../../../_models/EmpresaEscritura";
+import ExisteEmpresa from "../../../_models/ExisteEmpresa";
+import {ValidacionService} from "../../../_services/validacion.service";
+import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'app-empresa-nueva',
@@ -24,7 +27,7 @@ export class EmpresaNuevaComponent implements OnInit {
   empresaCreacionForm: FormGroup;
   empresaModalidadForm: FormGroup;
   empresaDomiciliosForm: FormGroup;
-  empresaLegalForm: FormGroup;
+  nuevaEscrituraForm: FormGroup;
 
   stepper: Stepper;
 
@@ -38,63 +41,133 @@ export class EmpresaNuevaComponent implements OnInit {
   empresaModalidades: EmpresaModalidad[] = [];
 
   empresa: Empresa;
-  empresaDomicilios: EmpresaDomicilio[];
-  empresaEscrituras: EmpresaEscritura[];
+  empresaDomicilios: EmpresaDomicilio[] = [];
+  empresaEscrituras: EmpresaEscritura[] = [];
   empresaEscritura: EmpresaEscritura;
 
   faTrash = faTrash;
+  faPencil = faPencilAlt;
+
+  showSocioForm: boolean;
+  showApoderadoForm: boolean;
+  showRepresentanteForm: boolean;
+  showConsejoForm: boolean;
+
+  nuevoSocioForm: FormGroup;
+  nuevoApoderadoForm: FormGroup;
+  nuevoRepresentanteForm: FormGroup;
+  nuevoConsejoAdministracionForm: FormGroup;
+
+  tempFile;
+  pestanaActual = 'SOCIOS';
+
+  existeEmpresa: ExisteEmpresa;
+
+  closeResult: string;
+  modal: NgbModalRef;
 
   constructor(private formBuilder: FormBuilder, private modalidadService: ModalidadesService,
               private toastService: ToastService, private empresaService: EmpresaService,
-              private publicService: PublicService) { }
+              private publicService: PublicService, private validacionService: ValidacionService,
+              private modalService: NgbModal) { }
 
   ngOnInit(): void {
     this.empresaCreacionForm = this.formBuilder.group({
       tipoTramite: ['', Validators.required],
-      registro: ['', Validators.required],
+      registro: ['', [Validators.required, Validators.max(5)]],
       tipoPersona: ['', Validators.required],
-      razonSocial: ['', Validators.required],
-      nombreComercial: ['', Validators.required],
-      rfc: ['', Validators.required],
-      curp: [''],
+      razonSocial: ['', [Validators.required, Validators.maxLength(100)]],
+      nombreComercial: ['', [Validators.required, Validators.maxLength(100)]],
+      rfc: ['', [Validators.required, Validators.minLength(12), Validators.maxLength(13)]],
+      curp: ['', [Validators.minLength(18), Validators.maxLength(18)]],
       sexo: [''],
-      correoElectronico: ['', Validators.required],
-      telefono: ['', Validators.required]
+      correoElectronico: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
+      telefono: ['', [Validators.required]]
     })
 
     this.empresaModalidadForm = this.formBuilder.group({
       modalidad: ['', Validators.required],
       submodalidad: [''],
-      numeroRegistroFederal: [''],
+      numeroRegistroFederal: ['', Validators.maxLength(30)],
       fechaInicio: [''],
       fechaFin: ['']
-    })
-
-    this.empresaDomiciliosForm = this.formBuilder.group({
-      nombre: ['', Validators.required],
-      domicilio1: ['', Validators.required],
-      domicilio2: ['', Validators.required],
-      domicilio3: ['', Validators.required],
-      domicilio4: [''],
-      codigoPostal: ['', Validators.required],
-      estado: ['', Validators.required],
-      pais: ['Mexico', Validators.required],
-      matriz: ['', Validators.required], // TODO: Quitar el si/no y agregar tipo de domicilio como matriz / sucursal
-      telefonoFijo: ['', Validators.required],
-      telefonoMovil: ['', Validators.required]
     });
 
-    this.empresaLegalForm = this.formBuilder.group({
+    this.empresaDomiciliosForm = this.formBuilder.group({
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      domicilio1: ['', [Validators.required, Validators.maxLength(100)]],
+      numeroExterior: ['', [Validators.required, Validators.maxLength(20)]],
+      numeroInterior: ['', [Validators.maxLength(20)]],
+      domicilio2: ['', [Validators.required, Validators.maxLength(100)]],
+      domicilio3: ['', [Validators.required, Validators.maxLength(100)]],
+      domicilio4: ['', Validators.maxLength],
+      codigoPostal: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(5)]],
+      estado: ['', Validators.required],
+      pais: ['Mexico', [Validators.required, Validators.maxLength(100)]],
+      matriz: ['', Validators.required],
+      telefonoFijo: ['', [Validators.required]],
+      telefonoMovil: ['', [Validators.required]]
+    });
 
-    })
+    this.nuevaEscrituraForm = this.formBuilder.group({
+      numeroEscritura: ['', Validators.required],
+      fechaEscritura: ['', Validators.required],
+      ciudad: ['', Validators.required],
+      tipoFedatario: ['', Validators.required],
+      numero: ['', Validators.required],
+      nombreFedatario: ['', Validators.required],
+      descripcion: ['', Validators.required]
+    });
 
     this.stepper = new Stepper(document.querySelector('#stepper1'), {
       linear: true,
       animation: true
+    });
+
+    this.nuevoSocioForm = this.formBuilder.group({
+      nombres: ['', Validators.required],
+      apellidos: ['', Validators.required],
+      sexo: ['', Validators.required],
+      porcentajeAcciones: ['', Validators.required]
+    })
+
+    this.nuevoApoderadoForm = this.formBuilder.group({
+      nombres: ['', Validators.required],
+      apellidos: ['', Validators.required],
+      sexo: ['', Validators.required],
+      fechaInicio: ['', Validators.required],
+      fechaFin: ['', Validators.required]
+    })
+
+    this.nuevoRepresentanteForm = this.formBuilder.group({
+      nombres: ['', Validators.required],
+      apellidos: ['', Validators.required],
+      sexo: ['', Validators.required]
+    })
+
+    this.nuevoConsejoAdministracionForm = this.formBuilder.group({
+      nombres: ['', Validators.required],
+      apellidos: ['', Validators.required],
+      sexo: ['', Validators.required],
+      puesto: ['', Validators.required]
     })
   }
 
+  eliminarSocio(index) {
+
+  }
+
+  mostrarFormularioNuevoSocio() {
+    this.showSocioForm = !this.showSocioForm;
+  }
+
+  guardarSocio(form) {
+
+  }
+
   next(stepName: string, form) {
+
+    console.log(form.value.telefono.replace(/\D/g, '')); // TODO: Agregar esta expresion para reemplazar los valores enmascarados y validar la longitud
 
     if(form !== undefined && !form.valid) {
       this.toastService.showGenericToast(
@@ -189,6 +262,10 @@ export class EmpresaNuevaComponent implements OnInit {
         }
         break;
       case 'FORMAS_EJECUCION':
+        this.stepper.next();
+        break;
+      case 'RESUMEN':
+        this.stepper.next();
         break;
       default:
         this.toastService.showGenericToast(
@@ -242,11 +319,12 @@ export class EmpresaNuevaComponent implements OnInit {
   }
 
   agregarDomicilio(form) {
+    console.log(form.value);
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "Hay algunos campos requeridos que estan vacios",
-        ToastType.ERROR
+        ToastType.WARNING
       );
       return;
     }
@@ -254,6 +332,46 @@ export class EmpresaNuevaComponent implements OnInit {
     let formData: EmpresaDomicilio = form.value;
     this.empresaDomicilios.push(formData);
     form.reset();
+  }
+
+  mostrarModalEmpresaRegistrada(modal) {
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    });
+  }
+
+  consultarEmpresaRfc(event) {
+
+    let existeEmpresa: ExisteEmpresa = new ExisteEmpresa();
+    existeEmpresa.rfc = event.value;
+
+    if(existeEmpresa.rfc.length !== 12 && existeEmpresa.rfc.length !== 13) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se puede consultar la empresa en la base de datos. El CURP tiene longitud invalida`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.validacionService.validarEmpresa(existeEmpresa).subscribe((existeEmpresa: ExisteEmpresa) => {
+      this.existeEmpresa = existeEmpresa;
+      console.log(this.existeEmpresa);
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido consultar la existencia de la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  cambiarPestanaLegal(nombrePestana) {
+    this.pestanaActual = nombrePestana;
   }
 
   agregarModalidad(form) {
@@ -269,6 +387,20 @@ export class EmpresaNuevaComponent implements OnInit {
     let formData = form.value;
 
     let empresaModalidad = new EmpresaModalidad();
+    // Validando las fechas
+    if(formData.fechaInicio !== undefined && formData.fechaFin !== undefined) {
+      let fechaInicio = new Date(formData.fechaInicio);
+      let fechaFin = new Date(formData.fechaFin);
+      if(fechaInicio > fechaFin) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "La fecha de inicio es mayor que la del final",
+          ToastType.WARNING
+        )
+        return;
+      }
+    }
+
     empresaModalidad.modalidad = this.modalidad;
     if(this.modalidad.tieneSubmodalidades) {
       empresaModalidad.submodalidad = this.modalidad.submodalidades.filter((x => x.uuid === formData.submodalidad))[0];
@@ -281,6 +413,10 @@ export class EmpresaNuevaComponent implements OnInit {
     this.empresaModalidades.push(empresaModalidad);
     form.reset();
     this.modalidad = undefined;
+  }
+
+  onFileChange(event) {
+    this.tempFile = event.target.files[0]
   }
 
   seleccionarModalidad(event) {
@@ -298,6 +434,16 @@ export class EmpresaNuevaComponent implements OnInit {
     this.modalidad = this.modalidades.filter(m => m.uuid === event.value)[0];
     if(this.modalidad.submodalidades.length > 0) {
       this.modalidad.tieneSubmodalidades = true;
+    }
+  }
+
+  private getDismissReason(reason: any): string {
+    if (reason == ModalDismissReasons.ESC) {
+      return `by pressing ESC`;
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return `by clicking on a backdrop`;
+    } else {
+      return `with ${reason}`;
     }
   }
 

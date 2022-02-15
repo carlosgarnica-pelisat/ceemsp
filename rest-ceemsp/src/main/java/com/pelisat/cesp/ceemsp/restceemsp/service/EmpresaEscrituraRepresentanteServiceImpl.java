@@ -100,4 +100,56 @@ public class EmpresaEscrituraRepresentanteServiceImpl implements EmpresaEscritur
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraRepresentante(empresaEscrituraRepresentanteCreada);
     }
+
+    @Override
+    public EmpresaEscrituraRepresentanteDto modificarRepresentante(String empresaUuid, String escrituraUuid, String representanteUuid, String username, EmpresaEscrituraRepresentanteDto empresaEscrituraRepresentanteDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(representanteUuid) || empresaEscrituraRepresentanteDto == null) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Se esta modificando el representante de la escritura con el uuid [{}]", representanteUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        EmpresaEscrituraRepresentante empresaEscrituraRepresentante = empresaEscrituraRepresentanteRepository.findByUuidAndEliminadoFalse(representanteUuid);
+
+        if(empresaEscrituraRepresentante == null) {
+            logger.warn("El representante a modificar no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaEscrituraRepresentante.setNombres(empresaEscrituraRepresentanteDto.getNombres());
+        empresaEscrituraRepresentante.setApellidos(empresaEscrituraRepresentanteDto.getApellidos());
+        empresaEscrituraRepresentante.setSexo(empresaEscrituraRepresentanteDto.getSexo());
+        daoHelper.fulfillAuditorFields(false, empresaEscrituraRepresentante, usuario.getId());
+        empresaEscrituraRepresentanteRepository.save(empresaEscrituraRepresentante);
+
+        return empresaEscrituraRepresentanteDto;
+    }
+
+    @Override
+    public EmpresaEscrituraRepresentanteDto eliminarRepresentante(String empresaUuid, String escrituraUuid, String representanteUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(representanteUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el representante con el ID [{}]", representanteUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        EmpresaEscrituraRepresentante empresaEscrituraRepresentante = empresaEscrituraRepresentanteRepository.findByUuidAndEliminadoFalse(representanteUuid);
+
+        if(empresaEscrituraRepresentante == null) {
+            logger.warn("El representante a modificar no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaEscrituraRepresentante.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, empresaEscrituraRepresentante, usuario.getId());
+        empresaEscrituraRepresentanteRepository.save(empresaEscrituraRepresentante);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraRepresentante(empresaEscrituraRepresentante);
+    }
+
+
 }

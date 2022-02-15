@@ -5,6 +5,7 @@ export default class ExisteEmpresa implements Deserializable {
 
   existe: boolean;
   rfc: string;
+  curp: string;
   empresa: Empresa;
 
   deserialize(input: any): this {

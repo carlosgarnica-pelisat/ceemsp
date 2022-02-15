@@ -209,6 +209,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
         }
     }
 
+    @Transactional
     @Override
     public EmpresaEscrituraDto modificarEscritura(String empresaUuid, String escrituraUuid, EmpresaEscrituraDto empresaEscrituraDto, String username) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || empresaEscrituraDto == null) {
@@ -238,9 +239,44 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
         return daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscritura);
     }
 
+    @Transactional
     @Override
     public EmpresaEscrituraDto eliminarEscritura(String empresaUuid, String escrituraUuid, String username) {
-        return null;
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Se esta eliminando la escritura con el uuid [{}]", escrituraUuid);
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        EmpresaEscritura escritura = empresaEscrituraRepository.findByUuidAndEliminadoFalse(escrituraUuid);
+        if(escritura == null) {
+            logger.warn("La escritura no se encuentra en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        escritura.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, escritura, usuarioDto.getId());
+        empresaEscrituraRepository.save(escritura);
+
+        logger.info("Escritura eliminada correctamente. Eliminando sus relaciones como socios, representantes y tal");
+
+        List<EmpresaEscrituraSocio> empresaEscrituraSocios = empresaEscrituraSociosRepository.findAllByEscrituraAndEliminadoFalse(escritura.getId());
+        List<EmpresaEscrituraApoderado> empresaEscrituraApoderados = empresaEscrituraApoderadoRepository.findAllByEscrituraAndEliminadoFalse(escritura.getId());
+        List<EmpresaEscrituraRepresentante> empresaEscrituraRepresentantes = empresaEscrituraRepresentanteRepository.findAllByEscrituraAndEliminadoFalse(escritura.getId());
+        List<EmpresaEscrituraConsejo> empresaEscrituraConsejos = empresaEscrituraConsejoRepository.findAllByEscrituraAndEliminadoFalse(escritura.getId());
+
+        if(empresaEscrituraSocios != null || empresaEscrituraSocios.size() > 0) {
+            logger.info("Socios encontrados. Eliminandolos");
+            empresaEscrituraSociosRepository.saveAll(empresaEscrituraSocios.stream().map(s -> {
+                daoHelper.fulfillAuditorFields(false, s, usuarioDto.getId());
+                s.setEliminado(true);
+                return s;
+            }).collect(Collectors.toList()));
+        }
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaEscritura(escritura);
     }
 
     @Override

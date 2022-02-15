@@ -33,7 +33,7 @@ public class EmpresaEscrituraApoderadoController {
     }
 
     @GetMapping(value = EMPRESA_APODERADOS_URI + "/{socioUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public EmpresaEscrituraApoderadoDto obtenerEscrituraPorUuid(
+    public EmpresaEscrituraApoderadoDto obtenerEscrituraApoderadoPorUuid(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "escrituraUuid") String escrituraUuid,
             @PathVariable(value = "apoderadoUuid") String socioUuid
@@ -43,7 +43,7 @@ public class EmpresaEscrituraApoderadoController {
     }
 
     @PostMapping(value = EMPRESA_APODERADOS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public EmpresaEscrituraApoderadoDto crearEscritura(
+    public EmpresaEscrituraApoderadoDto crearApoderado(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "escrituraUuid") String escrituraUuid,
             HttpServletRequest request,
@@ -51,5 +51,17 @@ public class EmpresaEscrituraApoderadoController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return empresaEscrituraApoderadoService.crearApoderado(empresaUuid, escrituraUuid, username, empresaEscrituraApoderadoDto);
+    }
+
+    @PutMapping(value = EMPRESA_APODERADOS_URI + "/{apoderadoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaEscrituraApoderadoDto modificarApoderado(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "escrituraUuid") String escrituraUuid,
+            @PathVariable(value = "apoderadoUuid") String apoderadoUuid,
+            HttpServletRequest request,
+            @RequestBody EmpresaEscrituraApoderadoDto empresaEscrituraApoderadoDto
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return null;
     }
 }

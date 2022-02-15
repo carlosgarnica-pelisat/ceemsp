@@ -131,6 +131,14 @@ export class EmpresaService {
     return this.http.post(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/socios`, escrituraSocio);
   }
 
+  modificarEscrituraSocio(empresaUuid: string, escrituraUuid: string, socioUuid: string, escrituraSocio: EmpresaEscrituraSocio) {
+    return this.http.put(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/socios/${socioUuid}`, escrituraSocio);
+  }
+
+  eliminarEscrituraSocio(empresaUuid: string, escrituraUuid: string, socioUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/socios/${socioUuid}`);
+  }
+
   // Escrituras representantes
   obtenerEscrituraRepresentantes(empresaUuid: string, escrituraUuid: string) {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/representantes`);
@@ -138,6 +146,14 @@ export class EmpresaService {
 
   guardarEscrituraRepresentante(empresaUuid: string, escrituraUuid: string, escrituraRepresentante: EmpresaEscrituraRepresentante) {
     return this.http.post(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/representantes`, escrituraRepresentante);
+  }
+
+  modificarEscrituraRepresentante(empresaUuid: string, escrituraUuid: string, representanteUuid: string, escrituraRepresentante: EmpresaEscrituraRepresentante) {
+    return this.http.put(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/representantes/${representanteUuid}`, escrituraRepresentante);
+  }
+
+  eliminarEscrituraRepresentante(empresaUuid: string, escrituraUuid: string, representanteUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/representantes/${representanteUuid}`);
   }
 
   // Escrituras consejos
@@ -149,6 +165,14 @@ export class EmpresaService {
     return this.http.post(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/consejos`, escrituraConsejo);
   }
 
+  modificarEscrituraConsejo(empresaUuid: string, escrituraUuid: string, consejoUuid: string, escrituraConsejo: EmpresaEscrituraConsejo) {
+    return this.http.put(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/consejos/${consejoUuid}`, escrituraConsejo);
+  }
+
+  eliminarEscrituraConsejo(empresaUuid: string, escrituraUuid: string, consejoUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/consejos/${consejoUuid}`)
+  }
+
   // Escrituras apoderados
   obtenerEscriturasApoderados(empresaUuid: string, escrituraUuid: string) {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/apoderados`);
@@ -156,6 +180,14 @@ export class EmpresaService {
 
   guardarEscrituraApoderado(empresaUuid: string, escrituraUuid: string, escrituraApoderado: EmpresaEscrituraApoderado) {
     return this.http.post(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/apoderados`, escrituraApoderado);
+  }
+
+  modificarEscrituraApoderado(empresaUuid: string, escrituraUuid: string, apoderadoUuid: string, escrituraApoderado: EmpresaEscrituraApoderado) {
+    return this.http.put(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/apoderados/${apoderadoUuid}`, escrituraApoderado );
+  }
+
+  eliminarEscrituraApoderado(empresaUuid: string, escrituraUuid: string, apoderadoUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/apoderados/${apoderadoUuid}`)
   }
 
   // Licencias colectivas

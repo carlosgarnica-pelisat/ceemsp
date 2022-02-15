@@ -55,4 +55,27 @@ public class EmpresaEscrituraConsejoAdministracionController {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return empresaEscrituraConsejoService.crearConsejo(empresaUuid, escrituraUuid, username, empresaEscrituraApoderadoDto);
     }
+
+    @PutMapping(value = EMPRESA_CONSEJO_URI + "/{consejoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaEscrituraConsejoDto modificarEscrituraConsejo(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "escrituraUuid") String escrituraUuid,
+            @PathVariable(value = "consejoUuid") String consejoUuid,
+            HttpServletRequest request,
+            @RequestBody EmpresaEscrituraConsejoDto empresaEscrituraApoderadoDto
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaEscrituraConsejoService.actualizarConsejo(empresaUuid, escrituraUuid, consejoUuid, username, empresaEscrituraApoderadoDto);
+    }
+
+    @DeleteMapping(value = EMPRESA_CONSEJO_URI + "/{consejoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaEscrituraConsejoDto eliminarEscrituraConsejo(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "escrituraUuid") String escrituraUuid,
+            @PathVariable(value = "consejoUuid") String consejoUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaEscrituraConsejoService.eliminarConsejo(empresaUuid, escrituraUuid, consejoUuid, username);
+    }
 }

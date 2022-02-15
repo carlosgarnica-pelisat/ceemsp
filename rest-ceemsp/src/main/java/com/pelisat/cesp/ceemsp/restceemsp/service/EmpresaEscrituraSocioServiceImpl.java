@@ -3,10 +3,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraSocioDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.ArmaTipo;
-import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscrituraSocio;
+import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraSocioRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -99,5 +96,56 @@ public class EmpresaEscrituraSocioServiceImpl implements EmpresaEscrituraSocioSe
         EmpresaEscrituraSocio empresaEscrituraSocioCreado = empresaEscrituraSocioRepository.save(empresaEscrituraSocio);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraSocio(empresaEscrituraSocioCreado);
+    }
+
+    @Override
+    public EmpresaEscrituraSocioDto modificarSocio(String empresaUuid, String escrituraUuid, String representanteUuid, String username, EmpresaEscrituraSocioDto empresaEscrituraSocioDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(representanteUuid) || empresaEscrituraSocioDto == null) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Se esta modificando el socio de la escritura con el uuid [{}]", representanteUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        EmpresaEscrituraSocio empresaEscrituraSocio = empresaEscrituraSocioRepository.findByUuidAndEliminadoFalse(representanteUuid);
+
+        if(empresaEscrituraSocio == null) {
+            logger.warn("El socio a modificar no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaEscrituraSocio.setNombres(empresaEscrituraSocioDto.getNombres());
+        empresaEscrituraSocio.setApellidos(empresaEscrituraSocioDto.getApellidos());
+        empresaEscrituraSocio.setSexo(empresaEscrituraSocioDto.getSexo());
+        empresaEscrituraSocio.setPorcentajeAcciones(empresaEscrituraSocioDto.getPorcentajeAcciones());
+        daoHelper.fulfillAuditorFields(false, empresaEscrituraSocio, usuario.getId());
+        empresaEscrituraSocioRepository.save(empresaEscrituraSocio);
+
+        return empresaEscrituraSocioDto;
+    }
+
+    @Override
+    public EmpresaEscrituraSocioDto eliminarSocio(String empresaUuid, String escrituraUuid, String representanteUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(representanteUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el socio con el ID [{}]", representanteUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        EmpresaEscrituraSocio empresaEscrituraSocio = empresaEscrituraSocioRepository.findByUuidAndEliminadoFalse(representanteUuid);
+
+        if(empresaEscrituraSocio == null) {
+            logger.warn("El socio a modificar no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaEscrituraSocio.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, empresaEscrituraSocio, usuario.getId());
+        empresaEscrituraSocioRepository.save(empresaEscrituraSocio);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraSocio(empresaEscrituraSocio);
     }
 }

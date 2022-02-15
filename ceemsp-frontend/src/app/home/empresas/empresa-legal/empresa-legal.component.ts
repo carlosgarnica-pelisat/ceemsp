@@ -24,9 +24,19 @@ export class EmpresaLegalComponent implements OnInit {
   showRepresentanteForm: boolean = false;
   showConsejoForm: boolean = false;
 
+  editandoSocio: boolean = false;
+  editandoApoderado: boolean = false;
+  editandoRepresentante: boolean = false;
+  editandoConsejo: boolean = false;
+
   uuid: string;
   pestanaActual: string = "DETALLES";
   escrituras: EmpresaEscritura[];
+
+  socio: EmpresaEscrituraSocio;
+  apoderado: EmpresaEscrituraApoderado;
+  representante: EmpresaEscrituraRepresentante;
+  consejo: EmpresaEscrituraConsejo;
 
   nuevaEscrituraForm: FormGroup;
   nuevoSocioForm: FormGroup;
@@ -60,6 +70,11 @@ export class EmpresaLegalComponent implements OnInit {
   @ViewChild('mostrarDetallesEscrituraModal') mostrarDetallesEscrituraModal: any;
   @ViewChild('modificarEscrituraModal') modificarEscrituraModal: any;
 
+  @ViewChild('eliminarEscrituraSocioModal') eliminarEscrituraSocioModal;
+  @ViewChild('eliminarEscrituraApoderadoModal') eliminarEscrituraApoderadoModal;
+  @ViewChild('eliminarEscrituraRepresentanteModal') eliminarEscrituraRepresentanteModal;
+  @ViewChild('eliminarEscrituraConsejoModal') eliminarEscrituraConsejoModal;
+
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
               private formBuilder: FormBuilder) { }
@@ -80,7 +95,8 @@ export class EmpresaLegalComponent implements OnInit {
     this.nuevoSocioForm = this.formBuilder.group({
       nombres: ['', Validators.required],
       apellidos: ['', Validators.required],
-      sexo: ['', Validators.required]
+      sexo: ['', Validators.required],
+      porcentajeAcciones: ['', Validators.required]
     })
 
     this.nuevoApoderadoForm = this.formBuilder.group({
@@ -116,6 +132,7 @@ export class EmpresaLegalComponent implements OnInit {
   }
 
   mostrarFormularioNuevoSocio() {
+    this.editandoSocio = false;
     this.showSocioForm = !this.showSocioForm;
   }
 
@@ -129,6 +146,98 @@ export class EmpresaLegalComponent implements OnInit {
 
   mostrarFormularioNuevoConsejo() {
     this.showConsejoForm = !this.showConsejoForm;
+  }
+
+  mostrarEditarSocio(index) {
+    this.socio = this.escritura.socios[index];
+    this.mostrarFormularioNuevoSocio();
+    this.editandoSocio = true;
+    this.nuevoSocioForm.patchValue({
+      nombres: this.socio.nombres,
+      apellidos: this.socio.apellidos,
+      sexo: this.socio.sexo,
+      porcentajeAcciones: this.socio.porcentajeAcciones
+    });
+  }
+
+  mostrarEditarApoderado(index) {
+    this.apoderado = this.escritura.apoderados[index];
+    this.mostrarFormularioNuevoApoderado();
+    this.editandoApoderado = true;
+    this.nuevoApoderadoForm.patchValue({
+      nombres: this.apoderado.nombres,
+      apellidos: this.apoderado.apellidos,
+      sexo: this.apoderado.sexo,
+      fechaInicio: this.apoderado.fechaInicio,
+      fechaFin: this.apoderado.fechaFin
+    });
+  }
+
+  mostrarEditarRepresentante(index) {
+    this.representante = this.escritura.representantes[index];
+    this.mostrarFormularioNuevoRepresentante();
+    this.editandoRepresentante = true;
+    this.nuevoRepresentanteForm.patchValue({
+      nombres: this.representante.nombres,
+      apellidos: this.representante.apellidos,
+      sexo: this.representante.sexo
+    });
+  }
+
+  mostrarEditarConsejo(index) {
+    this.consejo = this.escritura.consejos[index];
+    this.mostrarFormularioNuevoConsejo();
+    this.editandoConsejo = true;
+    this.nuevoConsejoAdministracionForm.patchValue({
+      nombres: this.consejo.nombres,
+      apellidos: this.consejo.apellidos,
+      sexo: this.consejo.sexo,
+      puesto: this.consejo.puesto
+    })
+  }
+
+  mostrarModalEliminarSocio(index) {
+    this.socio = this.escritura.socios[index];
+    this.modal = this.modalService.open(this.eliminarEscrituraSocioModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModalEliminarApoderado(index) {
+    this.apoderado = this.escritura.apoderados[index];
+    this.modal = this.modalService.open(this.eliminarEscrituraApoderadoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModalEliminarRepresentante(index) {
+    this.representante = this.escritura.representantes[index];
+    this.modal = this.modalService.open(this.eliminarEscrituraRepresentanteModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModalEliminarConsejo(index) {
+    this.consejo = this.escritura.consejos[index];
+    this.modal = this.modalService.open(this.eliminarEscrituraConsejoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
   }
 
   guardarSocio(nuevoSocioform) {
@@ -150,20 +259,41 @@ export class EmpresaLegalComponent implements OnInit {
 
     let formValue: EmpresaEscrituraSocio = nuevoSocioform.value;
 
-    this.empresaService.guardarEscrituraSocio(this.uuid, this.escritura.uuid, formValue).subscribe((data: EmpresaEscrituraSocio) => {
-      this.toastService.showGenericToast(
-        "Listo",
-        "Se ha registrado el socio con exito",
-        ToastType.SUCCESS
-      );
-      window.location.reload();
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se ha podido guardar el socio. ${error}`,
-        ToastType.ERROR
-      );
-    })
+    if(this.editandoSocio) {
+      formValue.uuid = this.socio.uuid;
+      formValue.id = this.socio.id;
+
+      this.empresaService.modificarEscrituraSocio(this.uuid, this.escritura.uuid, this.socio.uuid, formValue).subscribe((data: EmpresaEscrituraSocio) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha modificado el socio con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido modificar el socio. ${error}`,
+          ToastType.ERROR
+        );
+      });
+
+    } else {
+      this.empresaService.guardarEscrituraSocio(this.uuid, this.escritura.uuid, formValue).subscribe((data: EmpresaEscrituraSocio) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha registrado el socio con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar el socio. ${error}`,
+          ToastType.ERROR
+        );
+      });
+    }
   }
 
   guardarApoderado(nuevoApoderadoForm) {
@@ -493,6 +623,22 @@ export class EmpresaLegalComponent implements OnInit {
         ToastType.ERROR
       )
     });
+  }
+
+  confirmarEliminarSocio() {
+
+  }
+
+  confirmarEliminarApoderado() {
+
+  }
+
+  confirmarEliminarRepresentante() {
+
+  }
+
+  confirmarEliminarConsejo() {
+
   }
 
   private getDismissReason(reason: any): string {

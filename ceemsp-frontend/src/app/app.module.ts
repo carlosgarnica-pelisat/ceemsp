@@ -50,6 +50,7 @@ import { EquipoComponent } from './home/catalogos/equipo/equipo.component';
 import { UniformesComponent } from './home/catalogos/equipo/uniformes/uniformes.component';
 import { EmpresaUniformesComponent } from './home/empresas/empresa-uniformes/empresa-uniformes.component';
 import {PdfViewerModule} from "ng2-pdf-viewer";
+import { PhoneMaskDirective } from './_directives/phone-mask.directive';
 
 @NgModule({
   declarations: [
@@ -90,7 +91,8 @@ import {PdfViewerModule} from "ng2-pdf-viewer";
     EmpresaEquipoComponent,
     EquipoComponent,
     UniformesComponent,
-    EmpresaUniformesComponent
+    EmpresaUniformesComponent,
+    PhoneMaskDirective
   ],
   imports: [
     BrowserModule,

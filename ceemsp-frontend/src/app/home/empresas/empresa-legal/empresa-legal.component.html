@@ -296,42 +296,42 @@
               <td><b>% Acciones</b></td>
               <td><b>Acciones</b></td>
             </tr>
-            <tr *ngFor="let socio of escritura?.socios">
+            <tr *ngFor="let socio of escritura?.socios; let i = index">
               <td>{{socio?.nombres}}</td>
               <td>{{socio?.apellidos}}</td>
               <td>{{socio?.sexo}}</td>
               <td>{{socio?.porcentajeAcciones}}</td>
               <td>
-                <fa-icon [icon]="faPencil"></fa-icon>
-                <fa-icon [icon]="faTrash"></fa-icon>
+                <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarSocio(i)"></fa-icon>
+                <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarSocio(i)"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="!showSocioForm">
-              <td colspan="4">
+              <td colspan="5">
                 <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevoSocio()">Agregar socio</button>
               </td>
             </tr>
             <tr *ngIf="showSocioForm">
-              <td colspan="4">
+              <td colspan="5">
                 <div class="row">
                   <div class="col-sm-12">
                     <form [formGroup]="nuevoSocioForm">
                       <div class="form-row">
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
                           <label for="nombres">
                             <b>Nombre(s) *</b>
                             <span *ngIf="nuevoSocioForm.controls['nombres'].invalid && (nuevoSocioForm.controls['nombres'].dirty || nuevoSocioForm.controls['nombres'].touched)" class="text-danger"> - Requerido</span>
                           </label>
                           <input id="nombres" type="text" class="form-control" placeholder="Ej. Carlos Jose" formControlName="nombres" #nombres>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
                           <label for="apellidos">
                             <b>Apellido(s) *</b>
                             <span *ngIf="nuevoSocioForm.controls['apellidos'].invalid && (nuevoSocioForm.controls['apellidos'].dirty || nuevoSocioForm.controls['apellidos'].touched)" class="text-danger"> - Requerido</span>
                           </label>
                           <input id="apellidos" type="text" class="form-control" placeholder="Ej. Gonzalez Gonzalez" formControlName="apellidos" #apellidos>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
                           <label for="numero">
                             <b>Sexo *</b>
                             <span *ngIf="nuevoSocioForm.controls['sexo'].invalid && (nuevoSocioForm.controls['sexo'].dirty || nuevoSocioForm.controls['sexo'].touched)" class="text-danger"> - Requerido</span>
@@ -340,6 +340,13 @@
                             <option value="MASCULINO">MASCULINO</option>
                             <option value="FEMENINO">FEMENINO</option>
                           </select>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="porcentajeAcciones">
+                            <b>% Acciones *</b>
+                            <span *ngIf="nuevoSocioForm.controls['porcentajeAcciones'].invalid && (nuevoSocioForm.controls['porcentajeAcciones'].dirty || nuevoSocioForm.controls['porcentajeAcciones'].touched)" class="text-danger"> - Requerido</span>
+                          </label>
+                          <input id="porcentajeAcciones" type="text" class="form-control" placeholder="Colocar solo el numero" formControlName="porcentajeAcciones" #porcentajeAcciones>
                         </div>
                       </div>
                     </form>
@@ -367,15 +374,15 @@
               <td><b>F. Fin</b></td>
               <td><b>Acciones</b></td>
             </tr>
-            <tr *ngFor="let apoderado of escritura?.apoderados">
+            <tr *ngFor="let apoderado of escritura?.apoderados; let i = index">
               <td>{{apoderado?.nombres}}</td>
               <td>{{apoderado?.apellidos}}</td>
               <td>{{apoderado?.sexo}}</td>
               <td>{{apoderado?.fechaInicio}}</td>
               <td>{{apoderado?.fechaFin}}</td>
               <td>
-                <fa-icon [icon]="faPencil"></fa-icon>
-                <fa-icon [icon]="faTrash"></fa-icon>
+                <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarApoderado(i)"></fa-icon>
+                <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarApoderado(i)"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="!showApoderadoForm">
@@ -598,10 +605,90 @@
 
       </div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
       <button class="btn btn-primary" (click)="mostrarEscritura(visualizarEscrituraModal)">Vista previa</button>
       <button class="btn btn-primary" (click)="mostrarModificarEscrituraModal()">Modificar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarEscrituraSocioModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEscrituraSocioModal">Eliminando un socio </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar el socio de la escrsitura. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarSocio()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarEscrituraApoderadoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEscrituraApoderadoModal">Eliminando un apoderado </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar el apoderado de la escritura. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarApoderado()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarEscrituraRepresentanteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEscrituraRepresentanteModal">Eliminando un representante </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar el representante de la escritura. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarRepresentante()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarEscrituraConsejoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEscrituraConsejoModal">Eliminando un consejo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar el consejo de la escritura. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarConsejo()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 

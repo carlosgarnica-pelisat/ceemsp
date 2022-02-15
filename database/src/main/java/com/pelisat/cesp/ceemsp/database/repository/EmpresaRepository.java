@@ -11,4 +11,5 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
     Empresa getByUuidAndEliminadoFalse(String uuid);
     Empresa findFirstByTipoTramite(TipoTramiteEnum tipoTramiteEnum);
     Empresa getByRfcAndEliminadoFalse(String rfc);
+    Empresa getByCurpAndEliminadoFalse(String curp);
 }

@@ -96,6 +96,26 @@
     </div>
   </ng-template>
 
+  <ng-template #eliminarDomicilioModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarDomicilioModal">Eliminando el domicilio: {{domicilio.nombre}} </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar un domicilio. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarDomicilio()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
   <ng-template #modificarDomicilioModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="modificarDomicilioModal">Modificando domicilio: {{domicilio.nombre}} </h4>

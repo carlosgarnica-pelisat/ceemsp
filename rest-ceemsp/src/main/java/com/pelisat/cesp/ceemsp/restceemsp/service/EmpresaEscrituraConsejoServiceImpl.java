@@ -3,10 +3,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraConsejoDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscrituraApoderado;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscrituraConsejo;
+import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraConsejoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -100,5 +97,56 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
         EmpresaEscrituraConsejo empresaEscrituraConsejoCreado = empresaEscrituraConsejoRepository.save(empresaEscrituraConsejo);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraConsejo(empresaEscrituraConsejoCreado);
+    }
+
+    @Override
+    public EmpresaEscrituraConsejoDto actualizarConsejo(String empresaUuid, String escrituraUuid, String consejoUuid, String username, EmpresaEscrituraConsejoDto empresaEscrituraConsejoDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(consejoUuid) || empresaEscrituraConsejoDto == null) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Se esta modificando el consejo de la escritura con el uuid [{}]", consejoUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        EmpresaEscrituraConsejo empresaEscrituraConsejo = empresaEscrituraConsejoRepository.findByUuidAndEliminadoFalse(consejoUuid);
+
+        if(empresaEscrituraConsejo == null) {
+            logger.warn("El consejo a modificar no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaEscrituraConsejo.setNombres(empresaEscrituraConsejoDto.getNombres());
+        empresaEscrituraConsejo.setApellidos(empresaEscrituraConsejoDto.getApellidos());
+        empresaEscrituraConsejo.setSexo(empresaEscrituraConsejoDto.getSexo());
+        empresaEscrituraConsejo.setPuesto(empresaEscrituraConsejoDto.getPuesto());
+        daoHelper.fulfillAuditorFields(false, empresaEscrituraConsejo, usuario.getId());
+        empresaEscrituraConsejoRepository.save(empresaEscrituraConsejo);
+
+        return empresaEscrituraConsejoDto;
+    }
+
+    @Override
+    public EmpresaEscrituraConsejoDto eliminarConsejo(String empresaUuid, String escrituraUuid, String consejoUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(consejoUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el consejo con el ID [{}]", consejoUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        EmpresaEscrituraConsejo empresaEscrituraConsejo = empresaEscrituraConsejoRepository.findByUuidAndEliminadoFalse(consejoUuid);
+
+        if(empresaEscrituraConsejo == null) {
+            logger.warn("El consejo a modificar no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaEscrituraConsejo.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, empresaEscrituraConsejo, usuario.getId());
+        empresaEscrituraConsejoRepository.save(empresaEscrituraConsejo);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraConsejo(empresaEscrituraConsejo);
     }
 }

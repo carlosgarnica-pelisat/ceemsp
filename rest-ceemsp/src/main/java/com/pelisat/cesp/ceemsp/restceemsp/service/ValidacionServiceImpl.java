@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
+import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.ExisteEmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.ExistePersonaDto;
 import com.pelisat.cesp.ceemsp.database.dto.ExisteVehiculoDto;
@@ -15,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -120,6 +122,16 @@ public class ValidacionServiceImpl implements ValidacionService {
             Empresa empresa = empresaRepository.getByRfcAndEliminadoFalse(existeEmpresaDto.getRfc());
             if(empresa != null) {
                 logger.info("La empresa fue encontrada con el RFC");
+                existeEmpresaDto.setExiste(true);
+                existeEmpresaDto.setEmpresa(daoToDtoConverter.convertDaoToDtoEmpresa(empresa));
+            }
+        }
+
+        if(StringUtils.isNotBlank(existeEmpresaDto.getCurp())) {
+            logger.info("Buscando la empresa con el CURP [{}]", existeEmpresaDto.getCurp());
+            Empresa empresa = empresaRepository.getByCurpAndEliminadoFalse(existeEmpresaDto.getCurp());
+            if(empresa != null) {
+                logger.info("La empresa fue encontrada con el CURP");
                 existeEmpresaDto.setExiste(true);
                 existeEmpresaDto.setEmpresa(daoToDtoConverter.convertDaoToDtoEmpresa(empresa));
             }

@@ -82,4 +82,14 @@ public class EmpresaEscrituraController {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return empresaEscrituraService.modificarEscritura(empresaUuid, escrituraUuid, empresaEscrituraDto, username);
     }
+
+    @DeleteMapping(value = EMPRESA_ESCRITURA_URI + "/{escrituraUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaEscrituraDto eliminarEscritura(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "escrituraUuid") String escrituraUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaEscrituraService.eliminarEscritura(empresaUuid, escrituraUuid, username);
+    }
 }

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class EmpresaEscrituraSocioController {
     }
 
     @GetMapping(value = EMPRESA_SOCIOS_URI + "/{socioUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public EmpresaEscrituraSocioDto obtenerEscrituraPorUuid(
+    public EmpresaEscrituraSocioDto obtenerEscrituraSocioPorUuid(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "escrituraUuid") String escrituraUuid,
             @PathVariable(value = "socioUuid") String socioUuid
@@ -44,7 +45,7 @@ public class EmpresaEscrituraSocioController {
     }
 
     @PostMapping(value = EMPRESA_SOCIOS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public EmpresaEscrituraSocioDto crearEscritura(
+    public EmpresaEscrituraSocioDto crearEscrituraSocio(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "escrituraUuid") String escrituraUuid,
             HttpServletRequest request,
@@ -52,5 +53,28 @@ public class EmpresaEscrituraSocioController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return empresaEscrituraSocioService.crearSocio(empresaUuid, escrituraUuid, username, empresaEscrituraSocioDto);
+    }
+
+    @PutMapping(value = EMPRESA_SOCIOS_URI + "/{socioUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaEscrituraSocioDto modificarEscrituraSocio(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "escrituraUuid") String escrituraUuid,
+            @PathVariable(value = "socioUuid") String socioUuid,
+            HttpServletRequest request,
+            @RequestBody EmpresaEscrituraSocioDto empresaEscrituraSocioDto
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaEscrituraSocioService.modificarSocio(empresaUuid, escrituraUuid, socioUuid, username, empresaEscrituraSocioDto);
+    }
+
+    @DeleteMapping(value = EMPRESA_SOCIOS_URI + "/{socioUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaEscrituraSocioDto eliminarEscrituraSocio(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "escrituraUuid") String escrituraUuid,
+            @PathVariable(value = "socioUuid") String socioUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaEscrituraSocioService.eliminarSocio(empresaUuid, escrituraUuid, socioUuid, username);
     }
 }

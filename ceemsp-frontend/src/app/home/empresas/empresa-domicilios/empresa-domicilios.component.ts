@@ -42,6 +42,7 @@ export class EmpresaDomiciliosComponent implements OnInit {
 
   @ViewChild('mostrarDetallesDomicilioModal') mostrarDetallesDomicilioModal: any;
   @ViewChild('modificarDomicilioModal') modificarDomicilioModal: any;
+  @ViewChild('eliminarDomicilioModal') eliminarDomicilioModal: any;
 
   constructor(private toastService: ToastService, private formbuilder: FormBuilder,
               private empresaService: EmpresaService, private route: ActivatedRoute,
@@ -260,7 +261,38 @@ export class EmpresaDomiciliosComponent implements OnInit {
   }
 
   mostrarEliminarEmpresaModal() {
+    this.modalService.dismissAll();
 
+    this.modalService.open(this.eliminarDomicilioModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  confirmarEliminarDomicilio() {
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos eliminando el domicilio",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarDomicilio(this.uuid, this.domicilio.uuid).subscribe((data: EmpresaDomicilio) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el domicilio con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido elimimar el domicilio. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   exportGridData(format) {

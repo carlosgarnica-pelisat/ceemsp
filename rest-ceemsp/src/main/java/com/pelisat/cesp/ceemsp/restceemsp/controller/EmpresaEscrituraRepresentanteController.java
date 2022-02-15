@@ -7,6 +7,7 @@ import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaEscrituraSocioService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.util.ExceptionTypeFilter;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +46,7 @@ public class EmpresaEscrituraRepresentanteController {
     }
 
     @PostMapping(value = EMPRESA_REPRESENTANTES_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public EmpresaEscrituraRepresentanteDto crearEscritura(
+    public EmpresaEscrituraRepresentanteDto crearEscrituraRepresentante(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "escrituraUuid") String escrituraUuid,
             HttpServletRequest request,
@@ -53,5 +54,28 @@ public class EmpresaEscrituraRepresentanteController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return empresaEscrituraRepresentanteService.crearRepresentante(empresaUuid, escrituraUuid, username, empresaEscrituraRepresentanteDto);
+    }
+
+    @PutMapping(value = EMPRESA_REPRESENTANTES_URI + "/{representanteUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaEscrituraRepresentanteDto modificarEscrituraRepresentante(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "escrituraUuid") String escrituraUuid,
+            @PathVariable(value = "representanteUuid") String representanteUuid,
+            HttpServletRequest request,
+            @RequestBody EmpresaEscrituraRepresentanteDto empresaEscrituraRepresentanteDto
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaEscrituraRepresentanteService.modificarRepresentante(empresaUuid, escrituraUuid, representanteUuid, username, empresaEscrituraRepresentanteDto);
+    }
+
+    @DeleteMapping(value = EMPRESA_REPRESENTANTES_URI + "/{representanteUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaEscrituraRepresentanteDto eliminarEscrituraRepresentante(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "escrituraUuid") String escrituraUuid,
+            @PathVariable(value = "representanteUuid") String representanteUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaEscrituraRepresentanteService.eliminarRepresentante(empresaUuid, escrituraUuid, representanteUuid, username);
     }
 }

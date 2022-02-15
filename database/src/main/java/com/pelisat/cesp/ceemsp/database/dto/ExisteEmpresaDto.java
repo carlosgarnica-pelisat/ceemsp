@@ -8,5 +8,6 @@ import lombok.Setter;
 public class ExisteEmpresaDto {
     private Boolean existe;
     private String rfc;
+    private String curp;
     private EmpresaDto empresa;
 }
