@@ -38,7 +38,7 @@ public class PublicServiceImpl implements PublicService {
             throw new InvalidDataException();
         }
 
-        Empresa empresa = empresaRepository.findFirstByTipoTramite(nextRegisterDto.getTipo());
+        Empresa empresa = empresaRepository.findFirstByTipoTramiteOrderByFechaCreacionDesc(nextRegisterDto.getTipo());
         NextRegisterDto response = new NextRegisterDto();
 
         if(empresa == null) {

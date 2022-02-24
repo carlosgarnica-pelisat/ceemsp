@@ -109,7 +109,7 @@ public class ValidacionServiceImpl implements ValidacionService {
             throw new InvalidDataException();
         }
 
-        if(StringUtils.isBlank(existeEmpresaDto.getRfc())) {
+        if(StringUtils.isBlank(existeEmpresaDto.getRfc()) && StringUtils.isBlank(existeEmpresaDto.getCurp())) {
             logger.warn("El parametro a realizar la busqueda viene como nulo o vacio");
             throw new InvalidDataException();
         }

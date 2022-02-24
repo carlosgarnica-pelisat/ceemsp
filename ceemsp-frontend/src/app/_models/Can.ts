@@ -9,7 +9,7 @@ import CanConstanciaSalud from "./CanConstanciaSalud";
 import CanAdiestramiento from "./CanAdiestramiento";
 import CanFotografia from "./CanFotografia";
 
-export default class Can implements Deserializable {
+export default class  Can implements Deserializable {
   id: number;
   uuid: string;
   nombre: string;

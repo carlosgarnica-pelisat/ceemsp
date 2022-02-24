@@ -1,6 +1,8 @@
 import {Deserializable} from "./Deserializable";
 
 export default class EmpresaEscrituraApoderado implements Deserializable {
+  id: number;
+  uuid: string;
   nombres: string;
   apellidos: string;
   sexo: string;

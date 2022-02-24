@@ -146,7 +146,9 @@
             <tr *ngFor="let c of vehiculo?.colores">
               <td>{{c?.color}}</td>
               <td>{{c?.descripcion}}</td>
-              <td></td>
+              <td>
+                <fa-icon [icon]="faTrash" (click)="eliminarColor(c?.uuid)"></fa-icon>
+              </td>
             </tr>
             <tr *ngIf="!showColorForm">
               <td colspan="3"><button class="btn btn-sm btn-primary" (click)="mostrarFormularioColor()">Agregar nuevo</button></td>
@@ -265,6 +267,11 @@
           </table>
         </div>
       </div>
+    </div>
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
+      <button class="btn btn-primary" (click)="mostrarDocumentacion(visualizarEscrituraModal)">Visualizar documentacion</button>
+      <button class="btn btn-primary" (click)="mostrarModificarEscrituraModal()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Eliminar</button>
     </div>
   </ng-template>
 
@@ -589,6 +596,25 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarEscrituraModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarEscrituraModal">Ver adjunto de la escritura </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <pdf-viewer [src]="pdfActual"
+                      [render-text]="true"
+                      [original-size]="false"
+                      style="width: 100%; height: 600px"></pdf-viewer>
         </div>
       </div>
     </div>

@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface CanCartillaVacunacionRepository extends JpaRepository<CanCartillaVacunacion, Integer> {
     List<CanCartillaVacunacion> findAllByCanAndEliminadoFalse(int can);
-
+    CanCartillaVacunacion findByUuidAndEliminadoFalse(String uuid);
 }

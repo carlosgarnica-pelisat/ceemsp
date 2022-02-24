@@ -63,7 +63,8 @@ export class EmpresaClientesComponent implements OnInit {
       razonSocial: ['', Validators.required],
       canes: ['', Validators.required],
       armas: ['', Validators.required],
-      fechaInicio: ['', Validators.required]
+      fechaInicio: ['', Validators.required],
+      archivo: ['', Validators.required]
     });
 
     this.nuevoClienteDomicilioForm = this.formBuilder.group({
@@ -133,32 +134,24 @@ export class EmpresaClientesComponent implements OnInit {
     })
   }
 
-  modify(rowData) {
-
-  }
-
-  delete(rowData) {
-
-  }
-
   seleccionarTipoInfraestructura(target) {
     let uuid = target.value;
     this.tipoInfraestructura = this.tiposInfraestructura.filter(x => x.uuid === uuid)[0];
   }
 
   next(stepName: string, form) {
-    /*if(!form.valid) {
+    if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "Faltan algunos campos obligatorios por llenarse",
         ToastType.WARNING
       );
       return;
-    }*/
+    }
     this.stepper.next();
 
     switch (stepName) {
-      /*case "INFORMACION":
+      case "INFORMACION":
         let formData: Cliente = form.value;
         let formValue: Cliente = form.value;
 
@@ -179,7 +172,7 @@ export class EmpresaClientesComponent implements OnInit {
         break;
       case "DOMICILIOS":
 
-        break;*/
+        break;
     }
 
 

@@ -123,6 +123,22 @@
                     <span *ngSwitchCase="false">No</span>
                   </td>
                 </tr>
+                <tr>
+                  <td><b>Descripcion:</b></td>
+                  <td>{{can?.descripcion}}</td>
+                </tr>
+                <tr>
+                  <td><b>Origen:</b></td>
+                  <td>{{can?.origen}}</td>
+                </tr>
+                <tr>
+                  <td><b>Domicilio asignado:</b></td>
+                  <td>{{can?.domicilioAsignado?.nombre}}</td>
+                </tr>
+                <tr>
+                  <td><b>Estatus:</b></td>
+                  <td>{{can?.status}}</td>
+                </tr>
 
               </table>
             </div>
@@ -140,13 +156,9 @@
                   <td>{{v.cedula}}</td>
                   <td>{{v.fechaExpedicion}}</td>
                   <td>
+                    <fa-icon [icon]="faDownload"></fa-icon>
                     <fa-icon [icon]="faPencilAlt"></fa-icon>
                     <fa-icon [icon]="faTrash"></fa-icon>
-                  </td>
-                </tr>
-                <tr *ngIf="!showVacunacionForm">
-                  <td colspan="4">
-                    <button class="btn btn-sm btn-primary" (click)="mostrarVacunacionForm()">Agregar nuevo</button>
                   </td>
                 </tr>
                 <tr *ngIf="showVacunacionForm">
@@ -155,36 +167,47 @@
                       <div class="col-sm-12">
                         <form [formGroup]="crearEmpresaCanCartillaVacunacionForm">
                           <div class="form-row">
-                            <div class="col-sm-4">
+                            <div class="col-sm-3">
                               <label for="expedidoPorVacunacion">
                                 <b>Expedido por *</b>
-                                <span *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].touched)" class="text-danger"> - Requerido</span>
+                                <span
+                                  *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].touched)">
+                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].errors.required" class="text-danger"> - Campo requerido</i>
+                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                                </span>
                               </label>
                               <input id="expedidoPorVacunacion" type="text" class="form-control" placeholder="Ej. Cesar Millan" formControlName="expedidoPor" #expedidoPor>
                             </div>
-                            <div class="col-sm-4">
+                            <div class="col-sm-3">
                               <label for="cedulaVacunacion">
                                 <b>Cedula *</b>
-                                <span *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['cedula'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['cedula'].touched)" class="text-danger"> - Requerido</span>
+                                <span
+                                  *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['cedula'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['cedula'].touched)">
+                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].errors.required" class="text-danger"> - Campo requerido</i>
+                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                                </span>
                               </label>
                               <input id="cedulaVacunacion" type="text" class="form-control" placeholder="Ej. 156785" formControlName="cedula" #cedula>
                             </div>
-                            <div class="col-sm-4">
+                            <div class="col-sm-3">
                               <label for="fechaExpedicionVacunacion">
                                 <b>Fecha de vacunacion *</b>
                                 <span *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].touched)" class="text-danger"> - Requerido</span>
                               </label>
                               <input id="fechaExpedicionVacunacion" type="date" class="form-control" formControlName="fechaExpedicion" #fechaExpedicion>
                             </div>
+                            <div class="col-sm-3">
+                              <label for="archivoVacunacion">
+                                <b>Archivo *</b>
+                                <span
+                                  *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['archivo'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['archivo'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['archivo'].touched)">
+                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
+                                </span>
+                              </label>
+                              <input id="archivoVacunacion" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
+                            </div>
                           </div>
                         </form>
-                      </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                      <div class="col-sm-12">
-                        <button class="btn btn-primary btn-sm" (click)="guardarCartillaVacunacuion(crearEmpresaCanCartillaVacunacionForm)">Guardar</button>
-                        <button class="btn btn-danger btn-sm" (click)="mostrarCertificadoSaludForm()">Cancelar</button>
                       </div>
                     </div>
                   </td>
@@ -208,54 +231,47 @@
                     <fa-icon [icon]="faTrash"></fa-icon>
                   </td>
                 </tr>
-                <tr *ngIf="!showCertificadoForm">
-                  <td colspan="4">
-                    <button class="btn btn-sm btn-primary" (click)="mostrarCertificadoSaludForm()">Agregar nuevo</button>
-                  </td>
-                </tr>
                 <tr *ngIf="showCertificadoForm">
                   <td colspan="4">
                     <div class="row">
                       <div class="col-sm-12">
                         <form [formGroup]="crearEmpresaCanCertificadoSaludForm">
                           <div class="form-row">
-                            <div class="col-sm-4">
+                            <div class="col-sm-3">
                               <label for="expedidoPorCertificado">
                                 <b>Expedido por *</b>
                                 <span *ngIf="crearEmpresaCanCertificadoSaludForm.controls['expedidoPor'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['expedidoPor'].dirty || crearEmpresaCanCertificadoSaludForm.controls['expedidoPor'].touched)" class="text-danger"> - Requerido</span>
                               </label>
                               <input id="expedidoPorCertificado" type="text" class="form-control" placeholder="Ej. Cesar Millan" formControlName="expedidoPor" #expedidoPor>
                             </div>
-                            <div class="col-sm-4">
+                            <div class="col-sm-3">
                               <label for="cedulaCertificado">
                                 <b>Cedula *</b>
                                 <span *ngIf="crearEmpresaCanCertificadoSaludForm.controls['cedula'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['cedula'].dirty || crearEmpresaCanCertificadoSaludForm.controls['cedula'].touched)" class="text-danger"> - Requerido</span>
                               </label>
                               <input id="cedulaCertificado" type="text" class="form-control" placeholder="Ej. 10912315" formControlName="cedula" #cedula>
                             </div>
-                            <div class="col-sm-4">
+                            <div class="col-sm-3">
                               <label for="fechaExpedicionCertificado">
                                 <b>Fecha de expedicion *</b>
                                 <span *ngIf="crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].dirty || crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].touched)" class="text-danger"> - Requerido</span>
                               </label>
                               <input id="fechaExpedicionCertificado" type="date" class="form-control" formControlName="fechaExpedicion" #fechaExpedicion>
                             </div>
+                            <div class="col-sm-3">
+                              <label for="archivoVacunacion">
+                                <b>Archivo *</b>
+                                <span
+                                  *ngIf="crearEmpresaCanCertificadoSaludForm.controls['archivo'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['archivo'].dirty || crearEmpresaCanCertificadoSaludForm.controls['archivo'].touched)">
+                                  <i *ngIf="crearEmpresaCanCertificadoSaludForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
+                                </span>
+                              </label>
+                              <input id="archivoCertificado" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
+                            </div>
                           </div>
                         </form>
                       </div>
                     </div>
-                    <hr>
-                    <div class="row">
-                      <div class="col-sm-12">
-                        <button class="btn btn-primary btn-sm" (click)="guardarCertificado(crearEmpresaCanCertificadoSaludForm)">Guardar</button>
-                        <button class="btn btn-danger btn-sm" (click)="mostrarCertificadoSaludForm()">Cancelar</button>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-                <tr *ngIf="showCertificadoForm">
-                  <td colspan="4">
-
                   </td>
                 </tr>
               </table>
@@ -275,11 +291,6 @@
                   <td>
                     <fa-icon [icon]="faPencilAlt"></fa-icon>
                     <fa-icon [icon]="faTrash"></fa-icon>
-                  </td>
-                </tr>
-                <tr *ngIf="!showEntrenamientoForm">
-                  <td colspan="4">
-                    <button class="btn btn-sm btn-primary" (click)="mostrarEntrenamientoForm()">Agregar nuevo</button>
                   </td>
                 </tr>
                 <tr *ngIf="showEntrenamientoForm">
@@ -313,13 +324,6 @@
                             </div>
                           </div>
                         </form>
-                      </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                      <div class="col-sm-12">
-                        <button class="btn btn-primary btn-sm" (click)="guardarAdiestramiento(crearEmpresaCanEntrenamientoForm)">Guardar</button>
-                        <button class="btn btn-danger btn-sm" (click)="mostrarEntrenamientoForm()">Cancelar</button>
                       </div>
                     </div>
                   </td>
@@ -370,18 +374,6 @@
                         </form>
                       </div>
                     </div>
-                    <hr>
-                    <div class="row">
-                      <div class="col-sm-12">
-                        <button class="btn btn-primary btn-sm" (click)="guardarFotografia(crearCanFotografiaForm)">Guardar</button>
-                        <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevaFotografia()">Cancelar</button>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-                <tr *ngIf="!showFotografiaForm">
-                  <td colspan="3">
-                    <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaFotografia()">Agregar fotografia</button>
                   </td>
                 </tr>
               </table>
@@ -390,6 +382,30 @@
 
         </div>
       </div>
+    </div>
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
+      <button class="btn btn-primary" (click)="mostrarModificarCanModal()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Eliminar</button>
+    </div>
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'VACUNACION'">
+      <button class="btn btn-primary" (click)="mostrarVacunacionForm()" *ngIf="!showVacunacionForm">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="guardarCartillaVacunacuion(crearEmpresaCanCartillaVacunacionForm)" *ngIf="showVacunacionForm">Guardar</button>
+      <button class="btn btn-danger" (click)="mostrarVacunacionForm()" *ngIf="showVacunacionForm">Cancelar</button>
+    </div>
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'CERTIFICADOS'">
+      <button class="btn btn-primary" (click)="mostrarCertificadoSaludForm()" *ngIf="!showCertificadoForm">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="guardarCertificado(crearEmpresaCanCertificadoSaludForm)" *ngIf="showCertificadoForm">Guardar</button>
+      <button class="btn btn-danger" (click)="mostrarCertificadoSaludForm()" *ngIf="showCertificadoForm">Cancelar</button>
+    </div>
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'ENTRENAMIENTO'">
+      <button class="btn btn-primary" (click)="mostrarEntrenamientoForm()" *ngIf="!showEntrenamientoForm">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="guardarAdiestramiento(crearEmpresaCanEntrenamientoForm)" *ngIf="showEntrenamientoForm">Guardar</button>
+      <button class="btn btn-danger" (click)="mostrarEntrenamientoForm()" *ngIf="showEntrenamientoForm">Cancelar</button>
+    </div>
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'FOTOGRAFIAS'">
+      <button class="btn btn-primary" (click)="mostrarFormularioNuevaFotografia()" *ngIf="!showFotografiaForm">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="guardarFotografia(crearCanFotografiaForm)" *ngIf="showFotografiaForm">Guardar</button>
+      <button class="btn btn-danger" (click)="mostrarFormularioNuevaFotografia()" *ngIf="showFotografiaForm">Cancelar</button>
     </div>
   </ng-template>
 
@@ -444,24 +460,37 @@
               <div id="test-l-1" class="content">
                 <form [formGroup]="crearEmpresaCanForm">
                   <div class="form-row">
-                    <div class="col-sm-4">
+                    <div class="col-sm-6">
                       <label for="nombre">
                         <b>Nombre del can *</b>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['nombre'].invalid && (crearEmpresaCanForm.controls['nombre'].dirty || crearEmpresaCanForm.controls['nombre'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearEmpresaCanForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
                       </label>
                       <input id="nombre" type="text" class="form-control" placeholder="Ejemplo: Pochi" formControlName="nombre">
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                       <label for="genero">
                         <b>Genero *</b>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['genero'].invalid && (crearEmpresaCanForm.controls['genero'].dirty || crearEmpresaCanForm.controls['genero'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['genero'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="genero" class="form-control" formControlName="genero">
                         <option value="MACHO">Macho</option>
                         <option value="HEMBRA">Hembra</option>
                       </select>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                       <label for="fechaIngreso">
                         <b>Fecha de ingreso *</b>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['fechaIngreso'].invalid && (crearEmpresaCanForm.controls['fechaIngreso'].dirty || crearEmpresaCanForm.controls['fechaIngreso'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['fechaIngreso'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <input id="fechaIngreso" type="date" class="form-control" formControlName="fechaIngreso">
                     </div>
@@ -471,18 +500,30 @@
                     <div class="col-sm-3">
                       <label for="edad">
                         <b>Edad *</b>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['edad'].invalid && (crearEmpresaCanForm.controls['edad'].dirty || crearEmpresaCanForm.controls['edad'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['edad'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
-                      <input id="edad" type="number" min="0" class="form-control" placeholder="En anios completos" formControlName="edad" #edad>
+                      <input id="edad" type="number" min="0" max="99" class="form-control" placeholder="En anios completos" formControlName="edad">
                     </div>
                     <div class="col-sm-3">
                       <label for="peso">
                         <b>Peso *</b>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['peso'].invalid && (crearEmpresaCanForm.controls['peso'].dirty || crearEmpresaCanForm.controls['peso'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['peso'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
-                      <input id="peso" type="number" min="0" class="form-control" placeholder="En kilos" formControlName="peso" #peso>
+                      <input id="peso" type="number" min="0" max="99" class="form-control" placeholder="En kilos" formControlName="peso" #peso>
                     </div>
                     <div class="col-sm-3">
                       <label for="raza">
                         <b>Raza *</b>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['raza'].invalid && (crearEmpresaCanForm.controls['raza'].dirty || crearEmpresaCanForm.controls['raza'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['raza'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="raza" class="form-control" formControlName="raza">
                         <option *ngFor="let r of razas" value="{{r.uuid}}">{{r.nombre}}</option>
@@ -491,6 +532,10 @@
                     <div class="col-sm-3">
                       <label for="razaOtro">
                         <b>Especificar</b>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['razaOtro'].invalid && (crearEmpresaCanForm.controls['razaOtro'].dirty || crearEmpresaCanForm.controls['razaOtro'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['razaOtro'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
                       </label>
                       <input id="razaOtro" type="text" class="form-control" placeholder="Ejemplo: Jose" formControlName="razaOtro" #razaOtro>
                     </div>
@@ -500,6 +545,10 @@
                     <div class="col-sm-3">
                       <label for="chip">
                         <b>Chip *</b>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['chip'].invalid && (crearEmpresaCanForm.controls['chip'].dirty || crearEmpresaCanForm.controls['chip'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['chip'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="chip" class="form-control" formControlName="chip">
                         <option value="true">Si</option>
@@ -509,6 +558,10 @@
                     <div class="col-sm-3">
                       <label for="tatuaje">
                         <b>Tatuaje *</b>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['tatuaje'].invalid && (crearEmpresaCanForm.controls['tatuaje'].dirty || crearEmpresaCanForm.controls['tatuaje'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['tatuaje'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="tatuaje" class="form-control" formControlName="tatuaje">
                         <option value="true">Si</option>
@@ -518,6 +571,10 @@
                     <div class="col-sm-6">
                       <label for="domicilioAsignado">
                         <b>Domicilio de resguardo *</b>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['domicilioAsignado'].invalid && (crearEmpresaCanForm.controls['domicilioAsignado'].dirty || crearEmpresaCanForm.controls['domicilioAsignado'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['domicilioAsignado'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="domicilioAsignado" class="form-control" formControlName="domicilioAsignado">
                         <option *ngFor="let d of domicilios" value="{{d.uuid}}">{{d.nombre}} - {{d.domicilio1}}</option>
@@ -529,6 +586,10 @@
                     <div class="col-sm-12">
                       <label for="descripcion">
                         <b>Descripcion *</b>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['descripcion'].invalid && (crearEmpresaCanForm.controls['descripcion'].dirty || crearEmpresaCanForm.controls['descripcion'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['descripcion'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <textarea id="descripcion" type="text" class="form-control" placeholder="Describir detalladamente el can, sus razgos y demas" formControlName="descripcion" #descripcion></textarea>
                     </div>
@@ -538,7 +599,10 @@
                     <div class="col-sm-3">
                       <label for="origen">
                         <b>Origen *</b>
-                        <span *ngIf="crearEmpresaCanForm.controls['origen'].invalid && (crearEmpresaCanForm.controls['origen'].dirty || crearEmpresaCanForm.controls['origen'].touched)" class="text-danger"> - Requerido</span>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['origen'].invalid && (crearEmpresaCanForm.controls['origen'].dirty || crearEmpresaCanForm.controls['origen'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['origen'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="origen" class="form-control" formControlName="origen" (change)="seleccionarOrigen($event.target)">
                         <option value="PROPIO">Propio</option>

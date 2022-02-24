@@ -8,4 +8,6 @@ public interface VehiculoColorService {
     List<VehiculoColorDto> obtenerTodosPorVehiculoUuid(String vehiculoUuid, String empresaUuid);
     List<VehiculoColorDto> obtenerTodosPorVehiculoId(int id);
     VehiculoColorDto guardarcolor(String empresaUuid, String vehiculoUuid, String username, VehiculoColorDto vehiculoColorDto);
+    VehiculoColorDto modificarColor(String empresaUuid, String vehiculoUuid, String colorUuid, String username, VehiculoColorDto vehiculoColorDto);
+    VehiculoColorDto eliminarColor(String empresaUuid, String vehiculoUuid, String colorUuid, String username);
 }

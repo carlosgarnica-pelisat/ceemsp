@@ -15,7 +15,13 @@ public enum TipoArchivoEnum {
     CLIENTE_CONTRATO_SERVICIOS("CLIENTE_CONTRATO_SERVICIOS", "Contrato de servicios del cliente", "Contrato que firma el cliente con la ESP",
             "clientes/contratos/", "contrato"),
     ESCRITURA("ESCRITURA", "Escritura", "Documento realizado por un fedatario que constituye una empresa o un movimiento",
-            "escrituras", "escritura");
+            "escrituras/", "escritura"),
+    DOCUMENTACION_PERSONAL("DOCUMENTACION_PERSONAL", "Documentacion de personal", "Documentacion de contratacion de personal de una empresa de seguridad privada",
+            "personal/","documentacion-personal"),
+    CONSTANCIA_SALUD_CAN("CONSTANCIA_SALUD_CAN", "Constancia de salud canina", "Certifica y avala la salud de un can registrado en una empresa de seguridad privada",
+            "canes/constancias/", "can-constancia"),
+    CARTILLA_VACUNACION_CAN("CARTILLA_VACUNACION_CAN", "Cartilla de vacunacion canina", "Muestra el historial de vacunas realizadas en un can",
+            "canes/cartillas/", "can-cartilla");
 
     private String codigo;
     private String nombre;

@@ -131,14 +131,22 @@
               <div class="col-sm-6">
                 <label for="nombreEditar">
                   <b>Nombre del domicilio *</b>
-                  <span *ngIf="modificarDomicilioForm.controls['nombre'].invalid && (modificarDomicilioForm.controls['nombre'].dirty || modificarDomicilioForm.controls['nombre'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="modificarDomicilioForm.controls['nombre'].invalid && (modificarDomicilioForm.controls['nombre'].dirty || modificarDomicilioForm.controls['nombre'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="modificarDomicilioForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="nombreEditar" type="text" class="form-control" placeholder="Ej. Sucursal del norte, Matriz" formControlName="nombre" #nombre>
               </div>
               <div class="col-sm-6">
                 <label for="domicilio1Editar">
-                  <b>Domicilio * </b>
-                  <span *ngIf="modificarDomicilioForm.controls['domicilio1'].invalid && (modificarDomicilioForm.controls['domicilio1'].dirty || modificarDomicilioForm.controls['domicilio1'].touched)" class="text-danger"> - Requerido</span>
+                  <b>Calle * </b>
+                  <span
+                    *ngIf="modificarDomicilioForm.controls['domicilio1'].invalid && (modificarDomicilioForm.controls['domicilio1'].dirty || modificarDomicilioForm.controls['domicilio1'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['domicilio1'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="modificarDomicilioForm.controls['domicilio1'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="domicilio1Editar" type="text" class="form-control" placeholder="Ej. Av. Malecon" formControlName="domicilio1" #address1>
               </div>
@@ -148,26 +156,42 @@
               <div class="col-sm-3">
                 <label for="numeroExteriorEditar">
                   <b>N. Ext * </b>
-                  <span *ngIf="modificarDomicilioForm.controls['numeroExterior'].invalid && (modificarDomicilioForm.controls['numeroExterior'].dirty || modificarDomicilioForm.controls['numeroExterior'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="modificarDomicilioForm.controls['numeroExterior'].invalid && (modificarDomicilioForm.controls['numeroExterior'].dirty || modificarDomicilioForm.controls['numeroExterior'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['numeroExterior'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="modificarDomicilioForm.controls['numeroExterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="numeroExteriorEditar" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
               </div>
               <div class="col-sm-3">
                 <label for="numeroInteriorEditar">
                   <b>N. Int</b>
+                  <span
+                    *ngIf="modificarDomicilioForm.controls['numeroInterior'].invalid && (modificarDomicilioForm.controls['numeroInterior'].dirty || modificarDomicilioForm.controls['numeroInterior'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="numeroInteriorEditar" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
               </div>
               <div class="col-sm-3">
                 <label for="domicilio2Editar">
                   <b>Colonia *</b>
-                  <span *ngIf="modificarDomicilioForm.controls['domicilio2'].invalid && (modificarDomicilioForm.controls['domicilio2'].dirty || modificarDomicilioForm.controls['domicilio2'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="modificarDomicilioForm.controls['domicilio2'].invalid && (modificarDomicilioForm.controls['domicilio2'].dirty || nuevoDomicilioForm.controls['domicilio2'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['domicilio2'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="modificarDomicilioForm.controls['domicilio2'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="domicilio2Editar" type="text" class="form-control" placeholder="Ej. Colonia 20 de Noviembre" formControlName="domicilio2" #domicilio2>
               </div>
               <div class="col-sm-3">
                 <label for="domicilio3Editar">
-                  <b>Municipio *</b>
+                  <span
+                    *ngIf="modificarDomicilioForm.controls['domicilio3'].invalid && (modificarDomicilioForm.controls['domicilio3'].dirty || nuevoDomicilioForm.controls['domicilio3'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['domicilio3'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="modificarDomicilioForm.controls['domicilio3'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                   <span *ngIf="modificarDomicilioForm.controls['domicilio3'].invalid && (modificarDomicilioForm.controls['domicilio3'].dirty || modificarDomicilioForm.controls['domicilio3'].touched)" class="text-danger"> - Requerido</span>
                 </label>
                 <input id="domicilio3Editar" type="text" class="form-control" placeholder="Ej. Tonala" formControlName="domicilio3" #domicilio3>
@@ -178,7 +202,10 @@
               <div class="col-sm-3">
                 <label for="estadoEditar">
                   <b>Estado *</b>
-                  <span *ngIf="modificarDomicilioForm.controls['estado'].invalid && (modificarDomicilioForm.controls['estado'].dirty || modificarDomicilioForm.controls['estado'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="modificarDomicilioForm.controls['estado'].invalid && (modificarDomicilioForm.controls['estado'].dirty || modificarDomicilioForm.controls['estado'].touched)">
+                      <i *ngIf="modificarDomicilioForm.controls['estado'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
                 </label>
                 <select id="estadoEditar" formControlName="estado" class="form-control">
                   <option value="AGUASCALIENTES">Aguascalientes</option>
@@ -218,20 +245,33 @@
               <div class="col-sm-3">
                 <label for="paisEditar">
                   <b>Pais *</b>
-                  <span *ngIf="modificarDomicilioForm.controls['pais'].invalid && (modificarDomicilioForm.controls['pais'].dirty || modificarDomicilioForm.controls['pais'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="modificarDomicilioForm.controls['pais'].invalid && (modificarDomicilioForm.controls['pais'].dirty || modificarDomicilioForm.controls['pais'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['pais'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="modificarDomicilioForm.controls['pais'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="paisEditar" type="text" class="form-control" placeholder="Ej. Mexico" formControlName="pais" #pais>
               </div>
               <div class="col-sm-3">
                 <label for="codigoPostalEditar">
                   <b>Codigo Postal *</b>
-                  <span *ngIf="modificarDomicilioForm.controls['codigoPostal'].invalid && (modificarDomicilioForm.controls['codigoPostal'].dirty || modificarDomicilioForm.controls['codigoPostal'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="modificarDomicilioForm.controls['codigoPostal'].invalid && (modificarDomicilioForm.controls['codigoPostal'].dirty || modificarDomicilioForm.controls['codigoPostal'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['codigoPostal'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="modificarDomicilioForm.controls['codigoPostal'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                    <i *ngIf="modificarDomicilioForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
-                <input id="codigoPostalEditar" type="text" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
+                <input id="codigoPostalEditar" type="number" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
               </div>
               <div class="col-sm-3">
                 <label for="domicilio4Editar">
                   <b>Referencia</b>
+                  <span
+                    *ngIf="modificarDomicilioForm.controls['domicilio4'].invalid && (modificarDomicilioForm.controls['domicilio4'].dirty || modificarDomicilioForm.controls['domicilio4'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['domicilio4'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="domicilio4Editar" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
               </div>
@@ -240,26 +280,22 @@
               <div class="col-sm-3">
                 <label for="telefonoFijoEditar">
                   <b>Telefono Fijo</b>
+                  <span
+                    *ngIf="modificarDomicilioForm.controls['telefonoFijo'].invalid && (modificarDomicilioForm.controls['telefonoFijo'].dirty || modificarDomicilioForm.controls['telefonoFijo'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['telefonoFijo'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
                 </label>
-                <input id="telefonoFijoEditar" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoFijo" #telefonoFijo>
+                <input id="telefonoFijoEditar" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoFijo" appPhoneMask #telefonoFijo>
               </div>
               <div class="col-sm-3">
                 <label for="telefonoMovilEditar">
                   <b>Telefono Movil</b>
+                  <span
+                    *ngIf="modificarDomicilioForm.controls['telefonoMovil'].invalid && (modificarDomicilioForm.controls['telefonoMovil'].dirty || modificarDomicilioForm.controls['telefonoMovil'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['telefonoMovil'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
                 </label>
-                <input id="telefonoMovilEditar" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoMovil" #telefonoMovil>
-              </div>
-              <div class="col-sm-3">
-                <label for="latitudEditar">
-                  <b>Latitud *</b>
-                </label>
-                <input id="latitudEditar" placeholder="19 36' 47''" type="text" class="form-control" formControlName="latitud" #latitud>
-              </div>
-              <div class="col-sm-3">
-                <label for="longitudEditar">
-                  <b>Longitud *</b>
-                </label>
-                <input id="longitudEditar" placeholder="99 07' 40''" type="text" class="form-control" formControlName="longitud" #longitud>
+                <input id="telefonoMovilEditar" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoMovil" appPhoneMask #telefonoMovil>
               </div>
             </div>
           </form>
@@ -287,14 +323,21 @@
               <div class="col-sm-6">
                 <label for="nombre">
                   <b>Nombre del domicilio *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['nombre'].invalid && (nuevoDomicilioForm.controls['nombre'].dirty || nuevoDomicilioForm.controls['nombre'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevoDomicilioForm.controls['nombre'].invalid && (nuevoDomicilioForm.controls['nombre'].dirty || nuevoDomicilioForm.controls['nombre'].touched)">
+                      <i *ngIf="nuevoDomicilioForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevoDomicilioForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
                 </label>
                 <input id="nombre" type="text" class="form-control" placeholder="Ej. Sucursal del norte, Matriz" formControlName="nombre" #nombre>
               </div>
               <div class="col-sm-3">
                 <label for="matriz">
                   <b>Tipo *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['matriz'].invalid && (nuevoDomicilioForm.controls['matriz'].dirty || nuevoDomicilioForm.controls['matriz'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevoDomicilioForm.controls['matriz'].invalid && (nuevoDomicilioForm.controls['matriz'].dirty || nuevoDomicilioForm.controls['matriz'].touched)">
+                    <i *ngIf="nuevoDomicilioForm.controls['matriz'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
                 </label>
                 <select id="matriz" formControlName="matriz" class="form-control">
                   <option value="true">MATRIZ</option>
@@ -306,36 +349,55 @@
             <div class="row">
               <div class="col-sm-4">
                 <label for="domicilio1">
-                  <b>Domicilio * </b>
-                  <span *ngIf="nuevoDomicilioForm.controls['domicilio1'].invalid && (nuevoDomicilioForm.controls['domicilio1'].dirty || nuevoDomicilioForm.controls['domicilio1'].touched)" class="text-danger"> - Requerido</span>
+                  <b>Calle * </b>
+                  <span
+                    *ngIf="nuevoDomicilioForm.controls['domicilio1'].invalid && (nuevoDomicilioForm.controls['domicilio1'].dirty || nuevoDomicilioForm.controls['domicilio1'].touched)">
+                    <i *ngIf="nuevoDomicilioForm.controls['domicilio1'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="nuevoDomicilioForm.controls['domicilio1'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="domicilio1" type="text" class="form-control" placeholder="Ej. Av. Malecon" formControlName="domicilio1" #address1>
               </div>
               <div class="col-sm-1">
                 <label for="numeroExterior">
                   <b>N. Ext * </b>
-                  <span *ngIf="nuevoDomicilioForm.controls['numeroExterior'].invalid && (nuevoDomicilioForm.controls['numeroExterior'].dirty || nuevoDomicilioForm.controls['numeroExterior'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevoDomicilioForm.controls['numeroExterior'].invalid && (nuevoDomicilioForm.controls['numeroExterior'].dirty || nuevoDomicilioForm.controls['numeroExterior'].touched)">
+                    <i *ngIf="nuevoDomicilioForm.controls['numeroExterior'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="nuevoDomicilioForm.controls['numeroExterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="numeroExterior" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
               </div>
               <div class="col-sm-1">
                 <label for="numeroInterior">
                   <b>N. Int * </b>
-                  <span *ngIf="nuevoDomicilioForm.controls['numeroInterior'].invalid && (nuevoDomicilioForm.controls['numeroInterior'].dirty || nuevoDomicilioForm.controls['numeroInterior'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevoDomicilioForm.controls['numeroInterior'].invalid && (nuevoDomicilioForm.controls['numeroExterior'].dirty || nuevoDomicilioForm.controls['numeroInterior'].touched)">
+                    <i *ngIf="nuevoDomicilioForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="numeroInterior" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
               </div>
               <div class="col-sm-3">
                 <label for="domicilio2">
                   <b>Colonia *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['domicilio2'].invalid && (nuevoDomicilioForm.controls['domicilio2'].dirty || nuevoDomicilioForm.controls['domicilio2'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevoDomicilioForm.controls['domicilio2'].invalid && (nuevoDomicilioForm.controls['domicilio2'].dirty || nuevoDomicilioForm.controls['domicilio2'].touched)">
+                    <i *ngIf="nuevoDomicilioForm.controls['domicilio2'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="nuevoDomicilioForm.controls['domicilio2'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="domicilio2" type="text" class="form-control" placeholder="Ej. Colonia 20 de Noviembre" formControlName="domicilio2" #domicilio2>
               </div>
               <div class="col-sm-3">
                 <label for="domicilio3">
                   <b>Municipio *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['domicilio3'].invalid && (nuevoDomicilioForm.controls['domicilio3'].dirty || nuevoDomicilioForm.controls['domicilio3'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                  *ngIf="nuevoDomicilioForm.controls['domicilio3'].invalid && (nuevoDomicilioForm.controls['domicilio3'].dirty || nuevoDomicilioForm.controls['domicilio3'].touched)">
+                    <i *ngIf="nuevoDomicilioForm.controls['domicilio3'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="nuevoDomicilioForm.controls['domicilio3'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="domicilio3" type="text" class="form-control" placeholder="Ej. Tonala" formControlName="domicilio3" #domicilio3>
               </div>
@@ -345,7 +407,10 @@
               <div class="col-sm-3">
                 <label for="estado">
                   <b>Estado *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['estado'].invalid && (nuevoDomicilioForm.controls['estado'].dirty || nuevoDomicilioForm.controls['estado'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevoDomicilioForm.controls['estado'].invalid && (nuevoDomicilioForm.controls['estado'].dirty || nuevoDomicilioForm.controls['estado'].touched)">
+                      <i *ngIf="nuevoDomicilioForm.controls['estado'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
                 </label>
                 <select id="estado" formControlName="estado" class="form-control">
                   <option value="AGUASCALIENTES">Aguascalientes</option>
@@ -385,20 +450,33 @@
               <div class="col-sm-3">
                 <label for="pais">
                   <b>Pais *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['pais'].invalid && (nuevoDomicilioForm.controls['pais'].dirty || nuevoDomicilioForm.controls['pais'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevoDomicilioForm.controls['pais'].invalid && (nuevoDomicilioForm.controls['pais'].dirty || nuevoDomicilioForm.controls['pais'].touched)">
+                    <i *ngIf="nuevoDomicilioForm.controls['pais'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="nuevoDomicilioForm.controls['pais'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="pais" type="text" class="form-control" placeholder="Ej. Mexico" formControlName="pais" #pais>
               </div>
               <div class="col-sm-3">
                 <label for="codigoPostal">
                   <b>Codigo Postal *</b>
-                  <span *ngIf="nuevoDomicilioForm.controls['codigoPostal'].invalid && (nuevoDomicilioForm.controls['codigoPostal'].dirty || nuevoDomicilioForm.controls['codigoPostal'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                  *ngIf="nuevoDomicilioForm.controls['codigoPostal'].invalid && (nuevoDomicilioForm.controls['codigoPostal'].dirty || nuevoDomicilioForm.controls['codigoPostal'].touched)">
+                    <i *ngIf="nuevoDomicilioForm.controls['codigoPostal'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="nuevoDomicilioForm.controls['codigoPostal'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                    <i *ngIf="nuevoDomicilioForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
-                <input id="codigoPostal" type="text" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
+                <input id="codigoPostal" type="number" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
               </div>
               <div class="col-sm-3">
                 <label for="domicilio4">
                   <b>Referencia</b>
+                  <span
+                    *ngIf="nuevoDomicilioForm.controls['domicilio4'].invalid && (nuevoDomicilioForm.controls['domicilio4'].dirty || nuevoDomicilioForm.controls['domicilio4'].touched)">
+                    <i *ngIf="nuevoDomicilioForm.controls['domicilio4'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="domicilio4" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
               </div>
@@ -407,26 +485,22 @@
               <div class="col-sm-3">
                 <label for="telefonoFijo">
                   <b>Telefono Fijo</b>
+                  <span
+                    *ngIf="nuevoDomicilioForm.controls['telefonoFijo'].invalid && (nuevoDomicilioForm.controls['telefonoFijo'].dirty || nuevoDomicilioForm.controls['telefonoFijo'].touched)">
+                    <i *ngIf="nuevoDomicilioForm.controls['telefonoFijo'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
                 </label>
-                <input id="telefonoFijo" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoFijo" #telefonoFijo>
+                <input id="telefonoFijo" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoFijo" appPhoneMask #telefonoFijo>
               </div>
               <div class="col-sm-3">
                 <label for="telefonoMovil">
                   <b>Telefono Movil</b>
+                  <span
+                    *ngIf="nuevoDomicilioForm.controls['telefonoMovil'].invalid && (nuevoDomicilioForm.controls['telefonoMovil'].dirty || nuevoDomicilioForm.controls['telefonoMovil'].touched)">
+                    <i *ngIf="nuevoDomicilioForm.controls['telefonoMovil'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
                 </label>
-                <input id="telefonoMovil" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoMovil" #telefonoMovil>
-              </div>
-              <div class="col-sm-3">
-                <label for="latitud">
-                  <b>Latitud *</b>
-                </label>
-                <input id="latitud" placeholder="19 36' 47''" type="text" class="form-control" formControlName="latitud" #latitud>
-              </div>
-              <div class="col-sm-3">
-                <label for="longitud">
-                  <b>Longitud *</b>
-                </label>
-                <input id="longitud" placeholder="99 07' 40''" type="text" class="form-control" formControlName="longitud" #longitud>
+                <input id="telefonoMovil" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoMovil" appPhoneMask #telefonoMovil>
               </div>
             </div>
           </form>

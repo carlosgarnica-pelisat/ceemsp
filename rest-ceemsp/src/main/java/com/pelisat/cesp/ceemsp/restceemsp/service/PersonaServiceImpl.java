@@ -196,4 +196,59 @@ public class PersonaServiceImpl implements PersonaService {
 
         return daoToDtoConverter.convertDaoToDtoPersona(personal);
     }
+
+    @Override
+    public PersonaDto modificarPersona(String empresaUuid, String personaUuid, String username, PersonaDto personaDto) {
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) | StringUtils.isBlank(personaUuid) || personaDto == null) {
+            logger.warn("El usuario, la empresa, la persona o la informacion del trabajo a modificar vienen como nulas o invalidas");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando la persona con el uuid [{}]", personaUuid);
+
+        Personal personal = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        if(personal == null) {
+            logger.warn("La persona a cambiar la informacion no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        personal.setNombres(personaDto.getNombres());
+        personal.setApellidoPaterno(personaDto.getApellidoPaterno());
+        personal.setApellidoMaterno(personaDto.getApellidoMaterno());
+        personal.setDomicilio1(personaDto.getDomicilio1());
+        personal.setDomicilio2(personaDto.getDomicilio2());
+        personal.setDomicilio3(personaDto.getDomicilio3());
+        personal.setDomicilio4(personaDto.getDomicilio4());
+        personal.setCodigoPostal(personaDto.getCodigoPostal());
+
+        daoHelper.fulfillAuditorFields(false, personal, usuarioDto.getId());
+
+        personaRepository.save(personal);
+        return daoToDtoConverter.convertDaoToDtoPersona(personal);
+    }
+
+    @Override
+    public PersonaDto eliminarPersona(String empresaUuid, String personaUuid, String username) {
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) | StringUtils.isBlank(personaUuid)) {
+            logger.warn("El usuario, la empresa, la persona o la informacion del trabajo a modificar vienen como nulas o invalidas");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la persona con el uuid [{}]", personaUuid);
+
+        Personal personal = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        if(personal == null) {
+            logger.warn("La persona a eliminar la informacion no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        personal.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, personal, usuarioDto.getId());
+        personaRepository.save(personal);
+        return daoToDtoConverter.convertDaoToDtoPersona(personal);
+    }
 }

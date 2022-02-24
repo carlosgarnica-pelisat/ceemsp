@@ -83,39 +83,39 @@ export class EmpresaLegalComponent implements OnInit {
     this.uuid = this.route.snapshot.paramMap.get("uuid");
 
     this.nuevaEscrituraForm = this.formBuilder.group({
-      numeroEscritura: ['', Validators.required],
+      numeroEscritura: ['', [Validators.required, Validators.maxLength(10)]],
       fechaEscritura: ['', Validators.required],
-      ciudad: ['', Validators.required],
+      ciudad: ['', [Validators.required, Validators.maxLength(60)]],
       tipoFedatario: ['', Validators.required],
       numero: ['', Validators.required],
-      nombreFedatario: ['', Validators.required],
+      nombreFedatario: ['', [Validators.required, Validators.maxLength(100)]],
       descripcion: ['', Validators.required]
     })
 
     this.nuevoSocioForm = this.formBuilder.group({
-      nombres: ['', Validators.required],
-      apellidos: ['', Validators.required],
+      nombres: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidos: ['', [Validators.required, Validators.maxLength(60)]],
       sexo: ['', Validators.required],
       porcentajeAcciones: ['', Validators.required]
     })
 
     this.nuevoApoderadoForm = this.formBuilder.group({
-      nombres: ['', Validators.required],
-      apellidos: ['', Validators.required],
+      nombres: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidos: ['', [Validators.required, Validators.maxLength(60)]],
       sexo: ['', Validators.required],
       fechaInicio: ['', Validators.required],
       fechaFin: ['', Validators.required]
     })
 
     this.nuevoRepresentanteForm = this.formBuilder.group({
-      nombres: ['', Validators.required],
-      apellidos: ['', Validators.required],
+      nombres: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidos: ['', [Validators.required, Validators.maxLength(60)]],
       sexo: ['', Validators.required]
     })
 
     this.nuevoConsejoAdministracionForm = this.formBuilder.group({
-      nombres: ['', Validators.required],
-      apellidos: ['', Validators.required],
+      nombres: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidos: ['', [Validators.required, Validators.maxLength(60)]],
       sexo: ['', Validators.required],
       puesto: ['', Validators.required]
     })
@@ -315,20 +315,40 @@ export class EmpresaLegalComponent implements OnInit {
 
     let formValue: EmpresaEscrituraApoderado = nuevoApoderadoForm.value;
 
-    this.empresaService.guardarEscrituraApoderado(this.uuid, this.escritura.uuid, formValue).subscribe((data: EmpresaEscrituraApoderado) => {
-      this.toastService.showGenericToast(
-        "Listo",
-        "Se ha registrado el apoderado con exito",
-        ToastType.SUCCESS
-      );
-      window.location.reload();
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se ha podido guardar el apoderado. ${error}`,
-        ToastType.ERROR
-      );
-    })
+    if(this.editandoApoderado) {
+      formValue.uuid = this.apoderado.uuid;
+      formValue.id = this.apoderado.id;
+
+      this.empresaService.modificarEscrituraApoderado(this.uuid, this.escritura.uuid, this.apoderado.uuid, formValue).subscribe((data: EmpresaEscrituraApoderado) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha modificado el apoderado con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido modificar el apoderado. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      });
+    } else {
+      this.empresaService.guardarEscrituraApoderado(this.uuid, this.escritura.uuid, formValue).subscribe((data: EmpresaEscrituraApoderado) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha registrado el apoderado con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar el apoderado. ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
   }
 
   guardarConsejo(nuevoConsejoForm) {
@@ -349,20 +369,40 @@ export class EmpresaLegalComponent implements OnInit {
 
     let formValue: EmpresaEscrituraConsejo = nuevoConsejoForm.value;
 
-    this.empresaService.guardarEscrituraConsejos(this.uuid, this.escritura.uuid, formValue).subscribe((data: EmpresaEscrituraRepresentante) => {
-      this.toastService.showGenericToast(
-        "Listo",
-        "Se ha registrado el consejo con exito",
-        ToastType.SUCCESS
-      );
-      window.location.reload();
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se ha podido guardar el consejo. ${error}`,
-        ToastType.ERROR
-      );
-    })
+    if(this.editandoConsejo) {
+      formValue.uuid = this.consejo.uuid;
+      formValue.id = this.consejo.id;
+
+      this.empresaService.modificarEscrituraRepresentante(this.uuid, this.escritura.uuid, this.consejo.uuid, formValue).subscribe((data: EmpresaEscrituraConsejo) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha modificado el apoderado con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido modificar el apoderado. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      });
+    } else {
+      this.empresaService.guardarEscrituraConsejos(this.uuid, this.escritura.uuid, formValue).subscribe((data: EmpresaEscrituraConsejo) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha registrado el consejo con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar el consejo. ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
   }
 
   guardarRepresentante(nuevoRepresentanteForm) {
@@ -384,20 +424,40 @@ export class EmpresaLegalComponent implements OnInit {
 
     let formValue: EmpresaEscrituraRepresentante = nuevoRepresentanteForm.value;
 
-    this.empresaService.guardarEscrituraRepresentante(this.uuid, this.escritura.uuid, formValue).subscribe((data: EmpresaEscrituraRepresentante) => {
-      this.toastService.showGenericToast(
-        "Listo",
-        "Se ha registrado el representante con exito",
-        ToastType.SUCCESS
-      );
-      window.location.reload();
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se ha podido guardar el representante. ${error}`,
-        ToastType.ERROR
-      );
-    })
+    if(this.representante) {
+      formValue.uuid = this.representante.uuid;
+      formValue.id = this.representante.id;
+
+      this.empresaService.modificarEscrituraRepresentante(this.uuid, this.escritura.uuid, this.representante.uuid, formValue).subscribe((data: EmpresaEscrituraRepresentante) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha actualizado el representante con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido actualizar el representante. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    } else {
+      this.empresaService.guardarEscrituraRepresentante(this.uuid, this.escritura.uuid, formValue).subscribe((data: EmpresaEscrituraRepresentante) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha registrado el representante con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar el representante. ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
   }
 
   onGridReady(params) {

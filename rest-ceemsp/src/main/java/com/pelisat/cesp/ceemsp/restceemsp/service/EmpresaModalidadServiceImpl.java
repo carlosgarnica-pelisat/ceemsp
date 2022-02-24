@@ -68,7 +68,7 @@ public class EmpresaModalidadServiceImpl implements EmpresaModalidadService {
         List<EmpresaModalidadDto> response = empresaModalidades.stream().map(em -> {
             EmpresaModalidadDto empresaModalidadDto = daoToDtoConverter.convertDaoToDtoEmpresaModalidad(em);
             empresaModalidadDto.setModalidad(modalidadService.obtenerModalidadPorId(em.getModalidad()));
-            if(em.getSubmodalidad() != null || em.getSubmodalidad() > 0 ){
+            if(em.getSubmodalidad() != null && em.getSubmodalidad() > 0 ){
                 empresaModalidadDto.setSubmodalidad(submodalidadService.obtenerSubmodalidadPorId(em.getSubmodalidad()));
             }
             return empresaModalidadDto;

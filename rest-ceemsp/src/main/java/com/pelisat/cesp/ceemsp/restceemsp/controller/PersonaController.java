@@ -50,6 +50,17 @@ public class PersonaController {
         return personaService.crearNuevo(personalDto, username, empresaUuid);
     }
 
+    @PutMapping(value = PERSONALIDAD_URI + "/{personaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PersonaDto modificarPersona(
+            HttpServletRequest request,
+            @RequestBody PersonaDto personaDto,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "personaUuid") String personaUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return personaService.modificarPersona(empresaUuid, personaUuid, username, personaDto);
+    }
+
     @PutMapping(value = PERSONALIDAD_URI + "/{personaUuid}/puestos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public PersonaDto modificarPuestoTrabajo(
             HttpServletRequest request,

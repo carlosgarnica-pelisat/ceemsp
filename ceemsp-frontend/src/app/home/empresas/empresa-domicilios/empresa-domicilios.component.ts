@@ -52,27 +52,26 @@ export class EmpresaDomiciliosComponent implements OnInit {
     this.uuid = this.route.snapshot.paramMap.get("uuid");
 
     this.modificarDomicilioForm = this.formbuilder.group({
-      nombre: ['', Validators.required],
-      domicilio1: ['', Validators.required],
-      numeroExterior: ['', Validators.required],
-      numeroInterior: [''],
-      domicilio2: ['', Validators.required],
-      domicilio3: ['', Validators.required],
-      domicilio4: [''],
-      codigoPostal: ['', Validators.required],
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      domicilio1: ['', [Validators.required, Validators.maxLength(100)]],
+      numeroExterior: ['', [Validators.required, Validators.maxLength(20)]],
+      numeroInterior: ['', [Validators.maxLength(20)]],
+      domicilio2: ['', [Validators.required, Validators.maxLength(100)]],
+      domicilio3: ['', [Validators.required, Validators.maxLength(100)]],
+      domicilio4: ['', [Validators.maxLength]],
+      codigoPostal: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(5)]],
       estado: ['', Validators.required],
-      pais: ['', Validators.required],
-      telefonoFijo: ['', Validators.required],
-      telefonoMovil: ['', Validators.required],
-      latitud: ['', Validators.required],
-      longitud: ['', Validators.required]
+      pais: ['', [Validators.required, Validators.maxLength(100)]],
+      telefonoFijo: ['', [Validators.required]],
+      telefonoMovil: ['', [Validators.required]]
+      // TODO: Volver a agregar los campos latitud y longitud cuando se tenga la extension de google maps
     });
 
     this.nuevoDomicilioForm = this.formbuilder.group({
-      nombre: ['', Validators.required],
-      domicilio1: ['', Validators.required],
-      numeroExterior: ['', Validators.required],
-      numeroInterior: [''],
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      domicilio1: ['', [Validators.required, Validators.maxLength(100)]],
+      numeroExterior: ['', [Validators.required, Validators.maxLength(20)]],
+      numeroInterior: ['', [Validators.maxLength(20)]],
       domicilio2: ['', Validators.required],
       domicilio3: ['', Validators.required],
       domicilio4: [''],
@@ -80,10 +79,9 @@ export class EmpresaDomiciliosComponent implements OnInit {
       estado: ['', Validators.required],
       pais: ['Mexico', Validators.required],
       matriz: ['', Validators.required], // TODO: Quitar el si/no y agregar tipo de domicilio como matriz / sucursal
-      telefonoFijo: ['', Validators.required],
-      telefonoMovil: ['', Validators.required],
-      latitud: ['', Validators.required],
-      longitud: ['', Validators.required]
+      telefonoFijo: ['', [Validators.required]],
+      telefonoMovil: ['', [Validators.required]]
+      // TODO: Volver a agregar los campos latitud y longitud cuando se tenga la extension de google maps
     })
 
     this.empresaService.obtenerDomicilios(this.uuid).subscribe((data: EmpresaDomicilio[]) => {
@@ -244,9 +242,7 @@ export class EmpresaDomiciliosComponent implements OnInit {
       estado: this.domicilio.estado,
       pais: this.domicilio.pais,
       telefonoFijo: this.domicilio.telefonoFijo,
-      telefonoMovil: this.domicilio.telefonoMovil,
-      latitud: this.domicilio.latitud,
-      longitud: this.domicilio.longitud
+      telefonoMovil: this.domicilio.telefonoMovil
     })
 
     this.modalService.dismissAll();

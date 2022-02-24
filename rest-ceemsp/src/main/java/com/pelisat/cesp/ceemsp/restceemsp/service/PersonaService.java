@@ -11,4 +11,6 @@ public interface PersonaService {
     PersonaDto obtenerPorId(String empresaUuid, Integer id);
     PersonaDto crearNuevo(PersonaDto personalDto, String username, String empresaUuid);
     PersonaDto modificarInformacionPuesto(PersonaDto personaDto, String username, String empresaUuid, String personaUuid);
+    PersonaDto modificarPersona(String empresaUuid, String personaUuid, String username, PersonaDto personaDto);
+    PersonaDto eliminarPersona(String empresaUuid, String personaUuid, String username);
 }

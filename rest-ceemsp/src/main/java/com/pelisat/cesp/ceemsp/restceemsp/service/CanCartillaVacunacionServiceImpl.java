@@ -8,8 +8,10 @@ import com.pelisat.cesp.ceemsp.database.model.CanCartillaVacunacion;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.repository.CanCartillaVacunacionRepository;
 import com.pelisat.cesp.ceemsp.database.repository.CanRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -18,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -32,17 +35,20 @@ public class CanCartillaVacunacionServiceImpl implements CanCartillaVacunacionSe
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
     private final DaoHelper<CommonModel> daoHelper;
+    private final ArchivosService archivosService;
     private final CanCartillaVacunacionRepository canCartillaVacunacionRepository;
 
     @Autowired
     public CanCartillaVacunacionServiceImpl(UsuarioService usuarioService, CanRepository canRepository, DaoToDtoConverter daoToDtoConverter,
-                                            DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper, CanCartillaVacunacionRepository canCartillaVacunacionRepository) {
+                                            DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper, CanCartillaVacunacionRepository canCartillaVacunacionRepository,
+                                            ArchivosService archivosService) {
         this.usuarioService = usuarioService;
         this.canRepository = canRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
         this.canCartillaVacunacionRepository = canCartillaVacunacionRepository;
+        this.archivosService = archivosService;
     }
 
     @Override
@@ -66,7 +72,7 @@ public class CanCartillaVacunacionServiceImpl implements CanCartillaVacunacionSe
     }
 
     @Override
-    public CanCartillaVacunacionDto guardarCartillaVacunacion(String empresaUuid, String canUuid, String username, CanCartillaVacunacionDto canCartillaVacunacionDto) {
+    public CanCartillaVacunacionDto guardarCartillaVacunacion(String empresaUuid, String canUuid, String username, CanCartillaVacunacionDto canCartillaVacunacionDto, MultipartFile archivo) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(username) || canCartillaVacunacionDto == null) {
             logger.warn("El uuid de la empresa, el can, el usuario o la cartilla de vacunacion a guardar vienen como nulos o vacios");
             throw new InvalidDataException();
@@ -86,8 +92,66 @@ public class CanCartillaVacunacionServiceImpl implements CanCartillaVacunacionSe
         canCartillaVacunacion.setFechaExpedicion(LocalDate.parse(canCartillaVacunacionDto.getFechaExpedicion()));
         daoHelper.fulfillAuditorFields(true, canCartillaVacunacion, usuarioDto.getId());
 
-        CanCartillaVacunacion canCartillaVacunacionCreada = canCartillaVacunacionRepository.save(canCartillaVacunacion);
+        String ruta = "";
 
-        return daoToDtoConverter.convertDaoToDtoCanCartillaVacunacion(canCartillaVacunacionCreada);
+        try {
+            ruta = archivosService.guardarArchivoMultipart(archivo, TipoArchivoEnum.CARTILLA_VACUNACION_CAN, empresaUuid);
+            canCartillaVacunacion.setRutaDocumento(ruta);
+            CanCartillaVacunacion canCartillaVacunacionCreada = canCartillaVacunacionRepository.save(canCartillaVacunacion);
+
+            return daoToDtoConverter.convertDaoToDtoCanCartillaVacunacion(canCartillaVacunacionCreada);
+        } catch(Exception ex) {
+            logger.warn(ex.getMessage());
+            archivosService.eliminarArchivo(ruta);
+            throw new InvalidDataException();
+        }
+    }
+
+    @Override
+    public CanCartillaVacunacionDto modificarCartillaVacunacion(String empresaUuid, String canUuid, String cartillaUuid, String username, CanCartillaVacunacionDto canCartillaVacunacionDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(cartillaUuid) || StringUtils.isBlank(username) || canCartillaVacunacionDto == null) {
+            logger.warn("Alguno de los parametros enviados no es valido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando la cartilla de vacunacion con el uuid [{}]", cartillaUuid);
+
+        CanCartillaVacunacion canCartillaVacunacion = canCartillaVacunacionRepository.findByUuidAndEliminadoFalse(cartillaUuid);
+        if(canCartillaVacunacion == null) {
+            logger.warn("La cartilla de vacunacion no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        canCartillaVacunacion.setCedula(canCartillaVacunacionDto.getCedula());
+        canCartillaVacunacion.setFechaExpedicion(LocalDate.parse(canCartillaVacunacionDto.getFechaExpedicion()));
+        canCartillaVacunacion.setExpedidoPor(canCartillaVacunacionDto.getExpedidoPor());
+        daoHelper.fulfillAuditorFields(false, canCartillaVacunacion, usuario.getId());
+        canCartillaVacunacionRepository.save(canCartillaVacunacion);
+
+        return daoToDtoConverter.convertDaoToDtoCanCartillaVacunacion(canCartillaVacunacion);
+    }
+
+    @Override
+    public CanCartillaVacunacionDto borrarCartillaVacunacion(String empresaUuid, String canUuid, String cartillaUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(cartillaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros enviados no es valido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la cartilla de vacunacion con el uuid [{}]", cartillaUuid);
+
+        CanCartillaVacunacion canCartillaVacunacion = canCartillaVacunacionRepository.findByUuidAndEliminadoFalse(cartillaUuid);
+        if(canCartillaVacunacion == null) {
+            logger.warn("La cartilla de vacunacion no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        canCartillaVacunacion.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, canCartillaVacunacion, usuario.getId());
+        canCartillaVacunacionRepository.save(canCartillaVacunacion);
+
+        return daoToDtoConverter.convertDaoToDtoCanCartillaVacunacion(canCartillaVacunacion);
     }
 }

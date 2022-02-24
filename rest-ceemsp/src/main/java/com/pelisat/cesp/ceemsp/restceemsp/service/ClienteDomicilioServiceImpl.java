@@ -118,4 +118,14 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
 
         return daoToDtoConverter.convertDaoToDtoClienteDomicilio(clienteDomicilio);
     }
+
+    @Override
+    public ClienteDomicilioDto modificarDomicilio(String empresaUuid, String clienteUuid, String domicilioUuid, String username, ClienteDomicilioDto clienteDomicilioDto) {
+        return null;
+    }
+
+    @Override
+    public ClienteDomicilioDto eliminarDomicilio(String empresaUuid, String clienteUuid, String domicilioUuid, String username) {
+        return null;
+    }
 }

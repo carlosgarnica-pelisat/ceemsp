@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface VehiculoColorRepository extends JpaRepository<VehiculoColor, Integer> {
     List<VehiculoColor> getAllByVehiculoAndEliminadoFalse(int vehiculo);
+    VehiculoColor findByUuidAndEliminadoFalse(String uuid);
 }

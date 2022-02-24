@@ -35,12 +35,35 @@ public class VehiculoColorController {
 
     @PostMapping(value = VEHICULO_COLOR_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public VehiculoColorDto guardarColorVehiculo(
-            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "empr esaUuid") String empresaUuid,
             @PathVariable(value = "vehiculoUuid") String vehiculoUuid,
             HttpServletRequest request,
             @RequestBody VehiculoColorDto vehiculoColorDto
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return vehiculoColorService.guardarcolor(empresaUuid, vehiculoUuid, username, vehiculoColorDto);
+    }
+
+    @PutMapping(value = VEHICULO_COLOR_URI + "/{colorUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public VehiculoColorDto modificarColorVehiculo(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "vehiculoUuid") String vehiculoUuid,
+            @PathVariable(value = "colorUuid") String colorUuid,
+            HttpServletRequest request,
+            @RequestBody VehiculoColorDto vehiculoColorDto
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return vehiculoColorService.modificarColor(empresaUuid, vehiculoUuid, colorUuid, username, vehiculoColorDto);
+    }
+
+    @DeleteMapping(value = VEHICULO_COLOR_URI + "/{colorUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public VehiculoColorDto eliminarColorVehiculo(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "vehiculoUuid") String vehiculoUuid,
+            @PathVariable(value = "colorUuid") String colorUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return vehiculoColorService.eliminarColor(empresaUuid, vehiculoUuid, colorUuid, username);
     }
 }

@@ -70,6 +70,7 @@ export class EmpresaVehiculosComponent implements OnInit {
 
   imagenActual;
   tempFile;
+  pdfActual;
 
   @ViewChild('mostrarFotoVehiculoModal') mostrarFotoVehiculoModal: any;
 

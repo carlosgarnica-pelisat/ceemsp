@@ -7,9 +7,11 @@ import com.pelisat.cesp.ceemsp.database.model.Cliente;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
 import com.pelisat.cesp.ceemsp.database.repository.ClienteRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -18,7 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,6 +38,7 @@ public class ClienteServiceImpl implements ClienteService {
     private final EmpresaService empresaService;
     private final DaoHelper<CommonModel> daoHelper;
     private final ClienteDomicilioService clienteDomicilioService;
+    private final ArchivosService archivosService;
 
     private final Logger logger = LoggerFactory.getLogger(ClienteService.class);
 
@@ -41,7 +46,7 @@ public class ClienteServiceImpl implements ClienteService {
     public ClienteServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                               ClienteRepository clienteRepository, UsuarioService usuarioService,
                               EmpresaService empresaService, DaoHelper<CommonModel> daoHelper,
-                              ClienteDomicilioService clienteDomicilioService) {
+                              ClienteDomicilioService clienteDomicilioService, ArchivosService archivosService) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.clienteRepository = clienteRepository;
@@ -49,6 +54,7 @@ public class ClienteServiceImpl implements ClienteService {
         this.empresaService = empresaService;
         this.daoHelper = daoHelper;
         this.clienteDomicilioService = clienteDomicilioService;
+        this.archivosService = archivosService;
     }
 
 
@@ -112,9 +118,10 @@ public class ClienteServiceImpl implements ClienteService {
         return response;
     }
 
+    @Transactional
     @Override
-    public ClienteDto crearCliente(String empresaUuid, String username, ClienteDto clienteDto) {
-        if(StringUtils.isBlank(empresaUuid) || clienteDto == null || StringUtils.isBlank(username)) {
+    public ClienteDto crearCliente(String empresaUuid, String username, ClienteDto clienteDto, MultipartFile archivo) {
+        if(StringUtils.isBlank(empresaUuid) || clienteDto == null || StringUtils.isBlank(username) || archivo != null) {
             logger.warn("El uuid o el cliente a crear vienen como nulos o vacios");
             throw new InvalidDataException();
         }
@@ -130,9 +137,69 @@ public class ClienteServiceImpl implements ClienteService {
             cliente.setFechaFin(LocalDate.parse(clienteDto.getFechaFin()));
         }
         daoHelper.fulfillAuditorFields(true, cliente, usuarioDto.getId());
+        String ruta = "";
 
-        Cliente clienteCreado = clienteRepository.save(cliente);
+        try {
+            ruta = archivosService.guardarArchivoMultipart(archivo, TipoArchivoEnum.CLIENTE_CONTRATO_SERVICIOS, empresaUuid);
+            cliente.setRutaArchivoContrato(ruta);
+            Cliente clienteCreado = clienteRepository.save(cliente);
+            return daoToDtoConverter.convertDaoToDtoCliente(clienteCreado);
+        } catch(Exception ex) {
+            logger.warn(ex.getMessage());
+            archivosService.eliminarArchivo(ruta);
+            throw new InvalidDataException();
+        }
+    }
 
-        return daoToDtoConverter.convertDaoToDtoCliente(clienteCreado);
+    @Override
+    public ClienteDto modificarCliente(String empresaUuid, String clienteUuid, String username, ClienteDto clienteDto) {
+        if(StringUtils.isBlank(empresaUuid) || clienteDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(clienteUuid)) {
+            logger.warn("El uuid o el cliente a crear vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el cliente con el uuid [{}]", clienteUuid);
+
+        Cliente cliente = clienteRepository.findByUuidAndEliminadoFalse(clienteUuid);
+        if(cliente == null) {
+            logger.warn("El cliente no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        cliente.setFechaInicio(LocalDate.parse(clienteDto.getFechaInicio()));
+        cliente.setRazonSocial(clienteDto.getRazonSocial());
+        cliente.setNombreComercial(clienteDto.getNombreComercial());
+        cliente.setRfc(clienteDto.getRfc());
+        cliente.setTipoPersona(clienteDto.getTipoPersona());
+        cliente.setArmas(clienteDto.isArmas());
+        cliente.setCanes(clienteDto.isCanes());
+
+        daoHelper.fulfillAuditorFields(false, cliente, usuarioDto.getId());
+
+        clienteRepository.save(cliente);
+        return daoToDtoConverter.convertDaoToDtoCliente(cliente);
+    }
+
+    @Override
+    public ClienteDto eliminarCliente(String empresaUuid, String clienteUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(clienteUuid)) {
+            logger.warn("El uuid o el cliente a crear vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el cliente con el uuid [{}]", clienteUuid);
+
+        Cliente cliente = clienteRepository.findByUuidAndEliminadoFalse(clienteUuid);
+        if(cliente == null) {
+            logger.warn("El cliente no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        cliente.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, cliente, usuarioDto.getId());
+        clienteRepository.save(cliente);
+        return daoToDtoConverter.convertDaoToDtoCliente(cliente);
     }
 }

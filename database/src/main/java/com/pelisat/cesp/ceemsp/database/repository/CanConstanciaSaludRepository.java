@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface CanConstanciaSaludRepository extends JpaRepository<CanConstanciaSalud, Integer> {
     List<CanConstanciaSalud> findAllByCanAndEliminadoFalse(int can);
+    CanConstanciaSalud findByUuidAndEliminadoFalse(String uuid);
 }

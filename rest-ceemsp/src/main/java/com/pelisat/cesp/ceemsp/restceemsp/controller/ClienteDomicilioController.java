@@ -43,4 +43,27 @@ public class ClienteDomicilioController {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return clienteDomicilioService.crearDomicilio(username, empresaUuid, clienteUuid, clienteDomicilioDtos);
     }
+
+    @PutMapping(value = CLIENTE_DOMICILIOS_URI + "/{domicilioUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ClienteDomicilioDto modificarClienteDomicilio(
+            @RequestBody ClienteDomicilioDto clienteDomicilioDto,
+            HttpServletRequest request,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "clienteUuid") String clienteUuid,
+            @PathVariable(value = "domicilioUuid") String domicilioUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return clienteDomicilioService.modificarDomicilio(empresaUuid, clienteUuid, domicilioUuid, username, clienteDomicilioDto);
+    }
+
+    @DeleteMapping(value = CLIENTE_DOMICILIOS_URI + "/{domicilioUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ClienteDomicilioDto eliminarClienteDomicilio(
+            HttpServletRequest request,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "clienteUuid") String clienteUuid,
+            @PathVariable(value = "domicilioUuid") String domicilioUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return clienteDomicilioService.eliminarDomicilio(empresaUuid, clienteUuid, domicilioUuid, username);
+    }
 }

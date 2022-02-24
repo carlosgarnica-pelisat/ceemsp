@@ -53,17 +53,17 @@
               <div class="form-row">
                 <div class="col-sm-4">
                   <label for="tipoTramite">
-                    <b>Tipo de tramite *</b>
+                    <b>Tipo de trámite *</b>
                     <span
                       *ngIf="empresaCreacionForm.controls['tipoTramite'].invalid && (empresaCreacionForm.controls['tipoTramite'].dirty || empresaCreacionForm.controls['tipoTramite'].touched)">
                       <i *ngIf="empresaCreacionForm.controls['tipoTramite'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                   </label>
                   <select id="tipoTramite" class="form-control" formControlName="tipoTramite" (change)="cambiarTipoTramite($event.target)">
-                    <option value="EAFJAL">TRAMITE FEDERAL (EAFJAL)</option>
-                    <option value="SPSMD">TRAMITE ESTATAL (SPSMD)</option>
+                    <option value="EAFJAL">TRÁMITE FEDERAL (EAFJAL)</option>
+                    <option value="SPSMD">TRÁMITE ESTATAL (SPSMD)</option>
                     <option value="RESPRO">SERVICIOS PROPIOS (RESPRO)</option>
-                    <option value="AP">AUTORIZACION PROVISIONAL (AP)</option>
+                    <option value="AP">AUTORIZACIÓN PROVISIONAL (AP)</option>
                   </select>
                 </div>
                 <div class="col-sm-4">
@@ -72,13 +72,15 @@
                     <span
                       *ngIf="empresaCreacionForm.controls['registro'].invalid && (empresaCreacionForm.controls['registro'].dirty || empresaCreacionForm.controls['registro'].touched)">
                       <i *ngIf="empresaCreacionForm.controls['registro'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['registro'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                      <i *ngIf="empresaCreacionForm.controls['registro'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
                     </span>
                   </label>
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <span class="input-group-text">CESP/{{tipoTranite}}/</span>
                     </div>
-                    <input class="form-control" id="registro" type="number" formControlName="registro" placeholder="Se generara automaticamente">
+                    <input class="form-control" id="registro" type="tel" formControlName="registro" placeholder="Se generara automaticamente">
                     <div class="input-group-append">
                       <span class="input-group-text">/{{year}}</span>
                     </div>
@@ -99,10 +101,10 @@
                 </div>
               </div>
               <div class="form-row">
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                   <label for="razonSocial">
-                    <b *ngIf="tipoPersona === undefined">Razon Social / Nombre Completo *</b>
-                    <b *ngIf="tipoPersona === 'MORAL'">Razon Social *</b>
+                    <b *ngIf="tipoPersona === undefined">Razón Social / Nombre Completo *</b>
+                    <b *ngIf="tipoPersona === 'MORAL'">Razón Social *</b>
                     <b *ngIf="tipoPersona === 'FISICA'">Nombre Completo *</b>
                     <span
                       *ngIf="empresaCreacionForm.controls['razonSocial'].invalid && (empresaCreacionForm.controls['razonSocial'].dirty || empresaCreacionForm.controls['razonSocial'].touched)">
@@ -112,7 +114,7 @@
                   </label>
                   <input class="form-control" id="razonSocial" type="text" formControlName="razonSocial" placeholder="Ejemplo. Juan Perez Lopez o Prue S.A. de C.V.">
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                   <label for="nombreComercial">
                     <b>Nombre comercial *</b>
                     <span
@@ -123,18 +125,19 @@
                   </label>
                   <input class="form-control" id="nombreComercial" type="text" formControlName="nombreComercial" placeholder="Ejemplo. Hola Empresa">
                 </div>
-                <div class="col-sm-3" *ngIf="tipoPersona === 'FISICA'">
+                <div class="col-sm-2" *ngIf="tipoPersona === 'FISICA'">
                   <label for="curp">
                     <b>CURP</b>
                     <span
                       *ngIf="empresaCreacionForm.controls['curp'].invalid && (empresaCreacionForm.controls['curp'].dirty || empresaCreacionForm.controls['curp'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['curp'].errors.maxlength" class="text-danger"> - Faltan caracteres</i>
+                      <i *ngIf="empresaCreacionForm.controls['curp'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
                       <i *ngIf="empresaCreacionForm.controls['curp'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
+                    <a style="cursor: pointer;"><i *ngIf="existeEmpresa?.existe && existeEmpresa?.curp !== null" class="text-danger" (click)="mostrarModalEmpresaRegistrada(verEmpresaRegistradaModal)"> - La empresa ya existe con este CURP</i></a>
                   </label>
-                  <input class="form-control" id="curp" type="text" formControlName="curp" placeholder="Ejemplo. XAXX010101ABCDEFGH">
+                  <input class="form-control" id="curp" type="text" formControlName="curp" placeholder="Ejemplo. XAXX010101ABCDEFGH" (focusout)="consultarEmpresaCurp($event.target)">
                 </div>
-                <div class="col-sm-3" *ngIf="tipoPersona === 'FISICA'">
+                <div class="col-sm-2" *ngIf="tipoPersona === 'FISICA'">
                   <label for="sexo">
                     <b>Sexo</b>
                   </label>
@@ -154,7 +157,7 @@
                       <i *ngIf="empresaCreacionForm.controls['rfc'].errors.minlength" class="text-danger"> - Faltan caracteres </i>
                       <i *ngIf="empresaCreacionForm.controls['rfc'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
-                    <a style="cursor: pointer;"><i *ngIf="existeEmpresa?.existe" class="text-danger" (click)="mostrarModalEmpresaRegistrada(verEmpresaRegistradaModal)"> - La empresa ya existe con este RFC</i></a>
+                    <a style="cursor: pointer;"><i *ngIf="existeEmpresa?.existe && existeEmpresa?.rfc !== null" class="text-danger" (click)="mostrarModalEmpresaRegistrada(verEmpresaRegistradaModal)"> - La empresa ya existe con este RFC</i></a>
                   </label>
                   <input class="form-control" id="rfc" type="text" formControlName="rfc" placeholder="Ejemplo. XAXX010101AAA" (focusout)="consultarEmpresaRfc($event.target)">
                 </div>
@@ -172,7 +175,7 @@
                 </div>
                 <div class="col-sm-4">
                   <label for="telefono">
-                    <b>Telefono (con lada) *</b>
+                    <b>Teléfono (con lada) *</b>
                     <span
                       *ngIf="empresaCreacionForm.controls['telefono'].invalid && (empresaCreacionForm.controls['telefono'].dirty || empresaCreacionForm.controls['telefono'].touched)">
                       <i *ngIf="empresaCreacionForm.controls['telefono'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -257,7 +260,7 @@
             <div class="row">
               <div class="col-sm-12">
                 <button (click)="next('DOMICILIOS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
-                  Domicilios
+                  Domicilios <fa-icon [icon]="faChevronRight"></fa-icon>
                 </button>
               </div>
             </div>
@@ -297,7 +300,7 @@
               <div class="row">
                 <div class="col-sm-4">
                   <label for="domicilio1">
-                    <b>Domicilio * </b>
+                    <b>Calle * </b>
                     <span
                       *ngIf="empresaDomiciliosForm.controls['domicilio1'].invalid && (empresaDomiciliosForm.controls['domicilio1'].dirty || empresaDomiciliosForm.controls['domicilio1'].touched)">
                       <i *ngIf="empresaDomiciliosForm.controls['domicilio1'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -354,11 +357,10 @@
               <div class="row">
                 <div class="col-sm-3">
                   <label for="estado">
-                    <b>Estado *</b>
+                    <b>Entidad *</b>
                     <span
                       *ngIf="empresaDomiciliosForm.controls['estado'].invalid && (empresaDomiciliosForm.controls['estado'].dirty || empresaDomiciliosForm.controls['estado'].touched)">
                       <i *ngIf="empresaDomiciliosForm.controls['estado'].errors.required" class="text-danger"> - Campo requerido</i>
-                      <i *ngIf="empresaDomiciliosForm.controls['estado'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
                   </label>
                   <select id="estado" formControlName="estado" class="form-control">
@@ -409,7 +411,7 @@
                 </div>
                 <div class="col-sm-3">
                   <label for="codigoPostal">
-                    <b>Codigo Postal *</b>
+                    <b>Código Postal *</b>
                     <span
                       *ngIf="empresaDomiciliosForm.controls['codigoPostal'].invalid && (empresaDomiciliosForm.controls['codigoPostal'].dirty || empresaDomiciliosForm.controls['codigoPostal'].touched)">
                       <i *ngIf="empresaDomiciliosForm.controls['codigoPostal'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -417,7 +419,7 @@
                       <i *ngIf="empresaDomiciliosForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
                   </label>
-                  <input id="codigoPostal" type="text" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
+                  <input id="codigoPostal" type="tel" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
                 </div>
                 <div class="col-sm-3">
                   <label for="domicilio4">
@@ -433,22 +435,20 @@
               <div class="row">
                 <div class="col-sm-3">
                   <label for="telefonoFijo">
-                    <b>Telefono Fijo *</b>
+                    <b>Teléfono Fijo *</b>
                     <span
                       *ngIf="empresaDomiciliosForm.controls['telefonoFijo'].invalid && (empresaDomiciliosForm.controls['telefonoFijo'].dirty || empresaDomiciliosForm.controls['telefonoFijo'].touched)">
                       <i *ngIf="empresaDomiciliosForm.controls['telefonoFijo'].errors.required" class="text-danger"> - Campo requerido</i>
-                      <i *ngIf="empresaDomiciliosForm.controls['telefonoFijo'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
                   </label>
                   <input id="telefonoFijo" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoFijo" #telefonoFijo appPhoneMask>
                 </div>
                 <div class="col-sm-3">
                   <label for="telefonoMovil">
-                    <b>Telefono Movil *</b>
+                    <b>Teléfono Móvil *</b>
                     <span
                       *ngIf="empresaDomiciliosForm.controls['telefonoMovil'].invalid && (empresaDomiciliosForm.controls['telefonoMovil'].dirty || empresaDomiciliosForm.controls['telefonoMovil'].touched)">
                       <i *ngIf="empresaDomiciliosForm.controls['telefonoMovil'].errors.required" class="text-danger"> - Campo requerido</i>
-                      <i *ngIf="empresaDomiciliosForm.controls['telefonoMovil'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
                   </label>
                   <input id="telefonoMovil" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoMovil" #telefonoMovil appPhoneMask>
@@ -467,17 +467,17 @@
                   <tr>
                     <td><b>Nombre</b></td>
                     <td><b>Tipo</b></td>
-                    <td><b>Domicilio</b></td>
+                    <td><b>Calle</b></td>
                     <td><b>N. Ext</b></td>
                     <td><b>N. Int</b></td>
                     <td><b>Colonia</b></td>
                     <td><b>Municipio</b></td>
-                    <td><b>Estado</b></td>
+                    <td><b>Entidad</b></td>
                     <td><b>Pais</b></td>
-                    <td><b>Codigo postal</b></td>
+                    <td><b>Código postal</b></td>
                     <td><b>Referencia</b></td>
-                    <td><b>Telefono fijo</b></td>
-                    <td><b>Telefono movil</b></td>
+                    <td><b>Teléfono fijo</b></td>
+                    <td><b>Teléfono movil</b></td>
                     <td><b>Acciones</b></td>
                   </tr>
                   <tr *ngFor="let d of empresaDomicilios; let i = index">
@@ -507,11 +507,11 @@
             <hr>
             <div class="row">
               <div class="col-sm-12">
-                <button (click)="previous()" class="btn btn-primary">Anterior:
-                  Empresa
+                <button (click)="previous()" class="btn btn-primary"><fa-icon [icon]="faChevronLeft"></fa-icon> Anterior:
+                   Empresa
                 </button>
                 <button (click)="next('LEGAL', undefined)" class="btn btn-primary">Siguiente:
-                  Legal
+                  Legal <fa-icon [icon]="faChevronRight"></fa-icon>
                 </button>
               </div>
             </div>
@@ -522,55 +522,75 @@
             <form [formGroup]="nuevaEscrituraForm">
               <div class="row">
                 <div class="col-sm-4">
-                  <label for="numeroEscrituraEditar">
-                    <b>Numero de escritura *</b>
-                    <span *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].invalid && (nuevaEscrituraForm.controls['numeroEscritura'].dirty || nuevaEscrituraForm.controls['numeroEscritura'].touched)" class="text-danger"> - Requerido</span>
+                  <label for="numeroEscritura">
+                    <b>Número de escritura *</b>
+                    <span
+                      *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].invalid && (nuevaEscrituraForm.controls['numeroEscritura'].dirty || nuevaEscrituraForm.controls['numeroEscritura'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
                   </label>
-                  <input id="numeroEscrituraEditar" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" #numeroEscritura>
+                  <input id="numeroEscritura" type="tel" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" #numeroEscritura>
                 </div>
                 <div class="col-sm-4">
-                  <label for="fechaEscrituraEditar">
+                  <label for="fechaEscritura">
                     <b>Fecha de escritura *</b>
-                    <span *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].invalid && (nuevaEscrituraForm.controls['fechaEscritura'].dirty || nuevaEscrituraForm.controls['fechaEscritura'].touched)" class="text-danger"> - Requerido</span>
+                    <span
+                      *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].invalid && (nuevaEscrituraForm.controls['fechaEscritura'].dirty || nuevaEscrituraForm.controls['fechaEscritura'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
                   </label>
-                  <input id="fechaEscrituraEditar" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaEscritura" #fechaEscritura>
+                  <input id="fechaEscritura" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaEscritura" #fechaEscritura>
                 </div>
                 <div class="col-sm-4">
                   <label for="ciudad">
                     <b>Ciudad *</b>
-                    <span *ngIf="nuevaEscrituraForm.controls['ciudad'].invalid && (nuevaEscrituraForm.controls['ciudad'].dirty || nuevaEscrituraForm.controls['ciudad'].touched)" class="text-danger"> - Requerido</span>
+                    <span
+                      *ngIf="nuevaEscrituraForm.controls['ciudad'].invalid && (nuevaEscrituraForm.controls['ciudad'].dirty || nuevaEscrituraForm.controls['ciudad'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['ciudad'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['ciudad'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
                   </label>
                   <input id="ciudad" type="text" class="form-control" placeholder="Ej. Guadalajara" formControlName="ciudad" #ciudad>
                 </div>
               </div>
 
               <div class="row">
-                <div class="col-sm-4">
-                  <label for="tipoFedatarioEditar">
+                <div class="col-sm-2">
+                  <label for="tipoFedatario">
                     <b>Tipo de Fedatario *</b>
-                    <span *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].invalid && (nuevaEscrituraForm.controls['tipoFedatario'].dirty || nuevaEscrituraForm.controls['tipoFedatario'].touched)" class="text-danger"> - Requerido</span>
+                    <span
+                      *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].invalid && (nuevaEscrituraForm.controls['tipoFedatario'].dirty || nuevaEscrituraForm.controls['tipoFedatario'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
                   </label>
-                  <select id="tipoFedatarioEditar" class="form-control" formControlName="tipoFedatario">
+                  <select id="tipoFedatario" class="form-control" formControlName="tipoFedatario">
                     <option value="CORREDOR">Corredor</option>
                     <option value="NOTARIO">Notario</option>
                   </select>
                 </div>
-                <div class="col-sm-4">
-                  <label for="numeroEditar">
-                    <b>Numero *</b>
-                    <span *ngIf="nuevaEscrituraForm.controls['numero'].invalid && (nuevaEscrituraForm.controls['numero'].dirty || nuevaEscrituraForm.controls['numero'].touched)" class="text-danger"> - Requerido</span>
+                <div class="col-sm-2">
+                  <label for="numero">
+                    <b>Número *</b>
+                    <span
+                      *ngIf="nuevaEscrituraForm.controls['numero'].invalid && (nuevaEscrituraForm.controls['numero'].dirty || nuevaEscrituraForm.controls['numero'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['numero'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
                   </label>
-                  <input id="numeroEditar" type="number" class="form-control" placeholder="Ej. 73" formControlName="numero" min="1" #numero>
+                  <input id="numero" type="number" class="form-control" placeholder="Ej. 73" formControlName="numero" min="1" #numero>
                 </div>
                 <div class="col-sm-4">
-                  <label for="nombreFedatarioEditar">
+                  <label for="nombreFedatario">
                     <b>Nombre del Fedatario *</b>
-                    <span *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].invalid && (nuevaEscrituraForm.controls['nombreFedatario'].dirty || nuevaEscrituraForm.controls['nombreFedatario'].touched)" class="text-danger"> - Requerido</span>
+                    <span
+                      *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].invalid && (nuevaEscrituraForm.controls['nombreFedatario'].dirty || nuevaEscrituraForm.controls['nombreFedatario'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
                   </label>
-                  <input id="nombreFedatarioEditar" type="text" class="form-control" placeholder="Ej. Juan Carlos Garnica" formControlName="nombreFedatario" #nombreFedatario>
+                  <input id="nombreFedatario" type="text" class="form-control" placeholder="Ej. Juan Carlos Garnica" formControlName="nombreFedatario" #nombreFedatario>
                 </div>
-              </div>
-              <div class="row">
                 <div class="col-sm-4">
                   <label for="archivo">
                     <b>Archivo (en pdf)</b>
@@ -581,132 +601,119 @@
 
               <div class="row">
                 <div class="col-sm-12">
-                  <label for="descripcionEditar">
+                  <label for="descripcion">
                     <b>Detalles de la escritura *</b>
-                    <span *ngIf="nuevaEscrituraForm.controls['descripcion'].invalid && (nuevaEscrituraForm.controls['descripcion'].dirty || nuevaEscrituraForm.controls['descripcion'].touched)" class="text-danger"> - Requerido</span>
+                    <span
+                      *ngIf="nuevaEscrituraForm.controls['descripcion'].invalid && (nuevaEscrituraForm.controls['descripcion'].dirty || nuevaEscrituraForm.controls['descripcion'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['descripcion'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
                   </label>
-                  <textarea id="descripcionEditar" class="form-control" placeholder="Por favor, explique de manera detallada la razon de la escritura." formControlName="descripcion" #descripcion></textarea>
-                </div>
-              </div>
-              <br>
-              <div class="row">
-                <div class="col-sm-12">
-                  <ul class="nav nav-pills nav-fill">
-                    <li class="nav-item">
-                      <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'SOCIOS' }" (click)="cambiarPestanaLegal('SOCIOS')">Socios</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'APODERADOS' }" (click)="cambiarPestanaLegal('APODERADOS')">Apoderados</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'REPRESENTANTES' }" (click)="cambiarPestanaLegal('REPRESENTANTES')">Representantes</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'CONSEJOS' }" (click)="cambiarPestanaLegal('CONSEJOS')">Consejos</a>
-                    </li>
-                  </ul>
+                  <textarea id="descripcion" class="form-control" placeholder="Por favor, explique de manera detallada la razon de la escritura." formControlName="descripcion" #descripcion></textarea>
                 </div>
               </div>
 
-              <div class="row" *ngIf="pestanaActual === 'SOCIOS'">
-                <div class="col-sm-12" >
-                  <table class="table">
-                    <tr>
-                      <td><b>Nombre(s)</b></td>
-                      <td><b>Apellido(s)</b></td>
-                      <td><b>Sexo</b></td>
-                      <td><b>% Acciones</b></td>
-                      <td><b>Acciones</b></td>
-                    </tr>
-                    <tr *ngFor="let socio of empresaEscritura?.socios; let i = index">
-                      <td>{{socio?.nombres}}</td>
-                      <td>{{socio?.apellidos}}</td>
-                      <td>{{socio?.sexo}}</td>
-                      <td>{{socio?.porcentajeAcciones}}</td>
-                      <td>
-                        <fa-icon [icon]="faTrash" class="fakelink" (click)="eliminarSocio(i)"></fa-icon>
-                      </td>
-                    </tr>
-                    <tr *ngIf="!showSocioForm">
-                      <td colspan="5">
-                        <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevoSocio()">Agregar socio</button>
-                      </td>
-                    </tr>
-                    <tr *ngIf="showSocioForm">
-                      <td colspan="5">
-                        <div class="row">
-                          <div class="col-sm-12">
-                            <form [formGroup]="nuevoSocioForm">
-                              <div class="form-row">
-                                <div class="col-sm-3">
-                                  <label for="nombres">
-                                    <b>Nombre(s) *</b>
-                                    <span *ngIf="nuevoSocioForm.controls['nombres'].invalid && (nuevoSocioForm.controls['nombres'].dirty || nuevoSocioForm.controls['nombres'].touched)" class="text-danger"> - Requerido</span>
-                                  </label>
-                                  <input id="nombres" type="text" class="form-control" placeholder="Ej. Carlos Jose" formControlName="nombres" #nombres>
-                                </div>
-                                <div class="col-sm-3">
-                                  <label for="apellidos">
-                                    <b>Apellido(s) *</b>
-                                    <span *ngIf="nuevoSocioForm.controls['apellidos'].invalid && (nuevoSocioForm.controls['apellidos'].dirty || nuevoSocioForm.controls['apellidos'].touched)" class="text-danger"> - Requerido</span>
-                                  </label>
-                                  <input id="apellidos" type="text" class="form-control" placeholder="Ej. Gonzalez Gonzalez" formControlName="apellidos" #apellidos>
-                                </div>
-                                <div class="col-sm-3">
-                                  <label for="sexo">
-                                    <b>Sexo *</b>
-                                    <span *ngIf="nuevoSocioForm.controls['sexo'].invalid && (nuevoSocioForm.controls['sexo'].dirty || nuevoSocioForm.controls['sexo'].touched)" class="text-danger"> - Requerido</span>
-                                  </label>
-                                  <select id="sexo" class="form-control" formControlName="sexo">
-                                    <option value="MASCULINO">MASCULINO</option>
-                                    <option value="FEMENINO">FEMENINO</option>
-                                  </select>
-                                </div>
-                                <div class="col-sm-3">
-                                  <label for="porcentajeAcciones">
-                                    <b>% Acciones *</b>
-                                    <span *ngIf="nuevoSocioForm.controls['porcentajeAcciones'].invalid && (nuevoSocioForm.controls['porcentajeAcciones'].dirty || nuevoSocioForm.controls['porcentajeAcciones'].touched)" class="text-danger"> - Requerido</span>
-                                  </label>
-                                  <input id="porcentajeAcciones" type="text" class="form-control" placeholder="Colocar solo el numero" formControlName="porcentajeAcciones" #porcentajeAcciones>
-                                </div>
-                              </div>
-                            </form>
-                          </div>
-                        </div>
-                        <hr>
-                        <div class="row">
-                          <div class="col-sm-12">
-                            <button class="btn btn-primary btn-sm" (click)="guardarSocio(nuevoSocioForm)">Guardar</button>
-                            <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevoSocio()">Cancelar</button>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
-                </div>
-              </div>
-
-              <hr>
-              <div class="row">
+              <div class="row" style="margin-top: 20px;">
                 <div class="col-sm-12">
-                  <button (click)="previous()" class="btn btn-primary">Anterior:
-                    Domicilios
-                  </button>
-                  <button (click)="next('FORMAS_EJECUCION', undefined)" class="btn btn-primary">Siguiente:
-                    Formas de ejecucion
-                  </button>
+                  <button class="btn btn-outline-primary" (click)="agregarEscritura(nuevaEscrituraForm)">Agregar</button>
                 </div>
               </div>
             </form>
-          </div>
-          <div id="test-l-4" class="content">
+
             <div class="row">
               <div class="col-sm-12">
-                <button (click)="previous()" class="btn btn-primary">Anterior:
+                <table class="table">
+                  <tr>
+                    <td><b>Numero de escritura</b></td>
+                    <td><b>Fecha de escritura</b></td>
+                    <td><b>Ciudad</b></td>
+                    <td><b>Tipo de fedatario</b></td>
+                    <td><b>Numero</b></td>
+                    <td><b>Nombre de fedatario</b></td>
+                    <td><b>Acciones</b></td>
+                  </tr>
+                  <tr *ngFor="let e of empresaEscrituras; let i = index;">
+                    <td>{{e?.numeroEscritura}}</td>
+                    <td>{{e?.fechaEscritura}}</td>
+                    <td>{{e?.ciudad}}</td>
+                    <td>{{e?.tipoFedatario}}</td>
+                    <td>{{e?.numero}}</td>
+                    <td>{{e?.nombreFedatario}}</td>
+                    <td>
+                      <fa-icon style="cursor: pointer;" [icon]="faUsers" (click)="mostrarModalDetallesEscritura(verEscrituraEmpresaModal, e?.uuid)"></fa-icon>
+                      <fa-icon style="cursor: pointer;" [icon]="faTrash" (click)="eliminarEscritura(i)"></fa-icon>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <hr>
+            <div class="row">
+              <div class="col-sm-12">
+                <button (click)="previous()" class="btn btn-primary"><fa-icon [icon]="faChevronLeft"></fa-icon> Anterior:
+                  Domicilios
+                </button>
+                <button (click)="next('FORMAS_EJECUCION', undefined)" class="btn btn-primary">Siguiente:
+                  Formas de ejecución <fa-icon [icon]="faChevronRight"></fa-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div id="test-l-4" class="content">
+
+            <form [formGroup]="empresaFormaEjecucionForm">
+              <div class="form-row">
+                <div class="col-sm-6">
+                  <label for="formaEjecucion">
+                    <b>Forma de ejecucion *</b>
+                    <span *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].invalid && (empresaFormaEjecucionForm.controls['formaEjecucion'].dirty || empresaFormaEjecucionForm.controls['formaEjecucion'].touched)">
+                              <i *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].errors.required" class="error-text"> - Campo requerido</i>
+                            </span>
+                  </label>
+                  <select id="formaEjecucion" class="form-control" formControlName="formaEjecucion">
+                    <option value="ARMAS">Con portacion de armas de fuego</option>
+                    <option value="CANES">Con el auxilio de canes</option>
+                    <option value="INSTRUMENTOS">Con portacion de instrumentos de apoyo para control</option>
+                    <option value="TECNOLOGIA">Con apoyo de tecnologia</option>
+                  </select>
+                </div>
+                <div class="col-sm-6">
+                  <br>
+                  <button class="btn btn-info" (click)="agregarFormaEjecucion(empresaFormaEjecucionForm)">Agregar</button>
+                </div>
+              </div>
+            </form>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <table class="table">
+                  <tr>
+                    <td><b>Forma de ejecucion</b></td>
+                    <td><b>Acciones</b></td>
+                  </tr>
+                  <tr *ngFor="let f of empresaFormasEjecucion; let i = index">
+                    <td [ngSwitch]="f?.formaEjecucion">
+                      <span *ngSwitchCase="'ARMAS'">Con portacion de armas de fuego</span>
+                      <span *ngSwitchCase="'CANES'">Con el auxilio de canes</span>
+                      <span *ngSwitchCase="'INSTRUMENTOS'">Con portacion de instrumentos de apoyo para control</span>
+                      <span *ngSwitchCase="'TECNOLOGIA'">Con apoyo de tecnologia</span>
+                    </td>
+                    <td>
+                      <fa-icon style="cursor: pointer;" [icon]="faTrash" (click)="eliminarFormaEjecucion(i)"></fa-icon>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <hr>
+            <div class="row">
+              <div class="col-sm-12">
+                <button (click)="previous()" class="btn btn-primary"><fa-icon [icon]="faChevronLeft"></fa-icon> Anterior:
                   Legal
                 </button>
                 <button (click)="next('PSYCHOLOGISTS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
-                  Resumen
+                  Resumen <fa-icon [icon]="faChevronRight"></fa-icon>
                 </button>
               </div>
             </div>
@@ -718,7 +725,7 @@
                   Permisos
                 </button>
                 <button (click)="next('PSYCHOLOGISTS', empresaCreacionForm)" class="btn btn-primary">
-                  Guardar empresa
+                  Finalizar
                 </button>
               </div>
             </div>
@@ -727,6 +734,383 @@
       </div>
     </div>
   </div>
+
+  <ng-template #verEscrituraEmpresaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="verEscrituraEmpresaModal">Ver detalles de la escritura </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'SOCIOS' }" (click)="cambiarPestanaLegal('SOCIOS')">Socios</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'APODERADOS' }" (click)="cambiarPestanaLegal('APODERADOS')">Apoderados</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'REPRESENTANTES' }" (click)="cambiarPestanaLegal('REPRESENTANTES')">Representantes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'CONSEJOS' }" (click)="cambiarPestanaLegal('CONSEJOS')">Consejos</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'SOCIOS'">
+        <div class="col-sm-12" >
+          <table class="table">
+            <tr>
+              <td><b>Nombre(s)</b></td>
+              <td><b>Apellido(s)</b></td>
+              <td><b>Sexo</b></td>
+              <td><b>% Acciones</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let socio of empresaEscritura?.socios; let i = index">
+              <td>{{socio?.nombres}}</td>
+              <td>{{socio?.apellidos}}</td>
+              <td>{{socio?.sexo}}</td>
+              <td>{{socio?.porcentajeAcciones}}</td>
+              <td>
+                <fa-icon [icon]="faTrash" class="fakelink" (click)="eliminarSocio(i)"></fa-icon>
+              </td>
+            </tr>
+            <tr *ngIf="!showSocioForm">
+              <td colspan="5">
+                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevoSocio()">Agregar socio</button>
+              </td>
+            </tr>
+            <tr *ngIf="showSocioForm">
+              <td colspan="5">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <form [formGroup]="nuevoSocioForm">
+                      <div class="form-row">
+                        <div class="col-sm-3">
+                          <label for="nombres">
+                            <b>Nombre(s) *</b>
+                            <span
+                              *ngIf="nuevoSocioForm.controls['nombres'].invalid && (nuevoSocioForm.controls['nombres'].dirty || nuevoSocioForm.controls['nombres'].touched)">
+                              <i *ngIf="nuevoSocioForm.controls['nombres'].errors.required" class="text-danger"> - Campo requerido</i>
+                              <i *ngIf="nuevoSocioForm.controls['nombres'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                          </label>
+                          <input id="nombres" type="text" class="form-control" placeholder="Ej. Carlos Jose" formControlName="nombres" #nombres>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="apellidos">
+                            <b>Apellido(s) *</b>
+                            <span
+                              *ngIf="nuevoSocioForm.controls['apellidos'].invalid && (nuevoSocioForm.controls['apellidos'].dirty || nuevoSocioForm.controls['apellidos'].touched)">
+                              <i *ngIf="nuevoSocioForm.controls['apellidos'].errors.required" class="text-danger"> - Campo requerido</i>
+                              <i *ngIf="nuevoSocioForm.controls['apellidos'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                          </label>
+                          <input id="apellidos" type="text" class="form-control" placeholder="Ej. Gonzalez Gonzalez" formControlName="apellidos" #apellidos>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="sexoSocio">
+                            <b>Sexo *</b>
+                            <span
+                              *ngIf="nuevoSocioForm.controls['sexo'].invalid && (nuevoSocioForm.controls['sexo'].dirty || nuevoSocioForm.controls['sexo'].touched)">
+                              <i *ngIf="nuevoSocioForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
+                          </label>
+                          <select id="sexoSocio" class="form-control" formControlName="sexo">
+                            <option value="MASCULINO">MASCULINO</option>
+                            <option value="FEMENINO">FEMENINO</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="porcentajeAcciones">
+                            <b>% Acciones *</b>
+                            <span
+                              *ngIf="nuevoSocioForm.controls['porcentajeAcciones'].invalid && (nuevoSocioForm.controls['porcentajeAcciones'].dirty || nuevoSocioForm.controls['porcentajeAcciones'].touched)">
+                              <i *ngIf="nuevoSocioForm.controls['porcentajeAcciones'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
+                          </label>
+                          <input id="porcentajeAcciones" type="text" class="form-control" placeholder="Colocar solo el numero" formControlName="porcentajeAcciones" #porcentajeAcciones>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary btn-sm" (click)="guardarSocio(nuevoSocioForm)">Guardar</button>
+                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevoSocio()">Cancelar</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'APODERADOS'">
+        <table class="table">
+          <tr>
+            <td><b>Nombre(s)</b></td>
+            <td><b>Apellido(s)</b></td>
+            <td><b>Sexo</b></td>
+            <td><b>F. Inicio</b></td>
+            <td><b>F. Fin</b></td>
+            <td><b>Acciones</b></td>
+          </tr>
+          <tr *ngFor="let apoderado of empresaEscritura?.apoderados; let i = index">
+            <td>{{apoderado?.nombres}}</td>
+            <td>{{apoderado?.apellidos}}</td>
+            <td>{{apoderado?.sexo}}</td>
+            <td>{{apoderado?.fechaInicio}}</td>
+            <td>{{apoderado?.fechaFin}}</td>
+            <td>
+              <fa-icon [icon]="faTrash" class="fakelink" (click)="eliminarApoderado(i)"></fa-icon>
+            </td>
+          </tr>
+          <tr *ngIf="!showApoderadoForm">
+            <td colspan="6">
+              <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevoApoderado()">Agregar apoderado</button>
+            </td>
+          </tr>
+          <tr *ngIf="showApoderadoForm">
+            <td colspan="6">
+              <div class="row">
+                <div class="col-sm-12">
+                  <form [formGroup]="nuevoApoderadoForm">
+                    <div class="form-row">
+                      <div class="col-sm-4">
+                        <label for="apoderadoNombre">
+                          <b>Nombre(s) *</b>
+                          <span
+                            *ngIf="nuevoApoderadoForm.controls['nombres'].invalid && (nuevoApoderadoForm.controls['nombres'].dirty || nuevoApoderadoForm.controls['nombres'].touched)">
+                              <i *ngIf="nuevoApoderadoForm.controls['nombres'].errors.required" class="text-danger"> - Campo requerido</i>
+                              <i *ngIf="nuevoApoderadoForm.controls['nombres'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                        </label>
+                        <input id="apoderadoNombre" type="text" class="form-control" placeholder="Ej. Carlos Jose" formControlName="nombres" #nombres>
+                      </div>
+                      <div class="col-sm-4">
+                        <label for="apoderadoApellidos">
+                          <b>Apellido(s) *</b>
+                          <span
+                            *ngIf="nuevoApoderadoForm.controls['apellidos'].invalid && (nuevoApoderadoForm.controls['apellidos'].dirty || nuevoApoderadoForm.controls['apellidos'].touched)">
+                              <i *ngIf="nuevoApoderadoForm.controls['apellidos'].errors.required" class="text-danger"> - Campo requerido</i>
+                              <i *ngIf="nuevoApoderadoForm.controls['apellidos'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                        </label>
+                        <input id="apoderadoApellidos" type="text" class="form-control" placeholder="Ej. Gonzalez Gonzalez" formControlName="apellidos" #apellidos>
+                      </div>
+                      <div class="col-sm-4">
+                        <label for="apoderadoSexo">
+                          <b>Sexo *</b>
+                          <span
+                            *ngIf="nuevoApoderadoForm.controls['sexo'].invalid && (nuevoApoderadoForm.controls['sexo'].dirty || nuevoApoderadoForm.controls['sexo'].touched)">
+                              <i *ngIf="nuevoApoderadoForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
+                        </label>
+                        <select id="apoderadoSexo" class="form-control" formControlName="sexo">
+                          <option value="MASCULINO">MASCULINO</option>
+                          <option value="FEMENINO">FEMENINO</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-sm-4">
+                        <label for="apoderadoFechaInicio">
+                          <b>Fecha inicio *</b>
+                          <span
+                            *ngIf="nuevoApoderadoForm.controls['fechaInicio'].invalid && (nuevoApoderadoForm.controls['fechaInicio'].dirty || nuevoApoderadoForm.controls['fechaInicio'].touched)">
+                              <i *ngIf="nuevoApoderadoForm.controls['fechaInicio'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
+                        </label>
+                        <input id="apoderadoFechaInicio" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
+                      </div>
+                      <div class="col-sm-4">
+                        <label for="apoderadoFechaFin">
+                          <b>Fecha fin *</b>
+                          <span
+                            *ngIf="nuevoApoderadoForm.controls['fechaFin'].invalid && (nuevoApoderadoForm.controls['fechaFin'].dirty || nuevoApoderadoForm.controls['fechaFin'].touched)">
+                              <i *ngIf="nuevoApoderadoForm.controls['fechaFin'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
+                        </label>
+                        <input id="apoderadoFechaFin" type="date" class="form-control" formControlName="fechaFin" #fechaFin>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-12">
+                  <button class="btn btn-primary btn-sm" (click)="guardarApoderado(nuevoApoderadoForm)">Guardar</button>
+                  <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevoSocio()">Cancelar</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'REPRESENTANTES'">
+        <table class="table">
+          <tr>
+            <td><b>Nombre(s)</b></td>
+            <td><b>Apellido(s)</b></td>
+            <td><b>Sexo</b></td>
+            <td><b>Acciones</b></td>
+          </tr>
+          <tr *ngFor="let representante of empresaEscritura?.representantes; let i = index;">
+            <td>{{representante.nombres}}</td>
+            <td>{{representante.apellidos}}</td>
+            <td>{{representante.sexo}}</td>
+            <td>
+              <fa-icon [icon]="faTrash" (click)="eliminarRepresentante(i)"></fa-icon>
+            </td>
+          </tr>
+          <tr *ngIf="!showRepresentanteForm">
+            <td colspan="4">
+              <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevoRepresentante()">Agregar representante</button>
+            </td>
+          </tr>
+          <tr *ngIf="showRepresentanteForm">
+            <td colspan="4">
+              <div class="row">
+                <div class="col-sm-12">
+                  <form [formGroup]="nuevoRepresentanteForm">
+                    <div class="form-row">
+                      <div class="col-sm-4">
+                        <label for="representanteNombre">
+                          <b>Nombre(s) *</b>
+                          <span *ngIf="nuevoRepresentanteForm.controls['nombres'].invalid && (nuevoRepresentanteForm.controls['nombres'].dirty || nuevoRepresentanteForm.controls['nombres'].touched)" class="text-danger"> - Requerido</span>
+                        </label>
+                        <input id="representanteNombre" type="text" class="form-control" placeholder="Ej. Carlos Jose" formControlName="nombres" #nombres>
+                      </div>
+                      <div class="col-sm-4">
+                        <label for="representanteApellidos">
+                          <b>Apellido(s) *</b>
+                          <span *ngIf="nuevoRepresentanteForm.controls['apellidos'].invalid && (nuevoRepresentanteForm.controls['apellidos'].dirty || nuevoRepresentanteForm.controls['apellidos'].touched)" class="text-danger"> - Requerido</span>
+                        </label>
+                        <input id="representanteApellidos" type="text" class="form-control" placeholder="Ej. Gonzalez Gonzalez" formControlName="apellidos" #apellidos>
+                      </div>
+                      <div class="col-sm-4">
+                        <label for="representanteSexo">
+                          <b>Sexo *</b>
+                          <span *ngIf="nuevoRepresentanteForm.controls['sexo'].invalid && (nuevoRepresentanteForm.controls['sexo'].dirty || nuevoRepresentanteForm.controls['sexo'].touched)" class="text-danger"> - Requerido</span>
+                        </label>
+                        <select id="representanteSexo" class="form-control" formControlName="sexo">
+                          <option value="MASCULINO">MASCULINO</option>
+                          <option value="FEMENINO">FEMENINO</option>
+                        </select>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-12">
+                  <button class="btn btn-primary btn-sm" (click)="guardarRepresentante(nuevoRepresentanteForm)">Guardar</button>
+                  <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevoRepresentante()">Cancelar</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'CONSEJOS'">
+        <table class="table">
+          <tr>
+            <td><b>Nombre(s)</b></td>
+            <td><b>Apellido(s)</b></td>
+            <td><b>Sexo</b></td>
+            <td><b>Puesto</b></td>
+            <td><b>Acciones</b></td>
+          </tr>
+          <tr *ngFor="let c of empresaEscritura?.consejos; let i = index;">
+            <td>{{c.nombres}}</td>
+            <td>{{c.apellidos}}</td>
+            <td>{{c.sexo}}</td>
+            <td>{{c.puesto}}</td>
+            <td>
+              <fa-icon [icon]="faTrash" (click)="eliminarConsejo(i)"></fa-icon>
+            </td>
+          </tr>
+          <tr *ngIf="!showConsejoForm">
+            <td colspan="5">
+              <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevoConsejo()">Agregar consejo</button>
+            </td>
+          </tr>
+          <tr *ngIf="showConsejoForm">
+            <td colspan="5">
+              <div class="row">
+                <div class="col-sm-12">
+                  <form [formGroup]="nuevoConsejoAdministracionForm">
+                    <div class="form-row">
+                      <div class="col-sm-3">
+                        <label for="consejoNombre">
+                          <b>Nombre(s) *</b>
+                          <span *ngIf="nuevoConsejoAdministracionForm.controls['nombres'].invalid && (nuevoConsejoAdministracionForm.controls['nombres'].dirty || nuevoConsejoAdministracionForm.controls['nombres'].touched)" class="text-danger"> - Requerido</span>
+                        </label>
+                        <input id="consejoNombre" type="text" class="form-control" placeholder="Ej. Carlos Jose" formControlName="nombres" #nombres>
+                      </div>
+                      <div class="col-sm-3">
+                        <label for="consejoApellidos">
+                          <b>Apellido(s) *</b>
+                          <span *ngIf="nuevoConsejoAdministracionForm.controls['apellidos'].invalid && (nuevoConsejoAdministracionForm.controls['apellidos'].dirty || nuevoConsejoAdministracionForm.controls['apellidos'].touched)" class="text-danger"> - Requerido</span>
+                        </label>
+                        <input id="consejoApellidos" type="text" class="form-control" placeholder="Ej. Gonzalez Gonzalez" formControlName="apellidos" #apellidos>
+                      </div>
+                      <div class="col-sm-3">
+                        <label for="consejoSexo">
+                          <b>Sexo *</b>
+                          <span *ngIf="nuevoConsejoAdministracionForm.controls['sexo'].invalid && (nuevoConsejoAdministracionForm.controls['sexo'].dirty || nuevoConsejoAdministracionForm.controls['sexo'].touched)" class="text-danger"> - Requerido</span>
+                        </label>
+                        <select id="consejoSexo" class="form-control" formControlName="sexo">
+                          <option value="MASCULINO">MASCULINO</option>
+                          <option value="FEMENINO">FEMENINO</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-3">
+                        <label for="consejoPuesto">
+                          <b>Puesto *</b>
+                          <span *ngIf="nuevoConsejoAdministracionForm.controls['puesto'].invalid && (nuevoConsejoAdministracionForm.controls['puesto'].dirty || nuevoConsejoAdministracionForm.controls['puesto'].touched)" class="text-danger"> - Requerido</span>
+                        </label>
+                        <select id="consejoPuesto" class="form-control" formControlName="puesto">
+                          <option value="PRESIDENTE">Presidente</option>
+                          <option value="VICEPRESIDENTE">Vicepresidente</option>
+                          <option value="SECRETARIO">Secretario</option>
+                          <option value="TESORERO">Tesorero</option>
+                          <option value="VOCAL">Vocal</option>
+                        </select>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-12">
+                  <button class="btn btn-primary btn-sm" (click)="guardarConsejo(nuevoRepresentanteForm)">Guardar</button>
+                  <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevoConsejo()">Cancelar</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+    </div>
+
+
+  </ng-template>
 
   <ng-template #verEmpresaRegistradaModal let-modal>
     <div class="modal-header">

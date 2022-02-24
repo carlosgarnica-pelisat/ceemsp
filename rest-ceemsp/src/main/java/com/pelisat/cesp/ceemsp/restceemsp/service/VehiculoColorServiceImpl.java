@@ -90,4 +90,49 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
 
         return daoToDtoConverter.convertDaoToDtoVehiculoColor(vehiculoColorCreado);
     }
+
+    @Override
+    public VehiculoColorDto modificarColor(String empresaUuid, String vehiculoUuid, String colorUuid, String username, VehiculoColorDto vehiculoColorDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(username) || vehiculoColorDto == null) {
+            logger.warn("El uuid de la empresa, del vehiculo, el usuario o el color a dar de alta vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el color con el uuid [{}]", colorUuid);
+        VehiculoColor vehiculoColor = vehiculoColorRepository.findByUuidAndEliminadoFalse(colorUuid);
+
+        if(vehiculoColor == null) {
+            logger.warn("El color no existe en la base de datos");
+            throw new InvalidDataException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        vehiculoColor.setColor(vehiculoColorDto.getColor());
+        vehiculoColor.setDescripcion(vehiculoColorDto.getDescripcion());
+        daoHelper.fulfillAuditorFields(false, vehiculoColor, usuarioDto.getId());
+        vehiculoColorRepository.save(vehiculoColor);
+
+        return daoToDtoConverter.convertDaoToDtoVehiculoColor(vehiculoColor);
+    }
+
+    @Override
+    public VehiculoColorDto eliminarColor(String empresaUuid, String vehiculoUuid, String colorUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(username)) {
+            logger.warn("El uuid de la empresa, del vehiculo, el usuario o el color a dar de alta vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el color con el uuid [{}]", colorUuid);
+        VehiculoColor vehiculoColor = vehiculoColorRepository.findByUuidAndEliminadoFalse(colorUuid);
+
+        if(vehiculoColor == null) {
+            logger.warn("El color no existe en la base de datos");
+            throw new InvalidDataException();
+        }
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        vehiculoColor.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, vehiculoColor, usuarioDto.getId());
+        vehiculoColorRepository.save(vehiculoColor);
+        return daoToDtoConverter.convertDaoToDtoVehiculoColor(vehiculoColor);
+    }
 }

@@ -65,6 +65,7 @@ export class EmpresaCanesComponent implements OnInit {
 
   tempFile;
   imagenActual;
+  pdfActual;
 
   showEntrenamientoForm: boolean;
   showCertificadoForm: boolean;
@@ -83,10 +84,10 @@ export class EmpresaCanesComponent implements OnInit {
     this.uuid = this.route.snapshot.paramMap.get("uuid");
 
     this.crearEmpresaCanForm = this.formBuilder.group({
-      nombre: ['', Validators.required],
+      nombre: ['', Validators.required, Validators.maxLength(50)],
       genero: ['', Validators.required],
       raza: ['', Validators.required],
-      razaOtro: [''],
+      razaOtro: ['', Validators.maxLength(50)],
       domicilioAsignado: ['', Validators.required],
       fechaIngreso: ['', Validators.required],
       edad: ['', Validators.required],
@@ -106,19 +107,21 @@ export class EmpresaCanesComponent implements OnInit {
     });
 
     this.crearEmpresaCanCertificadoSaludForm = this.formBuilder.group({
-      expedidoPor: ['', Validators.required],
-      cedula: ['', Validators.required],
-      fechaExpedicion: ['', Validators.required]
+      expedidoPor: ['', [Validators.required, Validators.maxLength(100)]],
+      cedula: ['', [Validators.required, Validators.maxLength(20)]],
+      fechaExpedicion: ['', Validators.required],
+      archivo: ['', [Validators.required]]
     })
 
     this.crearEmpresaCanCartillaVacunacionForm = this.formBuilder.group({
-      expedidoPor: ['', Validators.required],
-      cedula: ['', Validators.required],
-      fechaExpedicion: ['', Validators.required]
+      expedidoPor: ['', [Validators.required, Validators.maxLength(100)]],
+      cedula: ['', [Validators.required, Validators.maxLength(20)]],
+      fechaExpedicion: ['', Validators.required],
+      archivo: ['', Validators.required]
     })
 
     this.crearEmpresaCanEntrenamientoForm = this.formBuilder.group({
-      nombreInstructor: ['', Validators.required],
+      nombreInstructor: ['', [Validators.required, Validators.maxLength(100)]],
       tipoAdiestramiento: ['', Validators.required],
       fechaConstancia: ['', Validators.required]
     })
@@ -332,6 +335,10 @@ export class EmpresaCanesComponent implements OnInit {
 
     let value: CanCartillaVacunacion = form.value;
 
+    let formData = new FormData();
+    formData.append('archivo', this.tempFile, this.tempFile.name);
+    formData.append('escritura', JSON.stringify(value));
+
     this.empresaService.guardarCanCartillaVacunacion(this.uuid, this.can.uuid, value).subscribe((data: CanCartillaVacunacion) => {
       this.toastService.showGenericToast(
         "Listo",
@@ -376,14 +383,14 @@ export class EmpresaCanesComponent implements OnInit {
   }
 
   next(stepName: string, form) {
-    /*if(!form.valid) {
+    if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "Faltan algunos campos obligatorios por llenarse",
         ToastType.WARNING
       );
       return;
-    }*/
+    }
 
     switch (stepName) {
       case "INFORMACION":

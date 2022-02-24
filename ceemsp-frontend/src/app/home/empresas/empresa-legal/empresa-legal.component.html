@@ -73,21 +73,32 @@
               <div class="col-sm-4">
                 <label for="numeroEscritura">
                   <b>Numero de escritura *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].invalid && (nuevaEscrituraForm.controls['numeroEscritura'].dirty || nuevaEscrituraForm.controls['numeroEscritura'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].invalid && (nuevaEscrituraForm.controls['numeroEscritura'].dirty || nuevaEscrituraForm.controls['numeroEscritura'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
                 </label>
                 <input id="numeroEscritura" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" #numeroEscritura>
               </div>
               <div class="col-sm-4">
                 <label for="fechaEscritura">
                   <b>Fecha de escritura *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].invalid && (nuevaEscrituraForm.controls['fechaEscritura'].dirty || nuevaEscrituraForm.controls['fechaEscritura'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].invalid && (nuevaEscrituraForm.controls['fechaEscritura'].dirty || nuevaEscrituraForm.controls['fechaEscritura'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
                 </label>
                 <input id="fechaEscritura" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaEscritura" #fechaEscritura>
               </div>
               <div class="col-sm-4">
                 <label for="ciudad">
                   <b>Ciudad *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['ciudad'].invalid && (nuevaEscrituraForm.controls['ciudad'].dirty || nuevaEscrituraForm.controls['ciudad'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['ciudad'].invalid && (nuevaEscrituraForm.controls['ciudad'].dirty || nuevaEscrituraForm.controls['ciudad'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['ciudad'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['ciudad'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
                 </label>
                 <input id="ciudad" type="text" class="form-control" placeholder="Ej. Guadalajara" formControlName="ciudad" #ciudad>
               </div>
@@ -97,7 +108,11 @@
               <div class="col-sm-4">
                 <label for="tipoFedatario">
                   <b>Tipo de Fedatario *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].invalid && (nuevaEscrituraForm.controls['tipoFedatario'].dirty || nuevaEscrituraForm.controls['tipoFedatario'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].invalid && (nuevaEscrituraForm.controls['tipoFedatario'].dirty || nuevaEscrituraForm.controls['tipoFedatario'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
                 </label>
                 <select id="tipoFedatario" class="form-control" formControlName="tipoFedatario">
                   <option value="CORREDOR">Corredor</option>
@@ -107,14 +122,21 @@
               <div class="col-sm-4">
                 <label for="numero">
                   <b>Numero *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['numero'].invalid && (nuevaEscrituraForm.controls['numero'].dirty || nuevaEscrituraForm.controls['numero'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['numero'].invalid && (nuevaEscrituraForm.controls['numero'].dirty || nuevaEscrituraForm.controls['numero'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['numero'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
                 </label>
                 <input id="numero" type="number" class="form-control" placeholder="Ej. 73" formControlName="numero" min="1" #numero>
               </div>
               <div class="col-sm-4">
                 <label for="nombreFedatario">
                   <b>Nombre del Fedatario *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].invalid && (nuevaEscrituraForm.controls['nombreFedatario'].dirty || nuevaEscrituraForm.controls['nombreFedatario'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].invalid && (nuevaEscrituraForm.controls['nombreFedatario'].dirty || nuevaEscrituraForm.controls['nombreFedatario'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
                 </label>
                 <input id="nombreFedatario" type="text" class="form-control" placeholder="Ej. Juan Carlos Garnica" formControlName="nombreFedatario" #nombreFedatario>
               </div>
@@ -131,7 +153,10 @@
               <div class="col-sm-12">
                 <label for="descripcion">
                   <b>Detalles de la escritura *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['descripcion'].invalid && (nuevaEscrituraForm.controls['descripcion'].dirty || nuevaEscrituraForm.controls['descripcion'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['descripcion'].invalid && (nuevaEscrituraForm.controls['descripcion'].dirty || nuevaEscrituraForm.controls['descripcion'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['descripcion'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
                 </label>
                 <textarea id="descripcion" class="form-control" placeholder="Por favor, explique de manera detallada la razon de la escritura." formControlName="descripcion" #descripcion></textarea>
               </div>
@@ -161,21 +186,32 @@
               <div class="col-sm-4">
                 <label for="numeroEscrituraEditar">
                   <b>Numero de escritura *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].invalid && (nuevaEscrituraForm.controls['numeroEscritura'].dirty || nuevaEscrituraForm.controls['numeroEscritura'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].invalid && (nuevaEscrituraForm.controls['numeroEscritura'].dirty || nuevaEscrituraForm.controls['numeroEscritura'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
                 </label>
                 <input id="numeroEscrituraEditar" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" #numeroEscritura>
               </div>
               <div class="col-sm-4">
                 <label for="fechaEscrituraEditar">
                   <b>Fecha de escritura *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].invalid && (nuevaEscrituraForm.controls['fechaEscritura'].dirty || nuevaEscrituraForm.controls['fechaEscritura'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].invalid && (nuevaEscrituraForm.controls['fechaEscritura'].dirty || nuevaEscrituraForm.controls['fechaEscritura'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
                 </label>
                 <input id="fechaEscrituraEditar" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaEscritura" #fechaEscritura>
               </div>
               <div class="col-sm-4">
                 <label for="ciudad">
                   <b>Ciudad *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['ciudad'].invalid && (nuevaEscrituraForm.controls['ciudad'].dirty || nuevaEscrituraForm.controls['ciudad'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['ciudad'].invalid && (nuevaEscrituraForm.controls['ciudad'].dirty || nuevaEscrituraForm.controls['ciudad'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['ciudad'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['ciudad'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
                 </label>
                 <input id="ciudad" type="text" class="form-control" placeholder="Ej. Guadalajara" formControlName="ciudad" #ciudad>
               </div>
@@ -185,7 +221,11 @@
               <div class="col-sm-4">
                 <label for="tipoFedatarioEditar">
                   <b>Tipo de Fedatario *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].invalid && (nuevaEscrituraForm.controls['tipoFedatario'].dirty || nuevaEscrituraForm.controls['tipoFedatario'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].invalid && (nuevaEscrituraForm.controls['tipoFedatario'].dirty || nuevaEscrituraForm.controls['tipoFedatario'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
                 </label>
                 <select id="tipoFedatarioEditar" class="form-control" formControlName="tipoFedatario">
                   <option value="CORREDOR">Corredor</option>
@@ -195,14 +235,21 @@
               <div class="col-sm-4">
                 <label for="numeroEditar">
                   <b>Numero *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['numero'].invalid && (nuevaEscrituraForm.controls['numero'].dirty || nuevaEscrituraForm.controls['numero'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['numero'].invalid && (nuevaEscrituraForm.controls['numero'].dirty || nuevaEscrituraForm.controls['numero'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['numero'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
                 </label>
                 <input id="numeroEditar" type="number" class="form-control" placeholder="Ej. 73" formControlName="numero" min="1" #numero>
               </div>
               <div class="col-sm-4">
                 <label for="nombreFedatarioEditar">
                   <b>Nombre del Fedatario *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].invalid && (nuevaEscrituraForm.controls['nombreFedatario'].dirty || nuevaEscrituraForm.controls['nombreFedatario'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].invalid && (nuevaEscrituraForm.controls['nombreFedatario'].dirty || nuevaEscrituraForm.controls['nombreFedatario'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
                 </label>
                 <input id="nombreFedatarioEditar" type="text" class="form-control" placeholder="Ej. Juan Carlos Garnica" formControlName="nombreFedatario" #nombreFedatario>
               </div>
@@ -212,7 +259,10 @@
               <div class="col-sm-12">
                 <label for="descripcionEditar">
                   <b>Detalles de la escritura *</b>
-                  <span *ngIf="nuevaEscrituraForm.controls['descripcion'].invalid && (nuevaEscrituraForm.controls['descripcion'].dirty || nuevaEscrituraForm.controls['descripcion'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['descripcion'].invalid && (nuevaEscrituraForm.controls['descripcion'].dirty || nuevaEscrituraForm.controls['descripcion'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['descripcion'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
                 </label>
                 <textarea id="descripcionEditar" class="form-control" placeholder="Por favor, explique de manera detallada la razon de la escritura." formControlName="descripcion" #descripcion></textarea>
               </div>
@@ -460,13 +510,13 @@
               <td><b>Sexo</b></td>
               <td><b>Acciones</b></td>
             </tr>
-            <tr *ngFor="let representante of escritura?.representantes">
+            <tr *ngFor="let representante of escritura?.representantes; let i = index">
               <td>{{representante.nombres}}</td>
               <td>{{representante.apellidos}}</td>
               <td>{{representante.sexo}}</td>
               <td>
-                <fa-icon [icon]="faPencil"></fa-icon>
-                <fa-icon [icon]="faTrash"></fa-icon>
+                <fa-icon class="fakelink" [icon]="faPencil" (click)="mostrarEditarRepresentante(i)"></fa-icon>
+                <fa-icon class="fakelink" [icon]="faTrash" (click)="mostrarModalEliminarRepresentante(i)"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="!showRepresentanteForm">
@@ -529,14 +579,14 @@
               <td><b>Puesto</b></td>
               <td><b>Acciones</b></td>
             </tr>
-            <tr *ngFor="let c of escritura?.consejos">
+            <tr *ngFor="let c of escritura?.consejos; let i = index;">
               <td>{{c.nombres}}</td>
               <td>{{c.apellidos}}</td>
               <td>{{c.sexo}}</td>
               <td>{{c.puesto}}</td>
               <td>
-                <fa-icon [icon]="faPencil"></fa-icon>
-                <fa-icon [icon]="faTrash"></fa-icon>
+                <fa-icon class="fakelink" [icon]="faPencil" (click)="mostrarEditarConsejo(i)"></fa-icon>
+                <fa-icon class="fakelink" [icon]="faTrash" (click)="mostrarModalEliminarConsejo(i)"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="!showConsejoForm">
