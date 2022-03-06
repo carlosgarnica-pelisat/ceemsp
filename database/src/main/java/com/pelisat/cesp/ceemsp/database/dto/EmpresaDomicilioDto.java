@@ -12,6 +12,7 @@ public class EmpresaDomicilioDto {
     private String domicilio1;
     private String numeroExterior;
     private String numeroInterior;
+    private String localidad;
     private String domicilio2;
     private String domicilio3;
     private String domicilio4;
@@ -23,4 +24,9 @@ public class EmpresaDomicilioDto {
     private String telefonoMovil;
     private String latitud;
     private String longitud;
+    private EstadoDto estadoCatalogo;
+    private MunicipioDto municipioCatalogo;
+    private LocalidadDto localidadCatalogo;
+    private ColoniaDto coloniaCatalogo;
+    private CalleDto calleCatalogo;
 }

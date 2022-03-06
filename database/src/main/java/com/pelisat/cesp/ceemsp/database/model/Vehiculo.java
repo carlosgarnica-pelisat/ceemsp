@@ -66,6 +66,18 @@ public class Vehiculo extends CommonModel {
     @Enumerated(EnumType.STRING)
     private NivelBlindajeEnum nivelBlindaje;
 
+    @Column(name = "USO", nullable = false)
+    private int uso;
+
+    @Column(name = "RAZON_SOCIAL")
+    private String razonSocial;
+
+    @Column(name = "FECHA_INICIO")
+    private LocalDate fechaInicio;
+
+    @Column(name = "FECHA_FIN")
+    private LocalDate fechaFin;
+
     public Vehiculo() {
         super();
     }

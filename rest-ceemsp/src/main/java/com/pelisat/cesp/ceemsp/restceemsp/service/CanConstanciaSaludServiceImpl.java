@@ -96,6 +96,7 @@ public class CanConstanciaSaludServiceImpl implements CanConstanciaSaludService 
 
         try {
             ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.CONSTANCIA_SALUD_CAN, empresaUuid);
+            canConstanciaSalud.setRutaDocumento(ruta);
             CanConstanciaSalud canConstanciaSaludCreada = canConstanciaSaludRepository.save(canConstanciaSalud);
 
             return daoToDtoConverter.convertDaoToDtoCanConstanciaSalud(canConstanciaSaludCreada);

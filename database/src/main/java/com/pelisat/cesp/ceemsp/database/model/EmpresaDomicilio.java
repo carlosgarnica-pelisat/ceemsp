@@ -62,4 +62,22 @@ public class EmpresaDomicilio extends CommonModel {
 
     @Column(name = "LONGITUD", nullable = false)
     private String longitud;
+
+    @Column(name = "LOCALIDAD", nullable = false)
+    private String localidad;
+
+    @Column(name = "ESTADO_CATALOGO", nullable = false)
+    private int estadoCatalogo;
+
+    @Column(name = "CALLE_CATALOGO", nullable = false)
+    private int calleCatalogo;
+
+    @Column(name = "COLONIA_CATALOGO", nullable = false)
+    private int coloniaCatalogo;
+
+    @Column(name = "MUNICIPIO_CATALOGO", nullable = false)
+    private int municipioCatalogo;
+
+    @Column(name = "LOCALIDAD_CATALOGO", nullable = false)
+    private int localidadCatalogo;
 }

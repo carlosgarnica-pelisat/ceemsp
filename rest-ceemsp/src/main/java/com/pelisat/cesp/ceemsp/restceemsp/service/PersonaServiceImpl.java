@@ -145,7 +145,7 @@ public class PersonaServiceImpl implements PersonaService {
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
 
         Personal personal = dtoToDaoConverter.convertDtoToDaoPersonal(personalDto);
-        personal.setFechaNacimiento(LocalDate.parse(personalDto.getFechaDeNacimiento()));
+        personal.setFechaNacimiento(LocalDate.parse(personalDto.getFechaNacimiento()));
         daoHelper.fulfillAuditorFields(true, personal, usuarioDto.getId());
         personal.setEmpresa(empresaDto.getId());
 

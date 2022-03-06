@@ -53,6 +53,10 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${uuid}/status`, empresa);
   }
 
+  modificarEmpresa(uuid: string, empresa: Empresa) {
+    return this.http.put(`${this.uri}/empresas/${uuid}`, empresa);
+  }
+
   // Modalidades
   obtenerModalidades(empresaUuid: string) {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/modalidades`)
@@ -62,6 +66,10 @@ export class EmpresaService {
     return this.http.post(`${this.uri}/empresas/${empresaUuid}/modalidades`, modalidad)
   }
 
+  eliminarModalidad(empresaUuid: string, modalidadUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/modalidades/${modalidadUuid}`);
+  }
+
   // Formas de ejecucion
   obtenerFormasEjecucion(empresaUuid: string) {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/formas`);
@@ -69,6 +77,10 @@ export class EmpresaService {
 
   guardarFormaEjecucion(empresaUuid: string, formaEjecucion: EmpresaFormaEjecucion) {
     return this.http.post(`${this.uri}/empresas/${empresaUuid}/formas`, formaEjecucion);
+  }
+
+  eliminarFormaEjecucion(empresaUuid: string, formaEjecucionUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/formas/${formaEjecucionUuid}`);
   }
 
   // Domicilios
@@ -260,8 +272,10 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/clientes/${clienteUuid}`)
   }
 
-  guardarCliente(uuid: string, cliente: Cliente) {
-    return this.http.post(`${this.uri}/empresas/${uuid}/clientes`, cliente)
+  guardarCliente(uuid: string, formData: FormData) {
+    return this.http.post(
+      `${this.uri}/empresas/${uuid}/clientes`,
+      formData, {headers: {'X-isFile': 'true'}})
   }
 
   // Clientes domicilios
@@ -335,13 +349,17 @@ export class EmpresaService {
   }
 
   // Constancias de salud
-  guardarCanConstanciaSalud(uuid: string, canUuid: string, constanciaSalud: CanConstanciaSalud) {
-    return this.http.post(`${this.uri}/empresas/${uuid}/canes/${canUuid}/constancias`, constanciaSalud);
+  guardarCanConstanciaSalud(uuid: string, canUuid: string, formData: FormData) {
+    return this.http.post(
+      `${this.uri}/empresas/${uuid}/canes/${canUuid}/constancias`,
+      formData, {headers: {'X-isFile': 'true'}})
   }
 
   // Cartillas vacunacion
-  guardarCanCartillaVacunacion(uuid: string, canUuid: string, cartillaVacunacion: CanCartillaVacunacion) {
-    return this.http.post(`${this.uri}/empresas/${uuid}/canes/${canUuid}/cartillas`, cartillaVacunacion);
+  guardarCanCartillaVacunacion(uuid: string, canUuid: string, formData: FormData) {
+    return this.http.post(
+      `${this.uri}/empresas/${uuid}/canes/${canUuid}/cartillas`,
+      formData, {headers: {'X-isFile': 'true'}})
   }
 
   // Armas

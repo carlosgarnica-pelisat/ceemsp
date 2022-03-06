@@ -304,12 +304,6 @@ export class EmpresaLicenciasComponent implements OnInit {
       return;
     }
 
-    this.toastService.showGenericToast(
-      "Espere un momento",
-      "Estamos guardando la licencia",
-      ToastType.INFO
-    );
-
     let formValue = form.value;
     let licencia: EmpresaLicenciaColectiva = new EmpresaLicenciaColectiva();
 
@@ -318,6 +312,35 @@ export class EmpresaLicenciasComponent implements OnInit {
     //licencia.submodalidad = this.modalidades.filter(x => x.submodalidad.uuid === formValue.submodalidad)[0].submodalidad; //TODO: revisar por que esta fallando esta mamada
     licencia.fechaInicio = formValue.fechaInicio;
     licencia.fechaFin = formValue.fechaFin;
+
+    let fechaInicio = new Date(licencia.fechaInicio);
+    let fechaFin = new Date(licencia.fechaFin);
+    if(fechaInicio > fechaFin) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "La fecha de inicio es mayor que la del final",
+        ToastType.WARNING
+      )
+      return;
+    }
+
+    console.log(this.rowData);
+
+    let existeModalidad = this.rowData.filter(x => x.modalidad.uuid === licencia.modalidad.uuid)[0];
+    if(existeModalidad !== undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "La modalidad ya se encuentra registrada en esta licencia colectiva",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando la licencia",
+      ToastType.INFO
+    );
 
     let formData = new FormData();
     formData.append('archivo', this.tempFile, this.tempFile.name);

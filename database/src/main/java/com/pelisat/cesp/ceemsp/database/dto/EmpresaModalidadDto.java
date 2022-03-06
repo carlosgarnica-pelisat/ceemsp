@@ -8,6 +8,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class EmpresaModalidadDto {
+    private int id;
+    private String uuid;
     private ModalidadDto modalidad;
     private SubmodalidadDto submodalidad;
     private String fechaInicio;

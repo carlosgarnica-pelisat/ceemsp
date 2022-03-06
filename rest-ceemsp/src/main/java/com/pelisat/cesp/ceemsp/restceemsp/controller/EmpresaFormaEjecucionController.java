@@ -43,4 +43,14 @@ public class EmpresaFormaEjecucionController {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
         return empresaFormaEjecucionService.crearFormaEjecucion(empresaUuid, username, empresaFormaEjecucionDto);
     }
+
+    @DeleteMapping(value = EMPRESA_FORMA_EJECUCION_URI + "/{formaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaFormaEjecucionDto eliminarFormaEjecucion(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "formaUuid") String formaUuid,
+            HttpServletRequest httpServletRequest
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return empresaFormaEjecucionService.eliminarFormaEjecucion(empresaUuid, formaUuid, username);
+    }
 }

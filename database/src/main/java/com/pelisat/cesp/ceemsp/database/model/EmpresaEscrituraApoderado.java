@@ -33,4 +33,7 @@ public class EmpresaEscrituraApoderado extends CommonModel {
 
     @Column(name = "FECHA_FIN", nullable = false)
     private LocalDate fechaFin;
+
+    @Column(name = "CURP")
+    private String curp;
 }

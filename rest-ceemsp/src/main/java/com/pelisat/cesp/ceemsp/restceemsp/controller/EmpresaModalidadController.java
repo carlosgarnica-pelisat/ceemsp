@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -30,15 +31,6 @@ public class EmpresaModalidadController {
         return empresaModalidadService.obtenerModalidadesEmpresa(empresaUuid);
     }
 
-    // TODO: Implementar metodo para obtenerlos por UUID
-    /*@GetMapping(value = EMPRESA_MODALIDAD_URI + "/{vehiculoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public VehiculoDto obtenerVehiculoPorUuid(
-            @PathVariable(value = "empresaUuid") String empresaUuid,
-            @PathVariable(value = "vehiculoUuid") String vehiculoUuid
-    ) {
-        return empresaModalidadService.obtenerVehiculoPorUuid(empresaUuid, vehiculoUuid, false);
-    }*/
-
     @PostMapping(value = EMPRESA_MODALIDAD_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public EmpresaModalidadDto guardarModalidad(
             @PathVariable(value = "empresaUuid") String empresaUuid,
@@ -47,5 +39,15 @@ public class EmpresaModalidadController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
         return empresaModalidadService.guardarModalidad(empresaUuid, username, empresaModalidadDto);
+    }
+
+    @DeleteMapping(value = EMPRESA_MODALIDAD_URI + "/{empresaModalidadUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaModalidadDto eliminarModalidad(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "empresaModalidadUuid") String modalidadUuid,
+            HttpServletRequest httpServletRequest
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return empresaModalidadService.eliminarModalidadPorUuid(empresaUuid, modalidadUuid, username);
     }
 }

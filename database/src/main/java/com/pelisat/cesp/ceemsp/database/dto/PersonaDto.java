@@ -21,7 +21,7 @@ public class PersonaDto {
     private String apellidoMaterno;
     private String nombres;
     private SexoEnum sexo;
-    private String fechaDeNacimiento;
+    private String fechaNacimiento;
     private TipoSangreEnum tipoSangre;
     private EstadoCivilEnum estadoCivil;
     private String domicilio1;

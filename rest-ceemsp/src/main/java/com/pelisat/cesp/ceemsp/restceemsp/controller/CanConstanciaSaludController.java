@@ -33,7 +33,7 @@ public class CanConstanciaSaludController {
         return canConstanciaSaludService.obtenerConstanciasSaludPorCanUuid(empresaUuid, canUuid);
     }
 
-    @PostMapping(value = CAN_CONSTANCIA_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = CAN_CONSTANCIA_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CanConstanciaSaludDto guardarCanConstanciaSalud(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "canUuid") String canUuid,

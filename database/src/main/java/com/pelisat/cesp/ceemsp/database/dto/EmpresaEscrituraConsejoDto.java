@@ -9,6 +9,8 @@ import lombok.Setter;
 public class EmpresaEscrituraConsejoDto {
     private String nombres;
     private String apellidos;
+    private String apellidoMaterno;
     private SexoEnum sexo;
     private String puesto;
+    private String curp;
 }

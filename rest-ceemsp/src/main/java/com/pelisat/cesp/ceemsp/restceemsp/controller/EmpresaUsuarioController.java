@@ -27,6 +27,15 @@ public class EmpresaUsuarioController {
         this.empresaUsuarioService = empresaUsuarioService;
     }
 
+    @GetMapping(value = EMPRESA_USUARIOS_URI, produces = MediaType.APPLICATION_JSON_VALUE)
+    public UsuarioDto obtenerUsuarios(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @RequestBody UsuarioDto usuarioDto,
+            HttpServletRequest httpServletRequest
+    ) {
+        return null;
+    }
+
     @PostMapping(value = EMPRESA_USUARIOS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public UsuarioDto guardarUsuario(
             @PathVariable(value = "empresaUuid") String empresaUuid,

@@ -30,4 +30,7 @@ public class EmpresaEscrituraSocio extends CommonModel {
 
     @Column(name = "APELLIDO_MATERNO")
     private String apellidoMaterno;
+
+    @Column(name = "CURP")
+    private String curp;
 }

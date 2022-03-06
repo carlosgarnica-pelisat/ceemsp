@@ -16,4 +16,5 @@ public class EmpresaEscrituraSocioDto {
     private SexoEnum sexo;
     private BigDecimal porcentajeAcciones;
     private String apellidoMaterno;
+    private String curp;
 }

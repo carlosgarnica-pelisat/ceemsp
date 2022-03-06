@@ -436,4 +436,49 @@ public class DaoToDtoConverter {
 
         return modelMapper.map(visita, VisitaDto.class);
     }
+
+    public EstadoDto convertDaoToDtoEstado(Estado estado) {
+        if(estado == null) {
+            logger.warn("El estado a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(estado, EstadoDto.class);
+    }
+
+    public MunicipioDto convertDaoToDtoMunicipio(Municipio municipio) {
+        if(municipio == null) {
+            logger.warn("El municipio a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(municipio, MunicipioDto.class);
+    }
+
+    public CalleDto convertDaoToDtoCalle(Calle calle) {
+        if(calle == null) {
+            logger.warn("La calle a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(calle, CalleDto.class);
+    }
+
+    public LocalidadDto convertDaoToDtoLocalidad(Localidad localidad) {
+        if(localidad == null) {
+            logger.warn("La localidad a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(localidad, LocalidadDto.class);
+    }
+
+    public ColoniaDto convertDaoToDtoColonia(Colonia colonia) {
+        if(colonia == null) {
+            logger.warn("La colonia a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(colonia, ColoniaDto.class);
+    }
 }

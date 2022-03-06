@@ -15,6 +15,8 @@ import Stepper from "bs-stepper";
 import Vehiculo from "../../../_models/Vehiculo";
 import VehiculoColor from "../../../_models/VehiculoColor";
 import {faCheck, faDownload, faTrash} from "@fortawesome/free-solid-svg-icons";
+import ExisteVehiculo from "../../../_models/ExisteVehiculo";
+import {ValidacionService} from "../../../_services/validacion.service";
 
 @Component({
   selector: 'app-empresa-vehiculos',
@@ -22,6 +24,8 @@ import {faCheck, faDownload, faTrash} from "@fortawesome/free-solid-svg-icons";
   styleUrls: ['./empresa-vehiculos.component.css']
 })
 export class EmpresaVehiculosComponent implements OnInit {
+
+  fechaDeHoy = new Date().toISOString().split('T')[0];
 
   private gridApi;
   private gridColumnApi;
@@ -44,9 +48,6 @@ export class EmpresaVehiculosComponent implements OnInit {
   rowDataClicked = {
     uuid: undefined
   };
-
-  crearVehiculoMarcaForm: FormGroup;
-  crearVehiculoSubmarcaForm: FormGroup;
 
   crearVehiculoForm: FormGroup;
   crearColorForm: FormGroup;
@@ -72,18 +73,23 @@ export class EmpresaVehiculosComponent implements OnInit {
   tempFile;
   pdfActual;
 
+  existeVehiculo: ExisteVehiculo;
+
+  coloresTemp: VehiculoColor[] = [];
+
   @ViewChild('mostrarFotoVehiculoModal') mostrarFotoVehiculoModal: any;
 
   constructor(private modalService: NgbModal, private toastService: ToastService,
               private empresaService: EmpresaService, private formBuilder: FormBuilder,
-              private vehiculosService: VehiculosService, private route: ActivatedRoute) { }
+              private vehiculosService: VehiculosService, private route: ActivatedRoute,
+              private validacionService: ValidacionService) { }
 
   ngOnInit(): void {
     this.uuid = this.route.snapshot.paramMap.get("uuid");
 
     this.crearVehiculoForm = this.formBuilder.group({
-      placas: ['', Validators.required],
-      serie: ['', Validators.required],
+      placas: ['', [Validators.required, Validators.maxLength(15)]],
+      serie: ['', [Validators.required, Validators.maxLength(30)]],
       tipo: ['', Validators.required],
       marca: ['', Validators.required],
       submarca: ['', Validators.required],
@@ -93,13 +99,13 @@ export class EmpresaVehiculosComponent implements OnInit {
       domicilio: ['', Validators.required],
       origen: ['', Validators.required],
       blindado: ['', Validators.required],
-      serieBlindaje: [''],
+      serieBlindaje: ['', Validators.maxLength(30)],
       fechaBlindaje: [''],
-      numeroHolograma: [''],
-      placaMetalica: [''],
-      empresaBlindaje: [''],
+      numeroHolograma: ['', Validators.maxLength(30)],
+      placaMetalica: ['', Validators.maxLength(30)],
+      empresaBlindaje: ['', Validators.maxLength(50)],
       nivelBlindaje: [''],
-      razonSocial: [''],
+      razonSocial: ['', Validators.maxLength(100)],
       fechaInicio: [''],
       fechaFin: ['']
       // TODO: Agregar campos para fotos y documentos; asi como constancia de blindaje
@@ -154,6 +160,10 @@ export class EmpresaVehiculosComponent implements OnInit {
 
   seleccionarOrigen(event) {
     this.origen = event.value;
+    this.crearVehiculoForm.patchValue({
+      fechaInicio: '',
+      fechaFin: ''
+    })
   }
 
   seleccionarMarca(event) {
@@ -187,6 +197,36 @@ export class EmpresaVehiculosComponent implements OnInit {
         `No se pudo descargar la informacion del vehiculo. Motivo: ${error}`,
         ToastType.ERROR
       )
+    })
+  }
+
+  consultarSerieVehiculo(event) {
+    let existeVehiculo: ExisteVehiculo = new ExisteVehiculo();
+    existeVehiculo.numeroSerie = event.value;
+
+    this.validacionService.validarVehiculo(existeVehiculo).subscribe((data: ExisteVehiculo) => {
+      this.existeVehiculo = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el vehiculo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  consultarPlacasVehiculo(event) {
+    let existeVehiculo: ExisteVehiculo = new ExisteVehiculo();
+    existeVehiculo.placas = event.value;
+
+    this.validacionService.validarVehiculo(existeVehiculo).subscribe((data: ExisteVehiculo) => {
+      this.existeVehiculo = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el vehiculo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 
@@ -249,27 +289,47 @@ export class EmpresaVehiculosComponent implements OnInit {
   }
 
   next(stepName: string, form) {
-    /*if(!form.valid) {
+    if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "Faltan algunos campos obligatorios por llenarse",
         ToastType.WARNING
       );
       return;
-    }*/
+    }
     switch (stepName) {
-      case "INFORMACION":
+      case "COLORES":
         let formValue: Vehiculo = form.value;
+
+        if(formValue.fechaInicio !== undefined && formValue.fechaFin !== undefined) {
+          let fechaInicio = new Date(formValue.fechaInicio);
+          let fechaFin = new Date(formValue.fechaFin);
+          if(fechaInicio > fechaFin) {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              "La fecha de inicio es mayor que la del final",
+              ToastType.WARNING
+            )
+            return;
+          }
+        }
 
         formValue.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
         formValue.submarca = this.submarcas.filter(x => x.uuid === form.value.submarca)[0];
         formValue.tipo = this.tipos.filter(x => x.uuid === form.value.tipo)[0];
+        formValue.uso = this.usos.filter(x => x.uuid === form.value.uso)[0];
 
         if(this.blindado) {
-
+          console.log("Agregar validaciones para blindaje");
         } else {
           formValue.nivelBlindaje = null
         }
+
+        this.toastService.showGenericToast(
+          "Espere un momento",
+          "Estamos guardando el vehiculo en la base de datos",
+          ToastType.INFO
+        );
 
         this.empresaService.guardarVehiculo(this.uuid, formValue).subscribe((data: Vehiculo) => {
           this.toastService.showGenericToast(
@@ -277,23 +337,46 @@ export class EmpresaVehiculosComponent implements OnInit {
             "Se ha guardado el vehiculo con exito",
             ToastType.SUCCESS
           );
+          this.vehiculo = data;
           this.stepper.next();
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
-            `No se ha podido guardar el vehiculo. ${error}`,
+            `No se ha podido guardar el vehiculo. Motivo: ${error}`,
             ToastType.ERROR
           )
         });
         break;
-      /*case "DOMICILIOS":
+      case "FOTOGRAFIAS":
 
-        break;*/
+        break;
+      case "RESUMEN":
+
+        break;
     }
   }
 
   previous() {
-    //this.stepper.previous()
+    this.stepper.previous()
+  }
+
+  guardarColorCrear(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario es invalido. Favor de verificarlo",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let color: VehiculoColor = form.value;
+    this.coloresTemp.push(color);
+    form.reset();
+  }
+
+  eliminarColorCrear(index) {
+    this.coloresTemp.splice(index, 1);
   }
 
   toggleColumn(field: string) {

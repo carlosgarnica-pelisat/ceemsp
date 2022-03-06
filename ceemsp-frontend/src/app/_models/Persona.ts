@@ -16,7 +16,7 @@ export default class Persona implements Deserializable {
   apellidoMaterno: string;
   nombres: string;
   sexo: string;
-  fechaDeNacimiento: string;
+  fechaNacimiento: string;
   tipoSangre: string;
   estadoCivil: string;
   domicilio1: string;

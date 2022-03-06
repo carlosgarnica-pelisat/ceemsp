@@ -35,7 +35,7 @@ public class CanCartillaVacunacionController {
         return canCartillaVacunacionService.obtenerCartillasVacunacionPorCanUuid(empresaUuid, canUuid);
     }
 
-    @PostMapping(value = CAN_CARTILLA_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = CAN_CARTILLA_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CanCartillaVacunacionDto guardarCanCartillaVacunacion(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "canUuid") String canUuid,

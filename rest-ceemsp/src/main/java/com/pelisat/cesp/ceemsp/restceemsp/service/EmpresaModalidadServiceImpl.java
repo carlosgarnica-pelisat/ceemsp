@@ -124,4 +124,26 @@ public class EmpresaModalidadServiceImpl implements EmpresaModalidadService {
 
         return daoToDtoConverter.convertDaoToDtoEmpresaModalidad(empresaModalidad);
     }
+
+    @Override
+    public EmpresaModalidadDto eliminarModalidadPorUuid(String empresaUuid, String modalidadUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(modalidadUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros no es valido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la modalidad de la empresa con uuid [{}]", modalidadUuid);
+
+        EmpresaModalidad empresaModalidad = empresaModalidadRepository.findByUuidAndEliminadoFalse(modalidadUuid);
+        if(empresaModalidad == null) {
+            logger.info("No existe la modalidad a eliminar");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        empresaModalidad.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, empresaModalidad, usuarioDto.getId());
+        empresaModalidadRepository.save(empresaModalidad);
+        return daoToDtoConverter.convertDaoToDtoEmpresaModalidad(empresaModalidad);
+    }
 }

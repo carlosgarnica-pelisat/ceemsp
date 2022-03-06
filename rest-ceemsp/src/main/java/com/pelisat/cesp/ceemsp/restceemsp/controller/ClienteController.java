@@ -43,10 +43,10 @@ public class ClienteController {
         return clienteService.obtenerClientePorUuid(empresaUuid, clienteUuid, false);
     }
 
-    @PostMapping(value = EMPRESA_CLIENTES_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = EMPRESA_CLIENTES_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ClienteDto guardarClienteEmpresa(
             @RequestParam("archivo") MultipartFile archivo,
-            @RequestParam("escritura") String cliente,
+            @RequestParam("cliente") String cliente,
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid
     ) throws Exception {

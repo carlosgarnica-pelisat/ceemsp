@@ -374,41 +374,6 @@
               <div id="test-l-1" class="content">
                 <form [formGroup]="nuevoClienteForm">
                   <div class="row">
-                    <div class="col-sm-6">
-                      <label for="tipoPersona">
-                        <b>Tipo de persona *</b>
-                        <span
-                          *ngIf="nuevoClienteForm.controls['tipoPersona'].invalid && (nuevoClienteForm.controls['tipoPersona'].dirty || nuevoClienteForm.controls['tipoPersona'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <select id="tipoPersona" formControlName="tipoPersona" class="form-control">
-                        <option value="FISICA">Fisica</option>
-                        <option value="MORAL">Moral</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="rfc">
-                        <b>RFC *</b>
-                        <span
-                          *ngIf="nuevoClienteForm.controls['rfc'].invalid && (nuevoClienteForm.controls['rfc'].dirty || nuevoClienteForm.controls['rfc'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <input id="rfc" type="text" class="form-control" placeholder="Ej. XAXX010101AA0"
-                             formControlName="rfc" #rfc>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="fechaInicio">
-                        <b>Fecha Inicio *</b>
-                        <span
-                          *ngIf="nuevoClienteForm.controls['fechaInicio'].invalid && (nuevoClienteForm.controls['fechaInicio'].dirty || nuevoClienteForm.controls['fechaInicio'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <input id="fechaInicio" type="date" class="form-control" formControlName="fechaInicio"
-                             #fechaInicio>
-                    </div>
-                  </div>
-
-                  <div class="row">
                     <div class="col-sm-3">
                       <label for="nombreComercial">
                         <b>Nombre comercial * </b>
@@ -429,6 +394,41 @@
                       <input id="razonSocial" type="text" class="form-control"
                              placeholder="Ej. Empresa de seguridad S.A. de C.V." formControlName="razonSocial"
                              #razonSocial>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="tipoPersona">
+                        <b>Tipo de persona *</b>
+                        <span
+                          *ngIf="nuevoClienteForm.controls['tipoPersona'].invalid && (nuevoClienteForm.controls['tipoPersona'].dirty || nuevoClienteForm.controls['tipoPersona'].touched)"
+                          class="text-danger"> - Requerido</span>
+                      </label>
+                      <select id="tipoPersona" formControlName="tipoPersona" class="form-control">
+                        <option value="FISICA">Fisica</option>
+                        <option value="MORAL">Moral</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <label for="rfc">
+                        <b>RFC *</b>
+                        <span
+                          *ngIf="nuevoClienteForm.controls['rfc'].invalid && (nuevoClienteForm.controls['rfc'].dirty || nuevoClienteForm.controls['rfc'].touched)"
+                          class="text-danger"> - Requerido</span>
+                      </label>
+                      <input id="rfc" type="text" class="form-control" placeholder="Ej. XAXX010101AA0"
+                             formControlName="rfc" #rfc>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="fechaInicio">
+                        <b>Fecha Inicio *</b>
+                        <span
+                          *ngIf="nuevoClienteForm.controls['fechaInicio'].invalid && (nuevoClienteForm.controls['fechaInicio'].dirty || nuevoClienteForm.controls['fechaInicio'].touched)"
+                          class="text-danger"> - Requerido</span>
+                      </label>
+                      <input id="fechaInicio" type="date" class="form-control" formControlName="fechaInicio"
+                             #fechaInicio>
                     </div>
                     <div class="col-sm-3">
                       <label for="canes">

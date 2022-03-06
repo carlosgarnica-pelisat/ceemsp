@@ -34,11 +34,18 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
     private final UsuarioService usuarioService;
     private final ClienteRepository clienteRepository;
     private final TipoInfraestructuraService tipoInfraestructuraService;
+    private final EstadoService estadoService;
+    private final MunicipioService municipioService;
+    private final ColoniaService coloniaService;
+    private final LocalidadService localidadService;
+    private final CalleService calleService;
 
     @Autowired
     public ClienteDomicilioServiceImpl(ClienteDomicilioRepository clienteDomicilioRepository, DaoToDtoConverter daoToDtoConverter,
                                    DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper, UsuarioService usuarioService,
-                                   ClienteRepository clienteRepository, TipoInfraestructuraService tipoInfraestructuraService) {
+                                   ClienteRepository clienteRepository, TipoInfraestructuraService tipoInfraestructuraService,
+                                       EstadoService estadoService, MunicipioService municipioService, LocalidadService localidadService,
+                                   ColoniaService coloniaService, CalleService calleService) {
         this.clienteDomicilioRepository = clienteDomicilioRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
@@ -46,6 +53,11 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
         this.usuarioService = usuarioService;
         this.clienteRepository = clienteRepository;
         this.tipoInfraestructuraService = tipoInfraestructuraService;
+        this.estadoService = estadoService;
+        this.municipioService = municipioService;
+        this.localidadService = localidadService;
+        this.coloniaService = coloniaService;
+        this.calleService = calleService;
     }
 
     @Override
@@ -59,7 +71,16 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
 
         List<ClienteDomicilio> clienteDomicilios = clienteDomicilioRepository.getAllByClienteAndEliminadoFalse(clienteId);
 
-        return clienteDomicilios.stream().map(daoToDtoConverter::convertDaoToDtoClienteDomicilio).collect(Collectors.toList());
+        return clienteDomicilios.stream().map(cd -> {
+            ClienteDomicilioDto dto = daoToDtoConverter.convertDaoToDtoClienteDomicilio(cd);
+            dto.setCalleCatalogo(calleService.obtenerCallePorId(cd.getCalleCatalogo()));
+            dto.setColoniaCatalogo(coloniaService.obtenerColoniaPorId(cd.getColoniaCatalogo()));
+            dto.setLocalidadCatalogo(localidadService.obtenerLocalidadPorId(cd.getLocalidadCatalogo()));
+            dto.setMunicipioCatalogo(municipioService.obtenerMunicipioPorId(cd.getMunicipioCatalogo()));
+            dto.setEstadoCatalogo(estadoService.obtenerPorId(cd.getEstadoCatalogo()));
+            dto.setTipoInfraestructura(tipoInfraestructuraService.obtenerTipoInfraestructuraPorId(cd.getTipoInfraestructura()));
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -93,6 +114,17 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
             daoHelper.fulfillAuditorFields(true, c, usuario.getId());
             c.setCliente(cliente.getId());
             c.setTipoInfraestructura(m.getTipoInfraestructura().getId());
+            c.setEstadoCatalogo(m.getEstadoCatalogo().getId());
+            c.setMunicipioCatalogo(m.getMunicipioCatalogo().getId());
+            c.setLocalidadCatalogo(m.getLocalidadCatalogo().getId());
+            c.setColoniaCatalogo(m.getColoniaCatalogo().getId());
+            c.setCalleCatalogo(m.getCalleCatalogo().getId());
+
+            c.setDomicilio1(m.getCalleCatalogo().getNombre());
+            c.setDomicilio2(m.getColoniaCatalogo().getNombre());
+            c.setLocalidad(m.getLocalidadCatalogo().getNombre());
+            c.setDomicilio3(m.getMunicipioCatalogo().getNombre());
+            c.setEstado(m.getEstadoCatalogo().getNombre());
 
             return c;
         }).collect(Collectors.toList());

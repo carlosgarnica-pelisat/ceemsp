@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import Empresa from "../../../_models/Empresa";
 import {ToastService} from "../../../_services/toast.service";
 import {EmpresaService} from "../../../_services/empresa.service";
@@ -48,6 +48,12 @@ export class EmpresaDetallesComponent implements OnInit {
 
   formularioModalidad: boolean = false;
   formularioFormasEjecucion: boolean = false;
+
+  uuidModalidadTemporal: string;
+  uuidFormaEjecucionTemporal: string;
+
+  @ViewChild('eliminarModalidadModal') eliminarDomicilioModal: any;
+  @ViewChild('eliminarFormaEjecucionModal') eliminarFormaEjecucionModal: any;
 
   constructor(private toastService: ToastService, private empresaService: EmpresaService,
               private route: ActivatedRoute, private modalService: NgbModal,
@@ -113,20 +119,20 @@ export class EmpresaDetallesComponent implements OnInit {
     this.empresaModalidadForm = this.formBuilder.group({
       modalidad: ['', Validators.required],
       submodalidad: [''],
-      numeroRegistroFederal: [''],
+      numeroRegistroFederal: ['', Validators.maxLength(30)],
       fechaInicio: [''],
       fechaFin: ['']
     });
 
     this.empresaCreacionForm = this.formBuilder.group({
       tipoPersona: ['', Validators.required],
-      razonSocial: ['', Validators.required],
-      nombreComercial: ['', Validators.required],
-      rfc: ['', Validators.required],
-      curp: [''],
+      razonSocial: ['', [Validators.required, Validators.maxLength(100)]],
+      nombreComercial: ['', [Validators.required, Validators.maxLength(100)]],
+      rfc: ['', [Validators.required, Validators.minLength(12), Validators.maxLength(13)]],
+      curp: ['', [Validators.minLength(18), Validators.maxLength(18)]],
       sexo: [''],
-      correoElectronico: ['', Validators.required],
-      telefono: ['', Validators.required]
+      correoElectronico: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
+      telefono: ['', [Validators.required]]
     })
 
     this.empresaCambioStatusForm = this.formBuilder.group({
@@ -188,8 +194,24 @@ export class EmpresaDetallesComponent implements OnInit {
 
   seleccionarModalidad(event) {
     this.modalidad = this.modalidades.filter(m => m.uuid === event.value)[0];
+    let existeModalidad = this.empresaModalidades.filter(m => m.modalidad.uuid === event.value)[0];
+    if(existeModalidad !== undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta modalidad ya se encuentra registrada en la empresa. Favor de seleccionar otra",
+        ToastType.WARNING
+      );
+      this.modalidad = undefined;
+      return;
+    }
+
     if(this.modalidad.submodalidades.length > 0) {
       this.modalidad.tieneSubmodalidades = true;
+    } else {
+      this.modalidad.tieneSubmodalidades = false;
+      this.empresaModalidadForm.patchValue({
+        submodalidad: undefined
+      });
     }
   }
 
@@ -282,6 +304,17 @@ export class EmpresaDetallesComponent implements OnInit {
   }
 
   mostrarEditarEmpresaModal(modal) {
+    this.empresaCreacionForm.patchValue({
+      tipoPersona: this.empresa.tipoPersona,
+      nombreComercial: this.empresa.nombreComercial,
+      razonSocial: this.empresa.razonSocial,
+      rfc: this.empresa.rfc,
+      sexo: this.empresa.sexo,
+      curp: this.empresa.curp,
+      correoElectronico: this.empresa.correoElectronico,
+      telefono: this.empresa.telefono
+    })
+
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.modal.result.then((result) => {
@@ -319,8 +352,28 @@ export class EmpresaDetallesComponent implements OnInit {
       ToastType.INFO
     );
 
-    let formData: EmpresaModalidad = empresaModalidadForm.value;
+    let formData = empresaModalidadForm.value;
 
+    // Validando las fechas
+    if(formData.fechaInicio !== undefined && formData.fechaFin !== undefined) {
+      let fechaInicio = new Date(formData.fechaInicio);
+      let fechaFin = new Date(formData.fechaFin);
+      if(fechaInicio > fechaFin) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "La fecha de inicio es mayor que la del final",
+          ToastType.WARNING
+        )
+        return;
+      }
+    }
+
+    formData.modalidad = this.modalidad;
+    if(this.modalidad.tieneSubmodalidades) {
+      formData.submodalidad = this.modalidad.submodalidades.filter((x => x.uuid === formData.submodalidad))[0];
+    }
+
+    let empresaModalidad: EmpresaModalidad = formData;
     this.empresaService.guardarModalidad(this.uuid, formData).subscribe((data: EmpresaModalidad) => {
       this.toastService.showGenericToast(
         "Listo",
@@ -337,11 +390,49 @@ export class EmpresaDetallesComponent implements OnInit {
     })
   }
 
+  mostrarEliminarFormaEjecucionModal(uuid) {
+    this.uuidFormaEjecucionTemporal = uuid;
+    this.modalService.dismissAll();
+
+    this.modalService.open(this.eliminarFormaEjecucionModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  mostrarEliminarModalidadModal(uuid) {
+    this.uuidModalidadTemporal = uuid;
+    this.modalService.dismissAll();
+
+    this.modalService.open(this.eliminarDomicilioModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
   agregarFormaEjecucion(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `El formulario no ha sido completado`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let value: EmpresaFormaEjecucion = form.value;
+    let formasEjecucionExistentes = this.empresaFormasEjecucion.filter(x => x.formaEjecucion === value.formaEjecucion)
+
+    if(formasEjecucionExistentes.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta forma de ejecucion ya se encuentra registrada en la empresa",
         ToastType.WARNING
       );
       return;
@@ -353,18 +444,97 @@ export class EmpresaDetallesComponent implements OnInit {
       ToastType.INFO
     );
 
-    let value: EmpresaFormaEjecucion = form.value;
-
     this.empresaService.guardarFormaEjecucion(this.uuid, value).subscribe((data: EmpresaFormaEjecucion) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha guardado la forma de ejecucion con exito",
         ToastType.SUCCESS
-      )
+      );
+      window.location.reload();
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se ha podido guardar la forma de ejecucion. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  modificarEmpresa(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario es invalido. Favor de verificarlo",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos modificando la empresa",
+      ToastType.INFO
+    );
+
+    let formValue: Empresa = form.value;
+
+    this.empresaService.modificarEmpresa(this.empresa.uuid, formValue).subscribe((data: Empresa) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha actualizado la empresa con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido actualizar la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarFormaEjecucion() {
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos eliminando el domicilio",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarFormaEjecucion(this.uuid, this.uuidFormaEjecucionTemporal).subscribe((data: EmpresaFormaEjecucion) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se elimino la forma de ejecucion con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar la forma de ejecucion. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarModalidad() {
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos eliminando el domicilio",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarModalidad(this.uuid, this.uuidModalidadTemporal).subscribe((data: EmpresaModalidad) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el domicilio con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido elimimar el domicilio. Motivo: ${error}`,
         ToastType.ERROR
       );
     })

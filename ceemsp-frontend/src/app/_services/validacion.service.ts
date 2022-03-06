@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
 import ExisteEmpresa from "../_models/ExisteEmpresa";
+import ExisteVehiculo from "../_models/ExisteVehiculo";
+import ExistePersona from "../_models/ExistePersona";
 
 @Injectable({
   providedIn: 'root'
@@ -14,5 +16,13 @@ export class ValidacionService {
 
   validarEmpresa(existeEmpresa: ExisteEmpresa) {
     return this.http.post(`${this.uri}/validaciones/empresas`, existeEmpresa)
+  }
+
+  validarVehiculo(existeVehiculo: ExisteVehiculo) {
+    return this.http.post(`${this.uri}/validaciones/vehiculos`, existeVehiculo);
+  }
+
+  validarPersona(existePersona: ExistePersona) {
+    return this.http.post(`${this.uri}/validaciones/personas`, existePersona);
   }
 }

@@ -9,5 +9,7 @@ import lombok.Setter;
 public class EmpresaEscrituraRepresentanteDto {
     private String nombres;
     private String apellidos;
+    private String apellidoMaterno;
     private SexoEnum sexo;
+    private String curp;
 }

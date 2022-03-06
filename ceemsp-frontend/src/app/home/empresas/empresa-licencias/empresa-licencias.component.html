@@ -86,7 +86,7 @@
         <div class="col-sm-12" *ngIf="pestanaActual === 'DETALLES'">
           <table class="table">
             <tr>
-              <td><b>Numero de oficio:</b></td>
+              <td><b>Número de oficio:</b></td>
               <td>{{licencia?.numeroOficio}}</td>
             </tr>
             <tr>
@@ -112,7 +112,7 @@
             <tr>
               <td><b>ID</b></td>
               <td><b>Nombre</b></td>
-              <td><b>Direccion</b></td>
+              <td><b>Dirección</b></td>
               <td><b>Estado</b></td>
               <td><b>C.P.</b></td>
               <td><b>Acciones</b></td>
@@ -135,7 +135,7 @@
                       <div class="form-row">
                         <div class="col-sm-6">
                           <label for="direccion">
-                            <b>Direccion *</b>
+                            <b>Dirección *</b>
                           </label>
                           <select id="direccion" class="form-control" formControlName="direccion">
                             <option *ngFor="let d of domicilios" value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1 + " " + d.numeroExterior + " " + d.numeroInterior}}</option>
@@ -156,7 +156,7 @@
             </tr>
             <tr *ngIf="!showDireccionForm">
               <td colspan="6">
-                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaDireccion()">Agregar direccion</button>
+                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaDireccion()">Agregar dirección</button>
               </td>
             </tr>
           </table>
@@ -348,7 +348,7 @@
             <div class="form-row">
               <div class="col-sm-4">
                 <label for="numeroOficio">
-                  <b>Numero de oficio *</b>
+                  <b>Número de oficio *</b>
                   <span *ngIf="crearEmpresaLicenciaForm.controls['numeroOficio'].invalid && (crearEmpresaLicenciaForm.controls['numeroOficio'].dirty || crearEmpresaLicenciaForm.controls['numeroOficio'].touched)" class="text-danger"> - Requerido</span>
                 </label>
                 <input id="numeroOficio" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroOficio" #numeroOficio>

@@ -21,6 +21,15 @@ public class ClienteDomicilio extends CommonModel {
     @Column(name = "DOMICILIO_1", nullable = false)
     private String domicilio1;
 
+    @Column(name = "NUMERO_EXTERIOR", nullable = false)
+    private String numeroExterior;
+
+    @Column(name = "NUMERO_INTERIOR")
+    private String numeroInterior;
+
+    @Column(name = "LOCALIDAD", nullable = false)
+    private String localidad;
+
     @Column(name = "DOMICILIO_2", nullable = false)
     private String domicilio2;
 
@@ -59,4 +68,19 @@ public class ClienteDomicilio extends CommonModel {
 
     @Column(name = "TIPO_INFRAESTRUCTURA_OTRO")
     private String tipoInfraestructuraOtro;
+
+    @Column(name = "ESTADO_CATALOGO", nullable = false)
+    private int estadoCatalogo;
+
+    @Column(name = "CALLE_CATALOGO", nullable = false)
+    private int calleCatalogo;
+
+    @Column(name = "COLONIA_CATALOGO", nullable = false)
+    private int coloniaCatalogo;
+
+    @Column(name = "MUNICIPIO_CATALOGO", nullable = false)
+    private int municipioCatalogo;
+
+    @Column(name = "LOCALIDAD_CATALOGO", nullable = false)
+    private int localidadCatalogo;
 }

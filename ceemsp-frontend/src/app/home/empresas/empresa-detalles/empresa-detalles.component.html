@@ -12,11 +12,11 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" (click)="mostrarModalModalidades(mostrarModalidadesModal)">Ver modalidades</a>
-          <a class="dropdown-item" (click)="mostrarModalFormasEjecucion(mostrarFormasEjecucionModal)">Ver formas de ejecucion</a>
-          <a class="dropdown-item" (click)="mostrarModalCrearUsuario(crearUsuarioModal)">Agregar o modificar usuario</a>
-          <a class="dropdown-item" (click)="mostrarModalCambioInicioSesion(crearUsuarioModal)">Cambiar datos de inicio de sesion</a> <!-- TODO: CAMBIAR EL MODAL -->
-          <a class="dropdown-item" (click)="mostrarModalCambiarStatus(editarStatusModal)">Cambiar status / Eliminar</a>
+          <a class="dropdown-item" (click)="mostrarModalModalidades(mostrarModalidadesModal)" style="cursor: pointer;">Ver modalidades</a>
+          <a class="dropdown-item" (click)="mostrarModalFormasEjecucion(mostrarFormasEjecucionModal)" style="cursor: pointer;">Ver formas de ejecucion</a>
+          <a class="dropdown-item" (click)="mostrarModalCrearUsuario(crearUsuarioModal)" style="cursor: pointer;">Agregar o modificar usuario</a>
+          <a class="dropdown-item" (click)="mostrarModalCambioInicioSesion(crearUsuarioModal)" style="cursor: pointer;">Cambiar datos de inicio de sesion</a> <!-- TODO: CAMBIAR EL MODAL -->
+          <a class="dropdown-item" (click)="mostrarModalCambiarStatus(editarStatusModal)" style="cursor: pointer;">Cambiar status / Eliminar</a>
         </div>
       </div>
     </div>
@@ -418,7 +418,8 @@
                   <b>Razon Social *</b>
                   <span
                     *ngIf="empresaCreacionForm.controls['razonSocial'].invalid && (empresaCreacionForm.controls['razonSocial'].dirty || empresaCreacionForm.controls['razonSocial'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['razonSocial'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['razonSocial'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['razonSocial'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
                 </label>
                 <input class="form-control" id="razonSocial" type="text" formControlName="razonSocial" placeholder="Ejemplo. Hola S.A. de C.V.">
@@ -428,7 +429,8 @@
                   <b>Nombre comercial *</b>
                   <span
                     *ngIf="empresaCreacionForm.controls['nombreComercial'].invalid && (empresaCreacionForm.controls['nombreComercial'].dirty || empresaCreacionForm.controls['nombreComercial'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['nombreComercial'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['nombreComercial'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['nombreComercial'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
                 </label>
                 <input class="form-control" id="nombreComercial" type="text" formControlName="nombreComercial" placeholder="Ejemplo. Hola Empresa">
@@ -455,7 +457,7 @@
                   <b>Tipo de persona *</b>
                   <span
                     *ngIf="empresaCreacionForm.controls['tipoPersona'].invalid && (empresaCreacionForm.controls['tipoPersona'].dirty || empresaCreacionForm.controls['tipoPersona'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['tipoPersona'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['tipoPersona'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                 </label>
                 <select id="tipoPersona" class="form-control" formControlName="tipoPersona" (change)="cambiarTipoPersona($event.target)">
@@ -468,7 +470,9 @@
                   <b>RFC *</b>
                   <span
                     *ngIf="empresaCreacionForm.controls['rfc'].invalid && (empresaCreacionForm.controls['rfc'].dirty || empresaCreacionForm.controls['rfc'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['rfc'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['rfc'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['rfc'].errors.minlength" class="text-danger"> - Faltan caracteres </i>
+                      <i *ngIf="empresaCreacionForm.controls['rfc'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
                 </label>
                 <input class="form-control" id="rfc" type="text" formControlName="rfc" placeholder="Ejemplo. XAXX010101AAA">
@@ -478,20 +482,22 @@
                   <b>Correo principal *</b>
                   <span
                     *ngIf="empresaCreacionForm.controls['correoElectronico'].invalid && (empresaCreacionForm.controls['correoElectronico'].dirty || empresaCreacionForm.controls['correoElectronico'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['correoElectronico'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['correoElectronico'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['correoElectronico'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                      <i *ngIf="empresaCreacionForm.controls['correoElectronico'].errors.email" class="text-danger"> - No es un email</i>
                     </span>
                 </label>
-                <input class="form-control" id="correoElectronico" type="text" formControlName="correoElectronico" placeholder="Ejemplo hola@hola.com">
+                <input class="form-control" id="correoElectronico" type="email" formControlName="correoElectronico" placeholder="Ejemplo hola@hola.com">
               </div>
               <div class="col-sm-3">
                 <label for="telefono">
                   <b>Telefono *</b>
                   <span
                     *ngIf="empresaCreacionForm.controls['telefono'].invalid && (empresaCreacionForm.controls['telefono'].dirty || empresaCreacionForm.controls['telefono'].touched)">
-                      <i *ngIf="empresaCreacionForm.controls['telefono'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['telefono'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                 </label>
-                <input class="form-control" id="telefono" type="text" formControlName="telefono" placeholder="Ejemplo 3312345678">
+                <input class="form-control" id="telefono" type="text" formControlName="telefono" placeholder="Ejemplo 3312345678" appPhoneMask>
               </div>
             </div>
           </form>
@@ -499,7 +505,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Guardar cambios</button>
+      <button type="button" class="btn btn-primary" (click)="modificarEmpresa(empresaCreacionForm)">Guardar cambios</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
@@ -527,7 +533,7 @@
                 <span *ngSwitchCase="'TECNOLOGIA'">Con apoyo de tecnologia</span>
               </td>
               <td>
-                <fa-icon [icon]="faTrash"></fa-icon>
+                <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarEliminarFormaEjecucionModal(fe?.uuid)"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="!formularioFormasEjecucion">
@@ -610,8 +616,7 @@
                 <span *ngIf="m.fechaFin === null">NA</span>
               </td>
               <td>
-                <fa-icon [icon]="faPencil"></fa-icon>
-                <fa-icon [icon]="faTrash"></fa-icon>
+                <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarEliminarModalidadModal(m?.uuid)"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="!formularioModalidad">
@@ -647,12 +652,13 @@
                         <div class="col-sm-3" *ngIf="modalidad?.tipo === 'EAFJAL'">
                           <label for="numeroRegistroFederal">
                             <b>No. de Registro Federal</b>
+                            <span
+                              *ngIf="empresaModalidadForm.controls['numeroRegistroFederal'].invalid && (empresaModalidadForm.controls['numeroRegistroFederal'].dirty || empresaModalidadForm.controls['numeroRegistroFederal'].touched)">
+                                <i *ngIf="empresaModalidadForm.controls['numeroRegistroFederal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                              </span>
                           </label>
                           <input class="form-control" id="numeroRegistroFederal" type="text" formControlName="numeroRegistroFederal" placeholder="Ejemplo. 156861215">
                         </div>
-                      </div>
-
-                      <div class="form-row">
                         <div class="col-sm-3" *ngIf="modalidad?.tipo === 'EAFJAL'">
                           <label for="fechaInicio">
                             <b>Fecha de Inicio</b>
@@ -672,7 +678,7 @@
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button class="btn btn-sm btn-success" (click)="agregarModalidad(formularioModalidad)">Guardar cambios</button>
+                    <button class="btn btn-sm btn-success" (click)="agregarModalidad(empresaModalidadForm)">Guardar cambios</button>
                     <button class="btn btn-sm btn-danger" (click)="ocultarFormularioModalidad()">Cancelar</button>
                   </div>
                 </div>
@@ -686,4 +692,45 @@
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
+
+  <ng-template #eliminarModalidadModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarDomicilioModal">Eliminando la modalidad </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar una modalidad. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarModalidad()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarFormaEjecucionModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarFormaEjecucionModal">Eliminando la forma de ejecucion </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar una forma de ejecucion. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarFormaEjecucion()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
 </div>

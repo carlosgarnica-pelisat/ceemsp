@@ -1,0 +1,955 @@
+UPDATE Existencias SET Existencias = ﻿8 WHERE OrdenEntrada = 883;
+UPDATE Existencias SET Existencias = 33.5 WHERE OrdenEntrada = 6261;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 5348;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 5345;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 5340;
+UPDATE Existencias SET Existencias = 96 WHERE OrdenEntrada = 2773;
+UPDATE Existencias SET Existencias = 8 WHERE OrdenEntrada = 5346;
+UPDATE Existencias SET Existencias = 76 WHERE OrdenEntrada = 6196;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 5344;
+UPDATE Existencias SET Existencias = 226.3 WHERE OrdenEntrada = 2462;
+UPDATE Existencias SET Existencias = 8 WHERE OrdenEntrada = 2809;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 5385;
+UPDATE Existencias SET Existencias = 61.5 WHERE OrdenEntrada = 120;
+UPDATE Existencias SET Existencias = 3.5 WHERE OrdenEntrada = 5341;
+UPDATE Existencias SET Existencias = 6 WHERE OrdenEntrada = 5360;
+UPDATE Existencias SET Existencias = 1.4 WHERE OrdenEntrada = 5359;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 5343;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 5342;
+UPDATE Existencias SET Existencias = 68 WHERE OrdenEntrada = 2762;
+UPDATE Existencias SET Existencias = 10 WHERE OrdenEntrada = 2741;
+UPDATE Existencias SET Existencias = 29 WHERE OrdenEntrada = 6197;
+UPDATE Existencias SET Existencias = 32 WHERE OrdenEntrada = 138;
+UPDATE Existencias SET Existencias = 64.7 WHERE OrdenEntrada = 5314;
+UPDATE Existencias SET Existencias = 86 WHERE OrdenEntrada = 6176;
+UPDATE Existencias SET Existencias = 14.15 WHERE OrdenEntrada = 5499;
+UPDATE Existencias SET Existencias = 4.89 WHERE OrdenEntrada = 5496;
+UPDATE Existencias SET Existencias = 26.78 WHERE OrdenEntrada = 4147;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 6839;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 6385;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6706;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6752;
+UPDATE Existencias SET Existencias = 0.07 WHERE OrdenEntrada = 6256;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6645;
+UPDATE Existencias SET Existencias = 0.68 WHERE OrdenEntrada = 6292;
+UPDATE Existencias SET Existencias = 2.7 WHERE OrdenEntrada = 5033;
+UPDATE Existencias SET Existencias = 10 WHERE OrdenEntrada = 6316;
+UPDATE Existencias SET Existencias = 19 WHERE OrdenEntrada = 5316;
+UPDATE Existencias SET Existencias = 21 WHERE OrdenEntrada = 6580;
+UPDATE Existencias SET Existencias = 24 WHERE OrdenEntrada = 6295;
+UPDATE Existencias SET Existencias = 104 WHERE OrdenEntrada = 6783;
+UPDATE Existencias SET Existencias = 9.554 WHERE OrdenEntrada = 4787;
+UPDATE Existencias SET Existencias = 4.28 WHERE OrdenEntrada = 4030;
+UPDATE Existencias SET Existencias = 1.6 WHERE OrdenEntrada = 4455;
+UPDATE Existencias SET Existencias = 5.6 WHERE OrdenEntrada = 3906;
+UPDATE Existencias SET Existencias = 88 WHERE OrdenEntrada = 6951;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 6758;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 6396;
+UPDATE Existencias SET Existencias = 1.015 WHERE OrdenEntrada = 6922;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 2256;
+UPDATE Existencias SET Existencias = 9 WHERE OrdenEntrada = 6358;
+UPDATE Existencias SET Existencias = 50.75 WHERE OrdenEntrada = 6945;
+UPDATE Existencias SET Existencias = 2.05 WHERE OrdenEntrada = 4853;
+UPDATE Existencias SET Existencias = 4.27 WHERE OrdenEntrada = 5895;
+UPDATE Existencias SET Existencias = 3.5 WHERE OrdenEntrada = 5277;
+UPDATE Existencias SET Existencias = 23.7 WHERE OrdenEntrada = 6855;
+UPDATE Existencias SET Existencias = 17.75 WHERE OrdenEntrada = 3910;
+UPDATE Existencias SET Existencias = 6 WHERE OrdenEntrada = 6700;
+UPDATE Existencias SET Existencias = 1.5 WHERE OrdenEntrada = 6293;
+UPDATE Existencias SET Existencias = 5.55 WHERE OrdenEntrada = 1703;
+UPDATE Existencias SET Existencias = 6.5 WHERE OrdenEntrada = 3909;
+UPDATE Existencias SET Existencias = 22.15 WHERE OrdenEntrada = 5253;
+UPDATE Existencias SET Existencias = 10.9 WHERE OrdenEntrada = 5320;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 5405;
+UPDATE Existencias SET Existencias = 8.95 WHERE OrdenEntrada = 6114;
+UPDATE Existencias SET Existencias = 12.55 WHERE OrdenEntrada = 6248;
+UPDATE Existencias SET Existencias = 4.9 WHERE OrdenEntrada = 6279;
+UPDATE Existencias SET Existencias = 7.75 WHERE OrdenEntrada = 6345;
+UPDATE Existencias SET Existencias = 3.84 WHERE OrdenEntrada = 6311;
+UPDATE Existencias SET Existencias = 5.49 WHERE OrdenEntrada = 6887;
+UPDATE Existencias SET Existencias = 4.86 WHERE OrdenEntrada = 6317;
+UPDATE Existencias SET Existencias = 2.7 WHERE OrdenEntrada = 4346;
+UPDATE Existencias SET Existencias = 5.1 WHERE OrdenEntrada = 5313;
+UPDATE Existencias SET Existencias = 0.6 WHERE OrdenEntrada = 4936;
+UPDATE Existencias SET Existencias = 14.63 WHERE OrdenEntrada = 5193;
+UPDATE Existencias SET Existencias = 1.1 WHERE OrdenEntrada = 5541;
+UPDATE Existencias SET Existencias = 3.05 WHERE OrdenEntrada = 5319;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 4342;
+UPDATE Existencias SET Existencias = 4.525 WHERE OrdenEntrada = 6175;
+UPDATE Existencias SET Existencias = 925 WHERE OrdenEntrada = 5995;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 6135;
+UPDATE Existencias SET Existencias = 0.4 WHERE OrdenEntrada = 5527;
+UPDATE Existencias SET Existencias = 10 WHERE OrdenEntrada = 5339;
+UPDATE Existencias SET Existencias = 1849 WHERE OrdenEntrada = 6319;
+UPDATE Existencias SET Existencias = 1476 WHERE OrdenEntrada = 6704;
+UPDATE Existencias SET Existencias = 2080 WHERE OrdenEntrada = 5653;
+UPDATE Existencias SET Existencias = 180 WHERE OrdenEntrada = 6852;
+UPDATE Existencias SET Existencias = 400 WHERE OrdenEntrada = 6574;
+UPDATE Existencias SET Existencias = 243 WHERE OrdenEntrada = 5669;
+UPDATE Existencias SET Existencias = 600 WHERE OrdenEntrada = 6851;
+UPDATE Existencias SET Existencias = 300 WHERE OrdenEntrada = 5670;
+UPDATE Existencias SET Existencias = 1082 WHERE OrdenEntrada = 6853;
+UPDATE Existencias SET Existencias = 4459 WHERE OrdenEntrada = 6572;
+UPDATE Existencias SET Existencias = 1541 WHERE OrdenEntrada = 6573;
+UPDATE Existencias SET Existencias = 780 WHERE OrdenEntrada = 5947;
+UPDATE Existencias SET Existencias = 780 WHERE OrdenEntrada = 6705;
+UPDATE Existencias SET Existencias = 1040 WHERE OrdenEntrada = 6353;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 6913;
+UPDATE Existencias SET Existencias = 25 WHERE OrdenEntrada = 6914;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 5679;
+UPDATE Existencias SET Existencias = 750 WHERE OrdenEntrada = 5739;
+UPDATE Existencias SET Existencias = 2000 WHERE OrdenEntrada = 6829;
+UPDATE Existencias SET Existencias = 5800 WHERE OrdenEntrada = 5945;
+UPDATE Existencias SET Existencias = 94 WHERE OrdenEntrada = 5697;
+UPDATE Existencias SET Existencias = 25 WHERE OrdenEntrada = 5052;
+UPDATE Existencias SET Existencias = 1000 WHERE OrdenEntrada = 6588;
+UPDATE Existencias SET Existencias = 588 WHERE OrdenEntrada = 6571;
+UPDATE Existencias SET Existencias = 25 WHERE OrdenEntrada = 5051;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 6912;
+UPDATE Existencias SET Existencias = 1000 WHERE OrdenEntrada = 5682;
+UPDATE Existencias SET Existencias = 4900 WHERE OrdenEntrada = 5977;
+UPDATE Existencias SET Existencias = 750 WHERE OrdenEntrada = 6146;
+UPDATE Existencias SET Existencias = 750 WHERE OrdenEntrada = 6145;
+UPDATE Existencias SET Existencias = 20 WHERE OrdenEntrada = 6946;
+UPDATE Existencias SET Existencias = 10 WHERE OrdenEntrada = 6607;
+UPDATE Existencias SET Existencias = 0.05 WHERE OrdenEntrada = 6109;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 5160;
+UPDATE Existencias SET Existencias = 50 WHERE OrdenEntrada = 5440;
+UPDATE Existencias SET Existencias = 45.94 WHERE OrdenEntrada = 4708;
+UPDATE Existencias SET Existencias = 47.75 WHERE OrdenEntrada = 6381;
+UPDATE Existencias SET Existencias = 180 WHERE OrdenEntrada = 5826;
+UPDATE Existencias SET Existencias = 7.7 WHERE OrdenEntrada = 4432;
+UPDATE Existencias SET Existencias = 197.8 WHERE OrdenEntrada = 5725;
+UPDATE Existencias SET Existencias = 7.9 WHERE OrdenEntrada = 3686;
+UPDATE Existencias SET Existencias = 12 WHERE OrdenEntrada = 6812;
+UPDATE Existencias SET Existencias = 360 WHERE OrdenEntrada = 4647;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 5559;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 5561;
+UPDATE Existencias SET Existencias = 10 WHERE OrdenEntrada = 4156;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5560;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 5562;
+UPDATE Existencias SET Existencias = 33.5 WHERE OrdenEntrada = 3738;
+UPDATE Existencias SET Existencias = 200 WHERE OrdenEntrada = 6663;
+UPDATE Existencias SET Existencias = 200 WHERE OrdenEntrada = 6586;
+UPDATE Existencias SET Existencias = 3737.5 WHERE OrdenEntrada = 6399;
+UPDATE Existencias SET Existencias = 247 WHERE OrdenEntrada = 5862;
+UPDATE Existencias SET Existencias = 17 WHERE OrdenEntrada = 6322;
+UPDATE Existencias SET Existencias = 21.95 WHERE OrdenEntrada = 4864;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6375;
+UPDATE Existencias SET Existencias = 20 WHERE OrdenEntrada = 6324;
+UPDATE Existencias SET Existencias = 28.39 WHERE OrdenEntrada = 6374;
+UPDATE Existencias SET Existencias = 50 WHERE OrdenEntrada = 5451;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 5553;
+UPDATE Existencias SET Existencias = 12.795 WHERE OrdenEntrada = 4244;
+UPDATE Existencias SET Existencias = 173.75 WHERE OrdenEntrada = 6356;
+UPDATE Existencias SET Existencias = 9.86 WHERE OrdenEntrada = 4504;
+UPDATE Existencias SET Existencias = 20 WHERE OrdenEntrada = 4375;
+UPDATE Existencias SET Existencias = 45 WHERE OrdenEntrada = 5850;
+UPDATE Existencias SET Existencias = 50 WHERE OrdenEntrada = 6325;
+UPDATE Existencias SET Existencias = 4.2 WHERE OrdenEntrada = 4849;
+UPDATE Existencias SET Existencias = 1000 WHERE OrdenEntrada = 6965;
+UPDATE Existencias SET Existencias = 784.75 WHERE OrdenEntrada = 6698;
+UPDATE Existencias SET Existencias = 437 WHERE OrdenEntrada = 5980;
+UPDATE Existencias SET Existencias = 74 WHERE OrdenEntrada = 2187;
+UPDATE Existencias SET Existencias = 201.62 WHERE OrdenEntrada = 5454;
+UPDATE Existencias SET Existencias = 16 WHERE OrdenEntrada = 5951;
+UPDATE Existencias SET Existencias = 14.065 WHERE OrdenEntrada = 6376;
+UPDATE Existencias SET Existencias = 60.949 WHERE OrdenEntrada = 4192;
+UPDATE Existencias SET Existencias = 23.2 WHERE OrdenEntrada = 4487;
+UPDATE Existencias SET Existencias = 4.5 WHERE OrdenEntrada = 4194;
+UPDATE Existencias SET Existencias = 19.44 WHERE OrdenEntrada = 6229;
+UPDATE Existencias SET Existencias = 60 WHERE OrdenEntrada = 6825;
+UPDATE Existencias SET Existencias = 500 WHERE OrdenEntrada = 6903;
+UPDATE Existencias SET Existencias = 49.3 WHERE OrdenEntrada = 5859;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 5776;
+UPDATE Existencias SET Existencias = 40 WHERE OrdenEntrada = 6788;
+UPDATE Existencias SET Existencias = 2.254 WHERE OrdenEntrada = 4431;
+UPDATE Existencias SET Existencias = 34 WHERE OrdenEntrada = 6776;
+UPDATE Existencias SET Existencias = 220 WHERE OrdenEntrada = 6598;
+UPDATE Existencias SET Existencias = 297 WHERE OrdenEntrada = 6378;
+UPDATE Existencias SET Existencias = 25 WHERE OrdenEntrada = 4767;
+UPDATE Existencias SET Existencias = 29 WHERE OrdenEntrada = 6927;
+UPDATE Existencias SET Existencias = 10 WHERE OrdenEntrada = 6129;
+UPDATE Existencias SET Existencias = 284 WHERE OrdenEntrada = 5996;
+UPDATE Existencias SET Existencias = 3000 WHERE OrdenEntrada = 6830;
+UPDATE Existencias SET Existencias = 3000 WHERE OrdenEntrada = 6973;
+UPDATE Existencias SET Existencias = 50 WHERE OrdenEntrada = 4966;
+UPDATE Existencias SET Existencias = 1489 WHERE OrdenEntrada = 6596;
+UPDATE Existencias SET Existencias = 3000 WHERE OrdenEntrada = 6902;
+UPDATE Existencias SET Existencias = 3.983 WHERE OrdenEntrada = 4503;
+UPDATE Existencias SET Existencias = 7.8 WHERE OrdenEntrada = 4851;
+UPDATE Existencias SET Existencias = 56.5 WHERE OrdenEntrada = 6626;
+UPDATE Existencias SET Existencias = 200 WHERE OrdenEntrada = 6966;
+UPDATE Existencias SET Existencias = 42.93 WHERE OrdenEntrada = 5643;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 5974;
+UPDATE Existencias SET Existencias = 300 WHERE OrdenEntrada = 5984;
+UPDATE Existencias SET Existencias = 350 WHERE OrdenEntrada = 5740;
+UPDATE Existencias SET Existencias = 800 WHERE OrdenEntrada = 6652;
+UPDATE Existencias SET Existencias = 19 WHERE OrdenEntrada = 6938;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 6346;
+UPDATE Existencias SET Existencias = 357 WHERE OrdenEntrada = 6625;
+UPDATE Existencias SET Existencias = 180 WHERE OrdenEntrada = 6939;
+UPDATE Existencias SET Existencias = 21.5 WHERE OrdenEntrada = 6360;
+UPDATE Existencias SET Existencias = 343.5 WHERE OrdenEntrada = 4856;
+UPDATE Existencias SET Existencias = 1035 WHERE OrdenEntrada = 6762;
+UPDATE Existencias SET Existencias = 10 WHERE OrdenEntrada = 5694;
+UPDATE Existencias SET Existencias = 24 WHERE OrdenEntrada = 3360;
+UPDATE Existencias SET Existencias = 19.775 WHERE OrdenEntrada = 4002;
+UPDATE Existencias SET Existencias = 14.6 WHERE OrdenEntrada = 4644;
+UPDATE Existencias SET Existencias = 70 WHERE OrdenEntrada = 5741;
+UPDATE Existencias SET Existencias = 200 WHERE OrdenEntrada = 6267;
+UPDATE Existencias SET Existencias = 69.33 WHERE OrdenEntrada = 5978;
+UPDATE Existencias SET Existencias = 500 WHERE OrdenEntrada = 6816;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5448;
+UPDATE Existencias SET Existencias = 64.3 WHERE OrdenEntrada = 3565;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 4721;
+UPDATE Existencias SET Existencias = 4.384 WHERE OrdenEntrada = 4646;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 5842;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 6131;
+UPDATE Existencias SET Existencias = 2.55 WHERE OrdenEntrada = 334;
+UPDATE Existencias SET Existencias = 25 WHERE OrdenEntrada = 5177;
+UPDATE Existencias SET Existencias = 1.04 WHERE OrdenEntrada = 5745;
+UPDATE Existencias SET Existencias = 50 WHERE OrdenEntrada = 6144;
+UPDATE Existencias SET Existencias = 5.7 WHERE OrdenEntrada = 4840;
+UPDATE Existencias SET Existencias = 550 WHERE OrdenEntrada = 5166;
+UPDATE Existencias SET Existencias = 1000 WHERE OrdenEntrada = 5775;
+UPDATE Existencias SET Existencias = 1000 WHERE OrdenEntrada = 6463;
+UPDATE Existencias SET Existencias = 9 WHERE OrdenEntrada = 5822;
+UPDATE Existencias SET Existencias = 711.75 WHERE OrdenEntrada = 6682;
+UPDATE Existencias SET Existencias = 1000 WHERE OrdenEntrada = 6924;
+UPDATE Existencias SET Existencias = 6.44 WHERE OrdenEntrada = 1108;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 247;
+UPDATE Existencias SET Existencias = 73.165 WHERE OrdenEntrada = 5676;
+UPDATE Existencias SET Existencias = 8.985 WHERE OrdenEntrada = 6780;
+UPDATE Existencias SET Existencias = 44 WHERE OrdenEntrada = 6781;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 6815;
+UPDATE Existencias SET Existencias = 380.85 WHERE OrdenEntrada = 1128;
+UPDATE Existencias SET Existencias = 6.39 WHERE OrdenEntrada = 1151;
+UPDATE Existencias SET Existencias = 10 WHERE OrdenEntrada = 6593;
+UPDATE Existencias SET Existencias = 38.985 WHERE OrdenEntrada = 6592;
+UPDATE Existencias SET Existencias = 50 WHERE OrdenEntrada = 6723;
+UPDATE Existencias SET Existencias = 70 WHERE OrdenEntrada = 6721;
+UPDATE Existencias SET Existencias = 14 WHERE OrdenEntrada = 1406;
+UPDATE Existencias SET Existencias = 9.19 WHERE OrdenEntrada = 6640;
+UPDATE Existencias SET Existencias = 140.93 WHERE OrdenEntrada = 5505;
+UPDATE Existencias SET Existencias = 97 WHERE OrdenEntrada = 5675;
+UPDATE Existencias SET Existencias = 7.904 WHERE OrdenEntrada = 5668;
+UPDATE Existencias SET Existencias = 20 WHERE OrdenEntrada = 5991;
+UPDATE Existencias SET Existencias = 20 WHERE OrdenEntrada = 6726;
+UPDATE Existencias SET Existencias = 60 WHERE OrdenEntrada = 6923;
+UPDATE Existencias SET Existencias = 5.975 WHERE OrdenEntrada = 5500;
+UPDATE Existencias SET Existencias = 8 WHERE OrdenEntrada = 6320;
+UPDATE Existencias SET Existencias = 1620 WHERE OrdenEntrada = 6619;
+UPDATE Existencias SET Existencias = 455.93 WHERE OrdenEntrada = 5674;
+UPDATE Existencias SET Existencias = 1.64 WHERE OrdenEntrada = 3735;
+UPDATE Existencias SET Existencias = 10.9 WHERE OrdenEntrada = 2601;
+UPDATE Existencias SET Existencias = 0.278 WHERE OrdenEntrada = 5841;
+UPDATE Existencias SET Existencias = 79.988 WHERE OrdenEntrada = 6724;
+UPDATE Existencias SET Existencias = 399.73 WHERE OrdenEntrada = 1112;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 6595;
+UPDATE Existencias SET Existencias = 80 WHERE OrdenEntrada = 6980;
+UPDATE Existencias SET Existencias = 111.8 WHERE OrdenEntrada = 2263;
+UPDATE Existencias SET Existencias = 40.8 WHERE OrdenEntrada = 4618;
+UPDATE Existencias SET Existencias = 39.75 WHERE OrdenEntrada = 6729;
+UPDATE Existencias SET Existencias = 22.1 WHERE OrdenEntrada = 4279;
+UPDATE Existencias SET Existencias = 92 WHERE OrdenEntrada = 6321;
+UPDATE Existencias SET Existencias = 46 WHERE OrdenEntrada = 5965;
+UPDATE Existencias SET Existencias = 97.94 WHERE OrdenEntrada = 6789;
+UPDATE Existencias SET Existencias = 59.457 WHERE OrdenEntrada = 6328;
+UPDATE Existencias SET Existencias = 37.36 WHERE OrdenEntrada = 6759;
+UPDATE Existencias SET Existencias = 12 WHERE OrdenEntrada = 3719;
+UPDATE Existencias SET Existencias = 2.05 WHERE OrdenEntrada = 6925;
+UPDATE Existencias SET Existencias = 24.7 WHERE OrdenEntrada = 4852;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 5979;
+UPDATE Existencias SET Existencias = 16.23 WHERE OrdenEntrada = 6589;
+UPDATE Existencias SET Existencias = 25 WHERE OrdenEntrada = 6330;
+UPDATE Existencias SET Existencias = 20.218 WHERE OrdenEntrada = 4773;
+UPDATE Existencias SET Existencias = 11.6 WHERE OrdenEntrada = 6693;
+UPDATE Existencias SET Existencias = 6 WHERE OrdenEntrada = 5888;
+UPDATE Existencias SET Existencias = 2575 WHERE OrdenEntrada = 6355;
+UPDATE Existencias SET Existencias = 75 WHERE OrdenEntrada = 6773;
+UPDATE Existencias SET Existencias = 9 WHERE OrdenEntrada = 6701;
+UPDATE Existencias SET Existencias = 75 WHERE OrdenEntrada = 6703;
+UPDATE Existencias SET Existencias = 77 WHERE OrdenEntrada = 5941;
+UPDATE Existencias SET Existencias = 49.1 WHERE OrdenEntrada = 5930;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 5445;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 6775;
+UPDATE Existencias SET Existencias = 5.5 WHERE OrdenEntrada = 5966;
+UPDATE Existencias SET Existencias = 500 WHERE OrdenEntrada = 6979;
+UPDATE Existencias SET Existencias = 25 WHERE OrdenEntrada = 6876;
+UPDATE Existencias SET Existencias = 20.47 WHERE OrdenEntrada = 4691;
+UPDATE Existencias SET Existencias = 6.7 WHERE OrdenEntrada = 4466;
+UPDATE Existencias SET Existencias = 25 WHERE OrdenEntrada = 5493;
+UPDATE Existencias SET Existencias = 50 WHERE OrdenEntrada = 5864;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 6628;
+UPDATE Existencias SET Existencias = 58 WHERE OrdenEntrada = 3462;
+UPDATE Existencias SET Existencias = 28 WHERE OrdenEntrada = 3461;
+UPDATE Existencias SET Existencias = 12 WHERE OrdenEntrada = 3460;
+UPDATE Existencias SET Existencias = 27.75 WHERE OrdenEntrada = 5730;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 4683;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 6727;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 5275;
+UPDATE Existencias SET Existencias = 60 WHERE OrdenEntrada = 6653;
+UPDATE Existencias SET Existencias = 14.5 WHERE OrdenEntrada = 6323;
+UPDATE Existencias SET Existencias = 12.6 WHERE OrdenEntrada = 3712;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 6890;
+UPDATE Existencias SET Existencias = 10 WHERE OrdenEntrada = 6654;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 4861;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 5889;
+UPDATE Existencias SET Existencias = 1.35 WHERE OrdenEntrada = 4768;
+UPDATE Existencias SET Existencias = 10 WHERE OrdenEntrada = 6133;
+UPDATE Existencias SET Existencias = 89.1 WHERE OrdenEntrada = 6937;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 5095;
+UPDATE Existencias SET Existencias = 47 WHERE OrdenEntrada = 6569;
+UPDATE Existencias SET Existencias = 85.9 WHERE OrdenEntrada = 5546;
+UPDATE Existencias SET Existencias = 163.087 WHERE OrdenEntrada = 5825;
+UPDATE Existencias SET Existencias = 7 WHERE OrdenEntrada = 6648;
+UPDATE Existencias SET Existencias = 48.75 WHERE OrdenEntrada = 6673;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 3574;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5333;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6134;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6888;
+UPDATE Existencias SET Existencias = 12.5 WHERE OrdenEntrada = 6350;
+UPDATE Existencias SET Existencias = 1484 WHERE OrdenEntrada = 6228;
+UPDATE Existencias SET Existencias = 440 WHERE OrdenEntrada = 6639;
+UPDATE Existencias SET Existencias = 660 WHERE OrdenEntrada = 6352;
+UPDATE Existencias SET Existencias = 4.5 WHERE OrdenEntrada = 5976;
+UPDATE Existencias SET Existencias = 20.97 WHERE OrdenEntrada = 5213;
+UPDATE Existencias SET Existencias = 19.5 WHERE OrdenEntrada = 6373;
+UPDATE Existencias SET Existencias = 0.05 WHERE OrdenEntrada = 6565;
+UPDATE Existencias SET Existencias = 166.75 WHERE OrdenEntrada = 4170;
+UPDATE Existencias SET Existencias = 222 WHERE OrdenEntrada = 6465;
+UPDATE Existencias SET Existencias = 1110 WHERE OrdenEntrada = 6972;
+UPDATE Existencias SET Existencias = 25.5 WHERE OrdenEntrada = 6364;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5413;
+UPDATE Existencias SET Existencias = 15.35 WHERE OrdenEntrada = 243;
+UPDATE Existencias SET Existencias = 44.58 WHERE OrdenEntrada = 4632;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 6771;
+UPDATE Existencias SET Existencias = 585.54 WHERE OrdenEntrada = 1383;
+UPDATE Existencias SET Existencias = 70000 WHERE OrdenEntrada = 4286;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5564;
+UPDATE Existencias SET Existencias = 1.75 WHERE OrdenEntrada = 5439;
+UPDATE Existencias SET Existencias = 80 WHERE OrdenEntrada = 5944;
+UPDATE Existencias SET Existencias = 9.838 WHERE OrdenEntrada = 4613;
+UPDATE Existencias SET Existencias = 120 WHERE OrdenEntrada = 6260;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 6631;
+UPDATE Existencias SET Existencias = 29.5 WHERE OrdenEntrada = 6000;
+UPDATE Existencias SET Existencias = 270 WHERE OrdenEntrada = 5972;
+UPDATE Existencias SET Existencias = 270 WHERE OrdenEntrada = 6630;
+UPDATE Existencias SET Existencias = 25 WHERE OrdenEntrada = 6692;
+UPDATE Existencias SET Existencias = 14.422 WHERE OrdenEntrada = 5144;
+UPDATE Existencias SET Existencias = 0.15 WHERE OrdenEntrada = 6397;
+UPDATE Existencias SET Existencias = 66.4 WHERE OrdenEntrada = 6398;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 6655;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5424;
+UPDATE Existencias SET Existencias = 20.55 WHERE OrdenEntrada = 6672;
+UPDATE Existencias SET Existencias = 50 WHERE OrdenEntrada = 6774;
+UPDATE Existencias SET Existencias = 60.091 WHERE OrdenEntrada = 5990;
+UPDATE Existencias SET Existencias = 6.837 WHERE OrdenEntrada = 4435;
+UPDATE Existencias SET Existencias = 0.15 WHERE OrdenEntrada = 5566;
+UPDATE Existencias SET Existencias = 20.1 WHERE OrdenEntrada = 3494;
+UPDATE Existencias SET Existencias = 1.5 WHERE OrdenEntrada = 5335;
+UPDATE Existencias SET Existencias = 20 WHERE OrdenEntrada = 4836;
+UPDATE Existencias SET Existencias = 20 WHERE OrdenEntrada = 5774;
+UPDATE Existencias SET Existencias = 28 WHERE OrdenEntrada = 6382;
+UPDATE Existencias SET Existencias = 59 WHERE OrdenEntrada = 5838;
+UPDATE Existencias SET Existencias = 190 WHERE OrdenEntrada = 6585;
+UPDATE Existencias SET Existencias = 2.49 WHERE OrdenEntrada = 5094;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 6889;
+UPDATE Existencias SET Existencias = 3.984 WHERE OrdenEntrada = 4839;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 5053;
+UPDATE Existencias SET Existencias = 400 WHERE OrdenEntrada = 6315;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 5558;
+UPDATE Existencias SET Existencias = 12 WHERE OrdenEntrada = 6872;
+UPDATE Existencias SET Existencias = 33 WHERE OrdenEntrada = 5673;
+UPDATE Existencias SET Existencias = 9.754 WHERE OrdenEntrada = 4420;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 5452;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5438;
+UPDATE Existencias SET Existencias = 467.2 WHERE OrdenEntrada = 4150;
+UPDATE Existencias SET Existencias = 104 WHERE OrdenEntrada = 2498;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5443;
+UPDATE Existencias SET Existencias = 54.1 WHERE OrdenEntrada = 5492;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 5681;
+UPDATE Existencias SET Existencias = 3.434 WHERE OrdenEntrada = 3339;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 3732;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 3736;
+UPDATE Existencias SET Existencias = 1.367 WHERE OrdenEntrada = 4245;
+UPDATE Existencias SET Existencias = 10 WHERE OrdenEntrada = 4423;
+UPDATE Existencias SET Existencias = 20 WHERE OrdenEntrada = 5931;
+UPDATE Existencias SET Existencias = 378 WHERE OrdenEntrada = 6347;
+UPDATE Existencias SET Existencias = 16 WHERE OrdenEntrada = 6383;
+UPDATE Existencias SET Existencias = 0.75 WHERE OrdenEntrada = 5161;
+UPDATE Existencias SET Existencias = 10.1 WHERE OrdenEntrada = 3260;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5337;
+UPDATE Existencias SET Existencias = 10 WHERE OrdenEntrada = 5554;
+UPDATE Existencias SET Existencias = 23 WHERE OrdenEntrada = 6466;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 6617;
+UPDATE Existencias SET Existencias = 0.24 WHERE OrdenEntrada = 5390;
+UPDATE Existencias SET Existencias = 13 WHERE OrdenEntrada = 5062;
+UPDATE Existencias SET Existencias = 40 WHERE OrdenEntrada = 5244;
+UPDATE Existencias SET Existencias = 140 WHERE OrdenEntrada = 6091;
+UPDATE Existencias SET Existencias = 11 WHERE OrdenEntrada = 6085;
+UPDATE Existencias SET Existencias = 0.2 WHERE OrdenEntrada = 6777;
+UPDATE Existencias SET Existencias = 48 WHERE OrdenEntrada = 3492;
+UPDATE Existencias SET Existencias = 17.5 WHERE OrdenEntrada = 5481;
+UPDATE Existencias SET Existencias = 24.25 WHERE OrdenEntrada = 3398;
+UPDATE Existencias SET Existencias = 11 WHERE OrdenEntrada = 5364;
+UPDATE Existencias SET Existencias = 48 WHERE OrdenEntrada = 5642;
+UPDATE Existencias SET Existencias = 0.8 WHERE OrdenEntrada = 4823;
+UPDATE Existencias SET Existencias = 42 WHERE OrdenEntrada = 5614;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 1317;
+UPDATE Existencias SET Existencias = 40 WHERE OrdenEntrada = 4395;
+UPDATE Existencias SET Existencias = 38 WHERE OrdenEntrada = 3876;
+UPDATE Existencias SET Existencias = 31 WHERE OrdenEntrada = 6206;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 6422;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 5484;
+UPDATE Existencias SET Existencias = 6 WHERE OrdenEntrada = 6691;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 5754;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 6431;
+UPDATE Existencias SET Existencias = 100.75 WHERE OrdenEntrada = 5785;
+UPDATE Existencias SET Existencias = 48 WHERE OrdenEntrada = 6801;
+UPDATE Existencias SET Existencias = 0.8 WHERE OrdenEntrada = 5485;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6803;
+UPDATE Existencias SET Existencias = 40 WHERE OrdenEntrada = 6802;
+UPDATE Existencias SET Existencias = 18 WHERE OrdenEntrada = 6687;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 5612;
+UPDATE Existencias SET Existencias = 16 WHERE OrdenEntrada = 6690;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 5324;
+UPDATE Existencias SET Existencias = 65.5 WHERE OrdenEntrada = 6804;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 6428;
+UPDATE Existencias SET Existencias = 0.9 WHERE OrdenEntrada = 6439;
+UPDATE Existencias SET Existencias = 0.6 WHERE OrdenEntrada = 6840;
+UPDATE Existencias SET Existencias = 1.5 WHERE OrdenEntrada = 6805;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6935;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6854;
+UPDATE Existencias SET Existencias = 70.7 WHERE OrdenEntrada = 6806;
+UPDATE Existencias SET Existencias = 15 WHERE OrdenEntrada = 5294;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 5257;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 6430;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 6219;
+UPDATE Existencias SET Existencias = 200 WHERE OrdenEntrada = 6960;
+UPDATE Existencias SET Existencias = 0.6 WHERE OrdenEntrada = 6461;
+UPDATE Existencias SET Existencias = 0.45 WHERE OrdenEntrada = 6818;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5506;
+UPDATE Existencias SET Existencias = 73 WHERE OrdenEntrada = 6471;
+UPDATE Existencias SET Existencias = 0.6 WHERE OrdenEntrada = 6427;
+UPDATE Existencias SET Existencias = 1.17 WHERE OrdenEntrada = 4799;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 6425;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6437;
+UPDATE Existencias SET Existencias = 4.1 WHERE OrdenEntrada = 5325;
+UPDATE Existencias SET Existencias = 40 WHERE OrdenEntrada = 3874;
+UPDATE Existencias SET Existencias = 0.47 WHERE OrdenEntrada = 5490;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 5504;
+UPDATE Existencias SET Existencias = 1.8 WHERE OrdenEntrada = 5486;
+UPDATE Existencias SET Existencias = 1.5 WHERE OrdenEntrada = 5157;
+UPDATE Existencias SET Existencias = 3.5 WHERE OrdenEntrada = 6426;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6796;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6421;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6424;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 5377;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 1472;
+UPDATE Existencias SET Existencias = 0.02 WHERE OrdenEntrada = 4818;
+UPDATE Existencias SET Existencias = 13.75 WHERE OrdenEntrada = 6886;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 5373;
+UPDATE Existencias SET Existencias = 10 WHERE OrdenEntrada = 6944;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6930;
+UPDATE Existencias SET Existencias = 30 WHERE OrdenEntrada = 6263;
+UPDATE Existencias SET Existencias = 30 WHERE OrdenEntrada = 6610;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 3193;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 6067;
+UPDATE Existencias SET Existencias = 27.5 WHERE OrdenEntrada = 3483;
+UPDATE Existencias SET Existencias = 0.35 WHERE OrdenEntrada = 5372;
+UPDATE Existencias SET Existencias = 0.02 WHERE OrdenEntrada = 3911;
+UPDATE Existencias SET Existencias = 278 WHERE OrdenEntrada = 5796;
+UPDATE Existencias SET Existencias = 6 WHERE OrdenEntrada = 6820;
+UPDATE Existencias SET Existencias = 30 WHERE OrdenEntrada = 6819;
+UPDATE Existencias SET Existencias = 64 WHERE OrdenEntrada = 6882;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5829;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6567;
+UPDATE Existencias SET Existencias = 15.5 WHERE OrdenEntrada = 6824;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6433;
+UPDATE Existencias SET Existencias = 0.02 WHERE OrdenEntrada = 4223;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6551;
+UPDATE Existencias SET Existencias = 14.5 WHERE OrdenEntrada = 5806;
+UPDATE Existencias SET Existencias = 0.02 WHERE OrdenEntrada = 1946;
+UPDATE Existencias SET Existencias = 5.25 WHERE OrdenEntrada = 1985;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 1989;
+UPDATE Existencias SET Existencias = 24 WHERE OrdenEntrada = 4975;
+UPDATE Existencias SET Existencias = 96.5 WHERE OrdenEntrada = 6039;
+UPDATE Existencias SET Existencias = 82.5 WHERE OrdenEntrada = 5122;
+UPDATE Existencias SET Existencias = 3.96 WHERE OrdenEntrada = 6058;
+UPDATE Existencias SET Existencias = 30 WHERE OrdenEntrada = 1772;
+UPDATE Existencias SET Existencias = 15.02 WHERE OrdenEntrada = 5366;
+UPDATE Existencias SET Existencias = 157 WHERE OrdenEntrada = 6333;
+UPDATE Existencias SET Existencias = 21 WHERE OrdenEntrada = 3016;
+UPDATE Existencias SET Existencias = 41.02 WHERE OrdenEntrada = 4929;
+UPDATE Existencias SET Existencias = 64 WHERE OrdenEntrada = 6821;
+UPDATE Existencias SET Existencias = 28.5 WHERE OrdenEntrada = 4930;
+UPDATE Existencias SET Existencias = 27 WHERE OrdenEntrada = 4206;
+UPDATE Existencias SET Existencias = 37.5 WHERE OrdenEntrada = 5808;
+UPDATE Existencias SET Existencias = 0.02 WHERE OrdenEntrada = 4893;
+UPDATE Existencias SET Existencias = 13 WHERE OrdenEntrada = 5934;
+UPDATE Existencias SET Existencias = 11.28 WHERE OrdenEntrada = 4083;
+UPDATE Existencias SET Existencias = 2.5 WHERE OrdenEntrada = 4597;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 6264;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5378;
+UPDATE Existencias SET Existencias = 67 WHERE OrdenEntrada = 5816;
+UPDATE Existencias SET Existencias = 18 WHERE OrdenEntrada = 4695;
+UPDATE Existencias SET Existencias = 0.02 WHERE OrdenEntrada = 5190;
+UPDATE Existencias SET Existencias = 40 WHERE OrdenEntrada = 6688;
+UPDATE Existencias SET Existencias = 0.02 WHERE OrdenEntrada = 3021;
+UPDATE Existencias SET Existencias = 71.35 WHERE OrdenEntrada = 5789;
+UPDATE Existencias SET Existencias = 6 WHERE OrdenEntrada = 5633;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6101;
+UPDATE Existencias SET Existencias = 0.75 WHERE OrdenEntrada = 5797;
+UPDATE Existencias SET Existencias = 0.02 WHERE OrdenEntrada = 4313;
+UPDATE Existencias SET Existencias = 66 WHERE OrdenEntrada = 6155;
+UPDATE Existencias SET Existencias = 140 WHERE OrdenEntrada = 4311;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 4144;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 6429;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 5783;
+UPDATE Existencias SET Existencias = 12.98 WHERE OrdenEntrada = 4179;
+UPDATE Existencias SET Existencias = 234.55 WHERE OrdenEntrada = 5365;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 6435;
+UPDATE Existencias SET Existencias = 39 WHERE OrdenEntrada = 5338;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 3940;
+UPDATE Existencias SET Existencias = 14 WHERE OrdenEntrada = 6962;
+UPDATE Existencias SET Existencias = 2.5 WHERE OrdenEntrada = 5381;
+UPDATE Existencias SET Existencias = 0.02 WHERE OrdenEntrada = 5382;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 6959;
+UPDATE Existencias SET Existencias = 0.02 WHERE OrdenEntrada = 4370;
+UPDATE Existencias SET Existencias = 45 WHERE OrdenEntrada = 6769;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 4817;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 5608;
+UPDATE Existencias SET Existencias = 3.44 WHERE OrdenEntrada = 4129;
+UPDATE Existencias SET Existencias = 102.5 WHERE OrdenEntrada = 5240;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6475;
+UPDATE Existencias SET Existencias = 1.02 WHERE OrdenEntrada = 5376;
+UPDATE Existencias SET Existencias = 1.1 WHERE OrdenEntrada = 5287;
+UPDATE Existencias SET Existencias = 80 WHERE OrdenEntrada = 6786;
+UPDATE Existencias SET Existencias = 200 WHERE OrdenEntrada = 6052;
+UPDATE Existencias SET Existencias = 0.13 WHERE OrdenEntrada = 6402;
+UPDATE Existencias SET Existencias = 1.5 WHERE OrdenEntrada = 6403;
+UPDATE Existencias SET Existencias = 20 WHERE OrdenEntrada = 6743;
+UPDATE Existencias SET Existencias = 1.8 WHERE OrdenEntrada = 6643;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6340;
+UPDATE Existencias SET Existencias = 0.8 WHERE OrdenEntrada = 6404;
+UPDATE Existencias SET Existencias = 116 WHERE OrdenEntrada = 6273;
+UPDATE Existencias SET Existencias = 159.4 WHERE OrdenEntrada = 6286;
+UPDATE Existencias SET Existencias = 500 WHERE OrdenEntrada = 6785;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6757;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5896;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 6081;
+UPDATE Existencias SET Existencias = 0.8 WHERE OrdenEntrada = 3166;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 5483;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6415;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 5384;
+UPDATE Existencias SET Existencias = 0.2 WHERE OrdenEntrada = 6418;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 3985;
+UPDATE Existencias SET Existencias = 0.08 WHERE OrdenEntrada = 6420;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 6419;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 6413;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 5393;
+UPDATE Existencias SET Existencias = 0.02 WHERE OrdenEntrada = 6394;
+UPDATE Existencias SET Existencias = 0.48 WHERE OrdenEntrada = 6405;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 4111;
+UPDATE Existencias SET Existencias = 0.75 WHERE OrdenEntrada = 5532;
+UPDATE Existencias SET Existencias = 0.2 WHERE OrdenEntrada = 6417;
+UPDATE Existencias SET Existencias = 0.9 WHERE OrdenEntrada = 5394;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6822;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5392;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6737;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5318;
+UPDATE Existencias SET Existencias = 0.95 WHERE OrdenEntrada = 5540;
+UPDATE Existencias SET Existencias = 1.7 WHERE OrdenEntrada = 6407;
+UPDATE Existencias SET Existencias = 0.2 WHERE OrdenEntrada = 5545;
+UPDATE Existencias SET Existencias = 0 WHERE OrdenEntrada = 5151;
+UPDATE Existencias SET Existencias = 19.8 WHERE OrdenEntrada = 6730;
+UPDATE Existencias SET Existencias = 4.4 WHERE OrdenEntrada = 5396;
+UPDATE Existencias SET Existencias = 15.5 WHERE OrdenEntrada = 4593;
+UPDATE Existencias SET Existencias = 0.3 WHERE OrdenEntrada = 6408;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 1887;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 6715;
+UPDATE Existencias SET Existencias = 388 WHERE OrdenEntrada = 6604;
+UPDATE Existencias SET Existencias = 0.05 WHERE OrdenEntrada = 6566;
+UPDATE Existencias SET Existencias = 0 WHERE OrdenEntrada = 6406;
+UPDATE Existencias SET Existencias = 5.5 WHERE OrdenEntrada = 5827;
+UPDATE Existencias SET Existencias = 0.125 WHERE OrdenEntrada = 6411;
+UPDATE Existencias SET Existencias = 0.35 WHERE OrdenEntrada = 5544;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 6409;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 5150;
+UPDATE Existencias SET Existencias = 0.2 WHERE OrdenEntrada = 5395;
+UPDATE Existencias SET Existencias = 0.46 WHERE OrdenEntrada = 5391;
+UPDATE Existencias SET Existencias = 0.96 WHERE OrdenEntrada = 5482;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5542;
+UPDATE Existencias SET Existencias = 0.7 WHERE OrdenEntrada = 5543;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 6746;
+UPDATE Existencias SET Existencias = 2.5 WHERE OrdenEntrada = 6947;
+UPDATE Existencias SET Existencias = 0.75 WHERE OrdenEntrada = 6410;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 6915;
+UPDATE Existencias SET Existencias = 6 WHERE OrdenEntrada = 6102;
+UPDATE Existencias SET Existencias = 0.4 WHERE OrdenEntrada = 6212;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 6070;
+UPDATE Existencias SET Existencias = 0.75 WHERE OrdenEntrada = 5419;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 5402;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 6451;
+UPDATE Existencias SET Existencias = 1.97 WHERE OrdenEntrada = 6657;
+UPDATE Existencias SET Existencias = 1.45 WHERE OrdenEntrada = 6097;
+UPDATE Existencias SET Existencias = 8 WHERE OrdenEntrada = 5331;
+UPDATE Existencias SET Existencias = 75 WHERE OrdenEntrada = 6069;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 6334;
+UPDATE Existencias SET Existencias = 0.98 WHERE OrdenEntrada = 6282;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 5414;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 5613;
+UPDATE Existencias SET Existencias = 0.9 WHERE OrdenEntrada = 5415;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 5281;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6453;
+UPDATE Existencias SET Existencias = 30 WHERE OrdenEntrada = 6808;
+UPDATE Existencias SET Existencias = 200 WHERE OrdenEntrada = 6232;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 5467;
+UPDATE Existencias SET Existencias = 0.18 WHERE OrdenEntrada = 6710;
+UPDATE Existencias SET Existencias = 0.75 WHERE OrdenEntrada = 6460;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5417;
+UPDATE Existencias SET Existencias = 26.9 WHERE OrdenEntrada = 4795;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 4875;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6184;
+UPDATE Existencias SET Existencias = 3.3 WHERE OrdenEntrada = 5399;
+UPDATE Existencias SET Existencias = 3.5 WHERE OrdenEntrada = 6450;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 5422;
+UPDATE Existencias SET Existencias = 1.5 WHERE OrdenEntrada = 5398;
+UPDATE Existencias SET Existencias = 0.02 WHERE OrdenEntrada = 6336;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 5289;
+UPDATE Existencias SET Existencias = 2.47 WHERE OrdenEntrada = 5114;
+UPDATE Existencias SET Existencias = 0.75 WHERE OrdenEntrada = 6458;
+UPDATE Existencias SET Existencias = 0.88 WHERE OrdenEntrada = 6015;
+UPDATE Existencias SET Existencias = 0.2 WHERE OrdenEntrada = 5460;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 6676;
+UPDATE Existencias SET Existencias = 0.75 WHERE OrdenEntrada = 6203;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 6955;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 4568;
+UPDATE Existencias SET Existencias = 41 WHERE OrdenEntrada = 3900;
+UPDATE Existencias SET Existencias = 0.58 WHERE OrdenEntrada = 6246;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 6834;
+UPDATE Existencias SET Existencias = 2.98 WHERE OrdenEntrada = 2865;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6686;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5765;
+UPDATE Existencias SET Existencias = 1.46 WHERE OrdenEntrada = 5204;
+UPDATE Existencias SET Existencias = 23.8 WHERE OrdenEntrada = 926;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6452;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6201;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5303;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 1557;
+UPDATE Existencias SET Existencias = 2.5 WHERE OrdenEntrada = 6017;
+UPDATE Existencias SET Existencias = 0.75 WHERE OrdenEntrada = 5538;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6281;
+UPDATE Existencias SET Existencias = 0.48 WHERE OrdenEntrada = 6457;
+UPDATE Existencias SET Existencias = 0.8 WHERE OrdenEntrada = 6462;
+UPDATE Existencias SET Existencias = 0.95 WHERE OrdenEntrada = 6454;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5781;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 3177;
+UPDATE Existencias SET Existencias = 1.5 WHERE OrdenEntrada = 6809;
+UPDATE Existencias SET Existencias = 36 WHERE OrdenEntrada = 6809;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 5408;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 6708;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5409;
+UPDATE Existencias SET Existencias = 8.73 WHERE OrdenEntrada = 5321;
+UPDATE Existencias SET Existencias = 0.9 WHERE OrdenEntrada = 6456;
+UPDATE Existencias SET Existencias = 0.7 WHERE OrdenEntrada = 5403;
+UPDATE Existencias SET Existencias = 0.4 WHERE OrdenEntrada = 5537;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 6042;
+UPDATE Existencias SET Existencias = 0.4 WHERE OrdenEntrada = 5539;
+UPDATE Existencias SET Existencias = 0.2 WHERE OrdenEntrada = 6468;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5875;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6027;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 6954;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 4629;
+UPDATE Existencias SET Existencias = 0.88 WHERE OrdenEntrada = 5461;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5468;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 6441;
+UPDATE Existencias SET Existencias = 2.48 WHERE OrdenEntrada = 6678;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6901;
+UPDATE Existencias SET Existencias = 16 WHERE OrdenEntrada = 6791;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 2259;
+UPDATE Existencias SET Existencias = 20 WHERE OrdenEntrada = 4604;
+UPDATE Existencias SET Existencias = 0.022 WHERE OrdenEntrada = 4184;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6884;
+UPDATE Existencias SET Existencias = 14.75 WHERE OrdenEntrada = 5332;
+UPDATE Existencias SET Existencias = 0.4 WHERE OrdenEntrada = 6387;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6833;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 6896;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6084;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6732;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 4141;
+UPDATE Existencias SET Existencias = 25 WHERE OrdenEntrada = 6813;
+UPDATE Existencias SET Existencias = 11.5 WHERE OrdenEntrada = 5640;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5283;
+UPDATE Existencias SET Existencias = 19.55 WHERE OrdenEntrada = 5893;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6106;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 5304;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 5435;
+UPDATE Existencias SET Existencias = 14.5 WHERE OrdenEntrada = 5760;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 6440;
+UPDATE Existencias SET Existencias = 17 WHERE OrdenEntrada = 6894;
+UPDATE Existencias SET Existencias = 8 WHERE OrdenEntrada = 6031;
+UPDATE Existencias SET Existencias = 12 WHERE OrdenEntrada = 6284;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 3885;
+UPDATE Existencias SET Existencias = 76 WHERE OrdenEntrada = 6794;
+UPDATE Existencias SET Existencias = 0.8 WHERE OrdenEntrada = 6768;
+UPDATE Existencias SET Existencias = 92 WHERE OrdenEntrada = 6814;
+UPDATE Existencias SET Existencias = 1.95 WHERE OrdenEntrada = 4400;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 6041;
+UPDATE Existencias SET Existencias = 1.1 WHERE OrdenEntrada = 6943;
+UPDATE Existencias SET Existencias = 254 WHERE OrdenEntrada = 6369;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6599;
+UPDATE Existencias SET Existencias = 1.3 WHERE OrdenEntrada = 3951;
+UPDATE Existencias SET Existencias = 1.76 WHERE OrdenEntrada = 4739;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 6152;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6602;
+UPDATE Existencias SET Existencias = 11 WHERE OrdenEntrada = 4416;
+UPDATE Existencias SET Existencias = 0.08 WHERE OrdenEntrada = 6105;
+UPDATE Existencias SET Existencias = 0.98 WHERE OrdenEntrada = 4276;
+UPDATE Existencias SET Existencias = 12.19 WHERE OrdenEntrada = 5329;
+UPDATE Existencias SET Existencias = 7.5 WHERE OrdenEntrada = 5662;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 6905;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6675;
+UPDATE Existencias SET Existencias = 23.73 WHERE OrdenEntrada = 5656;
+UPDATE Existencias SET Existencias = 82 WHERE OrdenEntrada = 5857;
+UPDATE Existencias SET Existencias = 497 WHERE OrdenEntrada = 6846;
+UPDATE Existencias SET Existencias = 0.98 WHERE OrdenEntrada = 5779;
+UPDATE Existencias SET Existencias = 5.95 WHERE OrdenEntrada = 5317;
+UPDATE Existencias SET Existencias = 46 WHERE OrdenEntrada = 5654;
+UPDATE Existencias SET Existencias = 8.5 WHERE OrdenEntrada = 6199;
+UPDATE Existencias SET Existencias = 34 WHERE OrdenEntrada = 6810;
+UPDATE Existencias SET Existencias = 5.75 WHERE OrdenEntrada = 6677;
+UPDATE Existencias SET Existencias = 7 WHERE OrdenEntrada = 4948;
+UPDATE Existencias SET Existencias = 21.5 WHERE OrdenEntrada = 5883;
+UPDATE Existencias SET Existencias = 0 WHERE OrdenEntrada = 6696;
+UPDATE Existencias SET Existencias = 15.7 WHERE OrdenEntrada = 6964;
+UPDATE Existencias SET Existencias = 7 WHERE OrdenEntrada = 6014;
+UPDATE Existencias SET Existencias = 21 WHERE OrdenEntrada = 5522;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 5237;
+UPDATE Existencias SET Existencias = 15.5 WHERE OrdenEntrada = 5886;
+UPDATE Existencias SET Existencias = 8.97 WHERE OrdenEntrada = 4717;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 4275;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 5880;
+UPDATE Existencias SET Existencias = 107.5 WHERE OrdenEntrada = 5904;
+UPDATE Existencias SET Existencias = 29.15 WHERE OrdenEntrada = 6182;
+UPDATE Existencias SET Existencias = 197 WHERE OrdenEntrada = 6716;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6154;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 6110;
+UPDATE Existencias SET Existencias = 0.75 WHERE OrdenEntrada = 6443;
+UPDATE Existencias SET Existencias = 4.8 WHERE OrdenEntrada = 4556;
+UPDATE Existencias SET Existencias = 0.84 WHERE OrdenEntrada = 5426;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6215;
+UPDATE Existencias SET Existencias = 32.5 WHERE OrdenEntrada = 6584;
+UPDATE Existencias SET Existencias = 0.4 WHERE OrdenEntrada = 6447;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 6897;
+UPDATE Existencias SET Existencias = 2.5 WHERE OrdenEntrada = 5015;
+UPDATE Existencias SET Existencias = 160 WHERE OrdenEntrada = 6118;
+UPDATE Existencias SET Existencias = 8 WHERE OrdenEntrada = 5302;
+UPDATE Existencias SET Existencias = 14 WHERE OrdenEntrada = 6205;
+UPDATE Existencias SET Existencias = 5.2 WHERE OrdenEntrada = 6094;
+UPDATE Existencias SET Existencias = 0.4 WHERE OrdenEntrada = 6448;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6474;
+UPDATE Existencias SET Existencias = 12 WHERE OrdenEntrada = 5813;
+UPDATE Existencias SET Existencias = 0.4 WHERE OrdenEntrada = 6446;
+UPDATE Existencias SET Existencias = 14.25 WHERE OrdenEntrada = 3414;
+UPDATE Existencias SET Existencias = 32.25 WHERE OrdenEntrada = 3879;
+UPDATE Existencias SET Existencias = 0.05 WHERE OrdenEntrada = 5574;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 5189;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 6601;
+UPDATE Existencias SET Existencias = 18.47 WHERE OrdenEntrada = 6230;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 5955;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6235;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 6059;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6271;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 6107;
+UPDATE Existencias SET Existencias = 19.75 WHERE OrdenEntrada = 6308;
+UPDATE Existencias SET Existencias = 23.75 WHERE OrdenEntrada = 5243;
+UPDATE Existencias SET Existencias = 0.08 WHERE OrdenEntrada = 6445;
+UPDATE Existencias SET Existencias = 22.8 WHERE OrdenEntrada = 6576;
+UPDATE Existencias SET Existencias = 40 WHERE OrdenEntrada = 6116;
+UPDATE Existencias SET Existencias = 99.5 WHERE OrdenEntrada = 6952;
+UPDATE Existencias SET Existencias = 32.25 WHERE OrdenEntrada = 4108;
+UPDATE Existencias SET Existencias = 394 WHERE OrdenEntrada = 4968;
+UPDATE Existencias SET Existencias = 0.02 WHERE OrdenEntrada = 4736;
+UPDATE Existencias SET Existencias = 8 WHERE OrdenEntrada = 4969;
+UPDATE Existencias SET Existencias = 127 WHERE OrdenEntrada = 6088;
+UPDATE Existencias SET Existencias = 30 WHERE OrdenEntrada = 6823;
+UPDATE Existencias SET Existencias = 159 WHERE OrdenEntrada = 6050;
+UPDATE Existencias SET Existencias = 200 WHERE OrdenEntrada = 6883;
+UPDATE Existencias SET Existencias = 130.3 WHERE OrdenEntrada = 5433;
+UPDATE Existencias SET Existencias = 3.75 WHERE OrdenEntrada = 4348;
+UPDATE Existencias SET Existencias = 340 WHERE OrdenEntrada = 6160;
+UPDATE Existencias SET Existencias = 0.06 WHERE OrdenEntrada = 6103;
+UPDATE Existencias SET Existencias = 41 WHERE OrdenEntrada = 6712;
+UPDATE Existencias SET Existencias = 22 WHERE OrdenEntrada = 5923;
+UPDATE Existencias SET Existencias = 0.08 WHERE OrdenEntrada = 5308;
+UPDATE Existencias SET Existencias = 4 WHERE OrdenEntrada = 6909;
+UPDATE Existencias SET Existencias = 2.8 WHERE OrdenEntrada = 4143;
+UPDATE Existencias SET Existencias = 8 WHERE OrdenEntrada = 6078;
+UPDATE Existencias SET Existencias = 0.2 WHERE OrdenEntrada = 5437;
+UPDATE Existencias SET Existencias = 0.98 WHERE OrdenEntrada = 6185;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6665;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 6900;
+UPDATE Existencias SET Existencias = 0.07 WHERE OrdenEntrada = 5882;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 6122;
+UPDATE Existencias SET Existencias = 0.08 WHERE OrdenEntrada = 5805;
+UPDATE Existencias SET Existencias = 60 WHERE OrdenEntrada = 6885;
+UPDATE Existencias SET Existencias = 62 WHERE OrdenEntrada = 6285;
+UPDATE Existencias SET Existencias = 182 WHERE OrdenEntrada = 6967;
+UPDATE Existencias SET Existencias = 210 WHERE OrdenEntrada = 6115;
+UPDATE Existencias SET Existencias = 11.5 WHERE OrdenEntrada = 6287;
+UPDATE Existencias SET Existencias = 18 WHERE OrdenEntrada = 6289;
+UPDATE Existencias SET Existencias = 20 WHERE OrdenEntrada = 5434;
+UPDATE Existencias SET Existencias = 1159.25 WHERE OrdenEntrada = 4016;
+UPDATE Existencias SET Existencias = 7 WHERE OrdenEntrada = 5687;
+UPDATE Existencias SET Existencias = 8.5 WHERE OrdenEntrada = 5411;
+UPDATE Existencias SET Existencias = 1.5 WHERE OrdenEntrada = 5410;
+UPDATE Existencias SET Existencias = 11.5 WHERE OrdenEntrada = 5929;
+UPDATE Existencias SET Existencias = 425 WHERE OrdenEntrada = 6975;
+UPDATE Existencias SET Existencias = 50 WHERE OrdenEntrada = 6019;
+UPDATE Existencias SET Existencias = 475 WHERE OrdenEntrada = 6600;
+UPDATE Existencias SET Existencias = 100 WHERE OrdenEntrada = 5579;
+UPDATE Existencias SET Existencias = 300 WHERE OrdenEntrada = 6033;
+UPDATE Existencias SET Existencias = 300 WHERE OrdenEntrada = 6763;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 5959;
+UPDATE Existencias SET Existencias = 30 WHERE OrdenEntrada = 6680;
+UPDATE Existencias SET Existencias = 60 WHERE OrdenEntrada = 6739;
+UPDATE Existencias SET Existencias = 90 WHERE OrdenEntrada = 6787;
+UPDATE Existencias SET Existencias = 425 WHERE OrdenEntrada = 6740;
+UPDATE Existencias SET Existencias = 1000 WHERE OrdenEntrada = 6956;
+UPDATE Existencias SET Existencias = 34 WHERE OrdenEntrada = 6294;
+UPDATE Existencias SET Existencias = 42 WHERE OrdenEntrada = 4973;
+UPDATE Existencias SET Existencias = 101.7 WHERE OrdenEntrada = 5902;
+UPDATE Existencias SET Existencias = 468 WHERE OrdenEntrada = 5957;
+UPDATE Existencias SET Existencias = 63.7 WHERE OrdenEntrada = 6892;
+UPDATE Existencias SET Existencias = 1.25 WHERE OrdenEntrada = 6836;
+UPDATE Existencias SET Existencias = 0.11 WHERE OrdenEntrada = 6189;
+UPDATE Existencias SET Existencias = 8.5 WHERE OrdenEntrada = 6779;
+UPDATE Existencias SET Existencias = 20 WHERE OrdenEntrada = 6948;
+UPDATE Existencias SET Existencias = 0.05 WHERE OrdenEntrada = 6370;
+UPDATE Existencias SET Existencias = 1.24 WHERE OrdenEntrada = 6838;
+UPDATE Existencias SET Existencias = 66 WHERE OrdenEntrada = 6961;
+UPDATE Existencias SET Existencias = 101 WHERE OrdenEntrada = 6679;
+UPDATE Existencias SET Existencias = 12.5 WHERE OrdenEntrada = 6981;
+UPDATE Existencias SET Existencias = 75 WHERE OrdenEntrada = 6881;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 6119;
+UPDATE Existencias SET Existencias = 1.105 WHERE OrdenEntrada = 6837;
+UPDATE Existencias SET Existencias = 79 WHERE OrdenEntrada = 6028;
+UPDATE Existencias SET Existencias = 80 WHERE OrdenEntrada = 6926;
+UPDATE Existencias SET Existencias = 4.485 WHERE OrdenEntrada = 6764;
+UPDATE Existencias SET Existencias = 35 WHERE OrdenEntrada = 5029;
+UPDATE Existencias SET Existencias = 18 WHERE OrdenEntrada = 3476;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 6442;
+UPDATE Existencias SET Existencias = 45 WHERE OrdenEntrada = 2820;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 5387;
+UPDATE Existencias SET Existencias = 1.5 WHERE OrdenEntrada = 5383;
+UPDATE Existencias SET Existencias = 4.5 WHERE OrdenEntrada = 5347;
+UPDATE Existencias SET Existencias = 72 WHERE OrdenEntrada = 4097;
+UPDATE Existencias SET Existencias = 41.5 WHERE OrdenEntrada = 2779;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 5582;
+UPDATE Existencias SET Existencias = 100.5 WHERE OrdenEntrada = 6929;
+UPDATE Existencias SET Existencias = 0.888 WHERE OrdenEntrada = 5124;
+UPDATE Existencias SET Existencias = 0.05 WHERE OrdenEntrada = 6858;
+UPDATE Existencias SET Existencias = 0.6 WHERE OrdenEntrada = 6143;
+UPDATE Existencias SET Existencias = 0.76 WHERE OrdenEntrada = 5611;
+UPDATE Existencias SET Existencias = 1.717 WHERE OrdenEntrada = 6857;
+UPDATE Existencias SET Existencias = 8.26 WHERE OrdenEntrada = 5251;
+UPDATE Existencias SET Existencias = 1.2 WHERE OrdenEntrada = 6583;
+UPDATE Existencias SET Existencias = 0.5 WHERE OrdenEntrada = 6170;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 6170;
+UPDATE Existencias SET Existencias = 0.05 WHERE OrdenEntrada = 6842;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 6928;
+UPDATE Existencias SET Existencias = 31.15 WHERE OrdenEntrada = 4720;
+UPDATE Existencias SET Existencias = 8.8 WHERE OrdenEntrada = 6978;
+UPDATE Existencias SET Existencias = 1.245 WHERE OrdenEntrada = 5531;
+UPDATE Existencias SET Existencias = 1.842 WHERE OrdenEntrada = 6309;
+UPDATE Existencias SET Existencias = 0.235 WHERE OrdenEntrada = 6514;
+UPDATE Existencias SET Existencias = 0.469 WHERE OrdenEntrada = 6850;
+UPDATE Existencias SET Existencias = 0.645 WHERE OrdenEntrada = 6843;
+UPDATE Existencias SET Existencias = 0.475 WHERE OrdenEntrada = 6519;
+UPDATE Existencias SET Existencias = 15 WHERE OrdenEntrada = 5735;
+UPDATE Existencias SET Existencias = 0.475 WHERE OrdenEntrada = 6001;
+UPDATE Existencias SET Existencias = 5.9 WHERE OrdenEntrada = 6861;
+UPDATE Existencias SET Existencias = 3.3 WHERE OrdenEntrada = 6861;
+UPDATE Existencias SET Existencias = 8.3 WHERE OrdenEntrada = 6856;
+UPDATE Existencias SET Existencias = 3 WHERE OrdenEntrada = 6911;
+UPDATE Existencias SET Existencias = 5 WHERE OrdenEntrada = 6831;
+UPDATE Existencias SET Existencias = 4.711 WHERE OrdenEntrada = 5626;
+UPDATE Existencias SET Existencias = 0.2 WHERE OrdenEntrada = 6974;
+UPDATE Existencias SET Existencias = 0.808 WHERE OrdenEntrada = 6528;
+UPDATE Existencias SET Existencias = 0.76 WHERE OrdenEntrada = 6527;
+UPDATE Existencias SET Existencias = 3.3 WHERE OrdenEntrada = 6481;
+UPDATE Existencias SET Existencias = 0.47 WHERE OrdenEntrada = 6481;
+UPDATE Existencias SET Existencias = 37.45 WHERE OrdenEntrada = 6817;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6968;
+UPDATE Existencias SET Existencias = 2.9 WHERE OrdenEntrada = 6859;
+UPDATE Existencias SET Existencias = 80.13 WHERE OrdenEntrada = 6536;
+UPDATE Existencias SET Existencias = 6 WHERE OrdenEntrada = 5222;
+UPDATE Existencias SET Existencias = 8.25 WHERE OrdenEntrada = 6684;
+UPDATE Existencias SET Existencias = 0.62 WHERE OrdenEntrada = 6878;
+UPDATE Existencias SET Existencias = 1.3 WHERE OrdenEntrada = 6681;
+UPDATE Existencias SET Existencias = 81.55 WHERE OrdenEntrada = 6553;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6754;
+UPDATE Existencias SET Existencias = 0.1 WHERE OrdenEntrada = 6844;
+UPDATE Existencias SET Existencias = 2.19 WHERE OrdenEntrada = 6848;
+UPDATE Existencias SET Existencias = 0.297 WHERE OrdenEntrada = 6662;
+UPDATE Existencias SET Existencias = 7.65 WHERE OrdenEntrada = 6982;
+UPDATE Existencias SET Existencias = 2.23 WHERE OrdenEntrada = 5060;
+UPDATE Existencias SET Existencias = 74.37 WHERE OrdenEntrada = 6384;
+UPDATE Existencias SET Existencias = 7.585 WHERE OrdenEntrada = 5090;
+UPDATE Existencias SET Existencias = 12 WHERE OrdenEntrada = 5661;
+UPDATE Existencias SET Existencias = 16.77 WHERE OrdenEntrada = 6483;
+UPDATE Existencias SET Existencias = 0.499 WHERE OrdenEntrada = 6756;
+UPDATE Existencias SET Existencias = 5.858 WHERE OrdenEntrada = 6766;
+UPDATE Existencias SET Existencias = 0.059 WHERE OrdenEntrada = 6372;
+UPDATE Existencias SET Existencias = 1.683 WHERE OrdenEntrada = 4033;
+UPDATE Existencias SET Existencias = 28 WHERE OrdenEntrada = 6492;
+UPDATE Existencias SET Existencias = 1.047 WHERE OrdenEntrada = 6238;
+UPDATE Existencias SET Existencias = 0.254 WHERE OrdenEntrada = 6224;
+UPDATE Existencias SET Existencias = 13.55 WHERE OrdenEntrada = 6497;
+UPDATE Existencias SET Existencias = 110.3 WHERE OrdenEntrada = 6744;
+UPDATE Existencias SET Existencias = 2.5 WHERE OrdenEntrada = 6918;
+UPDATE Existencias SET Existencias = 0.25 WHERE OrdenEntrada = 6335;
+UPDATE Existencias SET Existencias = 90.1 WHERE OrdenEntrada = 6761;
+UPDATE Existencias SET Existencias = 0.88 WHERE OrdenEntrada = 5770;
+UPDATE Existencias SET Existencias = 1.321 WHERE OrdenEntrada = 5906;
+UPDATE Existencias SET Existencias = 4.768 WHERE OrdenEntrada = 6513;
+UPDATE Existencias SET Existencias = 6.3 WHERE OrdenEntrada = 5759;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6932;
+UPDATE Existencias SET Existencias = 20.28 WHERE OrdenEntrada = 5738;
+UPDATE Existencias SET Existencias = 1.25 WHERE OrdenEntrada = 6064;
+UPDATE Existencias SET Existencias = 9.6 WHERE OrdenEntrada = 5932;
+UPDATE Existencias SET Existencias = 0.3 WHERE OrdenEntrada = 5002;
+UPDATE Existencias SET Existencias = 5.11 WHERE OrdenEntrada = 6525;
+UPDATE Existencias SET Existencias = 5.983 WHERE OrdenEntrada = 6074;
+UPDATE Existencias SET Existencias = 29.55 WHERE OrdenEntrada = 6931;
+UPDATE Existencias SET Existencias = 5.95 WHERE OrdenEntrada = 958;
+UPDATE Existencias SET Existencias = 1.888 WHERE OrdenEntrada = 6741;
+UPDATE Existencias SET Existencias = 0.087 WHERE OrdenEntrada = 5246;
+UPDATE Existencias SET Existencias = 73.882 WHERE OrdenEntrada = 6477;
+UPDATE Existencias SET Existencias = 69.1 WHERE OrdenEntrada = 6477;
+UPDATE Existencias SET Existencias = 53.2 WHERE OrdenEntrada = 6062;
+UPDATE Existencias SET Existencias = 85 WHERE OrdenEntrada = 6066;
+UPDATE Existencias SET Existencias = 1.6 WHERE OrdenEntrada = 6795;
+UPDATE Existencias SET Existencias = 0.26 WHERE OrdenEntrada = 5171;
+UPDATE Existencias SET Existencias = 1.9 WHERE OrdenEntrada = 6539;
+UPDATE Existencias SET Existencias = 63.05 WHERE OrdenEntrada = 6029;
+UPDATE Existencias SET Existencias = 98.5 WHERE OrdenEntrada = 6970;
+UPDATE Existencias SET Existencias = 0.32 WHERE OrdenEntrada = 5245;
+UPDATE Existencias SET Existencias = 6.85 WHERE OrdenEntrada = 6694;
+UPDATE Existencias SET Existencias = 0.857 WHERE OrdenEntrada = 5912;
+UPDATE Existencias SET Existencias = 61.3 WHERE OrdenEntrada = 6077;
+UPDATE Existencias SET Existencias = 12.55 WHERE OrdenEntrada = 5083;
+UPDATE Existencias SET Existencias = 2 WHERE OrdenEntrada = 6871;
+UPDATE Existencias SET Existencias = 1.166 WHERE OrdenEntrada = 6877;
+UPDATE Existencias SET Existencias = 0.98 WHERE OrdenEntrada = 6613;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6862;
+UPDATE Existencias SET Existencias = 1 WHERE OrdenEntrada = 6367;
+UPDATE Existencias SET Existencias = 0.076 WHERE OrdenEntrada = 6561;
+UPDATE Existencias SET Existencias = 0.128 WHERE OrdenEntrada = 6494;
+UPDATE Existencias SET Existencias = 4.4 WHERE OrdenEntrada = 6493;
+UPDATE Existencias SET Existencias = 0.645 WHERE OrdenEntrada = 6371;
+UPDATE Existencias SET Existencias = 0.286 WHERE OrdenEntrada = 6558;
+UPDATE Existencias SET Existencias = 0.081 WHERE OrdenEntrada = 5458;

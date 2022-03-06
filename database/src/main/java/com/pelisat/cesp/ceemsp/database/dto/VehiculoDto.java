@@ -17,6 +17,7 @@ public class VehiculoDto {
     private VehiculoTipoDto tipo;
     private VehiculoMarcaDto marca;
     private VehiculoSubmarcaDto submarca;
+    private VehiculoUsoDto uso;
     private String anio;
     private String color;
     private boolean rotulado;
@@ -30,6 +31,9 @@ public class VehiculoDto {
     private String placaMetalica;
     private String empresaBlindaje;
     private NivelBlindajeEnum nivelBlindaje;
+    private String razonSocial;
+    private String fechaInicio;
+    private String fechaFin;
 
     private List<VehiculoColorDto> colores;
     private List<VehiculoFotografiaMetadata> fotografias;

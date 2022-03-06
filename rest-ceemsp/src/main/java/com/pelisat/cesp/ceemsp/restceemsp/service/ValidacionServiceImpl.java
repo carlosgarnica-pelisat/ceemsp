@@ -44,7 +44,7 @@ public class ValidacionServiceImpl implements ValidacionService {
             throw new InvalidDataException();
         }
 
-        if(StringUtils.isBlank(existeVehiculoDto.getNumeroSerie()) || StringUtils.isBlank(existeVehiculoDto.getPlacas())) {
+        if(StringUtils.isBlank(existeVehiculoDto.getNumeroSerie()) && StringUtils.isBlank(existeVehiculoDto.getPlacas())) {
             logger.warn("Alguno de los parametros vienen como nulos o vacios");
             throw new InvalidDataException();
         }
@@ -62,7 +62,7 @@ public class ValidacionServiceImpl implements ValidacionService {
             }
         } else if (StringUtils.isNotBlank(existeVehiculoDto.getNumeroSerie())) {
             logger.info("Buscando con el numero de serie [{}]", existeVehiculoDto.getNumeroSerie());
-            Vehiculo vehiculo = vehiculoRepository.getBySerieAndEliminadoFalse(existeVehiculoDto.getPlacas());
+            Vehiculo vehiculo = vehiculoRepository.getBySerieAndEliminadoFalse(existeVehiculoDto.getNumeroSerie());
             if(vehiculo != null) {
                 logger.info("Se encontro el vehiculo con el numero de serie");
                 existeVehiculoDto.setExiste(true);
@@ -80,7 +80,7 @@ public class ValidacionServiceImpl implements ValidacionService {
             throw new InvalidDataException();
         }
 
-        if(StringUtils.isBlank(existePersonaDto.getCurp()) || StringUtils.isBlank(existePersonaDto.getRfc())) {
+        if(StringUtils.isBlank(existePersonaDto.getCurp()) && StringUtils.isBlank(existePersonaDto.getRfc())) {
             logger.warn("Los parametros de busqueda vienen como nulos o invalidos");
             throw new InvalidDataException();
         }

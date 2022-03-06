@@ -69,9 +69,11 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
         List<EmpresaLicenciaColectiva> empresaLicenciasColectivas = empresaLicenciaColectivaRepository
                 .findAllByEmpresaAndEliminadoFalse(empresaDto.getId());
 
-        return empresaLicenciasColectivas.stream().map(
-                daoToDtoConverter::convertDaoToDtoEmpresaLicenciaColectiva)
-                .collect(Collectors.toList());
+        return empresaLicenciasColectivas.stream().map(elc -> {
+            EmpresaLicenciaColectivaDto elcd = daoToDtoConverter.convertDaoToDtoEmpresaLicenciaColectiva(elc);
+            elcd.setModalidad(modalidadService.obtenerModalidadPorId(elc.getModalidad()));
+            return elcd;
+        }).collect(Collectors.toList());
     }
 
     @Override

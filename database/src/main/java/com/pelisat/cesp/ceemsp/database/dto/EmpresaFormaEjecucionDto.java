@@ -7,5 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EmpresaFormaEjecucionDto {
+    private int id;
+    private String uuid;
     private FormaEjecucionEnum formaEjecucion;
 }

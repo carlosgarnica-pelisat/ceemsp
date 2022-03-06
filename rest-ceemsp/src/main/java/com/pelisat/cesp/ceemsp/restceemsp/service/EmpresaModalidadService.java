@@ -6,8 +6,7 @@ import java.util.List;
 
 public interface EmpresaModalidadService {
     List<EmpresaModalidadDto> obtenerModalidadesEmpresa(String empresaUuid);
-
     EmpresaModalidadDto guardarModalidad(String empresaUuid, String username, EmpresaModalidadDto empresaModalidadDto);
-
     EmpresaModalidadDto obtenerModalidadPorUuid(String empresaUuid, String modalidadUuid, boolean soloEntidad);
+    EmpresaModalidadDto eliminarModalidadPorUuid(String empresaUuid, String modalidadUuid, String username);
 }

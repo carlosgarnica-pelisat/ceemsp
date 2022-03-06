@@ -32,6 +32,11 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
     private final UsuarioService usuarioService;
     private final EmpresaService empresaService;
     private final DaoHelper<CommonModel> daoHelper;
+    private final EstadoService estadoService;
+    private final MunicipioService municipioService;
+    private final ColoniaService coloniaService;
+    private final LocalidadService localidadService;
+    private final CalleService calleService;
 
     @Autowired
     public EmpresaDomicilioServiceImpl(
@@ -40,7 +45,12 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         DtoToDaoConverter dtoToDaoConverter,
         UsuarioService usuarioService,
         EmpresaService empresaService,
-        DaoHelper<CommonModel> daoHelper
+        DaoHelper<CommonModel> daoHelper,
+        EstadoService estadoService,
+        MunicipioService municipioService,
+        LocalidadService localidadService,
+        ColoniaService coloniaService,
+        CalleService calleService
     ) {
         this.empresaDomicilioRepository = empresaDomicilioRepository;
         this.daoToDtoConverter = daoToDtoConverter;
@@ -48,6 +58,11 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         this.usuarioService = usuarioService;
         this.empresaService = empresaService;
         this.daoHelper = daoHelper;
+        this.estadoService = estadoService;
+        this.municipioService = municipioService;
+        this.localidadService = localidadService;
+        this.coloniaService = coloniaService;
+        this.calleService = calleService;
     }
 
     @Override
@@ -129,6 +144,17 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         empresaDomicilio.setCreadoPor(usuario.getId());
         empresaDomicilio.setActualizadoPor(usuario.getId());
         empresaDomicilio.setFechaActualizacion(LocalDateTime.now());
+        empresaDomicilio.setEstadoCatalogo(empresaDomicilioDto.getEstadoCatalogo().getId());
+        empresaDomicilio.setMunicipioCatalogo(empresaDomicilioDto.getMunicipioCatalogo().getId());
+        empresaDomicilio.setColoniaCatalogo(empresaDomicilioDto.getColoniaCatalogo().getId());
+        empresaDomicilio.setLocalidadCatalogo(empresaDomicilioDto.getLocalidadCatalogo().getId());
+        empresaDomicilio.setCalleCatalogo(empresaDomicilioDto.getCalleCatalogo().getId());
+
+        empresaDomicilio.setDomicilio1(empresaDomicilioDto.getCalleCatalogo().getNombre());
+        empresaDomicilio.setDomicilio2(empresaDomicilioDto.getColoniaCatalogo().getNombre());
+        empresaDomicilio.setDomicilio3(empresaDomicilioDto.getMunicipioCatalogo().getNombre());
+        empresaDomicilio.setEstado(empresaDomicilioDto.getEstadoCatalogo().getNombre());
+        empresaDomicilio.setLocalidad(empresaDomicilioDto.getLocalidadCatalogo().getNombre());
 
         EmpresaDomicilio empresaDomicilioCreado = empresaDomicilioRepository.save(empresaDomicilio);
 

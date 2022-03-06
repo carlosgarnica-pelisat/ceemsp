@@ -51,6 +51,9 @@ import { UniformesComponent } from './home/catalogos/equipo/uniformes/uniformes.
 import { EmpresaUniformesComponent } from './home/empresas/empresa-uniformes/empresa-uniformes.component';
 import {PdfViewerModule} from "ng2-pdf-viewer";
 import { PhoneMaskDirective } from './_directives/phone-mask.directive';
+import { NumberMaskDirective } from './_directives/number-mask.directive';
+import { RfcDirective } from './_directives/rfc.directive';
+import { BuscarNombrePipe } from './_pipes/buscar-nombre.pipe';
 
 @NgModule({
   declarations: [
@@ -92,7 +95,10 @@ import { PhoneMaskDirective } from './_directives/phone-mask.directive';
     EquipoComponent,
     UniformesComponent,
     EmpresaUniformesComponent,
-    PhoneMaskDirective
+    PhoneMaskDirective,
+    NumberMaskDirective,
+    RfcDirective,
+    BuscarNombrePipe
   ],
   imports: [
     BrowserModule,

@@ -121,7 +121,7 @@ public class ClienteServiceImpl implements ClienteService {
     @Transactional
     @Override
     public ClienteDto crearCliente(String empresaUuid, String username, ClienteDto clienteDto, MultipartFile archivo) {
-        if(StringUtils.isBlank(empresaUuid) || clienteDto == null || StringUtils.isBlank(username) || archivo != null) {
+        if(StringUtils.isBlank(empresaUuid) || clienteDto == null || StringUtils.isBlank(username) || archivo == null) {
             logger.warn("El uuid o el cliente a crear vienen como nulos o vacios");
             throw new InvalidDataException();
         }

@@ -7,6 +7,13 @@ import {ActivatedRoute} from "@angular/router";
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {ToastType} from "../../../_enums/ToastType";
 import {faCheck} from "@fortawesome/free-solid-svg-icons";
+import {EstadosService} from "../../../_services/estados.service";
+import {CalleService} from "../../../_services/calle.service";
+import Estado from "../../../_models/Estado";
+import Municipio from "../../../_models/Municipio";
+import Calle from "../../../_models/Calle";
+import Colonia from "../../../_models/Colonia";
+import Localidad from "../../../_models/Localidad";
 
 @Component({
   selector: 'app-empresa-domicilios',
@@ -17,11 +24,22 @@ export class EmpresaDomiciliosComponent implements OnInit {
 
   faCheck = faCheck;
 
+  estados: Estado[] = [];
+  municipios: Municipio[] = [];
+  calles: Calle[] = [];
+  colonias: Colonia[] = [];
+  localidades: Localidad[] = [];
+
   uuid: string;
   domicilios: EmpresaDomicilio[];
 
   nuevoDomicilioForm: FormGroup;
   modificarDomicilioForm: FormGroup;
+  estadoSearchForm: FormGroup;
+  municipioSearchForm: FormGroup;
+  localidadSearchForm: FormGroup;
+  calleSearchForm: FormGroup;
+  coloniaSearchForm: FormGroup;
   modal: NgbModalRef;
   closeResult: string;
 
@@ -40,28 +58,43 @@ export class EmpresaDomiciliosComponent implements OnInit {
     uuid: undefined
   };
 
+  estado: Estado;
+  municipio: Municipio;
+  localidad: Localidad;
+  colonia: Colonia;
+  calle: Calle;
+
+  estadoQuery: string = '';
+  municipioQuery: string = '';
+  localidadQuery: string = '';
+  coloniaQuery: string = '';
+  calleQuery: string = '';
+
+  obtenerCallesTimeout = undefined;
+
   @ViewChild('mostrarDetallesDomicilioModal') mostrarDetallesDomicilioModal: any;
   @ViewChild('modificarDomicilioModal') modificarDomicilioModal: any;
   @ViewChild('eliminarDomicilioModal') eliminarDomicilioModal: any;
 
   constructor(private toastService: ToastService, private formbuilder: FormBuilder,
               private empresaService: EmpresaService, private route: ActivatedRoute,
-              private modalService: NgbModal) { }
+              private modalService: NgbModal, private estadoService: EstadosService,
+              private calleService: CalleService) { }
 
   ngOnInit(): void {
     this.uuid = this.route.snapshot.paramMap.get("uuid");
 
+    this.estadoSearchForm = this.formbuilder.group({
+      nombre: ['']
+    });
+
     this.modificarDomicilioForm = this.formbuilder.group({
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
-      domicilio1: ['', [Validators.required, Validators.maxLength(100)]],
       numeroExterior: ['', [Validators.required, Validators.maxLength(20)]],
       numeroInterior: ['', [Validators.maxLength(20)]],
-      domicilio2: ['', [Validators.required, Validators.maxLength(100)]],
-      domicilio3: ['', [Validators.required, Validators.maxLength(100)]],
-      domicilio4: ['', [Validators.maxLength]],
+      domicilio4: [''],
       codigoPostal: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(5)]],
-      estado: ['', Validators.required],
-      pais: ['', [Validators.required, Validators.maxLength(100)]],
+      pais: ['Mexico', [Validators.required, Validators.maxLength(100)]],
       telefonoFijo: ['', [Validators.required]],
       telefonoMovil: ['', [Validators.required]]
       // TODO: Volver a agregar los campos latitud y longitud cuando se tenga la extension de google maps
@@ -69,15 +102,11 @@ export class EmpresaDomiciliosComponent implements OnInit {
 
     this.nuevoDomicilioForm = this.formbuilder.group({
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
-      domicilio1: ['', [Validators.required, Validators.maxLength(100)]],
       numeroExterior: ['', [Validators.required, Validators.maxLength(20)]],
       numeroInterior: ['', [Validators.maxLength(20)]],
-      domicilio2: ['', Validators.required],
-      domicilio3: ['', Validators.required],
       domicilio4: [''],
       codigoPostal: ['', Validators.required],
-      estado: ['', Validators.required],
-      pais: ['Mexico', Validators.required],
+      pais: ['Mexico', [Validators.required, Validators.maxLength(100)]],
       matriz: ['', Validators.required], // TODO: Quitar el si/no y agregar tipo de domicilio como matriz / sucursal
       telefonoFijo: ['', [Validators.required]],
       telefonoMovil: ['', [Validators.required]]
@@ -90,6 +119,26 @@ export class EmpresaDomiciliosComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se han podido descargar los domicilios. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+
+    this.estadoService.obtenerEstados().subscribe((data: Estado[]) => {
+      this.estados = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los estados. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
+
+    this.calleService.obtenerCallesPorLimite(10).subscribe((response: Calle[]) => {
+      this.calles = response;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrió un problema",
+        `No se pudieron descargar los clientes. Motivo: ${error}`,
         ToastType.ERROR
       )
     })
@@ -136,6 +185,125 @@ export class EmpresaDomiciliosComponent implements OnInit {
 
   delete(rowData) {
 
+  }
+
+  seleccionarEstado(estadoUuid) {
+    // DELETING EVERYTHING!
+    this.estado = this.estados.filter(x => x.uuid === estadoUuid)[0];
+    this.nuevoDomicilioForm.patchValue({
+      estado: this.estado.nombre
+    })
+    this.estadoService.obtenerEstadosPorMunicipio(estadoUuid).subscribe((data: Municipio[]) => {
+      this.municipios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los municipios. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
+  }
+
+  eliminarEstado() {
+    this.estado = undefined;
+    this.municipio = undefined;
+    this.localidad = undefined;
+    this.colonia = undefined;
+
+    this.nuevoDomicilioForm.patchValue({
+      estado: undefined,
+      domicilio3: undefined,
+      domicilio2: undefined
+    })
+  }
+
+  seleccionarMunicipio(municipioUuid) {
+    this.municipio = this.municipios.filter(x => x.uuid === municipioUuid)[0];
+
+    this.estadoService.obtenerColoniasPorMunicipioYEstado(this.estado.uuid, municipioUuid).subscribe((data: Colonia[]) => {
+      this.colonias = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las colonias. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
+
+    this.estadoService.obtenerLocalidadesPorMunicipioYEstado(this.estado.uuid, municipioUuid).subscribe((data: Localidad[]) => {
+      this.localidades = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las localidades. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  eliminarMunicipio() {
+    this.municipio = undefined;
+    this.localidad = undefined;
+    this.colonia = undefined;
+    this.calle = undefined;
+  }
+
+  seleccionarLocalidad(localidadUuid) {
+    this.localidad = this.localidades.filter(x => x.uuid === localidadUuid)[0];
+  }
+
+  eliminarLocalidad() {
+    this.localidad = undefined;
+  }
+
+  seleccionarColonia(coloniaUuid) {
+    this.colonia = this.colonias.filter(x => x.uuid === coloniaUuid)[0];
+    this.nuevoDomicilioForm.patchValue({
+      codigoPostal: this.colonia.codigoPostal
+    })
+  }
+
+  eliminarColonia() {
+    this.colonia = undefined;
+  }
+
+  obtenerCalles(event) {
+    if(this.obtenerCallesTimeout !== undefined) {
+      clearTimeout(this.obtenerCallesTimeout);
+    }
+
+    this.obtenerCallesTimeout = setTimeout(() => {
+      if(this.calleQuery === '' || this.calleQuery === undefined) {
+        this.calleService.obtenerCallesPorLimite(10).subscribe((response: Calle[]) => {
+          console.log(response);
+          this.calles = response;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrió un problema",
+            `No se pudieron descargar los clientes. Motivo: ${error}`,
+            ToastType.ERROR
+          )
+        })
+      } else {
+        this.calleService.obtenerCallesPorQuery(this.calleQuery).subscribe((response: Calle[]) => {
+          this.calles = response;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `Los clientes no se pudieron obtener. Motivo: ${error}`,
+            ToastType.ERROR
+          )
+        });
+      }
+    }, 1000);
+  }
+
+  seleccionarCalle(calleUuid) {
+    this.calle = this.calles.filter(x => x.uuid === calleUuid)[0];
+  }
+
+  eliminarCalle() {
+    this.calle = undefined;
   }
 
   isColumnListed(field: string ) {
@@ -205,6 +373,16 @@ export class EmpresaDomiciliosComponent implements OnInit {
       return;
     }
 
+    // Checar catalogos
+    if(this.estado === undefined || this.municipio === undefined || this.localidad === undefined || this.colonia === undefined || this.calle === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Alguno de los campos catalogo a llenar no esta lleno",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espera un momento",
       "Estamos guardando el nuevo domicilio",
@@ -212,6 +390,11 @@ export class EmpresaDomiciliosComponent implements OnInit {
     );
 
     let domicilio: EmpresaDomicilio = form.value;
+    domicilio.estadoCatalogo = this.estado;
+    domicilio.municipioCatalogo = this.municipio;
+    domicilio.localidadCatalogo = this.localidad;
+    domicilio.coloniaCatalogo = this.colonia;
+    domicilio.calleCatalogo = this.calle;
 
     this.empresaService.guardarDomicilio(this.uuid, domicilio).subscribe((data: EmpresaDomicilio) => {
       this.toastService.showGenericToast(
@@ -259,7 +442,7 @@ export class EmpresaDomiciliosComponent implements OnInit {
   mostrarEliminarEmpresaModal() {
     this.modalService.dismissAll();
 
-    this.modalService.open(this.eliminarDomicilioModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+    this.modalService.open(this.eliminarDomicilioModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;

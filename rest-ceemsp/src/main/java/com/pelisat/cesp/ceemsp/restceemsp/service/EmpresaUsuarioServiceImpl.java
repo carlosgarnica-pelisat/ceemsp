@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 public class EmpresaUsuarioServiceImpl implements EmpresaUsuarioService {
@@ -38,6 +39,11 @@ public class EmpresaUsuarioServiceImpl implements EmpresaUsuarioService {
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
         this.empresaService = empresaService;
+    }
+
+    @Override
+    public List<UsuarioDto> obtenerUsuarios(String uuid) {
+        return null;
     }
 
     @Transactional
@@ -69,5 +75,15 @@ public class EmpresaUsuarioServiceImpl implements EmpresaUsuarioService {
             usuarioRepository.save(usuario);
             return usuarioDto;
         }
+    }
+
+    @Override
+    public UsuarioDto modificarUsuario(String uuid, String usuarioUuid, String username, UsuarioDto usuarioDto) {
+        return null;
+    }
+
+    @Override
+    public UsuarioDto eliminarUsuario(String uuid, String usuarioUuid, String username) {
+        return null;
     }
 }

@@ -85,4 +85,27 @@ public class EmpresaFormaEjecucionServiceImpl implements EmpresaFormaEjecucionSe
 
         return daoToDtoConverter.convertDaoToDtoEmpresaFormaEjecucion(formaejecucionCreada);
     }
+
+    @Override
+    public EmpresaFormaEjecucionDto eliminarFormaEjecucion(String empresaUuid, String formaUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(formaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        EmpresaFormaEjecucion empresaFormaEjecucion = empresaFormaEjecucionRepository.findByUuidAndEliminadoFalse(formaUuid);
+        if(empresaFormaEjecucion == null) {
+            logger.warn("La forma de ejecucion no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        logger.info("Eliminando la forma de ejecucion con el uuid [{}]", formaUuid);
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        empresaFormaEjecucion.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, empresaFormaEjecucion, usuarioDto.getId());
+
+        empresaFormaEjecucionRepository.save(empresaFormaEjecucion);
+        return daoToDtoConverter.convertDaoToDtoEmpresaFormaEjecucion(empresaFormaEjecucion);
+    }
 }

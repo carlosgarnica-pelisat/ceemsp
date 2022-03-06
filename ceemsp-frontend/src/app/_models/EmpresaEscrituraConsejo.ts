@@ -5,8 +5,10 @@ export default class EmpresaEscrituraConsejo implements Deserializable {
   uuid: string;
   nombres: string;
   apellidos: string;
+  apellidoMaterno: string;
   sexo: string;
   puesto: string;
+  curp: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);

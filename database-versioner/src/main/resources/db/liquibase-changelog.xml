@@ -83,4 +83,10 @@
 
 
     <include file="changelog/visitas/master.xml" relativeToChangelogFile="true"></include>
+
+    <include file="changelog/estados/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/municipios/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/localidades/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/colonias/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/calles/master.xml" relativeToChangelogFile="true"></include>
 </databaseChangeLog>

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,7 +97,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         EmpresaDto empresa = empresaService.obtenerPorUuid(empresaUuid);
         Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
 
-        if(empresa.getId() != vehiculo.getId()) {
+        if(empresa.getId() != vehiculo.getEmpresa()) {
             logger.warn("El vehiculo no pertenece a esa empresa");
             throw new MissingRelationshipException();
         }
@@ -146,6 +147,17 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         vehiculo.setEmpresa(empresaDto.getId());
         vehiculo.setMarca(vehiculoDto.getMarca().getId());
         vehiculo.setSubmarca(vehiculoDto.getSubmarca().getId());
+        vehiculo.setUso(vehiculoDto.getUso().getId());
+        vehiculo.setTipo(vehiculoDto.getTipo().getId());
+        if(StringUtils.isNotBlank(vehiculoDto.getFechaInicio())) {
+            vehiculo.setFechaInicio(LocalDate.parse(vehiculoDto.getFechaInicio()));
+        }
+        if(StringUtils.isNotBlank(vehiculoDto.getFechaFin())) {
+            vehiculo.setFechaFin(LocalDate.parse(vehiculoDto.getFechaFin()));
+        }
+        if(StringUtils.isNotBlank(vehiculoDto.getFechaBlindaje())) {
+            vehiculo.setFechaBlindaje(LocalDate.parse(vehiculoDto.getFechaBlindaje()));
+        }
         daoHelper.fulfillAuditorFields(true, vehiculo, usuarioDto.getId());
 
         Vehiculo vehiculoCreado = vehiculoRepository.save(vehiculo);

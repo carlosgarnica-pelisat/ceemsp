@@ -8,4 +8,5 @@ import java.util.List;
 public interface EmpresaFormaEjecucionService {
     List<EmpresaFormaEjecucionDto> obtenerFormasEjecucionPorEmpresaUuid(String empresaUuid);
     EmpresaFormaEjecucionDto crearFormaEjecucion(String empresaUuid, String username, EmpresaFormaEjecucionDto empresaFormaEjecucionDto);
+    EmpresaFormaEjecucionDto eliminarFormaEjecucion(String empresaUuid, String formaUuid, String username);
 }

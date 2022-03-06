@@ -19,6 +19,8 @@ import EmpresaEscrituraConsejo from "../../../_models/EmpresaEscrituraConsejo";
 })
 export class EmpresaLegalComponent implements OnInit {
 
+  fechaDeHoy = new Date().toISOString().split('T')[0];
+
   showSocioForm: boolean = false;
   showApoderadoForm: boolean = false;
   showRepresentanteForm: boolean = false;
@@ -67,6 +69,8 @@ export class EmpresaLegalComponent implements OnInit {
     uuid: undefined
   };
 
+  porcentaje: number = 0.00;
+
   @ViewChild('mostrarDetallesEscrituraModal') mostrarDetallesEscrituraModal: any;
   @ViewChild('modificarEscrituraModal') modificarEscrituraModal: any;
 
@@ -87,7 +91,7 @@ export class EmpresaLegalComponent implements OnInit {
       fechaEscritura: ['', Validators.required],
       ciudad: ['', [Validators.required, Validators.maxLength(60)]],
       tipoFedatario: ['', Validators.required],
-      numero: ['', Validators.required],
+      numero: ['', [Validators.required, Validators.min(1), Validators.max(9999)]],
       nombreFedatario: ['', [Validators.required, Validators.maxLength(100)]],
       descripcion: ['', Validators.required]
     })
@@ -95,6 +99,7 @@ export class EmpresaLegalComponent implements OnInit {
     this.nuevoSocioForm = this.formBuilder.group({
       nombres: ['', [Validators.required, Validators.maxLength(60)]],
       apellidos: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
       sexo: ['', Validators.required],
       porcentajeAcciones: ['', Validators.required]
     })
@@ -102,6 +107,7 @@ export class EmpresaLegalComponent implements OnInit {
     this.nuevoApoderadoForm = this.formBuilder.group({
       nombres: ['', [Validators.required, Validators.maxLength(60)]],
       apellidos: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
       sexo: ['', Validators.required],
       fechaInicio: ['', Validators.required],
       fechaFin: ['', Validators.required]
@@ -110,12 +116,14 @@ export class EmpresaLegalComponent implements OnInit {
     this.nuevoRepresentanteForm = this.formBuilder.group({
       nombres: ['', [Validators.required, Validators.maxLength(60)]],
       apellidos: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
       sexo: ['', Validators.required]
     })
 
     this.nuevoConsejoAdministracionForm = this.formBuilder.group({
       nombres: ['', [Validators.required, Validators.maxLength(60)]],
       apellidos: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.maxLength(60)]],
       sexo: ['', Validators.required],
       puesto: ['', Validators.required]
     })
@@ -258,6 +266,33 @@ export class EmpresaLegalComponent implements OnInit {
     );
 
     let formValue: EmpresaEscrituraSocio = nuevoSocioform.value;
+
+    if(this.escritura.socios.length > 0) {
+      this.porcentaje = 0.00;
+      this.escritura.socios.forEach((s) => {
+        this.porcentaje += parseInt(String(s.porcentajeAcciones));
+      })
+
+      this.porcentaje += parseInt(String(formValue.porcentajeAcciones));
+
+      if(this.porcentaje > 100) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `El porcentaje de acciones es mayor al 100%`,
+          ToastType.WARNING
+        );
+        return;
+      }
+    } else {
+      if(formValue.porcentajeAcciones > 100) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `El porcentaje de acciones es mayor al 100%`,
+          ToastType.WARNING
+        );
+        return;
+      }
+    }
 
     if(this.editandoSocio) {
       formValue.uuid = this.socio.uuid;

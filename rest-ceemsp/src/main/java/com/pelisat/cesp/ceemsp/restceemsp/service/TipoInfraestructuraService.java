@@ -6,10 +6,7 @@ import java.util.List;
 
 public interface TipoInfraestructuraService {
     List<TipoInfraestructuraDto> obtenerTiposInfraestructura();
-
     TipoInfraestructuraDto obtenerTipoInfraestructuraPorUuid(String uuid);
-
     TipoInfraestructuraDto obtenerTipoInfraestructuraPorId(Integer id);
-
     TipoInfraestructuraDto guardarTipoInfraestructura(TipoInfraestructuraDto tipoInfraestructuraDto, String username);
 }

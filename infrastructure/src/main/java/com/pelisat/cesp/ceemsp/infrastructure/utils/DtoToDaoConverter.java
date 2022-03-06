@@ -198,6 +198,15 @@ public class DtoToDaoConverter {
             throw new InvalidDataException();
         }
 
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.typeMap(EmpresaDomicilioDto.class, EmpresaDomicilio.class)
+                .addMappings(mapper -> mapper.skip(EmpresaDomicilio::setEstadoCatalogo))
+                .addMappings(mapper -> mapper.skip(EmpresaDomicilio::setMunicipioCatalogo))
+                .addMappings(mapper -> mapper.skip(EmpresaDomicilio::setColoniaCatalogo))
+                .addMappings(mapper -> mapper.skip(EmpresaDomicilio::setLocalidadCatalogo))
+                .addMappings(mapper -> mapper.skip(EmpresaDomicilio::setCalleCatalogo));
+
         EmpresaDomicilio empresaDomicilio = modelMapper.map(empresaDomicilioDto, EmpresaDomicilio.class);
         if(StringUtils.isBlank(empresaDomicilio.getUuid())) {
             logger.info("El uuid viene como nulo. Generando uno nuevo");
@@ -389,7 +398,14 @@ public class DtoToDaoConverter {
 
     public ClienteDomicilio convertDtoToDaoClienteDomicilio(ClienteDomicilioDto clienteDomicilioDto) {
         ModelMapper modelMapper = new ModelMapper();
-        modelMapper.typeMap(ClienteDomicilioDto.class, ClienteDomicilio.class).addMappings(mapper -> mapper.skip(ClienteDomicilio::setTipoInfraestructura));
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.typeMap(ClienteDomicilioDto.class, ClienteDomicilio.class)
+                .addMappings(mapper -> mapper.skip(ClienteDomicilio::setEstadoCatalogo))
+                .addMappings(mapper -> mapper.skip(ClienteDomicilio::setMunicipioCatalogo))
+                .addMappings(mapper -> mapper.skip(ClienteDomicilio::setColoniaCatalogo))
+                .addMappings(mapper -> mapper.skip(ClienteDomicilio::setLocalidadCatalogo))
+                .addMappings(mapper -> mapper.skip(ClienteDomicilio::setCalleCatalogo))
+                .addMappings(mapper -> mapper.skip(ClienteDomicilio::setTipoInfraestructura));;
 
         if(clienteDomicilioDto == null) {
             logger.warn("El domicilio del cliente viene como vacio o nulo");
@@ -412,10 +428,12 @@ public class DtoToDaoConverter {
         }
 
         ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         modelMapper.typeMap(VehiculoDto.class, Vehiculo.class)
                 .addMappings(mapper -> mapper.skip(Vehiculo::setMarca))
                 .addMappings(mapper -> mapper.skip(Vehiculo::setSubmarca))
-                .addMappings(mapper -> mapper.skip(Vehiculo::setTipo));
+                .addMappings(mapper -> mapper.skip(Vehiculo::setTipo))
+                .addMappings(mapper -> mapper.skip(Vehiculo::setUso));
 
         Vehiculo vehiculo = modelMapper.map(vehiculoDto, Vehiculo.class);
         if(StringUtils.isBlank(vehiculo.getUuid())) {

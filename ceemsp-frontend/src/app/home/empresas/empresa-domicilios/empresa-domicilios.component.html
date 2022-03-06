@@ -207,7 +207,7 @@
                       <i *ngIf="modificarDomicilioForm.controls['estado'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                 </label>
-                <select id="estadoEditar" formControlName="estado" class="form-control">
+                <!--select id="estadoEditar" formControlName="estado" class="form-control">
                   <option value="AGUASCALIENTES">Aguascalientes</option>
                   <option value="BAJA CALIFORNIA">Baja California</option>
                   <option value="BAJA CALIFORNIA SUR">Baja California Sur</option>
@@ -240,7 +240,7 @@
                   <option value="VERACRUZ">Veracruz</option>
                   <option value="YUCATAN">Yucatan</option>
                   <option value="ZACATECAS">Zacatecas</option>
-                </select>
+                </select-->
               </div>
               <div class="col-sm-3">
                 <label for="paisEditar">
@@ -347,16 +347,115 @@
             </div>
 
             <div class="row">
-              <div class="col-sm-4">
-                <label for="domicilio1">
-                  <b>Calle * </b>
-                  <span
-                    *ngIf="nuevoDomicilioForm.controls['domicilio1'].invalid && (nuevoDomicilioForm.controls['domicilio1'].dirty || nuevoDomicilioForm.controls['domicilio1'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['domicilio1'].errors.required" class="text-danger"> - Campo requerido</i>
-                    <i *ngIf="nuevoDomicilioForm.controls['domicilio1'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                  </span>
+              <div class="col-sm-3">
+                <label>
+                  <b>Estado *</b>
                 </label>
-                <input id="domicilio1" type="text" class="form-control" placeholder="Ej. Av. Malecon" formControlName="domicilio1" #address1>
+                <div class="dropdown" id="customer">
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{estado === undefined ? 'Ninguno' : estado?.nombre}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                    <form [formGroup]="estadoSearchForm" class="px-4 py-3">
+                      <label for="estadoSearchQuery"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="estadoSearchQuery" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
+                             [ngModelOptions]="{standalone: true}" autocomplete="off">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let e of estados | buscarNombre: {nombre: estadoQuery}" (click)="seleccionarEstado(e.uuid)">
+                      {{e.nombre}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarEstado()">Quitar</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <label>
+                  <b>Municipio *</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="municipioSearchForm" class="px-4 py-3">
+                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="municipioSearchQuery" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
+                           [ngModelOptions]="{standalone: true}" autocomplete="off">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let m of municipios | buscarNombre: {nombre: municipioQuery}" (click)="seleccionarMunicipio(m.uuid)">
+                    {{m.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <label>
+                  <b>Localidad *</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="localidadSearchForm" class="px-4 py-3">
+                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="localidadSearchQuery" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
+                           [ngModelOptions]="{standalone: true}" autocomplete="off">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let l of localidades | buscarNombre: {nombre: localidadQuery}" (click)="seleccionarLocalidad(l.uuid)">
+                    {{l.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <label>
+                  <b>Colonia *</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{colonia === undefined ? 'Ninguno' : colonia?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="municipioSearchForm" class="px-4 py-3">
+                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="coloniaSearchQuery" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
+                           [ngModelOptions]="{standalone: true}" autocomplete="off">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let c of colonias | buscarNombre: {nombre: coloniaQuery}" (click)="seleccionarColonia(c.uuid)">
+                    {{c.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="colonia !== undefined" (click)="eliminarColonia()">Quitar</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-4">
+                <label>
+                  <b>Calle * </b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{calle === undefined ? 'Ninguno' : calle?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="calleSearchForm" class="px-4 py-3">
+                    <label for="calleSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="calleSearchQuery" placeholder="Ej. Av. Empresarios" [(ngModel)]="calleQuery"
+                           [ngModelOptions]="{standalone: true}" (keyup)="obtenerCalles($event)" autocomplete="off">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let c of calles" (click)="seleccionarCalle(c.uuid)">
+                    {{c.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="calle !== undefined" (click)="eliminarCalle()">Quitar</a>
+                </div>
               </div>
               <div class="col-sm-1">
                 <label for="numeroExterior">
@@ -379,85 +478,7 @@
                 </label>
                 <input id="numeroInterior" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
               </div>
-              <div class="col-sm-3">
-                <label for="domicilio2">
-                  <b>Colonia *</b>
-                  <span
-                    *ngIf="nuevoDomicilioForm.controls['domicilio2'].invalid && (nuevoDomicilioForm.controls['domicilio2'].dirty || nuevoDomicilioForm.controls['domicilio2'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['domicilio2'].errors.required" class="text-danger"> - Campo requerido</i>
-                    <i *ngIf="nuevoDomicilioForm.controls['domicilio2'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                  </span>
-                </label>
-                <input id="domicilio2" type="text" class="form-control" placeholder="Ej. Colonia 20 de Noviembre" formControlName="domicilio2" #domicilio2>
-              </div>
-              <div class="col-sm-3">
-                <label for="domicilio3">
-                  <b>Municipio *</b>
-                  <span
-                  *ngIf="nuevoDomicilioForm.controls['domicilio3'].invalid && (nuevoDomicilioForm.controls['domicilio3'].dirty || nuevoDomicilioForm.controls['domicilio3'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['domicilio3'].errors.required" class="text-danger"> - Campo requerido</i>
-                    <i *ngIf="nuevoDomicilioForm.controls['domicilio3'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                  </span>
-                </label>
-                <input id="domicilio3" type="text" class="form-control" placeholder="Ej. Tonala" formControlName="domicilio3" #domicilio3>
-              </div>
-            </div>
 
-            <div class="row">
-              <div class="col-sm-3">
-                <label for="estado">
-                  <b>Estado *</b>
-                  <span
-                    *ngIf="nuevoDomicilioForm.controls['estado'].invalid && (nuevoDomicilioForm.controls['estado'].dirty || nuevoDomicilioForm.controls['estado'].touched)">
-                      <i *ngIf="nuevoDomicilioForm.controls['estado'].errors.required" class="text-danger"> - Campo requerido</i>
-                    </span>
-                </label>
-                <select id="estado" formControlName="estado" class="form-control">
-                  <option value="AGUASCALIENTES">Aguascalientes</option>
-                  <option value="BAJA CALIFORNIA">Baja California</option>
-                  <option value="BAJA CALIFORNIA SUR">Baja California Sur</option>
-                  <option value="CAMPECHE">Campeche</option>
-                  <option value="CIUDAD DE MEXICO">Baja California</option>
-                  <option value="COAHUILA">Coahuila</option>
-                  <option value="COLIMA">Colima</option>
-                  <option value="CHIAPAS">Chiapas</option>
-                  <option value="CHIHUAHUA">Chihuahua</option>
-                  <option value="DURANGO">Durango</option>
-                  <option value="ESTADO DE MEXICO">Estado de Mexico</option>
-                  <option value="GUANAJUATO">Guanajuato</option>
-                  <option value="GUERRERO">Guerrero</option>
-                  <option value="HIDALGO">Hidalgo</option>
-                  <option value="JALISCO">Jalisco</option>
-                  <option value="MICHOACAN">Michoacan</option>
-                  <option value="MORELOS">Morelos</option>
-                  <option value="NAYARIT">Nayarit</option>
-                  <option value="NUEVO LEON">Nuevo Leon</option>
-                  <option value="OAXACA">Oaxaca</option>
-                  <option value="PUEBLA">Puebla</option>
-                  <option value="QUERETARO">Queretaro</option>
-                  <option value="QUINTANA ROO">Quintana Roo</option>
-                  <option value="SAN LUIS POTOSI">San Luis Potosi</option>
-                  <option value="SINALOA">Sinaloa</option>
-                  <option value="SONORA">Sonora</option>
-                  <option value="TABASCO">Tabasco</option>
-                  <option value="TAMAULIPAS">Tamaulipas</option>
-                  <option value="TLAXCALA">Tlaxcala</option>
-                  <option value="VERACRUZ">Veracruz</option>
-                  <option value="YUCATAN">Yucatan</option>
-                  <option value="ZACATECAS">Zacatecas</option>
-                </select>
-              </div>
-              <div class="col-sm-3">
-                <label for="pais">
-                  <b>Pais *</b>
-                  <span
-                    *ngIf="nuevoDomicilioForm.controls['pais'].invalid && (nuevoDomicilioForm.controls['pais'].dirty || nuevoDomicilioForm.controls['pais'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['pais'].errors.required" class="text-danger"> - Campo requerido</i>
-                    <i *ngIf="nuevoDomicilioForm.controls['pais'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                  </span>
-                </label>
-                <input id="pais" type="text" class="form-control" placeholder="Ej. Mexico" formControlName="pais" #pais>
-              </div>
               <div class="col-sm-3">
                 <label for="codigoPostal">
                   <b>Codigo Postal *</b>
