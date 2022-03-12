@@ -37,7 +37,7 @@ public class Can extends CommonModel {
     private Integer domicilioAsignado;
 
     @Column(name = "FECHA_INGRESO", nullable = false)
-    private Date fechaIngreso;
+    private LocalDate fechaIngreso;
 
     @Column(name = "EDAD", nullable = false)
     private Integer edad;

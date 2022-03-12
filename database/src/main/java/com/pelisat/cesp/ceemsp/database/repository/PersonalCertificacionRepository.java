@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface PersonalCertificacionRepository extends JpaRepository<PersonalCertificacion, Integer> {
     List<PersonalCertificacion> getAllByPersonalAndEliminadoFalse(int personal);
+    PersonalCertificacion findByUuidAndEliminadoFalse(String uuid);
 }

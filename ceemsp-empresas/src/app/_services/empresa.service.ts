@@ -161,6 +161,14 @@ export class EmpresaService {
     return this.http.post(`${this.uri}/empresas/${uuid}/licencias`, licenciaColectiva);
   }
 
+  modificarLicenciaColectiva(uuid: string, licenciaColectivaUuid: string, licenciaColectiva: EmpresaLicenciaColectiva) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}`, licenciaColectiva)
+  }
+
+  eliminarLicenciaColectiva(uuid: string, licenciaColectivaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}`)
+  }
+
   obtenerDomiciliosPorLicenciaColectiva(uuid: string, licenciaColectivaUuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/domicilios`);
   }

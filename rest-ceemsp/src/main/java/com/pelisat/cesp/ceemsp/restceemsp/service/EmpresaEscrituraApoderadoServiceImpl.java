@@ -3,10 +3,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraApoderadoDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscrituraApoderado;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscrituraRepresentante;
+import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraApoderadoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepresentanteRepository;
@@ -102,5 +99,57 @@ public class EmpresaEscrituraApoderadoServiceImpl implements EmpresaEscrituraApo
         EmpresaEscrituraApoderado empresaEscrituraRepresentanteCreada = empresaEscrituraApoderadoRepository.save(empresaEscrituraApoderado);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraApoderado(empresaEscrituraRepresentanteCreada);
+    }
+
+    @Override
+    public EmpresaEscrituraApoderadoDto modificarApoderado(String empresaUuid, String escrituraUuid, String apoderadoUuid, String username, EmpresaEscrituraApoderadoDto empresaEscrituraApoderadoDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(apoderadoUuid) || empresaEscrituraApoderadoDto == null) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Se esta modificando el apoderado de la escritura con el uuid [{}]", apoderadoUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        EmpresaEscrituraApoderado empresaEscrituraApoderado = empresaEscrituraApoderadoRepository.findByUuidAndEliminadoFalse(apoderadoUuid);
+
+        if(empresaEscrituraApoderado == null) {
+            logger.warn("El apoderado a modificar no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaEscrituraApoderado.setNombres(empresaEscrituraApoderadoDto.getNombres());
+        empresaEscrituraApoderado.setApellidos(empresaEscrituraApoderadoDto.getApellidos());
+        empresaEscrituraApoderado.setApellidoMaterno(empresaEscrituraApoderadoDto.getApellidoMaterno());
+        empresaEscrituraApoderado.setCurp(empresaEscrituraApoderadoDto.getCurp());
+        empresaEscrituraApoderado.setFechaInicio(LocalDate.parse(empresaEscrituraApoderadoDto.getFechaInicio()));
+        empresaEscrituraApoderado.setFechaFin(LocalDate.parse(empresaEscrituraApoderadoDto.getFechaFin()));
+
+        daoHelper.fulfillAuditorFields(false, empresaEscrituraApoderado, usuario.getId());
+        empresaEscrituraApoderadoRepository.save(empresaEscrituraApoderado);
+        return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraApoderado(empresaEscrituraApoderado);
+    }
+
+    @Override
+    public EmpresaEscrituraApoderadoDto eliminarApoderado(String empresaUuid, String escrituraUuid, String apoderadoUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(apoderadoUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Se esta eliminando el apoderado de la escritura con el uuid [{}]", apoderadoUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        EmpresaEscrituraApoderado empresaEscrituraApoderado = empresaEscrituraApoderadoRepository.findByUuidAndEliminadoFalse(apoderadoUuid);
+
+        if(empresaEscrituraApoderado == null) {
+            logger.warn("El apoderado a modificar no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaEscrituraApoderado.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, empresaEscrituraApoderado, usuario.getId());
+        empresaEscrituraApoderadoRepository.save(empresaEscrituraApoderado);
+        return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraApoderado(empresaEscrituraApoderado);
     }
 }

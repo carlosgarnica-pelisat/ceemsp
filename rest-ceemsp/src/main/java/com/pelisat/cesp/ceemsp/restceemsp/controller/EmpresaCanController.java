@@ -41,7 +41,7 @@ public class EmpresaCanController {
         return canService.obtenerCanPorUuid(empresaUuid, canUuid, false);
     }
 
-    @PostMapping(value = EMPRESA_CANES_URI, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = EMPRESA_CANES_URI, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public CanDto guardarCan(
             @RequestBody CanDto canDto,
             HttpServletRequest request,
@@ -49,5 +49,26 @@ public class EmpresaCanController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return canService.guardarCan(empresaUuid, username, canDto);
+    }
+
+    @PutMapping(value = EMPRESA_CANES_URI + "/{canUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public CanDto modificarCan(
+            @RequestBody CanDto canDto,
+            HttpServletRequest request,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "canUuid") String canUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return canService.modificarCan(empresaUuid, canUuid, username, canDto);
+    }
+
+    @DeleteMapping
+    public CanDto eliminarCan(
+            HttpServletRequest request,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "canUuid") String canUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return canService.eliminarCan(empresaUuid, canUuid, username);
     }
 }

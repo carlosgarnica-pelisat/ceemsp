@@ -5,9 +5,11 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaLicenciaColectivaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
+import com.pelisat.cesp.ceemsp.database.model.EmpresaLicenciaColectiva;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaLicenciaColectivaDomicilio;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaLicenciaColectivaDomicilioRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,7 +63,7 @@ public class EmpresaLicenciaColectivaDomicilioServiceImpl implements EmpresaLice
         EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto = empresaLicenciaColectivaService.obtenerLicenciaColectivaPorUuid(empresaUuid, licenciaColectivaUuid, true);
         List<EmpresaLicenciaColectivaDomicilio> domicilios = empresaLicenciaColectivaDomicilioRepository.findAllByLicenciaColectivaAndEliminadoFalse(empresaLicenciaColectivaDto.getId());
 
-        return domicilios.stream().map(d -> empresaDomicilioService.obtenerPorId(d.getId())).collect(Collectors.toList());
+        return domicilios.stream().map(d -> empresaDomicilioService.obtenerPorId(d.getDomicilio())).collect(Collectors.toList());
     }
 
     @Override
@@ -86,5 +89,30 @@ public class EmpresaLicenciaColectivaDomicilioServiceImpl implements EmpresaLice
         empresaLicenciaColectivaDomicilioRepository.save(empresaLicenciaColectivaDomicilio);
 
         return domicilio;
+    }
+
+    @Transactional
+    @Override
+    public EmpresaDomicilioDto eliminarDomicilioEnLicenciaColectiva(String empresaUuid, String licenciaColectivaUuid, String domicilioUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(licenciaColectivaUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(domicilioUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminndo el domicilio registrado con la licencia colectiva");
+        EmpresaDomicilioDto empresaDomicilioDto = empresaDomicilioService.obtenerPorUuid(empresaUuid, domicilioUuid);
+
+        EmpresaLicenciaColectivaDomicilio empresaLicenciaColectivaDomicilio = empresaLicenciaColectivaDomicilioRepository.getOne(empresaDomicilioDto.getId());
+
+        if(empresaLicenciaColectivaDomicilio == null) {
+            logger.warn("No se encontro el domicilio de la licencia colectiva");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        empresaLicenciaColectivaDomicilio.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, empresaLicenciaColectivaDomicilio, usuario.getId());
+        empresaLicenciaColectivaDomicilioRepository.save(empresaLicenciaColectivaDomicilio);
+        return null;
     }
 }

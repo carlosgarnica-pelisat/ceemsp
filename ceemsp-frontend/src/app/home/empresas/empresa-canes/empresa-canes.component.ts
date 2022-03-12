@@ -78,7 +78,11 @@ export class EmpresaCanesComponent implements OnInit {
 
   tipoAdiestramiento: TipoEntrenamiento;
   @ViewChild('mostrarFotoCanesModal') mostrarFotoCanModal: any;
+  @ViewChild('modificarCanModal') modificarCanModal: any;
 
+  fechaDeHoy = new Date().toISOString().split('T')[0];
+
+  mostrarOtraRaza: boolean = false;
 
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
               private toastService: ToastService, private modalService: NgbModal,
@@ -200,7 +204,7 @@ export class EmpresaCanesComponent implements OnInit {
 
     this.empresaService.obtenerCanPorUuid(this.uuid, canUuid).subscribe((data: Can) => {
       this.can = data;
-      this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+      this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', scrollable: true});
 
       this.modal.result.then((result) => {
         this.closeResult = `Closed with ${result}`;
@@ -216,8 +220,23 @@ export class EmpresaCanesComponent implements OnInit {
     })
   }
 
+  esOtraRaza(event) {
+    let otraRaza = this.razas.filter(x => x.uuid === event.value);
+    console.log(otraRaza);
+    if(otraRaza.length > 0 && otraRaza[0].nombre === "Otro") {
+      this.mostrarOtraRaza = true;
+    } else {
+      this.mostrarOtraRaza = false;
+    }
+
+  }
+
+  guardarCambiosCan(form) {
+
+  }
+
   mostrarModalCrear(modal) {
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', scrollable: true});
 
     this.stepper = new Stepper(document.querySelector('#stepper1'), {
       linear: true,
@@ -393,7 +412,7 @@ export class EmpresaCanesComponent implements OnInit {
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        "Faltan algunos campos obligatorios por llenarse",
+        "El formulario no es valido. Favor de corregir los errores",
         ToastType.WARNING
       );
       return;
@@ -530,6 +549,10 @@ export class EmpresaCanesComponent implements OnInit {
 
   actualizarPagina() {
     window.location.reload();
+  }
+
+  mostrarModificarCanModal() {
+
   }
 
   descargarFotografia(uuid) {

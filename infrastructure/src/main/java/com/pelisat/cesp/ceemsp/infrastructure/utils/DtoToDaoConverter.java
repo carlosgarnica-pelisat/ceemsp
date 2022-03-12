@@ -459,7 +459,12 @@ public class DtoToDaoConverter {
                 .addMappings(mapper -> mapper.skip(Personal::setPuesto))
                 .addMappings(mapper -> mapper.skip(Personal::setSubpuesto))
                 .addMappings(mapper -> mapper.skip(Personal::setNacionalidad))
-                .addMappings(mapper -> mapper.skip(Personal::setDomicilioAsignado));
+                .addMappings(mapper -> mapper.skip(Personal::setDomicilioAsignado))
+                .addMappings(mapper -> mapper.skip(Personal::setEstadoCatalogo))
+                .addMappings(mapper -> mapper.skip(Personal::setMunicipioCatalogo))
+                .addMappings(mapper -> mapper.skip(Personal::setColoniaCatalogo))
+                .addMappings(mapper -> mapper.skip(Personal::setLocalidadCatalogo))
+                .addMappings(mapper -> mapper.skip(Personal::setCalleCatalogo));
 
         Personal personal = modelMapper.map(personaDto, Personal.class);
         if(StringUtils.isBlank(personal.getUuid())) {

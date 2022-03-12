@@ -292,4 +292,24 @@
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
+
+  <ng-template #eliminarEscrituraLicenciaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEscrituraLicenciaModal">Eliminando la licencia colectiva </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar la licencia colectiva. Toma en cuenta que los domicilios vinculados y las armas se eliminaran tambien. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarLicencia()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
 </div>

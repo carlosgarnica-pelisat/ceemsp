@@ -15,7 +15,7 @@ import Persona from "../../../_models/Persona";
 import PersonaCertificacion from "../../../_models/PersonaCertificacion";
 import PersonalSubpuestoTrabajo from "../../../_models/PersonalSubpuestoTrabajo";
 import Modalidad from "../../../_models/Modalidad";
-import {faDownload, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faDownload, faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 import Estado from "../../../_models/Estado";
 import Municipio from "../../../_models/Municipio";
 import Calle from "../../../_models/Calle";
@@ -39,6 +39,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
   faDownload = faDownload;
   faTrash = faTrash;
+  faPencilAlt = faPencilAlt;
 
   @ViewChild('mostrarFotoPersonaModal') mostrarFotoPersonaModal: any;
 
@@ -114,6 +115,18 @@ export class EmpresaPersonalComponent implements OnInit {
 
   existePersona: ExistePersona = undefined;
 
+  tempUuidPersonal: string = "";
+  tempUuidCapacitacion: string = "";
+  tempUuidFotografia: string = "";
+
+  editandoCapacitacion: boolean = false;
+
+  personaCertificacion: PersonaCertificacion;
+
+  @ViewChild('eliminarCapacitacionesModal') eliminarCapacitacionesModal;
+  @ViewChild('eliminarPersonalModal') eliminarPersonalModal;
+  @ViewChild('eliminarFotografiasModal') eliminarFotografiasModal;
+
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
               private toastService: ToastService, private modalService: NgbModal,
               private personalService: PersonalService, private empresaService: EmpresaService,
@@ -130,9 +143,9 @@ export class EmpresaPersonalComponent implements OnInit {
       apellidoMaterno: ['', [Validators.maxLength(60)]],
       nombres: ['', [Validators.required, Validators.maxLength(60)]],
       fechaNacimiento: ['', Validators.required],
+      fechaIngreso: ['', Validators.required],
       sexo: ['', Validators.required],
       tipoSangre: ['', Validators.required],
-      fechaIngreso: ['', Validators.required],
       estadoCivil: ['', Validators.required],
       numeroExterior: ['', [Validators.required, Validators.maxLength(20)]],
       numeroInterior: ['', [Validators.maxLength(20)]],
@@ -144,28 +157,28 @@ export class EmpresaPersonalComponent implements OnInit {
     });
 
     this.crearPersonalPuestoForm = this.formBuilder.group({
-      'puesto': ['', Validators.required],
-      'subpuesto': ['', Validators.required],
-      'detallesPuesto': ['', Validators.required],
-      'domicilioAsignado': ['', Validators.required],
-      'estatusCuip': [''],
-      'cuip': [''],
-      'numeroVolanteCuip': [''],
-      'fechaVolanteCuip': [''],
-      'modalidad': ['']
+      puesto: ['', Validators.required],
+      subpuesto: ['', Validators.required],
+      detallesPuesto: ['', Validators.required],
+      domicilioAsignado: ['', Validators.required],
+      estatusCuip: [''],
+      cuip: [''],
+      numeroVolanteCuip: [''],
+      fechaVolanteCuip: [''],
+      modalidad: ['']
     });
 
     this.crearPersonalCertificadoForm = this.formBuilder.group({
-      'nombre': ['', Validators.required],
-      'nombreInstructor': ['', Validators.required],
-      'duracion': ['', Validators.required],
-      'fechaInicio': ['', Validators.required],
-      'fechaFin': ['', Validators.required]
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      nombreInstructor: ['', [Validators.required, Validators.maxLength(100)]],
+      duracion: ['', [Validators.required, Validators.min(1), Validators.max(99)]],
+      fechaInicio: ['', Validators.required],
+      fechaFin: ['', Validators.required]
     })
 
     this.crearPersonaFotografiaForm = this.formBuilder.group({
-      'file': ['', Validators.required],
-      'descripcion': ['', Validators.required]
+      file: ['', Validators.required],
+      descripcion: ['', Validators.required]
     })
 
     this.empresaService.obtenerPersonal(this.uuid).subscribe((data: Persona[]) => {
@@ -174,6 +187,16 @@ export class EmpresaPersonalComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se han podido descargar el personal. ${error}`,
+        ToastType.ERROR
+      );
+    });
+
+    this.personalService.obtenerNacionalidades().subscribe((data: PersonalNacionalidad[]) => {
+      this.nacionalidades = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las nacionalidades. Motivo: ${error}`,
         ToastType.ERROR
       );
     });
@@ -400,26 +423,41 @@ export class EmpresaPersonalComponent implements OnInit {
     this.pestanaActual = nombrePestana;
   }
 
+  cancelarCambiosPersonal() {
+    this.crearPersonalForm.reset();
+    this.calle = undefined;
+    this.colonia = undefined;
+    this.localidad = undefined;
+    this.municipio = undefined;
+    this.estado = undefined;
+    this.modal.close();
+  }
+
   next(stepName: string, form) {
-    /*if(!form.valid) {
+    if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "Faltan algunos campos obligatorios por llenarse",
         ToastType.WARNING
       );
       return;
-    }*/
+    }
     switch (stepName) {
       case "INFORMACION_PUESTO":
         this.toastService.showGenericToast(
           "Espere un momento",
           "Estamos guardando la persona",
-          ToastType.ERROR
+          ToastType.INFO
         );
 
         let formValue: Persona = form.value;
 
-        formValue.nacionalidad = this.nacionalidades.filter(x => x.uuid === form.value.marca)[0];
+        formValue.nacionalidad = this.nacionalidades.filter(x => x.uuid === form.value.nacionalidad)[0];
+        formValue.calleCatalogo = this.calle;
+        formValue.coloniaCatalogo = this.colonia;
+        formValue.localidadCatalogo = this.localidad;
+        formValue.municipioCatalogo = this.municipio;
+        formValue.estadoCatalogo = this.estado;
 
         this.empresaService.guardarPersonal(this.uuid, formValue).subscribe((data: Persona) => {
           this.toastService.showGenericToast(
@@ -462,7 +500,39 @@ export class EmpresaPersonalComponent implements OnInit {
         })
         break;
       case "RESUMEN":
+        let personaCertificacion: PersonaCertificacion = form.value;
 
+        let fechaInicio = new Date(personaCertificacion.fechaInicio);
+        let fechaFin = new Date(personaCertificacion.fechaFin);
+        if(fechaInicio > fechaFin) {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            "La fecha de inicio es mayor que la del final",
+            ToastType.WARNING
+          )
+          return;
+        }
+
+        this.toastService.showGenericToast(
+          "Espere un momento",
+          "Estamos guardando la certificacion en el personal",
+          ToastType.INFO
+        );
+
+        this.empresaService.guardarPersonalCertificacion(this.uuid, this.persona.uuid, personaCertificacion).subscribe((data: PersonaCertificacion) => {
+          this.toastService.showGenericToast(
+            "Listo",
+            "Se guardo la certificacion con exito",
+            ToastType.SUCCESS
+          );
+          this.stepper.next();
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se pudo guardar la certificacion del personal. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        });
         break;
     }
   }
@@ -490,16 +560,6 @@ export class EmpresaPersonalComponent implements OnInit {
       linear: true,
       animation: true
     })
-
-    this.personalService.obtenerNacionalidades().subscribe((data: PersonalNacionalidad[]) => {
-      this.nacionalidades = data;
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se han podido descargar las nacionalidades. Motivo: ${error}`,
-        ToastType.ERROR
-      );
-    });
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -614,32 +674,195 @@ export class EmpresaPersonalComponent implements OnInit {
       return;
     }
 
+    let formValue: PersonaCertificacion = form.value;
+
+    let fechaInicio = new Date(formValue.fechaInicio);
+    let fechaFin = new Date(formValue.fechaFin);
+    if(fechaInicio > fechaFin) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "La fecha de inicio es mayor que la del final",
+        ToastType.WARNING
+      )
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espere un momento",
       "Estamos guardando la certificacion en el personal",
       ToastType.INFO
     );
 
-    let formValue: PersonaCertificacion = form.value;
+    if(this.editandoCapacitacion) {
+      formValue.uuid = this.personaCertificacion.uuid;
+      formValue.id = this.personaCertificacion.id;
 
-    this.empresaService.guardarPersonalCertificacion(this.uuid, this.persona.uuid, formValue).subscribe((data: PersonaCertificacion) => {
+      this.empresaService.modificarPersonalCertificacion(this.uuid, this.persona.uuid, this.personaCertificacion.uuid, formValue).subscribe((data: PersonaCertificacion) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se modifico la certificacion con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se pudo modificar la certificacion del personal. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    } else {
+      this.empresaService.guardarPersonalCertificacion(this.uuid, this.persona.uuid, formValue).subscribe((data: PersonaCertificacion) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se guardo la certificacion con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se pudo guardar la certificacion del personal. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      });
+    }
+  }
+
+  mostrarModalEditarCapacitacion(index) {
+    this.personaCertificacion = this.persona.certificaciones[index];
+    this.mostrarFormularioNuevoCertificado();
+    this.editandoCapacitacion = true;
+    this.crearPersonalCertificadoForm.patchValue({
+      nombre: this.personaCertificacion.nombre,
+      nombreInstructor: this.personaCertificacion.nombreInstructor,
+      duracion: this.personaCertificacion.duracion,
+      fechaInicio: this.personaCertificacion.fechaInicio,
+      fechaFin: this.personaCertificacion.fechaFin
+    });
+  }
+
+  mostrarModificarPersonaModal(modal) {
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: "static"});
+
+    this.crearPersonalForm.patchValue({
+      curp: this.persona.curp,
+      nacionalidad: this.persona.nacionalidad.uuid,
+      apellidoPaterno: this.persona.apellidoPaterno,
+      apellidoMaterno: this.persona.apellidoMaterno,
+      nombres: this.persona.nombres,
+      fechaNacimiento: this.persona.fechaNacimiento,
+      sexo: this.persona.sexo,
+      tipoSangre: this.persona.tipoSangre,
+      fechaIngreso: this.persona.fechaIngreso,
+      estadoCivil: this.persona.estado,
+      numeroExterior: this.persona.numeroExterior,
+      numeroInterior: this.persona.numeroInterior,
+      domicilio4: this.persona.domicilio4,
+      codigoPostal: this.persona.codigoPostal,
+      pais: this.persona.pais,
+      telefono: this.persona.telefono,
+      correoElectronico: this.persona.correoElectronico
+    })
+
+    this.calle = this.persona.calleCatalogo;
+    this.localidad = this.persona.localidadCatalogo;
+    this.municipio = this.persona.municipioCatalogo;
+    this.estado = this.persona.estadoCatalogo;
+    this.colonia = this.persona.coloniaCatalogo;
+
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  guardarCambiosPersonal(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El formulario no esta valido. Favor de verificarlo`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se estan guardando los cambios de la persona",
+      ToastType.INFO
+    );
+
+    let formValue: Persona = form.value;
+    formValue.nacionalidad = this.nacionalidades.filter(x => x.uuid === form.value.nacionalidad)[0];
+    formValue.calleCatalogo = this.calle;
+    formValue.coloniaCatalogo = this.colonia;
+    formValue.localidadCatalogo = this.localidad;
+    formValue.municipioCatalogo = this.municipio;
+    formValue.estadoCatalogo = this.estado;
+
+    this.empresaService.modificarPersonal(this.uuid, this.persona.uuid, formValue).subscribe((data) => {
       this.toastService.showGenericToast(
         "Listo",
-        "Se guardo la certificacion con exito",
+        "Se modifico el personal con exito",
         ToastType.SUCCESS
       );
       window.location.reload();
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        `No se pudo guardar la certificacion del personal. Motivo: ${error}`,
+        `No se ha podido descargar el personal. Motivo: ${error}`,
         ToastType.ERROR
       );
     });
   }
 
+  mostrarModalEliminarPersona(tempUuid) {
+    this.tempUuidCapacitacion = tempUuid;
+
+    this.modal = this.modalService.open(this.eliminarPersonalModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModalEliminarFotografia(tempUuid) {
+    this.tempUuidFotografia = tempUuid;
+
+    this.modal = this.modalService.open(this.eliminarFotografiasModal,  {ariaLabelledBy: 'modal-basic-title', size: "lg"})
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModalEliminarCapacitacion(tempUuid) {
+    this.tempUuidCapacitacion = tempUuid;
+
+    this.modal = this.modalService.open(this.eliminarCapacitacionesModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
   mostrarFormularioNuevoCertificado() {
     this.showCertificadoForm = !this.showCertificadoForm;
+    if(!this.showCertificadoForm) {
+      this.crearPersonalCertificadoForm.reset();
+    }
+    if(this.editandoCapacitacion) {
+      this.editandoCapacitacion = false;
+    }
   }
 
   mostrarFormularioNuevaFotografia() {
@@ -648,6 +871,18 @@ export class EmpresaPersonalComponent implements OnInit {
 
   mostrarFormularioInformacionPuesto() {
     this.showPuestoForm = !this.showPuestoForm;
+
+    this.crearPersonalPuestoForm.patchValue({
+      puesto: this.persona.puestoDeTrabajo?.uuid,
+      subpuesto: this.persona.subpuestoDeTrabajo?.uuid,
+      detallesPuesto: this.persona.detallesPuesto,
+      domicilioAsignado: this.persona.domicilioAsignado?.uuid,
+      estatusCuip: this.persona.estatusCuip,
+      cuip: this.persona.cuip,
+      numeroVolanteCuip: this.persona.numeroVolanteCuip,
+      fechaVolanteCuip: this.persona.fechaVolanteCuip,
+      modalidad: this.persona.modalidad?.uuid
+    })
   }
 
   onFileChange(event) {
@@ -688,6 +923,102 @@ export class EmpresaPersonalComponent implements OnInit {
         `No se ha podido guardar la fotografia. Motivo: ${error}`,
         ToastType.ERROR
       )
+    })
+  }
+
+  confirmarEliminarPersonal() {
+    if(this.tempUuidPersonal === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID del personal a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el personal",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarPersonal(this.uuid, this.persona.uuid).subscribe((data: Persona) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la persona con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `La persona no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarFotografia() {
+    if(this.tempUuidFotografia === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID de la capacitacion a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando la capacitacion",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarPersonaFotografia(this.uuid, this.persona.uuid, this.tempUuidFotografia).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la fotografia con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `La fotografia no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarCapacitacion() {
+    if(this.tempUuidCapacitacion === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID de la capacitacion a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando la capacitacion",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarPersonalCertificacion(this.uuid, this.persona.uuid, this.tempUuidCapacitacion).subscribe((data: PersonaCertificacion) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la capacitacion con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `La capacitacion no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 

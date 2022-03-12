@@ -41,6 +41,11 @@ public class PersonaServiceImpl implements PersonaService {
     private final PersonalNacionalidadService personalNacionalidadService;
     private final PersonalFotografiaService personalFotografiaService;
     private final PersonalCertificacionService personalCertificacionService;
+    private final EstadoService estadoService;
+    private final MunicipioService municipioService;
+    private final ColoniaService coloniaService;
+    private final LocalidadService localidadService;
+    private final CalleService calleService;
     private final Logger logger = LoggerFactory.getLogger(PersonaService.class);
 
     @Autowired
@@ -50,7 +55,8 @@ public class PersonaServiceImpl implements PersonaService {
                               ModalidadService modalidadService, PersonalPuestoDeTrabajoServiceImpl personalPuestoDeTrabajoService,
                               EmpresaDomicilioService empresaDomicilioService, PersonalNacionalidadService personalNacionalidadService,
                               PersonalCertificacionService personalCertificacionService, PersonalSubpuestoDeTrabajoService personalSubpuestoDeTrabajoService,
-                              PersonalFotografiaService personalFotografiaService) {
+                              PersonalFotografiaService personalFotografiaService, EstadoService estadoService, MunicipioService municipioService,
+                              LocalidadService localidadService, ColoniaService coloniaService, CalleService calleService) {
         this.daoHelper = daoHelper;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
@@ -64,6 +70,11 @@ public class PersonaServiceImpl implements PersonaService {
         this.personalCertificacionService = personalCertificacionService;
         this.personalSubpuestoDeTrabajoService = personalSubpuestoDeTrabajoService;
         this.personalFotografiaService = personalFotografiaService;
+        this.calleService = calleService;
+        this.coloniaService = coloniaService;
+        this.localidadService = localidadService;
+        this.estadoService = estadoService;
+        this.municipioService = municipioService;
     }
 
     @Override
@@ -107,6 +118,11 @@ public class PersonaServiceImpl implements PersonaService {
         personaDto.setSubpuestoDeTrabajo(personalSubpuestoDeTrabajoService.obtenerPorId(personal.getSubpuesto()));
         personaDto.setDomicilioAsignado(empresaDomicilioService.obtenerPorId(personal.getDomicilioAsignado()));
         personaDto.setFotografias(personalFotografiaService.mostrarPersonalFotografias(empresaUuid, personaUuid));
+        personaDto.setCalleCatalogo(calleService.obtenerCallePorId(personal.getCalleCatalogo()));
+        personaDto.setColoniaCatalogo(coloniaService.obtenerColoniaPorId(personal.getColoniaCatalogo()));
+        personaDto.setLocalidadCatalogo(localidadService.obtenerLocalidadPorId(personal.getLocalidadCatalogo()));
+        personaDto.setMunicipioCatalogo(municipioService.obtenerMunicipioPorId(personal.getMunicipioCatalogo()));
+        personaDto.setEstadoCatalogo(estadoService.obtenerPorId(personal.getEstadoCatalogo()));
         return personaDto;
     }
 
@@ -146,8 +162,20 @@ public class PersonaServiceImpl implements PersonaService {
 
         Personal personal = dtoToDaoConverter.convertDtoToDaoPersonal(personalDto);
         personal.setFechaNacimiento(LocalDate.parse(personalDto.getFechaNacimiento()));
+        personal.setFechaIngreso(LocalDate.parse(personalDto.getFechaIngreso()));
         daoHelper.fulfillAuditorFields(true, personal, usuarioDto.getId());
         personal.setEmpresa(empresaDto.getId());
+        personal.setCalleCatalogo(personalDto.getCalleCatalogo().getId());
+        personal.setColoniaCatalogo(personalDto.getColoniaCatalogo().getId());
+        personal.setLocalidadCatalogo(personalDto.getLocalidadCatalogo().getId());
+        personal.setMunicipioCatalogo(personalDto.getMunicipioCatalogo().getId());
+        personal.setEstadoCatalogo(personalDto.getEstadoCatalogo().getId());
+        personal.setNacionalidad(personalDto.getNacionalidad().getId());
+        personal.setDomicilio1(personalDto.getCalleCatalogo().getNombre());
+        personal.setDomicilio2(personalDto.getColoniaCatalogo().getNombre());
+        personal.setLocalidad(personalDto.getLocalidadCatalogo().getNombre());
+        personal.setEstado(personalDto.getEstadoCatalogo().getNombre());
+        personal.setDomicilio3(personalDto.getMunicipioCatalogo().getNombre());
 
         Personal personalCreado = personaRepository.save(personal);
 
@@ -217,11 +245,27 @@ public class PersonaServiceImpl implements PersonaService {
         personal.setNombres(personaDto.getNombres());
         personal.setApellidoPaterno(personaDto.getApellidoPaterno());
         personal.setApellidoMaterno(personaDto.getApellidoMaterno());
-        personal.setDomicilio1(personaDto.getDomicilio1());
-        personal.setDomicilio2(personaDto.getDomicilio2());
-        personal.setDomicilio3(personaDto.getDomicilio3());
         personal.setDomicilio4(personaDto.getDomicilio4());
         personal.setCodigoPostal(personaDto.getCodigoPostal());
+        personal.setCurp(personaDto.getCurp());
+        personal.setFechaNacimiento(LocalDate.parse(personaDto.getFechaNacimiento()));
+        personal.setFechaIngreso(LocalDate.parse(personaDto.getFechaIngreso()));
+        personal.setEstadoCivil(personaDto.getEstadoCivil());
+        personal.setTelefono(personaDto.getTelefono());
+        personal.setCorreoElectronico(personaDto.getCorreoElectronico());
+        personal.setTipoSangre(personaDto.getTipoSangre());
+
+        personal.setEstadoCatalogo(personaDto.getEstadoCatalogo().getId());
+        personal.setMunicipioCatalogo(personaDto.getMunicipioCatalogo().getId());
+        personal.setLocalidadCatalogo(personaDto.getLocalidadCatalogo().getId());
+        personal.setColoniaCatalogo(personaDto.getColoniaCatalogo().getId());
+        personal.setCalleCatalogo(personaDto.getCalleCatalogo().getId());
+
+        personal.setDomicilio1(personaDto.getCalleCatalogo().getNombre());
+        personal.setDomicilio2(personaDto.getColoniaCatalogo().getNombre());
+        personal.setLocalidad(personaDto.getLocalidadCatalogo().getNombre());
+        personal.setDomicilio3(personaDto.getMunicipioCatalogo().getNombre());
+        personal.setEstado(personaDto.getEstadoCatalogo().getNombre());
 
         daoHelper.fulfillAuditorFields(false, personal, usuarioDto.getId());
 

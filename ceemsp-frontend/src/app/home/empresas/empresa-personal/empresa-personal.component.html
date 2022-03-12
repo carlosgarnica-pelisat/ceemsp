@@ -271,13 +271,16 @@
               <td><b>Fecha Fin</b></td>
               <td><b>Acciones</b></td>
             </tr>
-            <tr *ngFor="let c of persona?.certificaciones">
+            <tr *ngFor="let c of persona?.certificaciones; let i = index">
               <td>{{c.nombre}}</td>
               <td>{{c.nombreInstructor}}</td>
               <td>{{c.duracion}} horas</td>
               <td>{{c.fechaInicio}}</td>
               <td>{{c.fechaFin}}</td>
-              <td></td>
+              <td>
+                <fa-icon [icon]="faPencilAlt" title="Modificar capacitacion" (click)="mostrarModalEditarCapacitacion(i)" style="cursor:pointer;"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar capacitacion" (click)="mostrarModalEliminarCapacitacion(c?.uuid)" style="cursor:pointer;"></fa-icon>
+              </td>
             </tr>
             <tr *ngIf="showCertificadoForm">
               <td colspan="6">
@@ -288,37 +291,56 @@
                         <div class="col-sm-4">
                           <label for="nombre">
                             <b>Nombre(s) *</b>
-                            <span *ngIf="crearPersonalCertificadoForm.controls['nombre'].invalid && (crearPersonalCertificadoForm.controls['nombre'].dirty || crearPersonalCertificadoForm.controls['nombre'].touched)" class="text-danger"> - Requerido</span>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['nombre'].invalid && (crearPersonalCertificadoForm.controls['nombre'].dirty || crearPersonalCertificadoForm.controls['nombre'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombre'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
                           </label>
                           <input id="nombre" type="text" class="form-control" placeholder="Ej. Primeros auxilios" formControlName="nombre" #nombre>
                         </div>
                         <div class="col-sm-4">
                           <label for="nombreInstructor">
                             <b>Instructor *</b>
-                            <span *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].invalid && (crearPersonalCertificadoForm.controls['nombreInstructor'].dirty || crearPersonalCertificadoForm.controls['nombreInstructor'].touched)" class="text-danger"> - Requerido</span>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].invalid && (crearPersonalCertificadoForm.controls['nombreInstructor'].dirty || crearPersonalCertificadoForm.controls['nombreInstructor'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
                           </label>
                           <input id="nombreInstructor" type="text" class="form-control" placeholder="Ej. Carlos Jose Perez" formControlName="nombreInstructor" #nombreInstructor>
                         </div>
                         <div class="col-sm-4">
-                          <label for="duracion">
-                            <b>Duracion *</b>
-                            <span *ngIf="crearPersonalCertificadoForm.controls['duracion'].invalid && (crearPersonalCertificadoForm.controls['duracion'].dirty || crearPersonalCertificadoForm.controls['duracion'].touched)" class="text-danger"> - Requerido</span>
+                          <label for="nombreInstructor">
+                            <b>Duracion (en horas) *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['duracion'].invalid && (crearPersonalCertificadoForm.controls['duracion'].dirty || crearPersonalCertificadoForm.controls['duracion'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['duracion'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['duracion'].errors.min" class="text-danger"> - Valor invalido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['duracion'].errors.max" class="text-danger"> - Valor invalido</i>
+                            </span>
                           </label>
-                          <input id="duracion" type="number" min="1" class="form-control" placeholder="En horas" formControlName="duracion" #duracion>
+                          <input id="duracion" type="number" class="form-control" placeholder="En horas" formControlName="duracion" #duracion>
                         </div>
                       </div>
                       <div class="form-row">
                         <div class="col-sm-4">
                           <label for="fechaInicio">
                             <b>Fecha de inicio *</b>
-                            <span *ngIf="crearPersonalCertificadoForm.controls['fechaInicio'].invalid && (crearPersonalCertificadoForm.controls['fechaInicio'].dirty || crearPersonalCertificadoForm.controls['fechaInicio'].touched)" class="text-danger"> - Requerido</span>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['fechaInicio'].invalid && (crearPersonalCertificadoForm.controls['fechaInicio'].dirty || crearPersonalCertificadoForm.controls['fechaInicio'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['fechaInicio'].errors.required" class="text-danger"> - Requerido</i>
+                            </span>
                           </label>
                           <input id="fechaInicio" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
                         </div>
                         <div class="col-sm-4">
                           <label for="fechaFin">
                             <b>Fecha de fin *</b>
-                            <span *ngIf="crearPersonalCertificadoForm.controls['fechaFin'].invalid && (crearPersonalCertificadoForm.controls['fechaFin'].dirty || crearPersonalCertificadoForm.controls['fechaFin'].touched)" class="text-danger"> - Requerido</span>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['fechaFin'].invalid && (crearPersonalCertificadoForm.controls['fechaFin'].dirty || crearPersonalCertificadoForm.controls['fechaFin'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['fechaFin'].errors.required" class="text-danger"> - Requerido</i>
+                            </span>
                           </label>
                           <input id="fechaFin" type="date" class="form-control" formControlName="fechaFin" #duracion>
                         </div>
@@ -355,15 +377,8 @@
               <td>{{f?.nombreArchivo}}</td>
               <td>{{f?.descripcion}}</td>
               <td>
-                <div class="btn-group">
-                  <button type="button" class="btn btn-primary btn-sm" (click)="descargarFotografia(f?.uuid)"><fa-icon [icon]="faDownload"></fa-icon> Descargar</button>
-                  <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="sr-only">Toggle Dropdown</span>
-                  </button>
-                  <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#"><fa-icon [icon]="faTrash" title="Eliminar fotografia"></fa-icon> Eliminar</a>
-                  </div>
-                </div>
+                <fa-icon [icon]="faDownload" title="Visualizar fotografia" (click)="descargarFotografia(f?.uuid)"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar fotografia" (click)="mostrarModalEliminarFotografia(f?.uuid)"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="showFotografiaForm">
@@ -405,6 +420,10 @@
           </table>
         </div>
       </div>
+    </div>
+    <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
+      <button class="btn btn-info" (click)="mostrarModificarPersonaModal(modificarPersonalModal)">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarPersona(eliminarPersonalModal)">Eliminar</button>
     </div>
   </ng-template>
 
@@ -545,8 +564,8 @@
                       <label for="fechaNacimiento">
                         <b>Fecha de nacimiento *</b>
                         <span
-                          *ngIf="crearPersonalForm.controls['sexo'].invalid && (crearPersonalForm.controls['sexo'].dirty || crearPersonalForm.controls['sexo'].touched)">
-                          <i *ngIf="crearPersonalForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
+                          *ngIf="crearPersonalForm.controls['fechaNacimiento'].invalid && (crearPersonalForm.controls['fechaNacimiento'].dirty || crearPersonalForm.controls['fechaNacimiento'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['fechaNacimiento'].errors.required" class="text-danger"> - Campo requerido</i>
                         </span>
                       </label>
                       <input [max]="fechaDeHoy" id="fechaNacimiento" type="date" class="form-control" placeholder="Ejemplo: Garcia" formControlName="fechaNacimiento" #fechaNacimiento>
@@ -593,7 +612,7 @@
                       <label>
                         <b>Estado *</b>
                       </label>
-                      <div class="dropdown" id="customer">
+                      <div class="dropdown" id="estadoDropdown">
                         <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                           {{estado === undefined ? 'Ninguno' : estado?.nombre}}
                         </a>
@@ -746,7 +765,17 @@
                   </div>
 
                   <div class="form-row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
+                      <label for="fechaIngreso">
+                        <b>Fecha de ingreso *</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['fechaIngreso'].invalid && (crearPersonalForm.controls['fechaIngreso'].dirty || crearPersonalForm.controls['fechaIngreso'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['fechaIngreso'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                      </label>
+                      <input [max]="fechaDeHoy" id="fechaIngreso" type="date" class="form-control" formControlName="fechaIngreso" #fechaNacimiento>
+                    </div>
+                    <div class="col-sm-4">
                       <label for="telefono">
                         <b>Telefono *</b>
                         <span
@@ -756,7 +785,7 @@
                       </label>
                       <input id="telefono" type="text" class="form-control" placeholder="Ejemplo: 3312345678" formControlName="telefono" #telefono appPhoneMask>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                       <label for="correoElectronico">
                         <b>Correo electronico *</b>
                         <span
@@ -855,102 +884,86 @@
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button (click)="next('CURSOS', crearPersonalPuestoForm)" class="btn btn-primary">Siguiente: Puesto
+                    <button (click)="previous()" class="btn btn-primary">Anterior: Personal
+                    </button>
+                    <button (click)="next('CURSOS', crearPersonalPuestoForm)" class="btn btn-primary">Siguiente: Cursos
                     </button>
                   </div>
                 </div>
               </div>
 
-              <!-- STEP 3 - SUMMARY -->
               <div id="test-l-3" class="content">
                 <div class="row">
                   <div class="col-sm-12">
-                    <table class="table">
-                      <tr>
-                        <td><b>Curso</b></td>
-                        <td><b>Instructor</b></td>
-                        <td><b>Duracion</b></td>
-                        <td><b>Fecha Inicio</b></td>
-                        <td><b>Fecha Fin</b></td>
-                        <td><b>Acciones</b></td>
-                      </tr>
-                      <tr *ngFor="let c of persona?.certificaciones">
-                        <td>{{c.nombre}}</td>
-                        <td>{{c.nombreInstructor}}</td>
-                        <td>{{c.duracion}} horas</td>
-                        <td>{{c.fechaInicio}}</td>
-                        <td>{{c.fechaFin}}</td>
-                        <td></td>
-                      </tr>
-                      <tr *ngIf="showCertificadoForm">
-                        <td colspan="6">
-                          <div class="row">
-                            <div class="col-sm-12">
-                              <form [formGroup]="crearPersonalCertificadoForm">
-                                <div class="form-row">
-                                  <div class="col-sm-4">
-                                    <label for="nombreCertificadoCrearPersona">
-                                      <b>Nombre(s) *</b>
-                                      <span *ngIf="crearPersonalCertificadoForm.controls['nombre'].invalid && (crearPersonalCertificadoForm.controls['nombre'].dirty || crearPersonalCertificadoForm.controls['nombre'].touched)" class="text-danger"> - Requerido</span>
-                                    </label>
-                                    <input id="nombreCertificadoCrearPersona" type="text" class="form-control" placeholder="Ej. Primeros auxilios" formControlName="nombre" #nombre>
-                                  </div>
-                                  <div class="col-sm-4">
-                                    <label for="nombreInstructorCrearPersona">
-                                      <b>Instructor *</b>
-                                      <span *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].invalid && (crearPersonalCertificadoForm.controls['nombreInstructor'].dirty || crearPersonalCertificadoForm.controls['nombreInstructor'].touched)" class="text-danger"> - Requerido</span>
-                                    </label>
-                                    <input id="nombreInstructorCrearPersona" type="text" class="form-control" placeholder="Ej. Carlos Jose Perez" formControlName="nombreInstructor" #nombreInstructor>
-                                  </div>
-                                  <div class="col-sm-4">
-                                    <label for="duracionCrearPersona">
-                                      <b>Duracion *</b>
-                                      <span *ngIf="crearPersonalCertificadoForm.controls['duracion'].invalid && (crearPersonalCertificadoForm.controls['duracion'].dirty || crearPersonalCertificadoForm.controls['duracion'].touched)" class="text-danger"> - Requerido</span>
-                                    </label>
-                                    <input id="duracionCrearPersona" type="number" min="1" class="form-control" placeholder="En horas" formControlName="duracion" #duracion>
-                                  </div>
-                                </div>
-                                <div class="form-row">
-                                  <div class="col-sm-4">
-                                    <label for="fechaInicioCrearPersona">
-                                      <b>Fecha de inicio *</b>
-                                      <span *ngIf="crearPersonalCertificadoForm.controls['fechaInicio'].invalid && (crearPersonalCertificadoForm.controls['fechaInicio'].dirty || crearPersonalCertificadoForm.controls['fechaInicio'].touched)" class="text-danger"> - Requerido</span>
-                                    </label>
-                                    <input id="fechaInicioCrearPersona" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
-                                  </div>
-                                  <div class="col-sm-4">
-                                    <label for="fechaFinCrearPersona">
-                                      <b>Fecha de fin *</b>
-                                      <span *ngIf="crearPersonalCertificadoForm.controls['fechaFin'].invalid && (crearPersonalCertificadoForm.controls['fechaFin'].dirty || crearPersonalCertificadoForm.controls['fechaFin'].touched)" class="text-danger"> - Requerido</span>
-                                    </label>
-                                    <input id="fechaFinCrearPersona" type="date" class="form-control" formControlName="fechaFin" #duracion>
-                                  </div>
-                                  <div class="col-sm-4"></div>
-                                </div>
-                              </form>
-                            </div>
-                          </div>
-                          <hr>
-                          <div class="row">
-                            <div class="col-sm-12">
-                              <button class="btn btn-primary btn-sm" (click)="agregarCertificado(crearPersonalCertificadoForm)">Guardar</button>
-                              <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevoCertificado()">Cancelar</button>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr *ngIf="!showCertificadoForm">
-                        <td colspan="6">
-                          <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevoCertificado()">Agregar certificacion</button>
-                        </td>
-                      </tr>
-                    </table>
+                    <form [formGroup]="crearPersonalCertificadoForm">
+                      <div class="form-row">
+                        <div class="col-sm-4">
+                          <label for="nombreCrear">
+                            <b>Nombre(s) *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['nombre'].invalid && (crearPersonalCertificadoForm.controls['nombre'].dirty || crearPersonalCertificadoForm.controls['nombre'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombre'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                          </label>
+                          <input id="nombreCrear" type="text" class="form-control" placeholder="Ej. Primeros auxilios" formControlName="nombre" #nombre>
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="nombreInstructorCrear">
+                            <b>Instructor *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].invalid && (crearPersonalCertificadoForm.controls['nombreInstructor'].dirty || crearPersonalCertificadoForm.controls['nombreInstructor'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                          </label>
+                          <input id="nombreInstructorCrear" type="text" class="form-control" placeholder="Ej. Carlos Jose Perez" formControlName="nombreInstructor" #nombreInstructor>
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="duracionCrear">
+                            <b>Duracion (en horas) *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['duracion'].invalid && (crearPersonalCertificadoForm.controls['duracion'].dirty || crearPersonalCertificadoForm.controls['duracion'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['duracion'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['duracion'].errors.min" class="text-danger"> - Valor invalido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['duracion'].errors.max" class="text-danger"> - Valor invalido</i>
+                            </span>
+                          </label>
+                          <input id="duracionCrear" type="number" class="form-control" placeholder="En horas" formControlName="duracion" #duracion>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="col-sm-4">
+                          <label for="fechaInicioCrear">
+                            <b>Fecha de inicio *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['fechaInicio'].invalid && (crearPersonalCertificadoForm.controls['fechaInicio'].dirty || crearPersonalCertificadoForm.controls['fechaInicio'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['fechaInicio'].errors.required" class="text-danger"> - Requerido</i>
+                            </span>
+                          </label>
+                          <input id="fechaInicioCrear" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="fechaFinCrear">
+                            <b>Fecha de fin *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['fechaFin'].invalid && (crearPersonalCertificadoForm.controls['fechaFin'].dirty || crearPersonalCertificadoForm.controls['fechaFin'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['fechaFin'].errors.required" class="text-danger"> - Requerido</i>
+                            </span>
+                          </label>
+                          <input id="fechaFinCrear" type="date" class="form-control" formControlName="fechaFin" #duracion>
+                        </div>
+                        <div class="col-sm-4"></div>
+                      </div>
+                    </form>
                   </div>
                 </div>
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button (click)="next('RESUMEN', undefined)" class="btn btn-primary">Siguiente: Puesto
+                    <button (click)="previous()" class="btn btn-primary">Anterior: Puesto de trabajo
+                    </button>
+                    <button (click)="next('RESUMEN', crearPersonalCertificadoForm)" class="btn btn-primary">Siguiente: Resumen
                     </button>
                   </div>
                 </div>
@@ -958,7 +971,16 @@
               <div id="test-l-4" class="content">
                 <div class="row">
                   <div class="col-sm-12">
-
+                    <h2>El personal se ha guardado con exito</h2>
+                    <p>Para continuar, recarga la pagina</p>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary">
+                      Cerrar
+                    </button>
                   </div>
                 </div>
               </div>
@@ -966,6 +988,398 @@
           </div>
         </div>
       </div>
+    </div>
+  </ng-template>
+
+  <ng-template #modificarPersonalModal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modificarPersonalModal">Modificando personal </h4>
+      <button type="button" class="close" aria-label="Close" (click)="cancelarCambiosPersonal()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearPersonalForm">
+            <div class="form-row">
+              <div class="col-sm-6">
+                <label for="nacionalidadEditar">
+                  <b>Nacionalidad *</b>
+                  <span *ngIf="crearPersonalForm.controls['nacionalidad'].invalid && (crearPersonalForm.controls['nacionalidad'].dirty || crearPersonalForm.controls['nacionalidad'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <select id="nacionalidadEditar" class="form-control" formControlName="nacionalidad">
+                  <option *ngFor="let n of nacionalidades" value="{{n.uuid}}">{{n.nombre}}</option>
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <label for="curpEditar">
+                  <b>CURP</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['curp'].invalid && (crearPersonalForm.controls['curp'].dirty || crearPersonalForm.controls['curp'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['curp'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                          <i *ngIf="crearPersonalForm.controls['curp'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                  <i *ngIf="existePersona !== undefined && existePersona.existe" class="text-danger"> - Persona ya registrada</i>
+                </label>
+                <input id="curpEditar" type="text" class="form-control" placeholder="Ejemplo: XAXX010101ABCD00" formControlName="curp" (focusout)="verificarPersonal($event.target)" #curp>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="col-sm-4">
+                <label for="apellidoPaternoEditar">
+                  <b>Apellido paterno *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['apellidoPaterno'].invalid && (crearPersonalForm.controls['apellidoPaterno'].dirty || crearPersonalForm.controls['apellidoPaterno'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['apellidoPaterno'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearPersonalForm.controls['apellidoPaterno'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="apellidoPaternoEditar" type="text" class="form-control" placeholder="Ejemplo: Garcia" formControlName="apellidoPaterno" #apellidoPaterno>
+              </div>
+              <div class="col-sm-4">
+                <label for="apellidoMaternoEditar">
+                  <b>Apellido materno *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['apellidoMaterno'].invalid && (crearPersonalForm.controls['apellidoMaterno'].dirty || crearPersonalForm.controls['apellidoMaterno'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['apellidoMaterno'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="apellidoMaternoEditar" type="text" class="form-control" placeholder="Ejemplo: Garcia" formControlName="apellidoMaterno" #apellidoMaterno>
+              </div>
+              <div class="col-sm-4">
+                <label for="nombresEditar">
+                  <b>Nombres *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['nombres'].invalid && (crearPersonalForm.controls['nombres'].dirty || crearPersonalForm.controls['nombres'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['nombres'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearPersonalForm.controls['nombres'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="nombresEditar" type="text" class="form-control" placeholder="Ejemplo: Jose" formControlName="nombres" #nombres>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="col-sm-3">
+                <label for="sexoEditar">
+                  <b>Sexo *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['sexo'].invalid && (crearPersonalForm.controls['sexo'].dirty || crearPersonalForm.controls['sexo'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="sexoEditar" class="form-control" formControlName="sexo">
+                  <option value="MASCULINO">Masculino</option>
+                  <option value="FEMENINO">Femenino</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <label for="fechaNacimientoEditar">
+                  <b>Fecha de nacimiento *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['fechaNacimiento'].invalid && (crearPersonalForm.controls['fechaNacimiento'].dirty || crearPersonalForm.controls['fechaNacimiento'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['fechaNacimiento'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <input [max]="fechaDeHoy" id="fechaNacimientoEditar" type="date" class="form-control" placeholder="Ejemplo: Garcia" formControlName="fechaNacimiento" #fechaNacimiento>
+              </div>
+              <div class="col-sm-3">
+                <label for="tipoSangreEditar">
+                  <b>Tipo de sangre *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['tipoSangre'].invalid && (crearPersonalForm.controls['tipoSangre'].dirty || crearPersonalForm.controls['tipoSangre'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['tipoSangre'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="tipoSangreEditar" class="form-control" formControlName="tipoSangre">
+                  <option value="O_P">O+ (O positivo)</option>
+                  <option value="O_N">O- (O negativo)</option>
+                  <option value="A_P">A+ (A positivo)</option>
+                  <option value="A_N">A- (A negativo)</option>
+                  <option value="B_P">B+ (B positivo)</option>
+                  <option value="B_N">B- (B negativo)</option>
+                  <option value="AB_P">AB+ (AB positivo)</option>
+                  <option value="AB_N">AB- (AB negativo)</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <label for="estadoCivilEditar">
+                  <b>Estado civil *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['estadoCivil'].invalid && (crearPersonalForm.controls['estadoCivil'].dirty || crearPersonalForm.controls['estadoCivil'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['estadoCivil'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="estadoCivilEditar" class="form-control" formControlName="estadoCivil">
+                  <option value="SOLTERO">Soltero</option>
+                  <option value="CASADO">Casado</option>
+                  <option value="DIVORCIADO">Divorciado</option>
+                  <option value="VIUDO">Viudo</option>
+                  <option value="UNION_LIBRE">Union libre</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-3">
+                <label>
+                  <b>Estado *</b>
+                </label>
+                <div class="dropdown" id="customer">
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{estado === undefined ? 'Ninguno' : estado?.nombre}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                    <form [formGroup]="estadoSearchForm" class="px-4 py-3" autocomplete="off">
+                      <label for="estadoSearchQuery"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="estadoSearchQuery" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
+                             [ngModelOptions]="{standalone: true}">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let e of estados | buscarNombre: {nombre: estadoQuery}" (click)="seleccionarEstado(e.uuid)" style="cursor: pointer;">
+                      {{e.nombre}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarEstado()">Quitar</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <label>
+                  <b>Municipio *</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="municipioSearchQuery" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let m of municipios | buscarNombre: {nombre: municipioQuery}" (click)="seleccionarMunicipio(m.uuid)" style="cursor: pointer;">
+                    {{m.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <label>
+                  <b>Localidad *</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="localidadSearchForm" autocomplete="off" class="px-4 py-3">
+                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="localidadSearchQuery" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let l of localidades | buscarNombre: {nombre: localidadQuery}" (click)="seleccionarLocalidad(l.uuid)" style="cursor: pointer;">
+                    {{l.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <label>
+                  <b>Colonia *</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{colonia === undefined ? 'Ninguno' : colonia?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="coloniaSearchQuery" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let c of colonias | buscarNombre: {nombre: coloniaQuery}" (click)="seleccionarColonia(c.uuid)" style="cursor: pointer;">
+                    {{c.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="colonia !== undefined" (click)="eliminarColonia()">Quitar</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-4">
+                <label>
+                  <b>Calle * </b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{calle === undefined ? 'Ninguno' : calle?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="calleSearchForm" class="px-4 py-3" autocomplete="off">
+                    <label for="calleSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="calleSearchQuery" placeholder="Ej. Av. Empresarios" [(ngModel)]="calleQuery"
+                           [ngModelOptions]="{standalone: true}" (keyup)="obtenerCalles($event)">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let c of calles" (click)="seleccionarCalle(c.uuid)" style="cursor: pointer;">
+                    {{c.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="calle !== undefined" (click)="eliminarCalle()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-1">
+                <label for="numeroExteriorEditar">
+                  <b>N. Ext * </b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['numeroExterior'].invalid && (crearPersonalForm.controls['numeroExterior'].dirty || crearPersonalForm.controls['numeroExterior'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['numeroExterior'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearPersonalForm.controls['numeroExterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="numeroExteriorEditar" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
+              </div>
+              <div class="col-sm-1">
+                <label for="numeroInteriorEditar">
+                  <b>N. Int * </b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['numeroInterior'].invalid && (crearPersonalForm.controls['numeroExterior'].dirty || crearPersonalForm.controls['numeroInterior'].touched)">
+                    <i *ngIf="crearPersonalForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <input id="numeroInteriorEditar" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
+              </div>
+
+              <div class="col-sm-3">
+                <label for="codigoPostalEditar">
+                  <b>Codigo Postal *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['codigoPostal'].invalid && (crearPersonalForm.controls['codigoPostal'].dirty || crearPersonalForm.controls['codigoPostal'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['codigoPostal'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearPersonalForm.controls['codigoPostal'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                          <i *ngIf="crearPersonalForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="codigoPostalEditar" type="tel" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" appNumberMask #codigoPostal>
+              </div>
+              <div class="col-sm-3">
+                <label for="domicilio4">
+                  <b>Referencia</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['domicilio4'].invalid && (crearPersonalForm.controls['domicilio4'].dirty || crearPersonalForm.controls['domicilio4'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['domicilio4'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="domicilio4" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="col-sm-4">
+                <label for="fechaIngreso">
+                  <b>Fecha de ingreso *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['fechaIngreso'].invalid && (crearPersonalForm.controls['fechaIngreso'].dirty || crearPersonalForm.controls['fechaIngreso'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['fechaIngreso'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <input [max]="fechaDeHoy" id="fechaIngreso" type="date" class="form-control" formControlName="fechaIngreso" #fechaNacimiento>
+              </div>
+              <div class="col-sm-4">
+                <label for="telefonoEditar">
+                  <b>Telefono *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['telefono'].invalid && (crearPersonalForm.controls['telefono'].dirty || crearPersonalForm.controls['telefono'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['telefono'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <input id="telefonoEditar" type="text" class="form-control" placeholder="Ejemplo: 3312345678" formControlName="telefono" #telefono appPhoneMask>
+              </div>
+              <div class="col-sm-4">
+                <label for="correoElectronicoEditar">
+                  <b>Correo electronico *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['correoElectronico'].invalid && (crearPersonalForm.controls['correoElectronico'].dirty || crearPersonalForm.controls['correoElectronico'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['correoElectronico'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearPersonalForm.controls['correoElectronico'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                          <i *ngIf="crearPersonalForm.controls['correoElectronico'].errors.email" class="text-danger"> - No es un email</i>
+                        </span>
+                </label>
+                <input id="correoElectronicoEditar" type="email" class="form-control" placeholder="Ejemplo: test@test.com" formControlName="correoElectronico" #correoElectronico>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-info" (click)="guardarCambiosPersonal(crearPersonalForm)">Guardar cambios</button>
+      <button class="btn btn-danger" (click)="cancelarCambiosPersonal()">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarPersonalModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarPersonalModal">Eliminando una persona </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar una persona. Toma en cuenta que al eliminarlo, todos las certificaciones y fotografias seran eliminadas y esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarPersonal()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarCapacitacionesModal Modal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarCapacitacionesModal">Eliminando una capacitacion </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar una capacitacion. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarCapacitacion()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarFotografiasModal Modal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarFotografiaModal">Eliminando una fotografia del personal </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar una fotografia del personal. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarFotografia()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 </div>

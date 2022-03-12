@@ -120,6 +120,8 @@ public class EmpresaEscrituraRepresentanteServiceImpl implements EmpresaEscritur
 
         empresaEscrituraRepresentante.setNombres(empresaEscrituraRepresentanteDto.getNombres());
         empresaEscrituraRepresentante.setApellidos(empresaEscrituraRepresentanteDto.getApellidos());
+        empresaEscrituraRepresentante.setApellidoMaterno(empresaEscrituraRepresentanteDto.getApellidoMaterno());
+        empresaEscrituraRepresentante.setCurp(empresaEscrituraRepresentanteDto.getCurp());
         empresaEscrituraRepresentante.setSexo(empresaEscrituraRepresentanteDto.getSexo());
         daoHelper.fulfillAuditorFields(false, empresaEscrituraRepresentante, usuario.getId());
         empresaEscrituraRepresentanteRepository.save(empresaEscrituraRepresentante);

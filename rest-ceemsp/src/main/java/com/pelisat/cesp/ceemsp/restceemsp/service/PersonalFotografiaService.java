@@ -10,4 +10,5 @@ public interface PersonalFotografiaService {
     List<PersonalFotografiaMetadata> mostrarPersonalFotografias(String uuid, String personalUuid);
     File descargarFotografiaPersona(String uuid, String personalUuid, String fotografiaUuid);
     void guardarPersonalFotografia(String uuid, String personalUuid, String username, MultipartFile multipartFile, PersonalFotografiaMetadata metadata);
+    PersonalFotografiaMetadata eliminarPersonalFotografia(String uuid, String personalUuid, String fotografiaUuid, String username);
 }

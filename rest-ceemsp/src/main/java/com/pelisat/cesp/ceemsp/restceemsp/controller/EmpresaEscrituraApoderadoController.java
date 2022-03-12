@@ -62,6 +62,17 @@ public class EmpresaEscrituraApoderadoController {
             @RequestBody EmpresaEscrituraApoderadoDto empresaEscrituraApoderadoDto
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return null;
+        return empresaEscrituraApoderadoService.modificarApoderado(empresaUuid, escrituraUuid, apoderadoUuid, username, empresaEscrituraApoderadoDto);
+    }
+
+    @DeleteMapping(value = EMPRESA_APODERADOS_URI + "/{apoderadoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaEscrituraApoderadoDto eliminarApoderado(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "escrituraUuid") String escrituraUuid,
+            @PathVariable(value = "apoderadoUuid") String apoderadoUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaEscrituraApoderadoService.eliminarApoderado(empresaUuid, escrituraUuid, apoderadoUuid, username);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -40,5 +41,28 @@ public class PersonaCertificacionController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return personalCertificacionService.guardarCertificacion(empresaUuid, personaUuid, username, personalCertificacionDto);
+    }
+
+    @PutMapping(value = PERSONALIDAD_URI + "/{capacitacionUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PersonalCertificacionDto modificarCertificacion(
+            HttpServletRequest request,
+            @RequestBody PersonalCertificacionDto personalCertificacionDto,
+            @PathVariable(name = "empresaUuid") String empresaUuid,
+            @PathVariable(name = "personaUuid") String personaUuid,
+            @PathVariable(name = "capacitacionUuid") String capacitacionUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return personalCertificacionService.modificarCertificacion(empresaUuid, personaUuid, capacitacionUuid, username, personalCertificacionDto);
+    }
+
+    @DeleteMapping(value = PERSONALIDAD_URI + "/{capacitacionUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public PersonalCertificacionDto eliminarCertificacion(
+            @PathVariable(name = "empresaUuid") String empresaUuid,
+            @PathVariable(name = "personaUuid") String personaUuid,
+            @PathVariable(name = "capacitacionUuid") String capacitacionUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return personalCertificacionService.eliminarCertificacion(empresaUuid, personaUuid, capacitacionUuid, username);
     }
 }

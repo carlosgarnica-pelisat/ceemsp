@@ -9,4 +9,6 @@ public interface CanService {
     CanDto obtenerCanPorUuid(String empresaUuid, String canUuid, boolean soloEntidad);
     CanDto obtenerCanPorId(int id);
     CanDto guardarCan(String empresaUuid, String username, CanDto canDto);
+    CanDto modificarCan(String empresaUuid, String canUuid, String username, CanDto canDto);
+    CanDto eliminarCan(String empresaUuid, String canUuid, String username);
 }

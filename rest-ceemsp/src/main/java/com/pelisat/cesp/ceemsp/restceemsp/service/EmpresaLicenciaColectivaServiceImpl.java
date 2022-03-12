@@ -156,4 +156,58 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
 
         return new File(licenciaColectiva.getRutaDocumento());
     }
+
+    @Override
+    public EmpresaLicenciaColectivaDto modificarLicenciaColectiva(String empresaUuid, String licenciaUuid, String username, EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(licenciaUuid) || StringUtils.isBlank(username) || empresaLicenciaColectivaDto == null) {
+            logger.warn("Alguno de los parametros ingresados es invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando la licencia colectiva con el uuid [{}]", licenciaUuid);
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        EmpresaLicenciaColectiva licenciaColectiva = empresaLicenciaColectivaRepository.findByUuidAndEliminadoFalse(licenciaUuid);
+
+        if(licenciaColectiva == null) {
+            logger.warn("La licencia colectiva no existe");
+            throw new NotFoundResourceException();
+        }
+
+        licenciaColectiva.setModalidad(empresaLicenciaColectivaDto.getModalidad().getId());
+        licenciaColectiva.setFechaInicio(LocalDate.parse(empresaLicenciaColectivaDto.getFechaInicio()));
+        licenciaColectiva.setFechaFin(LocalDate.parse(empresaLicenciaColectivaDto.getFechaFin()));
+        licenciaColectiva.setNumeroOficio(empresaLicenciaColectivaDto.getNumeroOficio());
+        if(empresaLicenciaColectivaDto.getSubmodalidad() != null) {
+            licenciaColectiva.setSubmodalidad(empresaLicenciaColectivaDto.getSubmodalidad().getId());
+        }
+
+        daoHelper.fulfillAuditorFields(false, licenciaColectiva, usuarioDto.getId());
+        empresaLicenciaColectivaRepository.save(licenciaColectiva);
+
+        return empresaLicenciaColectivaDto;
+    }
+
+    @Override
+    public EmpresaLicenciaColectivaDto eliminarLicenciaColectiva(String empresaUuid, String licenciaUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(licenciaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros ingresados es invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la licencia colectiva con el uuid [{}]", licenciaUuid);
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        EmpresaLicenciaColectiva licenciaColectiva = empresaLicenciaColectivaRepository.findByUuidAndEliminadoFalse(licenciaUuid);
+
+        if(licenciaColectiva == null) {
+            logger.warn("La licencia colectiva no existe");
+            throw new NotFoundResourceException();
+        }
+
+        licenciaColectiva.setEliminado(true);
+
+        daoHelper.fulfillAuditorFields(false, licenciaColectiva, usuarioDto.getId());
+        empresaLicenciaColectivaRepository.save(licenciaColectiva);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaLicenciaColectiva(licenciaColectiva);
+    }
 }

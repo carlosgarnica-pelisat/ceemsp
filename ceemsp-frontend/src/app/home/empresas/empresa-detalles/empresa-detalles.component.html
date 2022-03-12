@@ -262,7 +262,14 @@
           <td><b>Sexo</b></td>
           <td>{{empresa?.sexo}}</td>
         </tr>
-
+        <tr>
+          <td><b>Correo electronico: </b></td>
+          <td>{{empresa?.correoElectronico}}</td>
+        </tr>
+        <tr>
+          <td><b>Telefono: </b></td>
+          <td>{{empresa?.telefono}}</td>
+        </tr>
         <tr>
           <td><b>Status</b></td>
           <td [ngSwitch]="empresa?.status">
@@ -498,6 +505,14 @@
                     </span>
                 </label>
                 <input class="form-control" id="telefono" type="text" formControlName="telefono" placeholder="Ejemplo 3312345678" appPhoneMask>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-sm-12">
+                <label for="telefono">
+                  <b>Observaciones *</b>
+                </label>
+                <textarea class="form-control" id="observaciones" formControlName="observaciones" placeholder="Coloca aqui algun comentario de la empresa"></textarea>
               </div>
             </div>
           </form>

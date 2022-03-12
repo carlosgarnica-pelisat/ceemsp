@@ -9,6 +9,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class PersonalCertificacionDto {
+    private int id;
+    private String uuid;
     private String nombre;
     private String nombreInstructor;
     private BigDecimal duracion;

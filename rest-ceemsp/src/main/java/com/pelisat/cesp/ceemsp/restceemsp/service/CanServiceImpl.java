@@ -6,6 +6,7 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.Can;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
+import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
 import com.pelisat.cesp.ceemsp.database.repository.CanRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -19,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.smartcardio.CommandAPDU;
+import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -132,6 +135,7 @@ public class CanServiceImpl implements CanService {
         return daoToDtoConverter.convertDaoToDtoCan(can);
     }
 
+    @Transactional
     @Override
     public CanDto guardarCan(String empresaUuid, String username, CanDto canDto) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(username) || canDto == null) {
@@ -146,6 +150,7 @@ public class CanServiceImpl implements CanService {
 
         Can can = dtoToDaoConverter.convertDtoToDaoCan(canDto);
         daoHelper.fulfillAuditorFields(true, can, usuarioDto.getId());
+        can.setFechaIngreso(LocalDate.parse(canDto.getFechaIngreso()));
         can.setEmpresa(empresaDto.getId());
         can.setRaza(canDto.getRaza().getId());
         can.setDomicilioAsignado(canDto.getDomicilioAsignado().getId());
@@ -153,5 +158,62 @@ public class CanServiceImpl implements CanService {
         Can canCreado = canRepository.save(can);
 
         return daoToDtoConverter.convertDaoToDtoCan(canCreado);
+    }
+
+    @Transactional
+    @Override
+    public CanDto modificarCan(String empresaUuid, String canUuid, String username, CanDto canDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(username) || canDto == null) {
+            logger.warn("Algunos de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        Can can = canRepository.getByUuidAndEliminadoFalse(canUuid);
+        if(can == null) {
+            logger.warn("El can no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        can.setNombre(canDto.getNombre());
+        can.setGenero(canDto.getGenero());
+        can.setRaza(canDto.getRaza().getId());
+        can.setRazaOtro(canDto.getRazaOtro());
+        can.setFechaIngreso(LocalDate.parse(canDto.getFechaIngreso()));
+        can.setDomicilioAsignado(canDto.getDomicilioAsignado().getId());
+        can.setEdad(canDto.getEdad());
+        can.setPeso(canDto.getPeso());
+        can.setChip(canDto.isChip());
+        can.setTatuaje(canDto.isTatuaje());
+        can.setDescripcion(canDto.getDescripcion());
+
+        can.setRaza(canDto.getRaza().getId());
+        can.setDomicilioAsignado(canDto.getDomicilioAsignado().getId());
+
+        daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+        canRepository.save(can);
+
+        return daoToDtoConverter.convertDaoToDtoCan(can);
+    }
+
+    @Override
+    public CanDto eliminarCan(String empresaUuid, String canUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Algunos de los parametros vienen como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        Can can = canRepository.getByUuidAndEliminadoFalse(canUuid);
+        if(can == null) {
+            logger.warn("El can no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        can.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+        canRepository.save(can);
+
+        return daoToDtoConverter.convertDaoToDtoCan(can);
     }
 }

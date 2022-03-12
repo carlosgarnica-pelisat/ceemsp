@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -162,6 +163,8 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
                         .map(ap -> {
                             EmpresaEscrituraApoderado eea = dtoToDaoConverter.convertDtoToDaoEmpresaEscrituraApoderado(ap);
                             eea.setEscritura(empresaEscrituraCreada.getId());
+                            eea.setFechaInicio(LocalDate.parse(ap.getFechaInicio()));
+                            eea.setFechaFin(LocalDate.parse(ap.getFechaFin()));
                             daoHelper.fulfillAuditorFields(true, eea, usuarioDto.getId());
                             return eea;
                         }).collect(Collectors.toList());
@@ -201,6 +204,21 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
                 empresaEscrituraRepresentanteRepository.saveAll(empresaEscrituraRepresentantes);
             }
 
+            if(empresaEscrituraDto.getConsejos() != null && empresaEscrituraDto.getConsejos().size() > 0) {
+                logger.info("Se encontraron miembros del consejo. Agregando [{}] nuevos consejos", empresaEscrituraDto.getConsejos().size());
+
+                List<EmpresaEscrituraConsejo> empresaEscrituraConsejos = empresaEscrituraDto.getConsejos()
+                        .stream()
+                        .map(co -> {
+                            EmpresaEscrituraConsejo eec = dtoToDaoConverter.convertDtoToDaoEmpresaEscrituraConsejo(co);
+                            eec.setEscritura(empresaEscrituraCreada.getId());
+                            daoHelper.fulfillAuditorFields(true, eec, usuarioDto.getId());
+                            return eec;
+                        }).collect(Collectors.toList());
+
+                empresaEscrituraConsejoRepository.saveAll(empresaEscrituraConsejos);
+            }
+
             return daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscrituraCreada);
         } catch (Exception ex) {
             logger.warn(ex.getMessage());
@@ -226,12 +244,12 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
             throw new NotFoundResourceException();
         }
 
-        empresaEscritura.setNumeroEscritura(empresaEscritura.getNumeroEscritura());
-        empresaEscritura.setNombreFedatario(empresaEscritura.getNombreFedatario());
-        empresaEscritura.setTipoFedatario(empresaEscritura.getTipoFedatario());
-        empresaEscritura.setNumero(empresaEscritura.getNumero());
-        empresaEscritura.setCiudad(empresaEscritura.getCiudad());
-        empresaEscritura.setDescripcion(empresaEscritura.getDescripcion());
+        empresaEscritura.setNumeroEscritura(empresaEscrituraDto.getNumeroEscritura());
+        empresaEscritura.setNombreFedatario(empresaEscrituraDto.getNombreFedatario());
+        empresaEscritura.setTipoFedatario(empresaEscrituraDto.getTipoFedatario());
+        empresaEscritura.setNumero(empresaEscrituraDto.getNumero());
+        empresaEscritura.setCiudad(empresaEscrituraDto.getCiudad());
+        empresaEscritura.setDescripcion(empresaEscrituraDto.getDescripcion());
 
         daoHelper.fulfillAuditorFields(false, empresaEscritura, usuarioDto.getId());
 

@@ -224,12 +224,25 @@ export class EmpresaService {
       formData, {headers: {'X-isFile': 'true'}})
   }
 
+  modificarLicenciaColectiva(uuid: string, licenciaColectivaUuid: string, licenciaColectiva: EmpresaLicenciaColectiva) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}`, licenciaColectiva)
+  }
+
+  eliminarLicenciaColectiva(uuid: string, licenciaColectivaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}`)
+  }
+
+
   obtenerDomiciliosPorLicenciaColectiva(uuid: string, licenciaColectivaUuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/domicilios`);
   }
 
   guardarDomicilioEnLicenciaColectiva(uuid: string, licenciaColectivaUuid: string, domicilio: EmpresaDomicilio) {
     return this.http.post(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/domicilios`, domicilio);
+  }
+
+  eliminarDomicilioEnLicenciaColectiva(uuid: string, licenciaColectivaUuid: string, domicilioUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/domicilios/${domicilioUuid}`)
   }
 
   // Vehiculos
@@ -278,9 +291,25 @@ export class EmpresaService {
       formData, {headers: {'X-isFile': 'true'}})
   }
 
+  modificarCliente(uuidEmpresa: string, uuidCliente: string, cliente: Cliente) {
+    return this.http.put(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}`, cliente);
+  }
+
+  eliminarCliente(uuidEmpresa: string, uuidCliente: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}`);
+  }
+
   // Clientes domicilios
   guardarDomicilioCliente(uuidEmpresa: string, uuidCliente: string, clienteDomicilio: ClienteDomicilio[]) {
-    return this.http.post(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/domicilios`, clienteDomicilio  )
+    return this.http.post(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/domicilios`, clienteDomicilio)
+  }
+
+  modificarDomicilioCliente(uuidEmpresa: string, uuidCliente: string, uuidDomicilio: string, clienteDomicilio: ClienteDomicilio) {
+    return this.http.put(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/domicilios/${uuidDomicilio}`, clienteDomicilio);
+  }
+
+  eliminarDomicilioCliente(uuidEmpresa: string, uuidCliente: string, uuidDomicilio: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/domicilios/${uuidDomicilio}`)
   }
 
   // Personal
@@ -300,6 +329,14 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/puestos`, persona)
   }
 
+  modificarPersonal(uuid: string, personaUuid: string, persona: Persona) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/personas/${personaUuid}`, persona);
+  }
+
+  eliminarPersonal(uuid: string, personaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/personas/${personaUuid}`);
+  }
+
   // Personal certificaciones
   obtenerCertificacionesPersonalPorUuid(empresaUuid: string, personaUuid: string) {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/certificaciones`)
@@ -307,6 +344,14 @@ export class EmpresaService {
 
   guardarPersonalCertificacion(empresaUuid: string, personaUuid: string, certificacion: PersonaCertificacion) {
     return this.http.post(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/certificaciones`, certificacion);
+  }
+
+  modificarPersonalCertificacion(empresaUuid: string, personaUuid: string, capacitacionUuid: string, certificacion: PersonaCertificacion) {
+    return this.http.put(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/certificaciones/${capacitacionUuid}`, certificacion);
+  }
+
+  eliminarPersonalCertificacion(empresaUuid: string, personaUuid: string, capacitacionUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/certificaciones/${capacitacionUuid}`)
   }
 
   // Personal fotografias
@@ -322,6 +367,10 @@ export class EmpresaService {
     }
 
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/fotografias/${fotografiaUuid}`, httpOptions);
+  }
+
+  eliminarPersonaFotografia(empresaUuid: string, personaUuid: string, fotografiaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/fotografias/${fotografiaUuid}`)
   }
 
   // Canes
@@ -369,6 +418,14 @@ export class EmpresaService {
 
   guardarArma(uuid: string, licenciaColectivaUuid: string, arma: Arma) {
     return this.http.post(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas`, arma);
+  }
+
+  modificarArma(uuid: string, licenciaColectivaUuid: string, armaUuid: string, arma: Arma) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas/${armaUuid}`, armaUuid)
+  }
+
+  eliminarArma(uuid: string, licenciaColectivaUuid: string, armaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas/${armaUuid}`);
   }
 
   // equipo

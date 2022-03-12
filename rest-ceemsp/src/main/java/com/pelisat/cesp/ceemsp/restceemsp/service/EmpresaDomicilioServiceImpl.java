@@ -116,7 +116,14 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
             throw new NotFoundResourceException();
         }
 
-        return daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilio);
+        EmpresaDomicilioDto empresaDomicilioDto = daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilio);
+        empresaDomicilioDto.setCalleCatalogo(calleService.obtenerCallePorId(empresaDomicilio.getCalleCatalogo()));
+        empresaDomicilioDto.setColoniaCatalogo(coloniaService.obtenerColoniaPorId(empresaDomicilio.getColoniaCatalogo()));
+        empresaDomicilioDto.setLocalidadCatalogo(localidadService.obtenerLocalidadPorId(empresaDomicilio.getLocalidadCatalogo()));
+        empresaDomicilioDto.setEstadoCatalogo(estadoService.obtenerPorId(empresaDomicilio.getEstadoCatalogo()));
+        empresaDomicilioDto.setMunicipioCatalogo(municipioService.obtenerMunicipioPorId(empresaDomicilio.getMunicipioCatalogo()));
+
+        return empresaDomicilioDto;
     }
 
     @Override
@@ -178,17 +185,26 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         }
 
         empresaDomicilio.setNombre(empresaDomicilioDto.getNombre());
-        empresaDomicilio.setDomicilio1(empresaDomicilioDto.getDomicilio1());
         empresaDomicilio.setNumeroExterior(empresaDomicilioDto.getNumeroExterior());
         empresaDomicilio.setNumeroInterior(empresaDomicilioDto.getNumeroInterior());
-        empresaDomicilio.setDomicilio2(empresaDomicilioDto.getDomicilio2());
-        empresaDomicilio.setDomicilio3(empresaDomicilioDto.getDomicilio3());
-        empresaDomicilio.setDomicilio4(empresaDomicilio.getDomicilio4());
-        empresaDomicilio.setEstado(empresaDomicilio.getEstado());
-        empresaDomicilio.setPais(empresaDomicilio.getPais());
-        empresaDomicilio.setCodigoPostal(empresaDomicilio.getCodigoPostal());
-        empresaDomicilio.setTelefonoFijo(empresaDomicilio.getTelefonoFijo());
-        empresaDomicilio.setTelefonoMovil(empresaDomicilio.getTelefonoMovil());
+        empresaDomicilio.setDomicilio4(empresaDomicilioDto.getDomicilio4());
+        empresaDomicilio.setPais(empresaDomicilioDto.getPais());
+        empresaDomicilio.setCodigoPostal(empresaDomicilioDto.getCodigoPostal());
+        empresaDomicilio.setTelefonoFijo(empresaDomicilioDto.getTelefonoFijo());
+        empresaDomicilio.setTelefonoMovil(empresaDomicilioDto.getTelefonoMovil());
+        empresaDomicilio.setMatriz(empresaDomicilioDto.isMatriz());
+
+        empresaDomicilio.setEstadoCatalogo(empresaDomicilioDto.getEstadoCatalogo().getId());
+        empresaDomicilio.setMunicipioCatalogo(empresaDomicilioDto.getMunicipioCatalogo().getId());
+        empresaDomicilio.setColoniaCatalogo(empresaDomicilioDto.getColoniaCatalogo().getId());
+        empresaDomicilio.setLocalidadCatalogo(empresaDomicilioDto.getLocalidadCatalogo().getId());
+        empresaDomicilio.setCalleCatalogo(empresaDomicilioDto.getCalleCatalogo().getId());
+
+        empresaDomicilio.setDomicilio1(empresaDomicilioDto.getCalleCatalogo().getNombre());
+        empresaDomicilio.setDomicilio2(empresaDomicilioDto.getColoniaCatalogo().getNombre());
+        empresaDomicilio.setDomicilio3(empresaDomicilioDto.getMunicipioCatalogo().getNombre());
+        empresaDomicilio.setEstado(empresaDomicilioDto.getEstadoCatalogo().getNombre());
+        empresaDomicilio.setLocalidad(empresaDomicilioDto.getLocalidadCatalogo().getNombre());
 
         daoHelper.fulfillAuditorFields(false, empresaDomicilio, usuarioDto.getId());
         empresaDomicilioRepository.save(empresaDomicilio);

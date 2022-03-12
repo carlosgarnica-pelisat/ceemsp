@@ -35,7 +35,7 @@ public class VehiculoColorController {
 
     @PostMapping(value = VEHICULO_COLOR_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public VehiculoColorDto guardarColorVehiculo(
-            @PathVariable(value = "empr esaUuid") String empresaUuid,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "vehiculoUuid") String vehiculoUuid,
             HttpServletRequest request,
             @RequestBody VehiculoColorDto vehiculoColorDto

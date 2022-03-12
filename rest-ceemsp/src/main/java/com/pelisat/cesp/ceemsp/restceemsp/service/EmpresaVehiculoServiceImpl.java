@@ -163,4 +163,78 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         Vehiculo vehiculoCreado = vehiculoRepository.save(vehiculo);
         return daoToDtoConverter.convertDaoToDtoVehiculo(vehiculoCreado);
     }
+
+    @Override
+    public VehiculoDto modificarVehiculo(String empresaUuid, String vehiculoUuid, String username, VehiculoDto vehiculoDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(username) || vehiculoDto == null) {
+            logger.warn("El uuid viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+
+        if(vehiculo == null) {
+            logger.warn("El vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(empresaDto.getId() != vehiculo.getEmpresa()) {
+            logger.warn("El vehiculo no pertenece a esa empresa");
+            throw new MissingRelationshipException();
+        }
+
+        vehiculo.setPlacas(vehiculoDto.getPlacas());
+        vehiculo.setSerie(vehiculoDto.getSerie());
+        vehiculo.setRotulado(vehiculoDto.isRotulado());
+        vehiculo.setBlindado(vehiculoDto.isBlindado());
+        vehiculo.setSerieBlindaje(vehiculoDto.getSerieBlindaje());
+        vehiculo.setNumeroHolograma(vehiculoDto.getNumeroHolograma());
+        vehiculo.setPlacaMetalica(vehiculoDto.getPlacaMetalica());
+        vehiculo.setEmpresaBlindaje(vehiculoDto.getEmpresaBlindaje());
+        vehiculo.setNivelBlindaje(vehiculoDto.getNivelBlindaje());
+
+        if(StringUtils.isNotBlank(vehiculoDto.getFechaBlindaje())) {
+            vehiculo.setFechaBlindaje(LocalDate.parse(vehiculoDto.getFechaBlindaje()));
+        }
+
+        vehiculo.setMarca(vehiculoDto.getMarca().getId());
+        vehiculo.setSubmarca(vehiculoDto.getSubmarca().getId());
+        vehiculo.setUso(vehiculoDto.getUso().getId());
+        vehiculo.setTipo(vehiculoDto.getTipo().getId());
+
+        daoHelper.fulfillAuditorFields(false, vehiculo, usuarioDto.getId());
+
+        Vehiculo vehiculoCreado = vehiculoRepository.save(vehiculo);
+        return daoToDtoConverter.convertDaoToDtoVehiculo(vehiculoCreado);
+    }
+
+    @Override
+    public VehiculoDto eliminarVehiculo(String empresaUuid, String vehiculoUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(username)) {
+            logger.warn("El uuid viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+
+        if(vehiculo == null) {
+            logger.warn("El vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(empresaDto.getId() != vehiculo.getEmpresa()) {
+            logger.warn("El vehiculo no pertenece a esa empresa");
+            throw new MissingRelationshipException();
+        }
+
+        vehiculo.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, vehiculo, usuarioDto.getId());
+
+        Vehiculo vehiculoCreado = vehiculoRepository.save(vehiculo);
+        return daoToDtoConverter.convertDaoToDtoVehiculo(vehiculoCreado);
+    }
 }

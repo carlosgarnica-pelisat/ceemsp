@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {EmpresaService} from "../../_services/empresa.service";
@@ -11,6 +11,7 @@ import Arma from "../../_models/Arma";
 import {faCheck, faEdit, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
 import Persona from "../../_models/Persona";
 import EmpresaDomicilio from "../../_models/EmpresaDomicilio";
+import EmpresaEscrituraSocio from "../../../../../ceemsp-frontend/src/app/_models/EmpresaEscrituraSocio";
 
 @Component({
   selector: 'app-empresa-licencias',
@@ -56,6 +57,8 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   showDireccionForm: boolean = false;
   showArmaForm: boolean = false;
+
+  @ViewChild('eliminarEmpresaLicenciaModal') eliminarEmpresaLicenciaModal;
 
   constructor(private modalService: NgbModal, private empresaService: EmpresaService, private toastService: ToastService,
               private route: ActivatedRoute, private formBuilder: FormBuilder) { }
@@ -335,11 +338,40 @@ export class EmpresaLicenciasComponent implements OnInit {
   }
 
   mostrarModificarLicenciaModal() {
-
+    //this.modal = this.modalService.open(this.eliminarEscrituraLicenciaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
   }
 
   mostrarEliminarLicenciaModal() {
+    this.modal = this.modalService.open(this.eliminarEmpresaLicenciaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
 
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  confirmarEliminarLicencia() {
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando la licencia colectiva",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarLicenciaColectiva(this.uuid, this.licencia.uuid).subscribe((data: EmpresaLicenciaColectiva) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la licencia colectiva con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `La licencia colectiva no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   private getDismissReason(reason: any): string {

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {EmpresaService} from "../../../_services/empresa.service";
@@ -14,6 +14,7 @@ import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
 import ArmaMarca from "../../../_models/ArmaMarca";
 import ArmaClase from "../../../_models/ArmaClase";
 import {ArmasService} from "../../../_services/armas.service";
+import EmpresaEscrituraApoderado from "../../../_models/EmpresaEscrituraApoderado";
 
 @Component({
   selector: 'app-empresa-licencias',
@@ -66,6 +67,13 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   showDireccionForm: boolean = false;
   showArmaForm: boolean = false;
+
+  tempUuidDireccion: string;
+  tempUuidArma: string;
+
+  @ViewChild('eliminarEmpresaLicenciaModal') eliminarEmpresaLicenciaModal;
+  @ViewChild('eliminarEmpresaLicenciaDireccionModal') eliminarEmpresaLicenciaDireccionModal;
+  @ViewChild('eliminarEmpresaLicenciaArmaModal') eliminarEmpresaLicenciaArmaModal;
 
   constructor(private modalService: NgbModal, private empresaService: EmpresaService, private toastService: ToastService,
               private route: ActivatedRoute, private formBuilder: FormBuilder, private armaService: ArmasService) { }
@@ -431,11 +439,39 @@ export class EmpresaLicenciasComponent implements OnInit {
   }
 
   mostrarEliminarLicenciaModal() {
+    this.modal = this.modalService.open(this.eliminarEmpresaLicenciaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
 
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
   }
 
   mostrarFormularioNuevaArma() {
     this.showArmaForm = !this.showArmaForm;
+  }
+
+  mostrarModalEliminarDomicilio(uuid) {
+    this.tempUuidDireccion = uuid;
+    this.modal = this.modalService.open(this.eliminarEmpresaLicenciaDireccionModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModalEliminarArma(uuid) {
+    this.tempUuidArma = uuid;
+    this.modal = this.modalService.open(this.eliminarEmpresaLicenciaArmaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
   }
 
   crearArma(form) {
@@ -474,6 +510,93 @@ export class EmpresaLicenciasComponent implements OnInit {
           "Ocurrio un problema",
           `no se pudo guarar el arma. Motivo: ${error}`,
           ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarLicencia() {
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando la licencia colectiva",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarLicenciaColectiva(this.uuid, this.licencia.uuid).subscribe((data: EmpresaLicenciaColectiva) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la licencia colectiva con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar la licencia colectiva. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarLicenciaArma() {
+    if(this.tempUuidArma === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID del domicilio a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el domicilio de la licencia colectiva",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarDomicilioEnLicenciaColectiva(this.uuid, this.licencia.uuid, this.tempUuidDireccion).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el domicilio de la licencia colectiva con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El domicilio de la licencia colectiva no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarLicenciaDomicilio() {
+    if(this.tempUuidDireccion === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID del domicilio a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el domicilio de la licencia colectiva",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarDomicilioEnLicenciaColectiva(this.uuid, this.licencia.uuid, this.tempUuidDireccion).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el domicilio de la licencia colectiva con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El domicilio de la licencia colectiva no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
       );
     })
   }

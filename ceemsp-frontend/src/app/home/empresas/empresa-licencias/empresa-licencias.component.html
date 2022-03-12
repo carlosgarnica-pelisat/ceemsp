@@ -124,7 +124,7 @@
               <td>{{d?.estado}}</td>
               <td>{{d?.codigoPostal}}</td>
               <td>
-
+                <fa-icon [icon]="faTrash" title="Eliminar domicilio de la licencia colectiva" (click)="mostrarModalEliminarDomicilio(d?.uuid)"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="showDireccionForm">
@@ -180,16 +180,9 @@
               <td>{{a?.bunker?.domicilio1}}</td>
               <td>{{a?.status}}</td>
               <td>
-                <div class="btn-group">
-                  <button type="button" class="btn btn-primary btn-sm" (click)="mostrarCambioStatusForm()"><fa-icon [icon]="faSync"></fa-icon> Cambiar status</button>
-                  <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="sr-only">Toggle Dropdown</span>
-                  </button>
-                  <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#"><fa-icon [icon]="faEdit"></fa-icon> Modificar</a>
-                    <a class="dropdown-item" href="#"><fa-icon [icon]="faTrash"></fa-icon> Eliminar</a>
-                  </div>
-                </div>
+                <fa-icon [icon]="faSync" title="Cambiar status" (click)="mostrarCambioStatusForm()" style="cursor: pointer;"></fa-icon>
+                <fa-icon [icon]="faEdit" title="Modificar arma" (click)="mostrarModificarArmaForm()" style="cursor: pointer;"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar arma" (click)="mostrarModalEliminarArma(a?.uuid)" style="cursor: pointer;"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="showArmaForm">
@@ -400,6 +393,66 @@
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="guardarLicencia(crearEmpresaLicenciaForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarEmpresaLicenciaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEscrituraLicenciaModal">Eliminando la licencia colectiva </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar la licencia colectiva. Toma en cuenta que los domicilios vinculados y las armas se eliminaran tambien. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarLicencia()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarEmpresaLicenciaDireccionModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEmpresaLicenciaDireccionModal">Eliminando la direccion </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar la direccion de la licencia colectiva. Esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarLicenciaDomicilio()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarEmpresaLicenciaArmaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEmpresaLicenciaArmaModal">Eliminando el arma </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar el arma de la licencia colectiva. Esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarLicenciaArma()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 </div>

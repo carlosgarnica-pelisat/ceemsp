@@ -3,6 +3,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.PersonalCertificacionDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
+import com.pelisat.cesp.ceemsp.database.model.EmpresaEscrituraSocio;
 import com.pelisat.cesp.ceemsp.database.model.Personal;
 import com.pelisat.cesp.ceemsp.database.model.PersonalCertificacion;
 import com.pelisat.cesp.ceemsp.database.repository.PersonaRepository;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,5 +89,57 @@ public class PersonalCertificacionServiceImpl implements PersonalCertificacionSe
 
         PersonalCertificacion certificacionCreada = personalCertificacionRepository.save(personalCertificacion);
         return daoToDtoConverter.convertDaoToDtoPersonalCertificacion(certificacionCreada);
+    }
+
+    @Override
+    public PersonalCertificacionDto modificarCertificacion(String empresaUuid, String personaUuid, String certificacionUuid, String username, PersonalCertificacionDto personalCertificacionDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid) || StringUtils.isBlank(certificacionUuid) || StringUtils.isBlank(username) || personalCertificacionDto == null) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Se esta modificando la certificacion de la persona con el uuid [{}]", certificacionUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        PersonalCertificacion personalCertificacion = personalCertificacionRepository.findByUuidAndEliminadoFalse(certificacionUuid);
+
+        if(personalCertificacion == null) {
+            logger.warn("El socio a modificar no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        personalCertificacion.setFechaInicio(LocalDate.parse(personalCertificacionDto.getFechaInicio()));
+        personalCertificacion.setFechaFin(LocalDate.parse(personalCertificacionDto.getFechaFin()));
+        personalCertificacion.setDuracion(personalCertificacionDto.getDuracion());
+        personalCertificacion.setNombre(personalCertificacionDto.getNombre());
+        personalCertificacion.setNombreInstructor(personalCertificacionDto.getNombreInstructor());
+        daoHelper.fulfillAuditorFields(false, personalCertificacion, usuario.getId());
+
+        personalCertificacionRepository.save(personalCertificacion);
+
+        return daoToDtoConverter.convertDaoToDtoPersonalCertificacion(personalCertificacion);
+    }
+
+    @Override
+    public PersonalCertificacionDto eliminarCertificacion(String empresaUuid, String personaUuid, String certificacionUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid) || StringUtils.isBlank(certificacionUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Se esta eliminando la certificacion de la persona con el uuid [{}]", certificacionUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        PersonalCertificacion personalCertificacion = personalCertificacionRepository.findByUuidAndEliminadoFalse(certificacionUuid);
+
+        if(personalCertificacion == null) {
+            logger.warn("El socio a modificar no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        personalCertificacion.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, personalCertificacion, usuario.getId());
+        personalCertificacionRepository.save(personalCertificacion);
+        return daoToDtoConverter.convertDaoToDtoPersonalCertificacion(personalCertificacion);
     }
 }

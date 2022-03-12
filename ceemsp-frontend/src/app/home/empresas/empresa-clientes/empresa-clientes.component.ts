@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {ActivatedRoute} from "@angular/router";
 import {ToastService} from "../../../_services/toast.service";
@@ -18,6 +18,7 @@ import Municipio from "../../../_models/Municipio";
 import Calle from "../../../_models/Calle";
 import Colonia from "../../../_models/Colonia";
 import Localidad from "../../../_models/Localidad";
+import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 
 @Component({
   selector: 'app-empresa-clientes',
@@ -27,6 +28,9 @@ import Localidad from "../../../_models/Localidad";
 export class EmpresaClientesComponent implements OnInit {
 
   uuid: string;
+
+  faTrash = faTrash;
+  faPencilAlt = faPencilAlt;
 
   estados: Estado[] = [];
   municipios: Municipio[] = [];
@@ -69,6 +73,7 @@ export class EmpresaClientesComponent implements OnInit {
   };
 
   nuevoClienteForm: FormGroup;
+  modificarClienteForm: FormGroup;
   nuevoClienteDomicilioForm: FormGroup;
 
   domicilios: ClienteDomicilio[] = [];
@@ -88,6 +93,13 @@ export class EmpresaClientesComponent implements OnInit {
   calleSearchForm: FormGroup;
   coloniaSearchForm: FormGroup;
 
+  tempUuidDomicilioCliente: string = "";
+  tempUuidCliente: string = "";
+
+  @ViewChild('eliminarClienteModal') eliminarClienteModal;
+  @ViewChild('eliminarDomicilioClienteModal') eliminarDomicilioClienteModal;
+  @ViewChild('modificarClienteModal') modificarClienteModal;
+
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
               private formBuilder: FormBuilder, private tipoInfraestructuraService: TipoInfraestructuraService,
@@ -105,6 +117,16 @@ export class EmpresaClientesComponent implements OnInit {
       armas: ['', Validators.required],
       fechaInicio: ['', Validators.required],
       archivo: ['', Validators.required]
+    });
+
+    this.modificarClienteForm = this.formBuilder.group({
+      tipoPersona: ['', Validators.required],
+      rfc: ['', [Validators.required, Validators.minLength(12), Validators.maxLength(13)]],
+      nombreComercial: ['', [Validators.required, Validators.maxLength(100)]],
+      razonSocial: ['', [Validators.required, Validators.maxLength(100)]],
+      canes: ['', Validators.required],
+      armas: ['', Validators.required],
+      fechaInicio: ['', Validators.required]
     });
 
     this.nuevoClienteDomicilioForm = this.formBuilder.group({
@@ -524,6 +546,148 @@ export class EmpresaClientesComponent implements OnInit {
 
     this.domicilios.push(formData);
     this.nuevoClienteDomicilioForm.reset();
+  }
+
+  mostrarModalEditarCliente() {
+    this.modal = this.modalService.open(this.modificarClienteModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: "static"})
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+
+    this.modificarClienteForm.patchValue({
+      tipoPersona: this.cliente.tipoPersona,
+      rfc: this.cliente.rfc,
+      nombreComercial: this.cliente.nombreComercial,
+      razonSocial: this.cliente.razonSocial,
+      canes: this.cliente.canes,
+      armas: this.cliente.armas,
+      fechaInicio: this.cliente.fechaInicio
+    })
+  }
+
+  mostrarModalEliminarCliente(uuid) {
+    this.tempUuidDomicilioCliente = uuid;
+    this.modal = this.modalService.open(this.eliminarClienteModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModalEliminarDomicilioCliente(uuid) {
+    this.tempUuidDomicilioCliente = uuid;
+    this.modal = this.modalService.open(this.eliminarDomicilioClienteModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  guardarCambiosCliente(form) {
+    console.log(form.value);
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario esta invalido. Favor de verificarlo",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let formValue: Cliente = form.value;
+
+    this.toastService.showGenericToast(
+      "Espera un momento",
+      "Estamos guardando el cliente",
+      ToastType.INFO
+    );
+
+    this.empresaService.modificarCliente(this.uuid, this.cliente.uuid, formValue).subscribe((data: Cliente) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha modificado el cliente con exito",
+        ToastType.SUCCESS
+      );
+      this.cliente = data;
+      this.stepper.next();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido modificar el cliente. ${error}`,
+        ToastType.ERROR
+      )
+    });
+  }
+
+  confirmarEliminarCliente() {
+    if(this.tempUuidCliente === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID del cliente a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el domicilio del cliente",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarCliente(this.uuid, this.cliente.uuid).subscribe((data: ClienteDomicilio) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el cliente con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El cliente no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarDomicilioCliente() {
+    if(this.tempUuidDomicilioCliente === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID del domicilio del cliente a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el domicilio del cliente",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarDomicilioCliente(this.uuid, this.cliente.uuid, this.tempUuidDomicilioCliente).subscribe((data: ClienteDomicilio) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el domicilio con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El domicilio del cliente no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   private getDismissReason(reason: any): string {

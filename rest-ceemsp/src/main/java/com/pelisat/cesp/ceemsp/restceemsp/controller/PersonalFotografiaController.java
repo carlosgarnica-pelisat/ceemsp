@@ -71,4 +71,15 @@ public class PersonalFotografiaController {
                 new Gson().fromJson(metadataArchivo, PersonalFotografiaMetadata.class)
         );
     }
+
+    @DeleteMapping(value = PERSONAL_FOTOGRAFIAS_URI + "/{fotografiaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public PersonalFotografiaMetadata eliminarFotografiaElemento(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "personaUuid") String personaUuid,
+            @PathVariable(value = "fotografiaUuid") String fotografiaUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return personalFotografiaService.eliminarPersonalFotografia(empresaUuid, personaUuid, fotografiaUuid, username);
+    }
 }

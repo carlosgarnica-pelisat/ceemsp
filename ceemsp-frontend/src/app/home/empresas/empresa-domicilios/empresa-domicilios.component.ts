@@ -90,6 +90,7 @@ export class EmpresaDomiciliosComponent implements OnInit {
 
     this.modificarDomicilioForm = this.formbuilder.group({
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      matriz: ['', Validators.required],
       numeroExterior: ['', [Validators.required, Validators.maxLength(20)]],
       numeroInterior: ['', [Validators.maxLength(20)]],
       domicilio4: [''],
@@ -188,7 +189,11 @@ export class EmpresaDomiciliosComponent implements OnInit {
   }
 
   seleccionarEstado(estadoUuid) {
-    // DELETING EVERYTHING!
+    this.municipio = undefined;
+    this.calle = undefined;
+    this.localidad = undefined;
+    this.colonia = undefined;
+
     this.estado = this.estados.filter(x => x.uuid === estadoUuid)[0];
     this.nuevoDomicilioForm.patchValue({
       estado: this.estado.nombre
@@ -218,6 +223,10 @@ export class EmpresaDomiciliosComponent implements OnInit {
   }
 
   seleccionarMunicipio(municipioUuid) {
+    this.localidad = undefined;
+    this.colonia = undefined;
+    this.calle = undefined;
+
     this.municipio = this.municipios.filter(x => x.uuid === municipioUuid)[0];
 
     this.estadoService.obtenerColoniasPorMunicipioYEstado(this.estado.uuid, municipioUuid).subscribe((data: Colonia[]) => {
@@ -320,6 +329,15 @@ export class EmpresaDomiciliosComponent implements OnInit {
       return;
     }
 
+    if(this.estado === undefined || this.municipio === undefined || this.localidad === undefined || this.colonia === undefined || this.calle === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Alguno de los campos catalogo a llenar no esta lleno",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espere un momento",
       "Estamos guardando los cambios en el domicilio",
@@ -327,6 +345,12 @@ export class EmpresaDomiciliosComponent implements OnInit {
     );
 
     let domicilio: EmpresaDomicilio = form.value;
+    domicilio.estadoCatalogo = this.estado;
+    domicilio.municipioCatalogo = this.municipio;
+    domicilio.localidadCatalogo = this.localidad;
+    domicilio.coloniaCatalogo = this.colonia;
+    domicilio.calleCatalogo = this.calle;
+
 
     this.empresaService.modificarDomicilio(this.uuid, this.domicilio.uuid, domicilio).subscribe((response) => {
       this.toastService.showGenericToast(
@@ -415,17 +439,52 @@ export class EmpresaDomiciliosComponent implements OnInit {
   mostrarModificarDomicilioModal() {
     this.modificarDomicilioForm.setValue({
       nombre: this.domicilio.nombre,
-      domicilio1: this.domicilio.domicilio1,
       numeroExterior: this.domicilio.numeroExterior,
       numeroInterior: this.domicilio.numeroInterior,
-      domicilio2: this.domicilio.domicilio2,
-      domicilio3: this.domicilio.domicilio3,
       domicilio4: this.domicilio.domicilio4,
       codigoPostal: this.domicilio.codigoPostal,
-      estado: this.domicilio.estado,
       pais: this.domicilio.pais,
       telefonoFijo: this.domicilio.telefonoFijo,
-      telefonoMovil: this.domicilio.telefonoMovil
+      telefonoMovil: this.domicilio.telefonoMovil,
+      matriz: this.domicilio.matriz
+    });
+
+    console.log(this.domicilio);
+
+    this.estado = this.domicilio.estadoCatalogo;
+    this.municipio = this.domicilio.municipioCatalogo;
+    this.calle = this.domicilio.calleCatalogo;
+    this.localidad = this.domicilio.localidadCatalogo;
+    this.colonia = this.domicilio.coloniaCatalogo;
+
+    this.estadoService.obtenerEstadosPorMunicipio(this.estado.uuid).subscribe((data: Municipio[]) => {
+      this.municipios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los municipios relacionados. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
+    this.estadoService.obtenerLocalidadesPorMunicipioYEstado(this.estado.uuid, this.municipio.uuid).subscribe((data: Localidad[]) => {
+      this.localidades = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las localidades. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
+
+    this.estadoService.obtenerColoniasPorMunicipioYEstado(this.estado.uuid, this.municipio.uuid).subscribe((data: Colonia[]) => {
+      this.colonias = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las colonias. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
 
     this.modalService.dismissAll();

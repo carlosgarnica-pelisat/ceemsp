@@ -357,8 +357,8 @@
                   <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                     {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
                   </a>
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <form [formGroup]="localidadSearchForm" autocomplete="off" class="px-4 py-3" style="overflow-y: scroll; max-height: 300px;">
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                    <form [formGroup]="localidadSearchForm" autocomplete="off" class="px-4 py-3">
                       <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
                       <input type="text" class="form-control" id="localidadSearchQuery" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
                              [ngModelOptions]="{standalone: true}">
@@ -409,7 +409,7 @@
                              [ngModelOptions]="{standalone: true}" (keyup)="obtenerCalles($event)">
                     </form>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" *ngFor="let c of calles | slice: 0 : 10" (click)="seleccionarCalle(c.uuid)" style="cursor: pointer;">
+                    <a class="dropdown-item" *ngFor="let c of calles" (click)="seleccionarCalle(c.uuid)" style="cursor: pointer;">
                       {{c.nombre}}
                     </a>
                     <div class="dropdown-divider"></div>
@@ -528,7 +528,8 @@
                     <td>{{d.telefonoFijo}}</td>
                     <td>{{d.telefonoMovil}}</td>
                     <td>
-                      <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminar(eliminarDomicilioModal, i)" title="Eliminar domicilio"></fa-icon>
+                      <fa-icon [icon]="faPencil" style="cursor: pointer;" (click)="editarDomicilio(i)" title="Modificar domicililo"></fa-icon>
+                      <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarModalEliminar(eliminarDomicilioModal, i)" title="Eliminar domicilio"></fa-icon>
                     </td>
                   </tr>
                 </table>
@@ -559,8 +560,9 @@
                       <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
                       <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
+                    <i *ngIf="existeEscritura !== undefined && existeEscritura.existe"> - La escritura ya existe</i>
                   </label>
-                  <input id="numeroEscritura" type="tel" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" appNumberMask #numeroEscritura>
+                  <input id="numeroEscritura" type="tel" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" appNumberMask #numeroEscritura (focusout)="validarEscritura($event.target)">
                 </div>
                 <div class="col-sm-4">
                   <label for="fechaEscritura">
@@ -570,18 +572,51 @@
                       <i *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                   </label>
-                  <input [max]="fechaDeHoy" id="fechaEscritura" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaEscritura" #fechaEscritura>
+                  <input [max]="fechaDeHoy" id="fechaEscritura" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaEscritura"  #fechaEscritura>
                 </div>
-                <div class="col-sm-4">
-                  <label for="ciudad">
-                    <b>Ciudad *</b>
-                    <span
-                      *ngIf="nuevaEscrituraForm.controls['ciudad'].invalid && (nuevaEscrituraForm.controls['ciudad'].dirty || nuevaEscrituraForm.controls['ciudad'].touched)">
-                      <i *ngIf="nuevaEscrituraForm.controls['ciudad'].errors.required" class="text-danger"> - Campo requerido</i>
-                      <i *ngIf="nuevaEscrituraForm.controls['ciudad'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                    </span>
+                <div class="col-sm-2">
+                  <label>
+                    <b>Estado *</b>
                   </label>
-                  <input id="ciudad" type="text" class="form-control" placeholder="Ej. Guadalajara" formControlName="ciudad" #ciudad>
+                  <div class="dropdown" id="customer">
+                    <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                      {{estado === undefined ? 'Ninguno' : estado?.nombre}}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                      <form [formGroup]="estadoSearchForm" class="px-4 py-3" autocomplete="off">
+                        <label for="estadoSearchQueryNotario"><b>Buscar por nombre</b></label>
+                        <input type="text" class="form-control" id="estadoSearchQueryNotario" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
+                               [ngModelOptions]="{standalone: true}">
+                      </form>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" *ngFor="let e of estados | buscarNombre: {nombre: estadoQuery}" (click)="seleccionarEstado(e.uuid)" style="cursor: pointer;">
+                        {{e.nombre}}
+                      </a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarEstado()">Quitar</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-2">
+                  <label>
+                    <b>Municipio *</b>
+                  </label>
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                    <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                      <label for="municipioSearchQueryNotario"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="municipioSearchQueryNotario" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
+                             [ngModelOptions]="{standalone: true}">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let m of municipios | buscarNombre: {nombre: municipioQuery}" (click)="seleccionarMunicipio(m.uuid)" style="cursor: pointer;">
+                      {{m.nombre}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
+                  </div>
                 </div>
               </div>
 
@@ -730,7 +765,7 @@
                       <span *ngSwitchCase="'TECNOLOGIA'">Con apoyo de tecnología</span>
                     </td>
                     <td>
-                      <fa-icon style="cursor: pointer;" [icon]="faTrash" (click)="eliminarFormaEjecucion(i)" title="Eliminar forma de ejecución"></fa-icon>
+                      <fa-icon style="cursor: pointer;" [icon]="faTrash" (click)="mostrarModalEliminar(eliminarFormaEjecucionModal, i)" title="Eliminar forma de ejecución"></fa-icon>
                     </td>
                   </tr>
                 </table>
@@ -759,6 +794,10 @@
             <hr>
             <div class="row">
               <div class="col-sm-12">
+                <button class="btn btn-primary" (click)="previous()">
+                  <fa-icon [icon]="faChevronLeft"></fa-icon> Anterior:
+                  Formas de ejecucion
+                </button>
                 <button class="btn btn-primary" (click)="redireccionarEmpresas()">
                   Finalizar
                 </button>
@@ -804,6 +843,7 @@
               <td><b>Nombre(s)</b></td>
               <td><b>Apellido Paterno</b></td>
               <td><b>Apellido Materno</b></td>
+              <td><b>CURP</b></td>
               <td><b>Sexo</b></td>
               <td><b>% Acciones</b></td>
               <td><b>Acciones</b></td>
@@ -812,24 +852,26 @@
               <td>{{socio?.nombres}}</td>
               <td>{{socio?.apellidos}}</td>
               <td>{{socio?.apellidoMaterno}}</td>
+              <td>{{socio?.curp}}</td>
               <td>{{socio?.sexo}}</td>
               <td>{{socio?.porcentajeAcciones}}</td>
               <td>
-                <fa-icon [icon]="faTrash" class="fakelink" (click)="eliminarSocio(i)" title="Eliminar socio de la escritura"></fa-icon>
+                <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarSocioForm(i)" title="Editar socio"></fa-icon>
+                <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminar(eliminarEscrituraSocioModal, i)" title="Eliminar socio de la escritura"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="!showSocioForm">
-              <td colspan="6">
+              <td colspan="7">
                 <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevoSocio()">Agregar socio</button>
               </td>
             </tr>
             <tr *ngIf="showSocioForm">
-              <td colspan="6">
+              <td colspan="7">
                 <div class="row">
                   <div class="col-sm-12">
                     <form [formGroup]="nuevoSocioForm">
                       <div class="form-row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                           <label for="nombres">
                             <b>Nombre(s) *</b>
                             <span
@@ -840,7 +882,7 @@
                           </label>
                           <input id="nombres" type="text" class="form-control" placeholder="Ej. Carlos Jose" formControlName="nombres" #nombres>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                           <label for="apellidos">
                             <b>Apellido Paterno *</b>
                             <span
@@ -851,7 +893,7 @@
                           </label>
                           <input id="apellidos" type="text" class="form-control" placeholder="Ej. Gonzalez" formControlName="apellidos" #apellidos>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                           <label for="apellidoMaterno">
                             <b>Apellido Materno</b>
                             <span
@@ -861,7 +903,9 @@
                           </label>
                           <input id="apellidoMaterno" type="text" class="form-control" placeholder="Ej. Gonzalez" formControlName="apellidoMaterno" #apellidoMaterno>
                         </div>
-                        <div class="col-sm-2">
+                      </div>
+                      <div class="row">
+                        <div class="col-sm-4">
                           <label for="sexoSocio">
                             <b>Sexo *</b>
                             <span
@@ -874,7 +918,7 @@
                             <option value="FEMENINO">FEMENINO</option>
                           </select>
                         </div>
-                        <div class="col-sm-1">
+                        <div class="col-sm-4">
                           <label for="porcentajeAcciones">
                             <b>% Acc *</b>
                             <span
@@ -885,6 +929,18 @@
                             </span>
                           </label>
                           <input id="porcentajeAcciones" type="number" class="form-control" placeholder="Colocar solo el numero" formControlName="porcentajeAcciones" max="100" min="1" #porcentajeAcciones>
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="curpSocio">
+                            <b>CURP *</b>
+                            <span
+                              *ngIf="nuevoSocioForm.controls['curp'].invalid && (nuevoSocioForm.controls['curp'].dirty || nuevoSocioForm.controls['curp'].touched)">
+                              <i *ngIf="nuevoSocioForm.controls['curp'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="nuevoSocioForm.controls['curp'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                              <i *ngIf="nuevoSocioForm.controls['curp'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                          </label>
+                          <input id="curpSocio" type="text" class="form-control" placeholder="Ej. XAXX010101AAAAAA00" formControlName="curp">
                         </div>
                       </div>
                     </form>
@@ -909,6 +965,7 @@
             <td><b>Nombre(s)</b></td>
             <td><b>Apellido Paterno</b></td>
             <td><b>Apellido Materno</b></td>
+            <td><b>CURP</b></td>
             <td><b>Sexo</b></td>
             <td><b>F. Inicio</b></td>
             <td><b>F. Fin</b></td>
@@ -918,20 +975,22 @@
             <td>{{apoderado?.nombres}}</td>
             <td>{{apoderado?.apellidos}}</td>
             <td>{{apoderado?.apellidoMaterno}}</td>
+            <td>{{apoderado?.curp}}</td>
             <td>{{apoderado?.sexo}}</td>
             <td>{{apoderado?.fechaInicio}}</td>
             <td>{{apoderado?.fechaFin}}</td>
             <td>
-              <fa-icon [icon]="faTrash" class="fakelink" (click)="eliminarApoderado(i)" title="Eliminar apoderado de la escritura"></fa-icon>
+              <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarApoderadoForm(i)" title="Modificar apoderado"></fa-icon>
+              <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminar(eliminarEscrituraApoderadoModal, i)" title="Eliminar apoderado de la escritura"></fa-icon>
             </td>
           </tr>
           <tr *ngIf="!showApoderadoForm">
-            <td colspan="7">
+            <td colspan="8">
               <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevoApoderado()">Agregar apoderado</button>
             </td>
           </tr>
           <tr *ngIf="showApoderadoForm">
-            <td colspan="7">
+            <td colspan="8">
               <div class="row">
                 <div class="col-sm-12">
                   <form [formGroup]="nuevoApoderadoForm">
@@ -1003,6 +1062,18 @@
                         </label>
                         <input id="apoderadoFechaFin" type="date" class="form-control" formControlName="fechaFin" #fechaFin>
                       </div>
+                      <div class="col-sm-4">
+                        <label for="curpApoderado">
+                          <b>CURP *</b>
+                          <span
+                            *ngIf="nuevoApoderadoForm.controls['curp'].invalid && (nuevoApoderadoForm.controls['curp'].dirty || nuevoApoderadoForm.controls['curp'].touched)">
+                              <i *ngIf="nuevoApoderadoForm.controls['curp'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="nuevoApoderadoForm.controls['curp'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                              <i *ngIf="nuevoApoderadoForm.controls['curp'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                        </label>
+                        <input id="curpApoderado" type="text" class="form-control" placeholder="Ej. XAXX010101AAAAAA00" formControlName="curp">
+                      </div>
                     </div>
                   </form>
                 </div>
@@ -1011,7 +1082,7 @@
               <div class="row">
                 <div class="col-sm-12">
                   <button class="btn btn-primary btn-sm" (click)="guardarApoderado(nuevoApoderadoForm)">Guardar</button>
-                  <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevoSocio()">Cancelar</button>
+                  <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevoApoderado()">Cancelar</button>
                 </div>
               </div>
             </td>
@@ -1025,6 +1096,7 @@
             <td><b>Nombre(s)</b></td>
             <td><b>Apellido Paterno</b></td>
             <td><b>Apellido Materno</b></td>
+            <td><b>CURP</b></td>
             <td><b>Sexo</b></td>
             <td><b>Acciones</b></td>
           </tr>
@@ -1032,18 +1104,20 @@
             <td>{{representante.nombres}}</td>
             <td>{{representante.apellidos}}</td>
             <td>{{representante.apellidoMaterno}}</td>
+            <td>{{representante.curp}}</td>
             <td>{{representante.sexo}}</td>
             <td>
-              <fa-icon [icon]="faTrash" (click)="eliminarRepresentante(i)" title="Eliminar representante de la escritura"></fa-icon>
+              <fa-icon [icon]="faPencil" (click)="mostrarEditarRepresentanteForm(i)" title="Modificar representante"></fa-icon>
+              <fa-icon [icon]="faTrash" (click)="mostrarModalEliminar(eliminarEscrituraRepresentanteModal, i)" title="Eliminar representante de la escritura"></fa-icon>
             </td>
           </tr>
           <tr *ngIf="!showRepresentanteForm">
-            <td colspan="5">
+            <td colspan="6">
               <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevoRepresentante()">Agregar representante</button>
             </td>
           </tr>
           <tr *ngIf="showRepresentanteForm">
-            <td colspan="5">
+            <td colspan="6">
               <div class="row">
                 <div class="col-sm-12">
                   <form [formGroup]="nuevoRepresentanteForm">
@@ -1095,7 +1169,18 @@
                           <option value="FEMENINO">FEMENINO</option>
                         </select>
                       </div>
-
+                      <div class="col-sm-3">
+                        <label for="curpRepresentante">
+                          <b>CURP *</b>
+                          <span
+                            *ngIf="nuevoRepresentanteForm.controls['curp'].invalid && (nuevoRepresentanteForm.controls['curp'].dirty || nuevoRepresentanteForm.controls['curp'].touched)">
+                              <i *ngIf="nuevoRepresentanteForm.controls['curp'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="nuevoRepresentanteForm.controls['curp'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                              <i *ngIf="nuevoRepresentanteForm.controls['curp'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                        </label>
+                        <input id="curpRepresentante" type="text" class="form-control" placeholder="Ej. XAXX010101AAAAAA00" formControlName="curp">
+                      </div>
                     </div>
                   </form>
                 </div>
@@ -1118,6 +1203,7 @@
             <td><b>Nombre(s)</b></td>
             <td><b>Apellido Paterno</b></td>
             <td><b>Apellido Materno</b></td>
+            <td><b>CURP</b></td>
             <td><b>Sexo</b></td>
             <td><b>Puesto</b></td>
             <td><b>Acciones</b></td>
@@ -1126,24 +1212,26 @@
             <td>{{c.nombres}}</td>
             <td>{{c.apellidos}}</td>
             <td>{{c.apellidoMaterno}}</td>
+            <td>{{c.curp}}</td>
             <td>{{c.sexo}}</td>
             <td>{{c.puesto}}</td>
             <td>
-              <fa-icon [icon]="faTrash" (click)="eliminarConsejo(i)" title="Eliminar miembro del consejo de la escritura"></fa-icon>
+              <fa-icon [icon]="faPencil" (click)="mostrarEditarConsejoForm(i)" title="Modificar miembro del consejo"></fa-icon>
+              <fa-icon [icon]="faTrash" (click)="mostrarModalEliminar(eliminarEscrituraConsejoModal, i)" title="Eliminar miembro del consejo de la escritura"></fa-icon>
             </td>
           </tr>
           <tr *ngIf="!showConsejoForm">
-            <td colspan="6">
+            <td colspan="7">
               <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevoConsejo()">Agregar miembro del consejo</button>
             </td>
           </tr>
           <tr *ngIf="showConsejoForm">
-            <td colspan="6">
+            <td colspan="7">
               <div class="row">
                 <div class="col-sm-12">
                   <form [formGroup]="nuevoConsejoAdministracionForm">
                     <div class="form-row">
-                      <div class="col-sm-3">
+                      <div class="col-sm-4">
                         <label for="consejoNombre">
                           <b>Nombre(s) *</b>
                           <span
@@ -1154,7 +1242,7 @@
                         </label>
                         <input id="consejoNombre" type="text" class="form-control" placeholder="Ej. Carlos Jose" formControlName="nombres" #nombres>
                       </div>
-                      <div class="col-sm-3">
+                      <div class="col-sm-4">
                         <label for="consejoApellidos">
                           <b>Apellido Paterno *</b>
                           <span
@@ -1165,7 +1253,7 @@
                         </label>
                         <input id="consejoApellidos" type="text" class="form-control" placeholder="Ej. Gonzalez" formControlName="apellidos" #apellidos>
                       </div>
-                      <div class="col-sm-3">
+                      <div class="col-sm-4">
                         <label for="consejoApellidoMaterno">
                           <b>Apellido Materno</b>
                           <span
@@ -1176,7 +1264,7 @@
                         </label>
                         <input id="consejoApellidoMaterno" type="text" class="form-control" placeholder="Ej. Gonzalez" formControlName="apellidoMaterno" #apellidoMaterno>
                       </div>
-                      <div class="col-sm-3">
+                      <div class="col-sm-4">
                         <label for="consejoSexo">
                           <b>Sexo *</b>
                           <span
@@ -1190,7 +1278,7 @@
                           <option value="FEMENINO">FEMENINO</option>
                         </select>
                       </div>
-                      <div class="col-sm-3">
+                      <div class="col-sm-4">
                         <label for="consejoPuesto">
                           <b>Puesto *</b>
                           <span
@@ -1206,6 +1294,18 @@
                           <option value="TESORERO">Tesorero</option>
                           <option value="VOCAL">Vocal</option>
                         </select>
+                      </div>
+                      <div class="col-sm-4">
+                        <label for="curpConsejo">
+                          <b>CURP *</b>
+                          <span
+                            *ngIf="nuevoConsejoAdministracionForm.controls['curp'].invalid && (nuevoConsejoAdministracionForm.controls['curp'].dirty || nuevoConsejoAdministracionForm.controls['curp'].touched)">
+                              <i *ngIf="nuevoConsejoAdministracionForm.controls['curp'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="nuevoConsejoAdministracionForm.controls['curp'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                              <i *ngIf="nuevoConsejoAdministracionForm.controls['curp'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                        </label>
+                        <input id="curpConsejo" type="text" class="form-control" placeholder="Ej. XAXX010101AAAAAA00" formControlName="curp">
                       </div>
                     </div>
                   </form>
@@ -1294,6 +1394,22 @@
     </div>
   </ng-template>
 
+  <ng-template #eliminarFormaEjecucionModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarFormaEjecucionModal">Eliminando una forma de ejecucion </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Estás a punto de eliminar una forma de ejecucion que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="eliminarFormaEjecucion(this.temporaryIndex)">Si, borrarlo</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, ya lo reconsidere</button>
+    </div>
+  </ng-template>
+
   <ng-template #eliminarEscrituraModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="eliminarEscrituraModal">Eliminando una escritura </h4>
@@ -1308,6 +1424,70 @@
     <div class="modal-footer">
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Si, borrar escritura</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, siempre no</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarEscrituraSocioModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEscrituraSocioModal">Eliminando un socio </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Estás a punto de eliminar un socio que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="eliminarSocio(this.temporaryIndex)">Si, borrarlo</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, ya lo reconsidere</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarEscrituraApoderadoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEscrituraApoderadoModal">Eliminando un apoderado </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Estás a punto de eliminar un apoderado que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="eliminarApoderado(this.temporaryIndex)">Si, borrarlo</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, ya lo reconsidere</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarEscrituraRepresentanteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEscrituraApoderadoModal">Eliminando un representante </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Estás a punto de eliminar un representante que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="eliminarRepresentante(this.temporaryIndex)">Si, borrarlo</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, ya lo reconsidere</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarEscrituraConsejoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEscrituraApoderadoModal">Eliminando un miembro del consejo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Estás a punto de eliminar un miembro del consejo que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="eliminarConsejo(this.temporaryIndex)">Si, borrarlo</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, ya lo reconsidere</button>
     </div>
   </ng-template>
 

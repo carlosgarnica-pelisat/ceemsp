@@ -44,4 +44,15 @@ public class EmpresaLicenciaColectivaDomicilioController {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
         return empresaLicenciaColectivaDomicilioService.guardarDomicilioEnLicenciaColectiva(empresaUuid, licenciaUuid, username, empresaDomicilioDto);
     }
+
+    @DeleteMapping(value = EMPRESA_LICENCIA_DOMICILIOS_URI + "/{domicilioUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaDomicilioDto eliminarDomicilioEnLicenciaColectiva(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "licenciaUuid") String licenciaUuid,
+            @PathVariable(value = "domicilioUuid") String domicilioUuid,
+            HttpServletRequest httpServletRequest
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return empresaLicenciaColectivaDomicilioService.eliminarDomicilioEnLicenciaColectiva(empresaUuid, licenciaUuid, domicilioUuid, username);
+    }
 }

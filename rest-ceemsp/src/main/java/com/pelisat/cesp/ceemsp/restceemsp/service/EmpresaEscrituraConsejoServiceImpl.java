@@ -118,6 +118,8 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
 
         empresaEscrituraConsejo.setNombres(empresaEscrituraConsejoDto.getNombres());
         empresaEscrituraConsejo.setApellidos(empresaEscrituraConsejoDto.getApellidos());
+        empresaEscrituraConsejo.setApellidoMaterno(empresaEscrituraConsejoDto.getApellidoMaterno());
+        empresaEscrituraConsejo.setCurp(empresaEscrituraConsejoDto.getCurp());
         empresaEscrituraConsejo.setSexo(empresaEscrituraConsejoDto.getSexo());
         empresaEscrituraConsejo.setPuesto(empresaEscrituraConsejoDto.getPuesto());
         daoHelper.fulfillAuditorFields(false, empresaEscrituraConsejo, usuario.getId());

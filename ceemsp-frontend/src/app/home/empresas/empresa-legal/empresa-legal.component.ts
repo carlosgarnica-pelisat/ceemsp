@@ -11,6 +11,10 @@ import {faCheck, faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 import EmpresaEscrituraApoderado from "../../../_models/EmpresaEscrituraApoderado";
 import EmpresaEscrituraRepresentante from "../../../_models/EmpresaEscrituraRepresentante";
 import EmpresaEscrituraConsejo from "../../../_models/EmpresaEscrituraConsejo";
+import {EstadosService} from "../../../_services/estados.service";
+import Estado from "../../../_models/Estado";
+import Municipio from "../../../_models/Municipio";
+import curp from 'curp';
 
 @Component({
   selector: 'app-empresa-legal',
@@ -69,7 +73,18 @@ export class EmpresaLegalComponent implements OnInit {
     uuid: undefined
   };
 
+  estados: Estado[] = [];
+  municipios: Municipio[] = [];
+
+  estado: Estado;
+  municipio: Municipio;
+
   porcentaje: number = 0.00;
+
+  tempUuidSocio: string;
+  tempUuidApoderado: string;
+  tempUuidRepresentante: string;
+  tempUuidConsejo: string;
 
   @ViewChild('mostrarDetallesEscrituraModal') mostrarDetallesEscrituraModal: any;
   @ViewChild('modificarEscrituraModal') modificarEscrituraModal: any;
@@ -78,10 +93,11 @@ export class EmpresaLegalComponent implements OnInit {
   @ViewChild('eliminarEscrituraApoderadoModal') eliminarEscrituraApoderadoModal;
   @ViewChild('eliminarEscrituraRepresentanteModal') eliminarEscrituraRepresentanteModal;
   @ViewChild('eliminarEscrituraConsejoModal') eliminarEscrituraConsejoModal;
+  @ViewChild('eliminarEscrituraModal') eliminarEscrituraModal;
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
-              private formBuilder: FormBuilder) { }
+              private formBuilder: FormBuilder, private estadoService: EstadosService) { }
 
   ngOnInit(): void {
     this.uuid = this.route.snapshot.paramMap.get("uuid");
@@ -99,25 +115,28 @@ export class EmpresaLegalComponent implements OnInit {
     this.nuevoSocioForm = this.formBuilder.group({
       nombres: ['', [Validators.required, Validators.maxLength(60)]],
       apellidos: ['', [Validators.required, Validators.maxLength(60)]],
-      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.maxLength(60)]],
       sexo: ['', Validators.required],
-      porcentajeAcciones: ['', Validators.required]
+      porcentajeAcciones: ['', Validators.required],
+      curp: ['', [Validators.required, Validators.minLength(18), Validators.maxLength(18)]]
     })
 
     this.nuevoApoderadoForm = this.formBuilder.group({
       nombres: ['', [Validators.required, Validators.maxLength(60)]],
       apellidos: ['', [Validators.required, Validators.maxLength(60)]],
-      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.maxLength(60)]],
       sexo: ['', Validators.required],
       fechaInicio: ['', Validators.required],
-      fechaFin: ['', Validators.required]
+      fechaFin: ['', Validators.required],
+      curp: ['', [Validators.required, Validators.minLength(18), Validators.maxLength(18)]]
     })
 
     this.nuevoRepresentanteForm = this.formBuilder.group({
       nombres: ['', [Validators.required, Validators.maxLength(60)]],
       apellidos: ['', [Validators.required, Validators.maxLength(60)]],
-      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
-      sexo: ['', Validators.required]
+      apellidoMaterno: ['', [Validators.maxLength(60)]],
+      sexo: ['', Validators.required],
+      curp: ['', [Validators.required, Validators.minLength(18), Validators.maxLength(18)]]
     })
 
     this.nuevoConsejoAdministracionForm = this.formBuilder.group({
@@ -125,7 +144,8 @@ export class EmpresaLegalComponent implements OnInit {
       apellidos: ['', [Validators.required, Validators.maxLength(60)]],
       apellidoMaterno: ['', [Validators.maxLength(60)]],
       sexo: ['', Validators.required],
-      puesto: ['', Validators.required]
+      puesto: ['', Validators.required],
+      curp: ['', [Validators.required, Validators.minLength(18), Validators.maxLength(18)]]
     })
 
     this.empresaService.obtenerEscrituras(this.uuid).subscribe((data: EmpresaEscritura[]) => {
@@ -136,24 +156,58 @@ export class EmpresaLegalComponent implements OnInit {
         `No se han podido descargar las escrituras. ${error}`,
         ToastType.ERROR
       )
-    })
+    });
+
+    this.estadoService.obtenerEstados().subscribe((data: Estado[]) => {
+      this.estados = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los estados. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
   }
 
   mostrarFormularioNuevoSocio() {
-    this.editandoSocio = false;
     this.showSocioForm = !this.showSocioForm;
+    if(!this.showSocioForm) {
+      this.nuevoSocioForm.reset();
+    }
+    if(this.editandoSocio) {
+      this.editandoSocio = false;
+      this.socio = undefined;
+    }
   }
 
   mostrarFormularioNuevoApoderado() {
     this.showApoderadoForm = !this.showApoderadoForm;
+    if(!this.showSocioForm) {
+      this.nuevoApoderadoForm.reset();
+    }
+    if(this.editandoApoderado) {
+      this.editandoApoderado = false;
+    }
   }
 
   mostrarFormularioNuevoRepresentante() {
     this.showRepresentanteForm = !this.showRepresentanteForm;
+    if(!this.showRepresentanteForm) {
+      this.nuevoRepresentanteForm.reset();
+    }
+    if(this.editandoRepresentante) {
+      this.editandoRepresentante = false;
+    }
   }
 
   mostrarFormularioNuevoConsejo() {
     this.showConsejoForm = !this.showConsejoForm;
+    if(!this.showConsejoForm) {
+      this.nuevoConsejoAdministracionForm.reset();
+    }
+    if(this.editandoConsejo) {
+      this.editandoConsejo = false;
+    }
   }
 
   mostrarEditarSocio(index) {
@@ -163,6 +217,8 @@ export class EmpresaLegalComponent implements OnInit {
     this.nuevoSocioForm.patchValue({
       nombres: this.socio.nombres,
       apellidos: this.socio.apellidos,
+      apellidoMaterno: this.socio.apellidoMaterno,
+      curp: this.socio.curp,
       sexo: this.socio.sexo,
       porcentajeAcciones: this.socio.porcentajeAcciones
     });
@@ -175,6 +231,8 @@ export class EmpresaLegalComponent implements OnInit {
     this.nuevoApoderadoForm.patchValue({
       nombres: this.apoderado.nombres,
       apellidos: this.apoderado.apellidos,
+      apellidoMaterno: this.apoderado.apellidoMaterno,
+      curp: this.apoderado.curp,
       sexo: this.apoderado.sexo,
       fechaInicio: this.apoderado.fechaInicio,
       fechaFin: this.apoderado.fechaFin
@@ -188,6 +246,8 @@ export class EmpresaLegalComponent implements OnInit {
     this.nuevoRepresentanteForm.patchValue({
       nombres: this.representante.nombres,
       apellidos: this.representante.apellidos,
+      apellidoMaterno: this.representante.apellidoMaterno,
+      curp: this.representante.curp,
       sexo: this.representante.sexo
     });
   }
@@ -199,13 +259,26 @@ export class EmpresaLegalComponent implements OnInit {
     this.nuevoConsejoAdministracionForm.patchValue({
       nombres: this.consejo.nombres,
       apellidos: this.consejo.apellidos,
+      apellidoMaterno: this.consejo.apellidoMaterno,
+      curp: this.consejo.curp,
       sexo: this.consejo.sexo,
       puesto: this.consejo.puesto
     })
   }
 
-  mostrarModalEliminarSocio(index) {
-    this.socio = this.escritura.socios[index];
+  mostrarModalEliminarEscritura() {
+    this.modal = this.modalService.open(this.eliminarEscrituraModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+
+  mostrarModalEliminarSocio(uuid) {
+    this.tempUuidSocio = uuid;
     this.modal = this.modalService.open(this.eliminarEscrituraSocioModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
     this.modal.result.then((result) => {
@@ -215,8 +288,8 @@ export class EmpresaLegalComponent implements OnInit {
     })
   }
 
-  mostrarModalEliminarApoderado(index) {
-    this.apoderado = this.escritura.apoderados[index];
+  mostrarModalEliminarApoderado(uuid) {
+    this.tempUuidApoderado = uuid;
     this.modal = this.modalService.open(this.eliminarEscrituraApoderadoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
     this.modal.result.then((result) => {
@@ -226,8 +299,8 @@ export class EmpresaLegalComponent implements OnInit {
     })
   }
 
-  mostrarModalEliminarRepresentante(index) {
-    this.representante = this.escritura.representantes[index];
+  mostrarModalEliminarRepresentante(uuid) {
+    this.tempUuidRepresentante = uuid;
     this.modal = this.modalService.open(this.eliminarEscrituraRepresentanteModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
     this.modal.result.then((result) => {
@@ -237,8 +310,8 @@ export class EmpresaLegalComponent implements OnInit {
     })
   }
 
-  mostrarModalEliminarConsejo(index) {
-    this.consejo = this.escritura.consejos[index];
+  mostrarModalEliminarConsejo(uuid) {
+    this.tempUuidConsejo = uuid;
     this.modal = this.modalService.open(this.eliminarEscrituraConsejoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
     this.modal.result.then((result) => {
@@ -266,6 +339,25 @@ export class EmpresaLegalComponent implements OnInit {
     );
 
     let formValue: EmpresaEscrituraSocio = nuevoSocioform.value;
+
+    if(!curp.validar(formValue.curp)) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "La CURP ingresada para el socio no es valida",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let existeSocioRfc = this.escritura.socios.filter(x => (x.curp === formValue.curp && x.uuid !== this.socio?.uuid))
+    if(existeSocioRfc.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya hay un socio registrado con este CURP",
+        ToastType.WARNING
+      );
+      return;
+    }
 
     if(this.escritura.socios.length > 0) {
       this.porcentaje = 0.00;
@@ -342,13 +434,43 @@ export class EmpresaLegalComponent implements OnInit {
       return;
     }
 
+    let formValue: EmpresaEscrituraApoderado = nuevoApoderadoForm.value;
+
+    if(!curp.validar(formValue.curp)) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "La CURP ingresada para el socio no es valida",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let existeSocioRfc = this.escritura.apoderados.filter(x => (x.curp === formValue.curp && x.uuid !== this.apoderado?.uuid))
+    if(existeSocioRfc.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya hay un apoderado registrado con este CURP",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let fechaInicio = new Date(formValue.fechaInicio);
+    let fechaFin = new Date(formValue.fechaFin);
+    if(fechaInicio > fechaFin) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "La fecha de inicio es mayor que la del final",
+        ToastType.WARNING
+      )
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espere un momento",
       "Estamos guardando el nuevo apoderado",
       ToastType.INFO
     );
-
-    let formValue: EmpresaEscrituraApoderado = nuevoApoderadoForm.value;
 
     if(this.editandoApoderado) {
       formValue.uuid = this.apoderado.uuid;
@@ -404,21 +526,50 @@ export class EmpresaLegalComponent implements OnInit {
 
     let formValue: EmpresaEscrituraConsejo = nuevoConsejoForm.value;
 
+    if(!curp.validar(formValue.curp)) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "La CURP ingresada para el socio no es valida",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let existeSocioRfc = this.escritura.consejos.filter(x => (x.curp === formValue.curp && x.uuid !== this.consejo?.uuid))
+    if(existeSocioRfc.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya hay un miembro del consejo registrado con este CURP",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let existeConsejoPuesto = this.escritura.consejos.filter(x => x.puesto === formValue.puesto)
+    if(existeConsejoPuesto.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya hay un miembro del consejo registrado con este puesto",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     if(this.editandoConsejo) {
       formValue.uuid = this.consejo.uuid;
       formValue.id = this.consejo.id;
 
-      this.empresaService.modificarEscrituraRepresentante(this.uuid, this.escritura.uuid, this.consejo.uuid, formValue).subscribe((data: EmpresaEscrituraConsejo) => {
+      this.empresaService.modificarEscrituraConsejo(this.uuid, this.escritura.uuid, this.consejo.uuid, formValue).subscribe((data: EmpresaEscrituraConsejo) => {
         this.toastService.showGenericToast(
           "Listo",
-          "Se ha modificado el apoderado con exito",
+          "Se ha modificado el miembro del consejo con exito",
           ToastType.SUCCESS
         );
         window.location.reload();
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
-          `No se ha podido modificar el apoderado. Motivo: ${error}`,
+          `No se ha podido modificar el miembro del consejo. Motivo: ${error}`,
           ToastType.ERROR
         );
       });
@@ -426,14 +577,14 @@ export class EmpresaLegalComponent implements OnInit {
       this.empresaService.guardarEscrituraConsejos(this.uuid, this.escritura.uuid, formValue).subscribe((data: EmpresaEscrituraConsejo) => {
         this.toastService.showGenericToast(
           "Listo",
-          "Se ha registrado el consejo con exito",
+          "Se ha registrado el miembro del consejo con exito",
           ToastType.SUCCESS
         );
         window.location.reload();
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
-          `No se ha podido guardar el consejo. ${error}`,
+          `No se ha podido guardar el miembro del consejo. ${error}`,
           ToastType.ERROR
         );
       })
@@ -458,6 +609,25 @@ export class EmpresaLegalComponent implements OnInit {
     );
 
     let formValue: EmpresaEscrituraRepresentante = nuevoRepresentanteForm.value;
+
+    if(!curp.validar(formValue.curp)) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "La CURP ingresada para el socio no es valida",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let existeSocioRfc = this.escritura.representantes.filter(x => (x.curp === formValue.curp && x.uuid !== this.representante?.uuid))
+    if(existeSocioRfc.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya hay un representante registrado con este CURP",
+        ToastType.WARNING
+      );
+      return;
+    }
 
     if(this.representante) {
       formValue.uuid = this.representante.uuid;
@@ -554,7 +724,7 @@ export class EmpresaLegalComponent implements OnInit {
       )
     })
 
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', scrollable: true});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -690,7 +860,7 @@ export class EmpresaLegalComponent implements OnInit {
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        "Hay campos requeridos que no se han rellenado",
+        "El formulario es invalido. Favor de verificar los campos",
         ToastType.WARNING
       );
       return;
@@ -698,11 +868,11 @@ export class EmpresaLegalComponent implements OnInit {
 
     this.toastService.showGenericToast(
       "Espere un momento",
-      "Estamos guardando los cambios en la empresa",
+      "Estamos guardando los cambios en la escritura",
       ToastType.INFO
     );
 
-    let escritura: EmpresaEscritura = form.value();
+    let escritura: EmpresaEscritura = form.value;
 
     this.empresaService.modificarEscritura(this.uuid, this.escritura.uuid, escritura).subscribe((data: EmpresaEscritura) => {
       this.toastService.showGenericToast(
@@ -721,19 +891,154 @@ export class EmpresaLegalComponent implements OnInit {
   }
 
   confirmarEliminarSocio() {
+    if(this.tempUuidSocio === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID del socio a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
 
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el socio",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarEscrituraSocio(this.uuid, this.escritura.uuid, this.tempUuidSocio).subscribe((data: EmpresaEscrituraSocio) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el socio con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El socio no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   confirmarEliminarApoderado() {
+    if(this.tempUuidApoderado === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID del apoderado a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
 
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el apoderado",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarEscrituraApoderado(this.uuid, this.escritura.uuid, this.tempUuidApoderado).subscribe((data: EmpresaEscrituraApoderado) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el apoderado con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El apoderado no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarEscritura() {
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando la escritura",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarEscritura(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscritura) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la escritura con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar la escritura. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   confirmarEliminarRepresentante() {
+    if(this.tempUuidRepresentante === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID del representante a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
 
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el representante",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarEscrituraRepresentante(this.uuid, this.escritura.uuid, this.tempUuidRepresentante).subscribe((data: EmpresaEscrituraRepresentante) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el representante con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El representante no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   confirmarEliminarConsejo() {
+    if(this.tempUuidConsejo === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID del miembro del consejo a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
 
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el miembro del consejo",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarEscrituraConsejo(this.uuid, this.escritura.uuid, this.tempUuidConsejo).subscribe((data: EmpresaEscrituraConsejo) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el miembro consejo con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El miembro del consejo no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   private getDismissReason(reason: any): string {

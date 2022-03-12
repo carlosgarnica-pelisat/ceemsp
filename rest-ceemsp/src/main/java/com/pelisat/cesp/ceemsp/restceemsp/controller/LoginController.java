@@ -42,6 +42,11 @@ public class LoginController {
         return ResponseEntity.ok(new JwtDto(token));
     }
 
+    @PostMapping(value = "/logout", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> logoutAdmin() throws Exception {
+        return ResponseEntity.ok(null);
+    }
+
     private void authenticate(String username, String password) throws Exception {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));

@@ -132,7 +132,8 @@ export class EmpresaDetallesComponent implements OnInit {
       curp: ['', [Validators.minLength(18), Validators.maxLength(18)]],
       sexo: [''],
       correoElectronico: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
-      telefono: ['', [Validators.required]]
+      telefono: ['', [Validators.required]],
+      observaciones: ['']
     })
 
     this.empresaCambioStatusForm = this.formBuilder.group({
@@ -312,7 +313,8 @@ export class EmpresaDetallesComponent implements OnInit {
       sexo: this.empresa.sexo,
       curp: this.empresa.curp,
       correoElectronico: this.empresa.correoElectronico,
-      telefono: this.empresa.telefono
+      telefono: this.empresa.telefono,
+      observaciones: this.empresa.observaciones
     })
 
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});

@@ -22,12 +22,16 @@ public class PersonaDto {
     private String nombres;
     private SexoEnum sexo;
     private String fechaNacimiento;
+    private String fechaIngreso;
     private TipoSangreEnum tipoSangre;
     private EstadoCivilEnum estadoCivil;
     private String domicilio1;
+    private String numeroExterior;
+    private String numeroInterior;
     private String domicilio2;
     private String domicilio3;
     private String domicilio4;
+    private String localidad;
     private String estado;
     private String pais;
     private String codigoPostal;
@@ -42,6 +46,12 @@ public class PersonaDto {
     private String numeroVolanteCuip;
     private String fechaVolanteCuip;
     private ModalidadDto modalidad;
+
+    private EstadoDto estadoCatalogo;
+    private MunicipioDto municipioCatalogo;
+    private LocalidadDto localidadCatalogo;
+    private ColoniaDto coloniaCatalogo;
+    private CalleDto calleCatalogo;
 
     private List<PersonalCertificacionDto> certificaciones;
     private List<PersonalFotografiaMetadata> fotografias;

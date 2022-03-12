@@ -153,11 +153,70 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
 
     @Override
     public ClienteDomicilioDto modificarDomicilio(String empresaUuid, String clienteUuid, String domicilioUuid, String username, ClienteDomicilioDto clienteDomicilioDto) {
-        return null;
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) | StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(clienteUuid) || clienteDomicilioDto == null) {
+            logger.warn("Alguno de los parametros vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando domicilio con el uuid [{}]", domicilioUuid);
+
+        ClienteDomicilio clienteDomicilio = clienteDomicilioRepository.findByUuidAndEliminadoFalse(domicilioUuid);
+        if(clienteDomicilio == null || clienteDomicilio.getEliminado()) {
+            logger.warn("El domicilio del cliente no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        clienteDomicilio.setNombre(clienteDomicilioDto.getNombre());
+        clienteDomicilio.setNumeroExterior(clienteDomicilioDto.getNumeroExterior());
+        clienteDomicilio.setNumeroInterior(clienteDomicilioDto.getNumeroInterior());
+        clienteDomicilio.setDomicilio4(clienteDomicilioDto.getDomicilio4());
+        clienteDomicilio.setPais(clienteDomicilioDto.getPais());
+        clienteDomicilio.setCodigoPostal(clienteDomicilioDto.getCodigoPostal());
+        clienteDomicilio.setTelefonoFijo(clienteDomicilioDto.getTelefonoFijo());
+        clienteDomicilio.setTelefonoMovil(clienteDomicilioDto.getTelefonoMovil());
+
+        clienteDomicilio.setTipoInfraestructura(clienteDomicilioDto.getTipoInfraestructura().getId());
+        clienteDomicilio.setEstadoCatalogo(clienteDomicilioDto.getEstadoCatalogo().getId());
+        clienteDomicilio.setMunicipioCatalogo(clienteDomicilioDto.getMunicipioCatalogo().getId());
+        clienteDomicilio.setLocalidadCatalogo(clienteDomicilioDto.getLocalidadCatalogo().getId());
+        clienteDomicilio.setColoniaCatalogo(clienteDomicilioDto.getColoniaCatalogo().getId());
+        clienteDomicilio.setCalleCatalogo(clienteDomicilioDto.getCalleCatalogo().getId());
+
+        clienteDomicilio.setDomicilio1(clienteDomicilioDto.getCalleCatalogo().getNombre());
+        clienteDomicilio.setDomicilio2(clienteDomicilioDto.getColoniaCatalogo().getNombre());
+        clienteDomicilio.setLocalidad(clienteDomicilioDto.getLocalidadCatalogo().getNombre());
+        clienteDomicilio.setDomicilio3(clienteDomicilioDto.getMunicipioCatalogo().getNombre());
+        clienteDomicilio.setEstado(clienteDomicilioDto.getEstadoCatalogo().getNombre());
+
+        daoHelper.fulfillAuditorFields(false, clienteDomicilio, usuario.getId());
+
+        clienteDomicilioRepository.save(clienteDomicilio);
+
+        return daoToDtoConverter.convertDaoToDtoClienteDomicilio(clienteDomicilio);
     }
 
     @Override
     public ClienteDomicilioDto eliminarDomicilio(String empresaUuid, String clienteUuid, String domicilioUuid, String username) {
-        return null;
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) | StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(clienteUuid)) {
+            logger.warn("Alguno de los parametros vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando domicilio con el uuid [{}]", domicilioUuid);
+
+        ClienteDomicilio clienteDomicilio = clienteDomicilioRepository.findByUuidAndEliminadoFalse(domicilioUuid);
+        if(clienteDomicilio == null || clienteDomicilio.getEliminado()) {
+            logger.warn("El domicilio del cliente no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        clienteDomicilio.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, clienteDomicilio, usuario.getId());
+        clienteDomicilioRepository.save(clienteDomicilio);
+
+        return daoToDtoConverter.convertDaoToDtoClienteDomicilio(clienteDomicilio);
     }
 }

@@ -123,6 +123,7 @@ public class PersonalFotografiaServiceImpl implements PersonalFotografiaService 
 
         PersonalFotografia personalFotografia = new PersonalFotografia();
         personalFotografia.setPersonal(persona.getId());
+        personalFotografia.setDescripcion(personalFotografiaMetadata.getDescripcion());
         daoHelper.fulfillAuditorFields(true, personalFotografia, usuarioDto.getId());
 
         String ruta = "";
@@ -137,5 +138,36 @@ public class PersonalFotografiaServiceImpl implements PersonalFotografiaService 
         }
 
         //TODO: Agregar encriptacion
+    }
+
+    @Transactional
+    @Override
+    public PersonalFotografiaMetadata eliminarPersonalFotografia(String uuid, String personalUuid, String fotografiaUuid, String username) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(personalUuid) || StringUtils.isBlank(fotografiaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la fotografia con uuid [{}]", fotografiaUuid);
+        PersonalFotografia personalFotografia = personalFotografiaRepository.getByUuidAndEliminadoFalse(fotografiaUuid);
+
+        if(personalFotografia == null) {
+            logger.warn("La fotografia esta eliminada o no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        archivosService.eliminarArchivo(personalFotografia.getUbicacionArchivo());
+        personalFotografia.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, personalFotografia, usuarioDto.getId());
+        personalFotografiaRepository.save(personalFotografia);
+        PersonalFotografiaMetadata personalFotografiaMetadata = new PersonalFotografiaMetadata();
+        String[] tokens = personalFotografia.getUbicacionArchivo().split("[\\\\|/]");
+        personalFotografiaMetadata.setId(personalFotografia.getId());
+        personalFotografiaMetadata.setDescripcion(personalFotografia.getDescripcion());
+        personalFotografiaMetadata.setUuid(personalFotografia.getUuid());
+        personalFotografiaMetadata.setNombreArchivo(tokens[tokens.length - 1]);
+
+        return personalFotografiaMetadata;
     }
 }

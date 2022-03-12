@@ -1,9 +1,6 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
-import com.pelisat.cesp.ceemsp.database.dto.ExisteEmpresaDto;
-import com.pelisat.cesp.ceemsp.database.dto.ExistePersonaDto;
-import com.pelisat.cesp.ceemsp.database.dto.ExisteVehiculoDto;
-import com.pelisat.cesp.ceemsp.database.dto.UniformeDto;
+import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.restceemsp.service.ValidacionService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,5 +44,12 @@ public class ValidacionController {
             @RequestBody ExisteEmpresaDto existeEmpresaDto
     ) {
         return validacionService.buscarExistenciaEmpresa(existeEmpresaDto);
+    }
+
+    @PostMapping(value = VALIDACION_URI + "/escrituras", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ExisteEscrituraDto validarEscritura(
+            @RequestBody ExisteEscrituraDto existeEscrituraDto
+    ) {
+        return validacionService.buscarEscrituraDto(existeEscrituraDto);
     }
 }

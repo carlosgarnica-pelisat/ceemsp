@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -49,5 +50,26 @@ public class EmpresaVehiculoController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
         return empresaVehiculoService.guardarVehiculo(empresaUuid, username, vehiculoDto);
+    }
+
+    @PutMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public VehiculoDto modificarVehiculo(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "vehiculoUuid") String vehiculoUuid,
+            @RequestBody VehiculoDto vehiculoDto,
+            HttpServletRequest httpServletRequest
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return empresaVehiculoService.modificarVehiculo(empresaUuid, vehiculoUuid, username, vehiculoDto);
+    }
+
+    @DeleteMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public VehiculoDto eliminarVehiculo(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "vehiculoUuid") String vehiculoUuid,
+            HttpServletRequest httpServletRequest
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return empresaVehiculoService.eliminarVehiculo(empresaUuid, vehiculoUuid, username);
     }
 }

@@ -68,4 +68,25 @@ public class EmpresaLicenciaColectivaController {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
         return empresaLicenciaColectivaService.guardarLicenciaColectiva(empresaUuid, username, new Gson().fromJson(licencia, EmpresaLicenciaColectivaDto.class), archivo);
     }
+
+    @PutMapping(value = EMPRESA_LICENCIAS_URI + "/{licenciaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaLicenciaColectivaDto modificarLicenciaColectiva(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "licenciaUuid") String licenciaUuid,
+            HttpServletRequest httpServletRequest,
+            @RequestBody EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return empresaLicenciaColectivaService.modificarLicenciaColectiva(empresaUuid, licenciaUuid, username, empresaLicenciaColectivaDto);
+    }
+
+    @DeleteMapping(value = EMPRESA_LICENCIAS_URI + "/{licenciaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaLicenciaColectivaDto eliminarLicenciaColectiva(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "licenciaUuid") String licenciaUuid,
+            HttpServletRequest httpServletRequest
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return empresaLicenciaColectivaService.eliminarLicenciaColectiva(empresaUuid, licenciaUuid, username);
+    }
 }

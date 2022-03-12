@@ -134,10 +134,11 @@
                 Telefonos: {{d.telefonoFijo}}; {{d.telefonoMovil}}
               </td>
               <td>
-
+                {{d.tipoInfraestructura?.nombre}}
               </td>
               <td>
-
+                <fa-icon [icon]="faPencilAlt" title="Modificar domicilio del cliente" (click)="mostrarModalEditarCliente()" style="cursor:pointer;"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar domicilio del cliente" (click)="mostrarModalEliminarDomicilioCliente(d?.uuid)" style="cursor:pointer;"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="showDomicilioForm">
@@ -348,7 +349,122 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+      <button type="button" class="btn btn-info" (click)="mostrarModalEditarCliente()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarCliente(this.cliente.uuid)">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #modificarClienteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modificarClienteModal">Modificar cliente </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="modificarClienteForm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="nombreComercialEditar">
+                  <b>Nombre comercial * </b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['nombreComercial'].invalid && (modificarClienteForm.controls['nombreComercial'].dirty || modificarClienteForm.controls['nombreComercial'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['nombreComercial'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="modificarClienteForm.controls['nombreComercial'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="nombreComercialEditar" type="text" class="form-control" placeholder="Ej. Seguridad"
+                       formControlName="nombreComercial" #nombreComercial>
+              </div>
+              <div class="col-sm-4">
+                <label for="razonSocialEditar">
+                  <b>Razon social *</b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['razonSocial'].invalid && (modificarClienteForm.controls['razonSocial'].dirty || modificarClienteForm.controls['razonSocial'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['razonSocial'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="modificarClienteForm.controls['razonSocial'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="razonSocialEditar" type="text" class="form-control"
+                       placeholder="Ej. Empresa de seguridad S.A. de C.V." formControlName="razonSocial"
+                       #razonSocial>
+              </div>
+              <div class="col-sm-4">
+                <label for="tipoPersonaEditar">
+                  <b>Tipo de persona *</b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['tipoPersona'].invalid && (modificarClienteForm.controls['tipoPersona'].dirty || modificarClienteForm.controls['tipoPersona'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['tipoPersona'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="tipoPersonaEditar" formControlName="tipoPersona" class="form-control">
+                  <option value="FISICA">Fisica</option>
+                  <option value="MORAL">Moral</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="rfcEditar">
+                  <b>RFC *</b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['rfc'].invalid && (modificarClienteForm.controls['rfc'].dirty || modificarClienteForm.controls['rfc'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['rfc'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="modificarClienteForm.controls['rfc'].errors.minlength" class="text-danger"> - Faltan caracteres </i>
+                          <i *ngIf="modificarClienteForm.controls['rfc'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="rfcEditar" type="text" class="form-control" placeholder="Ej. XAXX010101AA0"
+                       formControlName="rfc" (focusout)="validarRfc($event.target)" #rfc>
+              </div>
+              <div class="col-sm-4">
+                <label for="fechaInicioEditar">
+                  <b>Fecha Inicio *</b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['fechaInicio'].invalid && (modificarClienteForm.controls['fechaInicio'].dirty || modificarClienteForm.controls['fechaInicio'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['fechaInicio'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <input id="fechaInicioEditar" type="date" class="form-control" formControlName="fechaInicio" [max]="fechaDeHoy"
+                       #fechaInicio>
+              </div>
+              <div class="col-sm-2">
+                <label for="canesEditar">
+                  <b>Canes *</b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['canes'].invalid && (modificarClienteForm.controls['canes'].dirty || modificarClienteForm.controls['canes'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['canes'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="canesEditar" formControlName="canes" class="form-control">
+                  <option value="true">Si</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+              <div class="col-sm-2">
+                <label for="armasEditar">
+                  <b>Armas *</b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['armas'].invalid && (modificarClienteForm.controls['armas'].dirty || modificarClienteForm.controls['armas'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['armas'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="armasEditar" formControlName="armas" class="form-control">
+                  <option value="true">Si</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-info" (click)="guardarCambiosCliente(modificarClienteForm)">Guardar cambios</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Salir</button>
     </div>
   </ng-template>
 
@@ -541,14 +657,14 @@
                         <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                           {{estado === undefined ? 'Ninguno' : estado?.nombre}}
                         </a>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                           <form [formGroup]="estadoSearchForm" class="px-4 py-3" autocomplete="off">
                             <label for="estadoSearchQuery"><b>Buscar por nombre</b></label>
                             <input type="text" class="form-control" id="estadoSearchQuery" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
-                                   [ngModelOptions]="{standalone: true}">
+                                   [ngModelOptions]="{standalone: true}" autocomplete="off">
                           </form>
                           <div class="dropdown-divider"></div>
-                          <a class="dropdown-item" *ngFor="let e of estados | buscarNombre: {nombre: estadoQuery} | slice:0:5" (click)="seleccionarEstado(e.uuid)">
+                          <a class="dropdown-item" *ngFor="let e of estados | buscarNombre: {nombre: estadoQuery}" (click)="seleccionarEstado(e.uuid)">
                             {{e.nombre}}
                           </a>
                           <div class="dropdown-divider"></div>
@@ -563,14 +679,14 @@
                       <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                         {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
                       </a>
-                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                         <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
                           <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
                           <input type="text" class="form-control" id="municipioSearchQuery" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
-                                 [ngModelOptions]="{standalone: true}">
+                                 [ngModelOptions]="{standalone: true}" autocomplete="off">
                         </form>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" *ngFor="let m of municipios | buscarNombre: {nombre: municipioQuery} | slice: 0 : 10" (click)="seleccionarMunicipio(m.uuid)">
+                        <a class="dropdown-item" *ngFor="let m of municipios | buscarNombre: {nombre: municipioQuery}" (click)="seleccionarMunicipio(m.uuid)">
                           {{m.nombre}}
                         </a>
                         <div class="dropdown-divider"></div>
@@ -584,14 +700,14 @@
                       <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                         {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
                       </a>
-                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                         <form [formGroup]="localidadSearchForm" class="px-4 py-3" autocomplete="off">
                           <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
                           <input type="text" class="form-control" id="localidadSearchQuery" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
-                                 [ngModelOptions]="{standalone: true}">
+                                 [ngModelOptions]="{standalone: true}" autocomplete="off">
                         </form>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" *ngFor="let l of localidades | buscarNombre: {nombre: localidadQuery} | slice: 0 : 10" (click)="seleccionarLocalidad(l.uuid)">
+                        <a class="dropdown-item" *ngFor="let l of localidades | buscarNombre: {nombre: localidadQuery}" (click)="seleccionarLocalidad(l.uuid)">
                           {{l.nombre}}
                         </a>
                         <div class="dropdown-divider"></div>
@@ -605,14 +721,14 @@
                       <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                         {{colonia === undefined ? 'Ninguno' : colonia?.nombre}}
                       </a>
-                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                         <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
                           <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
                           <input type="text" class="form-control" id="coloniaSearchQuery" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
-                                 [ngModelOptions]="{standalone: true}">
+                                 [ngModelOptions]="{standalone: true}" autocomplete="off">
                         </form>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" *ngFor="let c of colonias | buscarNombre: {nombre: coloniaQuery} | slice: 0 : 10" (click)="seleccionarColonia(c.uuid)">
+                        <a class="dropdown-item" *ngFor="let c of colonias | buscarNombre: {nombre: coloniaQuery}" (click)="seleccionarColonia(c.uuid)">
                           {{c.nombre}}
                         </a>
                         <div class="dropdown-divider"></div>
@@ -629,14 +745,14 @@
                       <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                         {{calle === undefined ? 'Ninguno' : calle?.nombre}}
                       </a>
-                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" autocomplete="off">
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                         <form [formGroup]="calleSearchForm" class="px-4 py-3">
                           <label for="calleSearchQuery"><b>Buscar por nombre</b></label>
                           <input type="text" class="form-control" id="calleSearchQuery" placeholder="Ej. Av. Empresarios" [(ngModel)]="calleQuery"
-                                 [ngModelOptions]="{standalone: true}" (keyup)="obtenerCalles($event)">
+                                 [ngModelOptions]="{standalone: true}" (keyup)="obtenerCalles($event)" autocomplete="off">
                         </form>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" *ngFor="let c of calles | slice: 0 : 10" (click)="seleccionarCalle(c.uuid)">
+                        <a class="dropdown-item" *ngFor="let c of calles" (click)="seleccionarCalle(c.uuid)">
                           {{c.nombre}}
                         </a>
                         <div class="dropdown-divider"></div>
@@ -828,6 +944,48 @@
           </div>
         </div>
       </div>
+    </div>
+  </ng-template>
+
+
+
+  <ng-template #eliminarClienteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarClienteModal">Eliminando un cliente </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar un cliente. Toma en cuenta que al eliminarlo, todos los domicilios seran eliminados y esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarCliente()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarDomicilioClienteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarDomicilioClienteModal">Eliminando un domicilio del cliente </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar el domicilio del cliente. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarDomicilioCliente()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 </div>

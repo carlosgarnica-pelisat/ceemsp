@@ -1,0 +1,19 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-03-03-agregar-personal-domicilio-catalogos" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <addColumn tableName="PERSONAL">
+            <column name="NUMERO_EXTERIOR" type="VARCHAR(20)"></column>
+            <column name="NUMERO_INTERIOR" type="VARCHAR(20)"></column>
+            <column name="LOCALIDAD" type="VARCHAR(100)"></column>
+            <column name="ESTADO_CATALOGO" type="INT"></column>
+            <column name="CALLE_CATALOGO" type="INT"></column>
+            <column name="COLONIA_CATALOGO" type="INT"></column>
+            <column name="MUNICIPIO_CATALOGO" type="INT"></column>
+            <column name="LOCALIDAD_CATALOGO" type="INT"></column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

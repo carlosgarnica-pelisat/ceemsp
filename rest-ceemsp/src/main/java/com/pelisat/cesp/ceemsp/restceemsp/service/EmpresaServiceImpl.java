@@ -156,6 +156,7 @@ public class EmpresaServiceImpl implements EmpresaService {
             empresa.setCurp(empresaDto.getCurp());
             empresa.setSexo(empresaDto.getSexo());
         }
+        empresa.setObservaciones(empresaDto.getObservaciones());
 
         daoHelper.fulfillAuditorFields(false, empresa, usuarioDto.getId());
         empresaRepository.save(empresa);

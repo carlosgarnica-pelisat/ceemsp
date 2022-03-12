@@ -61,6 +61,16 @@ public class PersonaController {
         return personaService.modificarPersona(empresaUuid, personaUuid, username, personaDto);
     }
 
+    @DeleteMapping(value = PERSONALIDAD_URI + "/{personaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public PersonaDto eliminarPersona(
+            HttpServletRequest request,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "personaUuid") String personaUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return personaService.eliminarPersona(empresaUuid, personaUuid, username);
+    }
+
     @PutMapping(value = PERSONALIDAD_URI + "/{personaUuid}/puestos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public PersonaDto modificarPuestoTrabajo(
             HttpServletRequest request,

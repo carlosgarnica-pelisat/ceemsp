@@ -117,6 +117,8 @@ public class EmpresaEscrituraSocioServiceImpl implements EmpresaEscrituraSocioSe
 
         empresaEscrituraSocio.setNombres(empresaEscrituraSocioDto.getNombres());
         empresaEscrituraSocio.setApellidos(empresaEscrituraSocioDto.getApellidos());
+        empresaEscrituraSocio.setApellidoMaterno(empresaEscrituraSocioDto.getApellidoMaterno());
+        empresaEscrituraSocio.setCurp(empresaEscrituraSocioDto.getCurp());
         empresaEscrituraSocio.setSexo(empresaEscrituraSocioDto.getSexo());
         empresaEscrituraSocio.setPorcentajeAcciones(empresaEscrituraSocioDto.getPorcentajeAcciones());
         daoHelper.fulfillAuditorFields(false, empresaEscrituraSocio, usuario.getId());

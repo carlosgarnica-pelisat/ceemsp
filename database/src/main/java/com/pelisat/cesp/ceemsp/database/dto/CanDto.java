@@ -19,6 +19,7 @@ public class CanDto {
     private String nombre;
     private CanGeneroEnum genero;
     private CanRazaDto raza;
+    private String razaOtro;
     private EmpresaDomicilioDto domicilioAsignado;
     private String fechaIngreso;
     private int edad;

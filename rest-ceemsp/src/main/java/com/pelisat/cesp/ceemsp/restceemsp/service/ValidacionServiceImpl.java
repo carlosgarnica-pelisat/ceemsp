@@ -1,12 +1,11 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
-import com.pelisat.cesp.ceemsp.database.dto.ExisteEmpresaDto;
-import com.pelisat.cesp.ceemsp.database.dto.ExistePersonaDto;
-import com.pelisat.cesp.ceemsp.database.dto.ExisteVehiculoDto;
+import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.database.model.Empresa;
+import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
 import com.pelisat.cesp.ceemsp.database.model.Personal;
 import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
 import com.pelisat.cesp.ceemsp.database.repository.PersonaRepository;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoRepository;
@@ -19,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ValidacionServiceImpl implements ValidacionService {
 
@@ -27,14 +28,16 @@ public class ValidacionServiceImpl implements ValidacionService {
     private final EmpresaRepository empresaRepository;
     private final PersonaRepository personaRepository;
     private final VehiculoRepository vehiculoRepository;
+    private final EmpresaEscrituraRepository empresaEscrituraRepository;
 
     @Autowired
     public ValidacionServiceImpl(DaoToDtoConverter daoToDtoConverter, EmpresaRepository empresaRepository, PersonaRepository personaRepository,
-                                 VehiculoRepository vehiculoRepository) {
+                                 VehiculoRepository vehiculoRepository, EmpresaEscrituraRepository empresaEscrituraRepository) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.empresaRepository = empresaRepository;
         this.personaRepository = personaRepository;
         this.vehiculoRepository = vehiculoRepository;
+        this.empresaEscrituraRepository = empresaEscrituraRepository;
     }
 
     @Override
@@ -138,5 +141,33 @@ public class ValidacionServiceImpl implements ValidacionService {
         }
 
         return existeEmpresaDto;
+    }
+
+    @Override
+    public ExisteEscrituraDto buscarEscrituraDto(ExisteEscrituraDto existeEscrituraDto) {
+        if(existeEscrituraDto == null) {
+            logger.warn("El objeto a realizar la consulta viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        if(StringUtils.isBlank(existeEscrituraDto.getNumero())) {
+            logger.warn("El parametro a realizar la busqueda viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Buscando la escritura registrada");
+        existeEscrituraDto.setExiste(false);
+
+        if(StringUtils.isNotBlank(existeEscrituraDto.getNumero())) {
+            logger.info("Buscando la escritura con el numero [{}]", existeEscrituraDto.getNumero());
+            List<EmpresaEscritura> empresaEscrituras = empresaEscrituraRepository.findAllByNumeroEscrituraLikeAndEliminadoFalse(existeEscrituraDto.getNumero());
+            if(empresaEscrituras != null && empresaEscrituras.size() > 0) {
+                logger.info("La escritura fue encontrada con el RFC");
+                existeEscrituraDto.setExiste(true);
+                existeEscrituraDto.setEscritura(daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscrituras.get(0)));
+            }
+        }
+
+        return existeEscrituraDto;
     }
 }
