@@ -22,6 +22,6 @@
         <addAutoIncrement tableName="UNIFORMES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="UNIFORMES" columnNames="UUID" />
+        <addUniqueConstraint tableName="UNIFORMES" columnNames="UUID" /> 
     </changeSet>
 </databaseChangeLog>
