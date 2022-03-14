@@ -1,0 +1,138 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-01-13-crear-tabla-uniformes" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="UNIFORMES">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="NOMBRE" type="VARCHAR(100)"></column>
+            <column name="DESCRIPCION" type="varchar(100)"></column>
+            <column name="ELIMINADO" type="bit" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="int"></column>
+            <column name="FECHA_ACTUALIZACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="int"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="UNIFORMES" columnNames="ID" />
+        <addAutoIncrement tableName="UNIFORMES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="UNIFORMES" columnNames="UUID" />
+
+        <insert tableName="UNIFORMES">
+            <column name="ID" value="1"></column>
+            <column name="UUID" value="e7rXsSY4Tr3s"></column>
+            <column name="NOMBRE" value="Pantalón Liso"></column>
+            <column name="DESCRIPCION" value="Pantalón Liso"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="UNIFORMES">
+            <column name="ID" value="2"></column>
+            <column name="UUID" value="0fw2WledrDP5"></column>
+            <column name="NOMBRE" value="Pantalón Táctico"></column>
+            <column name="DESCRIPCION" value="Pantalón Táctico"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="UNIFORMES">
+            <column name="ID" value="3"></column>
+            <column name="UUID" value="i14oDG7hEI2P"></column>
+            <column name="NOMBRE" value="Zapato"></column>
+            <column name="DESCRIPCION" value="Zapato"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="UNIFORMES">
+            <column name="ID" value="4"></column>
+            <column name="UUID" value="fwwyofkP6iDm"></column>
+            <column name="NOMBRE" value="Bota"></column>
+            <column name="DESCRIPCION" value="Bota"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="UNIFORMES">
+            <column name="ID" value="5"></column>
+            <column name="UUID" value="Cv2CeCuHmqaZ"></column>
+            <column name="NOMBRE" value="Botín"></column>
+            <column name="DESCRIPCION" value="Botín"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="UNIFORMES">
+            <column name="ID" value="6"></column>
+            <column name="UUID" value="JhovFYp8WBlX"></column>
+            <column name="NOMBRE" value="Chamarra"></column>
+            <column name="DESCRIPCION" value="Chamarra"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="UNIFORMES">
+            <column name="ID" value="7"></column>
+            <column name="UUID" value="rg9fZBDDDNeX"></column>
+            <column name="NOMBRE" value="Camisola"></column>
+            <column name="DESCRIPCION" value="Camisola"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="UNIFORMES">
+            <column name="ID" value="8"></column>
+            <column name="UUID" value="burOtrSVzcal"></column>
+            <column name="NOMBRE" value="Camisa"></column>
+            <column name="DESCRIPCION" value="Camisa"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="UNIFORMES">
+            <column name="ID" value="9"></column>
+            <column name="UUID" value="8Jbz3rYEEtBE"></column>
+            <column name="NOMBRE" value="Playera"></column>
+            <column name="DESCRIPCION" value="Playera"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="UNIFORMES">
+            <column name="ID" value="10"></column>
+            <column name="UUID" value="d7hkb1xXTACo"></column>
+            <column name="NOMBRE" value="Gorra"></column>
+            <column name="DESCRIPCION" value="Gorra"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
