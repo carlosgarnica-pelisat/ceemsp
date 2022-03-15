@@ -69,15 +69,16 @@ public class EmpresaLicenciaColectivaController {
         return empresaLicenciaColectivaService.guardarLicenciaColectiva(empresaUuid, username, new Gson().fromJson(licencia, EmpresaLicenciaColectivaDto.class), archivo);
     }
 
-    @PutMapping(value = EMPRESA_LICENCIAS_URI + "/{licenciaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_LICENCIAS_URI + "/{licenciaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public EmpresaLicenciaColectivaDto modificarLicenciaColectiva(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "licenciaUuid") String licenciaUuid,
             HttpServletRequest httpServletRequest,
-            @RequestBody EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
+            @RequestParam("licencia") String licencia
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
-        return empresaLicenciaColectivaService.modificarLicenciaColectiva(empresaUuid, licenciaUuid, username, empresaLicenciaColectivaDto);
+        return empresaLicenciaColectivaService.modificarLicenciaColectiva(empresaUuid, licenciaUuid, username, new Gson().fromJson(licencia, EmpresaLicenciaColectivaDto.class), archivo);
     }
 
     @DeleteMapping(value = EMPRESA_LICENCIAS_URI + "/{licenciaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)

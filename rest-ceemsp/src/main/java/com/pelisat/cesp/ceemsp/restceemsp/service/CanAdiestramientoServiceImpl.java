@@ -98,4 +98,54 @@ public class CanAdiestramientoServiceImpl implements CanAdiestramientoService {
 
         return daoToDtoConverter.convertDaoToDtoCanAdiestramiento(canAdiestramientoCreado);
     }
+
+    @Override
+    public CanAdiestramientoDto modificarCanAdiestramiento(String empresaUuid, String canUuid, String adiestramientoUuid, String username, CanAdiestramientoDto canAdiestramientoDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(adiestramientoUuid) || StringUtils.isBlank(username) || canAdiestramientoDto == null) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando adiestramiento con uuid [{}]", adiestramientoUuid);
+
+        CanAdiestramiento canAdiestramiento = canAdiestramientoRepository.findByUuidAndEliminadoFalse(adiestramientoUuid);
+
+        if(canAdiestramiento == null) {
+            logger.warn("El adiestramiento viene como nulo o vacio");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        canAdiestramiento.setFechaConstancia(LocalDate.parse(canAdiestramientoDto.getFechaConstancia()));
+        canAdiestramiento.setTipoAdiestramiento(canAdiestramientoDto.getCanTipoAdiestramiento().getId());
+        canAdiestramiento.setNombreInstructor(canAdiestramientoDto.getNombreInstructor());
+        daoHelper.fulfillAuditorFields(false, canAdiestramiento, usuarioDto.getId());
+        canAdiestramientoRepository.save(canAdiestramiento);
+        return canAdiestramientoDto;
+    }
+
+    @Override
+    public CanAdiestramientoDto eliminarCanAdiestramiento(String empresaUuid, String canUuid, String adiestramientoUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(adiestramientoUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando adiestramiento con uuid [{}]", adiestramientoUuid);
+
+        CanAdiestramiento canAdiestramiento = canAdiestramientoRepository.findByUuidAndEliminadoFalse(adiestramientoUuid);
+
+        if(canAdiestramiento == null) {
+            logger.warn("El adiestramiento viene como nulo o vacio");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        canAdiestramiento.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, canAdiestramiento, usuarioDto.getId());
+        canAdiestramientoRepository.save(canAdiestramiento);
+        return daoToDtoConverter.convertDaoToDtoCanAdiestramiento(canAdiestramiento);
+    }
 }

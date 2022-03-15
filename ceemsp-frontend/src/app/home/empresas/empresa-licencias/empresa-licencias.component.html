@@ -164,24 +164,24 @@
         <div class="col-sm-12" *ngIf="pestanaActual === 'ARMAS'">
           <table class="table">
             <tr>
-              <td><b>ID</b></td>
               <td><b>Marca</b></td>
               <td><b>Tipo</b></td>
               <td><b>Clase</b></td>
+              <td><b>Calibre</b></td>
               <td><b>Bunker</b></td>
               <td><b>Status</b></td>
               <td><b>Acciones</b></td>
             </tr>
-            <tr *ngFor="let a of armas">
-              <td>{{a?.uuid}}</td>
+            <tr *ngFor="let a of armas; let i = index">
               <td>{{a?.marca?.nombre}}</td>
               <td>{{a?.tipo}}</td>
               <td>{{a?.clase?.nombre}}</td>
+              <td>{{a?.calibre}}</td>
               <td>{{a?.bunker?.domicilio1}}</td>
               <td>{{a?.status}}</td>
               <td>
-                <fa-icon [icon]="faSync" title="Cambiar status" (click)="mostrarCambioStatusForm()" style="cursor: pointer;"></fa-icon>
-                <fa-icon [icon]="faEdit" title="Modificar arma" (click)="mostrarModificarArmaForm()" style="cursor: pointer;"></fa-icon>
+                <!--fa-icon [icon]="faSync" title="Cambiar status" (click)="mostrarCambioStatusForm()" style="cursor: pointer;"></fa-icon-->
+                <fa-icon [icon]="faPencil" title="Modificar arma" (click)="mostrarModificarArmaForm(i)" style="cursor: pointer;"></fa-icon>
                 <fa-icon [icon]="faTrash" title="Eliminar arma" (click)="mostrarModalEliminarArma(a?.uuid)" style="cursor: pointer;"></fa-icon>
               </td>
             </tr>
@@ -243,6 +243,8 @@
                   <div class="col-sm-12">
                     <button (click)="crearArma(crearArmaForm)" class="btn btn-sm btn-primary">Guardar arma
                     </button>
+                    <button (click)="mostrarFormularioArma()" class="btn btn-sm btn-danger">Cancelar
+                    </button>
                   </div>
                 </div>
               </td>
@@ -263,7 +265,7 @@
                       <select class="form-control" id="status" (change)="seleccionarStatus($event.target)">
                         <option value="ACTIVA">Activa</option>
                         <option value="DEPOSITO">Deposito</option>
-                        <option value="CUSTODIA">En resguardo</option>
+                        <!--option value="CUSTODIA">En resguardo</option-->
                       </select>
                     </div>
                     <div class="col-sm-4" *ngIf="status === 'ACTIVA'">
@@ -274,21 +276,21 @@
                         <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
                       </select>
                     </div>
-                    <div class="col-sm-4" *ngIf="status === 'CUSTODIA'">
+                    <!--div class="col-sm-4" *ngIf="status === 'CUSTODIA'">
                       <label for="documentoFundatorio">
                         <b>Documento fundatorio</b>
                       </label>
                       <input id="documentoFundatorio" type="file" class="form-control">
-                    </div>
+                    </div-->
                   </div>
-                  <div class="form-row" *ngIf="status === 'CUSTODIA'">
+                  <!--div class="form-row" *ngIf="status === 'CUSTODIA'">
                     <label>
                       <b>Relato de hechos *</b>
                     </label>
                     <div class="col-sm-12">
 
                     </div>
-                  </div>
+                  </div-->
                 </form>
               </td>
             </tr>
@@ -301,7 +303,7 @@
         </div>
       </div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
       <button class="btn btn-primary" (click)="descargarLicencia(licencia.uuid, mostrarLicenciaPdfModal)">Descargar licencia</button>
       <button class="btn btn-primary" (click)="mostrarModificarLicenciaModal()">Modificar</button>
       <button type="button" class="btn btn-danger" (click)="mostrarEliminarLicenciaModal()">Eliminar</button>
@@ -324,6 +326,75 @@
                       style="width: 100%; height: 600px"></pdf-viewer>
         </div>
       </div>
+    </div>
+  </ng-template>
+
+  <ng-template #modificarLicenciaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modificarLicenciaModal">Nueva licencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearEmpresaLicenciaForm">
+            <div class="form-row">
+              <div class="col-sm-4">
+                <label for="numeroOficioEditar">
+                  <b>Número de oficio *</b>
+                  <span *ngIf="crearEmpresaLicenciaForm.controls['numeroOficio'].invalid && (crearEmpresaLicenciaForm.controls['numeroOficio'].dirty || crearEmpresaLicenciaForm.controls['numeroOficio'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="numeroOficioEditar" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroOficio" #numeroOficio>
+              </div>
+              <div class="col-sm-4">
+                <label for="fechaInicioEditar">
+                  <b>Fecha de Inicio *</b>
+                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaInicio'].invalid && (crearEmpresaLicenciaForm.controls['fechaInicio'].dirty || crearEmpresaLicenciaForm.controls['fechaInicio'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="fechaInicioEditar" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaInicio" #fechaInicio>
+              </div>
+              <div class="col-sm-4">
+                <label for="fechaFinEditar">
+                  <b>Fecha de fin *</b>
+                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaFin'].invalid && (crearEmpresaLicenciaForm.controls['fechaFin'].dirty || crearEmpresaLicenciaForm.controls['fechaFin'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="fechaFinEditar" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaFin" #fechaFin>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-sm-4">
+                <label for="modalidadEditar">
+                  <b>Modalidad *</b>
+                  <span *ngIf="crearEmpresaLicenciaForm.controls['modalidad'].invalid && (crearEmpresaLicenciaForm.controls['modalidad'].dirty || crearEmpresaLicenciaForm.controls['modalidad'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <select id="modalidadEditar" class="form-control" formControlName="modalidad">
+                  <option *ngFor="let m of modalidades" value="{{m?.modalidad?.uuid}}">{{m?.modalidad?.nombre}}</option>
+                </select>
+              </div>
+              <div class="col-sm-4">
+                <label for="submodalidadEditar">
+                  <b>Submodalidad</b>
+                </label>
+                <select id="submodalidadEditar" class="form-control" formControlName="submodalidad">
+                  <option *ngFor="let m of modalidades" value="{{m?.submodalidad?.uuid}}">{{m?.submodalidad?.nombre}}</option>
+                </select>
+              </div>
+              <div class="col-sm-4">
+                <label for="archivoEditar">
+                  <b>Archivo (en pdf)</b>
+                </label>
+                <input id="archivoEditar" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="modificarLicencia(crearEmpresaLicenciaForm)">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
 

@@ -43,4 +43,27 @@ public class ArmaController {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return armaService.guardarArma(empresaUuid, licenciaUuid, username, armaDto);
     }
+
+    @PutMapping(value = EMPRESA_ARMAS_URI + "/{armaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ArmaDto modificarArma(
+            HttpServletRequest request,
+            @RequestBody ArmaDto armaDto,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "licenciaUuid") String licenciaUuid,
+            @PathVariable(value = "armaUuid") String armaUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return armaService.modificarArma(empresaUuid, licenciaUuid, armaUuid, username, armaDto);
+    }
+
+    @DeleteMapping(value = EMPRESA_ARMAS_URI + "/{armaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ArmaDto eliminarArma(
+            HttpServletRequest request,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "licenciaUuid") String licenciaUuid,
+            @PathVariable(value = "armaUuid") String armaUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return armaService.eliminarArma(empresaUuid, licenciaUuid, armaUuid, username);
+    }
 }

@@ -668,8 +668,6 @@ export class EmpresaNuevaComponent implements OnInit {
       return;
     }
 
-
-
     this.empresaEscritura.consejos.push(empresaConsejo);
     this.nuevoConsejoAdministracionForm.reset();
     this.editandoConsejo = false;
@@ -688,18 +686,18 @@ export class EmpresaNuevaComponent implements OnInit {
 
   next(stepName: string, form) {
     this.stepName = stepName;
-    /*if(form !== undefined && !form.valid) {
+    if(form !== undefined && !form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "El formulario es invalido. Favor de verificar los errores antes de continuar",
         ToastType.WARNING
       );
       return;
-    }*/
+    }
 
     switch (stepName) {
       case 'DOMICILIOS':
-        /*if(this.empresaGuardada) {
+        if(this.empresaGuardada) {
           this.stepper.next();
         } else {
           if(this.existeEmpresa !== undefined && this.existeEmpresa.existe) {
@@ -755,11 +753,11 @@ export class EmpresaNuevaComponent implements OnInit {
               ToastType.ERROR
             )
           })
-        }*/
+        }
         break;
       case 'LEGAL':
         console.log(this.domiciliosGuardados);
-        /*if(this.domiciliosGuardados) {
+        if(this.domiciliosGuardados) {
           this.stepper.next();
         } else {
           if(this.empresaDomicilios.length < 1) {
@@ -801,11 +799,11 @@ export class EmpresaNuevaComponent implements OnInit {
             this.desactivarCamposDireccion();
             this.domiciliosGuardados = true;
           }
-        }*/
+        }
 
         break;
       case 'FORMAS_EJECUCION':
-        /*if(this.escriturasGuardadas) {
+        if(this.escriturasGuardadas) {
           this.stepper.next();
         } else {
           if(this.empresaEscrituras.length < 1) {
@@ -851,11 +849,11 @@ export class EmpresaNuevaComponent implements OnInit {
             this.desactivarCamposEscrituras();
             this.stepper.next();
           }
-        }*/
+        }
 
         break;
       case 'RESUMEN':
-        /*if(this.formasEjecucionGuardadas) {
+        if(this.formasEjecucionGuardadas) {
           this.stepper.next();
         } else {
           if(this.empresaFormasEjecucion.length < 1) {
@@ -898,7 +896,7 @@ export class EmpresaNuevaComponent implements OnInit {
             this.desactivarCamposFormasEjecucion();
             this.stepper.next();
           }
-        }*/
+        }
         break;
       default:
         this.toastService.showGenericToast(
@@ -907,7 +905,6 @@ export class EmpresaNuevaComponent implements OnInit {
           ToastType.ERROR
         )
     }
-    this.stepper.next();
   }
 
   previous() {
@@ -1047,6 +1044,17 @@ export class EmpresaNuevaComponent implements OnInit {
     }
 
     let formData: EmpresaEscritura = form.value;
+
+    let existeEscritura = this.empresaEscrituras.filter(x => x.numeroEscritura === formData.numeroEscritura)
+    if(existeEscritura.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya hay una escritura registrada con ese numero",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     formData.socios = [];
     formData.apoderados = [];
     formData.representantes = [];
@@ -1078,6 +1086,17 @@ export class EmpresaNuevaComponent implements OnInit {
     }
 
     let formData: EmpresaDomicilio = form.value;
+    //TODO: Reevisar el bug de la mascara que agrega un digito de mas. De mientras, manipulandolo con la longitud
+    if(formData.telefonoMovil.length > 14) {
+      let tempString = formData.telefonoMovil;
+      formData.telefonoMovil = tempString.slice(0, -1);
+    }
+
+    if(formData.telefonoFijo.length > 14) {
+      let tempString = formData.telefonoFijo;
+      formData.telefonoFijo = tempString.slice(0, -1);
+    }
+
     formData.estadoCatalogo = this.estado;
     formData.municipioCatalogo = this.municipio;
     formData.localidadCatalogo = this.localidad;
@@ -1085,6 +1104,16 @@ export class EmpresaNuevaComponent implements OnInit {
     formData.calleCatalogo = this.calle;
     this.empresaDomicilios.push(formData);
     form.reset();
+
+    this.empresaDomiciliosForm.patchValue({
+      pais: 'Mexico'
+    })
+
+    this.calle = undefined;
+    this.municipio = undefined;
+    this.localidad = undefined;
+    this.colonia = undefined;
+    this.estado = undefined;
   }
 
   mostrarModalEmpresaRegistrada(modal) {

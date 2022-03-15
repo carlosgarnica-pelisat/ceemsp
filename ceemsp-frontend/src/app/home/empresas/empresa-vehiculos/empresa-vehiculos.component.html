@@ -143,11 +143,12 @@
               <td><b>Descripción</b></td>
               <td><b>Acciones</b></td>
             </tr>
-            <tr *ngFor="let c of vehiculo?.colores">
+            <tr *ngFor="let c of vehiculo?.colores; let i = index">
               <td>{{c?.color}}</td>
               <td>{{c?.descripcion}}</td>
               <td>
-                <fa-icon [icon]="faTrash" (click)="eliminarColor(c?.uuid)"></fa-icon>
+                <fa-icon [icon]="faPencilAlt" title="Modificar color del vehiculo" (click)="mostrarEditarVehiculoColor(i)"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar color del vehiculo" (click)="mostrarModalEliminarVehiculoColor(c?.uuid)"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="!showColorForm">
@@ -183,7 +184,10 @@
                         <div class="col-sm-6">
                           <label for="descripcionColor">
                             <b>Descripcion</b>
-                            <span *ngIf="crearColorForm.controls['descripcion'].invalid && (crearColorForm.controls['descripcion'].dirty || crearColorForm.controls['descripcion'].touched)" class="text-danger"> - Requerido</span>
+                            <span
+                              *ngIf="crearColorForm.controls['descripcion'].invalid && (crearColorForm.controls['descripcion'].dirty || crearColorForm.controls['descripcion'].touched)">
+                                    <i *ngIf="crearColorForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                                  </span>
                           </label>
                           <input id="descripcionColor" type="text" class="form-control" placeholder="Ej. Primario, Secundario" formControlName="descripcion" #nombres>
                         </div>
@@ -217,15 +221,8 @@
               <td>{{f?.nombreArchivo}}</td>
               <td>{{f?.descripcion}}</td>
               <td>
-                <div class="btn-group">
-                  <button type="button" class="btn btn-primary btn-sm" (click)="descargarFotografia(f?.uuid)"><fa-icon [icon]="faDownload"></fa-icon> Descargar</button>
-                  <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="sr-only">Toggle Dropdown</span>
-                  </button>
-                  <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#"><fa-icon [icon]="faTrash"></fa-icon> Eliminar</a>
-                  </div>
-                </div>
+                <fa-icon [icon]="faDownload" title="Descargar fotografia" (click)="descargarFotografia(f?.uuid)"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar fotografia" (click)="mostrarModalEliminarFotografia(f?.uuid)"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="showFotografiaForm">
@@ -270,8 +267,8 @@
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
       <button class="btn btn-primary" (click)="mostrarDocumentacion(visualizarEscrituraModal)">Visualizar documentacion</button>
-      <button class="btn btn-primary" (click)="mostrarModificarEscrituraModal()">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Eliminar</button>
+      <button class="btn btn-primary" (click)="mostrarModalModificarVehiculo()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarVehiculo()">Eliminar</button>
     </div>
   </ng-template>
 
@@ -288,6 +285,21 @@
           <img [src]="imagenActual" style="width: 100%;">
         </div>
       </div>
+    </div>
+  </ng-template>
+
+  <ng-template #modificarVehiculoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modificarVehiculoModal">Modificar vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+
+    </div>
+    <div class="modal-footer">
+
     </div>
   </ng-template>
 
@@ -321,13 +333,6 @@
               <div class="step" data-target="#test-l-3">
                 <button class="step-trigger">
                   <span class="bs-stepper-circle">3</span>
-                  <span class="bs-stepper-label">Fotografias</span>
-                </button>
-              </div>
-              <div class="line"></div>
-              <div class="step" data-target="#test-l-4">
-                <button class="step-trigger">
-                  <span class="bs-stepper-circle">4</span>
                   <span class="bs-stepper-label">Resumen</span>
                 </button>
               </div>
@@ -652,7 +657,6 @@
                                   <b>Descripcion *</b>
                                   <span
                                     *ngIf="crearColorForm.controls['descripcion'].invalid && (crearColorForm.controls['descripcion'].dirty || crearColorForm.controls['descripcion'].touched)">
-                                    <i *ngIf="crearColorForm.controls['descripcion'].errors.required" class="text-danger"> - Campo requerido</i>
                                     <i *ngIf="crearColorForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                                   </span>
                                 </label>
@@ -683,20 +687,7 @@
                   </div>
                 </div>
               </div>
-
-              <!-- STEP 3 - SUMMARY -->
               <div id="test-l-3" class="content">
-                <hr>
-                <div class="row">
-                  <div class="col-sm-12">
-                    <button (click)="previous()" class="btn btn-primary">Anterior: Informacion
-                    </button>
-                    <button (click)="next('RESUMEN', crearVehiculoForm)" class="btn btn-primary">Siguiente: Resumen
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div id="test-l-4" class="content">
 
               </div>
             </div>
@@ -722,6 +713,66 @@
                       style="width: 100%; height: 600px"></pdf-viewer>
         </div>
       </div>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarVehiculoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarVehiculoModal">Eliminando un vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar un vehiculo. Toma en cuenta que al eliminarlo, todos las fotografias y colores seran eliminados y esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarVehiculo()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarVehiculoColorModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarVehiculoColorModal">Eliminando un color del vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar el color del vehiculo. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarVehiculoColor()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarVehiculoFotografiaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarVehiculoFotografiaModal">Eliminando una fotografia del vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar una fotografia del vehiculo. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarVehiculoFotografia()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 </div>

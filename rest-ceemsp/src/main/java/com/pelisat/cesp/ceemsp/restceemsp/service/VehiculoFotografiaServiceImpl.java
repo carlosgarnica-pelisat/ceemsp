@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -129,5 +130,27 @@ public class VehiculoFotografiaServiceImpl implements VehiculoFotografiaService 
             archivosService.eliminarArchivo(ruta);
             throw new InvalidDataException();
         }
+    }
+
+    @Transactional
+    @Override
+    public void eliminarVehiculoFotografia(String uuid, String vehiculoUuid, String fotografiaUuid, String username) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(fotografiaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la fotografia con uuid [{}]", fotografiaUuid);
+        VehiculoFotografia vehiculoFotografia = vehiculoFotografiaRepository.getByUuidAndEliminadoFalse(fotografiaUuid);
+
+        if(vehiculoFotografia == null) {
+            logger.warn("La fotografia esta eliminada o no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        archivosService.eliminarArchivo(vehiculoFotografia.getUbicacionArchivo());
+        vehiculoFotografia.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, vehiculoFotografia, usuarioDto.getId());
+        vehiculoFotografiaRepository.save(vehiculoFotografia);
     }
 }

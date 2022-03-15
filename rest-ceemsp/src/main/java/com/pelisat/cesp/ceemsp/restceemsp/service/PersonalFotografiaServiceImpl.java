@@ -39,20 +39,18 @@ public class PersonalFotografiaServiceImpl implements PersonalFotografiaService 
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
     private final DaoHelper<CommonModel> daoHelper;
-    private final EmpresaService empresaService;
     private final UsuarioService usuarioService;
     private final ArchivosService archivosService;
     private final PersonaRepository personaRepository;
 
     @Autowired
     public PersonalFotografiaServiceImpl(PersonalFotografiaRepository personalFotografiaRepository, DaoToDtoConverter daoToDtoConverter,
-                                         DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper, EmpresaService empresaService,
+                                         DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper,
                                          UsuarioService usuarioService, ArchivosService archivosService, PersonaRepository personaRepository) {
         this.personalFotografiaRepository = personalFotografiaRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
-        this.empresaService = empresaService;
         this.usuarioService = usuarioService;
         this.archivosService = archivosService;
         this.personaRepository = personaRepository;

@@ -151,14 +151,14 @@
                   <td><b>Fecha de expedicion</b></td>
                   <td><b>Acciones</b></td>
                 </tr>
-                <tr *ngFor="let v of can?.cartillasVacunacion">
+                <tr *ngFor="let v of can?.cartillasVacunacion; let i = index">
                   <td>{{v.expedidoPor}}</td>
                   <td>{{v.cedula}}</td>
                   <td>{{v.fechaExpedicion}}</td>
                   <td>
-                    <fa-icon [icon]="faDownload"></fa-icon>
-                    <fa-icon [icon]="faPencilAlt"></fa-icon>
-                    <fa-icon [icon]="faTrash"></fa-icon>
+                    <fa-icon [icon]="faDownload" title="Descargar el certificado de vacunacion" (click)="descargarCertificadoVacunacion(v?.uuid, visualizarCartillaVacunacionModal)"></fa-icon>
+                    <fa-icon [icon]="faPencilAlt" title="Modificar el certificado de vacunacion" (click)="mostrarModalEditarVacunacion(i)"></fa-icon>
+                    <fa-icon [icon]="faTrash" title="Eliminar el certificado de vacunacion" (click)="mostrarModalEliminarCartillaVacunacion(v?.uuid)"></fa-icon>
                   </td>
                 </tr>
                 <tr *ngIf="showVacunacionForm">
@@ -194,7 +194,7 @@
                                 <b>Fecha de vacunacion *</b>
                                 <span *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].touched)" class="text-danger"> - Requerido</span>
                               </label>
-                              <input id="fechaExpedicionVacunacion" type="date" class="form-control" formControlName="fechaExpedicion" #fechaExpedicion>
+                              <input id="fechaExpedicionVacunacion" [max]="fechaDeHoy" type="date" class="form-control" formControlName="fechaExpedicion" #fechaExpedicion>
                             </div>
                             <div class="col-sm-3">
                               <label for="archivoVacunacion">
@@ -204,7 +204,7 @@
                                   <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
                                 </span>
                               </label>
-                              <input id="archivoVacunacion" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
+                              <input id="archivoVacunacion" accept="application/pdf" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
                             </div>
                           </div>
                         </form>
@@ -222,13 +222,14 @@
                   <td><b>Fecha de expedicion</b></td>
                   <td><b>Acciones</b></td>
                 </tr>
-                <tr *ngFor="let c of can?.constanciasSalud">
+                <tr *ngFor="let c of can?.constanciasSalud; let i = index">
                   <td>{{c.expedidoPor}}</td>
                   <td>{{c.cedula}}</td>
                   <td>{{c.fechaExpedicion}}</td>
                   <td>
-                    <fa-icon [icon]="faPencilAlt"></fa-icon>
-                    <fa-icon [icon]="faTrash"></fa-icon>
+                    <fa-icon [icon]="faDownload" title="Descargar el certificado de salud" (click)="descargarConstanciaSalud(c?.uuid, visualizarCertificadoSaludModal)"></fa-icon>
+                    <fa-icon [icon]="faPencilAlt" title="Modificar el certificado de salud" (click)="mostrarModalEditarCertificado(i)"></fa-icon>
+                    <fa-icon [icon]="faTrash" title="Eliminar el certificado de salud" (click)="mostrarModalEliminarCertificadoSalud(c?.uuid)"></fa-icon>
                   </td>
                 </tr>
                 <tr *ngIf="showCertificadoForm">
@@ -256,17 +257,17 @@
                                 <b>Fecha de expedicion *</b>
                                 <span *ngIf="crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].dirty || crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].touched)" class="text-danger"> - Requerido</span>
                               </label>
-                              <input id="fechaExpedicionCertificado" type="date" class="form-control" formControlName="fechaExpedicion" #fechaExpedicion>
+                              <input id="fechaExpedicionCertificado" [max]="fechaDeHoy" type="date" class="form-control" formControlName="fechaExpedicion" #fechaExpedicion>
                             </div>
                             <div class="col-sm-3">
-                              <label for="archivoVacunacion">
+                              <label for="archivoCertificado">
                                 <b>Archivo *</b>
                                 <span
                                   *ngIf="crearEmpresaCanCertificadoSaludForm.controls['archivo'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['archivo'].dirty || crearEmpresaCanCertificadoSaludForm.controls['archivo'].touched)">
                                   <i *ngIf="crearEmpresaCanCertificadoSaludForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
                                 </span>
                               </label>
-                              <input id="archivoCertificado" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
+                              <input id="archivoCertificado" accept="application/pdf" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
                             </div>
                           </div>
                         </form>
@@ -284,13 +285,13 @@
                   <td><b>Tipo de adiestramiento</b></td>
                   <td><b>Acciones</b></td>
                 </tr>
-                <tr *ngFor="let a of can?.adiestramientos">
+                <tr *ngFor="let a of can?.adiestramientos; let i = index">
                   <td>{{a?.nombreInstructor}}</td>
                   <td>{{a?.fechaConstancia}}</td>
                   <td>{{a?.canTipoAdiestramiento?.nombre}}</td>
                   <td>
-                    <fa-icon [icon]="faPencilAlt"></fa-icon>
-                    <fa-icon [icon]="faTrash"></fa-icon>
+                    <fa-icon [icon]="faPencilAlt" title="Modificar adiestramiento" (click)="mostrarModalEditarAdiestramiento(i)"></fa-icon>
+                    <fa-icon [icon]="faTrash" title="Eliminar adiestramiento" (click)="mostrarModalEliminarAdiestramiento(a?.uuid)"></fa-icon>
                   </td>
                 </tr>
                 <tr *ngIf="showEntrenamientoForm">
@@ -311,7 +312,7 @@
                                 <b>Fecha de constancia *</b>
                                 <span *ngIf="crearEmpresaCanEntrenamientoForm.controls['fechaConstancia'].invalid && (crearEmpresaCanEntrenamientoForm.controls['fechaConstancia'].dirty || crearEmpresaCanEntrenamientoForm.controls['fechaConstancia'].touched)" class="text-danger"> - Requerido</span>
                               </label>
-                              <input id="fechaConstanciaCrear" type="date" class="form-control" formControlName="fechaConstancia" #fechaConstancia>
+                              <input id="fechaConstanciaCrear" [max]="fechaDeHoy" type="date" class="form-control" formControlName="fechaConstancia" #fechaConstancia>
                             </div>
                             <div class="col-sm-4">
                               <label for="tipoAdiestramientoCrear">
@@ -384,8 +385,8 @@
       </div>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
-      <button class="btn btn-primary" (click)="mostrarModificarCanModal()">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Eliminar</button>
+      <button class="btn btn-primary" (click)="mostrarModalModificarCan()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarCan()">Eliminar</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'VACUNACION'">
       <button class="btn btn-primary" (click)="mostrarVacunacionForm()" *ngIf="!showVacunacionForm">Agregar nuevo</button>
@@ -854,7 +855,7 @@
                                   <i *ngIf="crearEmpresaCanCertificadoSaludForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
                                 </span>
                       </label>
-                      <input id="archivoCertificadoNuevoCan" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
+                      <input id="archivoCertificadoNuevoCan" accept="application/pdf" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
                     </div>
                   </div>
                 </form>
@@ -911,7 +912,7 @@
                           <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
                         </span>
                       </label>
-                      <input id="archivoVacunacionNuevoCan" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
+                      <input id="archivoVacunacionNuevoCan" accept="application/pdf" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
                     </div>
                   </div>
                 </form>
@@ -947,7 +948,7 @@
                           <i *ngIf="crearEmpresaCanEntrenamientoForm.controls['fechaConstancia'].errors.required" class="text-danger"> - Campo requerido</i>
                         </span>
                       </label>
-                      <input id="fechaConstanciaNuevoCan" type="date" class="form-control" formControlName="fechaConstancia" #fechaConstancia>
+                      <input id="fechaConstanciaNuevoCan" [max]="fechaDeHoy" type="date" class="form-control" formControlName="fechaConstancia" #fechaConstancia>
                     </div>
                     <div class="col-sm-4">
                       <label for="tipoAdiestramientoNuevoCan">
@@ -994,6 +995,7 @@
       </div>
     </div>
   </ng-template>
+
   <ng-template #mostrarFotoCanesModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="mostrarFotoVehiculoModal">Ver fotografia del vehiculo </h4>
@@ -1009,4 +1011,126 @@
       </div>
     </div>
   </ng-template>
+
+  <!-- ELIMINAR CANES -->
+  <ng-template #eliminarCanModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarFotografiaModal">Eliminando el can </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar el can. Toma en cuenta que esta operacion no se puede deshacer y que eliminaras las cartillas de vacunacion, certificados de salud, entrenamientos y fotografias
+            registradas a este can. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarCan()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarCanCartillaVacunacionModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarCanCartillaVacunacionModal">Eliminando la cartilla de vacunacion del can </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar la cartilla de vacunacion del can. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarCartillaVacunacionCan()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarCanCertificadoSaludModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarCanCertificadoSaludModal">Eliminando el certificado de salud del can </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar el certificado de salud del can. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarCertificadoSaludCan()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarCanEntrenamientoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarCanEntrenamientoModal">Eliminando el entrenamiento del can </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar el entrenamiento del can. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarEntrenamientoCan()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <!-- MODALS PARA VER LOS PDF DE CADA UNO DE LOS ENTES CREADOS -->
+  <ng-template #visualizarCartillaVacunacionModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarCartillaVacunacionModal">Ver adjunto de la cartilla de vacunacion </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <pdf-viewer [src]="pdfActual"
+                      [render-text]="true"
+                      [original-size]="false"
+                      style="width: 100%; height: 600px"></pdf-viewer>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarCertificadoSaludModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarCertificadoSaludModal">Ver adjunto de la constancia de salud </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <pdf-viewer [src]="pdfActual"
+                      [render-text]="true"
+                      [original-size]="false"
+                      style="width: 100%; height: 600px"></pdf-viewer>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
 </div>

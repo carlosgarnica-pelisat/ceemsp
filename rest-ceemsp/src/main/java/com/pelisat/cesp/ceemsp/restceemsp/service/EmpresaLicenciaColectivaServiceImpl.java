@@ -158,7 +158,7 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
     }
 
     @Override
-    public EmpresaLicenciaColectivaDto modificarLicenciaColectiva(String empresaUuid, String licenciaUuid, String username, EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto) {
+    public EmpresaLicenciaColectivaDto modificarLicenciaColectiva(String empresaUuid, String licenciaUuid, String username, EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(licenciaUuid) || StringUtils.isBlank(username) || empresaLicenciaColectivaDto == null) {
             logger.warn("Alguno de los parametros ingresados es invalido");
             throw new InvalidDataException();
@@ -171,6 +171,21 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
         if(licenciaColectiva == null) {
             logger.warn("La licencia colectiva no existe");
             throw new NotFoundResourceException();
+        }
+
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Eliminando y modificando");
+            if(StringUtils.isNotBlank(licenciaColectiva.getRutaDocumento())) {
+                archivosService.eliminarArchivo(licenciaColectiva.getRutaDocumento());
+            }
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.LICENCIA_COLECTIVA, empresaUuid);
+                licenciaColectiva.setRutaDocumento(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
         }
 
         licenciaColectiva.setModalidad(empresaLicenciaColectivaDto.getModalidad().getId());

@@ -317,6 +317,8 @@ export class EmpresaDetallesComponent implements OnInit {
       observaciones: this.empresa.observaciones
     })
 
+    this.tipoPersona = this.empresa.tipoPersona;
+
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.modal.result.then((result) => {

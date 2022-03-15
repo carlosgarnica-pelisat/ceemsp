@@ -62,7 +62,7 @@ public class EmpresaCanController {
         return canService.modificarCan(empresaUuid, canUuid, username, canDto);
     }
 
-    @DeleteMapping
+    @DeleteMapping(value = EMPRESA_CANES_URI + "/{canUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public CanDto eliminarCan(
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
