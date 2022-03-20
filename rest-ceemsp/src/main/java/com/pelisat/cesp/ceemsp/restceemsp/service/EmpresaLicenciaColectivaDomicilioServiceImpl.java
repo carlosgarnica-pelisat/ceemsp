@@ -101,8 +101,8 @@ public class EmpresaLicenciaColectivaDomicilioServiceImpl implements EmpresaLice
 
         logger.info("Eliminndo el domicilio registrado con la licencia colectiva");
         EmpresaDomicilioDto empresaDomicilioDto = empresaDomicilioService.obtenerPorUuid(empresaUuid, domicilioUuid);
-
-        EmpresaLicenciaColectivaDomicilio empresaLicenciaColectivaDomicilio = empresaLicenciaColectivaDomicilioRepository.getOne(empresaDomicilioDto.getId());
+        EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto = empresaLicenciaColectivaService.obtenerLicenciaColectivaPorUuid(empresaUuid, licenciaColectivaUuid, true);
+        EmpresaLicenciaColectivaDomicilio empresaLicenciaColectivaDomicilio = empresaLicenciaColectivaDomicilioRepository.findByLicenciaColectivaAndDomicilioAndEliminadoFalse(empresaLicenciaColectivaDto.getId(), empresaDomicilioDto.getId());
 
         if(empresaLicenciaColectivaDomicilio == null) {
             logger.warn("No se encontro el domicilio de la licencia colectiva");

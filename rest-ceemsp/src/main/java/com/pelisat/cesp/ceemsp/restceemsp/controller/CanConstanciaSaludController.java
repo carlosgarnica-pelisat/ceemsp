@@ -50,11 +50,12 @@ public class CanConstanciaSaludController {
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "canUuid") String canUuid,
             @PathVariable(value = "constanciaUuid") String constanciaUuid,
-            @RequestBody CanConstanciaSaludDto canConstanciaSaludDto,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
+            @RequestParam("constanciaSalud") String constanciaSalud,
             HttpServletRequest request
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return canConstanciaSaludService.modificarConstanciaSalud(empresaUuid, canUuid, constanciaUuid, username, canConstanciaSaludDto);
+        return canConstanciaSaludService.modificarConstanciaSalud(empresaUuid, canUuid, constanciaUuid, username, new Gson().fromJson(constanciaSalud, CanConstanciaSaludDto.class), archivo);
     }
 
     @DeleteMapping(value = CAN_CONSTANCIA_URI + "/{constanciaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)

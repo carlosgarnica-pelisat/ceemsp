@@ -77,6 +77,7 @@ export class EmpresaClientesComponent implements OnInit {
   nuevoClienteDomicilioForm: FormGroup;
 
   domicilios: ClienteDomicilio[] = [];
+  domicilio: ClienteDomicilio;
 
   tiposInfraestructura: TipoInfraestructura[] = [];
   tipoInfraestructura: TipoInfraestructura = undefined;
@@ -95,6 +96,8 @@ export class EmpresaClientesComponent implements OnInit {
 
   tempUuidDomicilioCliente: string = "";
   tempUuidCliente: string = "";
+
+  editandoDomicilio: boolean = false;
 
   @ViewChild('eliminarClienteModal') eliminarClienteModal;
   @ViewChild('eliminarDomicilioClienteModal') eliminarDomicilioClienteModal;
@@ -477,22 +480,48 @@ export class EmpresaClientesComponent implements OnInit {
     }
 
     domicilio.tipoInfraestructura = tipoInfraestructura;
-    let tempArray: ClienteDomicilio[] = [domicilio];
+    domicilio.estadoCatalogo = this.estado;
+    domicilio.municipioCatalogo = this.municipio;
+    domicilio.coloniaCatalogo = this.colonia;
+    domicilio.calleCatalogo = this.calle;
+    domicilio.localidadCatalogo = this.localidad;
 
-    this.empresaService.guardarDomicilioCliente(this.uuid, this.cliente.uuid, tempArray).subscribe((data: ClienteDomicilio) => {
-      this.toastService.showGenericToast(
-        "Listo",
-        "Se ha guardado el domicilio del cliente con exito",
-        ToastType.SUCCESS
-      );
-      window.location.reload();
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se ha podido guardar el domicilio. Motivo: ${error}`,
-        ToastType.ERROR
-      )
-    });
+    if(this.editandoDomicilio) {
+      domicilio.id = this.domicilio.id;
+      domicilio.uuid = this.domicilio.uuid;
+
+      this.empresaService.modificarDomicilioCliente(this.uuid, this.cliente.uuid, this.domicilio.uuid, domicilio).subscribe((data) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se guardo el domicilio con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido modificar el domicilio del cliente. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      });
+    } else {
+      let tempArray: ClienteDomicilio[] = [domicilio];
+
+      this.empresaService.guardarDomicilioCliente(this.uuid, this.cliente.uuid, tempArray).subscribe((data: ClienteDomicilio) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha guardado el domicilio del cliente con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar el domicilio. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      });
+    }
   }
 
   agregarDomicilio(form) {
@@ -566,6 +595,33 @@ export class EmpresaClientesComponent implements OnInit {
       armas: this.cliente.armas,
       fechaInicio: this.cliente.fechaInicio
     })
+  }
+
+  mostrarEditarDomicilioCliente(index) {
+    this.domicilio = this.cliente.domicilios[index];
+    this.mostrarNuevoDomicilioForm();
+    this.editandoDomicilio = true;
+    this.nuevoClienteDomicilioForm.patchValue({
+      nombre: this.domicilio.nombre,
+      matriz: this.domicilio.matriz,
+      numeroExterior: this.domicilio.numeroExterior,
+      numeroInterior: this.domicilio.numeroInterior,
+      domicilio4: this.domicilio.domicilio4,
+      codigoPostal: this.domicilio.codigoPostal,
+      pais: this.domicilio.pais,
+      telefonoFijo: this.domicilio.telefonoFijo,
+      telefonoMovil: this.domicilio.telefonoMovil,
+      contacto: this.domicilio.contacto,
+      correoElectronico: this.domicilio.correoElectronico,
+      tipoInfraestructura: this.domicilio.tipoInfraestructura.uuid,
+      tipoInfraestructuraOtro: this.domicilio.tipoInfraestructuraOtro
+    });
+
+    this.calle = this.domicilio.calleCatalogo;
+    this.colonia = this.domicilio.coloniaCatalogo;
+    this.localidad = this.domicilio.localidadCatalogo;
+    this.municipio = this.domicilio.municipioCatalogo;
+    this.estado = this.domicilio.estadoCatalogo;
   }
 
   mostrarModalEliminarCliente(uuid) {

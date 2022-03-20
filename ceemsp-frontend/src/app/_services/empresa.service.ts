@@ -224,8 +224,8 @@ export class EmpresaService {
       formData, {headers: {'X-isFile': 'true'}})
   }
 
-  modificarLicenciaColectiva(uuid: string, licenciaColectivaUuid: string, licenciaColectiva: EmpresaLicenciaColectiva) {
-    return this.http.put(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}`, licenciaColectiva)
+  modificarLicenciaColectiva(uuid: string, licenciaColectivaUuid: string, formData: FormData) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}`, formData, {headers: {'X-isFile': 'true'}})
   }
 
   eliminarLicenciaColectiva(uuid: string, licenciaColectivaUuid: string) {
@@ -258,8 +258,24 @@ export class EmpresaService {
     return this.http.post(`${this.uri}/empresas/${uuid}/vehiculos`, vehiculo);
   }
 
+  modificarVehiculo(uuid: string, vehiculoUuid: string, vehiculo: Vehiculo) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}`, vehiculo);
+  }
+
+  eliminarVehiculo(uuid: string, vehiculoUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}`);
+  }
+
   guardarVehiculoColor(uuid: string, vehiculoUuid: string, color: VehiculoColor) {
     return this.http.post(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}/colores`, color);
+  }
+
+  modificarVehiculoColor(uuid: string, vehiculoUuid: string, colorUuid: string, color: VehiculoColor) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}/colores/${colorUuid}`, color);
+  }
+
+  eliminarVehiculoColor(uuid: string, vehiculoUuid: string, colorUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}/colores/${colorUuid}`);
   }
 
   guardarVehiculoFotografia(empresaUuid: string, vehiculoUuid: string, formData: FormData) {
@@ -274,6 +290,10 @@ export class EmpresaService {
     }
 
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/vehiculos/${vehiculoUuid}/fotografias/${fotografiaUuid}`, httpOptions);
+  }
+
+  eliminarVehiculoFotografia(empresaUuid: string, vehiculoUuid: string, fotografiaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/vehiculos/${vehiculoUuid}/fotografias/${fotografiaUuid}`);
   }
 
   // Clientes
@@ -386,6 +406,14 @@ export class EmpresaService {
     return this.http.post(`${this.uri}/empresas/${uuid}/canes`, can);
   }
 
+  modificarCan(uuid: string, canUuid: string, can: Can) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/canes/${canUuid}`, can);
+  }
+
+  eliminarCan(uuid: string, canUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/canes/${canUuid}`);
+  }
+
   guardarCanFotografia(empresaUuid: string, canUuid: string, formData: FormData) {
     return this.http.post(
       `${this.uri}/empresas/${empresaUuid}/canes/${canUuid}/fotografias`,
@@ -397,6 +425,14 @@ export class EmpresaService {
     return this.http.post(`${this.uri}/empresas/${uuid}/canes/${canUuid}/adiestramientos`, adiestramiento);
   }
 
+  modificarCanEntrenamiento(uuid: string, canUuid: string, entrenamientoUuid: string, adiestramiento: CanAdiestramiento) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/canes/${canUuid}/adiestramientos/${entrenamientoUuid}`, adiestramiento);
+  }
+
+  eliminarCanEntrenamiento(uuid: string, canUuid: string, entrenamientoUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/canes/${canUuid}/adiestramientos/${entrenamientoUuid}`)
+  }
+
   // Constancias de salud
   guardarCanConstanciaSalud(uuid: string, canUuid: string, formData: FormData) {
     return this.http.post(
@@ -404,11 +440,47 @@ export class EmpresaService {
       formData, {headers: {'X-isFile': 'true'}})
   }
 
+  descargarCanConstanciaSalud(uuid: string, canUuid: string, constanciaSaludUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes/${canUuid}/constancias/${constanciaSaludUuid}/pdf`, httpOptions)
+  }
+
+  modificarCanConstanciaSalud(uuid: string, canUuid: string, canConstanciaUuid: string, formData: FormData) {
+    return this.http.put(
+      `${this.uri}/empresas/${uuid}/canes/${canUuid}/constancias/${canConstanciaUuid}`,
+      formData, {headers: {'X-isFile': 'true'}}
+    )
+  }
+
+  eliminarCanConstanciaSalud(uuid: string, canUuid: string, canConstanciaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/canes/${canUuid}/constancias/${canConstanciaUuid}`);
+  }
+
   // Cartillas vacunacion
   guardarCanCartillaVacunacion(uuid: string, canUuid: string, formData: FormData) {
     return this.http.post(
       `${this.uri}/empresas/${uuid}/canes/${canUuid}/cartillas`,
       formData, {headers: {'X-isFile': 'true'}})
+  }
+
+  descargarCanCartillaVacunacionPdf(uuid: string, canUuid: string, cartillaVacunacionUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes/${canUuid}/cartillas/${cartillaVacunacionUuid}/pdf`, httpOptions)
+  }
+
+  modificarCanCartillaVacunacion(uuid: string, canUuid: string, cartillaVacunacionUuid: string, formData: FormData) {
+    return this.http.put(
+      `${this.uri}/empresas/${uuid}/canes/${canUuid}/cartillas/${cartillaVacunacionUuid}`,
+      formData, {headers: {'X-isFile': 'true'}}
+    )
+  }
+
+  eliminarCanCartillaVacunacion(uuid: string, canUuid: string, cartillaVacunacionUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/canes/${canUuid}/cartillas/${cartillaVacunacionUuid}`)
   }
 
   // Armas
@@ -421,7 +493,7 @@ export class EmpresaService {
   }
 
   modificarArma(uuid: string, licenciaColectivaUuid: string, armaUuid: string, arma: Arma) {
-    return this.http.put(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas/${armaUuid}`, armaUuid)
+    return this.http.put(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas/${armaUuid}`, arma)
   }
 
   eliminarArma(uuid: string, licenciaColectivaUuid: string, armaUuid: string) {

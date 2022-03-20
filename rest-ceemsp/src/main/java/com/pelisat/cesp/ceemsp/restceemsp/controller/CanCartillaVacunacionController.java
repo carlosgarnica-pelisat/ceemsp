@@ -7,11 +7,17 @@ import com.pelisat.cesp.ceemsp.restceemsp.service.CanAdiestramientoService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.CanCartillaVacunacionService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 @RestController
@@ -35,6 +41,22 @@ public class CanCartillaVacunacionController {
         return canCartillaVacunacionService.obtenerCartillasVacunacionPorCanUuid(empresaUuid, canUuid);
     }
 
+    @GetMapping(value = CAN_CARTILLA_URI + "/{cartillaUuid}/pdf")
+    public ResponseEntity<InputStreamResource> descargarEscrituraPdf(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "canUuid") String canUuid,
+            @PathVariable(value = "cartillaUuid") String cartillaUuid
+    ) throws Exception {
+        File file = canCartillaVacunacionService.obtenerPdfCartillaVacunacion(empresaUuid, canUuid, cartillaUuid);
+        HttpHeaders responseHeaders = new HttpHeaders();
+
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentLength(file.length());
+        responseHeaders.setContentDispositionFormData("attachment", file.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+        return new ResponseEntity<>(isr, responseHeaders, HttpStatus.OK);
+    }
+
     @PostMapping(value = CAN_CARTILLA_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CanCartillaVacunacionDto guardarCanCartillaVacunacion(
             @PathVariable(value = "empresaUuid") String empresaUuid,
@@ -47,16 +69,17 @@ public class CanCartillaVacunacionController {
         return canCartillaVacunacionService.guardarCartillaVacunacion(empresaUuid, canUuid, username, new Gson().fromJson(cartillaVacunacion, CanCartillaVacunacionDto.class), archivo);
     }
 
-    @PutMapping(value = CAN_CARTILLA_URI + "/{cartillaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = CAN_CARTILLA_URI + "/{cartillaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CanCartillaVacunacionDto modificarCanCartillaVacunacion(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "canUuid") String canUuid,
             @PathVariable(value = "cartillaUuid") String cartillaUuid,
             HttpServletRequest request,
-            @RequestBody CanCartillaVacunacionDto canCartillaVacunacionDto
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
+            @RequestParam("cartillaVacunacion") String cartillaVacunacion
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return canCartillaVacunacionService.modificarCartillaVacunacion(empresaUuid, canUuid, cartillaUuid, username, canCartillaVacunacionDto);
+        return canCartillaVacunacionService.modificarCartillaVacunacion(empresaUuid, canUuid, cartillaUuid, username, new Gson().fromJson(cartillaVacunacion, CanCartillaVacunacionDto.class), archivo);
     }
 
     @DeleteMapping(value = CAN_CARTILLA_URI + "/{cartillaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)

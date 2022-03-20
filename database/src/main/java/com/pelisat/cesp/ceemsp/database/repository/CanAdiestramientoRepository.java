@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface CanAdiestramientoRepository extends JpaRepository<CanAdiestramiento, Integer> {
     List<CanAdiestramiento> findAllByCanAndEliminadoFalse(int id);
+    CanAdiestramiento findByUuidAndEliminadoFalse(String uuid);
 }

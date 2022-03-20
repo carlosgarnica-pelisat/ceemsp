@@ -7,4 +7,6 @@ import java.util.List;
 public interface CanAdiestramientoService {
     List<CanAdiestramientoDto> obtenerAdiestramientosPorCanUuid(String empresaUuid, String canUuid);
     CanAdiestramientoDto guardarCanAdiestramiento(String empresaUuid, String canUuid, String username, CanAdiestramientoDto canAdiestramientoDto);
+    CanAdiestramientoDto modificarCanAdiestramiento(String empresaUuid, String canUuid, String adiestramientoUuid, String username, CanAdiestramientoDto canAdiestramientoDto);
+    CanAdiestramientoDto eliminarCanAdiestramiento(String empresaUuid, String canUuid, String adiestramientoUuid, String username);
 }

@@ -9,6 +9,6 @@ import java.util.List;
 public interface CanConstanciaSaludService {
     List<CanConstanciaSaludDto> obtenerConstanciasSaludPorCanUuid(String empresaUuid, String canUuid);
     CanConstanciaSaludDto guardarConstanciaSalud(String empresaUuid, String canUuid, String username, CanConstanciaSaludDto canConstanciaSaludDto, MultipartFile archivo);
-    CanConstanciaSaludDto modificarConstanciaSalud(String empresaUuid, String canUuid, String constanciaUuid, String username, CanConstanciaSaludDto canConstanciaSaludDto);
+    CanConstanciaSaludDto modificarConstanciaSalud(String empresaUuid, String canUuid, String constanciaUuid, String username, CanConstanciaSaludDto canConstanciaSaludDto, MultipartFile archivo);
     CanConstanciaSaludDto eliminarConstanciaSalud(String empresaUuid, String canUuid, String constanciaUuid, String username);
 }

@@ -152,4 +152,56 @@ public class ArmaServiceImpl implements ArmaService {
 
         return daoToDtoConverter.convertDaoToDtoArma(armaCreada);
     }
+
+    @Override
+    public ArmaDto modificarArma(String uuid, String licenciaColectivaUuid, String armaUuid, String username, ArmaDto armaDto) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(licenciaColectivaUuid) || StringUtils.isBlank(armaUuid) || StringUtils.isBlank(username) || armaDto == null) {
+            logger.warn("El uuid, el usuario o el arma a registrar vienen como nulas o vacias");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el arma con el uuid [{}]", armaUuid);
+
+        Arma arma = armaRepository.getByUuidAndEliminadoFalse(armaUuid);
+
+        if(arma == null) {
+            logger.warn("El arma no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        arma.setClase(armaDto.getClase().getId());
+        arma.setBunker(armaDto.getBunker().getId());
+        arma.setMarca(armaDto.getMarca().getId());
+        arma.setCalibre(armaDto.getCalibre());
+        arma.setTipo(armaDto.getTipo());
+        daoHelper.fulfillAuditorFields(false, arma, usuario.getId());
+
+        armaRepository.save(arma);
+        return armaDto;
+    }
+
+    @Override
+    public ArmaDto eliminarArma(String uuid, String licenciaColectivaUuid, String armaUuid, String username) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(licenciaColectivaUuid) || StringUtils.isBlank(armaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("El uuid de la empresa o el id del vehiculo a consultar vienen como nulos o invalidos");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el arma con el uuid [{}]", armaUuid);
+
+        Arma arma = armaRepository.getByUuidAndEliminadoFalse(armaUuid);
+
+        if(arma == null) {
+            logger.warn("El arma no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        arma.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, arma, usuario.getId());
+        armaRepository.save(arma);
+        return daoToDtoConverter.convertDaoToDtoArma(arma);
+    }
 }

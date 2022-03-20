@@ -819,9 +819,7 @@ export class EmpresaPersonalComponent implements OnInit {
     });
   }
 
-  mostrarModalEliminarPersona(tempUuid) {
-    this.tempUuidCapacitacion = tempUuid;
-
+  mostrarModalEliminarPersona() {
     this.modal = this.modalService.open(this.eliminarPersonalModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
 
     this.modal.result.then((result) => {
@@ -927,15 +925,6 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   confirmarEliminarPersonal() {
-    if(this.tempUuidPersonal === undefined) {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        "El UUID del personal a eliminar no esta definido",
-        ToastType.WARNING
-      );
-      return;
-    }
-
     this.toastService.showGenericToast(
       "Espere un momento",
       "Se esta eliminando el personal",

@@ -108,7 +108,7 @@ public class CanConstanciaSaludServiceImpl implements CanConstanciaSaludService 
     }
 
     @Override
-    public CanConstanciaSaludDto modificarConstanciaSalud(String empresaUuid, String canUuid, String constanciaUuid, String username, CanConstanciaSaludDto canConstanciaSaludDto) {
+    public CanConstanciaSaludDto modificarConstanciaSalud(String empresaUuid, String canUuid, String constanciaUuid, String username, CanConstanciaSaludDto canConstanciaSaludDto, MultipartFile archivo) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(constanciaUuid) || StringUtils.isBlank(username) || canConstanciaSaludDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");
             throw new InvalidDataException();
@@ -116,11 +116,26 @@ public class CanConstanciaSaludServiceImpl implements CanConstanciaSaludService 
 
         logger.info("Modificando la constancia de salud con el uuid [{}]", canUuid);
 
-        CanConstanciaSalud canConstanciaSalud = canConstanciaSaludRepository.findByUuidAndEliminadoFalse(canUuid);
+        CanConstanciaSalud canConstanciaSalud = canConstanciaSaludRepository.findByUuidAndEliminadoFalse(constanciaUuid);
         if(canConstanciaSalud == null) {
             logger.warn("La constancia de salud del can no existe en la base de datos");
             throw new NotFoundResourceException();
         }
+
+        if(archivo != null) {
+            logger.info("Se subio con un archivo. Eliminando y modificando");
+            archivosService.eliminarArchivo(canConstanciaSalud.getRutaDocumento());
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(archivo, TipoArchivoEnum.CONSTANCIA_SALUD_CAN, empresaUuid);
+                canConstanciaSalud.setRutaDocumento(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+
+
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
 
         canConstanciaSalud.setFechaExpedicion(LocalDate.parse(canConstanciaSaludDto.getFechaExpedicion()));
@@ -142,7 +157,7 @@ public class CanConstanciaSaludServiceImpl implements CanConstanciaSaludService 
 
         logger.info("Eliminando la constancia de salud con el uuid [{}]", canUuid);
 
-        CanConstanciaSalud canConstanciaSalud = canConstanciaSaludRepository.findByUuidAndEliminadoFalse(canUuid);
+        CanConstanciaSalud canConstanciaSalud = canConstanciaSaludRepository.findByUuidAndEliminadoFalse(constanciaUuid);
         if(canConstanciaSalud == null) {
             logger.warn("La constancia de salud del can no existe en la base de datos");
             throw new NotFoundResourceException();

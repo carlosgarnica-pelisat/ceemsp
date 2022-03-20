@@ -528,8 +528,8 @@
                     <td>{{d.telefonoFijo}}</td>
                     <td>{{d.telefonoMovil}}</td>
                     <td>
-                      <fa-icon [icon]="faPencil" style="cursor: pointer;" (click)="editarDomicilio(i)" title="Modificar domicililo"></fa-icon>
-                      <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarModalEliminar(eliminarDomicilioModal, i)" title="Eliminar domicilio"></fa-icon>
+                      <fa-icon [icon]="faPencil" style="cursor: pointer;" (click)="editarDomicilio(i)" title="Modificar domicililo" *ngIf="!domiciliosGuardados"></fa-icon>
+                      <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarModalEliminar(eliminarDomicilioModal, i)" title="Eliminar domicilio" *ngIf="!domiciliosGuardados"></fa-icon>
                     </td>
                   </tr>
                 </table>
@@ -560,7 +560,7 @@
                       <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
                       <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
-                    <i *ngIf="existeEscritura !== undefined && existeEscritura.existe"> - La escritura ya existe</i>
+                    <i *ngIf="existeEscritura !== undefined && existeEscritura.existe" class="text-danger"> - La escritura ya existe</i>
                   </label>
                   <input id="numeroEscritura" type="tel" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" appNumberMask #numeroEscritura (focusout)="validarEscritura($event.target)">
                 </div>
@@ -706,8 +706,8 @@
                     <td>{{e?.numero}}</td>
                     <td>{{e?.nombreFedatario}}</td>
                     <td>
-                      <fa-icon style="cursor: pointer;" [icon]="faUsers" (click)="mostrarModalDetallesEscritura(verEscrituraEmpresaModal, e?.uuid)" title="Agregar entes (socios, apoderados, etc)"></fa-icon>
-                      <fa-icon style="cursor: pointer;" [icon]="faTrash" (click)="mostrarModalEliminar(eliminarEscrituraModal, i)" title="Eliminar escritura"></fa-icon>
+                      <fa-icon style="cursor: pointer;" [icon]="faUsers" (click)="mostrarModalDetallesEscritura(verEscrituraEmpresaModal, e?.uuid)" title="Agregar entes (socios, apoderados, etc)" *ngIf="!escriturasGuardadas"></fa-icon>
+                      <fa-icon style="cursor: pointer;" [icon]="faTrash" (click)="mostrarModalEliminar(eliminarEscrituraModal, i)" title="Eliminar escritura" *ngIf="!escriturasGuardadas"></fa-icon>
                     </td>
                   </tr>
                 </table>
@@ -765,7 +765,7 @@
                       <span *ngSwitchCase="'TECNOLOGIA'">Con apoyo de tecnología</span>
                     </td>
                     <td>
-                      <fa-icon style="cursor: pointer;" [icon]="faTrash" (click)="mostrarModalEliminar(eliminarFormaEjecucionModal, i)" title="Eliminar forma de ejecución"></fa-icon>
+                      <fa-icon style="cursor: pointer;" [icon]="faTrash" (click)="mostrarModalEliminar(eliminarFormaEjecucionModal, i)" title="Eliminar forma de ejecución" *ngIf="!formasEjecucionGuardadas"></fa-icon>
                     </td>
                   </tr>
                 </table>
@@ -1422,7 +1422,7 @@
         seran tambien eliminados y esta operacion no se puede deshacer. ¿Quieres continuar?</p>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Si, borrar escritura</button>
+      <button type="button" class="btn btn-danger" (click)="eliminarEscritura(this.temporaryIndex)">Si, borrar escritura</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, siempre no</button>
     </div>
   </ng-template>

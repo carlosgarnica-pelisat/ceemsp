@@ -8,4 +8,5 @@ import java.util.List;
 public interface EmpresaLicenciaColectivaDomicilioRepository extends JpaRepository<EmpresaLicenciaColectivaDomicilio, Integer> {
     List<EmpresaLicenciaColectivaDomicilio> findAllByLicenciaColectivaAndEliminadoFalse(int licenciaColectiva);
     EmpresaLicenciaColectivaDomicilio findByUuidAndEliminadoFalse(String uuid);
+    EmpresaLicenciaColectivaDomicilio findByLicenciaColectivaAndDomicilioAndEliminadoFalse(int licenciaColectiva, int domicilio);
 }
