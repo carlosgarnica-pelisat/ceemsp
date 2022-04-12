@@ -5,7 +5,7 @@
 
     <changeSet id="2021-10-30-crear-tabla-cliente-modalidades" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="CLIENTE_MODALIDADES">
+        <createTable tableName="cliente_modalidades">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="CLIENTE" type="INT"></column>
@@ -23,11 +23,11 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="CLIENTE_MODALIDADES" columnNames="ID" />
-        <addAutoIncrement tableName="CLIENTE_MODALIDADES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="cliente_modalidades" columnNames="ID" />
+        <addAutoIncrement tableName="cliente_modalidades" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="CLIENTE_MODALIDADES" columnNames="UUID" />
+        <addUniqueConstraint tableName="cliente_modalidades" columnNames="UUID" />
 
 
     </changeSet>

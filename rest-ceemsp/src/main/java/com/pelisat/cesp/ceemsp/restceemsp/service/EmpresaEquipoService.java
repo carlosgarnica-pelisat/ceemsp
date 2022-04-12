@@ -9,4 +9,6 @@ public interface EmpresaEquipoService {
     List<EmpresaEquipoDto> obtenerEquiposPorEmpresaUuid(String empresaUuid);
     EmpresaEquipoDto obtenerEquipoPorUuid(String empresaUuid, String equipoUuid);
     EmpresaEquipoDto guardarEquipo(String empresaUuid, String usuario, EmpresaEquipoDto empresaEquipoDto);
+    EmpresaEquipoDto modificarEquipo(String empresaUuid, String equipoUuid, String usuario, EmpresaEquipoDto empresaEquipoDto);
+    EmpresaEquipoDto eliminarEquipo(String empresaUuid, String equipoUuid, String usuario);
 }

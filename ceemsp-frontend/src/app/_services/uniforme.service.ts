@@ -16,11 +16,19 @@ export class UniformeService {
     return this.http.get(`${this.uri}/catalogos/uniformes`)
   }
 
-  obtenerUniformeByUuid(uuid: String) {
+  obtenerUniformeByUuid(uuid: string) {
     return this.http.get(`${this.uri}/catalogos/uniformes/${uuid}`)
   }
 
   guardarUniforme(uniforme: Uniforme) {
     return this.http.post(`${this.uri}/catalogos/uniformes`, uniforme)
+  }
+
+  modificarUniforme(uuid: string, uniforme: Uniforme) {
+    return this.http.put(`${this.uri}/catalogos/uniformes/${uuid}`, uniforme)
+  }
+
+  eliminarUniforme(uuid: string) {
+    return this.http.delete(`${this.uri}/catalogos/uniformes/${uuid}`)
   }
 }

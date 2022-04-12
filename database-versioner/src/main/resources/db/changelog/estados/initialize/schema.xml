@@ -5,7 +5,7 @@
 
     <changeSet id="2022-02-26-crear-tabla-estados" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="ESTADOS">
+        <createTable tableName="estados">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(100)"></column>
@@ -17,10 +17,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="ESTADOS" columnNames="ID" />
-        <addAutoIncrement tableName="ESTADOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="estados" columnNames="ID" />
+        <addAutoIncrement tableName="estados" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="ESTADOS" columnNames="UUID" />
+        <addUniqueConstraint tableName="estados" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

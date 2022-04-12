@@ -15,6 +15,10 @@ import {EstadosService} from "../../../_services/estados.service";
 import Estado from "../../../_models/Estado";
 import Municipio from "../../../_models/Municipio";
 import curp from 'curp';
+import Localidad from "../../../_models/Localidad";
+import Colonia from "../../../_models/Colonia";
+import ExisteEscritura from "../../../_models/ExisteEscritura";
+import {ValidacionService} from "../../../_services/validacion.service";
 
 @Component({
   selector: 'app-empresa-legal',
@@ -49,10 +53,14 @@ export class EmpresaLegalComponent implements OnInit {
   nuevoApoderadoForm: FormGroup;
   nuevoRepresentanteForm: FormGroup;
   nuevoConsejoAdministracionForm: FormGroup;
+  estadoSearchForm: FormGroup;
+  municipioSearchForm: FormGroup;
+  localidadSearchForm: FormGroup;
 
   modal: NgbModalRef;
   closeResult: string;
   escritura: EmpresaEscritura;
+  existeEscritura: ExisteEscritura;
 
   faPencil = faPencilAlt;
   faTrash = faTrash;
@@ -75,9 +83,11 @@ export class EmpresaLegalComponent implements OnInit {
 
   estados: Estado[] = [];
   municipios: Municipio[] = [];
+  localidades: Localidad[] = [];
 
   estado: Estado;
   municipio: Municipio;
+  localidad: Localidad;
 
   porcentaje: number = 0.00;
 
@@ -85,6 +95,10 @@ export class EmpresaLegalComponent implements OnInit {
   tempUuidApoderado: string;
   tempUuidRepresentante: string;
   tempUuidConsejo: string;
+
+  estadoQuery: string = '';
+  municipioQuery: string = '';
+  localidadQuery: string = '';
 
   @ViewChild('mostrarDetallesEscrituraModal') mostrarDetallesEscrituraModal: any;
   @ViewChild('modificarEscrituraModal') modificarEscrituraModal: any;
@@ -97,7 +111,8 @@ export class EmpresaLegalComponent implements OnInit {
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
-              private formBuilder: FormBuilder, private estadoService: EstadosService) { }
+              private formBuilder: FormBuilder, private estadoService: EstadosService,
+              private validacionService: ValidacionService) { }
 
   ngOnInit(): void {
     this.uuid = this.route.snapshot.paramMap.get("uuid");
@@ -109,6 +124,9 @@ export class EmpresaLegalComponent implements OnInit {
       tipoFedatario: ['', Validators.required],
       numero: ['', [Validators.required, Validators.min(1), Validators.max(9999)]],
       nombreFedatario: ['', [Validators.required, Validators.maxLength(100)]],
+      apellidoPaterno: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
+      curp: ['', [Validators.required, Validators.minLength(18), Validators.maxLength(18)]],
       descripcion: ['', Validators.required]
     })
 
@@ -167,6 +185,73 @@ export class EmpresaLegalComponent implements OnInit {
         ToastType.ERROR
       );
     });
+  }
+
+  seleccionarEstado(estadoUuid) {
+    // DELETING EVERYTHING!
+    this.estado = this.estados.filter(x => x.uuid === estadoUuid)[0];
+    this.estadoService.obtenerEstadosPorMunicipio(estadoUuid).subscribe((data: Municipio[]) => {
+      this.municipios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los municipios. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
+  }
+
+  seleccionarMunicipio(municipioUuid) {
+    this.municipio = this.municipios.filter(x => x.uuid === municipioUuid)[0];
+
+    this.estadoService.obtenerLocalidadesPorMunicipioYEstado(this.estado.uuid, municipioUuid).subscribe((data: Localidad[]) => {
+      this.localidades = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las localidades. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  seleccionarLocalidad(localidadUuid) {
+    this.localidad = this.localidades.filter(x => x.uuid === localidadUuid)[0];
+
+    this.nuevaEscrituraForm.patchValue({
+      ciudad: this.localidad.nombre
+    })
+  }
+
+  validarEscritura(event) {
+    let numeroEscritora = event.value;
+    let existeEscritura = new ExisteEscritura();
+    existeEscritura.numero = numeroEscritora
+
+    this.validacionService.validarEscritura(existeEscritura).subscribe((data: ExisteEscritura) => {
+      this.existeEscritura = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido validar la escritura. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  eliminarEstado() {
+    this.estado = undefined;
+    this.municipio = undefined;
+    this.localidad = undefined;
+  }
+
+  eliminarMunicipio() {
+    this.municipio = undefined;
+    this.localidad = undefined;
+  }
+
+  eliminarLocalidad() {
+    this.localidad = undefined;
   }
 
   mostrarFormularioNuevoSocio() {
@@ -761,6 +846,9 @@ export class EmpresaLegalComponent implements OnInit {
     );
 
     let formValue: EmpresaEscritura = form.value;
+    formValue.estadoCatalogo = this.estado;
+    formValue.municipioCatalogo = this.municipio;
+    formValue.localidadCatalogo = this.localidad;
 
     let formData = new FormData();
     formData.append('archivo', this.tempFile, this.tempFile.name);
@@ -842,10 +930,15 @@ export class EmpresaLegalComponent implements OnInit {
       tipoFedatario: this.escritura.tipoFedatario,
       numero: this.escritura.numero,
       nombreFedatario: this.escritura.nombreFedatario,
+      apellidoPaterno: this.escritura.apellidoPaterno,
+      apellidoMaterno: this.escritura.apellidoMaterno,
+      curp: this.escritura.curp,
       descripcion: this.escritura.descripcion
     });
 
-    this.modalService.dismissAll();
+    this.estado = this.escritura.estadoCatalogo;
+    this.municipio = this.escritura.municipioCatalogo;
+    this.localidad = this.escritura.localidadCatalogo;
 
     this.modalService.open(this.modificarEscrituraModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
@@ -873,6 +966,9 @@ export class EmpresaLegalComponent implements OnInit {
     );
 
     let escritura: EmpresaEscritura = form.value;
+    escritura.localidadCatalogo = this.localidad;
+    escritura.municipioCatalogo = this.municipio;
+    escritura.estadoCatalogo = this.estado;
 
     this.empresaService.modificarEscritura(this.uuid, this.escritura.uuid, escritura).subscribe((data: EmpresaEscritura) => {
       this.toastService.showGenericToast(

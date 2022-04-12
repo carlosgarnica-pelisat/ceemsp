@@ -23,4 +23,12 @@ export class EquipoService {
   guardarEquipo(equipo: Equipo) {
     return this.http.post(`${this.uri}/catalogos/equipos`, equipo)
   }
+
+  modificarEquipo(equipoUuid: string, equipo: Equipo) {
+    return this.http.put(`${this.uri}/catalogos/equipos/${equipoUuid}`, equipo);
+  }
+
+  eliminarEquipo(equipoUuid: string) {
+    return this.http.delete(`${this.uri}/catalogos/equipos/${equipoUuid}`)
+  }
 }

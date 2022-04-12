@@ -5,7 +5,7 @@
 
     <changeSet id="2021-09-15-crear-tabla-empresa-licencias-colectivas" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="EMPRESAS_LICENCIAS_COLECTIVAS">
+        <createTable tableName="empresas_licencias_colectivas">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="EMPRESA" type="int"></column>
@@ -23,14 +23,14 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="EMPRESAS_LICENCIAS_COLECTIVAS" columnNames="ID" />
-        <addAutoIncrement tableName="EMPRESAS_LICENCIAS_COLECTIVAS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="empresas_licencias_colectivas" columnNames="ID" />
+        <addAutoIncrement tableName="empresas_licencias_colectivas" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="EMPRESAS_LICENCIAS_COLECTIVAS" columnNames="UUID" />
+        <addUniqueConstraint tableName="empresas_licencias_colectivas" columnNames="UUID" />
 
         <!-- Setting the relationship -->
-        <addForeignKeyConstraint baseTableName="EMPRESAS_LICENCIAS_COLECTIVAS" baseColumnNames="EMPRESA" constraintName="FK_EMPRESAS_LICENCIAS_COLECTIVAS" referencedTableName="EMPRESAS"
+        <addForeignKeyConstraint baseTableName="empresas_licencias_colectivas" baseColumnNames="EMPRESA" constraintName="FK_empresas_licencias_colectivas" referencedTableName="empresas"
                                  referencedColumnNames="ID" />
     </changeSet>
 </databaseChangeLog>

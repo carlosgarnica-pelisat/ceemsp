@@ -17,4 +17,6 @@ public class ArmaDto {
     private String calibre;
     private EmpresaDomicilioDto bunker;
     private ArmaStatusEnum status;
+    private String serie;
+    private PersonaDto personal;
 }

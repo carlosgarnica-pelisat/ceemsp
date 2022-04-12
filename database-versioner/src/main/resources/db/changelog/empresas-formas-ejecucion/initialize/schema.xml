@@ -5,7 +5,7 @@
 
     <changeSet id="2022-01-07-crear-tabla-empresa-formas-ejecucion" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="EMPRESAS_FORMAS_EJECUCION">
+        <createTable tableName="empresas_formas_ejecucion">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="EMPRESA" type="int"></column>
@@ -18,10 +18,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="EMPRESAS_FORMAS_EJECUCION" columnNames="ID" />
-        <addAutoIncrement tableName="EMPRESAS_FORMAS_EJECUCION" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="empresas_formas_ejecucion" columnNames="ID" />
+        <addAutoIncrement tableName="empresas_formas_ejecucion" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="EMPRESAS_FORMAS_EJECUCION" columnNames="UUID" />
+        <addUniqueConstraint tableName="empresas_formas_ejecucion" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

@@ -9,4 +9,6 @@ public interface ComunicadoGeneralService {
     ComunicadoGeneralDto obtenerComunicadoPorUuid(String uuid);
     ComunicadoGeneralDto obtenerUltimoComunicado();
     ComunicadoGeneralDto guardarComunicado(String username, ComunicadoGeneralDto comunicadoGeneralDto);
+    ComunicadoGeneralDto modificarComunicado(String uuid, String username, ComunicadoGeneralDto comunicadoGeneralDto);
+    ComunicadoGeneralDto eliminarComunicado(String uuid, String username);
 }

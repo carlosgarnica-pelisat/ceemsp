@@ -110,4 +110,49 @@ public class EmpresaUniformeServiceImpl implements EmpresaUniformeService {
 
         return daoToDtoConverter.convertDaoToDtoEmpresaUniforme(empresaUniformeCreado);
     }
+
+    @Override
+    public EmpresaUniformeDto modificarUniforme(String empresaUuid, String uniformeUuid, String usuario, EmpresaUniformeDto empresaUniformeDto) {
+        if(StringUtils.isBlank(usuario) || StringUtils.isBlank(uniformeUuid) || StringUtils.isBlank(empresaUuid) || empresaUniformeDto == null) {
+            logger.warn("|Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el uniforme");
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(usuario);
+
+        EmpresaUniforme empresaUniforme = empresaUniformeRepository.findByUuidAndEliminadoFalse(uniformeUuid);
+        if(empresaUniforme == null) {
+            logger.warn("El uniforme no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaUniforme.setNombre(empresaUniformeDto.getNombre());
+        empresaUniforme.setDescripcion(empresaUniformeDto.getDescripcion());
+        daoHelper.fulfillAuditorFields(false, empresaUniforme, usuarioDto.getId());
+        empresaUniformeRepository.save(empresaUniforme);
+        return empresaUniformeDto;
+    }
+
+    @Override
+    public EmpresaUniformeDto eliminarUniforme(String empresaUuid, String uniformeUuid, String usuario) {
+        if(StringUtils.isBlank(usuario) || StringUtils.isBlank(uniformeUuid) || StringUtils.isBlank(empresaUuid)) {
+            logger.warn("|Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el uniforme");
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(usuario);
+
+        EmpresaUniforme empresaUniforme = empresaUniformeRepository.findByUuidAndEliminadoFalse(uniformeUuid);
+        if(empresaUniforme == null) {
+            logger.warn("El uniforme no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaUniforme.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, empresaUniforme, usuarioDto.getId());
+        empresaUniformeRepository.save(empresaUniforme);
+        return daoToDtoConverter.convertDaoToDtoEmpresaUniforme(empresaUniforme);
+    }
 }

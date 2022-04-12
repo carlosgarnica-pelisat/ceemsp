@@ -13,7 +13,11 @@
           <div class="col-sm-9">
             <label for="titulo">
               <b>Titulo *</b>
-              <span *ngIf="nuevoComunicadoForm.controls['titulo'].invalid && (nuevoComunicadoForm.controls['titulo'].dirty || nuevoComunicadoForm.controls['titulo'].touched)" class="text-danger"> - Requerido</span>
+              <span
+                *ngIf="nuevoComunicadoForm.controls['titulo'].invalid && (nuevoComunicadoForm.controls['titulo'].dirty || nuevoComunicadoForm.controls['titulo'].touched)">
+                <i *ngIf="nuevoComunicadoForm.controls['titulo'].errors.required" class="text-danger"> - Campo requerido</i>
+                <i *ngIf="nuevoComunicadoForm.controls['titulo'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
             </label>
             <input id="titulo" type="text" class="form-control" placeholder="Ej. Colonia 20 de Noviembre" formControlName="titulo" #titulo>
           </div>
@@ -22,7 +26,7 @@
               <b>Fecha de publicacion *</b>
               <span *ngIf="nuevoComunicadoForm.controls['fechaPublicacion'].invalid && (nuevoComunicadoForm.controls['fechaPublicacion'].dirty || nuevoComunicadoForm.controls['fechaPublicacion'].touched)" class="text-danger"> - Requerido</span>
             </label>
-            <input id="fechaPublicacion" type="date" class="form-control" formControlName="fechaPublicacion" #fechaPublicacion>
+            <input id="fechaPublicacion" type="date" class="form-control" formControlName="fechaPublicacion" [min]="fechaDeHoy" #fechaPublicacion>
           </div>
         </div>
       </form>

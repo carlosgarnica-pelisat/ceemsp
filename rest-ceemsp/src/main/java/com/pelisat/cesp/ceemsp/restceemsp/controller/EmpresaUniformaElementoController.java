@@ -41,4 +41,27 @@ public class EmpresaUniformaElementoController {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return empresaUniformeElementoService.guardarUniformeElemento(empresaUuid, uniformeUuid, username, uniformeDto);
     }
+
+    @PutMapping(value = EMPRESA_UNIFORME_ELEMENTOS_URI + "/{elementoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaUniformeElementoDto modificarUniformeElemento(
+            HttpServletRequest request,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "uniformeUuid") String uniformeUuid,
+            @PathVariable(value = "elementoUuid") String elementoUuid,
+            @RequestBody EmpresaUniformeElementoDto uniformeDto
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaUniformeElementoService.modificarUniformeElemento(empresaUuid, uniformeUuid, elementoUuid, username, uniformeDto);
+    }
+
+    @DeleteMapping(value = EMPRESA_UNIFORME_ELEMENTOS_URI + "/{elementoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaUniformeElementoDto eliminarUniformeElemento(
+            HttpServletRequest request,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "uniformeUuid") String uniformeUuid,
+            @PathVariable(value = "elementoUuid") String elementoUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaUniformeElementoService.eliminarUniformeElemento(empresaUuid, uniformeUuid, elementoUuid, username);
+    }
 }

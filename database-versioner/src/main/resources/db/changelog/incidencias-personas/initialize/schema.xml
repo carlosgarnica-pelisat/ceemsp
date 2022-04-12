@@ -5,7 +5,7 @@
 
     <changeSet id="2021-12-09-crear-tabla-incidencias-personas" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="INCIDENCIAS_PERSONAS">
+        <createTable tableName="incidencias_personas">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="INCIDENCIA" type="INT"></column>
@@ -18,10 +18,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="INCIDENCIAS_PERSONAS" columnNames="ID" />
-        <addAutoIncrement tableName="INCIDENCIAS_PERSONAS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="incidencias_personas" columnNames="ID" />
+        <addAutoIncrement tableName="incidencias_personas" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="INCIDENCIAS_PERSONAS" columnNames="UUID" />
+        <addUniqueConstraint tableName="incidencias_personas" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

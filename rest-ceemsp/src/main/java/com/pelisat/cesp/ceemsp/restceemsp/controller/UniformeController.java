@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
+import com.pelisat.cesp.ceemsp.database.dto.EquipoDto;
 import com.pelisat.cesp.ceemsp.database.dto.UniformeDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.UniformeService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
@@ -42,5 +43,24 @@ public class UniformeController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return uniformeService.guardarUniforme(uniformeDto, username);
+    }
+
+    @PutMapping(value = UNIFORME_URI + "/{uniformeUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public UniformeDto modificarUniforme(
+            HttpServletRequest request,
+            @RequestBody UniformeDto uniformeDto,
+            @PathVariable(value = "uniformeUuid") String uniformeUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return uniformeService.modificarUniforme(uniformeUuid, username, uniformeDto);
+    }
+
+    @DeleteMapping(value = UNIFORME_URI + "/{uniformeUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public UniformeDto eliminarUniforme(
+            @PathVariable(value = "uniformeUuid") String uniformeUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return uniformeService.eliminarUniforme(uniformeUuid, username);
     }
 }

@@ -78,8 +78,9 @@
                       <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
                       <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
+                  <i *ngIf="existeEscritura !== undefined && existeEscritura.existe" class="text-danger"> - La escritura ya existe</i>
                 </label>
-                <input id="numeroEscritura" type="tel" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" appNumberMask #numeroEscritura>
+                <input id="numeroEscritura" type="tel" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" appNumberMask #numeroEscritura (focusout)="validarEscritura($event.target)">
               </div>
               <div class="col-sm-4">
                 <label for="fechaEscritura">
@@ -89,22 +90,133 @@
                       <i *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                 </label>
-                <input id="fechaEscritura" [max]="fechaDeHoy" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaEscritura" #fechaEscritura>
+                <input [max]="fechaDeHoy" id="fechaEscritura" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaEscritura"  #fechaEscritura>
               </div>
               <div class="col-sm-4">
-                <label for="ciudad">
-                  <b>Ciudad *</b>
-                  <span
-                    *ngIf="nuevaEscrituraForm.controls['ciudad'].invalid && (nuevaEscrituraForm.controls['ciudad'].dirty || nuevaEscrituraForm.controls['ciudad'].touched)">
-                      <i *ngIf="nuevaEscrituraForm.controls['ciudad'].errors.required" class="text-danger"> - Campo requerido</i>
-                      <i *ngIf="nuevaEscrituraForm.controls['ciudad'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                    </span>
+                <label for="archivo">
+                  <b>Archivo (en pdf) *</b>
                 </label>
-                <input id="ciudad" type="text" class="form-control" placeholder="Ej. Guadalajara" formControlName="ciudad" #ciudad>
+                <input id="archivo" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
               </div>
             </div>
 
             <div class="row">
+              <div class="col-sm-4">
+                <label>
+                  <b>Estado *</b>
+                </label>
+                <div class="dropdown" id="customer">
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{estado === undefined ? 'Ninguno' : estado?.nombre}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                    <form [formGroup]="estadoSearchForm" class="px-4 py-3" autocomplete="off">
+                      <label for="estadoSearchQueryNotario"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="estadoSearchQueryNotario" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
+                             [ngModelOptions]="{standalone: true}">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let e of estados | buscarNombre: {nombre: estadoQuery}" (click)="seleccionarEstado(e.uuid)" style="cursor: pointer;">
+                      {{e.nombre}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarEstado()">Quitar</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <label>
+                  <b>Municipio *</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                    <label for="municipioSearchQueryNotario"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="municipioSearchQueryNotario" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let m of municipios | buscarNombre: {nombre: municipioQuery}" (click)="seleccionarMunicipio(m.uuid)" style="cursor: pointer;">
+                    {{m.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <label>
+                  <b>Localidad *</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="localidadSearchForm" autocomplete="off" class="px-4 py-3">
+                    <label for="localidadSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="localidadSearchQuery" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let l of localidades | buscarNombre: {nombre: localidadQuery}" (click)="seleccionarLocalidad(l.uuid)" style="cursor: pointer;">
+                    {{l.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="nombreFedatario">
+                  <b>Nombre del Fedatario *</b>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].invalid && (nuevaEscrituraForm.controls['nombreFedatario'].dirty || nuevaEscrituraForm.controls['nombreFedatario'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input id="nombreFedatario" type="text" class="form-control" placeholder="Ej. Juan Carlos" formControlName="nombreFedatario" #nombreFedatario>
+              </div>
+              <div class="col-sm-4">
+                <label for="apellidoPaternoFedatario">
+                  <b>Ap. Paterno del Fedatario *</b>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['apellidoPaterno'].invalid && (nuevaEscrituraForm.controls['apellidoPaterno'].dirty || nuevaEscrituraForm.controls['apellidoPaterno'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['apellidoPaterno'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['apellidoPaterno'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input id="apellidoPaternoFedatario" type="text" class="form-control" placeholder="Ej. Gonzalez" formControlName="apellidoPaterno" #nombreFedatario>
+              </div>
+              <div class="col-sm-4">
+                <label for="apellidoMaternoFedatario">
+                  <b>Ap. Materno del Fedatario *</b>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['apellidoMaterno'].invalid && (nuevaEscrituraForm.controls['apellidoMaterno'].dirty || nuevaEscrituraForm.controls['apellidoMaterno'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['apellidoMaterno'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['apellidoMaterno'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input id="apellidoMaternoFedatario" type="text" class="form-control" placeholder="Ej. Chavez" formControlName="apellidoMaterno" #nombreFedatario>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="curpFedatario">
+                  <b>CURP del Fedatario *</b>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['curp'].invalid && (nuevaEscrituraForm.controls['curp'].dirty || nuevaEscrituraForm.controls['curp'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['curp'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['curp'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input id="curpFedatario" type="text" class="form-control" placeholder="Ej. XAXX010101ABCDEF00" formControlName="curp" #nombreFedatario>
+              </div>
               <div class="col-sm-4">
                 <label for="tipoFedatario">
                   <b>Tipo de Fedatario *</b>
@@ -121,7 +233,7 @@
               </div>
               <div class="col-sm-4">
                 <label for="numero">
-                  <b>Numero *</b>
+                  <b>Número *</b>
                   <span
                     *ngIf="nuevaEscrituraForm.controls['numero'].invalid && (nuevaEscrituraForm.controls['numero'].dirty || nuevaEscrituraForm.controls['numero'].touched)">
                       <i *ngIf="nuevaEscrituraForm.controls['numero'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -129,28 +241,10 @@
                       <i *ngIf="nuevaEscrituraForm.controls['numero'].errors.min" class="text-danger"> - Valor invalido</i>
                     </span>
                 </label>
-                <input id="numero" type="number" class="form-control" placeholder="Ej. 73" formControlName="numero" min="1" #numero>
-              </div>
-              <div class="col-sm-4">
-                <label for="nombreFedatario">
-                  <b>Nombre del Fedatario *</b>
-                  <span
-                    *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].invalid && (nuevaEscrituraForm.controls['nombreFedatario'].dirty || nuevaEscrituraForm.controls['nombreFedatario'].touched)">
-                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.required" class="text-danger"> - Campo requerido</i>
-                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                    </span>
-                </label>
-                <input id="nombreFedatario" type="text" class="form-control" placeholder="Ej. Juan Carlos Garnica" formControlName="nombreFedatario" #nombreFedatario>
+                <input id="numero" type="number" class="form-control" placeholder="Ej. 73" formControlName="numero" #numero>
               </div>
             </div>
-            <div class="row">
-              <div class="col-sm-4">
-                <label for="archivo">
-                  <b>Archivo (en pdf) *</b>
-                </label>
-                <input id="archivo" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
-              </div>
-            </div>
+
             <div class="row">
               <div class="col-sm-12">
                 <label for="descripcion">
@@ -187,14 +281,15 @@
             <div class="row">
               <div class="col-sm-4">
                 <label for="numeroEscrituraEditar">
-                  <b>Numero de escritura *</b>
+                  <b>Número de escritura *</b>
                   <span
                     *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].invalid && (nuevaEscrituraForm.controls['numeroEscritura'].dirty || nuevaEscrituraForm.controls['numeroEscritura'].touched)">
                       <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
                       <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
+                  <i *ngIf="existeEscritura !== undefined && existeEscritura.existe" class="text-danger"> - La escritura ya existe</i>
                 </label>
-                <input id="numeroEscrituraEditar" type="tel" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" #numeroEscritura>
+                <input id="numeroEscrituraEditar" type="tel" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" appNumberMask #numeroEscritura (focusout)="validarEscritura($event.target)">
               </div>
               <div class="col-sm-4">
                 <label for="fechaEscrituraEditar">
@@ -204,22 +299,133 @@
                       <i *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                 </label>
-                <input id="fechaEscrituraEditar" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaEscritura" [max]="fechaDeHoy" #fechaEscritura>
+                <input [max]="fechaDeHoy" id="fechaEscrituraEditar" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaEscritura"  #fechaEscritura>
               </div>
               <div class="col-sm-4">
-                <label for="ciudad">
-                  <b>Ciudad *</b>
-                  <span
-                    *ngIf="nuevaEscrituraForm.controls['ciudad'].invalid && (nuevaEscrituraForm.controls['ciudad'].dirty || nuevaEscrituraForm.controls['ciudad'].touched)">
-                      <i *ngIf="nuevaEscrituraForm.controls['ciudad'].errors.required" class="text-danger"> - Campo requerido</i>
-                      <i *ngIf="nuevaEscrituraForm.controls['ciudad'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                    </span>
+                <label for="archivoEditar">
+                  <b>Archivo (en pdf) *</b>
                 </label>
-                <input id="ciudad" type="text" class="form-control" placeholder="Ej. Guadalajara" formControlName="ciudad" #ciudad>
+                <input id="archivoEditar" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
               </div>
             </div>
 
             <div class="row">
+              <div class="col-sm-4">
+                <label>
+                  <b>Estado *</b>
+                </label>
+                <div class="dropdown" id="estadoEditar">
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{estado === undefined ? 'Ninguno' : estado?.nombre}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                    <form [formGroup]="estadoSearchForm" class="px-4 py-3" autocomplete="off">
+                      <label for="estadoSearchQueryNotarioEditar"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="estadoSearchQueryNotarioEditar" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
+                             [ngModelOptions]="{standalone: true}">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let e of estados | buscarNombre: {nombre: estadoQuery}" (click)="seleccionarEstado(e.uuid)" style="cursor: pointer;">
+                      {{e.nombre}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarEstado()">Quitar</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <label>
+                  <b>Municipio *</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                    <label for="municipioSearchQueryNotarioEditar"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="municipioSearchQueryNotarioEditar" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let m of municipios | buscarNombre: {nombre: municipioQuery}" (click)="seleccionarMunicipio(m.uuid)" style="cursor: pointer;">
+                    {{m.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <label>
+                  <b>Localidad *</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="localidadSearchForm" autocomplete="off" class="px-4 py-3">
+                    <label for="localidadSearchQueryEditar"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="localidadSearchQueryEditar" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let l of localidades | buscarNombre: {nombre: localidadQuery}" (click)="seleccionarLocalidad(l.uuid)" style="cursor: pointer;">
+                    {{l.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="nombreFedatarioEditar">
+                  <b>Nombre del Fedatario *</b>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].invalid && (nuevaEscrituraForm.controls['nombreFedatario'].dirty || nuevaEscrituraForm.controls['nombreFedatario'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input id="nombreFedatarioEditar" type="text" class="form-control" placeholder="Ej. Juan Carlos" formControlName="nombreFedatario" #nombreFedatario>
+              </div>
+              <div class="col-sm-4">
+                <label for="apellidoPaternoFedatarioEditar">
+                  <b>Ap. Paterno del Fedatario *</b>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['apellidoPaterno'].invalid && (nuevaEscrituraForm.controls['apellidoPaterno'].dirty || nuevaEscrituraForm.controls['apellidoPaterno'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['apellidoPaterno'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['apellidoPaterno'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input id="apellidoPaternoFedatarioEditar" type="text" class="form-control" placeholder="Ej. Gonzalez" formControlName="apellidoPaterno" #nombreFedatario>
+              </div>
+              <div class="col-sm-4">
+                <label for="apellidoMaternoFedatario">
+                  <b>Ap. Materno del Fedatario *</b>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['apellidoMaterno'].invalid && (nuevaEscrituraForm.controls['apellidoMaterno'].dirty || nuevaEscrituraForm.controls['apellidoMaterno'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['apellidoMaterno'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['apellidoMaterno'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input id="apellidoMaternoFedatarioEditar" type="text" class="form-control" placeholder="Ej. Chavez" formControlName="apellidoMaterno" #nombreFedatario>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="curpFedatarioEditar">
+                  <b>CURP del Fedatario *</b>
+                  <span
+                    *ngIf="nuevaEscrituraForm.controls['curp'].invalid && (nuevaEscrituraForm.controls['curp'].dirty || nuevaEscrituraForm.controls['curp'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['curp'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['curp'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input id="curpFedatarioEditar" type="text" class="form-control" placeholder="Ej. XAXX010101ABCDEF00" formControlName="curp" #nombreFedatario>
+              </div>
               <div class="col-sm-4">
                 <label for="tipoFedatarioEditar">
                   <b>Tipo de Fedatario *</b>
@@ -236,7 +442,7 @@
               </div>
               <div class="col-sm-4">
                 <label for="numeroEditar">
-                  <b>Numero *</b>
+                  <b>Número *</b>
                   <span
                     *ngIf="nuevaEscrituraForm.controls['numero'].invalid && (nuevaEscrituraForm.controls['numero'].dirty || nuevaEscrituraForm.controls['numero'].touched)">
                       <i *ngIf="nuevaEscrituraForm.controls['numero'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -244,18 +450,7 @@
                       <i *ngIf="nuevaEscrituraForm.controls['numero'].errors.min" class="text-danger"> - Valor invalido</i>
                     </span>
                 </label>
-                <input id="numeroEditar" type="number" class="form-control" placeholder="Ej. 73" formControlName="numero" min="1" #numero>
-              </div>
-              <div class="col-sm-4">
-                <label for="nombreFedatarioEditar">
-                  <b>Nombre del Fedatario *</b>
-                  <span
-                    *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].invalid && (nuevaEscrituraForm.controls['nombreFedatario'].dirty || nuevaEscrituraForm.controls['nombreFedatario'].touched)">
-                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.required" class="text-danger"> - Campo requerido</i>
-                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                    </span>
-                </label>
-                <input id="nombreFedatarioEditar" type="text" class="form-control" placeholder="Ej. Juan Carlos Garnica" formControlName="nombreFedatario" #nombreFedatario>
+                <input id="numeroEditar" type="number" class="form-control" placeholder="Ej. 73" formControlName="numero" #numero>
               </div>
             </div>
 
@@ -305,7 +500,7 @@
               <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'REPRESENTANTES' }" (click)="cambiarPestana('REPRESENTANTES')">Representantes</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'CONSEJOS' }" (click)="cambiarPestana('CONSEJOS')">Consejos</a>
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'CONSEJOS' }" (click)="cambiarPestana('CONSEJOS')">Consejo</a>
             </li>
           </ul>
         </div>
@@ -319,8 +514,20 @@
               <td>{{escritura?.numeroEscritura}}</td>
             </tr>
             <tr>
-              <td><b>Nombre del fedatario</b></td>
+              <td><b>Nombre del Fedatario</b></td>
               <td>{{escritura?.nombreFedatario}}</td>
+            </tr>
+            <tr>
+              <td><b>Ap. paterno del Fedatario</b></td>
+              <td>{{escritura?.apellidoPaterno}}</td>
+            </tr>
+            <tr>
+              <td><b>Ap. materno del Fedatario</b></td>
+              <td>{{escritura?.apellidoMaterno}}</td>
+            </tr>
+            <tr>
+              <td><b>CURP del Fedatario</b></td>
+              <td>{{escritura?.curp}}</td>
             </tr>
             <tr>
               <td><b>Tipo</b></td>

@@ -5,7 +5,7 @@
 
     <changeSet id="2021-10-29-crear-tabla-armas" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="ARMAS">
+        <createTable tableName="armas">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="EMPRESA" type="INT"></column>
@@ -24,11 +24,11 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="ARMAS" columnNames="ID" />
-        <addAutoIncrement tableName="ARMAS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="armas" columnNames="ID" />
+        <addAutoIncrement tableName="armas" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="ARMAS" columnNames="UUID" />
+        <addUniqueConstraint tableName="armas" columnNames="UUID" />
 
 
     </changeSet>

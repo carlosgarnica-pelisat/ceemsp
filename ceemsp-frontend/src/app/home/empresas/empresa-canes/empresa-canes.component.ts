@@ -124,10 +124,6 @@ export class EmpresaCanesComponent implements OnInit {
       razonSocial: ['', Validators.maxLength(100)],
       fechaInicio: [''],
       fechaFin: [''],
-      elementoAsignado: [''],
-      clienteAsignado: [''],
-      domicilioClienteAsignado: [''],
-      motivos: [''],
       peso: ['', [Validators.required, Validators.max(99), Validators.min(0)]]
     });
 
@@ -249,6 +245,39 @@ export class EmpresaCanesComponent implements OnInit {
   }
 
   guardarCambiosCan(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos sin rellenar",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espera un momento",
+      "Estamos guardando los cambios en el can",
+      ToastType.INFO
+    );
+
+    let can: Can = form.value;
+    can.raza = this.razas.filter(x => x.uuid === form.value.raza)[0];
+    can.domicilioAsignado = this.domicilios.filter(x => x.uuid === form.value.domicilioAsignado)[0];
+
+    this.empresaService.modificarCan(this.uuid, this.can.uuid, can).subscribe((data: Can) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha modificado el can con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido modificar el can. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
 
   }
 
@@ -362,6 +391,18 @@ export class EmpresaCanesComponent implements OnInit {
 
   mostrarModalEliminarAdiestramiento(uuid) {
     this.tempUuidEntrenamiento = uuid;
+
+    this.modal = this.modalService.open(this.eliminarCanEntrenamientoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModalEliminarFotografia(uuid) {
+    this.tempUuidFotografia = uuid;
 
     this.modal = this.modalService.open(this.eliminarCanEntrenamientoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
@@ -708,7 +749,32 @@ export class EmpresaCanesComponent implements OnInit {
   }
 
   mostrarModalModificarCan() {
+    this.crearEmpresaCanForm.setValue({
+      nombre: this.can.nombre,
+      genero: this.can.genero,
+      raza: this.can.raza.uuid,
+      razaOtro: '',
+      domicilioAsignado: this.can.domicilioAsignado.uuid,
+      fechaIngreso: this.can.fechaIngreso,
+      edad: this.can.edad,
+      descripcion: this.can.descripcion,
+      chip: this.can.chip,
+      tatuaje: this.can.tatuaje,
+      origen: this.can.origen,
+      status: this.can.status,
+      razonSocial: this.can.razonSocial,
+      fechaInicio: this.can.fechaInicio,
+      fechaFin: this.can.fechaFin,
+      peso: this.can.peso
+    });
 
+    this.modalService.open(this.modificarCanModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
   }
 
   mostrarModalEditarVacunacion(index) {
@@ -878,11 +944,43 @@ export class EmpresaCanesComponent implements OnInit {
     })
   }
 
+  confirmarEliminarFotografiaCan() {
+    if(this.tempUuidFotografia === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID de la fotografia a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando la fotografia",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarCanFotografia(this.uuid, this.can.uuid, this.tempUuidFotografia).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la fotografia con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El entrenamiento no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
   descargarFotografia(uuid) {
-    this.empresaService.descargarPersonaFotografia(this.uuid, this.can.uuid, uuid).subscribe((data) => {
+    this.empresaService.descargarCanFotografia(this.uuid, this.can.uuid, uuid).subscribe((data) => {
       // @ts-ignore
       this.convertirImagen(data);
-      this.modalService.open(this.mostrarFotoCanModal);
+      this.modalService.open(this.mostrarFotoCanModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -890,6 +988,17 @@ export class EmpresaCanesComponent implements OnInit {
         ToastType.ERROR
       )
     })
+  }
+
+  convertirImagen(imagen: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.imagenActual = reader.result;
+    });
+
+    if(imagen) {
+      reader.readAsDataURL(imagen);
+    }
   }
 
   exportGridData(format) {
@@ -935,7 +1044,7 @@ export class EmpresaCanesComponent implements OnInit {
     formData.append('fotografia', this.tempFile, this.tempFile.name);
     formData.append('metadataArchivo', JSON.stringify(formValue));
 
-    this.empresaService.guardarPersonaFotografia(this.uuid, this.can.uuid, formData).subscribe((data) => {
+    this.empresaService.guardarCanFotografia(this.uuid, this.can.uuid, formData).subscribe((data) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha guardado la fotografia con exito",

@@ -18,6 +18,8 @@ export class HomeComponent implements OnInit {
   constructor(private authenticationService: AuthenticationService, private router: Router) { }
 
   ngOnInit(): void {
+    const date = new Date();
+    console.log(date.toLocaleString());
   }
 
   logout() {

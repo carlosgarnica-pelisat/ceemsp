@@ -5,6 +5,7 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.PersonalNacionalidad;
 import com.pelisat.cesp.ceemsp.database.model.PersonalPuesto;
+import com.pelisat.cesp.ceemsp.database.model.Uniforme;
 import com.pelisat.cesp.ceemsp.database.repository.PersonalNacionalidadRepository;
 import com.pelisat.cesp.ceemsp.database.repository.PersonalPuestoRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -103,5 +105,60 @@ public class PersonalNacionalidadServiceImpl implements PersonalNacionalidadServ
         PersonalNacionalidad personalNacionalidadCreada = personalNacionalidadRepository.save(personalNacionalidad);
 
         return daoToDtoConverter.convertDaoToDtoPersonalNacionalidad(personalNacionalidadCreada);
+    }
+
+    @Override
+    public PersonalNacionalidadDto modificarNacionalidad(String uuid, String username, PersonalNacionalidadDto personalNacionalidadDto) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || personalNacionalidadDto == null) {
+            logger.warn("Alguno de los campos vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando la nacionalidad con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        PersonalNacionalidad nacionalidad = personalNacionalidadRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(nacionalidad == null) {
+            logger.warn("La nacionalidad no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        nacionalidad.setNombre(personalNacionalidadDto.getNombre());
+        nacionalidad.setDescripcion(personalNacionalidadDto.getDescripcion());
+        nacionalidad.setFechaActualizacion(LocalDateTime.now());
+        nacionalidad.setActualizadoPor(usuario.getId());
+
+        personalNacionalidadRepository.save(nacionalidad);
+
+        return daoToDtoConverter.convertDaoToDtoPersonalNacionalidad(nacionalidad);
+    }
+
+    @Override
+    public PersonalNacionalidadDto eliminarNacionalidad(String uuid, String username) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la nacionalidad con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        PersonalNacionalidad nacionalidad = personalNacionalidadRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(nacionalidad == null) {
+            logger.warn("La nacionalidad no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        nacionalidad.setEliminado(true);
+        nacionalidad.setFechaActualizacion(LocalDateTime.now());
+        nacionalidad.setActualizadoPor(usuario.getId());
+
+        personalNacionalidadRepository.save(nacionalidad);
+
+        return daoToDtoConverter.convertDaoToDtoPersonalNacionalidad(nacionalidad);
     }
 }

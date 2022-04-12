@@ -1,13 +1,16 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
+import com.google.gson.Gson;
 import com.pelisat.cesp.ceemsp.database.dto.ArmaClaseDto;
 import com.pelisat.cesp.ceemsp.database.dto.ArmaDto;
+import com.pelisat.cesp.ceemsp.database.dto.PersonaDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.ArmaClaseService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.ArmaService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -23,6 +26,13 @@ public class ArmaController {
     public ArmaController(ArmaService armaService, JwtUtils jwtUtils) {
         this.armaService = armaService;
         this.jwtUtils = jwtUtils;
+    }
+
+    @GetMapping(value = "/empresas/{empresaUuid}/armas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ArmaDto> obtenerArmasPorEmpresa(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) {
+        return armaService.obtenerArmasPorEmpresaUuid(empresaUuid);
     }
 
     @GetMapping(value = EMPRESA_ARMAS_URI, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -65,5 +75,18 @@ public class ArmaController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return armaService.eliminarArma(empresaUuid, licenciaUuid, armaUuid, username);
+    }
+
+    @PutMapping(value = EMPRESA_ARMAS_URI + "/{armaUuid}/custodia", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ArmaDto cambiarStatusArma(
+            HttpServletRequest request,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "licenciaUuid") String licenciaUuid,
+            @PathVariable(value = "armaUuid") String armaUuid,
+            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam("relatoHechos") String relatoHechos
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return armaService.cambiarStatusCustodia(empresaUuid, licenciaUuid, armaUuid, username, relatoHechos, archivo);
     }
 }

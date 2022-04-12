@@ -5,7 +5,7 @@
 
     <changeSet id="2022-03-03-agregar-empresas-domicilio-catalogos" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <addColumn tableName="EMPRESAS_DOMICILIOS">
+        <addColumn tableName="empresas_domicilios">
             <column name="ESTADO_CATALOGO" type="INT"></column>
             <column name="CALLE_CATALOGO" type="INT"></column>
             <column name="COLONIA_CATALOGO" type="INT"></column>

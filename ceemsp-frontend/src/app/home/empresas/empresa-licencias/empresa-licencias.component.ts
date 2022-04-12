@@ -8,7 +8,7 @@ import {ToastType} from "../../../_enums/ToastType";
 import EmpresaLicenciaColectiva from "../../../_models/EmpresaLicenciaColectiva";
 import EmpresaModalidad from "../../../_models/EmpresaModalidad";
 import Arma from "../../../_models/Arma";
-import {faCheck, faEdit, faSync, faTrash, faPencilAlt} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faEdit, faHandPaper, faTrash, faPencilAlt} from "@fortawesome/free-solid-svg-icons";
 import Persona from "../../../_models/Persona";
 import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
 import ArmaMarca from "../../../_models/ArmaMarca";
@@ -25,7 +25,7 @@ export class EmpresaLicenciasComponent implements OnInit {
   private gridApi;
   private gridColumnApi;
 
-  faSync = faSync;
+  faHandPaper = faHandPaper;
   faEdit = faEdit;
   faTrash = faTrash;
   faCheck = faCheck;
@@ -74,6 +74,10 @@ export class EmpresaLicenciasComponent implements OnInit {
   arma: Arma;
   editandoArma: boolean;
 
+  model = {
+    editorData: '<p>Escribe con detalle el relato de los hechos. Toma en cuenta que al finalizar este registro se creara una incidencia de manera automatica</p>'
+  }
+
   @ViewChild('modificarLicenciaModal') modificarLicenciaModal;
 
   @ViewChild('eliminarEmpresaLicenciaModal') eliminarEmpresaLicenciaModal;
@@ -109,9 +113,11 @@ export class EmpresaLicenciasComponent implements OnInit {
       tipo: ['', Validators.required],
       clase: ['', Validators.required],
       marca: ['', Validators.required],
-      calibre: ['', Validators.required],
+      calibre: ['', [Validators.required, Validators.maxLength(10)]],
       bunker: ['', Validators.required],
-      status: ['']
+      status: ['', Validators.required],
+      personal: [''],
+      serie: ['', [Validators.required, Validators.maxLength(30)]]
     })
 
     this.empresaService.obtenerLicenciasColectivas(this.uuid).subscribe((data: EmpresaLicenciaColectiva[]) => {
@@ -287,7 +293,7 @@ export class EmpresaLicenciasComponent implements OnInit {
       return;
     }
     let existeModalidad = this.rowData.filter(x => x.modalidad.uuid === licencia.modalidad.uuid)[0];
-    if(existeModalidad !== undefined) {
+    if(existeModalidad !== undefined && existeModalidad?.uuid !== this.licencia.uuid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "La modalidad ya se encuentra registrada en esta licencia colectiva",
@@ -391,6 +397,7 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   mostrarCambioStatusForm() {
     this.mostrarModificarStatusArma = !this.mostrarModificarStatusArma;
+    this.status = "ACTIVA";
   }
 
   guardarLicencia(form) {
@@ -531,15 +538,20 @@ export class EmpresaLicenciasComponent implements OnInit {
       clase: this.arma.clase.uuid,
       marca: this.arma.marca.uuid,
       calibre: this.arma.calibre,
-      bunker: this.arma.bunker.uuid
+      bunker: this.arma.bunker.uuid,
+      serie: this.arma.serie,
+      persona: this.arma.personal?.uuid,
+      status: this.arma.status
     });
+
+    this.status = this.arma.status;
   }
 
   mostrarModificarLicenciaModal() {
     this.crearEmpresaLicenciaForm.patchValue({
       numeroOficio: this.licencia.numeroOficio,
       modalidad: this.licencia.modalidad.uuid,
-      submodalidad: this.licencia.submodalidad.uuid,
+      submodalidad: this.licencia?.submodalidad?.uuid,
       fechaInicio: this.licencia.fechaInicio,
       fechaFin: this.licencia.fechaFin
     });
@@ -612,9 +624,7 @@ export class EmpresaLicenciasComponent implements OnInit {
     formData.bunker = this.domicilios.filter(x => x.uuid === form.value.bunker)[0];
     formData.clase = this.clases.filter(x => x.uuid === form.value.clase)[0];
     formData.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
-    formData.status = "DEPOSITO";
-
-    console.log(formData);
+    formData.personal = this.personal.filter(x => x.uuid === form.value.personal)[0];
 
     if(this.editandoArma) {
       this.empresaService.modificarArma(this.uuid, this.licencia.uuid, this.arma.uuid, formData).subscribe((data) => {

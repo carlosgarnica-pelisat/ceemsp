@@ -132,4 +132,25 @@ public class CanFotografiaServiceImpl implements CanFotografiaService {
             throw new InvalidDataException();
         }
     }
+
+    @Override
+    public void eliminarCanFotografia(String uuid, String canUuid, String fotografiaUuid, String username) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(fotografiaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la fotografia del can con uuid [{}]", fotografiaUuid);
+        CanFotografia canFotografia = canFotografiaRepository.getByUuidAndEliminadoFalse(fotografiaUuid);
+
+        if(canFotografia == null) {
+            logger.warn("La fotografia esta eliminada o no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        archivosService.eliminarArchivo(canFotografia.getRuta());
+        canFotografia.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, canFotografia, usuarioDto.getId());
+        canFotografiaRepository.save(canFotografia);
+    }
 }

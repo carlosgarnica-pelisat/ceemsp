@@ -1,10 +1,12 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ArmasService} from "../../../../_services/armas.service";
 import {ToastService} from "../../../../_services/toast.service";
 import {ToastType} from "../../../../_enums/ToastType";
 import ArmaClase from "../../../../_models/ArmaClase";
+import PersonalNacionalidad from "../../../../_models/PersonalNacionalidad";
+import Uniforme from "../../../../_models/Uniforme";
 
 @Component({
   selector: 'app-armas-clases',
@@ -19,13 +21,11 @@ export class ArmasClasesComponent implements OnInit {
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
-      }}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
   ];
   rowData = [];
+
+  armaClase: ArmaClase;
 
   uuid: string;
   modal: NgbModalRef;
@@ -36,6 +36,10 @@ export class ArmasClasesComponent implements OnInit {
   };
 
   crearArmaClaseForm: FormGroup;
+
+  @ViewChild("mostrarArmaClaseDetallesModal") mostrarArmaClaseDetallesModal;
+  @ViewChild("editarArmaClaseModal") editarArmaClaseModal;
+  @ViewChild("eliminarArmaClaseModal") eliminarArmaClaseModal;
 
   constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
               private armaService: ArmasService, private toastService: ToastService) { }
@@ -51,8 +55,8 @@ export class ArmasClasesComponent implements OnInit {
       )
     });
     this.crearArmaClaseForm = this.formBuilder.group({
-      nombre: ['', Validators.required],
-      descripcion: ['']
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      descripcion: ['', [Validators.maxLength(100)]]
     })
   }
 
@@ -63,15 +67,15 @@ export class ArmasClasesComponent implements OnInit {
   }
 
   checkForDetails(data) {
-    this.uuid = data.uuid;
-  }
+    this.modal = this.modalService.open(this.mostrarArmaClaseDetallesModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
-  modify(rowData) {
+    this.armaClase = this.rowData.filter(x => x.uuid === data.uuid)[0]
 
-  }
-
-  delete(rowData) {
-
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    });
   }
 
   mostrarModalCrear(modal) {
@@ -113,6 +117,77 @@ export class ArmasClasesComponent implements OnInit {
         `El entrenamiento no se ha podido guardar. Motivo: ${error}`,
         ToastType.ERROR
       )
+    })
+  }
+
+  guardarCambios(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos requeridos que no se han validado",
+        ToastType.WARNING
+      )
+      return;
+    }
+
+    let nacionalidad: PersonalNacionalidad = form.value;
+
+    this.armaService.modificarArmaClase(this.armaClase.uuid, nacionalidad).subscribe((data: Uniforme) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha modificado con exito la clase del arma",
+        ToastType.SUCCESS
+      )
+
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la clase del arma. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  confirmarEliminar() {
+    this.armaService.borrarArmaClase(this.armaClase.uuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la clase del arma con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar la clase del arma. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  mostrarModificarArmaClaseModal() {
+    this.crearArmaClaseForm.patchValue({
+      nombre: this.armaClase.nombre,
+      descripcion: this.armaClase.descripcion
+    });
+
+    this.modalService.open(this.editarArmaClaseModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  mostrarEliminarArmaClaseModal() {
+    this.modal = this.modalService.open(this.eliminarArmaClaseModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     })
   }
 

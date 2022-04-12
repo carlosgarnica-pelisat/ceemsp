@@ -5,7 +5,7 @@
 
     <changeSet id="2021-09-18-crear-tabla-canes-tipos-adiestramiento" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="CANES_TIPOS_ADIESTRAMIENTO">
+        <createTable tableName="canes_tipos_adiestramiento">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(100)"></column>
@@ -18,10 +18,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="CANES_TIPOS_ADIESTRAMIENTO" columnNames="ID" />
-        <addAutoIncrement tableName="CANES_TIPOS_ADIESTRAMIENTO" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="canes_tipos_adiestramiento" columnNames="ID" />
+        <addAutoIncrement tableName="canes_tipos_adiestramiento" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="CANES_TIPOS_ADIESTRAMIENTO" columnNames="UUID" />
+        <addUniqueConstraint tableName="canes_tipos_adiestramiento" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

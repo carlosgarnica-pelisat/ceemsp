@@ -5,7 +5,7 @@
 
     <changeSet id="2021-12-09-crear-tabla-incidencias-armas" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="INCIDENCIAS_ARMAS">
+        <createTable tableName="incidencias_armas">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="INCIDENCIA" type="INT"></column>
@@ -18,10 +18,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="INCIDENCIAS_ARMAS" columnNames="ID" />
-        <addAutoIncrement tableName="INCIDENCIAS_ARMAS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="incidencias_armas" columnNames="ID" />
+        <addAutoIncrement tableName="incidencias_armas" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="INCIDENCIAS_ARMAS" columnNames="UUID" />
+        <addUniqueConstraint tableName="incidencias_armas" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

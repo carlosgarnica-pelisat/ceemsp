@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,12 +69,13 @@ public class EmpresaUniformeElementoServiceImpl implements EmpresaUniformeElemen
         return empresaUniformeElementos.stream()
                 .map(e -> {
                     EmpresaUniformeElementoDto emued = daoToDtoConverter.convertDaoToDtoEmpresaUniformeElemento(e);
-                    emued.setElemento(uniformeService.obtenerUniformePorId(e.getId()));
+                    emued.setElemento(uniformeService.obtenerUniformePorId(e.getElemento()));
                     return emued;
                 })
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public EmpresaUniformeElementoDto guardarUniformeElemento(String empresaUuid, String uniformeUuid, String username, EmpresaUniformeElementoDto empresaUniformeElementoDto) {
         if(empresaUniformeElementoDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(uniformeUuid)) {
@@ -95,6 +97,56 @@ public class EmpresaUniformeElementoServiceImpl implements EmpresaUniformeElemen
         empresaUniformeElemento.setUniforme(uniforme.getId());
         empresaUniformeElemento.setElemento(empresaUniformeElementoDto.getElemento().getId());
         daoHelper.fulfillAuditorFields(true, empresaUniformeElemento, usuario.getId());
+        EmpresaUniformeElemento empresaUniformeelementoCreado = empresaUniformeElementoRepository.save(empresaUniformeElemento);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaUniformeElemento(empresaUniformeelementoCreado);
+    }
+
+    @Transactional
+    @Override
+    public EmpresaUniformeElementoDto modificarUniformeElemento(String empresaUuid, String uniformeUuid, String elementoUuid, String username, EmpresaUniformeElementoDto empresaUniformeElementoDto) {
+        if(empresaUniformeElementoDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(uniformeUuid) || StringUtils.isBlank(elementoUuid)) {
+            logger.warn("Alguno de los parametros vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando un elemento en el uniforme: [{}]", uniformeUuid);
+
+        EmpresaUniformeElemento empresaUniformeElemento = empresaUniformeElementoRepository.findByUuidAndEliminadoFalse(elementoUuid);
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        if(empresaUniformeElemento == null) {
+            logger.warn("El elemento del uniforme no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaUniformeElemento.setElemento(empresaUniformeElementoDto.getElemento().getId());
+        empresaUniformeElemento.setCantidad(empresaUniformeElementoDto.getCantidad());
+        daoHelper.fulfillAuditorFields(false, empresaUniformeElemento, usuario.getId());
+        EmpresaUniformeElemento empresaUniformeelementoCreado = empresaUniformeElementoRepository.save(empresaUniformeElemento);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaUniformeElemento(empresaUniformeelementoCreado);
+    }
+
+    @Override
+    public EmpresaUniformeElementoDto eliminarUniformeElemento(String empresaUuid, String uniformeUuid, String elementoUuid, String username) {
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(uniformeUuid) || StringUtils.isBlank(elementoUuid)) {
+            logger.warn("Alguno de los parametros vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el elemento en el uniforme: [{}]", uniformeUuid);
+
+        EmpresaUniformeElemento empresaUniformeElemento = empresaUniformeElementoRepository.findByUuidAndEliminadoFalse(elementoUuid);
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        if(empresaUniformeElemento == null) {
+            logger.warn("El elemento del uniforme no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaUniformeElemento.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, empresaUniformeElemento, usuario.getId());
         EmpresaUniformeElemento empresaUniformeelementoCreado = empresaUniformeElementoRepository.save(empresaUniformeElemento);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaUniformeElemento(empresaUniformeelementoCreado);

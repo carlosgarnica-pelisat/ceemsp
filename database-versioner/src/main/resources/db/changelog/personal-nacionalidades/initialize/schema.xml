@@ -5,7 +5,7 @@
 
     <changeSet id="2021-11-15-crear-tabla-nacionalidades" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="PERSONAL_NACIONALIDADES">
+        <createTable tableName="personal_nacionalidades">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(100)"></column>
@@ -18,10 +18,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="PERSONAL_NACIONALIDADES" columnNames="ID" />
-        <addAutoIncrement tableName="PERSONAL_NACIONALIDADES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="personal_nacionalidades" columnNames="ID" />
+        <addAutoIncrement tableName="personal_nacionalidades" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="PERSONAL_NACIONALIDADES" columnNames="UUID" />
+        <addUniqueConstraint tableName="personal_nacionalidades" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

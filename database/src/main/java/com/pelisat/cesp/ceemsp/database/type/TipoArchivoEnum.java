@@ -21,7 +21,9 @@ public enum TipoArchivoEnum {
     CONSTANCIA_SALUD_CAN("CONSTANCIA_SALUD_CAN", "Constancia de salud canina", "Certifica y avala la salud de un can registrado en una empresa de seguridad privada",
             "canes/constancias/", "can-constancia"),
     CARTILLA_VACUNACION_CAN("CARTILLA_VACUNACION_CAN", "Cartilla de vacunacion canina", "Muestra el historial de vacunas realizadas en un can",
-            "canes/cartillas/", "can-cartilla");
+            "canes/cartillas/", "can-cartilla"),
+    VISITA_ARCHIVO("VISITA_ARCHIVO", "Visita archivo", "Evidencias de una visita hecha registradas en archivos de cualquier tipo",
+            "visitas/", "visita");
 
     private String codigo;
     private String nombre;

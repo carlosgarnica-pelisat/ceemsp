@@ -1,12 +1,11 @@
 export default class Usuario {
   jwtToken?: string;
-  email?: string;
-  password?: string;
-  givenNames?: string;
-  surnames?: string;
-  uuid?: string;
-  id?: string;
-  role?: string;
-  username?: string;
-  region?: string;
+  id: number;
+  uuid: string;
+  username: string;
+  email: string;
+  password: string;
+  nombres: string;
+  apellidos: string;
+  rol: string;
 }

@@ -99,9 +99,12 @@ export class EmpresaClientesComponent implements OnInit {
 
   editandoDomicilio: boolean = false;
 
+  temporaryIndex: number;
+
   @ViewChild('eliminarClienteModal') eliminarClienteModal;
   @ViewChild('eliminarDomicilioClienteModal') eliminarDomicilioClienteModal;
   @ViewChild('modificarClienteModal') modificarClienteModal;
+  @ViewChild('quitarDomicilioClienteModal') quitarDomicilioClienteModal;
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
@@ -119,7 +122,7 @@ export class EmpresaClientesComponent implements OnInit {
       canes: ['', Validators.required],
       armas: ['', Validators.required],
       fechaInicio: ['', Validators.required],
-      archivo: ['', Validators.required]
+      archivo: ['']
     });
 
     this.modificarClienteForm = this.formBuilder.group({
@@ -189,8 +192,43 @@ export class EmpresaClientesComponent implements OnInit {
     })
   }
 
+  modificarDomicilio(i) {
+    this.domicilio = this.domicilios[i];
+    this.domicilios.splice(i, 1);
+    this.nuevoClienteDomicilioForm.patchValue({
+      nombre: this.domicilio.nombre,
+      matriz: this.domicilio.matriz,
+      numeroExterior: this.domicilio.numeroExterior,
+      numeroInterior: this.domicilio.numeroInterior,
+      domicilio4: this.domicilio.domicilio4,
+      codigoPostal: this.domicilio.codigoPostal,
+      pais: this.domicilio.pais,
+      telefonoFijo: this.domicilio.telefonoFijo,
+      telefonoMovil: this.domicilio.telefonoMovil,
+      contacto: this.domicilio.contacto,
+      correoElectronico: this.domicilio.correoElectronico,
+      tipoInfraestructura: this.domicilio.tipoInfraestructura.uuid,
+      tipoInfraestructuraOtro: this.domicilio.tipoInfraestructuraOtro
+    });
+
+    this.calle = this.domicilio.calleCatalogo;
+    this.colonia = this.domicilio.coloniaCatalogo;
+    this.localidad = this.domicilio.localidadCatalogo;
+    this.municipio = this.domicilio.municipioCatalogo;
+    this.estado = this.domicilio.estadoCatalogo;
+  }
+
+  mostrarQuitarClienteDomicilioModal(i) {
+    this.temporaryIndex = i;
+    this.modal = this.modalService.open(this.quitarDomicilioClienteModal, {size: "lg"});
+  }
+
+  confirmarQuitarDomicilioCliente() {
+    this.domicilios.splice(this.temporaryIndex, 1);
+    this.modal.close();
+  }
+
   seleccionarEstado(estadoUuid) {
-    // DELETING EVERYTHING!
     this.estado = this.estados.filter(x => x.uuid === estadoUuid)[0];
     this.estadoService.obtenerEstadosPorMunicipio(estadoUuid).subscribe((data: Municipio[]) => {
       this.municipios = data;
@@ -274,7 +312,6 @@ export class EmpresaClientesComponent implements OnInit {
     this.obtenerCallesTimeout = setTimeout(() => {
       if(this.calleQuery === '' || this.calleQuery === undefined) {
         this.calleService.obtenerCallesPorLimite(10).subscribe((response: Calle[]) => {
-          console.log(response);
           this.calles = response;
         }, (error) => {
           this.toastService.showGenericToast(
@@ -354,8 +391,12 @@ export class EmpresaClientesComponent implements OnInit {
     this.tipoInfraestructura = this.tiposInfraestructura.filter(x => x.uuid === uuid)[0];
   }
 
+  finalizar() {
+    window.location.reload();
+  }
+
   next(stepName: string, form) {
-    if(form !== undefined && !form.valid) {
+    /*if(form !== undefined && !form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "Faltan algunos campos obligatorios por llenarse",
@@ -368,8 +409,14 @@ export class EmpresaClientesComponent implements OnInit {
       case "DOMICILIOS":
         let formValue: Cliente = form.value;
         let formData = new FormData();
-        formData.append('archivo', this.tempFile, this.tempFile.name);
+
         formData.append('cliente', JSON.stringify(formValue));
+
+        if(this.tempFile !== undefined) {
+          formData.append('archivo', this.tempFile, this.tempFile.name);
+        } else {
+          formData.append('archivo', null)
+        }
 
         this.empresaService.guardarCliente(this.uuid, formData).subscribe((data: Cliente) => {
           this.toastService.showGenericToast(
@@ -419,7 +466,8 @@ export class EmpresaClientesComponent implements OnInit {
         });
 
         break;
-    }
+    }*/
+    this.stepper.next();
   }
 
   previous() {
@@ -525,6 +573,7 @@ export class EmpresaClientesComponent implements OnInit {
   }
 
   agregarDomicilio(form) {
+    console.log(form.value);
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -575,6 +624,15 @@ export class EmpresaClientesComponent implements OnInit {
 
     this.domicilios.push(formData);
     this.nuevoClienteDomicilioForm.reset();
+    this.nuevoClienteDomicilioForm.patchValue({
+      pais: 'Mexico'
+    })
+
+    this.estado = undefined;
+    this.municipio = undefined;
+    this.localidad = undefined;
+    this.colonia = undefined;
+    this.calle = undefined;
   }
 
   mostrarModalEditarCliente() {

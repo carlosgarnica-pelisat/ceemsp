@@ -43,4 +43,23 @@ public class VehiculoUsoController {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return vehiculoUsoService.crearNuevo(VehiculoUsoDto, username);
     }
+
+    @PutMapping(value = VEHICULO_USO_URI + "/{vehiculoUsoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public VehiculoUsoDto modificarUsoVehiculo(
+            HttpServletRequest request,
+            @RequestBody VehiculoUsoDto vehiculoUsoDto,
+            @PathVariable(value = "vehiculoUsoUuid") String vehiculoUsoUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return vehiculoUsoService.modificar(vehiculoUsoDto, vehiculoUsoUuid, username);
+    }
+
+    @DeleteMapping(value = VEHICULO_USO_URI + "/{vehiculoUsoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public VehiculoUsoDto eliminarUsoVehiculo(
+            HttpServletRequest request,
+            @PathVariable(value = "vehiculoUsoUuid") String vehiculoUsoUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return vehiculoUsoService.eliminar(vehiculoUsoUuid, username);
+    }
 }

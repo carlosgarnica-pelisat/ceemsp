@@ -164,6 +164,7 @@
         <div class="col-sm-12" *ngIf="pestanaActual === 'ARMAS'">
           <table class="table">
             <tr>
+              <td><b>N. Serie</b></td>
               <td><b>Marca</b></td>
               <td><b>Tipo</b></td>
               <td><b>Clase</b></td>
@@ -173,6 +174,7 @@
               <td><b>Acciones</b></td>
             </tr>
             <tr *ngFor="let a of armas; let i = index">
+              <td>{{a?.serie}}</td>
               <td>{{a?.marca?.nombre}}</td>
               <td>{{a?.tipo}}</td>
               <td>{{a?.clase?.nombre}}</td>
@@ -180,22 +182,54 @@
               <td>{{a?.bunker?.domicilio1}}</td>
               <td>{{a?.status}}</td>
               <td>
-                <!--fa-icon [icon]="faSync" title="Cambiar status" (click)="mostrarCambioStatusForm()" style="cursor: pointer;"></fa-icon-->
+                <fa-icon [icon]="faHandPaper" title="Marcar como en custodia" (click)="mostrarCambioStatusForm()" style="cursor: pointer;"></fa-icon>
                 <fa-icon [icon]="faPencil" title="Modificar arma" (click)="mostrarModificarArmaForm(i)" style="cursor: pointer;"></fa-icon>
                 <fa-icon [icon]="faTrash" title="Eliminar arma" (click)="mostrarModalEliminarArma(a?.uuid)" style="cursor: pointer;"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="showArmaForm">
-              <td colspan="7">
+              <td colspan="8">
                 <form [formGroup]="crearArmaForm">
                   <div class="form-row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-3">
                       <label for="bunker">
                         <b>Domicilio de resguardo *</b>
                         <span *ngIf="crearArmaForm.controls['bunker'].invalid && (crearArmaForm.controls['bunker'].dirty || crearArmaForm.controls['bunker'].touched)" class="text-danger"> - Requerido</span>
                       </label>
                       <select id="bunker" class="form-control" formControlName="bunker">
                         <option *ngFor="let d of domiciliosLicenciaColectiva" value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1}}</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="serie">
+                        <b>Numero de serie *</b>
+                        <span
+                          *ngIf="crearArmaForm.controls['serie'].invalid && (crearArmaForm.controls['serie'].dirty || crearArmaForm.controls['serie'].touched)">
+                          <i *ngIf="crearArmaForm.controls['serie'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearArmaForm.controls['serie'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input type="text" class="form-control" id="serie" formControlName="serie" placeholder="Ejemplo: ABC123456"/>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="status">
+                        <b>Status *</b>
+                        <span
+                          *ngIf="crearArmaForm.controls['status'].invalid && (crearArmaForm.controls['status'].dirty || crearArmaForm.controls['status'].touched)">
+                          <i *ngIf="crearArmaForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                      </label>
+                      <select class="form-control" formControlName="status" id="status" (change)="seleccionarStatus($event.target)">
+                        <option value="ACTIVA">Activa</option>
+                        <option value="DEPOSITO">Deposito</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3" *ngIf="status === 'ACTIVA'">
+                      <label for="personal">
+                        <b>Personal a asignar *</b>
+                      </label>
+                      <select class="form-control" id="personal" formControlName="personal">
+                        <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
                       </select>
                     </div>
                   </div>
@@ -232,7 +266,11 @@
                     <div class="col-sm-3">
                       <label for="calibre">
                         <b>Calibre *</b>
-                        <span *ngIf="crearArmaForm.controls['calibre'].invalid && (crearArmaForm.controls['calibre'].dirty || crearArmaForm.controls['calibre'].touched)" class="text-danger"> - Requerido</span>
+                        <span
+                          *ngIf="crearArmaForm.controls['calibre'].invalid && (crearArmaForm.controls['calibre'].dirty || crearArmaForm.controls['calibre'].touched)">
+                          <i *ngIf="crearArmaForm.controls['calibre'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearArmaForm.controls['calibre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
                       </label>
                       <input type="text" class="form-control" id="calibre" formControlName="calibre" placeholder="Ejemplo: .38 Super, .22"/>
                     </div>
@@ -249,54 +287,37 @@
                 </div>
               </td>
             </tr>
-            <tr *ngIf="!showArmaForm">
-              <td colspan="7">
+            <tr *ngIf="!showArmaForm && !mostrarModificarStatusArma">
+              <td colspan="8">
                 <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaArma()">Agregar arma</button>
               </td>
             </tr>
             <tr *ngIf="mostrarModificarStatusArma">
-              <td colspan="7">
+              <td colspan="8">
                 <form formGroup="modificarStatusArmaForm">
                   <div class="form-row">
                     <div class="col-sm-4">
-                      <label for="status">
-                        <b>Status *</b>
-                      </label>
-                      <select class="form-control" id="status" (change)="seleccionarStatus($event.target)">
-                        <option value="ACTIVA">Activa</option>
-                        <option value="DEPOSITO">Deposito</option>
-                        <!--option value="CUSTODIA">En resguardo</option-->
-                      </select>
-                    </div>
-                    <div class="col-sm-4" *ngIf="status === 'ACTIVA'">
-                      <label for="personal">
-                        <b>Personal a asignar *</b>
-                      </label>
-                      <select class="form-control" id="personal" (change)="seleccionarPersona($event.target)">
-                        <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
-                      </select>
-                    </div>
-                    <!--div class="col-sm-4" *ngIf="status === 'CUSTODIA'">
                       <label for="documentoFundatorio">
                         <b>Documento fundatorio</b>
                       </label>
                       <input id="documentoFundatorio" type="file" class="form-control">
-                    </div-->
+                    </div>
                   </div>
-                  <!--div class="form-row" *ngIf="status === 'CUSTODIA'">
+                </form>
+                <div class="form-row">
+                  <div class="col-sm-12">
                     <label>
                       <b>Relato de hechos *</b>
                     </label>
-                    <div class="col-sm-12">
-
-                    </div>
-                  </div-->
-                </form>
+                    <ckeditor [(ngModel)]="model.editorData"></ckeditor>
+                  </div>
+                </div>
               </td>
             </tr>
             <tr *ngIf="mostrarModificarStatusArma">
-              <td colspan="7">
-                <button class="btn btn-sm btn-primary">Guardar cambios</button>
+              <td colspan="8">
+                <button class="btn btn-sm btn-primary" (click)="custodiaArma()">Guardar cambios</button>
+                <button class="btn btn-sm btn-danger" (click)="mostrarCambioStatusForm()">Cancelar</button>
               </td>
             </tr>
           </table>
@@ -331,7 +352,7 @@
 
   <ng-template #modificarLicenciaModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="modificarLicenciaModal">Nueva licencia </h4>
+      <h4 class="modal-title" id="modificarLicenciaModal">Modificando licencia </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>

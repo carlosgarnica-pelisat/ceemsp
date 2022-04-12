@@ -46,22 +46,22 @@ public class EquipoController {
         return equipoService.guardarEquipo(equipoDto, username);
     }
 
-    /*@PutMapping(value = VEHICULO_MARCA_URI + "/{vehiculoMarcaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public VehiculoMarcaDto modificarArmaMarca(
+    @PutMapping(value = EQUIPO_URI + "/{equipoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EquipoDto modificarEquipo(
             HttpServletRequest request,
-            @RequestBody VehiculoMarcaDto VehiculoMarcaDto,
-            @PathVariable(value = "vehiculoMarcaUuid") String vehiculoMarcaUuid
+            @RequestBody EquipoDto equipoDto,
+            @PathVariable(value = "equipoUuid") String equipoUuid
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return vehiculoMarcaService.modificar(VehiculoMarcaDto, vehiculoMarcaUuid, username);
+        return equipoService.modificarEquipo(equipoUuid, username, equipoDto);
     }
 
-    @DeleteMapping(value = VEHICULO_MARCA_URI + "/{vehiculoMarcaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public VehiculoMarcaDto eliminarArmaMarca(
-            @PathVariable(value = "vehiculoMarcaUuid") String vehiculoMarcaUuid,
+    @DeleteMapping(value = EQUIPO_URI + "/{equipoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public EquipoDto eliminarEquipo(
+            @PathVariable(value = "equipoUuid") String equipoUuid,
             HttpServletRequest request
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return vehiculoMarcaService.eliminar(vehiculoMarcaUuid, username);
-    }*/
+        return equipoService.eliminarEquipo(equipoUuid, username);
+    }
 }

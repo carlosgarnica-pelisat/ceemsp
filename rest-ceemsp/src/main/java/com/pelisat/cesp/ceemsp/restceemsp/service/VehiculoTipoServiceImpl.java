@@ -3,6 +3,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoTipoDto;
 import com.pelisat.cesp.ceemsp.database.model.ArmaClase;
+import com.pelisat.cesp.ceemsp.database.model.ArmaMarca;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.VehiculoTipo;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoTipoRepository;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -107,11 +109,56 @@ public class VehiculoTipoServiceImpl implements VehiculoTipoService {
 
     @Override
     public VehiculoTipoDto modificar(VehiculoTipoDto vehiculoTipoDto, String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || vehiculoTipoDto == null) {
+            logger.warn("Alguno de los campos vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el tipo del vehiculo con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        VehiculoTipo vehiculoTipo = vehiculoTipoRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(vehiculoTipo == null) {
+            logger.warn("La marca no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        vehiculoTipo.setNombre(vehiculoTipoDto.getNombre());
+        vehiculoTipo.setDescripcion(vehiculoTipoDto.getDescripcion());
+        vehiculoTipo.setFechaActualizacion(LocalDateTime.now());
+        vehiculoTipo.setActualizadoPor(usuario.getId());
+
+        vehiculoTipoRepository.save(vehiculoTipo);
+
+        return daoToDtoConverter.convertDaoToDtoVehiculoTipo(vehiculoTipo);
     }
 
     @Override
     public VehiculoTipoDto eliminar(String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la marca del arma con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        VehiculoTipo vehiculoTipo = vehiculoTipoRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(vehiculoTipo == null) {
+            logger.warn("El tipo del vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        vehiculoTipo.setEliminado(true);
+        vehiculoTipo.setFechaActualizacion(LocalDateTime.now());
+        vehiculoTipo.setActualizadoPor(usuario.getId());
+
+        vehiculoTipoRepository.save(vehiculoTipo);
+
+        return daoToDtoConverter.convertDaoToDtoVehiculoTipo(vehiculoTipo);
     }
 }

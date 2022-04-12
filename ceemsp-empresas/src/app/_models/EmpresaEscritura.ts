@@ -14,6 +14,9 @@ export default class EmpresaEscritura implements Deserializable {
   numero: string;
   nombreFedatario: string;
   descripcion: string;
+  apellidoMaterno: string;
+  apellidoPaterno: string;
+  curp: string;
   socios: EmpresaEscrituraSocio[];
   apoderados: EmpresaEscrituraApoderado[];
   representantes: EmpresaEscrituraRepresentante[];

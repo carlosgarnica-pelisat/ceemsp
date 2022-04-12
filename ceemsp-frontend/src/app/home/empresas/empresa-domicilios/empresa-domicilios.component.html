@@ -454,7 +454,7 @@
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                   {{colonia === undefined ? 'Ninguno' : colonia?.nombre}}
                 </a>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="municipioSearchForm" class="px-4 py-3">
                     <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
                     <input type="text" class="form-control" id="coloniaSearchQuery" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"

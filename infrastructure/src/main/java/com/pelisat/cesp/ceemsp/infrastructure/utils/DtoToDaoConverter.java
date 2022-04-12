@@ -222,6 +222,13 @@ public class DtoToDaoConverter {
             throw new InvalidDataException();
         }
 
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.typeMap(EmpresaEscrituraDto.class, EmpresaEscritura.class)
+                .addMappings(mapper -> mapper.skip(EmpresaEscritura::setEstadoCatalogo))
+                .addMappings(mapper -> mapper.skip(EmpresaEscritura::setMunicipioCatalogo))
+                .addMappings(mapper -> mapper.skip(EmpresaEscritura::setLocalidadCatalogo));
+
         EmpresaEscritura empresaEscritura = modelMapper.map(empresaEscrituraDto, EmpresaEscritura.class);
         if(StringUtils.isBlank(empresaEscritura.getUuid())) {
             logger.info("El uuid viene como nulo. Generando uno nuevo");
@@ -506,7 +513,8 @@ public class DtoToDaoConverter {
                 .addMappings(mapper -> mapper.skip(Arma::setBunker))
                 .addMappings(mapper -> mapper.skip(Arma::setMarca))
                 .addMappings(mapper -> mapper.skip(Arma::setClase))
-                .addMappings(mapper -> mapper.skip(Arma::setLicenciaColectiva));
+                .addMappings(mapper -> mapper.skip(Arma::setLicenciaColectiva))
+                .addMappings(mapper -> mapper.skip(Arma::setPersonal));
 
         Arma arma = modelMapper.map(armaDto, Arma.class);
         if(StringUtils.isBlank(armaDto.getUuid())) {

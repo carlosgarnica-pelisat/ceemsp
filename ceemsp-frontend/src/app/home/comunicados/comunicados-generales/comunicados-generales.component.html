@@ -32,3 +32,106 @@
       ></ag-grid-angular>
     </div>
   </div>
+
+  <ng-template #mostrarComunicadoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarComunicadoModal">Ver detalles del comunicado</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Titulo:</b></td>
+              <td>{{comunicadoGeneral?.titulo}}</td>
+            </tr>
+            <tr>
+              <td><b>Fecha de publicacion:</b></td>
+              <td>{{comunicadoGeneral?.fechaPublicacion}}</td>
+            </tr>
+            <tr>
+              <td><b>Comunicado</b></td>
+              <td [innerHTML]="comunicadoGeneral?.descripcion"></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="mostrarModificarEquipoModal()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarEliminarEquipoModal()">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #editarComunicadoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="editarEquipoModal">Modificar equipo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="nuevoComunicadoForm">
+            <div class="form-row">
+              <div class="col-sm-9">
+                <label for="titulo">
+                  <b>Titulo *</b>
+                  <span
+                    *ngIf="nuevoComunicadoForm.controls['titulo'].invalid && (nuevoComunicadoForm.controls['titulo'].dirty || nuevoComunicadoForm.controls['titulo'].touched)">
+                <i *ngIf="nuevoComunicadoForm.controls['titulo'].errors.required" class="text-danger"> - Campo requerido</i>
+                <i *ngIf="nuevoComunicadoForm.controls['titulo'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+                </label>
+                <input id="titulo" type="text" class="form-control" placeholder="Ej. Colonia 20 de Noviembre" formControlName="titulo" #titulo>
+              </div>
+              <div class="col-sm-3">
+                <label for="fechaPublicacion">
+                  <b>Fecha de publicacion *</b>
+                  <span *ngIf="nuevoComunicadoForm.controls['fechaPublicacion'].invalid && (nuevoComunicadoForm.controls['fechaPublicacion'].dirty || nuevoComunicadoForm.controls['fechaPublicacion'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="fechaPublicacion" type="date" class="form-control" formControlName="fechaPublicacion" [min]="fechaDeHoy" #fechaPublicacion>
+              </div>
+            </div>
+          </form>
+          <div class="row">
+            <div class="col-sm-12">
+              <label>
+                <b>Cuerpo del comunicado</b>
+              </label>
+              <ckeditor [(ngModel)]="model.editorData"></ckeditor>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarCambios(nuevoComunicadoForm)">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarComunicadoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEquipoModal">Eliminando un comunicado </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar un comunicado. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminar()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+</div>

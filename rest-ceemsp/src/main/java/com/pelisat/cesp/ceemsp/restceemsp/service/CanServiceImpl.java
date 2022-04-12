@@ -43,6 +43,7 @@ public class CanServiceImpl implements CanService {
     private final CanCartillaVacunacionService canCartillaVacunacionService;
     private final CanConstanciaSaludService canConstanciaSaludService;
     private final CanAdiestramientoService canAdiestramientoService;
+    private final CanFotografiaService canFotografiaService;
 
     @Autowired
     public CanServiceImpl(CanRepository canRepository, EmpresaService empresaService, UsuarioService usuarioService,
@@ -50,7 +51,8 @@ public class CanServiceImpl implements CanService {
                           EmpresaDomicilioService empresaDomicilioService, PersonaService personaService,
                           ClienteService clienteService, ClienteDomicilioService clienteDomicilioService,
                           CanRazaService canRazaService, CanCartillaVacunacionService canCartillaVacunacionService,
-                          CanConstanciaSaludService canConstanciaSaludService, CanAdiestramientoService canAdiestramientoService) {
+                          CanConstanciaSaludService canConstanciaSaludService, CanAdiestramientoService canAdiestramientoService,
+                          CanFotografiaService canFotografiaService) {
         this.canRepository = canRepository;
         this.empresaService = empresaService;
         this.usuarioService = usuarioService;
@@ -65,6 +67,7 @@ public class CanServiceImpl implements CanService {
         this.canCartillaVacunacionService = canCartillaVacunacionService;
         this.canConstanciaSaludService = canConstanciaSaludService;
         this.canAdiestramientoService = canAdiestramientoService;
+        this.canFotografiaService = canFotografiaService;
     }
 
     @Override
@@ -111,6 +114,7 @@ public class CanServiceImpl implements CanService {
             canDto.setCartillasVacunacion(canCartillaVacunacionService.obtenerCartillasVacunacionPorCanUuid(empresaUuid, canUuid));
             canDto.setAdiestramientos(canAdiestramientoService.obtenerAdiestramientosPorCanUuid(empresaUuid, canUuid));
             canDto.setConstanciasSalud(canConstanciaSaludService.obtenerConstanciasSaludPorCanUuid(empresaUuid, canUuid));
+            canDto.setFotografias(canFotografiaService.mostrarCanFotografias(empresaUuid, canUuid));
         }
 
         return canDto;

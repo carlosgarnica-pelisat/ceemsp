@@ -83,4 +83,10 @@ public class ClienteDomicilio extends CommonModel {
 
     @Column(name = "LOCALIDAD_CATALOGO", nullable = false)
     private int localidadCatalogo;
+
+    @Column(name = "APELLIDO_PATERNO_CONTACTO", nullable = false)
+    private int apellidoPaternoContacto;
+
+    @Column(name = "APELLIDO_MATERNO_CONTACTO", nullable = false)
+    private int apellidoMaternoContacto;
 }

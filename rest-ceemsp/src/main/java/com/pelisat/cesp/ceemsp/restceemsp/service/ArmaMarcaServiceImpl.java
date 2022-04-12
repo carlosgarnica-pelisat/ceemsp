@@ -5,6 +5,7 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.ArmaClase;
 import com.pelisat.cesp.ceemsp.database.model.ArmaMarca;
 import com.pelisat.cesp.ceemsp.database.model.ArmaTipo;
+import com.pelisat.cesp.ceemsp.database.model.CanTipoAdiestramiento;
 import com.pelisat.cesp.ceemsp.database.repository.ArmaClaseRepository;
 import com.pelisat.cesp.ceemsp.database.repository.ArmaMarcaRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -110,11 +111,56 @@ public class ArmaMarcaServiceImpl implements ArmaMarcaService {
 
     @Override
     public ArmaMarcaDto modificar(ArmaMarcaDto armaMarcaDto, String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || armaMarcaDto == null) {
+            logger.warn("Alguno de los campos vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando la marca del arma con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        ArmaMarca armaMarca = armaMarcaRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(armaMarca == null) {
+            logger.warn("La marca no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        armaMarca.setNombre(armaMarcaDto.getNombre());
+        armaMarca.setDescripcion(armaMarcaDto.getDescripcion());
+        armaMarca.setFechaActualizacion(LocalDateTime.now());
+        armaMarca.setActualizadoPor(usuario.getId());
+
+        armaMarcaRepository.save(armaMarca);
+
+        return daoToDtoConverter.convertDaoToDtoArmaMarca(armaMarca);
     }
 
     @Override
     public ArmaMarcaDto eliminar(String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la marca del arma con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        ArmaMarca armaMarca = armaMarcaRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(armaMarca == null) {
+            logger.warn("El adiestramiento no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        armaMarca.setEliminado(true);
+        armaMarca.setFechaActualizacion(LocalDateTime.now());
+        armaMarca.setActualizadoPor(usuario.getId());
+
+        armaMarcaRepository.save(armaMarca);
+
+        return daoToDtoConverter.convertDaoToDtoArmaMarca(armaMarca);
     }
 }

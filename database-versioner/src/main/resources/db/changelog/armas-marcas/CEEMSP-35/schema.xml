@@ -1,0 +1,1167 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-04-09-crear-tabla-armas-marcas" author="carlos.garnica@pelisat.com.mx">
+
+        <!-- ADDING DEFAULTS -->
+        <insert tableName="armas_marcas">
+            <column name="ID" value="13"></column>
+            <column name="UUID" value="yjw0Hu8L8lFm"></column>
+            <column name="NOMBRE" value="BERSIA"></column>
+            <column name="DESCRIPCION" value="Marca Bersia"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="14"></column>
+            <column name="UUID" value="8HSXoUWzv8wo"></column>
+            <column name="NOMBRE" value="BRUNO"></column>
+            <column name="DESCRIPCION" value="Marca Bruno"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="15"></column>
+            <column name="UUID" value="BS4LWLWNvrmr"></column>
+            <column name="NOMBRE" value="BROWNING"></column>
+            <column name="DESCRIPCION" value="Marca Browning"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="16"></column>
+            <column name="UUID" value="3Xof0Um4bTrH"></column>
+            <column name="NOMBRE" value="BUSHMASTER"></column>
+            <column name="DESCRIPCION" value="Marca Bushmaster"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="17"></column>
+            <column name="UUID" value="x4gqnqGn4osa"></column>
+            <column name="NOMBRE" value="CESKA ZBROJOVKA"></column>
+            <column name="DESCRIPCION" value="Marca Ceska Zbrojovka"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="18"></column>
+            <column name="UUID" value="NKKN3b1DekBV"></column>
+            <column name="NOMBRE" value="CHARTER BULDAY"></column>
+            <column name="DESCRIPCION" value="Marca Charter Bulday"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="19"></column>
+            <column name="UUID" value="hROcL1fmiFlG"></column>
+            <column name="NOMBRE" value="COBRA"></column>
+            <column name="DESCRIPCION" value="Marca Cobra"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="20"></column>
+            <column name="UUID" value="Cdj1ygVIPtw4"></column>
+            <column name="NOMBRE" value="COLT"></column>
+            <column name="DESCRIPCION" value="Marca Colt"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="21"></column>
+            <column name="UUID" value="ewCdExfhYCYg"></column>
+            <column name="NOMBRE" value="COMBINED TACTICAL"></column>
+            <column name="DESCRIPCION" value="Marca Combined Tactical"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="22"></column>
+            <column name="UUID" value="XZvrrAQFGSrw"></column>
+            <column name="NOMBRE" value="CTG"></column>
+            <column name="DESCRIPCION" value="Marca CTG"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="23"></column>
+            <column name="UUID" value="c1rpl3GmYqNX"></column>
+            <column name="NOMBRE" value="DAN WESSON"></column>
+            <column name="DESCRIPCION" value="Marca Dan Wesson"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="24"></column>
+            <column name="UUID" value="8S1kJOR1J5bq"></column>
+            <column name="NOMBRE" value="Destroyer"></column>
+            <column name="DESCRIPCION" value="Marca Destroyer"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="25"></column>
+            <column name="UUID" value="m4XBiScfzNEy"></column>
+            <column name="NOMBRE" value="D.S.A."></column>
+            <column name="DESCRIPCION" value="Marca D.S.A."></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="26"></column>
+            <column name="UUID" value="dbY0uraNZEX1"></column>
+            <column name="NOMBRE" value="DIM"></column>
+            <column name="DESCRIPCION" value="Marca DIM"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="27"></column>
+            <column name="UUID" value="Ftqb9S3lOY8B"></column>
+            <column name="NOMBRE" value="DUNELLEN"></column>
+            <column name="DESCRIPCION" value="Marca Dunellen"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="28"></column>
+            <column name="UUID" value="URhvGCvtFzi9"></column>
+            <column name="NOMBRE" value="E.M.F."></column>
+            <column name="DESCRIPCION" value="Marca E.M.F."></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="29"></column>
+            <column name="UUID" value="JHBE5AJDmNlD"></column>
+            <column name="NOMBRE" value="GARBINE"></column>
+            <column name="DESCRIPCION" value="Marca Garbine"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="30"></column>
+            <column name="UUID" value="cqSgVXhWKhcs"></column>
+            <column name="NOMBRE" value="HATSAN"></column>
+            <column name="DESCRIPCION" value="Marca Hatsan"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="31"></column>
+            <column name="UUID" value="nRIMZdTHH4ka"></column>
+            <column name="NOMBRE" value="HECKLER AND KOCH"></column>
+            <column name="DESCRIPCION" value="Marca Heckler and Koch"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="32"></column>
+            <column name="UUID" value="OfHYWZxWDflw"></column>
+            <column name="NOMBRE" value="HERSTAL"></column>
+            <column name="DESCRIPCION" value="Marca Herstal"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="33"></column>
+            <column name="UUID" value="zLO7P8amHXii"></column>
+            <column name="NOMBRE" value="HIGHSTANDARD"></column>
+            <column name="DESCRIPCION" value="Marca Highstandard"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="34"></column>
+            <column name="UUID" value="WlD6tIqERKDZ"></column>
+            <column name="NOMBRE" value="HIALAHFLIA"></column>
+            <column name="DESCRIPCION" value="Marca Hialahflia"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="35"></column>
+            <column name="UUID" value="0QoHR1bgya3Y"></column>
+            <column name="NOMBRE" value="HRINCWORCMAS"></column>
+            <column name="DESCRIPCION" value="Marca Hrincwormas"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="36"></column>
+            <column name="UUID" value="20gTlCDWwkX7"></column>
+            <column name="NOMBRE" value="HUNGARY"></column>
+            <column name="DESCRIPCION" value="Marca Hungary"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="37"></column>
+            <column name="UUID" value="YSE9Rb7nNa9O"></column>
+            <column name="NOMBRE" value="I.B.M."></column>
+            <column name="DESCRIPCION" value="Marca I.B.M."></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="38"></column>
+            <column name="UUID" value="qZrMyNJ29JS9"></column>
+            <column name="NOMBRE" value="I.N.A."></column>
+            <column name="DESCRIPCION" value="Marca I.N.A."></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="39"></column>
+            <column name="UUID" value="hUZ3s8X3XgBh"></column>
+            <column name="NOMBRE" value="ISSC"></column>
+            <column name="DESCRIPCION" value="Marca ISSC"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="40"></column>
+            <column name="UUID" value="7lD55UQ8MyRv"></column>
+            <column name="NOMBRE" value="I.W.I."></column>
+            <column name="DESCRIPCION" value="Marca I.W.I."></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="41"></column>
+            <column name="UUID" value="H6co0oyIRsT9"></column>
+            <column name="NOMBRE" value="INGRAM"></column>
+            <column name="DESCRIPCION" value="Marca INGRAM"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="42"></column>
+            <column name="UUID" value="C6AKgKt3KTHT"></column>
+            <column name="NOMBRE" value="INLAND"></column>
+            <column name="DESCRIPCION" value="Marca INLAND"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="43"></column>
+            <column name="UUID" value="5yDoYnvmPFzu"></column>
+            <column name="NOMBRE" value="INTERDINAMIC"></column>
+            <column name="DESCRIPCION" value="Marca Interdinamic"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="44"></column>
+            <column name="UUID" value="0RKgLtl8WvVL"></column>
+            <column name="NOMBRE" value="INTRATEC"></column>
+            <column name="DESCRIPCION" value="Marca Intratec"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="armas_marcas">
+            <column name="ID" value="45"></column>
+            <column name="UUID" value="SobcAVWSajew"></column>
+            <column name="NOMBRE" value="ITHACA"></column>
+            <column name="DESCRIPCION" value="Marca Ithaca"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="46"></column>
+            <column name="UUID" value="CKhk8QPvc4Gg"></column>
+            <column name="NOMBRE" value="IVER JOHNSON"></column>
+            <column name="DESCRIPCION" value="Marca Iver Johnson"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="47"></column>
+            <column name="UUID" value="uhGgShBXssrP"></column>
+            <column name="NOMBRE" value="J.C. HIGGINS"></column>
+            <column name="DESCRIPCION" value="Marca J.C. Higgins"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="48"></column>
+            <column name="UUID" value="sSOTHYN9kKhY"></column>
+            <column name="NOMBRE" value="JENNING"></column>
+            <column name="DESCRIPCION" value="Marca Jenning"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="49"></column>
+            <column name="UUID" value="GCbV93nesgfX"></column>
+            <column name="NOMBRE" value="JOHNSON"></column>
+            <column name="DESCRIPCION" value="Marca Johnson"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="50"></column>
+            <column name="UUID" value="kwnwDITX59ib"></column>
+            <column name="NOMBRE" value="KESLEER"></column>
+            <column name="DESCRIPCION" value="Marca Kesleer"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="51"></column>
+            <column name="UUID" value="WYumqrUGwAD9"></column>
+            <column name="NOMBRE" value="KORA BRN"></column>
+            <column name="DESCRIPCION" value="Marca Kora Brn"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="52"></column>
+            <column name="UUID" value="7MEMAh09DNKZ"></column>
+            <column name="NOMBRE" value="LARGAS"></column>
+            <column name="DESCRIPCION" value="Marca Largas"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="53"></column>
+            <column name="UUID" value="IKGJaYOlppNV"></column>
+            <column name="NOMBRE" value="LLAMAS"></column>
+            <column name="DESCRIPCION" value="Marca Llamas"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="54"></column>
+            <column name="UUID" value="4k51Dn1TAg7N"></column>
+            <column name="NOMBRE" value="LUGER"></column>
+            <column name="DESCRIPCION" value="Marca Llamas"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="55"></column>
+            <column name="UUID" value="ixzXzcPGAECc"></column>
+            <column name="NOMBRE" value="MAB"></column>
+            <column name="DESCRIPCION" value="Marca MAB"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="56"></column>
+            <column name="UUID" value="saAnaKUTTTXB"></column>
+            <column name="NOMBRE" value="MARCA"></column>
+            <column name="DESCRIPCION" value="Marca Marca"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="57"></column>
+            <column name="UUID" value="sCw1rBJMIRNB"></column>
+            <column name="NOMBRE" value="MASTER MAG"></column>
+            <column name="DESCRIPCION" value="Marca Master Mag"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="58"></column>
+            <column name="UUID" value="85Wnivs8Bt43"></column>
+            <column name="NOMBRE" value="MAVERICK"></column>
+            <column name="DESCRIPCION" value="Marca Maverick"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="59"></column>
+            <column name="UUID" value="GM83ALaGKJsH"></column>
+            <column name="NOMBRE" value="MENDOZA"></column>
+            <column name="DESCRIPCION" value="Marca Mendoza"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="60"></column>
+            <column name="UUID" value="BVYCZgL78gP7"></column>
+            <column name="NOMBRE" value="MOSSBERG"></column>
+            <column name="DESCRIPCION" value="Marca Mossberg"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="61"></column>
+            <column name="UUID" value="JqbP8h3bSBWv"></column>
+            <column name="NOMBRE" value="NATIONAL"></column>
+            <column name="DESCRIPCION" value="Marca National"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="62"></column>
+            <column name="UUID" value="wUg76OTAd2iS"></column>
+            <column name="NOMBRE" value="NEW HAVEN"></column>
+            <column name="DESCRIPCION" value="Marca New Haven"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="63"></column>
+            <column name="UUID" value="HR5bTn1WiZbp"></column>
+            <column name="NOMBRE" value="NORDICO"></column>
+            <column name="DESCRIPCION" value="Marca Nordico"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="64"></column>
+            <column name="UUID" value="kVJohoZ8OLqV"></column>
+            <column name="NOMBRE" value="NORINGO"></column>
+            <column name="DESCRIPCION" value="Marca Noringo"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="65"></column>
+            <column name="UUID" value="FZKTdMqWxdeo"></column>
+            <column name="NOMBRE" value="ORDNANCE"></column>
+            <column name="DESCRIPCION" value="Marca Ordnance"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="66"></column>
+            <column name="UUID" value="exIA23tVRfjW"></column>
+            <column name="NOMBRE" value="PIETRO BERETTA"></column>
+            <column name="DESCRIPCION" value="Marca Pietro Beretta"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="67"></column>
+            <column name="UUID" value="kEKJEWOzM6Zv"></column>
+            <column name="NOMBRE" value="PLAINFIELD"></column>
+            <column name="DESCRIPCION" value="Marca Plainfield"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="68"></column>
+            <column name="UUID" value="aRuoJrKBm2fD"></column>
+            <column name="NOMBRE" value="POLICE"></column>
+            <column name="DESCRIPCION" value="Marca Police"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="69"></column>
+            <column name="UUID" value="rk8sisFmfFkO"></column>
+            <column name="NOMBRE" value="PWA"></column>
+            <column name="DESCRIPCION" value="Marca PWA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="70"></column>
+            <column name="UUID" value="38HfM4AqA7sl"></column>
+            <column name="NOMBRE" value="R.G."></column>
+            <column name="DESCRIPCION" value="Marca R.G."></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="71"></column>
+            <column name="UUID" value="gTeMtI7UGOwY"></column>
+            <column name="NOMBRE" value="REMINGTON"></column>
+            <column name="DESCRIPCION" value="Marca Remington"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="72"></column>
+            <column name="UUID" value="S7gU9JwZluIG"></column>
+            <column name="NOMBRE" value="REVELATION"></column>
+            <column name="DESCRIPCION" value="Marca Revelation"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="73"></column>
+            <column name="UUID" value="GHrxVQHfqf84"></column>
+            <column name="NOMBRE" value="RHOM"></column>
+            <column name="DESCRIPCION" value="Marca Rhom"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="74"></column>
+            <column name="UUID" value="neq5NV9LZjcW"></column>
+            <column name="NOMBRE" value="ROCK ISLAND"></column>
+            <column name="DESCRIPCION" value="Marca Rock Island"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="75"></column>
+            <column name="UUID" value="niJRvxpgQuls"></column>
+            <column name="NOMBRE" value="ROHM"></column>
+            <column name="DESCRIPCION" value="Marca Rohm"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="76"></column>
+            <column name="UUID" value="KD97DEAzqUp1"></column>
+            <column name="NOMBRE" value="ROSSI"></column>
+            <column name="DESCRIPCION" value="Marca Rossi"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="77"></column>
+            <column name="UUID" value="FSpn1QRpvTRe"></column>
+            <column name="NOMBRE" value="RUBY"></column>
+            <column name="DESCRIPCION" value="Marca Ruby"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="78"></column>
+            <column name="UUID" value="7K4R39FBAEce"></column>
+            <column name="NOMBRE" value="RUGER"></column>
+            <column name="DESCRIPCION" value="Marca Ruger"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="79"></column>
+            <column name="UUID" value="EpBaQdYlhKnn"></column>
+            <column name="NOMBRE" value="SMITH AND WESSON"></column>
+            <column name="DESCRIPCION" value="Marca Smith and Wesson"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="80"></column>
+            <column name="UUID" value="ZYiAt27f2ygv"></column>
+            <column name="NOMBRE" value="S.G.W."></column>
+            <column name="DESCRIPCION" value="Marca Smith and Wesson"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="81"></column>
+            <column name="UUID" value="qw9WHe1zvknP"></column>
+            <column name="NOMBRE" value="SAGINAW"></column>
+            <column name="DESCRIPCION" value="Marca Saginaw"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="82"></column>
+            <column name="UUID" value="PRPY4YqCuIbb"></column>
+            <column name="NOMBRE" value="SAKO"></column>
+            <column name="DESCRIPCION" value="Marca Sako"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="83"></column>
+            <column name="UUID" value="s8z03yoi9SE2"></column>
+            <column name="NOMBRE" value="SAVAGE"></column>
+            <column name="DESCRIPCION" value="Marca Savage"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="84"></column>
+            <column name="UUID" value="pDSTzJOsJPSJ"></column>
+            <column name="NOMBRE" value="SEARS"></column>
+            <column name="DESCRIPCION" value="Marca Sears"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="85"></column>
+            <column name="UUID" value="66PyR3xbUgE5"></column>
+            <column name="NOMBRE" value="SENTINEL"></column>
+            <column name="DESCRIPCION" value="Marca Sentinel"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="86"></column>
+            <column name="UUID" value="qe833RXbwwFW"></column>
+            <column name="NOMBRE" value="SIG-SAWER"></column>
+            <column name="DESCRIPCION" value="Marca Sig-Sawer"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="87"></column>
+            <column name="UUID" value="VZB8Ek6da907"></column>
+            <column name="NOMBRE" value="SPESCO"></column>
+            <column name="DESCRIPCION" value="Marca Spesco"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="88"></column>
+            <column name="UUID" value="N3uKExXYwfOf"></column>
+            <column name="NOMBRE" value="SPORT"></column>
+            <column name="DESCRIPCION" value="Marca Sport"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="89"></column>
+            <column name="UUID" value="mYmxpdCQ5xwW"></column>
+            <column name="NOMBRE" value="SPRINGFIELD"></column>
+            <column name="DESCRIPCION" value="Marca Springfield"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="90"></column>
+            <column name="UUID" value="896o7efYJvZl"></column>
+            <column name="NOMBRE" value="STAR"></column>
+            <column name="DESCRIPCION" value="Marca Star"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="91"></column>
+            <column name="UUID" value="LytGbpWKEOhM"></column>
+            <column name="NOMBRE" value="STERLING"></column>
+            <column name="DESCRIPCION" value="Marca Sterling"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="92"></column>
+            <column name="UUID" value="tW7iMLHt2vpp"></column>
+            <column name="NOMBRE" value="STEVENS"></column>
+            <column name="DESCRIPCION" value="Marca Stevens"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="93"></column>
+            <column name="UUID" value="pRSaeTBQFAzl"></column>
+            <column name="NOMBRE" value="STEYR DAIMLER"></column>
+            <column name="DESCRIPCION" value="Marca Steyr Daimler"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="94"></column>
+            <column name="UUID" value="WFGLqZIjFnlg"></column>
+            <column name="NOMBRE" value="STG"></column>
+            <column name="DESCRIPCION" value="Marca STG"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="95"></column>
+            <column name="UUID" value="jblM1bUOu8gh"></column>
+            <column name="NOMBRE" value="STOEGER"></column>
+            <column name="DESCRIPCION" value="Marca Stoeger"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="96"></column>
+            <column name="UUID" value="HyimTzjIl4wf"></column>
+            <column name="NOMBRE" value="STURN RUGER"></column>
+            <column name="DESCRIPCION" value="Marca Sturn Ruger"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="97"></column>
+            <column name="UUID" value="fYWQySzc9RHg"></column>
+            <column name="NOMBRE" value="TANFOGLIO"></column>
+            <column name="DESCRIPCION" value="Marca Tanfoglio"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="98"></column>
+            <column name="UUID" value="GtJMJr77wT9N"></column>
+            <column name="NOMBRE" value="TAURUS"></column>
+            <column name="DESCRIPCION" value="Marca Taurus"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="99"></column>
+            <column name="UUID" value="2TNGCMjm8IfI"></column>
+            <column name="NOMBRE" value="THOMPSON"></column>
+            <column name="DESCRIPCION" value="Marca Thompson"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="100"></column>
+            <column name="UUID" value="5lMOAEXOMMIf"></column>
+            <column name="NOMBRE" value="TITANIC"></column>
+            <column name="DESCRIPCION" value="Marca Titanic"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="101"></column>
+            <column name="UUID" value="HzkdKaEVJyR7"></column>
+            <column name="NOMBRE" value="TRADE"></column>
+            <column name="DESCRIPCION" value="Marca Trade"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="102"></column>
+            <column name="UUID" value="nclKrsLzjg9f"></column>
+            <column name="NOMBRE" value="TREJO"></column>
+            <column name="DESCRIPCION" value="Marca Trejo"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="103"></column>
+            <column name="UUID" value="64mmzK70z7gI"></column>
+            <column name="NOMBRE" value="U.S. CARABINE"></column>
+            <column name="DESCRIPCION" value="Marca U.s. Carabine"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="104"></column>
+            <column name="UUID" value="ZIMzyOMNvJbS"></column>
+            <column name="NOMBRE" value="UNDERCOVER"></column>
+            <column name="DESCRIPCION" value="Marca Undercover"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="105"></column>
+            <column name="UUID" value="P22akP6ICDDy"></column>
+            <column name="NOMBRE" value="UNDERWOOD"></column>
+            <column name="DESCRIPCION" value="Marca Underwood"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="106"></column>
+            <column name="UUID" value="KbAba405NyLr"></column>
+            <column name="NOMBRE" value="UNIQUE"></column>
+            <column name="DESCRIPCION" value="Marca Unique"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="107"></column>
+            <column name="UUID" value="TnB8RtN702fH"></column>
+            <column name="NOMBRE" value="UNIVERSAL"></column>
+            <column name="DESCRIPCION" value="Marca Universal"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="108"></column>
+            <column name="UUID" value="PN4Aop4StBvJ"></column>
+            <column name="NOMBRE" value="UZI"></column>
+            <column name="DESCRIPCION" value="Marca Uzi"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="109"></column>
+            <column name="UUID" value="lfwEb6mE08Hw"></column>
+            <column name="NOMBRE" value="VEKTOR"></column>
+            <column name="DESCRIPCION" value="Marca Vektor"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="110"></column>
+            <column name="UUID" value="UAPa1hxUtXED"></column>
+            <column name="NOMBRE" value="VOLUNTER"></column>
+            <column name="DESCRIPCION" value="Marca Volunter"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="111"></column>
+            <column name="UUID" value="tiM9n82C2qNH"></column>
+            <column name="NOMBRE" value="WALTER"></column>
+            <column name="DESCRIPCION" value="Marca Walter"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="112"></column>
+            <column name="UUID" value="2e7IwWanUr2y"></column>
+            <column name="NOMBRE" value="WARNING"></column>
+            <column name="DESCRIPCION" value="Marca Warning"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="113"></column>
+            <column name="UUID" value="GqLgmDaXhL11"></column>
+            <column name="NOMBRE" value="WEATHERBY"></column>
+            <column name="DESCRIPCION" value="Marca Weatherby"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="114"></column>
+            <column name="UUID" value="bqSu9rX9z4Vh"></column>
+            <column name="NOMBRE" value="WEBLEY AND SCOTT"></column>
+            <column name="DESCRIPCION" value="Marca Webley And Scott"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="115"></column>
+            <column name="UUID" value="zgQgAy8RsnkY"></column>
+            <column name="NOMBRE" value="WESTERFIELD"></column>
+            <column name="DESCRIPCION" value="Marca Westerfield"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="116"></column>
+            <column name="UUID" value="vYtYtXP5PZk0"></column>
+            <column name="NOMBRE" value="WESTERN S."></column>
+            <column name="DESCRIPCION" value="Marca Western S."></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="armas_marcas">
+            <column name="ID" value="117"></column>
+            <column name="UUID" value="VFOdRAvTOAR6"></column>
+            <column name="NOMBRE" value="WINCHESTER"></column>
+            <column name="DESCRIPCION" value="Marca Winchester"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+    </changeSet>
+</databaseChangeLog>

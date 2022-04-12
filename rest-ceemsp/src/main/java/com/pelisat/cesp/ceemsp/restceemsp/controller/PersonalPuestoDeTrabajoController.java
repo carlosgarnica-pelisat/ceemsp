@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -43,5 +44,24 @@ public class PersonalPuestoDeTrabajoController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return personalPuestoDeTrabajoService.crearNuevo(personalPuestoDeTrabajoDto, username);
+    }
+
+    @PutMapping(value = PERSONALIDAD_PUESTO_TRABAJO_URI  + "/{puestoTrabajoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PersonalPuestoDeTrabajoDto modificarPuestoTrabajo(
+            HttpServletRequest request,
+            @RequestBody PersonalPuestoDeTrabajoDto personalPuestoDeTrabajoDto,
+            @PathVariable(value = "puestoTrabajoUuid") String puestoTrabajoUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return personalPuestoDeTrabajoService.modificar(puestoTrabajoUuid, username, personalPuestoDeTrabajoDto);
+    }
+
+    @DeleteMapping(value = PERSONALIDAD_PUESTO_TRABAJO_URI  + "/{puestoTrabajoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public PersonalPuestoDeTrabajoDto eliminarPuestoTrabajo(
+            HttpServletRequest request,
+            @PathVariable(value = "puestoTrabajoUuid") String puestoTrabajoUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return personalPuestoDeTrabajoService.eliminar(puestoTrabajoUuid, username);
     }
 }

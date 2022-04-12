@@ -5,7 +5,7 @@
 
     <changeSet id="2022-03-06-agregar-columna-curp-apoderado" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <addColumn tableName="EMPRESAS_ESCRITURAS_APODERADOS">
+        <addColumn tableName="empresas_escrituras_apoderados">
             <column name="CURP" type="VARCHAR(18)"></column>
         </addColumn>
     </changeSet>

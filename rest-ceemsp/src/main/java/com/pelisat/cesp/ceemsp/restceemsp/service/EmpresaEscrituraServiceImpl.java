@@ -42,6 +42,9 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
     private final DtoToDaoConverter dtoToDaoConverter;
     private final DaoHelper<CommonModel> daoHelper;
     private final ArchivosService archivosService;
+    private final LocalidadService localidadService;
+    private final MunicipioService municipioService;
+    private final EstadoService estadoService;
 
     @Autowired
     public EmpresaEscrituraServiceImpl(
@@ -49,7 +52,8 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
             EmpresaEscrituraRepresentanteRepository empresaEscrituraRepresentanteRepository, EmpresaService empresaService,
             DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper,
             UsuarioService usuarioService, EmpresaEscrituraSocioRepository empresaEscrituraSociosRepository,
-            EmpresaEscrituraConsejoRepository empresaEscrituraConsejoRepository, ArchivosService archivosService
+            EmpresaEscrituraConsejoRepository empresaEscrituraConsejoRepository, ArchivosService archivosService,
+            LocalidadService localidadService, MunicipioService municipioService, EstadoService estadoService
     ) {
         this.empresaEscrituraApoderadoRepository = empresaEscrituraApoderadoRepository;
         this.empresaEscrituraRepository = empresaEscrituraRepository;
@@ -62,6 +66,9 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
         this.usuarioService = usuarioService;
         this.empresaEscrituraConsejoRepository = empresaEscrituraConsejoRepository;
         this.archivosService = archivosService;
+        this.localidadService = localidadService;
+        this.municipioService = municipioService;
+        this.estadoService = estadoService;
     }
 
     @Override
@@ -118,7 +125,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
         EmpresaEscrituraDto response = daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscritura);
 
         if(!soloEntidad) {
-            logger.info("Descargando informacion de los socios");
+            logger.info("Descargando informacion de los integrantes");
             List<EmpresaEscrituraSocio> socios = empresaEscrituraSociosRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
             List<EmpresaEscrituraApoderado> apoderados = empresaEscrituraApoderadoRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
             List<EmpresaEscrituraRepresentante> representantes = empresaEscrituraRepresentanteRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
@@ -128,6 +135,11 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
             response.setApoderados(apoderados.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraApoderado).collect(Collectors.toList()));
             response.setRepresentantes(representantes.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraRepresentante).collect(Collectors.toList()));
             response.setConsejos(consejos.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraConsejo).collect(Collectors.toList()));
+
+            logger.info("Agregando catalogos de domicilio");
+            response.setLocalidadCatalogo(localidadService.obtenerLocalidadPorId(empresaEscritura.getLocalidadCatalogo()));
+            response.setEstadoCatalogo(estadoService.obtenerPorId(empresaEscritura.getEstadoCatalogo()));
+            response.setMunicipioCatalogo(municipioService.obtenerMunicipioPorId(empresaEscritura.getMunicipioCatalogo()));
         }
 
         return response;
@@ -148,6 +160,9 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
 
         EmpresaEscritura empresaEscritura = dtoToDaoConverter.convertDtoToDaoEmpresaEscritura(empresaEscrituraDto);
         empresaEscritura.setEmpresa(empresaDto.getId());
+        empresaEscritura.setEstadoCatalogo(empresaEscrituraDto.getEstadoCatalogo().getId());
+        empresaEscritura.setMunicipioCatalogo(empresaEscrituraDto.getMunicipioCatalogo().getId());
+        empresaEscritura.setLocalidadCatalogo(empresaEscrituraDto.getLocalidadCatalogo().getId());
         empresaEscritura.setFechaEscritura(LocalDate.parse(empresaEscrituraDto.getFechaEscritura()));
         daoHelper.fulfillAuditorFields(true, empresaEscritura, usuarioDto.getId());
         String ruta = "";
@@ -246,10 +261,17 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
 
         empresaEscritura.setNumeroEscritura(empresaEscrituraDto.getNumeroEscritura());
         empresaEscritura.setNombreFedatario(empresaEscrituraDto.getNombreFedatario());
+        empresaEscritura.setApellidoPaterno(empresaEscrituraDto.getApellidoPaterno());
+        empresaEscritura.setApellidoMaterno(empresaEscrituraDto.getApellidoMaterno());
+        empresaEscritura.setCurp(empresaEscrituraDto.getCurp());
         empresaEscritura.setTipoFedatario(empresaEscrituraDto.getTipoFedatario());
         empresaEscritura.setNumero(empresaEscrituraDto.getNumero());
         empresaEscritura.setCiudad(empresaEscrituraDto.getCiudad());
         empresaEscritura.setDescripcion(empresaEscrituraDto.getDescripcion());
+
+        empresaEscritura.setLocalidadCatalogo(empresaEscrituraDto.getLocalidadCatalogo().getId());
+        empresaEscritura.setMunicipioCatalogo(empresaEscrituraDto.getMunicipioCatalogo().getId());
+        empresaEscritura.setEstadoCatalogo(empresaEscrituraDto.getEstadoCatalogo().getId());
 
         daoHelper.fulfillAuditorFields(false, empresaEscritura, usuarioDto.getId());
 

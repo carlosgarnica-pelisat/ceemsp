@@ -5,7 +5,7 @@
 
     <changeSet id="2021-11-21-agregar-canes-armas-submodalidades" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <addColumn tableName="SUBMODALIDADES">
+        <addColumn tableName="submodalidades">
             <column name="CANES" type="BIT"></column>
             <column name="ARMAS" type="BIT"></column>
         </addColumn>

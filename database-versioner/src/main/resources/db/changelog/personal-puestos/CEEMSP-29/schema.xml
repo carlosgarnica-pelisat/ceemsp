@@ -1,0 +1,41 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-04-01-agregar-puestos'trabajo" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <insert tableName="personal_puestos">
+            <column name="ID" value="1"></column>
+            <column name="UUID" value="5qCD0Uxr9Phf"></column>
+            <column name="NOMBRE" value="Administrativo"></column>
+            <column name="DESCRIPCION" value="Administrativo"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="personal_puestos">
+            <column name="ID" value="2"></column>
+            <column name="UUID" value="xd0MYeshwxxG"></column>
+            <column name="NOMBRE" value="Operativo"></column>
+            <column name="DESCRIPCION" value="Operativo"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="personal_puestos">
+            <column name="ID" value="3"></column>
+            <column name="UUID" value="rf2qHRRtKdFB"></column>
+            <column name="NOMBRE" value="Tecnico"></column>
+            <column name="DESCRIPCION" value="Tecnico"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

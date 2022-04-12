@@ -1,6 +1,9 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.ArmaDto;
+import com.pelisat.cesp.ceemsp.database.dto.IncidenciaDto;
+import com.pelisat.cesp.ceemsp.database.dto.PersonaDto;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -12,4 +15,5 @@ public interface ArmaService {
     ArmaDto guardarArma(String uuid, String licenciaColectivaUuid, String username, ArmaDto armaDto);
     ArmaDto modificarArma(String uuid, String licenciaColectivaUuid, String armaUuid, String username, ArmaDto armaDto);
     ArmaDto eliminarArma(String uuid, String licenciaColectivaUuid, String armaUuid, String username);
+    ArmaDto cambiarStatusCustodia(String uuid, String licenciaColectivaUuid, String armaUuid, String username, String relatoHechos, MultipartFile documentoFundatorio);
 }

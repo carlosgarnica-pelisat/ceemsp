@@ -48,4 +48,23 @@ public class ComunicadoGeneralController {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return comunicadoGeneralService.guardarComunicado(username, comunicadoGeneralDto);
     }
+
+    @PutMapping(value = COMUNICADOS_GENERALES_URI + "/{comunicadoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ComunicadoGeneralDto modificarComunicado(
+            @RequestBody ComunicadoGeneralDto comunicadoGeneralDto,
+            HttpServletRequest request,
+            @PathVariable(value = "comunicadoUuid") String comunicadoUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return comunicadoGeneralService.modificarComunicado(comunicadoUuid, username, comunicadoGeneralDto);
+    }
+
+    @DeleteMapping(value = COMUNICADOS_GENERALES_URI + "/{comunicadoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ComunicadoGeneralDto eliminarComunicado(
+            HttpServletRequest request,
+            @PathVariable(value = "comunicadoUuid") String comunicadoUuid
+    ) throws Exception {
+        String username =  jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return comunicadoGeneralService.eliminarComunicado(comunicadoUuid, username);
+    }
 }

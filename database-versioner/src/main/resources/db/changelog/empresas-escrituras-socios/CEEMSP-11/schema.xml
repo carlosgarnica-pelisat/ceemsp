@@ -5,7 +5,7 @@
 
     <changeSet id="2022-01-17-agregar-columnas-porcentaje" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <addColumn tableName="EMPRESAS_ESCRITURAS_SOCIOS">
+        <addColumn tableName="empresas_escrituras_socios">
             <column name="PORCENTAJE_ACCIONES" type="DECIMAL(10,2)"></column>
             <column name="APELLIDO_MATERNO" type="VARCHAR(60)"></column>
         </addColumn>

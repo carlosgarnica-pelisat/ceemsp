@@ -20,11 +20,7 @@ export class PersonalComponent implements OnInit {
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
-      }}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
   ];
   rowData: PersonalPuestoTrabajo[] = [];
   puestoTrabajo: PersonalPuestoTrabajo;
@@ -58,8 +54,8 @@ export class PersonalComponent implements OnInit {
     })
 
     this.crearPuestoDeTrabajoForm = this.formBuilder.group({
-      nombre: ['', Validators.required],
-      descripcion: ['']
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      descripcion: ['', [Validators.maxLength(100)]]
     });
 
     this.crearSubpuestoDeTrabajoForm = this.formBuilder.group({
@@ -84,14 +80,6 @@ export class PersonalComponent implements OnInit {
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     })
-  }
-
-  modify(rowData) {
-
-  }
-
-  delete(rowData) {
-
   }
 
   mostrarFormularioSubpuestos() {

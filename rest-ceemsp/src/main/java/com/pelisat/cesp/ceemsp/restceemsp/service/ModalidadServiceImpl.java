@@ -6,6 +6,7 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CanTipoAdiestramiento;
 import com.pelisat.cesp.ceemsp.database.model.Modalidad;
 import com.pelisat.cesp.ceemsp.database.model.Submodalidad;
+import com.pelisat.cesp.ceemsp.database.model.VehiculoUso;
 import com.pelisat.cesp.ceemsp.database.repository.ModalidadRepository;
 import com.pelisat.cesp.ceemsp.database.repository.SubmodalidadRepository;
 import com.pelisat.cesp.ceemsp.database.type.TipoTramiteEnum;
@@ -148,11 +149,56 @@ public class ModalidadServiceImpl implements ModalidadService {
 
     @Override
     public ModalidadDto modificarModalidad(ModalidadDto modalidadDto, String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || modalidadDto == null) {
+            logger.warn("Alguno de los campos vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando la modalidad con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        Modalidad modalidad = modalidadRepository.findByUuidAndEliminadoFalse(uuid);
+
+        if(modalidad == null) {
+            logger.warn("El uso del vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        modalidad.setNombre(modalidadDto.getNombre());
+        modalidad.setDescripcion(modalidadDto.getDescripcion());
+        modalidad.setFechaActualizacion(LocalDateTime.now());
+        modalidad.setActualizadoPor(usuario.getId());
+
+        modalidadRepository.save(modalidad);
+
+        return daoToDtoConverter.convertDaoToDtoModalidad(modalidad);
     }
 
     @Override
     public ModalidadDto eliminarModalidad(String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la marca del arma con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        Modalidad modalidad = modalidadRepository.findByUuidAndEliminadoFalse(uuid);
+
+        if(modalidad == null) {
+            logger.warn("La modalidad no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        modalidad.setEliminado(true);
+        modalidad.setFechaActualizacion(LocalDateTime.now());
+        modalidad.setActualizadoPor(usuario.getId());
+
+        modalidadRepository.save(modalidad);
+
+        return daoToDtoConverter.convertDaoToDtoModalidad(modalidad);
     }
 }

@@ -31,4 +31,6 @@ public class ClienteDomicilioDto {
     private LocalidadDto localidadCatalogo;
     private ColoniaDto coloniaCatalogo;
     private CalleDto calleCatalogo;
+    private String apellidoPaternoContacto;
+    private String apellidoMaternoContacto;
 }

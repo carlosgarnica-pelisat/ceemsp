@@ -951,7 +951,7 @@ export class EmpresaPersonalComponent implements OnInit {
     if(this.tempUuidFotografia === undefined) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        "El UUID de la capacitacion a eliminar no esta definido",
+        "El UUID de la fotografia a eliminar no esta definido",
         ToastType.WARNING
       );
       return;

@@ -18,6 +18,12 @@ public class EmpresaEscrituraDto {
     private String numero;
     private String nombreFedatario;
     private String descripcion;
+    private String apellidoPaterno;
+    private String apellidoMaterno;
+    private String curp;
+    private EstadoDto estadoCatalogo;
+    private MunicipioDto municipioCatalogo;
+    private LocalidadDto localidadCatalogo;
 
     private List<EmpresaEscrituraSocioDto> socios;
     private List<EmpresaEscrituraApoderadoDto> apoderados;

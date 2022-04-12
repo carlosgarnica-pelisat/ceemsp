@@ -343,13 +343,8 @@
                   <td>{{f?.descripcion}}</td>
                   <td>
                     <div class="btn-group">
-                      <button type="button" class="btn btn-primary btn-sm" (click)="descargarFotografia(f?.uuid)"><fa-icon [icon]="faDownload"></fa-icon> Descargar</button>
-                      <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span class="sr-only">Toggle Dropdown</span>
-                      </button>
-                      <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#"><fa-icon [icon]="faTrash"></fa-icon> Eliminar</a>
-                      </div>
+                      <fa-icon [icon]="faDownload" title="Descargar la fotografia" (click)="descargarFotografia(f?.uuid)"></fa-icon>
+                      <fa-icon [icon]="faTrash" title="Eliminar la fotografia" (click)="mostrarModalEliminarFotografia(f?.uuid)"></fa-icon>
                     </div>
                   </td>
                 </tr>
@@ -412,7 +407,7 @@
 
   <ng-template #modificarCanModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="modificarCanModal">Nuevo can </h4>
+      <h4 class="modal-title" id="modificarCanModal">Modificar can </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -921,7 +916,7 @@
                   <div class="col-sm-12">
                     <button (click)="previous()" class="btn btn-primary">Anterior: Info. del can
                     </button>
-                    <button (click)="next('ENTRENAMIENTO', crearEmpresaCanCertificadoSaludForm)" class="btn btn-primary">Siguiente: Vacunacion
+                    <button (click)="next('ENTRENAMIENTO', crearEmpresaCanCartillaVacunacionForm)" class="btn btn-primary">Siguiente: Vacunacion
                     </button>
                   </div>
                 </div>
@@ -998,7 +993,7 @@
 
   <ng-template #mostrarFotoCanesModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="mostrarFotoVehiculoModal">Ver fotografia del vehiculo </h4>
+      <h4 class="modal-title" id="mostrarFotoCanesModal">Ver fotografia del can </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -1076,7 +1071,7 @@
 
   <ng-template #eliminarCanEntrenamientoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="eliminarCanEntrenamientoModal">Eliminando el entrenamiento del can </h4>
+      <h4 class="modal-title" id="eliminarCanEntrenamientoModal">Eliminando la fotografia del can </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -1084,12 +1079,32 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estás a punto de eliminar el entrenamiento del can. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estás a punto de eliminar la fotografia del can. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarEntrenamientoCan()">Si, eliminar</button>
+      <button class="btn btn-danger" (click)="confirmarEliminarFotografiaCan()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarCanFotografiaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarCanFotografiaModal">Eliminando la fotografia del can </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar la fotografia del can. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarFotografiaCan()">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>

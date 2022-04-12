@@ -35,10 +35,6 @@ export class CanesService {
     return this.http.get(`${this.uri}/catalogos/canes/adiestramientos`)
   }
 
-  getEntrenamientoByUuid(uuid: String) {
-    return this.http.get(`${this.uri}/catalogos/canes/adiestramientos/${uuid}`)
-  }
-
   saveEntrenamiento(canEntrenamiento: TipoEntrenamiento) {
     return this.http.post(`${this.uri}/catalogos/canes/adiestramientos`, canEntrenamiento)
   }

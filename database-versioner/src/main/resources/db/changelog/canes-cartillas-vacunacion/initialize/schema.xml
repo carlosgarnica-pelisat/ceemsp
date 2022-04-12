@@ -5,7 +5,7 @@
 
     <changeSet id="2021-08-31-crear-tabla-canes-cartillas-vacunacion" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="CANES_CARTILLAS_VACUNACION">
+        <createTable tableName="canes_cartillas_vacunacion">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="CAN" type="int"></column>
@@ -21,10 +21,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="CANES_CARTILLAS_VACUNACION" columnNames="ID" />
-        <addAutoIncrement tableName="CANES_CARTILLAS_VACUNACION" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="canes_cartillas_vacunacion" columnNames="ID" />
+        <addAutoIncrement tableName="canes_cartillas_vacunacion" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="CANES_CARTILLAS_VACUNACION" columnNames="UUID" />
+        <addUniqueConstraint tableName="canes_cartillas_vacunacion" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

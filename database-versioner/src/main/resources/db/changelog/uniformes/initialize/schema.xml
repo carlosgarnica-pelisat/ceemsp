@@ -5,7 +5,7 @@
 
     <changeSet id="2022-01-13-crear-tabla-uniformes" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="UNIFORMES">
+        <createTable tableName="uniformes">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(100)"></column>
@@ -18,10 +18,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="UNIFORMES" columnNames="ID" />
-        <addAutoIncrement tableName="UNIFORMES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="uniformes" columnNames="ID" />
+        <addAutoIncrement tableName="uniformes" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="UNIFORMES" columnNames="UUID" />
+        <addUniqueConstraint tableName="uniformes" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

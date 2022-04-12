@@ -30,6 +30,11 @@ public class VisitaController {
         return visitaService.obtenerTodas();
     }
 
+    @GetMapping(value = VISITA_URI + "/proximas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<VisitaDto> obtenerProximasVisitas() {
+        return visitaService.obtenerProximasVisitas();
+    }
+
     @GetMapping(value = VISITA_URI + "/{visitaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public VisitaDto obtenerVisitaPorUuid(
             @PathVariable(value = "visitaUuid") String visitaUuid
@@ -44,5 +49,34 @@ public class VisitaController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return visitaService.crearNuevo(visitaDto, username);
+    }
+
+    @PutMapping(value = VISITA_URI + "/{visitaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public VisitaDto modificarVisita(
+            HttpServletRequest request,
+            @RequestBody VisitaDto visitaDto,
+            @PathVariable(value = "visitaUuid") String visitaUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return visitaService.modificarVisita(visitaUuid, username, visitaDto);
+    }
+
+    @PutMapping(value = VISITA_URI + "/{visitaUuid}/requerimientos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public VisitaDto modificarRequerimientoVisita(
+            HttpServletRequest request,
+            @RequestBody VisitaDto visitaDto,
+            @PathVariable(value = "visitaUuid") String visitaUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return visitaService.modificarRequerimiento(visitaUuid, username, visitaDto);
+    }
+
+    @DeleteMapping(value = VISITA_URI + "/{visitaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public VisitaDto modificarVisita(
+            HttpServletRequest request,
+            @PathVariable(value = "visitaUuid") String visitaUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return visitaService.eliminarVisita(visitaUuid, username);
     }
 }

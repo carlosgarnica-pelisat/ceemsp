@@ -18,16 +18,17 @@ export class ComunicadoGeneralNuevoComponent implements OnInit {
   public editor = ClassicEditor;
   nuevoComunicadoForm: FormGroup;
   model = {
-    editorData: '<p>Hello world!</p>'
+    editorData: '<p>Escribe con detalle el comunicado. Puedes utilizar los botones de la parte superior</p>'
   }
   rowData: ComunicadoGeneral[] = [];
+  fechaDeHoy = new Date().toISOString().split('T')[0];
 
   constructor(private formBuilder: FormBuilder, private comunicadosGeneralesService: ComunicadosGeneralesService,
               private toastService: ToastService, private sanitizeHtmlPipe: SanitizeHtmlPipe) { }
 
   ngOnInit(): void {
     this.nuevoComunicadoForm = this.formBuilder.group({
-      titulo: ['', Validators.required],
+      titulo: ['', [Validators.required, Validators.maxLength(100)]],
       fechaPublicacion: ['', Validators.required]
     })
   }

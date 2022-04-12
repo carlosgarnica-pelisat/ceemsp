@@ -671,7 +671,7 @@
                   <div class="row">
                     <div class="col-sm-4">
                       <label for="archivo">
-                        <b>Archivo (en pdf) *</b>
+                        <b>Archivo (en pdf)</b>
                       </label>
                       <input id="archivo" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
                     </div>
@@ -966,14 +966,17 @@
                         <td><b>Tipo infraestructura</b></td>
                         <td><b>Acciones</b></td>
                       </tr>
-                      <tr *ngFor="let d of domicilios">
+                      <tr *ngFor="let d of domicilios; let i = index">
                         <td>{{d.nombre}}</td>
                         <td>{{d.calleCatalogo?.nombre + " " + d.numeroExterior + " " + d.numeroInterior}}</td>
                         <td>{{d.coloniaCatalogo?.nombre}}</td>
                         <td>{{d.localidadCatalogo?.nombre}}</td>
                         <td>{{d.contacto}}</td>
                         <td>{{d.tipoInfraestructura.descripcion}}</td>
-                        <td></td>
+                        <td>
+                          <fa-icon [icon]="faPencilAlt" title="Editar domicilio" (click)="modificarDomicilio(i)"></fa-icon>
+                          <fa-icon [icon]="faTrash" title="Eliminar domicilio" (click)="mostrarQuitarClienteDomicilioModal(i)"></fa-icon>
+                        </td>
                       </tr>
                     </table>
                   </div>
@@ -1003,7 +1006,10 @@
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary" (click)="previous()">
+                      Atras
+                    </button>
+                    <button class="btn btn-primary" (click)="finalizar()">
                       Cerrar
                     </button>
                   </div>
@@ -1054,6 +1060,26 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarDomicilioCliente()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #quitarDomicilioClienteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="quitarDomicilioClienteModal">Quitando un domicilio del cliente </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de quitar el domicilio del cliente. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarQuitarDomicilioCliente()">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>

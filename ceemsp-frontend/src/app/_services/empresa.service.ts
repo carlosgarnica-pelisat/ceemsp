@@ -414,10 +414,21 @@ export class EmpresaService {
     return this.http.delete(`${this.uri}/empresas/${uuid}/canes/${canUuid}`);
   }
 
+  descargarCanFotografia(uuid: string, canUuid: string, canFotografiaUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes/${canUuid}/fotografias/${canFotografiaUuid}`, httpOptions)
+  }
+
   guardarCanFotografia(empresaUuid: string, canUuid: string, formData: FormData) {
     return this.http.post(
       `${this.uri}/empresas/${empresaUuid}/canes/${canUuid}/fotografias`,
       formData, {headers: {'X-isFile': 'true'}})
+  }
+
+  eliminarCanFotografia(empresaUuid: string, canFotografia: string, fotografiaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/canes/${canFotografia}/fotografias/${fotografiaUuid}`);
   }
 
   // Canes adiestramiento
@@ -484,6 +495,10 @@ export class EmpresaService {
   }
 
   // Armas
+  obtenerArmas(uuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/armas`);
+  }
+
   obtenerArmasPorLicenciaColectivaUuid(uuid: string, licenciaColectivaUuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas`);
   }
@@ -505,8 +520,20 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/equipos`);
   }
 
+  obtenerEquipoPorUuid(uuid: string, equipoUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/equipos/${equipoUuid}`)
+  }
+
   guardarEquipo(uuid: string, equipo: EmpresaEquipo) {
     return this.http.post(`${this.uri}/empresas/${uuid}/equipos`, equipo);
+  }
+
+  modificarEquipo(uuid: string, equipoUuid: string, equipo: EmpresaEquipo) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/equipos/${equipoUuid}`, equipo)
+  }
+
+  eliminarEquipo(uuid: string, equipoUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/equipos/${equipoUuid}`);
   }
 
   // Uniformes
@@ -522,8 +549,24 @@ export class EmpresaService {
     return this.http.post(`${this.uri}/empresas/${uuid}/uniformes`, uniforme);
   }
 
+  modificarUniforme(uuid: string, uuidUniforme: string, uniforme: Uniforme) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/uniformes/${uuidUniforme}`, uniforme);
+  }
+
+  eliminarUniforme(uuid: string, uuidUniforme: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/uniformes/${uuidUniforme}`);
+  }
+
   guardarUniformeElemento(uuid: string, uniformeUuid: string, elementoUniforme: EmpresaUniformeElemento) {
     return this.http.post(`${this.uri}/empresas/${uuid}/uniformes/${uniformeUuid}/elementos`, elementoUniforme);
+  }
+
+  modificarUniformeElemento(uuid: string, uniformeUuid: string, elementoUuid: string, elementoUniforme: EmpresaUniformeElemento) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/uniformes/${uniformeUuid}/elementos/${elementoUuid}`, elementoUniforme)
+  }
+
+  eliminarUniformeElemento(uuid: string, uniformeUuid: string, elementoUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/uniformes/${uniformeUuid}/elementos/${elementoUuid}`)
   }
 
   // Incidencias

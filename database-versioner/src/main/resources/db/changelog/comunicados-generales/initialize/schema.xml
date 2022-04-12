@@ -5,7 +5,7 @@
 
     <changeSet id="2021-09-15-crear-tabla-comunicados_generales" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="COMUNICADOS_GENERALES">
+        <createTable tableName="comunicados_generales">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="TITULO" type="VARCHAR(500)"></column>
@@ -19,10 +19,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="COMUNICADOS_GENERALES" columnNames="ID" />
-        <addAutoIncrement tableName="COMUNICADOS_GENERALES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="comunicados_generales" columnNames="ID" />
+        <addAutoIncrement tableName="comunicados_generales" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="COMUNICADOS_GENERALES" columnNames="UUID" />
+        <addUniqueConstraint tableName="comunicados_generales" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

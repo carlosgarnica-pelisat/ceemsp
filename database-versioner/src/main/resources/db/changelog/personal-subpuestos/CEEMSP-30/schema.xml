@@ -1,0 +1,107 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-04-01-agregar-subpuestos-trabajo" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <insert tableName="personal_subpuestos">
+            <column name="ID" value="1"></column>
+            <column name="UUID" value="jfF1NUdPnkdu"></column>
+            <column name="PUESTO" value="3"></column>
+            <column name="NOMBRE" value="Guardia"></column>
+            <column name="DESCRIPCION" value="Guardia"></column>
+            <column name="PORTACION" valueBoolean="true"></column>
+            <column name="CUIP" valueBoolean="true"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="personal_subpuestos">
+            <column name="ID" value="2"></column>
+            <column name="UUID" value="6TH08mqohSFz"></column>
+            <column name="PUESTO" value="3"></column>
+            <column name="NOMBRE" value="Vigilante"></column>
+            <column name="DESCRIPCION" value="Vigilante"></column>
+            <column name="PORTACION" valueBoolean="true"></column>
+            <column name="CUIP" valueBoolean="true"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="personal_subpuestos">
+            <column name="ID" value="3"></column>
+            <column name="UUID" value="EOS7tyWlGGui"></column>
+            <column name="PUESTO" value="3"></column>
+            <column name="NOMBRE" value="Custodio"></column>
+            <column name="DESCRIPCION" value="Custodio"></column>
+            <column name="PORTACION" valueBoolean="true"></column>
+            <column name="CUIP" valueBoolean="true"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="personal_subpuestos">
+            <column name="ID" value="4"></column>
+            <column name="UUID" value="AbgnJG0bkcPX"></column>
+            <column name="PUESTO" value="3"></column>
+            <column name="NOMBRE" value="Supervisor"></column>
+            <column name="DESCRIPCION" value="Supervisor"></column>
+            <column name="PORTACION" valueBoolean="true"></column>
+            <column name="CUIP" valueBoolean="true"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="personal_subpuestos">
+            <column name="ID" value="5"></column>
+            <column name="UUID" value="koUfFQnonF5w"></column>
+            <column name="PUESTO" value="3"></column>
+            <column name="NOMBRE" value="Monitorista"></column>
+            <column name="DESCRIPCION" value="Monitorista"></column>
+            <column name="PORTACION" valueBoolean="true"></column>
+            <column name="CUIP" valueBoolean="true"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="personal_subpuestos">
+            <column name="ID" value="6"></column>
+            <column name="UUID" value="dwy81asw7lTs"></column>
+            <column name="PUESTO" value="3"></column>
+            <column name="NOMBRE" value="Instalador"></column>
+            <column name="DESCRIPCION" value="Instalador"></column>
+            <column name="PORTACION" valueBoolean="true"></column>
+            <column name="CUIP" valueBoolean="true"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="personal_subpuestos">
+            <column name="ID" value="7"></column>
+            <column name="UUID" value="Iys19jO4Ua2l"></column>
+            <column name="PUESTO" value="3"></column>
+            <column name="NOMBRE" value="Tecnico"></column>
+            <column name="DESCRIPCION" value="Tecnico"></column>
+            <column name="PORTACION" valueBoolean="true"></column>
+            <column name="CUIP" valueBoolean="true"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+    </changeSet>
+</databaseChangeLog>

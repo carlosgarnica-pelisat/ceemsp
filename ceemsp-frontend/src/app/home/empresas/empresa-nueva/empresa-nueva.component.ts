@@ -139,6 +139,11 @@ export class EmpresaNuevaComponent implements OnInit {
   representante: EmpresaEscrituraRepresentante;
   consejo: EmpresaEscrituraConsejo;
 
+  socios: EmpresaEscrituraSocio[] = [];
+  apoderados: EmpresaEscrituraApoderado[] = [];
+  representantes: EmpresaEscrituraRepresentante[] = [];
+  consejos: EmpresaEscrituraConsejo[] = [];
+
   constructor(private formBuilder: FormBuilder, private modalidadService: ModalidadesService,
               private toastService: ToastService, private empresaService: EmpresaService,
               private publicService: PublicService, private validacionService: ValidacionService,
@@ -148,7 +153,7 @@ export class EmpresaNuevaComponent implements OnInit {
   ngOnInit(): void {
     this.empresaCreacionForm = this.formBuilder.group({
       tipoTramite: ['', Validators.required],
-      registro: ['', [Validators.required, Validators.maxLength(5), Validators.minLength(5)]],
+      registro: ['', [Validators.required, Validators.maxLength(5), Validators.minLength(3)]],
       tipoPersona: ['', Validators.required],
       razonSocial: ['', [Validators.required, Validators.maxLength(100)]],
       nombreComercial: ['', [Validators.required, Validators.maxLength(100)]],
@@ -186,6 +191,9 @@ export class EmpresaNuevaComponent implements OnInit {
       tipoFedatario: ['', Validators.required],
       numero: ['', [Validators.required, Validators.min(1), Validators.max(9999)]],
       nombreFedatario: ['', [Validators.required, Validators.maxLength(100)]],
+      apellidoPaterno: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
+      curp: ['', [Validators.required, Validators.minLength(18), Validators.maxLength(18)]],
       descripcion: ['', Validators.required],
       archivo: ['', Validators.required]
     });
@@ -201,7 +209,7 @@ export class EmpresaNuevaComponent implements OnInit {
       apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
       sexo: ['', Validators.required],
       porcentajeAcciones: ['', [Validators.required, Validators.min(1), Validators.max(100)]],
-      curp: ['', [Validators.required, Validators.minLength(18), Validators.maxLength(18)]]
+      curp: ['', [Validators.minLength(18), Validators.maxLength(18)]]
     })
 
     this.nuevoApoderadoForm = this.formBuilder.group({
@@ -211,7 +219,7 @@ export class EmpresaNuevaComponent implements OnInit {
       sexo: ['', Validators.required],
       fechaInicio: ['', Validators.required],
       fechaFin: ['', Validators.required],
-      curp: ['', [Validators.required, Validators.minLength(18), Validators.maxLength(18)]]
+      curp: ['', [Validators.minLength(18), Validators.maxLength(18)]]
     })
 
     this.nuevoRepresentanteForm = this.formBuilder.group({
@@ -219,7 +227,7 @@ export class EmpresaNuevaComponent implements OnInit {
       apellidos: ['', [Validators.required, Validators.maxLength(60)]],
       apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
       sexo: ['', Validators.required],
-      curp: ['', [Validators.required, Validators.minLength(18), Validators.maxLength(18)]]
+      curp: ['', [Validators.minLength(18), Validators.maxLength(18)]]
     })
 
     this.nuevoConsejoAdministracionForm = this.formBuilder.group({
@@ -228,7 +236,7 @@ export class EmpresaNuevaComponent implements OnInit {
       apellidoMaterno: ['', [Validators.maxLength(60)]],
       sexo: ['', Validators.required],
       puesto: ['', Validators.required],
-      curp: ['', [Validators.required, Validators.minLength(18), Validators.maxLength(18)]],
+      curp: ['', [Validators.minLength(18), Validators.maxLength(18)]],
     })
 
     this.empresaFormaEjecucionForm = this.formBuilder.group({
@@ -327,6 +335,11 @@ export class EmpresaNuevaComponent implements OnInit {
   seleccionarEstado(estadoUuid) {
     // DELETING EVERYTHING!
     this.estado = this.estados.filter(x => x.uuid === estadoUuid)[0];
+    this.municipio = undefined;
+    this.localidad = undefined;
+    this.colonia = undefined;
+    this.calle = undefined;
+
     this.empresaDomiciliosForm.patchValue({
       estado: this.estado.nombre
     })
@@ -357,9 +370,23 @@ export class EmpresaNuevaComponent implements OnInit {
   seleccionarMunicipio(municipioUuid) {
     this.municipio = this.municipios.filter(x => x.uuid === municipioUuid)[0];
 
+    this.localidad = undefined;
+    this.colonia = undefined;
+    this.calle = undefined;
+
     if(this.stepName === 'LEGAL') {
       this.nuevaEscrituraForm.patchValue({
         ciudad: this.municipio.nombre
+      })
+
+      this.estadoService.obtenerLocalidadesPorMunicipioYEstado(this.estado.uuid, municipioUuid).subscribe((data: Localidad[]) => {
+        this.localidades = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las localidades. Motivo: ${error}`,
+          ToastType.ERROR
+        );
       })
     }
 
@@ -395,6 +422,8 @@ export class EmpresaNuevaComponent implements OnInit {
 
   seleccionarLocalidad(localidadUuid) {
     this.localidad = this.localidades.filter(x => x.uuid === localidadUuid)[0];
+    this.colonia = undefined;
+    this.calle = undefined;
   }
 
   eliminarLocalidad() {
@@ -403,6 +432,7 @@ export class EmpresaNuevaComponent implements OnInit {
 
   seleccionarColonia(coloniaUuid) {
     this.colonia = this.colonias.filter(x => x.uuid === coloniaUuid)[0];
+    this.calle = undefined;
     this.empresaDomiciliosForm.patchValue({
       codigoPostal: this.colonia.codigoPostal
     })
@@ -463,23 +493,25 @@ export class EmpresaNuevaComponent implements OnInit {
 
     let empresaSocio: EmpresaEscrituraSocio = form.value;
 
-    if(!curp.validar(empresaSocio.curp)) {
-      this.toastService.showGenericToast(
+    if(empresaSocio.curp !== null && empresaSocio.curp !== "") {
+      if(!curp.validar(empresaSocio.curp)) {
+        this.toastService.showGenericToast(
           "Ocurrio un problema",
           "La CURP ingresada para el socio no es valida",
           ToastType.WARNING
-      );
-      return;
-    }
+        );
+        return;
+      }
 
-    let existeSocioRfc = this.empresaEscritura.socios.filter(x => x.curp === empresaSocio.curp)
-    if(existeSocioRfc.length > 0) {
-      this.toastService.showGenericToast(
+      let existeSocioRfc = this.empresaEscritura.socios.filter(x => x.curp === empresaSocio.curp)
+      if(existeSocioRfc.length > 0) {
+        this.toastService.showGenericToast(
           "Ocurrio un problema",
           "Ya hay un socio registrado con este CURP",
           ToastType.WARNING
-      );
-      return;
+        );
+        return;
+      }
     }
 
     if(this.empresaEscritura.socios.length > 0) {
@@ -527,23 +559,25 @@ export class EmpresaNuevaComponent implements OnInit {
 
     let empresaApoderado: EmpresaEscrituraApoderado = form.value;
 
-    if(!curp.validar(empresaApoderado.curp)) {
-      this.toastService.showGenericToast(
+    if(empresaApoderado.curp !== null && empresaApoderado.curp !== "") {
+      if(!curp.validar(empresaApoderado.curp)) {
+        this.toastService.showGenericToast(
           "Ocurrio un problema",
-          "La CURP ingresada para el socio no es valida",
+          "La CURP ingresada para el apoderado no es valida",
           ToastType.WARNING
-      );
-      return;
-    }
+        );
+        return;
+      }
 
-    let existeApoderadoRfc = this.empresaEscritura.apoderados.filter(x => x.curp === empresaApoderado.curp)
-    if(existeApoderadoRfc.length > 0) {
-      this.toastService.showGenericToast(
+      let existeApoderadoRfc = this.empresaEscritura.apoderados.filter(x => x.curp === empresaApoderado.curp)
+      if(existeApoderadoRfc.length > 0) {
+        this.toastService.showGenericToast(
           "Ocurrio un problema",
           "Ya hay un apoderado registrado con este CURP",
           ToastType.WARNING
-      );
-      return;
+        );
+        return;
+      }
     }
 
     let fechaInicio = new Date(empresaApoderado.fechaInicio);
@@ -587,14 +621,27 @@ export class EmpresaNuevaComponent implements OnInit {
       return;
     }
 
-    if(!curp.validar(empresaRepresentante.curp)) {
-      this.toastService.showGenericToast(
+    if(empresaRepresentante.curp !== null && empresaRepresentante.curp !== "") {
+      if(!curp.validar(empresaRepresentante.curp)) {
+        this.toastService.showGenericToast(
           "Ocurrio un problema",
-          "La CURP ingresada para el socio no es valida",
+          "La CURP ingresada para el representante no es valida",
           ToastType.WARNING
-      );
-      return;
+        );
+        return;
+      }
+
+      let existeRepresentanteCurp = this.empresaEscritura.apoderados.filter(x => x.curp === empresaRepresentante.curp)
+      if(existeRepresentanteCurp.length > 0) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "Ya hay un representante registrado con este CURP",
+          ToastType.WARNING
+        );
+        return;
+      }
     }
+
     this.empresaEscritura.representantes.push(empresaRepresentante);
     this.nuevoRepresentanteForm.reset();
     this.editandoRepresentante = false;
@@ -659,13 +706,25 @@ export class EmpresaNuevaComponent implements OnInit {
       return;
     }
 
-    if(!curp.validar(empresaConsejo.curp)) {
-      this.toastService.showGenericToast(
+    if(empresaConsejo.curp !== null && empresaConsejo.curp !== "") {
+      if(!curp.validar(empresaConsejo.curp)) {
+        this.toastService.showGenericToast(
           "Ocurrio un problema",
-          "La CURP ingresada para el socio no es valida",
+          "La CURP ingresada para el miembro del consejo no es valida",
           ToastType.WARNING
-      );
-      return;
+        );
+        return;
+      }
+
+      let existeConsejoCurp = this.empresaEscritura.apoderados.filter(x => x.curp === empresaConsejo.curp)
+      if(existeConsejoCurp.length > 0) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "Ya hay un miembro del consejo registrado con este CURP",
+          ToastType.WARNING
+        );
+        return;
+      }
     }
 
     this.empresaEscritura.consejos.push(empresaConsejo);
@@ -911,12 +970,34 @@ export class EmpresaNuevaComponent implements OnInit {
     this.stepper.previous()
   }
 
+  editarEscritura(index) {
+    let escritura = this.empresaEscrituras[index];
+    this.empresaEscrituras.splice(index, 1);
+    this.nuevaEscrituraForm.patchValue({
+      numeroEscritura: escritura.numeroEscritura,
+      fechaEscritura: escritura.fechaEscritura,
+      ciudad: escritura.ciudad,
+      tipoFedatario: escritura.tipoFedatario,
+      numero: escritura.numero,
+      nombreFedatario: escritura.nombreFedatario,
+      apellidoPaterno: escritura.apellidoPaterno,
+      apellidoMaterno: escritura.apellidoMaterno,
+      curp: escritura.curp,
+      descripcion: escritura.descripcion
+    })
+
+    this.socios = escritura.socios;
+    this.apoderados = escritura.apoderados;
+    this.representantes = escritura.representantes;
+    this.consejos = escritura.consejos;
+  }
+
   editarDomicilio(index) {
     let domicilio = this.empresaDomicilios[index];
     this.empresaDomicilios.splice(index, 1);
     this.empresaDomiciliosForm.patchValue({
       nombre: domicilio.nombre,
-      numeroExterior: domicilio.numeroExterior,
+      numeroExterior:  domicilio.numeroExterior,
       numeroInterior: domicilio.numeroInterior,
       domicilio4: domicilio.domicilio4,
       codigoPostal: domicilio.codigoPostal,
@@ -925,6 +1006,12 @@ export class EmpresaNuevaComponent implements OnInit {
       telefonoFijo: domicilio.telefonoFijo,
       telefonoMovil: domicilio.telefonoMovil
     })
+
+    this.estado = domicilio.estadoCatalogo;
+    this.municipio = domicilio.municipioCatalogo;
+    this.localidad = domicilio.localidadCatalogo;
+    this.colonia = domicilio.coloniaCatalogo;
+    this.calle = domicilio.calleCatalogo;
   }
 
   mostrarEditarSocioForm(index) {
@@ -1044,6 +1131,9 @@ export class EmpresaNuevaComponent implements OnInit {
     }
 
     let formData: EmpresaEscritura = form.value;
+    formData.estadoCatalogo = this.estado;
+    formData.municipioCatalogo = this.municipio;
+    formData.localidadCatalogo = this.localidad;
 
     let existeEscritura = this.empresaEscrituras.filter(x => x.numeroEscritura === formData.numeroEscritura)
     if(existeEscritura.length > 0) {
@@ -1312,14 +1402,10 @@ export class EmpresaNuevaComponent implements OnInit {
 
   private desactivarCamposDireccion() {
     this.empresaDomiciliosForm.controls['nombre'].disable();
-    this.empresaDomiciliosForm.controls['domicilio1'].disable();
     this.empresaDomiciliosForm.controls['numeroExterior'].disable();
     this.empresaDomiciliosForm.controls['numeroInterior'].disable();
-    this.empresaDomiciliosForm.controls['domicilio2'].disable();
-    this.empresaDomiciliosForm.controls['domicilio3'].disable();
     this.empresaDomiciliosForm.controls['domicilio4'].disable();
     this.empresaDomiciliosForm.controls['codigoPostal'].disable();
-    this.empresaDomiciliosForm.controls['estado'].disable();
     this.empresaDomiciliosForm.controls['pais'].disable();
     this.empresaDomiciliosForm.controls['matriz'].disable();
     this.empresaDomiciliosForm.controls['telefonoFijo'].disable();

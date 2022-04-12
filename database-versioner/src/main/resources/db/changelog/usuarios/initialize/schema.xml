@@ -5,7 +5,7 @@
 
     <changeSet id="2021-08-24-crear-tabla-usuarios" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="USUARIOS">
+        <createTable tableName="usuarios">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="USERNAME" type="varchar(20)"></column>
@@ -23,15 +23,15 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="USUARIOS" columnNames="ID" />
-        <addAutoIncrement tableName="USUARIOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="usuarios" columnNames="ID" />
+        <addAutoIncrement tableName="usuarios" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="USUARIOS" columnNames="UUID" />
-        <addUniqueConstraint tableName="USUARIOS" columnNames="USERNAME" />
-        <addUniqueConstraint tableName="USUARIOS" columnNames="EMAIL" />
+        <addUniqueConstraint tableName="usuarios" columnNames="UUID" />
+        <addUniqueConstraint tableName="usuarios" columnNames="USERNAME" />
+        <addUniqueConstraint tableName="usuarios" columnNames="EMAIL" />
 
-        <insert tableName="USUARIOS">
+        <insert tableName="usuarios">
             <column name="ID" value="1"></column>
             <column name="UUID" value="1094L9SBR45R"></column>
             <column name="USERNAME" value="jcgarnica"></column>

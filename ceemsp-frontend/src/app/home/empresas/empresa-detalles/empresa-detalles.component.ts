@@ -41,8 +41,8 @@ export class EmpresaDetallesComponent implements OnInit {
   empresaCambioStatusForm: FormGroup;
   empresaUsuarioForm: FormGroup;
 
-  empresaModalidades: EmpresaModalidad[];
-  empresaFormasEjecucion: EmpresaFormaEjecucion[];
+  empresaModalidades: EmpresaModalidad[] = [];
+  empresaFormasEjecucion: EmpresaFormaEjecucion[] = [];
   modalidades: Modalidad[];
   modalidad: Modalidad;
 
@@ -431,15 +431,17 @@ export class EmpresaDetallesComponent implements OnInit {
     }
 
     let value: EmpresaFormaEjecucion = form.value;
-    let formasEjecucionExistentes = this.empresaFormasEjecucion.filter(x => x.formaEjecucion === value.formaEjecucion)
+    if(this.empresaFormasEjecucion.length > 0) {
+      let formasEjecucionExistentes = this.empresaFormasEjecucion.filter(x => x.formaEjecucion === value.formaEjecucion)
 
-    if(formasEjecucionExistentes.length > 0) {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        "Esta forma de ejecucion ya se encuentra registrada en la empresa",
-        ToastType.WARNING
-      );
-      return;
+      if(formasEjecucionExistentes.length > 0) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "Esta forma de ejecucion ya se encuentra registrada en la empresa",
+          ToastType.WARNING
+        );
+        return;
+      }
     }
 
     this.toastService.showGenericToast(

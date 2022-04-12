@@ -72,7 +72,12 @@ public class ComunicadoGeneralServiceImpl implements ComunicadoGeneralService {
         logger.info("Obteniendo el ultimo comunicado creado");
 
         List<ComunicadoGeneral> comunicadoGenerales = comunicadoGeneralRepository.getTop1ByFechaPublicacionBeforeAndEliminadoFalseOrderByFechaPublicacionDesc(LocalDate.now());
-        return daoToDtoConverter.convertDaoToDtoComunicadoGeneral(comunicadoGenerales.get(0));
+        if(comunicadoGenerales != null && comunicadoGenerales.size() > 0) {
+            return daoToDtoConverter.convertDaoToDtoComunicadoGeneral(comunicadoGenerales.get(0));
+        } else {
+            return null;
+        }
+        //return daoToDtoConverter.convertDaoToDtoComunicadoGeneral(comunicadoGenerales.get(0));
     }
 
     @Override
@@ -90,5 +95,51 @@ public class ComunicadoGeneralServiceImpl implements ComunicadoGeneralService {
 
         ComunicadoGeneral comunicadoGeneralCreado = comunicadoGeneralRepository.save(comunicadoGeneral);
         return daoToDtoConverter.convertDaoToDtoComunicadoGeneral(comunicadoGeneralCreado);
+    }
+
+    @Override
+    public ComunicadoGeneralDto modificarComunicado(String uuid, String username, ComunicadoGeneralDto comunicadoGeneralDto) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || comunicadoGeneralDto == null) {
+            logger.warn("Alguno de los parametros vienen como nulos o invalidos");
+            throw new InvalidDataException();
+        }
+        logger.info("Modificando el comunicado con el uuid [{}]", uuid);
+
+        ComunicadoGeneral comunicadoGeneral = comunicadoGeneralRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(comunicadoGeneral == null) {
+            logger.warn("El comunicado con el uuid no existe [{}]", uuid);
+            throw new InvalidDataException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        comunicadoGeneral.setTitulo(comunicadoGeneralDto.getTitulo());
+        comunicadoGeneral.setFechaPublicacion(LocalDate.parse(comunicadoGeneralDto.getFechaPublicacion()));
+        comunicadoGeneral.setDescripcion(comunicadoGeneralDto.getDescripcion());
+        daoHelper.fulfillAuditorFields(false, comunicadoGeneral, usuarioDto.getId());
+        comunicadoGeneralRepository.save(comunicadoGeneral);
+        return comunicadoGeneralDto;
+    }
+
+    @Override
+    public ComunicadoGeneralDto eliminarComunicado(String uuid, String username) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros vienen como nulos o invalidos");
+            throw new InvalidDataException();
+        }
+        logger.info("Modificando el comunicado con el uuid [{}]", uuid);
+
+        ComunicadoGeneral comunicadoGeneral = comunicadoGeneralRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(comunicadoGeneral == null) {
+            logger.warn("El comunicado con el uuid no existe [{}]", uuid);
+            throw new InvalidDataException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        comunicadoGeneral.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, comunicadoGeneral, usuarioDto.getId());
+        comunicadoGeneralRepository.save(comunicadoGeneral);
+        return daoToDtoConverter.convertDaoToDtoComunicadoGeneral(comunicadoGeneral);
     }
 }

@@ -5,7 +5,7 @@
 
     <changeSet id="2021-08-31-crear-tabla-empresas" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="EMPRESAS">
+        <createTable tableName="empresas">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="RAZON_SOCIAL" type="varchar(100)"></column>
@@ -26,12 +26,12 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="EMPRESAS" columnNames="ID" />
-        <addAutoIncrement tableName="EMPRESAS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="empresas" columnNames="ID" />
+        <addAutoIncrement tableName="empresas" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="EMPRESAS" columnNames="UUID" />
-        <addUniqueConstraint tableName="EMPRESAS" columnNames="RFC" />
-        <addUniqueConstraint tableName="EMPRESAS" columnNames="CURP" />
+        <addUniqueConstraint tableName="empresas" columnNames="UUID" />
+        <addUniqueConstraint tableName="empresas" columnNames="RFC" />
+        <addUniqueConstraint tableName="empresas" columnNames="CURP" />
     </changeSet>
 </databaseChangeLog>

@@ -56,12 +56,21 @@
               <div class="col-sm-6">
                 <label for="nombre">
                   <b>Nombre *</b>
+                  <span
+                    *ngIf="crearCanRazaForm.controls['nombre'].invalid && (crearCanRazaForm.controls['nombre'].dirty || crearCanRazaForm.controls['nombre'].touched)">
+                    <i *ngIf="crearCanRazaForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearCanRazaForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="nombre" type="text" class="form-control" placeholder="Ejemplo: Pastor aleman" formControlName="nombre" #nombre>
               </div>
               <div class="col-sm-6">
                 <label for="descripcion">
                   <b>Descripcion</b>
+                  <span
+                    *ngIf="crearCanRazaForm.controls['descripcion'].invalid && (crearCanRazaForm.controls['descripcion'].dirty || crearCanRazaForm.controls['descripcion'].touched)">
+                    <i *ngIf="crearCanRazaForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="descripcion" type="text" class="form-control" placeholder="Ejemplo: Perro con tales caracteristicas" formControlName="descripcion" #descripcion>
               </div>
@@ -73,6 +82,99 @@
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="guardarCanRaza(crearCanRazaForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarCanRazaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarCanRazaModal">Ver can raza </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Nombre:</b></td>
+              <td>{{this.canRaza.nombre}}</td>
+            </tr>
+            <tr>
+              <td><b>Descripcion:</b></td>
+              <td>{{this.canRaza.descripcion}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="mostrarModificarCanRazaModal()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarEliminarCanRazaModal()">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #editarCanRazaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="editarCanRazaModal">Modificar can raza </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearCanRazaForm">
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="nombreEditar">
+                  <b>Nombre *</b>
+                  <span
+                    *ngIf="crearCanRazaForm.controls['nombre'].invalid && (crearCanRazaForm.controls['nombre'].dirty || crearCanRazaForm.controls['nombre'].touched)">
+                    <i *ngIf="crearCanRazaForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearCanRazaForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <input id="nombreEditar" type="text" class="form-control" placeholder="Ejemplo: Pastor aleman" formControlName="nombre" #nombre>
+              </div>
+              <div class="col-sm-6">
+                <label for="descripcionEditar">
+                  <b>Descripcion</b>
+                  <span
+                    *ngIf="crearCanRazaForm.controls['descripcion'].invalid && (crearCanRazaForm.controls['descripcion'].dirty || crearCanRazaForm.controls['descripcion'].touched)">
+                    <i *ngIf="crearCanRazaForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <input id="descripcionEditar" type="text" class="form-control" placeholder="Ejemplo: Perro con tales caracteristicas" formControlName="descripcion" #descripcion>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarCambios(crearCanRazaForm)">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarCanRazaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarCanRazaModal">Eliminando una raza </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar la raza del can. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminar()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 </div>

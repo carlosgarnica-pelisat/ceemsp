@@ -5,7 +5,7 @@
 
     <changeSet id="2021-11-14-agregar-vehiculo-contrato" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <addColumn tableName="VEHICULOS">
+        <addColumn tableName="vehiculos">
             <column name="RAZON_SOCIAL" type="VARCHAR(100)"></column>
             <column name="FECHA_INICIO" type="DATE"></column>
             <column name="FECHA_FIN" type="DATE"></column>

@@ -128,12 +128,38 @@
       </div>
       <div class="row" *ngIf="incidenciaActualTab === 'ARMAS'">
         <div class="col-sm-12">
-
+          <table class="table">
+            <tr>
+              <td><b>Marca</b></td>
+              <td><b>Clase</b></td>
+              <td><b>Tipo</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let a of incidencia?.armasInvolucradas">
+              <td>{{a?.marca?.nombre}}</td>
+              <td>{{a?.clase?.nombre}}</td>
+              <td>{{a?.tipo}}</td>
+              <td>
+                <fa-icon [icon]="faTrash" title="Eliminar arma involucrada"></fa-icon>
+              </td>
+            </tr>
+          </table>
         </div>
       </div>
       <div class="row" *ngIf="incidenciaActualTab === 'CANES'">
         <div class="col-sm-12">
-
+          <table class="table">
+            <tr>
+              <td><b>Apellido Paterno</b></td>
+              <td><b>Apellido Materno</b></td>
+              <td><b>Nombres</b></td>
+            </tr>
+            <tr *ngFor="let p of incidencia?.personasInvolucradas">
+              <td>{{p?.apellidoPaterno}}</td>
+              <td>{{p?.apellidoMaterno}}</td>
+              <td>{{p?.nombres}}</td>
+            </tr>
+          </table>
         </div>
       </div>
       <div class="row" *ngIf="incidenciaActualTab === 'VEHICULOS'">
@@ -143,6 +169,8 @@
       </div>
     </div>
     <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Responder</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cambiar status</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
@@ -183,177 +211,228 @@
                 </select>
               </div>
             </div>
-
-            <div class="form-row">
-              <div class="col-sm-12">
-                <label>
-                  <b>Relato de hechos</b>
-                </label>
-                <ckeditor [(ngModel)]="editorData"></ckeditor>
-              </div>
+          </form>
+          <div class="form-row">
+            <div class="col-sm-12">
+              <label>
+                <b>Relato de hechos</b>
+              </label>
+              <ckeditor [(ngModel)]="editorData"></ckeditor>
             </div>
-            <hr>
-            <div class="form-row">
-              <div class="col-sm-12">
-                <ul class="nav nav-pills nav-fill">
-                  <li class="nav-item">
-                    <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'PERSONAL' }" (click)="cambiarPestanaInvolucramientos('PERSONAL')">Personal</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'ARMAS' }" (click)="cambiarPestanaInvolucramientos('ARMAS')">Armas</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'CANES' }" (click)="cambiarPestanaInvolucramientos('CANES')">Canes</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'VEHICULOS' }" (click)="cambiarPestanaInvolucramientos('VEHICULOS')">Vehiculos</a>
-                  </li>
-                </ul>
-              </div>
+          </div>
+          <hr>
+          <div class="form-row">
+            <div class="col-sm-12">
+              <ul class="nav nav-pills nav-fill">
+                <li class="nav-item">
+                  <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'PERSONAL' }" (click)="cambiarPestanaInvolucramientos('PERSONAL')">Personal</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'ARMAS' }" (click)="cambiarPestanaInvolucramientos('ARMAS')">Armas</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'CANES' }" (click)="cambiarPestanaInvolucramientos('CANES')">Canes</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'VEHICULOS' }" (click)="cambiarPestanaInvolucramientos('VEHICULOS')">Vehiculos</a>
+                </li>
+              </ul>
             </div>
-            <div class="form-row" *ngIf="pestanaActualInvolucramiento === 'PERSONAL'">
-              <div class="col-sm-12">
-                <table class="table">
-                  <tr>
-                    <td><b>Apellido paterno</b></td>
-                    <td><b>Apellido materno</b></td>
-                    <td><b>Nombres</b></td>
-                    <td><b>Acciones</b></td>
-                  </tr>
-                  <tr *ngFor="let p of personalInvolucrado">
-                    <td>{{p?.apellidoPaterno}}</td>
-                    <td>{{p?.apellidoMaterno}}</td>
-                    <td>{{p?.nombres}}</td>
-                    <td></td>
-                  </tr>
-                  <tr *ngIf="mostrarAgregarPersonalForm">
-                    <td colspan="4">
-                      <form [formGroup]="crearPersonalIncidenciaForm">
-                        <div class="row">
-                          <div class="col-sm-6">
-                            <label for="personal">
-                              <b>Personal *</b>
-                            </label>
-                            <select formControlName="personaInvolucrada" id="personal" class="form-control">
-                              <option *ngFor="let p of personales" value="{{p.uuid}}">{{p.nombres + " " + p.apellidoPaterno + " " + p.apellidoMaterno}}</option>
-                            </select>
-                          </div>
+          </div>
+          <div class="form-row" *ngIf="pestanaActualInvolucramiento === 'PERSONAL'">
+            <div class="col-sm-12">
+              <table class="table">
+                <tr>
+                  <td><b>Apellido paterno</b></td>
+                  <td><b>Apellido materno</b></td>
+                  <td><b>Nombres</b></td>
+                  <td><b>Acciones</b></td>
+                </tr>
+                <tr *ngFor="let p of personalInvolucrado; let i = index">
+                  <td>{{p?.apellidoPaterno}}</td>
+                  <td>{{p?.apellidoMaterno}}</td>
+                  <td>{{p?.nombres}}</td>
+                  <td>
+                    <fa-icon [icon]="faTrash" title="Eliminar persona de la incidencia" (click)="quitarPersonaIncidencia(i)"></fa-icon>
+                  </td>
+                </tr>
+                <tr *ngIf="mostrarAgregarPersonalForm">
+                  <td colspan="4">
+                    <form [formGroup]="crearPersonalIncidenciaForm">
+                      <div class="row">
+                        <div class="col-sm-6">
+                          <label for="personal">
+                            <b>Personal *</b>
+                          </label>
+                          <select formControlName="personaInvolucrada" id="personal" class="form-control">
+                            <option *ngFor="let p of personales" value="{{p.uuid}}">{{p.nombres + " " + p.apellidoPaterno + " " + p.apellidoMaterno}}</option>
+                          </select>
                         </div>
-                      </form>
+                      </div>
+                    </form>
 
-                    </td>
-                  </tr>
-                  <tr *ngIf="mostrarAgregarPersonalForm">
-                    <td colspan="4">
-                      <button class="btn btn-sm btn-primary" (click)="agregarPersona(crearPersonalIncidenciaForm)">Guardar</button>
-                      <button class="btn btn-sm btn-danger" (click)="conmutarAgregarPersonalForm()">Cancelar</button>
-                    </td>
-                  </tr>
-                  <tr *ngIf="!mostrarAgregarPersonalForm">
-                    <td colspan="4">
-                      <button class="btn btn-sm btn-primary" (click)="conmutarAgregarPersonalForm()">Agregar personal</button>
-                    </td>
-                  </tr>
-                </table>
-              </div>
+                  </td>
+                </tr>
+                <tr *ngIf="mostrarAgregarPersonalForm">
+                  <td colspan="4">
+                    <button class="btn btn-sm btn-primary" (click)="agregarPersona(crearPersonalIncidenciaForm)">Guardar</button>
+                    <button class="btn btn-sm btn-danger" (click)="conmutarAgregarPersonalForm()">Cancelar</button>
+                  </td>
+                </tr>
+                <tr *ngIf="!mostrarAgregarPersonalForm">
+                  <td colspan="4">
+                    <button class="btn btn-sm btn-primary" (click)="conmutarAgregarPersonalForm()">Agregar personal</button>
+                  </td>
+                </tr>
+              </table>
             </div>
+          </div>
 
-            <div class="form-row" *ngIf="pestanaActualInvolucramiento === 'ARMAS'">
-              <div class="col-sm-12">
-                <table class="table">
-                  <tr *ngIf="mostrarAgregarArmaForm">
-                    <td>
+          <div class="form-row" *ngIf="pestanaActualInvolucramiento === 'ARMAS'">
+            <div class="col-sm-12">
+              <table class="table">
+                <tr>
+                  <td><b>Marca</b></td>
+                  <td><b>Clase</b></td>
+                  <td><b>Tipo</b></td>
+                  <td><b>Acciones</b></td>
+                </tr>
+                <tr *ngFor="let a of armasInvolucradas; let i = index">
+                  <td>{{a?.marca?.nombre}}</td>
+                  <td>{{a?.clase?.nombre}}</td>
+                  <td>{{a?.tipo}}</td>
+                  <td>
+                    <fa-icon [icon]="faTrash" title="Eliminar arma de la incidencia" (click)="quitarArmaIncidencia(i)"></fa-icon>
+                  </td>
+                </tr>
+                <tr *ngIf="mostrarAgregarArmaForm">
+                  <td colspan="4">
+                    <form [formGroup]="crearArmaIncidenciaForm">
                       <div class="row">
                         <div class="col-sm-6">
                           <label for="can">
                             <b>Arma *</b>
                           </label>
-                          <select id="arma" class="form-control">
-                            <option *ngFor="let a of armas" value="{{a.uuid}}">{{a.marca.nombre}}</option>
+                          <select id="arma" class="form-control" formControlName="armaInvolucrada">
+                            <option *ngFor="let a of armas" value="{{a.uuid}}">{{a.marca?.nombre + " - " + a.tipo}}</option>
                           </select>
                         </div>
                       </div>
-                    </td>
-                  </tr>
-                  <tr *ngIf="mostrarAgregarArmaForm">
-                    <td>
-                      <button class="btn btn-sm btn-primary" (click)="agregarArma()">Guardar</button>
-                      <button class="btn btn-sm btn-danger" (click)="conmutarAgregarArmaForm()">Cancelar</button>
-                    </td>
-                  </tr>
-                  <tr *ngIf="!mostrarAgregarArmaForm">
-                    <td>
-                      <button class="btn btn-sm btn-primary" (click)="conmutarAgregarArmaForm()">Agregar arma</button>
-                    </td>
-                  </tr>
-                </table>
-              </div>
+                    </form>
+                  </td>
+                </tr>
+                <tr *ngIf="mostrarAgregarArmaForm">
+                  <td colspan="4">
+                    <button class="btn btn-sm btn-primary" (click)="agregarArma(crearArmaIncidenciaForm)">Guardar</button>
+                    <button class="btn btn-sm btn-danger" (click)="conmutarAgregarArmaForm()">Cancelar</button>
+                  </td>
+                </tr>
+                <tr *ngIf="!mostrarAgregarArmaForm">
+                  <td colspan="4">
+                    <button class="btn btn-sm btn-primary" (click)="conmutarAgregarArmaForm()">Agregar arma</button>
+                  </td>
+                </tr>
+              </table>
             </div>
+          </div>
 
-            <div class="form-row" *ngIf="pestanaActualInvolucramiento === 'CANES'">
-              <div class="col-sm-12">
-                <table class="table">
-                  <tr *ngIf="mostrarAgregarCanForm">
-                    <td>
+          <div class="form-row" *ngIf="pestanaActualInvolucramiento === 'CANES'">
+            <div class="col-sm-12">
+              <table class="table">
+                <tr>
+                  <td><b>Nombre</b></td>
+                  <td><b>Raza</b></td>
+                  <td><b>Edad</b></td>
+                  <td><b>Acciones</b></td>
+                </tr>
+                <tr *ngFor="let c of canesInvolucrados; let i = index">
+                  <td>{{c?.nombre}}</td>
+                  <td>{{c?.raza?.nombre}}</td>
+                  <td>{{c?.edad}}</td>
+                  <td>
+                    <fa-icon [icon]="faTrash" title="Eliminar can de la incidencia" (click)="quitarCanIncidencia(i)"></fa-icon>
+                  </td>
+                </tr>
+                <tr *ngIf="mostrarAgregarCanForm">
+                  <td colspan="4">
+                    <form [formGroup]="crearCanIncidenciaForm">
                       <div class="row">
                         <div class="col-sm-6">
                           <label for="can">
                             <b>Can *</b>
                           </label>
-                          <select id="can" class="form-control">
+                          <select id="can" class="form-control" formControlName="canInvolucrado">
                             <option *ngFor="let c of canes" value="{{c.uuid}}">{{c.nombre}}</option>
                           </select>
                         </div>
                       </div>
-                    </td>
-                  </tr>
-                  <tr *ngIf="mostrarAgregarCanForm">
-                    <td>
-                      <button class="btn btn-sm btn-primary" (click)="agregarCan()">Guardar</button>
-                      <button class="btn btn-sm btn-danger" (click)="conmutarAgregarCanForm()">Cancelar</button>
-                    </td>
-                  </tr>
-                  <tr *ngIf="!mostrarAgregarCanForm">
-                    <td>
-                      <button class="btn btn-sm btn-primary" (click)="conmutarAgregarCanForm()">Agregar can</button>
-                    </td>
-                  </tr>
-                </table>
-              </div>
+                    </form>
+                  </td>
+                </tr>
+                <tr *ngIf="mostrarAgregarCanForm">
+                  <td colspan="4">
+                    <button class="btn btn-sm btn-primary" (click)="agregarCan(crearCanIncidenciaForm)">Guardar</button>
+                    <button class="btn btn-sm btn-danger" (click)="conmutarAgregarCanForm()">Cancelar</button>
+                  </td>
+                </tr>
+                <tr *ngIf="!mostrarAgregarCanForm">
+                  <td colspan="4">
+                    <button class="btn btn-sm btn-primary" (click)="conmutarAgregarCanForm()">Agregar can</button>
+                  </td>
+                </tr>
+              </table>
             </div>
+          </div>
 
-            <div class="form-row" *ngIf="pestanaActualInvolucramiento === 'VEHICULOS'">
-              <div class="col-sm-12">
-                <table class="table">
-                  <tr *ngIf="mostrarAgregarVehiculoForm">
-                    <td>
+          <div class="form-row" *ngIf="pestanaActualInvolucramiento === 'VEHICULOS'">
+            <div class="col-sm-12">
+              <table class="table">
+                <tr>
+                  <td><b>Placas</b></td>
+                  <td><b>Marca</b></td>
+                  <td><b>Submarca</b></td>
+                  <td><b>Año</b></td>
+                  <td><b>Acciones</b></td>
+                </tr>
+                <tr *ngFor="let v of vehiculosInvolucrados; let i = index">
+                  <td>{{v?.placas}}</td>
+                  <td>{{v?.marca?.nombre}}</td>
+                  <td>{{v?.submarca?.nombre}}</td>
+                  <td>{{v?.anio}}</td>
+                  <td>
+                    <fa-icon [icon]="faTrash" title="Eliminar vehiculo de la incidencia" (click)="quitarVehiculoIncidencia(i)"></fa-icon>
+                  </td>
+                </tr>
+                <tr *ngIf="mostrarAgregarVehiculoForm">
+                  <td colspan="4">
+                    <form [formGroup]="crearVehiculoIncidenciaForm">
                       <div class="row">
                         <div class="col-sm-6">
                           <label for="vehiculo">
                             <b>Vehiculo *</b>
                           </label>
-                          <select id="vehiculo" class="form-control">
+                          <select id="vehiculo" class="form-control" formControlName="vehiculoInvolucrado">
                             <option *ngFor="let v of vehiculos" value="{{v.uuid}}">{{v.marca.nombre + " " + v.submarca.nombre + " " + v.anio}}</option>
                           </select>
                         </div>
                       </div>
-                    </td>
-                  </tr>
-                  <tr *ngIf="mostrarAgregarVehiculoForm">
-                    <td>
-                      <button class="btn btn-sm btn-primary" (click)="agregarVehiculo()">Guardar</button>
-                      <button class="btn btn-sm btn-danger" (click)="conmutarAgregarVehiculoForm()">Cancelar</button>
-                    </td>
-                  </tr>
-                  <tr *ngIf="!mostrarAgregarVehiculoForm">
-                    <td>
-                      <button class="btn btn-sm btn-primary" (click)="conmutarAgregarVehiculoForm()">Agregar vehiculo</button>
-                    </td>
-                  </tr>
-                </table>
-              </div>
+                    </form>
+                  </td>
+                </tr>
+                <tr *ngIf="mostrarAgregarVehiculoForm">
+                  <td colspan="4">
+                    <button class="btn btn-sm btn-primary" (click)="agregarVehiculo(crearVehiculoIncidenciaForm)">Guardar</button>
+                    <button class="btn btn-sm btn-danger" (click)="conmutarAgregarVehiculoForm()">Cancelar</button>
+                  </td>
+                </tr>
+                <tr *ngIf="!mostrarAgregarVehiculoForm">
+                  <td colspan="4">
+                    <button class="btn btn-sm btn-primary" (click)="conmutarAgregarVehiculoForm()">Agregar vehiculo</button>
+                  </td>
+                </tr>
+              </table>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

@@ -42,13 +42,13 @@ public class PublicServiceImpl implements PublicService {
         NextRegisterDto response = new NextRegisterDto();
 
         if(empresa == null) {
-            response.setNumeroSiguiente("00001");
+            response.setNumeroSiguiente("001");
         } else {
             String currentNumber = empresa.getRegistro().split("/")[2];
             int nextNumber = Integer.parseInt(currentNumber);
             nextNumber = nextNumber+1;
             String nextNumberString = Integer.toString(nextNumber);
-            while(nextNumberString.length() < 5) {
+            while(nextNumberString.length() < 3) {
                 nextNumberString = "0" + nextNumberString;
             }
             response.setNumeroSiguiente(nextNumberString);

@@ -5,7 +5,7 @@
 
     <changeSet id="2021-09-28-crear-tabla-armas-clases" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="ARMAS_CLASES">
+        <createTable tableName="armas_clases">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(100)"></column>
@@ -18,14 +18,14 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="ARMAS_CLASES" columnNames="ID" />
-        <addAutoIncrement tableName="ARMAS_CLASES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="armas_clases" columnNames="ID" />
+        <addAutoIncrement tableName="armas_clases" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="ARMAS_CLASES" columnNames="UUID" />
+        <addUniqueConstraint tableName="armas_clases" columnNames="UUID" />
 
         <!-- ADDING DEFAULTS -->
-        <insert tableName="ARMAS_CLASES">
+        <insert tableName="armas_clases">
             <column name="ID" value="1"></column>
             <column name="UUID" value="k8f43RcMTYiK"></column>
             <column name="NOMBRE" value="AMETRALLADORA"></column>
@@ -36,7 +36,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="ARMAS_CLASES">
+        <insert tableName="armas_clases">
             <column name="ID" value="2"></column>
             <column name="UUID" value="2Fx4gPM1yjkH"></column>
             <column name="NOMBRE" value="CARABINA"></column>
@@ -47,7 +47,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="ARMAS_CLASES">
+        <insert tableName="armas_clases">
             <column name="ID" value="3"></column>
             <column name="UUID" value="CfrSb0pMdmJs"></column>
             <column name="NOMBRE" value="ESCUADRA"></column>
@@ -58,7 +58,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="ARMAS_CLASES">
+        <insert tableName="armas_clases">
             <column name="ID" value="4"></column>
             <column name="UUID" value="AumvpPTbXbVd"></column>
             <column name="NOMBRE" value="ESCOPETA"></column>
@@ -69,7 +69,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="ARMAS_CLASES">
+        <insert tableName="armas_clases">
             <column name="ID" value="5"></column>
             <column name="UUID" value="BMBzEJUgGrC5"></column>
             <column name="NOMBRE" value="FUSIL"></column>
@@ -80,7 +80,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="ARMAS_CLASES">
+        <insert tableName="armas_clases">
             <column name="ID" value="6"></column>
             <column name="UUID" value="gaXPtusrNhsU"></column>
             <column name="NOMBRE" value="FUSIL AUTOMATICO"></column>
@@ -91,7 +91,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="ARMAS_CLASES">
+        <insert tableName="armas_clases">
             <column name="ID" value="7"></column>
             <column name="UUID" value="tnVnVtoe8FET"></column>
             <column name="NOMBRE" value="REVOLVER"></column>
@@ -102,7 +102,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="ARMAS_CLASES">
+        <insert tableName="armas_clases">
             <column name="ID" value="8"></column>
             <column name="UUID" value="iTN4LukrhRAq"></column>
             <column name="NOMBRE" value="RIFLE"></column>
@@ -113,7 +113,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="ARMAS_CLASES">
+        <insert tableName="armas_clases">
             <column name="ID" value="9"></column>
             <column name="UUID" value="Ay6i6vSsYV2f"></column>
             <column name="NOMBRE" value="SEMIAUTOMATICO"></column>
@@ -124,7 +124,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="ARMAS_CLASES">
+        <insert tableName="armas_clases">
             <column name="ID" value="10"></column>
             <column name="UUID" value="ZpEAjoT3pMA5"></column>
             <column name="NOMBRE" value="PISTOLA"></column>
@@ -135,7 +135,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="ARMAS_CLASES">
+        <insert tableName="armas_clases">
             <column name="ID" value="11"></column>
             <column name="UUID" value="xIg1Zw8P1DG0"></column>
             <column name="NOMBRE" value="SUB AMETRALLADORA"></column>

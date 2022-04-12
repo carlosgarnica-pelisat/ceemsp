@@ -5,7 +5,7 @@
 
     <changeSet id="2021-08-31-crear-tabla-canes-razas" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="CANES_RAZAS">
+        <createTable tableName="canes_razas">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="varchar(100)"></column>
@@ -18,13 +18,13 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="CANES_RAZAS" columnNames="ID" />
-        <addAutoIncrement tableName="CANES_RAZAS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="canes_razas" columnNames="ID" />
+        <addAutoIncrement tableName="canes_razas" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="CANES_RAZAS" columnNames="UUID" />
+        <addUniqueConstraint tableName="canes_razas" columnNames="UUID" />
 
-        <insert tableName="CANES_RAZAS">
+        <insert tableName="canes_razas">
             <column name="ID" value="1"></column>
             <column name="UUID" value="VY8eCzWoly3I"></column>
             <column name="NOMBRE" value="Pastor belga"></column>
@@ -36,7 +36,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="CANES_RAZAS">
+        <insert tableName="canes_razas">
             <column name="ID" value="2"></column>
             <column name="UUID" value="C4s4NRFoBQoR"></column>
             <column name="NOMBRE" value="Pastor aleman"></column>
@@ -48,7 +48,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="CANES_RAZAS">
+        <insert tableName="canes_razas">
             <column name="ID" value="3"></column>
             <column name="UUID" value="Tbqu67b4Z7G0"></column>
             <column name="NOMBRE" value="Cane corso"></column>
@@ -60,7 +60,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="CANES_RAZAS">
+        <insert tableName="canes_razas">
             <column name="ID" value="4"></column>
             <column name="UUID" value="b3xU7z0jkKMA"></column>
             <column name="NOMBRE" value="Doberman"></column>
@@ -72,7 +72,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="CANES_RAZAS">
+        <insert tableName="canes_razas">
             <column name="ID" value="5"></column>
             <column name="UUID" value="022GN00kVa2G"></column>
             <column name="NOMBRE" value="Rottweiler"></column>
@@ -84,7 +84,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="CANES_RAZAS">
+        <insert tableName="canes_razas">
             <column name="ID" value="6"></column>
             <column name="UUID" value="FS0PtBguA7ut"></column>
             <column name="NOMBRE" value="Bullmastiff"></column>
@@ -96,7 +96,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="CANES_RAZAS">
+        <insert tableName="canes_razas">
             <column name="ID" value="7"></column>
             <column name="UUID" value="g76WcJJZ3Ffy"></column>
             <column name="NOMBRE" value="Labrador retriever"></column>
@@ -108,7 +108,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="CANES_RAZAS">
+        <insert tableName="canes_razas">
             <column name="ID" value="8"></column>
             <column name="UUID" value="ssx2fSlC33Q2"></column>
             <column name="NOMBRE" value="Pastor holandes"></column>
@@ -120,7 +120,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="CANES_RAZAS">
+        <insert tableName="canes_razas">
             <column name="ID" value="9"></column>
             <column name="UUID" value="iTrtuwSySbva"></column>
             <column name="NOMBRE" value="Schnauzer gigante"></column>
@@ -132,7 +132,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="CANES_RAZAS">
+        <insert tableName="canes_razas">
             <column name="ID" value="10"></column>
             <column name="UUID" value="iSqTgeryspao"></column>
             <column name="NOMBRE" value="Boxer"></column>
@@ -144,7 +144,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="CANES_RAZAS">
+        <insert tableName="canes_razas">
             <column name="ID" value="11"></column>
             <column name="UUID" value="ZNon4q6puTJZ"></column>
             <column name="NOMBRE" value="Mastin"></column>
@@ -156,7 +156,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="CANES_RAZAS">
+        <insert tableName="canes_razas">
             <column name="ID" value="12"></column>
             <column name="UUID" value="i6Tb5fvtsF0r"></column>
             <column name="NOMBRE" value="Braco aleman"></column>
@@ -168,7 +168,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="CANES_RAZAS">
+        <insert tableName="canes_razas">
             <column name="ID" value="13"></column>
             <column name="UUID" value="zZ2M44Rrwrxc"></column>
             <column name="NOMBRE" value="Otro"></column>

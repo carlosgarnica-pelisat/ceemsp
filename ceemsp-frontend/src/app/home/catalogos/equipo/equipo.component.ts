@@ -1,10 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import Equipo from "../../../_models/Equipo";
 import {ToastService} from "../../../_services/toast.service";
 import {ToastType} from "../../../_enums/ToastType";
 import {EquipoService} from "../../../_services/equipo.service";
+import CanRaza from "../../../_models/CanRaza";
 
 @Component({
   selector: 'app-equipo',
@@ -34,6 +35,10 @@ export class EquipoComponent implements OnInit {
 
   crearEquipoForm: FormGroup;
 
+  @ViewChild("mostrarEquipoModal") mostrarEquipoModal;
+  @ViewChild("editarEquipoModal") editarEquipoModal;
+  @ViewChild("eliminarEquipoModal") eliminarEquipoModal;
+
   constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
               private equipoService: EquipoService, private toastService: ToastService) { }
 
@@ -49,8 +54,8 @@ export class EquipoComponent implements OnInit {
     })
 
     this.crearEquipoForm = this.formBuilder.group({
-      nombre: ['', Validators.required],
-      descripcion: [''],
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      descripcion: ['', [Validators.maxLength(100)]],
       formaEjecucion: ['', Validators.required]
     });
   }
@@ -62,7 +67,7 @@ export class EquipoComponent implements OnInit {
   }
 
   checkForDetails(data, modal) {
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.uuid = data.uuid;
 
@@ -77,7 +82,7 @@ export class EquipoComponent implements OnInit {
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        "No se pudo descargar el puesto de trabajo",
+        `No se pudo descargar el puesto de trabajo. Motivo: ${error}`,
         ToastType.ERROR
       )
     })
@@ -118,6 +123,78 @@ export class EquipoComponent implements OnInit {
         `No se ha podido guardar el equipo. Motivo: ${error}`,
         ToastType.ERROR
       )
+    })
+  }
+
+  guardarCambios(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos requeridos que no se han validado",
+        ToastType.WARNING
+      )
+      return;
+    }
+
+    let equipo: Equipo = form.value;
+
+    this.equipoService.modificarEquipo(this.equipo.uuid, equipo).subscribe((data: CanRaza) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha modificado con exito el equipo",
+        ToastType.SUCCESS
+      )
+
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar el equipo. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  confirmarEliminar() {
+    this.equipoService.eliminarEquipo(this.equipo.uuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el equipo con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar el equipo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  mostrarModificarEquipoModal() {
+    this.crearEquipoForm.patchValue({
+      nombre: this.equipo.nombre,
+      descripcion: this.equipo.descripcion,
+      formaEjecucion: this.equipo.formaEjecucion
+    });
+
+    this.modalService.open(this.editarEquipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  mostrarEliminarEquipoModal() {
+    this.modal = this.modalService.open(this.eliminarEquipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     })
   }
 

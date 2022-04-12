@@ -5,7 +5,7 @@
 
     <changeSet id="2021-10-10-crear-tabla-empresas-modalidades" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="EMPRESAS_MODALIDADES">
+        <createTable tableName="empresas_modalidades">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="EMPRESA" type="int"></column>
@@ -22,14 +22,14 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="EMPRESAS_MODALIDADES" columnNames="ID" />
-        <addAutoIncrement tableName="EMPRESAS_MODALIDADES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="empresas_modalidades" columnNames="ID" />
+        <addAutoIncrement tableName="empresas_modalidades" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="EMPRESAS_MODALIDADES" columnNames="UUID" />
+        <addUniqueConstraint tableName="empresas_modalidades" columnNames="UUID" />
 
         <!-- Setting the relationship -->
-        <addForeignKeyConstraint baseTableName="EMPRESAS_MODALIDADES" baseColumnNames="EMPRESA" constraintName="FK_EMPRESAS_MODALIDADES" referencedTableName="EMPRESAS"
+        <addForeignKeyConstraint baseTableName="empresas_modalidades" baseColumnNames="EMPRESA" constraintName="FK_empresas_modalidades" referencedTableName="empresas"
                                  referencedColumnNames="ID" />
     </changeSet>
 </databaseChangeLog>

@@ -12,6 +12,7 @@ import Cliente from "../../../_models/Cliente";
 import {ToastType} from "../../../_enums/ToastType";
 import Incidencia from "../../../_models/Incidencia";
 import IncidenciaComentario from "../../../_models/IncidenciaComentario";
+import {faTrash} from "@fortawesome/free-solid-svg-icons";
 
 @Component({
   selector: 'app-empresa-incidencias',
@@ -22,6 +23,8 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
   private gridApi;
   private gridColumnApi;
+
+  faTrash = faTrash;
 
   columnDefs = [
     {headerName: 'Numero', field: 'numero', sortable: true, filter: true },
@@ -80,8 +83,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
     this.crearIncidenciaForm = this.formBuilder.group({
       'fechaIncidencia': ['', Validators.required],
       'clienteInvolucrado': ['', Validators.required],
-      'cliente': [''],
-      'relatoDeHechos': ['']
+      'cliente': ['']
     });
 
     this.crearPersonalIncidenciaForm = this.formBuilder.group({
@@ -109,6 +111,16 @@ export class EmpresaIncidenciasComponent implements OnInit {
         ToastType.ERROR
       );
     });
+
+    this.empresaService.obtenerArmas(this.uuid).subscribe((data: Arma[]) => {
+      this.armas = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las armas. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
 
     this.empresaService.obtenerCanes(this.uuid).subscribe((data: Can[]) => {
       this.canes = data;
@@ -217,12 +229,52 @@ export class EmpresaIncidenciasComponent implements OnInit {
     });
   }
 
-  agregarArma() {
+  agregarArma(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        'Ocurrio un problema',
+        'Hay campos requeridos sin rellenar. Favor de rellenarlos',
+        ToastType.WARNING
+      );
+      return;
+    }
 
+    let formValue = form.value;
+
+    this.armasInvolucradas.push(this.armas.filter(x => x.uuid === formValue.armaInvolucrada)[0]);
+    this.conmutarAgregarArmaForm();
   }
 
-  agregarCan() {
+  agregarCan(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        'Ocurrio un problema',
+        'Hay campos requeridos sin rellenar. Favor de rellenarlos',
+        ToastType.WARNING
+      );
+      return;
+    }
 
+    let formValue = form.value;
+
+    this.canesInvolucrados.push(this.canes.filter(x => x.uuid === formValue.canInvolucrado)[0]);
+    this.conmutarAgregarCanForm();
+  }
+
+  quitarPersonaIncidencia(index) {
+    this.personalInvolucrado.splice(index, 1);
+  }
+
+  quitarArmaIncidencia(index) {
+    this.armasInvolucradas.splice(index, 1);
+  }
+
+  quitarCanIncidencia(index) {
+    this.canesInvolucrados.splice(index, 1);
+  }
+
+  quitarVehiculoIncidencia(index) {
+    this.vehiculosInvolucrados.splice(index, 1);
   }
 
   cambiarIncidenciaActualTab(tab) {
@@ -250,8 +302,20 @@ export class EmpresaIncidenciasComponent implements OnInit {
     this.conmutarAgregarPersonalForm();
   }
 
-  agregarVehiculo() {
+  agregarVehiculo(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        'Ocurrio un problema',
+        'Hay campos requeridos sin rellenar. Favor de rellenarlos',
+        ToastType.WARNING
+      );
+      return;
+    }
 
+    let formValue = form.value;
+
+    this.vehiculosInvolucrados.push(this.vehiculos.filter(x => x.uuid === formValue.vehiculoInvolucrado)[0]);
+    this.conmutarAgregarVehiculoForm();
   }
 
   cambiarPestanaInvolucramientos(pestana) {

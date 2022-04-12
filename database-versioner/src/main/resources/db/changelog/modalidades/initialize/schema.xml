@@ -5,7 +5,7 @@
 
     <changeSet id="2021-09-15-crear-tabla-modalidades" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="MODALIDADES">
+        <createTable tableName="modalidades">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(500)"></column>
@@ -20,14 +20,14 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="MODALIDADES" columnNames="ID" />
-        <addAutoIncrement tableName="MODALIDADES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="modalidades" columnNames="ID" />
+        <addAutoIncrement tableName="modalidades" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="MODALIDADES" columnNames="UUID" />
+        <addUniqueConstraint tableName="modalidades" columnNames="UUID" />
 
-        <!-- FULFILLING THE DEFAULT MODALIDADES -->
-        <insert tableName="MODALIDADES">
+        <!-- FULFILLING THE DEFAULT modalidades -->
+        <insert tableName="modalidades">
             <column name="ID" value="1"></column>
             <column name="UUID" value="8qVslFYQv6Y7"></column>
             <column name="NOMBRE" value="I. Proteccion y vigilancia"></column>
@@ -41,7 +41,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="2"></column>
             <column name="UUID" value="C5UZeWnvwoD3"></column>
             <column name="NOMBRE" value="II. Custodia y vigilancia de bienes o valores"></column>
@@ -55,7 +55,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="3"></column>
             <column name="UUID" value="TatIlZssdGc7"></column>
             <column name="NOMBRE" value="III. Traslado y proteccion de bienes o valores"></column>
@@ -69,7 +69,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="4"></column>
             <column name="UUID" value="nz7gBBr2Wnov"></column>
             <column name="NOMBRE" value="IV. La instalacion de blindajes en todo tipo de vehiculos automotores y en equipos"></column>
@@ -83,7 +83,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="5"></column>
             <column name="UUID" value="i2lWx906HsTg"></column>
             <column name="NOMBRE" value="V. Sistemas de alarmas, instalacion y monitoreo electronico, exceptuandose la instalacion y comercializacion de alarmas en vehiculos automotores"></column>
@@ -97,7 +97,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="6"></column>
             <column name="UUID" value="lj2S2aamRG9s"></column>
             <column name="NOMBRE" value="VI. Los particulares que se dediquen a la comercializacion de prendas de vestir, accesorios, dispositivos, aparatos, sistemas o procedimientos tecnicos especializados relacionados con la seguridad privada, de conformidad a lo senalado en el reglamento de seguridad privada"></column>
@@ -111,7 +111,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="7"></column>
             <column name="UUID" value="sLc0KKfwVAVj"></column>
             <column name="NOMBRE" value="I. Seguridad privada a personas"></column>
@@ -125,7 +125,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="8"></column>
             <column name="UUID" value="F4UOomdZA704"></column>
             <column name="NOMBRE" value="II. Seguridad privada en los bienes"></column>
@@ -139,7 +139,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="9"></column>
             <column name="UUID" value="PCe0g0GgRpQe"></column>
             <column name="NOMBRE" value="III. Seguridad privada en el traslado de bienes o valores"></column>
@@ -153,7 +153,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="10"></column>
             <column name="UUID" value="1Uy141PVMQfU"></column>
             <column name="NOMBRE" value="IV. Servicios de alarmas y monitoreo electronico"></column>
@@ -167,7 +167,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="11"></column>
             <column name="UUID" value="QyUGOzpv2F5r"></column>
             <column name="NOMBRE" value="V. Seguridad de la informacion"></column>
@@ -181,7 +181,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="12"></column>
             <column name="UUID" value="keUeOBas1UQk"></column>
             <column name="NOMBRE" value="VI. Sistemas de prevencion y responsabilidades"></column>
@@ -195,7 +195,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="13"></column>
             <column name="UUID" value="TTESb2VftWYC"></column>
             <column name="NOMBRE" value="VII. Actividad vinculada con servicios de seguridad privada"></column>
@@ -209,7 +209,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="14"></column>
             <column name="UUID" value="uyVC9fZ0gaDH"></column>
             <column name="NOMBRE" value="I. Proteccion y vigilancia"></column>

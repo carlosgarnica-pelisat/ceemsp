@@ -121,7 +121,7 @@ public class ClienteServiceImpl implements ClienteService {
     @Transactional
     @Override
     public ClienteDto crearCliente(String empresaUuid, String username, ClienteDto clienteDto, MultipartFile archivo) {
-        if(StringUtils.isBlank(empresaUuid) || clienteDto == null || StringUtils.isBlank(username) || archivo == null) {
+        if(StringUtils.isBlank(empresaUuid) || clienteDto == null || StringUtils.isBlank(username)) {
             logger.warn("El uuid o el cliente a crear vienen como nulos o vacios");
             throw new InvalidDataException();
         }
@@ -137,18 +137,21 @@ public class ClienteServiceImpl implements ClienteService {
             cliente.setFechaFin(LocalDate.parse(clienteDto.getFechaFin()));
         }
         daoHelper.fulfillAuditorFields(true, cliente, usuarioDto.getId());
-        String ruta = "";
 
-        try {
-            ruta = archivosService.guardarArchivoMultipart(archivo, TipoArchivoEnum.CLIENTE_CONTRATO_SERVICIOS, empresaUuid);
-            cliente.setRutaArchivoContrato(ruta);
-            Cliente clienteCreado = clienteRepository.save(cliente);
-            return daoToDtoConverter.convertDaoToDtoCliente(clienteCreado);
-        } catch(Exception ex) {
-            logger.warn(ex.getMessage());
-            archivosService.eliminarArchivo(ruta);
-            throw new InvalidDataException();
+        if(archivo != null) {
+            String ruta = "";
+
+            try {
+                ruta = archivosService.guardarArchivoMultipart(archivo, TipoArchivoEnum.CLIENTE_CONTRATO_SERVICIOS, empresaUuid);
+                cliente.setRutaArchivoContrato(ruta);
+            } catch(Exception ex) {
+                logger.warn(ex.getMessage());
+                archivosService.eliminarArchivo(ruta);
+                throw new InvalidDataException();
+            }
         }
+        Cliente clienteCreado = clienteRepository.save(cliente);
+        return daoToDtoConverter.convertDaoToDtoCliente(clienteCreado);
     }
 
     @Override

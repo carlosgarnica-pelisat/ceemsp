@@ -152,7 +152,10 @@ public class IncidenciaServiceImpl implements IncidenciaService {
             incidencia.setRelevancia(true);
             //TODO: agregar validacion para campos requeridos
 
-            incidencia.setCliente(incidenciaDto.getCliente().getId());
+            if(incidenciaDto.getCliente() != null) {
+                incidencia.setCliente(incidenciaDto.getCliente().getId());
+            }
+
             incidencia.setLatitud(incidenciaDto.getLatitud());
             incidencia.setLongitud(incidenciaDto.getLongitud());
             incidencia.setStatus(IncidenciaStatusEnum.ABIERTA);

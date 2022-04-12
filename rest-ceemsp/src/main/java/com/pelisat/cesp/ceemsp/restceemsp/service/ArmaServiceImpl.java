@@ -1,9 +1,6 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.ArmaDto;
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaLicenciaColectivaDto;
-import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
+import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.database.model.Arma;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
@@ -20,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -73,7 +71,7 @@ public class ArmaServiceImpl implements ArmaService {
             ArmaDto armaDto = daoToDtoConverter.convertDaoToDtoArma(arma);
             armaDto.setBunker(empresaDomicilioService.obtenerPorId(arma.getBunker()));
             armaDto.setMarca(armaMarcaService.obtenerPorId(arma.getMarca()));
-
+            armaDto.setClase(armaClaseService.obtenerPorId(arma.getClase()));
             return armaDto;
         }).collect(Collectors.toList());
 
@@ -147,6 +145,11 @@ public class ArmaServiceImpl implements ArmaService {
         arma.setBunker(armaDto.getBunker().getId());
         arma.setMarca(armaDto.getMarca().getId());
         arma.setLicenciaColectiva(empresaLicenciaColectivaDto.getId());
+        arma.setStatus(armaDto.getStatus());
+
+        if(armaDto.getPersonal() != null) {
+            arma.setPersonal(armaDto.getPersonal().getId());
+        }
 
         Arma armaCreada = armaRepository.save(arma);
 
@@ -175,6 +178,13 @@ public class ArmaServiceImpl implements ArmaService {
         arma.setMarca(armaDto.getMarca().getId());
         arma.setCalibre(armaDto.getCalibre());
         arma.setTipo(armaDto.getTipo());
+        arma.setSerie(armaDto.getSerie());
+        arma.setStatus(armaDto.getStatus());
+
+        if(armaDto.getPersonal() != null) {
+            arma.setPersonal(armaDto.getPersonal().getId());
+        }
+
         daoHelper.fulfillAuditorFields(false, arma, usuario.getId());
 
         armaRepository.save(arma);
@@ -203,5 +213,10 @@ public class ArmaServiceImpl implements ArmaService {
         daoHelper.fulfillAuditorFields(false, arma, usuario.getId());
         armaRepository.save(arma);
         return daoToDtoConverter.convertDaoToDtoArma(arma);
+    }
+
+    @Override
+    public ArmaDto cambiarStatusCustodia(String uuid, String licenciaColectivaUuid, String armaUuid, String username, String relatoHechos, MultipartFile documentoFundatorio) {
+        return null;
     }
 }

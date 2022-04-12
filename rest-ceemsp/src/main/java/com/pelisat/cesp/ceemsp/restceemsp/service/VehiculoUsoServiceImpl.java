@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -106,12 +107,57 @@ public class VehiculoUsoServiceImpl implements VehiculoUsoService {
     }
 
     @Override
-    public VehiculoUsoDto modificar(VehiculoUsoDto VehiculoUsoDto, String uuid, String username) {
-        return null;
+    public VehiculoUsoDto modificar(VehiculoUsoDto vehiculoUsoDto, String uuid, String username) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || vehiculoUsoDto == null) {
+            logger.warn("Alguno de los campos vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el uso del vehiculo con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        VehiculoUso vehiculoUso = vehiculoUsoRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(vehiculoUso == null) {
+            logger.warn("El uso del vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        vehiculoUso.setNombre(vehiculoUsoDto.getNombre());
+        vehiculoUso.setDescripcion(vehiculoUsoDto.getDescripcion());
+        vehiculoUso.setFechaActualizacion(LocalDateTime.now());
+        vehiculoUso.setActualizadoPor(usuario.getId());
+
+        vehiculoUsoRepository.save(vehiculoUso);
+
+        return daoToDtoConverter.convertDaoToDtoVehiculoUso(vehiculoUso);
     }
 
     @Override
     public VehiculoUsoDto eliminar(String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la marca del arma con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        VehiculoUso vehiculoUso = vehiculoUsoRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(vehiculoUso == null) {
+            logger.warn("El tipo del vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        vehiculoUso.setEliminado(true);
+        vehiculoUso.setFechaActualizacion(LocalDateTime.now());
+        vehiculoUso.setActualizadoPor(usuario.getId());
+
+        vehiculoUsoRepository.save(vehiculoUso);
+
+        return daoToDtoConverter.convertDaoToDtoVehiculoUso(vehiculoUso);
     }
 }

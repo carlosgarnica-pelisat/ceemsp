@@ -110,11 +110,56 @@ public class ArmaClaseServiceImpl implements ArmaClaseService {
 
     @Override
     public ArmaClaseDto modificar(ArmaClaseDto armaClaseDto, String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || armaClaseDto == null) {
+            logger.warn("Alguno de los campos vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando la clase del arma con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        ArmaClase armaClase = armaClaseRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(armaClase == null) {
+            logger.warn("La marca no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        armaClase.setNombre(armaClaseDto.getNombre());
+        armaClase.setDescripcion(armaClaseDto.getDescripcion());
+        armaClase.setFechaActualizacion(LocalDateTime.now());
+        armaClase.setActualizadoPor(usuario.getId());
+
+        armaClaseRepository.save(armaClase);
+
+        return daoToDtoConverter.convertDaoToDtoArmaClase(armaClase);
     }
 
     @Override
     public ArmaClaseDto eliminar(String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la clase del arma con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        ArmaClase armaClase = armaClaseRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(armaClase == null) {
+            logger.warn("La clase del arma no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        armaClase.setEliminado(true);
+        armaClase.setFechaActualizacion(LocalDateTime.now());
+        armaClase.setActualizadoPor(usuario.getId());
+
+        armaClaseRepository.save(armaClase);
+
+        return daoToDtoConverter.convertDaoToDtoArmaClase(armaClase);
     }
 }

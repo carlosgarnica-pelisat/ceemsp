@@ -18,12 +18,12 @@ export class CanesService {
     return this.http.get(`${this.uri}/catalogos/canes/razas`)
   }
 
-  getRazaByUuid(uuid: String) {
-    return this.http.get(`${this.uri}/catalogos/canes/razas/${uuid}`)
-  }
-
   saveRaza(canRaza: CanRaza) {
     return this.http.post(`${this.uri}/catalogos/canes/razas`, canRaza)
+  }
+
+  modificarRaza(uuid: string, canRaza: CanRaza) {
+    return this.http.put(`${this.uri}/catalogos/canes/razas/${uuid}`, canRaza)
   }
 
   deleteRazaByUuid(uuid: String) {
@@ -35,15 +35,15 @@ export class CanesService {
     return this.http.get(`${this.uri}/catalogos/canes/adiestramientos`)
   }
 
-  getEntrenamientoByUuid(uuid: String) {
-    return this.http.get(`${this.uri}/catalogos/canes/adiestramientos/${uuid}`)
-  }
-
   saveEntrenamiento(canEntrenamiento: TipoEntrenamiento) {
     return this.http.post(`${this.uri}/catalogos/canes/adiestramientos`, canEntrenamiento)
   }
 
+  modificarEntrenamiento(uuid: String, canEntrenamiento: TipoEntrenamiento) {
+    return this.http.put(`${this.uri}/catalogos/canes/adiestramientos/${uuid}`, canEntrenamiento);
+  }
+
   deleteEntrenamientoByUuid(uuid: String) {
-    return this.http.delete(`${this.uri}/catalogos/canes/entrenamientos/${uuid}`)
+    return this.http.delete(`${this.uri}/catalogos/canes/adiestramientos/${uuid}`)
   }
 }

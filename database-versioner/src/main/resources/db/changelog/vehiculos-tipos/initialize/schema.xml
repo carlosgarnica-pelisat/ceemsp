@@ -5,7 +5,7 @@
 
     <changeSet id="2021-09-28-crear-tabla-vehiculos-tipos" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="VEHICULOS_TIPOS">
+        <createTable tableName="vehiculos_tipos">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(100)"></column>
@@ -18,10 +18,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="VEHICULOS_TIPOS" columnNames="ID" />
-        <addAutoIncrement tableName="VEHICULOS_TIPOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="vehiculos_tipos" columnNames="ID" />
+        <addAutoIncrement tableName="vehiculos_tipos" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="VEHICULOS_TIPOS" columnNames="UUID" />
+        <addUniqueConstraint tableName="vehiculos_tipos" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

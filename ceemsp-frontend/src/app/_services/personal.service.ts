@@ -43,4 +43,13 @@ export class PersonalService {
     return this.http.post(`${this.uri}/catalogos/personal/nacionalidades`, nacionalidad);
   }
 
+  modificarNacionalidad(uuid: string, nacionalidad: PersonalNacionalidad) {
+    return this.http.put(`${this.uri}/catalogos/personal/nacionalidades/${uuid}`, nacionalidad)
+  }
+
+  eliminarNacionalidad(uuid: string) {
+    return this.http.delete(`${this.uri}/catalogos/personal/nacionalidades/${uuid}`);
+  }
 }
+
+

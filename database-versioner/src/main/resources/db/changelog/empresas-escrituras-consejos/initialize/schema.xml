@@ -5,7 +5,7 @@
 
     <changeSet id="2021-11-26-crear-tabla-empresas-escrituras-consejos" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="EMPRESAS_ESCRITURAS_CONSEJOS">
+        <createTable tableName="empresas_escrituras_consejos">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="ESCRITURA" type="INT"></column>
@@ -21,14 +21,14 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="EMPRESAS_ESCRITURAS_CONSEJOS" columnNames="ID" />
-        <addAutoIncrement tableName="EMPRESAS_ESCRITURAS_CONSEJOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="empresas_escrituras_consejos" columnNames="ID" />
+        <addAutoIncrement tableName="empresas_escrituras_consejos" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="EMPRESAS_ESCRITURAS_CONSEJOS" columnNames="UUID" />
+        <addUniqueConstraint tableName="empresas_escrituras_consejos" columnNames="UUID" />
 
         <!-- Setting the relationship -->
-        <addForeignKeyConstraint baseTableName="EMPRESAS_ESCRITURAS_CONSEJOS" baseColumnNames="ESCRITURA" constraintName="FK_EMPRESAS_ESCRITURAS_CONSEJOS_ESCRITURAS" referencedTableName="EMPRESAS_ESCRITURAS"
+        <addForeignKeyConstraint baseTableName="empresas_escrituras_consejos" baseColumnNames="ESCRITURA" constraintName="FK_empresas_escrituras_consejos_ESCRITURAS" referencedTableName="empresas_escrituras"
                                  referencedColumnNames="ID" />
     </changeSet>
 </databaseChangeLog>

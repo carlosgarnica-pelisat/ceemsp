@@ -33,6 +33,8 @@ export default class ClienteDomicilio implements Deserializable {
   localidadCatalogo: Localidad;
   coloniaCatalogo: Colonia;
   calleCatalogo: Calle;
+  apellidoPaternoContacto: string;
+  apellidoMaternoContacto: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);

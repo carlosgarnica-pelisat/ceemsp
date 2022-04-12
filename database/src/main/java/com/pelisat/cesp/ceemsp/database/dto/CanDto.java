@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.database.dto;
 
+import com.pelisat.cesp.ceemsp.database.dto.metadata.CanFotografiaMetadata;
 import com.pelisat.cesp.ceemsp.database.type.CanGeneroEnum;
 import com.pelisat.cesp.ceemsp.database.type.CanOrigenEnum;
 import com.pelisat.cesp.ceemsp.database.type.CanStatusEnum;
@@ -37,7 +38,8 @@ public class CanDto {
     private ClienteDomicilioDto clienteDomicilio;
     private String motivos;
 
-    List<CanAdiestramientoDto> adiestramientos;
-    List<CanCartillaVacunacionDto> cartillasVacunacion;
-    List<CanConstanciaSaludDto> constanciasSalud;
+    private List<CanAdiestramientoDto> adiestramientos;
+    private List<CanCartillaVacunacionDto> cartillasVacunacion;
+    private List<CanConstanciaSaludDto> constanciasSalud;
+    private List<CanFotografiaMetadata> fotografias;
 }

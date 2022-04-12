@@ -21,7 +21,7 @@ export class VehiculosService {
     return this.http.get(`${this.uri}/catalogos/vehiculos/marcas`)
   }
 
-  obtenerVehiculoMarcaPorUuid(uuid: String) {
+  obtenerVehiculoMarcaPorUuid(uuid: string) {
     return this.http.get(`${this.uri}/catalogos/vehiculos/marcas/${uuid}`)
   }
 
@@ -29,7 +29,7 @@ export class VehiculosService {
     return this.http.post(`${this.uri}/catalogos/vehiculos/marcas`, vehiculoMarca)
   }
 
-  borrarVehiculoMarcaPorUuid(uuid: String) {
+  borrarVehiculoMarcaPorUuid(uuid: string) {
     return this.http.delete(`${this.uri}/catalogos/vehiculos/marcas/${uuid}`)
   }
 
@@ -38,7 +38,7 @@ export class VehiculosService {
     return this.http.get(`${this.uri}/catalogos/vehiculos/tipos`)
   }
 
-  obtenerVehiculoTipoPorUuid(uuid: String) {
+  obtenerVehiculoTipoPorUuid(uuid: string) {
     return this.http.get(`${this.uri}/catalogos/vehiculos/tipos/${uuid}`)
   }
 
@@ -46,7 +46,11 @@ export class VehiculosService {
     return this.http.post(`${this.uri}/catalogos/vehiculos/tipos`, vehiculoTipo)
   }
 
-  borrarVehiculoTipoPorUuid(uuid: String) {
+  modificarVehiculoTipo(uuid: string, vehiculoTipo: VehiculoTipo) {
+    return this.http.put(`${this.uri}/catalogos/vehiculos/tipos/${uuid}`, vehiculoTipo);
+  }
+
+  borrarVehiculoTipo(uuid: string) {
     return this.http.delete(`${this.uri}/catalogos/vehiculos/tipos/${uuid}`)
   }
 
@@ -55,12 +59,20 @@ export class VehiculosService {
     return this.http.get(`${this.uri}/catalogos/vehiculos/usos`);
   }
 
-  obtenerVehiculoUsoPorUuid(uuid: String) {
+  obtenerVehiculoUsoPorUuid(uuid: string) {
     return this.http.get(`${this.uri}/catalogos/vehiculos/usos/${uuid}`)
   };
 
   guardarVehiculoUso(vehiculoUso: VehiculoUso) {
     return this.http.post(`${this.uri}/catalogos/vehiculos/usos`, vehiculoUso)
+  }
+
+  modificarVehiculoUso(uuid: string, vehiculoUso: VehiculoUso) {
+    return this.http.put(`${this.uri}/catalogos/vehiculos/usos/${uuid}`, vehiculoUso);
+  }
+
+  borrarVehiculoUso(uuid: string) {
+    return this.http.delete(`${this.uri}/catalogos/vehiculos/usos/${uuid}`)
   }
 }
 

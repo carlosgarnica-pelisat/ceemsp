@@ -13,6 +13,7 @@ import {ToastComponent} from "../../_components/toast/toast.component";
 import {NgxPrintModule} from "ngx-print";
 import {PdfViewerComponent} from "ng2-pdf-viewer";
 import {platformBrowserDynamic} from "@angular/platform-browser-dynamic";
+import {GoogleChartsModule} from "angular-google-charts";
 
 @NgModule({
   declarations: [
@@ -20,16 +21,17 @@ import {platformBrowserDynamic} from "@angular/platform-browser-dynamic";
     DashboardComponent,
     ToastComponent
   ],
-  imports: [
-    CommonModule,
-    HomeRoutingModule,
-    NgbModule,
-    ReactiveFormsModule,
-    FormsModule,
-    FontAwesomeModule,
-    NgxPrintModule,
-    AgGridModule.withComponents([])
-  ],
+    imports: [
+        CommonModule,
+        HomeRoutingModule,
+        NgbModule,
+        ReactiveFormsModule,
+        FormsModule,
+        FontAwesomeModule,
+        NgxPrintModule,
+        AgGridModule.withComponents([]),
+        GoogleChartsModule
+    ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }

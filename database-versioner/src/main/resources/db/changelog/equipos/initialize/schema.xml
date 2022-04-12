@@ -5,7 +5,7 @@
 
     <changeSet id="2022-01-07-crear-tabla-equipos" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="EQUIPOS">
+        <createTable tableName="equipos">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(100)"></column>
@@ -19,10 +19,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="EQUIPOS" columnNames="ID" />
-        <addAutoIncrement tableName="EQUIPOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="equipos" columnNames="ID" />
+        <addAutoIncrement tableName="equipos" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="EQUIPOS" columnNames="UUID" />
+        <addUniqueConstraint tableName="equipos" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

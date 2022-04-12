@@ -8,4 +8,6 @@ import java.util.List;
 public interface EmpresaUniformeElementoService {
     List<EmpresaUniformeElementoDto> obtenerElementosUniformePorEmpresaUuid(String empresaUuid, String uniformeUuid);
     EmpresaUniformeElementoDto guardarUniformeElemento(String empresaUuid, String uniformeUuid, String usuario, EmpresaUniformeElementoDto empresaUniformeDto);
+    EmpresaUniformeElementoDto modificarUniformeElemento(String empresaUuid, String uniformeUuid, String elementoUuid, String usuario, EmpresaUniformeElementoDto empresaUniformeElementoDto);
+    EmpresaUniformeElementoDto eliminarUniformeElemento(String empresaUuid, String uniformeUuid, String elementoUuid, String usuario);
 }

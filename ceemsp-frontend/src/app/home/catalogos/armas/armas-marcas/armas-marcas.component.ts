@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ArmasService} from "../../../../_services/armas.service";
@@ -6,6 +6,7 @@ import {ToastService} from "../../../../_services/toast.service";
 import {ToastType} from "../../../../_enums/ToastType";
 import ArmaMarca from "../../../../_models/ArmaMarca";
 import ArmaClase from "../../../../_models/ArmaClase";
+import TipoEntrenamiento from "../../../../_models/TipoEntrenamiento";
 
 @Component({
   selector: 'app-armas-marcas',
@@ -20,13 +21,11 @@ export class ArmasMarcasComponent implements OnInit {
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
-      }}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
   ];
   rowData = [];
+
+  armaMarca: ArmaMarca;
 
   uuid: string;
   modal: NgbModalRef;
@@ -37,6 +36,10 @@ export class ArmasMarcasComponent implements OnInit {
   };
 
   crearArmaMarcaForm: FormGroup;
+
+  @ViewChild("mostrarArmaMarcaModal") mostrarArmaMarcaModal;
+  @ViewChild("editarArmaMarcaModal") editarArmaMarcaModal;
+  @ViewChild("eliminarArmaMarcaModal") eliminarArmaMarcaModal;
 
   constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
               private armaService: ArmasService, private toastService: ToastService) { }
@@ -53,8 +56,8 @@ export class ArmasMarcasComponent implements OnInit {
     })
 
     this.crearArmaMarcaForm = this.formBuilder.group({
-      nombre: ['', Validators.required],
-      descripcion: ['']
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      descripcion: ['', [Validators.maxLength(100)]]
     })
   }
 
@@ -65,17 +68,11 @@ export class ArmasMarcasComponent implements OnInit {
   }
 
   checkForDetails(data) {
-    //this.modal = this.modalService.open(showCustomerDetailsModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    let armaMarcaUuid = data.uuid;
+    this.armaMarca = this.rowData.filter(x => x.uuid === armaMarcaUuid)[0];
+    this.modal = this.modalService.open(this.mostrarArmaMarcaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.uuid = data.uuid;
-  }
-
-  modify(rowData) {
-
-  }
-
-  delete(rowData) {
-
   }
 
   mostrarModalCrear(modal) {
@@ -117,6 +114,77 @@ export class ArmasMarcasComponent implements OnInit {
         `La narca del arna no se ha podido guardar. ${error}`,
         ToastType.ERROR
       )
+    })
+  }
+
+  guardarCambios(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos requeridos que no se han validado",
+        ToastType.WARNING
+      )
+      return;
+    }
+
+    let armaMarca: ArmaMarca = form.value;
+
+    this.armaService.modificarArmaMarca(this.armaMarca.uuid, armaMarca).subscribe((data: ArmaMarca) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha modificado con exito la marca del arma",
+        ToastType.SUCCESS
+      )
+
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la marca del arma. ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  mostrarModificarArmaMarcaModal() {
+    this.crearArmaMarcaForm.patchValue({
+      nombre: this.armaMarca.nombre,
+      descripcion: this.armaMarca.descripcion
+    });
+
+    this.modalService.open(this.editarArmaMarcaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  mostrarEliminarCanEntrenamientoModal() {
+    this.modal = this.modalService.open(this.eliminarArmaMarcaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  confirmarEliminar() {
+    this.armaService.borrarArmaMarca(this.armaMarca.uuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la marca del arma con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar la marca del arma. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 

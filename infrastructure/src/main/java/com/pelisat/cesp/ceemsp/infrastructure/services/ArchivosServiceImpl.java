@@ -23,12 +23,25 @@ public class ArchivosServiceImpl implements ArchivosService {
 
     @Override
     public String guardarArchivoMultipart(MultipartFile multipartFile, TipoArchivoEnum tipoArchivo, String empresaUuid) throws IOException {
+        return guardarArchivoMultipart(multipartFile, tipoArchivo, empresaUuid, true);
+    }
+
+    @Override
+    public String guardarArchivoMultipart(MultipartFile multipartFile, TipoArchivoEnum tipoArchivo, String empresaUuid, boolean archivoEmpresa) throws IOException {
         if(multipartFile == null || tipoArchivo == null) {
             logger.warn("El archivo o el tipo de archivo vienen como nulos o vacios");
             throw new InvalidDataException();
         }
 
-        File file = new File(ROOT_FS + EMPRESAS_FOLDER + empresaUuid + "/" + tipoArchivo.getRutaCarpeta() + tipoArchivo.getPrefijoArchivo() +
+        String basePath = "";
+
+        if(archivoEmpresa) {
+            basePath = ROOT_FS + EMPRESAS_FOLDER + empresaUuid + "/";
+        } else {
+            basePath = ROOT_FS;
+        }
+
+        File file = new File(basePath + tipoArchivo.getRutaCarpeta() + tipoArchivo.getPrefijoArchivo() +
                 "-" + RandomStringUtils.randomAlphanumeric(6) + FilenameUtils.getExtension(multipartFile.getName()));
         FileUtils.writeByteArrayToFile(file, multipartFile.getBytes());
 

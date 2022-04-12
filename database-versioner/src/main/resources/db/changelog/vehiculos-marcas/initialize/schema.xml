@@ -5,7 +5,7 @@
 
     <changeSet id="2021-09-28-crear-tabla-vehiculos-marcas" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="VEHICULOS_MARCAS">
+        <createTable tableName="vehiculos_marcas">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(100)"></column>
@@ -18,14 +18,14 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="VEHICULOS_MARCAS" columnNames="ID" />
-        <addAutoIncrement tableName="VEHICULOS_MARCAS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="vehiculos_marcas" columnNames="ID" />
+        <addAutoIncrement tableName="vehiculos_marcas" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="VEHICULOS_MARCAS" columnNames="UUID" />
+        <addUniqueConstraint tableName="vehiculos_marcas" columnNames="UUID" />
 
         <!-- ADDING DEFAULTS -->
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="1"></column>
             <column name="UUID" value="SXnZw2lR6BT2"></column>
             <column name="NOMBRE" value="ACURA"></column>
@@ -37,7 +37,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="2"></column>
             <column name="UUID" value="xqRL6WFk13uN"></column>
             <column name="NOMBRE" value="ALFA ROMEO"></column>
@@ -49,7 +49,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="3"></column>
             <column name="UUID" value="jpzQLDH5x3KF"></column>
             <column name="NOMBRE" value="ASTON MARTIN"></column>
@@ -61,7 +61,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="4"></column>
             <column name="UUID" value="jfmJ8cGVhE8k"></column>
             <column name="NOMBRE" value="AUDI"></column>
@@ -73,7 +73,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="5"></column>
             <column name="UUID" value="uThXaMGb8y5w"></column>
             <column name="NOMBRE" value="BENTLEY"></column>
@@ -85,7 +85,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="6"></column>
             <column name="UUID" value="Ib4vjeaBbQZW"></column>
             <column name="NOMBRE" value="BMW"></column>
@@ -97,7 +97,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="7"></column>
             <column name="UUID" value="D2Mjzi5BEyVF"></column>
             <column name="NOMBRE" value="BUICK"></column>
@@ -109,7 +109,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="8"></column>
             <column name="UUID" value="ZdqOQMv3C5WT"></column>
             <column name="NOMBRE" value="CADILLAC"></column>
@@ -120,7 +120,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="9"></column>
             <column name="UUID" value="oAr3XyCzmFEs"></column>
             <column name="NOMBRE" value="CHEVROLET"></column>
@@ -131,7 +131,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="10"></column>
             <column name="UUID" value="QJkRF7Dg7f36"></column>
             <column name="NOMBRE" value="CHRYSLER"></column>
@@ -142,7 +142,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="11"></column>
             <column name="UUID" value="RqgiQm2QyUlf"></column>
             <column name="NOMBRE" value="DODGE"></column>
@@ -153,7 +153,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="12"></column>
             <column name="UUID" value="RnLBJmxElGPl"></column>
             <column name="NOMBRE" value="FAW"></column>
@@ -164,7 +164,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="13"></column>
             <column name="UUID" value="FWmcmGJKH0sw"></column>
             <column name="NOMBRE" value="FERRARI"></column>
@@ -175,7 +175,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="14"></column>
             <column name="UUID" value="yshf5BbHWPnB"></column>
             <column name="NOMBRE" value="FIAT"></column>
@@ -186,7 +186,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="15"></column>
             <column name="UUID" value="CjeADM99gQs6"></column>
             <column name="NOMBRE" value="FORD"></column>
@@ -197,7 +197,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="16"></column>
             <column name="UUID" value="yTtd9Bd1kYSJ"></column>
             <column name="NOMBRE" value="GMC"></column>
@@ -208,7 +208,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="17"></column>
             <column name="UUID" value="nbhrvNr3AVkA"></column>
             <column name="NOMBRE" value="HONDA"></column>
@@ -219,7 +219,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="18"></column>
             <column name="UUID" value="gmxJDd43uO7Y"></column>
             <column name="NOMBRE" value="HYUNDAI"></column>
@@ -230,7 +230,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="19"></column>
             <column name="UUID" value="LTzWMo621oSW"></column>
             <column name="NOMBRE" value="INFINITI"></column>
@@ -241,7 +241,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="20"></column>
             <column name="UUID" value="QJxrHJ3tkEy5"></column>
             <column name="NOMBRE" value="JAC"></column>
@@ -252,7 +252,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="21"></column>
             <column name="UUID" value="RroqaTsyWqml"></column>
             <column name="NOMBRE" value="JAGUAR"></column>
@@ -263,7 +263,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="22"></column>
             <column name="UUID" value="EjAaT4GTVHJA"></column>
             <column name="NOMBRE" value="JEEP"></column>
@@ -274,7 +274,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="23"></column>
             <column name="UUID" value="84gVyZaIbMHt"></column>
             <column name="NOMBRE" value="KIA"></column>
@@ -285,7 +285,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="24"></column>
             <column name="UUID" value="U4LKA6BiS1Nw"></column>
             <column name="NOMBRE" value="LAMBORGHINI"></column>
@@ -296,7 +296,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="25"></column>
             <column name="UUID" value="98bz55rEJV5V"></column>
             <column name="NOMBRE" value="LAND ROVER"></column>
@@ -307,7 +307,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="26"></column>
             <column name="UUID" value="YpRR4kMrrJ5w"></column>
             <column name="NOMBRE" value="LINCOLN"></column>
@@ -318,7 +318,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="27"></column>
             <column name="UUID" value="igp39VeZECKX"></column>
             <column name="NOMBRE" value="MASERATI"></column>
@@ -329,7 +329,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="28"></column>
             <column name="UUID" value="Rf5TnNZhqtQ2"></column>
             <column name="NOMBRE" value="MAZDA"></column>
@@ -340,7 +340,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="29"></column>
             <column name="UUID" value="PxdKv8z7Wbof"></column>
             <column name="NOMBRE" value="MCLAREN"></column>
@@ -351,7 +351,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="30"></column>
             <column name="UUID" value="NnESGIunsmj4"></column>
             <column name="NOMBRE" value="MERCEDES-BENZ"></column>
@@ -362,7 +362,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="31"></column>
             <column name="UUID" value="wDw0qmkZda2E"></column>
             <column name="NOMBRE" value="MG"></column>
@@ -373,7 +373,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="32"></column>
             <column name="UUID" value="v7NuR23g6IXX"></column>
             <column name="NOMBRE" value="MINI"></column>
@@ -384,7 +384,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="33"></column>
             <column name="UUID" value="IKbLB4jyWMWb"></column>
             <column name="NOMBRE" value="MITSUBISHI"></column>
@@ -395,7 +395,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="34"></column>
             <column name="UUID" value="03HZk2cYuq9p"></column>
             <column name="NOMBRE" value="NISSAN"></column>
@@ -406,7 +406,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="35"></column>
             <column name="UUID" value="5Lhz4D8LaT37"></column>
             <column name="NOMBRE" value="PEUGEOT"></column>
@@ -417,7 +417,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="36"></column>
             <column name="UUID" value="ROLkqSoDejBH"></column>
             <column name="NOMBRE" value="PORSCHE"></column>
@@ -428,7 +428,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="37"></column>
             <column name="UUID" value="Sw0lXtJxVyh3"></column>
             <column name="NOMBRE" value="RENAULT"></column>
@@ -439,7 +439,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="38"></column>
             <column name="UUID" value="HgzKrQLBxhEn"></column>
             <column name="NOMBRE" value="SEAT"></column>
@@ -450,7 +450,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="39"></column>
             <column name="UUID" value="LEmOvHHNBLV0"></column>
             <column name="NOMBRE" value="SMART"></column>
@@ -461,7 +461,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="40"></column>
             <column name="UUID" value="oFzslBgohF8b"></column>
             <column name="NOMBRE" value="SUBARU"></column>
@@ -472,7 +472,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="41"></column>
             <column name="UUID" value="1B58aUULao1G"></column>
             <column name="NOMBRE" value="SUZUKI"></column>
@@ -483,7 +483,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="42"></column>
             <column name="UUID" value="K5fmxl5PTiGI"></column>
             <column name="NOMBRE" value="TESLA"></column>
@@ -494,7 +494,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="43"></column>
             <column name="UUID" value="xYywd2UIEvaO"></column>
             <column name="NOMBRE" value="TOYOTA"></column>
@@ -505,7 +505,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="44"></column>
             <column name="UUID" value="8bVbr6ExLgwe"></column>
             <column name="NOMBRE" value="VOLKSWAGEN"></column>
@@ -516,7 +516,7 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
-        <insert tableName="VEHICULOS_MARCAS">
+        <insert tableName="vehiculos_marcas">
             <column name="ID" value="45"></column>
             <column name="UUID" value="uLqHb1vRkveS"></column>
             <column name="NOMBRE" value="VOLVO"></column>

@@ -5,7 +5,7 @@
 
     <changeSet id="2021-11-09-crear-tabla-cliente-domicilios" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="CLIENTES_DOMICILIOS">
+        <createTable tableName="clientes_domicilios">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="CLIENTE" type="int"></column>
@@ -32,11 +32,11 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="CLIENTES_DOMICILIOS" columnNames="ID" />
-        <addAutoIncrement tableName="CLIENTES_DOMICILIOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="clientes_domicilios" columnNames="ID" />
+        <addAutoIncrement tableName="clientes_domicilios" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="CLIENTES_DOMICILIOS" columnNames="UUID" />
+        <addUniqueConstraint tableName="clientes_domicilios" columnNames="UUID" />
 
 
     </changeSet>

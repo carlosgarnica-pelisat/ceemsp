@@ -54,6 +54,7 @@ import { PhoneMaskDirective } from './_directives/phone-mask.directive';
 import { NumberMaskDirective } from './_directives/number-mask.directive';
 import { RfcDirective } from './_directives/rfc.directive';
 import { BuscarNombrePipe } from './_pipes/buscar-nombre.pipe';
+import {GoogleChartsModule} from "angular-google-charts";
 
 @NgModule({
   declarations: [
@@ -111,7 +112,8 @@ import { BuscarNombrePipe } from './_pipes/buscar-nombre.pipe';
     AgGridModule,
     CKEditorModule,
     NgxPrintModule,
-    PdfViewerModule
+    PdfViewerModule,
+    GoogleChartsModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

@@ -37,4 +37,10 @@ public class Arma extends CommonModel {
     @Column(name = "STATUS", nullable = false)
     @Enumerated(EnumType.STRING)
     private ArmaStatusEnum status;
+
+    @Column(name = "SERIE", nullable = false)
+    private String serie;
+
+    @Column(name = "PERSONAL", nullable = false)
+    private Integer personal;
 }

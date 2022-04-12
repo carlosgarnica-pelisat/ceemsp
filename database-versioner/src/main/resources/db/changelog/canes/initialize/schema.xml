@@ -5,7 +5,7 @@
 
     <changeSet id="2021-08-31-crear-tabla-canes" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="CANES">
+        <createTable tableName="canes">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="EMPRESA" type="int"></column>
@@ -28,10 +28,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="CANES" columnNames="ID" />
-        <addAutoIncrement tableName="CANES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="canes" columnNames="ID" />
+        <addAutoIncrement tableName="canes" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="CANES" columnNames="UUID" />
+        <addUniqueConstraint tableName="canes" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

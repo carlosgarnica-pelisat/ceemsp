@@ -5,7 +5,7 @@
 
     <changeSet id="2021-10-30-crear-tabla-personal-puestos" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="PERSONAL_PUESTOS">
+        <createTable tableName="personal_puestos">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(60)"></column>
@@ -18,11 +18,11 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="PERSONAL_PUESTOS" columnNames="ID" />
-        <addAutoIncrement tableName="PERSONAL_PUESTOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="personal_puestos" columnNames="ID" />
+        <addAutoIncrement tableName="personal_puestos" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="PERSONAL_PUESTOS" columnNames="UUID" />
+        <addUniqueConstraint tableName="personal_puestos" columnNames="UUID" />
 
 
     </changeSet>

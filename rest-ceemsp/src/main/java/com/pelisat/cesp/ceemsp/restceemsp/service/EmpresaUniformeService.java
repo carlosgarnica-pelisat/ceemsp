@@ -7,4 +7,6 @@ public interface EmpresaUniformeService {
     List<EmpresaUniformeDto> obtenerUniformesPorEmpresaUuid(String empresaUuid);
     EmpresaUniformeDto obtenerUniformePorUuid(String empresaUuid, String uniformeUuid);
     EmpresaUniformeDto guardarUniforme(String empresaUuid, String usuario, EmpresaUniformeDto empresaUniformeDto);
+    EmpresaUniformeDto modificarUniforme(String empresaUuid, String uniformeUuid, String usuario, EmpresaUniformeDto empresaUniformeDto);
+    EmpresaUniformeDto eliminarUniforme(String empresaUuid, String uniformeUuid, String usuario);
 }

@@ -14,37 +14,20 @@ export class ArmasService {
 
   constructor(private http: HttpClient) { }
 
-  // Operaciones para tipos de arma
-  obtenerArmasTipos() {
-    return this.http.get(`${this.uri}/catalogos/armas/tipos`)
-  }
-
-  obtenerArmaTipoPorUuid(uuid: String) {
-    return this.http.get(`${this.uri}/catalogos/armas/tipos/${uuid}`)
-  }
-
-  guardarArmaTipo(armaTipo: ArmaTipo) {
-    return this.http.post(`${this.uri}/catalogos/armas/tipos`, armaTipo)
-  }
-
-  borrarArmaTipoPorUuid(uuid: String) {
-    return this.http.delete(`${this.uri}/catalogos/armas/tipos/${uuid}`)
-  }
-
   // Operaciones para marcas de arma
   obtenerArmaMarcas() {
     return this.http.get(`${this.uri}/catalogos/armas/marcas`)
-  }
-
-  obtenerArmaMarcaPorUuid(uuid: String) {
-    return this.http.get(`${this.uri}/catalogos/armas/marcas/${uuid}`)
   }
 
   guardarArmaMarca(armaMarca: ArmaMarca) {
     return this.http.post(`${this.uri}/catalogos/armas/marcas`, armaMarca)
   }
 
-  borrarArmaMarcaPorUuid(uuid: String) {
+  modificarArmaMarca(uuid: string, armaMarca: ArmaMarca) {
+    return this.http.put(`${this.uri}/catalogos/armas/marcas/${uuid}`, armaMarca)
+  }
+
+  borrarArmaMarca(uuid: String) {
     return this.http.delete(`${this.uri}/catalogos/armas/marcas/${uuid}`)
   }
 
@@ -53,15 +36,15 @@ export class ArmasService {
     return this.http.get(`${this.uri}/catalogos/armas/clases`)
   }
 
-  obtenerArmaClasePorUuid(uuid: String) {
-    return this.http.get(`${this.uri}/catalogos/armas/clases/${uuid}`)
-  }
-
   guardarArmaClase(armaClase: ArmaClase) {
     return this.http.post(`${this.uri}/catalogos/armas/clases`, armaClase)
   }
 
-  borrarArmaClasePorUuid(uuid: String) {
+  modificarArmaClase(uuid: string, armaClase: ArmaClase) {
+    return this.http.put(`${this.uri}/catalogos/armas/clases/${uuid}`, armaClase)
+  }
+
+  borrarArmaClase(uuid: String) {
     return this.http.delete(`${this.uri}/catalogos/armas/clases/${uuid}`)
   }
 }

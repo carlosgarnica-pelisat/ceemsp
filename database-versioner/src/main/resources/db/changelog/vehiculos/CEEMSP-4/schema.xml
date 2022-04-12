@@ -5,7 +5,7 @@
 
     <changeSet id="2021-11-14-agregar-columna-uso" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <addColumn tableName="VEHICULOS">
+        <addColumn tableName="vehiculos">
             <column name="USO" type="int"></column>
         </addColumn>
     </changeSet>

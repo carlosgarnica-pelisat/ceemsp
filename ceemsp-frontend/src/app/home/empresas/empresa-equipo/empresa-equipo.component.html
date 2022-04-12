@@ -55,7 +55,7 @@
 
   <ng-template #equipoDetallesModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="equipoDetallesModal">Nuevo domicilio </h4>
+      <h4 class="modal-title" id="equipoDetallesModal">Ver detalles del equipo </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -63,8 +63,22 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td>Equipo</td>
+              <td>{{empresaEquipo.equipo.nombre}}</td>
+            </tr>
+            <tr>
+              <td>Cantidad</td>
+              <td>{{empresaEquipo.cantidad}}</td>
+            </tr>
+          </table>
         </div>
       </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="mostrarModalModificar()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminar()">Eliminar</button>
     </div>
   </ng-template>
 
@@ -104,6 +118,65 @@
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="guardarEquipo(crearEquipoForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #modificarEquipoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modificarEquipoModal">Modificando equipo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearEquipoForm">
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="equipoEditar">
+                  <b>Equipo *</b>
+                  <span *ngIf="crearEquipoForm.controls['equipo'].invalid && (crearEquipoForm.controls['equipo'].dirty || crearEquipoForm.controls['equipo'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <select id="equipoEditar" class="form-control" formControlName="equipo" (change)="seleccionarEquipo($event.target)">
+                  <option *ngFor="let e of equipos" value="{{e?.uuid}}">{{e?.nombre}}</option>
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <label for="cantidadEditar">
+                  <b>Cantidad *</b>
+                  <span *ngIf="crearEquipoForm.controls['cantidad'].invalid && (crearEquipoForm.controls['cantidad'].dirty || crearEquipoForm.controls['cantidad'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="cantidadEditar" type="number" class="form-control" placeholder="Mayor o igual a 0" formControlName="cantidad" #cantidad>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarCambiosEquipo(crearEquipoForm)">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarEquipoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarEscrituraModal">Eliminando un equipo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar el equipo. Toma en cuenta que esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarEquipo()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 </div>

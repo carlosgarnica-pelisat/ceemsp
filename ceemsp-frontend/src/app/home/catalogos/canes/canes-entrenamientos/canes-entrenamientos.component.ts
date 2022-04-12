@@ -1,10 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {CanesService} from "../../../../_services/canes.service";
 import {ToastService} from "../../../../_services/toast.service";
 import TipoEntrenamiento from "../../../../_models/TipoEntrenamiento";
 import {ToastType} from "../../../../_enums/ToastType";
+import CanAdiestramiento from "../../../../_models/CanAdiestramiento";
 
 @Component({
   selector: 'app-canes-entrenamientos',
@@ -19,11 +20,7 @@ export class CanesEntrenamientosComponent implements OnInit {
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
-      }}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
   ];
   rowData = [];
 
@@ -35,7 +32,14 @@ export class CanesEntrenamientosComponent implements OnInit {
     uuid: undefined
   };
 
+
+  tipoEntrenamiento: TipoEntrenamiento;
+
   crearTipoAdiestramientoForm: FormGroup;
+
+  @ViewChild("mostrarCanEntrenamientoModal") mostrarCanEntrenamientoModal;
+  @ViewChild("editarCanEntrenamientoModal") editarCanEntrenamientoModal;
+  @ViewChild("eliminarCanEntrenamientoModal") eliminarCanEntrenamientoModal;
 
   constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
               private canesService: CanesService, private toastService: ToastService) { }
@@ -52,8 +56,8 @@ export class CanesEntrenamientosComponent implements OnInit {
     }))
 
     this.crearTipoAdiestramientoForm = this.formBuilder.group({
-      nombre: ['', Validators.required],
-      descripcion: ['']
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      descripcion: ['', [Validators.maxLength(100)]]
     })
   }
 
@@ -64,17 +68,11 @@ export class CanesEntrenamientosComponent implements OnInit {
   }
 
   checkForDetails(data) {
-    //this.modal = this.modalService.open(showCustomerDetailsModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    let canEntrenamientoUuid = data.uuid;
+    this.tipoEntrenamiento = this.rowData.filter(x => x.uuid === canEntrenamientoUuid)[0];
+    this.modal = this.modalService.open(this.mostrarCanEntrenamientoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.uuid = data.uuid;
-  }
-
-  modify(rowData) {
-
-  }
-
-  delete(rowData) {
-
   }
 
   mostrarModalCrear(modal) {
@@ -116,6 +114,77 @@ export class CanesEntrenamientosComponent implements OnInit {
         `El entrenamiento no se ha podido guardar. Motivo: ${error}`,
         ToastType.ERROR
       )
+    })
+  }
+
+  guardarCambios(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos requeridos que no se han validado",
+        ToastType.WARNING
+      )
+      return;
+    }
+
+    let canEntrenamiento: TipoEntrenamiento = form.value;
+
+    this.canesService.modificarEntrenamiento(this.tipoEntrenamiento.uuid, canEntrenamiento).subscribe((data: TipoEntrenamiento) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha modificado con exito la raza",
+        ToastType.SUCCESS
+      )
+
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la raza. ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  mostrarModificarCanEntrenamientoModal() {
+    this.crearTipoAdiestramientoForm.patchValue({
+      nombre: this.tipoEntrenamiento.nombre,
+      descripcion: this.tipoEntrenamiento.descripcion
+    });
+
+    this.modalService.open(this.editarCanEntrenamientoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  mostrarEliminarCanEntrenamientoModal() {
+    this.modal = this.modalService.open(this.eliminarCanEntrenamientoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  confirmarEliminar() {
+    this.canesService.deleteEntrenamientoByUuid(this.tipoEntrenamiento.uuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la raza del can con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar la raza del can. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 

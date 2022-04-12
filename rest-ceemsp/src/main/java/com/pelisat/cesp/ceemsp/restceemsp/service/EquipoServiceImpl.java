@@ -102,11 +102,57 @@ public class EquipoServiceImpl implements EquipoService {
 
     @Override
     public EquipoDto modificarEquipo(String equipoUuid, String username, EquipoDto equipoDto) {
-        return null;
+        if(StringUtils.isBlank(equipoUuid) || StringUtils.isBlank(username) || equipoDto == null) {
+            logger.warn("Alguno de los campos vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el equipo con el uuid [{}]", equipoUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        Equipo equipo = equipoRepository.findByUuidAndEliminadoFalse(equipoUuid);
+
+        if(equipo == null) {
+            logger.warn("El equipo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        equipo.setNombre(equipoDto.getNombre());
+        equipo.setDescripcion(equipoDto.getDescripcion());
+        equipo.setFormaEjecucion(equipoDto.getFormaEjecucion());
+        equipo.setFechaActualizacion(LocalDateTime.now());
+        equipo.setActualizadoPor(usuario.getId());
+
+        equipoRepository.save(equipo);
+
+        return daoToDtoConverter.convertDaoToDtoEquipo(equipo);
     }
 
     @Override
     public EquipoDto eliminarEquipo(String equipoUuid, String username) {
-        return null;
+        if(StringUtils.isBlank(equipoUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el equipo con el uuid [{}]", equipoUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        Equipo equipo = equipoRepository.findByUuidAndEliminadoFalse(equipoUuid);
+
+        if(equipo == null) {
+            logger.warn("La modalidad no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        equipo.setEliminado(true);
+        equipo.setFechaActualizacion(LocalDateTime.now());
+        equipo.setActualizadoPor(usuario.getId());
+
+        equipoRepository.save(equipo);
+
+        return daoToDtoConverter.convertDaoToDtoEquipo(equipo);
     }
 }

@@ -5,7 +5,7 @@
 
     <changeSet id="2022-01-30-agregar-columna-ubicacion-archivo" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <addColumn tableName="EMPRESAS_UNIFORMES_ELEMENTOS">
+        <addColumn tableName="empresas_uniformes_elementos">
             <column name="UBICACION_ARCHIVO" type="VARCHAR(512)"></column>
         </addColumn>
     </changeSet>

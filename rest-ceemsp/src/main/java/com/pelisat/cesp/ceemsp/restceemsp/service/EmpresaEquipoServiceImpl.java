@@ -63,7 +63,7 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
 
     @Override
     public EmpresaEquipoDto obtenerEquipoPorUuid(String empresaUuid, String equipoUuid) {
-        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(empresaUuid)) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(equipoUuid)) {
             logger.warn("El uuid de la empresa o del equipo vienen como nulos o vacios");
             throw new InvalidDataException();
         }
@@ -104,6 +104,53 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
         empresaEquipo.setEmpresa(empresaDto.getId());
         empresaEquipo.setEquipo(empresaEquipoDto.getEquipo().getId());
         empresaEquipo.setCantidad(empresaEquipoDto.getCantidad());
+        EmpresaEquipo empresaEquipoCreado = empresaEquipoRepository.save(empresaEquipo);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaEquipo(empresaEquipoCreado);
+    }
+
+    @Override
+    public EmpresaEquipoDto modificarEquipo(String empresaUuid, String equipoUuid, String usuario, EmpresaEquipoDto empresaEquipoDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(equipoUuid) || StringUtils.isBlank(usuario) || empresaEquipoDto == null) {
+            logger.warn("Alguno de los parametros viene como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el equipo con el uuid [{}]", equipoUuid);
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(usuario);
+        EmpresaEquipo empresaEquipo = empresaEquipoRepository.findByUuidAndEliminadoFalse(equipoUuid);
+        if(empresaEquipo == null) {
+            logger.warn("El equipo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaEquipo.setEquipo(empresaEquipoDto.getEquipo().getId());
+        empresaEquipo.setCantidad(empresaEquipoDto.getCantidad());
+        daoHelper.fulfillAuditorFields(false, empresaEquipo, usuarioDto.getId());
+        EmpresaEquipo empresaEquipoCreado = empresaEquipoRepository.save(empresaEquipo);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaEquipo(empresaEquipoCreado);
+    }
+
+    @Override
+    public EmpresaEquipoDto eliminarEquipo(String empresaUuid, String equipoUuid, String usuario) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(equipoUuid) || StringUtils.isBlank(usuario)) {
+            logger.warn("Alguno de los parametros viene como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el equipo con el uuid [{}]", equipoUuid);
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(usuario);
+        EmpresaEquipo empresaEquipo = empresaEquipoRepository.findByUuidAndEliminadoFalse(equipoUuid);
+        if(empresaEquipo == null) {
+            logger.warn("El equipo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaEquipo.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, empresaEquipo, usuarioDto.getId());
         EmpresaEquipo empresaEquipoCreado = empresaEquipoRepository.save(empresaEquipo);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEquipo(empresaEquipoCreado);

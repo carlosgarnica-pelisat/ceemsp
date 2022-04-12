@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import PersonalPuestoTrabajo from "../../../../_models/PersonalPuestoTrabajo";
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
@@ -7,6 +7,7 @@ import {ToastService} from "../../../../_services/toast.service";
 import {ToastType} from "../../../../_enums/ToastType";
 import PersonalNacionalidad from "../../../../_models/PersonalNacionalidad";
 import VehiculoUso from "../../../../_models/VehiculoUso";
+import Uniforme from "../../../../_models/Uniforme";
 
 @Component({
   selector: 'app-nacionalidades',
@@ -20,13 +21,11 @@ export class NacionalidadesComponent implements OnInit {
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
-      }}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
   ];
   rowData: PersonalNacionalidad[] = [];
+
+  nacionalidad: PersonalNacionalidad;
 
   uuid: string;
   modal: NgbModalRef;
@@ -37,6 +36,10 @@ export class NacionalidadesComponent implements OnInit {
   };
 
   crearNacionalidadForm: FormGroup;
+
+  @ViewChild("mostrarNacionalidadModal") mostrarNacionalidadModal;
+  @ViewChild("editarNacionalidadModal") editarNacionalidadModal;
+  @ViewChild("eliminarNacionalidadModal") eliminarNacionalidadModal;
 
   constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
               private personalService: PersonalService, private toastService: ToastService) { }
@@ -53,23 +56,15 @@ export class NacionalidadesComponent implements OnInit {
     })
 
     this.crearNacionalidadForm = this.formBuilder.group({
-      nombre: ['', Validators.required],
-      descripcion: ['']
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      descripcion: ['', [Validators.maxLength(100)]]
     });
-  }
-
-  modify(rowData) {
-
-  }
-
-  delete(rowData) {
-
   }
 
   checkForDetails(data, modal) {
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
-    this.uuid = data.uuid;
+    this.nacionalidad = this.rowData.filter(x => x.uuid === data.uuid)[0]
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -127,6 +122,78 @@ export class NacionalidadesComponent implements OnInit {
       );
     })
   }
+
+  guardarCambios(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos requeridos que no se han validado",
+        ToastType.WARNING
+      )
+      return;
+    }
+
+    let nacionalidad: PersonalNacionalidad = form.value;
+
+    this.personalService.modificarNacionalidad(this.nacionalidad.uuid, nacionalidad).subscribe((data: Uniforme) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha modificado con exito la nacionalidad",
+        ToastType.SUCCESS
+      )
+
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la nacionalidad. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  confirmarEliminar() {
+    this.personalService.eliminarNacionalidad(this.nacionalidad.uuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la nacionalidad con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar la nacionalidad. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  mostrarModificarNacionalidadModal() {
+    this.crearNacionalidadForm.patchValue({
+      nombre: this.nacionalidad.nombre,
+      descripcion: this.nacionalidad.descripcion
+    });
+
+    this.modalService.open(this.editarNacionalidadModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  mostrarEliminarNacionalidadModal() {
+    this.modal = this.modalService.open(this.eliminarNacionalidadModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
 
   private getDismissReason(reason: any): string {
     if (reason == ModalDismissReasons.ESC) {
