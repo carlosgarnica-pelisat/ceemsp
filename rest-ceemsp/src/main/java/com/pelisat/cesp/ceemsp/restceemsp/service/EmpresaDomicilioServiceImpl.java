@@ -7,8 +7,10 @@ import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.Empresa;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaDomicilioRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -17,7 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,6 +41,7 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
     private final ColoniaService coloniaService;
     private final LocalidadService localidadService;
     private final CalleService calleService;
+    private final ArchivosService archivosService;
 
     @Autowired
     public EmpresaDomicilioServiceImpl(
@@ -50,7 +55,8 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         MunicipioService municipioService,
         LocalidadService localidadService,
         ColoniaService coloniaService,
-        CalleService calleService
+        CalleService calleService,
+        ArchivosService archivosService
     ) {
         this.empresaDomicilioRepository = empresaDomicilioRepository;
         this.daoToDtoConverter = daoToDtoConverter;
@@ -63,6 +69,7 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         this.localidadService = localidadService;
         this.coloniaService = coloniaService;
         this.calleService = calleService;
+        this.archivosService = archivosService;
     }
 
     @Override
@@ -213,8 +220,8 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
     }
 
     @Override
-    public EmpresaDomicilioDto eliminarEmpresaDomicilio(String empresaUuid, String domicilioUuid, String username) {
-        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(username)) {
+    public EmpresaDomicilioDto eliminarEmpresaDomicilio(String empresaUuid, String domicilioUuid, String username, EmpresaDomicilioDto empresaDomicilioDto, MultipartFile multipartFile) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(username) || empresaDomicilioDto == null) {
             logger.warn("El uuid de la empresa, el domicilio o el usuario vienen como nulos o vacios");
             throw new InvalidDataException();
         }
@@ -228,8 +235,24 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
             throw new NotFoundResourceException();
         }
 
+        empresaDomicilio.setMotivoBaja(empresaDomicilioDto.getMotivoBaja());
+        empresaDomicilio.setObservacionesBaja(empresaDomicilioDto.getObservacionesBaja());
+        empresaDomicilio.setFechaBaja(LocalDate.parse(empresaDomicilioDto.getFechaBaja()));
         empresaDomicilio.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, empresaDomicilio, usuarioDto.getId());
+
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Agregando");
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_BAJA_DOMICILIO, empresaUuid);
+                empresaDomicilio.setDocumentoFundatorioBaja(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+
         empresaDomicilioRepository.save(empresaDomicilio);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilio);

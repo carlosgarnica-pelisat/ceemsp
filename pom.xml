@@ -85,7 +85,7 @@
     </dependencies>
 
     <modules>
-        <!--module>database-versioner</module-->
+        <module>database-versioner</module>
         <module>database</module>
         <module>infrastructure</module>
         <module>rest-ceemsp</module>

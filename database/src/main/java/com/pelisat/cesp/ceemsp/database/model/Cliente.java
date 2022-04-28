@@ -42,4 +42,13 @@ public class Cliente extends CommonModel {
 
     @Column(name = "RUTA_ARCHIVO_CONTRATO")
     private String rutaArchivoContrato;
+
+    @Column(name = "MOTIVO_BAJA")
+    private String motivoBaja;
+
+    @Column(name = "OBSERVACIONES_BAJA")
+    private String observacionesBaja;
+
+    @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
+    private String documentoFundatorioBaja;
 }

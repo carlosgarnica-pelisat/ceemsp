@@ -42,6 +42,7 @@ export class EmpresaPersonalComponent implements OnInit {
   faPencilAlt = faPencilAlt;
 
   @ViewChild('mostrarFotoPersonaModal') mostrarFotoPersonaModal: any;
+  @ViewChild('visualizarCertificacionPersonaModal') visualizarCertificacionPersonaModal: any;
 
   stepper: Stepper;
   pestanaActual: string = "DETALLES";
@@ -122,6 +123,7 @@ export class EmpresaPersonalComponent implements OnInit {
   editandoCapacitacion: boolean = false;
 
   personaCertificacion: PersonaCertificacion;
+  pdfActual;
 
   @ViewChild('eliminarCapacitacionesModal') eliminarCapacitacionesModal;
   @ViewChild('eliminarPersonalModal') eliminarPersonalModal;
@@ -173,7 +175,8 @@ export class EmpresaPersonalComponent implements OnInit {
       nombreInstructor: ['', [Validators.required, Validators.maxLength(100)]],
       duracion: ['', [Validators.required, Validators.min(1), Validators.max(99)]],
       fechaInicio: ['', Validators.required],
-      fechaFin: ['', Validators.required]
+      fechaFin: ['', Validators.required],
+      archivo: ['', Validators.required]
     })
 
     this.crearPersonaFotografiaForm = this.formBuilder.group({
@@ -519,7 +522,11 @@ export class EmpresaPersonalComponent implements OnInit {
           ToastType.INFO
         );
 
-        this.empresaService.guardarPersonalCertificacion(this.uuid, this.persona.uuid, personaCertificacion).subscribe((data: PersonaCertificacion) => {
+        let certificacionFormData = new FormData();
+        certificacionFormData.append('archivo', this.tempFile, this.tempFile.name);
+        certificacionFormData.append("certificacion", JSON.stringify(certificacionFormData))
+
+        this.empresaService.guardarPersonalCertificacion(this.uuid, this.persona.uuid, certificacionFormData).subscribe((data: PersonaCertificacion) => {
           this.toastService.showGenericToast(
             "Listo",
             "Se guardo la certificacion con exito",
@@ -566,14 +573,6 @@ export class EmpresaPersonalComponent implements OnInit {
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     })
-  }
-
-  modify() {
-
-  }
-
-  delete() {
-
   }
 
   cambiarPuestoTrabajo(event) {
@@ -636,7 +635,25 @@ export class EmpresaPersonalComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
 
+  descargarCapacitacion(uuid) {
+    this.modal = this.modalService.open(this.visualizarCertificacionPersonaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+
+    this.empresaService.descargarCertificacionPdf(this.uuid, this.persona.uuid, uuid).subscribe((data: Blob) => {
+      this.convertirPdf(data);
+      // TODO: Manejar esta opcion para descargar
+      /*let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "licencia-colectiva-" + this.licencia.uuid;
+      link.click();*/
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el PDF. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   descargarFotografia(uuid) {
@@ -697,7 +714,15 @@ export class EmpresaPersonalComponent implements OnInit {
       formValue.uuid = this.personaCertificacion.uuid;
       formValue.id = this.personaCertificacion.id;
 
-      this.empresaService.modificarPersonalCertificacion(this.uuid, this.persona.uuid, this.personaCertificacion.uuid, formValue).subscribe((data: PersonaCertificacion) => {
+      let certificacionFormData = new FormData();
+      if(this.tempFile !== undefined) {
+        certificacionFormData.append('archivo', this.tempFile, this.tempFile.name);
+      } else {
+        certificacionFormData.append('archivo', null)
+      }
+      certificacionFormData.append("certificacion", JSON.stringify(formValue))
+
+      this.empresaService.modificarPersonalCertificacion(this.uuid, this.persona.uuid, this.personaCertificacion.uuid, certificacionFormData).subscribe((data: PersonaCertificacion) => {
         this.toastService.showGenericToast(
           "Listo",
           "Se modifico la certificacion con exito",
@@ -712,7 +737,11 @@ export class EmpresaPersonalComponent implements OnInit {
         );
       })
     } else {
-      this.empresaService.guardarPersonalCertificacion(this.uuid, this.persona.uuid, formValue).subscribe((data: PersonaCertificacion) => {
+      let certificacionFormData = new FormData();
+      certificacionFormData.append('archivo', this.tempFile, this.tempFile.name);
+      certificacionFormData.append("certificacion", JSON.stringify(formValue))
+
+      this.empresaService.guardarPersonalCertificacion(this.uuid, this.persona.uuid, certificacionFormData).subscribe((data: PersonaCertificacion) => {
         this.toastService.showGenericToast(
           "Listo",
           "Se guardo la certificacion con exito",
@@ -740,6 +769,9 @@ export class EmpresaPersonalComponent implements OnInit {
       fechaInicio: this.personaCertificacion.fechaInicio,
       fechaFin: this.personaCertificacion.fechaFin
     });
+
+    this.crearPersonalCertificadoForm.controls['archivo'].clearValidators();
+    this.crearPersonalCertificadoForm.controls['archivo'].updateValueAndValidity();
   }
 
   mostrarModificarPersonaModal(modal) {
@@ -881,6 +913,17 @@ export class EmpresaPersonalComponent implements OnInit {
       fechaVolanteCuip: this.persona.fechaVolanteCuip,
       modalidad: this.persona.modalidad?.uuid
     })
+  }
+
+  convertirPdf(pdf) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.pdfActual = reader.result;
+    });
+
+    if(pdf) {
+      reader.readAsDataURL(pdf);
+    }
   }
 
   onFileChange(event) {

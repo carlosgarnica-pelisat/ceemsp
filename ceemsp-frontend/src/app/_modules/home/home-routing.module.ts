@@ -37,6 +37,8 @@ import {EmpresaEquipoComponent} from "../../home/empresas/empresa-equipo/empresa
 import {EquipoComponent} from "../../home/catalogos/equipo/equipo.component";
 import {UniformesComponent} from "../../home/catalogos/equipo/uniformes/uniformes.component";
 import {EmpresaUniformesComponent} from "../../home/empresas/empresa-uniformes/empresa-uniformes.component";
+import {UsuariosComponent} from "../../home/configuracion/usuarios/usuarios.component";
+import {AcercaComponent} from "../../home/configuracion/acerca/acerca.component";
 
 
 const routes: Routes = [
@@ -206,6 +208,14 @@ const routes: Routes = [
       {
         path: 'configuracion',
         component: ConfiguracionComponent
+      },
+      {
+        path: 'configuracion/usuarios',
+        component: UsuariosComponent
+      },
+      {
+        path: 'configuracion/acerca',
+        component: AcercaComponent
       }
     ]
   }

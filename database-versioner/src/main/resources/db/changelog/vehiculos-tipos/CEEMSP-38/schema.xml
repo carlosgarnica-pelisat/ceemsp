@@ -1,0 +1,153 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-04-13-agregar-tipos-vehiculos" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <insert tableName="vehiculos_tipos">
+            <column name="ID" value="1"></column>
+            <column name="UUID" value="w8Maj2qecNk9"></column>
+            <column name="NOMBRE" value="COMPACTO"></column>
+            <column name="DESCRIPCION" value="Compacto"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_tipos">
+            <column name="ID" value="2"></column>
+            <column name="UUID" value="FKpajRFZKZqc"></column>
+            <column name="NOMBRE" value="COUPE"></column>
+            <column name="DESCRIPCION" value="Coupe"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_tipos">
+            <column name="ID" value="3"></column>
+            <column name="UUID" value="qrRlQmzAjcdj"></column>
+            <column name="NOMBRE" value="CUATRIMOTO"></column>
+            <column name="DESCRIPCION" value="Cuatrimoto"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_tipos">
+            <column name="ID" value="4"></column>
+            <column name="UUID" value="LfHJGIyOLIKG"></column>
+            <column name="NOMBRE" value="DEPORTIVO"></column>
+            <column name="DESCRIPCION" value="Deportivo"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_tipos">
+            <column name="ID" value="5"></column>
+            <column name="UUID" value="k7aQdahjz0oM"></column>
+            <column name="NOMBRE" value="HATCHBACK"></column>
+            <column name="DESCRIPCION" value="Hatchback"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_tipos">
+            <column name="ID" value="6"></column>
+            <column name="UUID" value="PCuh7LZd9Jy4"></column>
+            <column name="NOMBRE" value="MINIVAN"></column>
+            <column name="DESCRIPCION" value="Minivan"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_tipos">
+            <column name="ID" value="7"></column>
+            <column name="UUID" value="sD6vLRxUS5lu"></column>
+            <column name="NOMBRE" value="MOTOCICLETA"></column>
+            <column name="DESCRIPCION" value="Motocicleta"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_tipos">
+            <column name="ID" value="8"></column>
+            <column name="UUID" value="DA7tDRzEGOLs"></column>
+            <column name="NOMBRE" value="PICK UP"></column>
+            <column name="DESCRIPCION" value="Pick up"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_tipos">
+            <column name="ID" value="9"></column>
+            <column name="UUID" value="q8N4rpY24aaW"></column>
+            <column name="NOMBRE" value="SEDAN"></column>
+            <column name="DESCRIPCION" value="Sedan"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_tipos">
+            <column name="ID" value="10"></column>
+            <column name="UUID" value="EeOZQkAQKKjO"></column>
+            <column name="NOMBRE" value="SUV"></column>
+            <column name="DESCRIPCION" value="Suv"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_tipos">
+            <column name="ID" value="11"></column>
+            <column name="UUID" value="XGa1bFngkvpG"></column>
+            <column name="NOMBRE" value="VAGONETA"></column>
+            <column name="DESCRIPCION" value="Vagoneta"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_tipos">
+            <column name="ID" value="12"></column>
+            <column name="UUID" value="QuU52pE6d7yU"></column>
+            <column name="NOMBRE" value="VAN"></column>
+            <column name="DESCRIPCION" value="Autobus"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_tipos">
+            <column name="ID" value="13"></column>
+            <column name="UUID" value="RkRyML7D1Jag"></column>
+            <column name="NOMBRE" value="AUTOBUS"></column>
+            <column name="DESCRIPCION" value="Autobus"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+
+    </changeSet>
+</databaseChangeLog>

@@ -16,11 +16,23 @@ export class UsuariosService {
     return this.http.get(`${this.uri}/usuarios`)
   }
 
-  obtenerUsuarioByUuid(uuid: String) {
+  obtenerUsuarioByUuid(uuid: string) {
     return this.http.get(`${this.uri}/usuarios/${uuid}`)
   }
 
-  guardarUsuarios(usuario: Usuario) {
+  obtenerUsuarioActual() {
+    return this.http.get(`${this.uri}/usuarios/perfil`)
+  }
+
+  guardarUsuario(usuario: Usuario) {
     return this.http.post(`${this.uri}/usuarios`, usuario)
+  }
+
+  modificarUsuario(uuid: string, usuario: Usuario) {
+    return this.http.put(`${this.uri}/usuarios/${uuid}`, usuario)
+  }
+
+  eliminarUsuario(uuid: string) {
+    return this.http.delete(`${this.uri}/usuarios/${uuid}`)
   }
 }

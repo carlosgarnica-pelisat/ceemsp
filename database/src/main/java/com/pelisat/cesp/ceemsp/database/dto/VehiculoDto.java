@@ -35,6 +35,10 @@ public class VehiculoDto {
     private String fechaInicio;
     private String fechaFin;
 
+    private String motivoBaja;
+    private String observacionesBaja;
+    private String documentoFundatorioBaja;
+
     private List<VehiculoColorDto> colores;
     private List<VehiculoFotografiaMetadata> fotografias;
 }

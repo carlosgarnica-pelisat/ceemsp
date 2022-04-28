@@ -22,4 +22,6 @@ public class DashboardDto {
     private int empresasSuspendidas;
     private int empresasRevocadas;
     private int empresasClausuradas;
+
+    private List<VisitaDto> proximasVisitas;
 }

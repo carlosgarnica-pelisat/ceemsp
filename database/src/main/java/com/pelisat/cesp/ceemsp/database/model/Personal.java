@@ -129,5 +129,14 @@ public class Personal extends CommonModel {
 
     @Column(name = "LOCALIDAD_CATALOGO", nullable = false)
     private int localidadCatalogo;
+
+    @Column(name = "MOTIVO_BAJA")
+    private String motivoBaja;
+
+    @Column(name = "OBSERVACIONES_BAJA")
+    private String observacionesBaja;
+
+    @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
+    private String documentoFundatorioBaja;
 }
 

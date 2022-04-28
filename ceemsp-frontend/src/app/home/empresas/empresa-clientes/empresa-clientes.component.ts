@@ -99,6 +99,9 @@ export class EmpresaClientesComponent implements OnInit {
 
   editandoDomicilio: boolean = false;
 
+  clienteGuardado: boolean = false;
+  domiciliosGuardados: boolean = false;
+
   temporaryIndex: number;
 
   @ViewChild('eliminarClienteModal') eliminarClienteModal;
@@ -146,9 +149,31 @@ export class EmpresaClientesComponent implements OnInit {
       telefonoFijo: ['', [Validators.required]],
       telefonoMovil: ['', [Validators.required]],
       contacto: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoPaternoContacto: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaternoContacto: ['', [Validators.required, Validators.maxLength(60)]],
       correoElectronico: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
       tipoInfraestructura: ['', Validators.required],
       tipoInfraestructuraOtro: ['', Validators.maxLength(30)]
+    })
+
+    this.estadoSearchForm = this.formBuilder.group({
+      nombre: ['']
+    });
+
+    this.municipioSearchForm = this.formBuilder.group({
+      nombre: ['']
+    });
+
+    this.localidadSearchForm = this.formBuilder.group({
+      nombre: ['']
+    })
+
+    this.coloniaSearchForm = this.formBuilder.group({
+      nombre: ['']
+    });
+
+    this.calleSearchForm = this.formBuilder.group({
+      nombre: ['']
     })
 
     this.empresaService.obtenerClientes(this.uuid).subscribe((data: Cliente[]) => {
@@ -206,6 +231,8 @@ export class EmpresaClientesComponent implements OnInit {
       telefonoFijo: this.domicilio.telefonoFijo,
       telefonoMovil: this.domicilio.telefonoMovil,
       contacto: this.domicilio.contacto,
+      apellidoPaternoContacto: this.domicilio.apellidoPaternoContacto,
+      apellidoMaternoContacto: this.domicilio.apellidoMaternoContacto,
       correoElectronico: this.domicilio.correoElectronico,
       tipoInfraestructura: this.domicilio.tipoInfraestructura.uuid,
       tipoInfraestructuraOtro: this.domicilio.tipoInfraestructuraOtro
@@ -396,7 +423,7 @@ export class EmpresaClientesComponent implements OnInit {
   }
 
   next(stepName: string, form) {
-    /*if(form !== undefined && !form.valid) {
+    if(form !== undefined && !form.valid && !this.clienteGuardado) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "Faltan algunos campos obligatorios por llenarse",
@@ -407,6 +434,11 @@ export class EmpresaClientesComponent implements OnInit {
 
     switch (stepName) {
       case "DOMICILIOS":
+        if(this.clienteGuardado) {
+          this.stepper.next();
+          return;
+        }
+
         let formValue: Cliente = form.value;
         let formData = new FormData();
 
@@ -424,6 +456,8 @@ export class EmpresaClientesComponent implements OnInit {
             "Se ha guardado el cliente con exito",
             ToastType.SUCCESS
           );
+          this.clienteGuardado = true;
+          this.desactivarCamposCliente();
           this.cliente = data;
           this.stepper.next();
         }, (error) => {
@@ -435,6 +469,11 @@ export class EmpresaClientesComponent implements OnInit {
         });
         break;
       case "RESUMEN":
+        if(this.domiciliosGuardados) {
+          this.stepper.next();
+          return;
+        }
+
         if(this.domicilios.length < 1) {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -456,6 +495,8 @@ export class EmpresaClientesComponent implements OnInit {
             "Se han guardado los domicilios con exito",
             ToastType.SUCCESS
           );
+          this.domiciliosGuardados = true;
+          this.desactivarCamposDireccion();
           this.stepper.next();
         }, (error) => {
           this.toastService.showGenericToast(
@@ -466,8 +507,7 @@ export class EmpresaClientesComponent implements OnInit {
         });
 
         break;
-    }*/
-    this.stepper.next();
+    }
   }
 
   previous() {
@@ -670,6 +710,8 @@ export class EmpresaClientesComponent implements OnInit {
       telefonoFijo: this.domicilio.telefonoFijo,
       telefonoMovil: this.domicilio.telefonoMovil,
       contacto: this.domicilio.contacto,
+      apellidoPaternoContacto: this.domicilio.apellidoPaternoContacto,
+      apellidoMaternoContacto: this.domicilio.apellidoMaternoContacto,
       correoElectronico: this.domicilio.correoElectronico,
       tipoInfraestructura: this.domicilio.tipoInfraestructura.uuid,
       tipoInfraestructuraOtro: this.domicilio.tipoInfraestructuraOtro
@@ -802,6 +844,35 @@ export class EmpresaClientesComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
+
+  private desactivarCamposCliente() {
+    this.nuevoClienteForm.controls['tipoPersona'].disable();
+    this.nuevoClienteForm.controls['rfc'].disable();
+    this.nuevoClienteForm.controls['nombreComercial'].disable();
+    this.nuevoClienteForm.controls['razonSocial'].disable();
+    this.nuevoClienteForm.controls['canes'].disable();
+    this.nuevoClienteForm.controls['armas'].disable();
+    this.nuevoClienteForm.controls['fechaInicio'].disable();
+    this.nuevoClienteForm.controls['archivo'].disable();
+  }
+
+  private desactivarCamposDireccion() {
+    this.nuevoClienteDomicilioForm.controls['nombre'].disable();
+    this.nuevoClienteDomicilioForm.controls['numeroExterior'].disable();
+    this.nuevoClienteDomicilioForm.controls['numeroInterior'].disable();
+    this.nuevoClienteDomicilioForm.controls['domicilio4'].disable();
+    this.nuevoClienteDomicilioForm.controls['codigoPostal'].disable();
+    this.nuevoClienteDomicilioForm.controls['pais'].disable();
+    this.nuevoClienteDomicilioForm.controls['matriz'].disable();
+    this.nuevoClienteDomicilioForm.controls['telefonoFijo'].disable();
+    this.nuevoClienteDomicilioForm.controls['telefonoMovil'].disable();
+    this.nuevoClienteDomicilioForm.controls['contacto'].disable();
+    this.nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].disable();
+    this.nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].disable();
+    this.nuevoClienteDomicilioForm.controls['correoElectronico'].disable();
+    this.nuevoClienteDomicilioForm.controls['tipoInfraestructura'].disable();
+    this.nuevoClienteDomicilioForm.controls['tipoInfraestructuraOtro'].disable();
   }
 
   private getDismissReason(reason: any): string {

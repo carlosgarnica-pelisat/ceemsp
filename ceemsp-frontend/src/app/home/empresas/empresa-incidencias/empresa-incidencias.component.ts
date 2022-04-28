@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ActivatedRoute} from "@angular/router";
@@ -13,6 +13,8 @@ import {ToastType} from "../../../_enums/ToastType";
 import Incidencia from "../../../_models/Incidencia";
 import IncidenciaComentario from "../../../_models/IncidenciaComentario";
 import {faTrash} from "@fortawesome/free-solid-svg-icons";
+import {UsuariosService} from "../../../_services/usuarios.service";
+import Usuario from "../../../_models/Usuario";
 
 @Component({
   selector: 'app-empresa-incidencias',
@@ -49,6 +51,9 @@ export class EmpresaIncidenciasComponent implements OnInit {
   crearCanIncidenciaForm: FormGroup;
   crearArmaIncidenciaForm: FormGroup;
 
+  cambiarAsignacionTicketForm: FormGroup;
+  responderIncidenciaForm: FormGroup;
+
   cliente: Cliente;
   personalInvolucrado: Persona[] = [];
   vehiculosInvolucrados: Vehiculo[] = [];
@@ -60,6 +65,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
   canes: Can[] = [];
   vehiculos: Vehiculo[] = [];
   personales: Persona[] = [];
+  usuarios: Usuario[] = [];
 
   mostrarAgregarCanForm: boolean = false;
   mostrarAgregarVehiculoForm: boolean = false;
@@ -73,9 +79,20 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
   incidencia: Incidencia;
 
+  tempUuid: string;
+
+  @ViewChild('responderIncidenciaModal') responderIncidenciaModal;
+  @ViewChild('seleccionarAsignadoModal') seleccionarAsignadoModal;
+
+  @ViewChild('eliminarIncidenciaPersonaModal') eliminarIncidenciaPersonaModal;
+  @ViewChild('eliminarIncidenciaArmaModal') eliminarIncidenciaArmaModal;
+  @ViewChild('eliminarIncidenciaCanModal') eliminarIncidenciaCanModal;
+  @ViewChild('eliminarIncidenciaVehiculoModal') eliminarIncidenciaVehiculoModal;
+  @ViewChild('eliminarIncidenciaArchivoModal') eliminarIncidenciaArchivoModal;
+
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
               private toastService: ToastService, private modalService: NgbModal,
-              private empresaService: EmpresaService) { }
+              private empresaService: EmpresaService, private usuariosService: UsuariosService) { }
 
   ngOnInit(): void {
     this.uuid = this.route.snapshot.paramMap.get("uuid");
@@ -100,6 +117,14 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     this.crearCanIncidenciaForm = this.formBuilder.group({
       'canInvolucrado': ['', Validators.required]
+    });
+
+    this.cambiarAsignacionTicketForm = this.formBuilder.group({
+      'asignado': ['', Validators.required]
+    })
+
+    this.responderIncidenciaForm = this.formBuilder.group({
+      'status': ['', Validators.required]
     })
 
     this.empresaService.obtenerClientes(this.uuid).subscribe((data: Cliente[]) => {
@@ -161,12 +186,121 @@ export class EmpresaIncidenciasComponent implements OnInit {
         ToastType.ERROR
       );
     });
+
+    this.usuariosService.obtenerUsuarios().subscribe((data: Usuario[]) => {
+      this.usuarios = data;
+      console.log(data);
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los usuarios. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  agregarComentario(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que no han sido rellenados",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se estan guardando los cambios",
+      ToastType.INFO
+    );
+
+    let formValue: Incidencia = form.value;
+    formValue.comentarios = [];
+
+    let comentario = new IncidenciaComentario();
+    comentario.comentario = this.editorData;
+
+    formValue.comentarios.push(comentario);
+    this.empresaService.agregarComentario(this.uuid, this.incidencia.uuid, formValue).subscribe((data: Incidencia) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha agregado el comentario con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido agregar el comentario. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
+  }
+
+  confirmarAsignacion(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que no han sido rellenados",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se estan guardando los cambios",
+      ToastType.INFO
+    );
+
+    let formValue = form.value;
+    let usuario = this.usuarios.filter(x => x.uuid === formValue.asignado)[0];
+
+    this.empresaService.asignarIncidencia(this.uuid, this.incidencia.uuid, usuario).subscribe((data: Incidencia) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha asignado la incidencia",
+        ToastType.SUCCESS
+      );
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido asignar la incidencia. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
   }
 
   onGridReady(params) {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
     this.gridColumnApi = params.gridApi;
+  }
+
+  mostrarModalEliminarPersona(uuid) {
+    this.tempUuid = uuid;
+
+    this.modal = this.modalService.open(this.eliminarIncidenciaPersonaModal, {size: "lg"})
+  }
+
+  mostrarModalEliminarArma(uuid) {
+    this.tempUuid = uuid;
+
+    this.modal = this.modalService.open(this.eliminarIncidenciaArmaModal, {size: "lg"})
+  }
+
+  mostrarModalEliminarCan(uuid) {
+    this.tempUuid = uuid;
+
+    this.modal = this.modalService.open(this.eliminarIncidenciaCanModal, {size: "lg"})
+  }
+
+  mostrarModalEliminarVehiculo(uuid) {
+    this.tempUuid = uuid;
+
+    this.modal = this.modalService.open(this.eliminarIncidenciaVehiculoModal, {size: "lg"})
   }
 
   mostrarModalCrear(modal) {
@@ -179,15 +313,19 @@ export class EmpresaIncidenciasComponent implements OnInit {
     })
   }
 
+  mostrarModalAsignar() {
+    this.modal = this.modalService.open(this.seleccionarAsignadoModal, {size: 'lg'})
+  }
+
+  mostrarModalResponder() {
+    this.modal = this.modalService.open(this.responderIncidenciaModal, {size: 'lg'})
+  }
+
   cambiarInvolucramientoCliente(target) {
     this.clienteInvolucrado = target.value === 'true';
   }
 
-  modify() {
-
-  }
-
-  delete() {
+  autoasignar() {
 
   }
 
@@ -208,7 +346,6 @@ export class EmpresaIncidenciasComponent implements OnInit {
   }
 
   mostrarModalDetalles(rowData, modal) {
-    console.log(rowData);
     let uuid = rowData.uuid;
     this.empresaService.obtenerIncidenciaPorUuid(this.uuid, uuid).subscribe((data: Incidencia) => {
       this.incidencia = data;
@@ -284,6 +421,194 @@ export class EmpresaIncidenciasComponent implements OnInit {
   seleccionarCliente(event) {
     let uuid = event.value;
     this.cliente = this.clientes.filter(x => x.uuid === uuid)[0];
+  }
+
+  agregarPersonaIncidencia(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario viene invalido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let formValue = form.value;
+
+    let existePersona = this.incidencia.personasInvolucradas.filter(x => x.uuid === formValue.personaInvolucrada)
+
+    if(existePersona.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra esta persona en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando la persona en la incidencia",
+      ToastType.INFO
+    );
+
+    let persona = this.personales.filter(x => x.uuid === formValue.personaInvolucrada)[0]
+
+    this.empresaService.agregarPersonaIncidencia(this.uuid, this.incidencia.uuid, persona).subscribe((data: Persona) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se guardo la persona a la incidencia con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la persona en la incidencia. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  agregarArmaIncidencia(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario viene invalido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let formValue = form.value;
+
+    let existeArma = this.incidencia.armasInvolucradas.filter(x => x.uuid === formValue.armaInvolucrada)
+
+    if(existeArma.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra esta arma en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando el arma en la incidencia",
+      ToastType.INFO
+    );
+
+    let arma = this.armas.filter(x => x.uuid === formValue.armaInvolucrada)[0]
+
+    this.empresaService.agregarArmaIncidencia(this.uuid, this.incidencia.uuid, arma).subscribe((data: Arma) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se guardo el arma a la incidencia con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar el arma en la incidencia. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  agregarCanIncidencia(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario viene invalido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let formValue = form.value;
+
+    let existeCan = this.incidencia.canesInvolucrados.filter(x => x.uuid === formValue.canInvolucrado)
+
+    if(existeCan.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra este can en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando el can en la incidencia",
+      ToastType.INFO
+    );
+
+    let can = this.canes.filter(x => x.uuid === formValue.canInvolucrado)[0]
+
+    this.empresaService.agregarCanIncidencia(this.uuid, this.incidencia.uuid, can).subscribe((data: Can) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se guardo el can a la incidencia con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar el can en la incidencia. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  agregarVehiculoIncidencia(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario viene invalido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let formValue = form.value;
+
+    let existeVehiculo = this.incidencia.vehiculosInvolucrados.filter(x => x.uuid === formValue.vehiculoInvolucrado)
+
+    if(existeVehiculo.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra este vehiculo en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando el vehiculo en la incidencia",
+      ToastType.INFO
+    );
+
+    let vehiculo = this.vehiculos.filter(x => x.uuid === formValue.vehiculoInvolucrado)[0]
+
+    this.empresaService.agregarVehiculoIncidencia(this.uuid, this.incidencia.uuid, vehiculo).subscribe((data: Can) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se guardo el vehiculo a la incidencia con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar el vehiculo en la incidencia. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   agregarPersona(form) {
@@ -365,6 +690,137 @@ export class EmpresaIncidenciasComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
+
+  confirmarEliminarPersona() {
+    if(this.tempUuid === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID de la persona a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando la persona de la incidencia",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarPersonaIncidencia(this.uuid, this.incidencia.uuid, this.tempUuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la persona con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `La persona no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarArma() {
+    if(this.tempUuid === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID del arma a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el arma de la incidencia",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarArmaIncidencia(this.uuid, this.incidencia.uuid, this.tempUuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el arma con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El arma no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarCan() {
+    if(this.tempUuid === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID del can a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el can de la incidencia",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarCanIncidencia(this.uuid, this.incidencia.uuid, this.tempUuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el can con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El can no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarVehiculo() {
+    if(this.tempUuid === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID del vehiculo a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el vehiculo de la incidencia",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarVehiculoIncidencia(this.uuid, this.incidencia.uuid, this.tempUuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el vehiculo con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El vehiculo no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarArchivo() {
 
   }
 

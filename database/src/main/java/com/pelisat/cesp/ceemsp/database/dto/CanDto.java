@@ -38,6 +38,11 @@ public class CanDto {
     private ClienteDomicilioDto clienteDomicilio;
     private String motivos;
 
+    private String motivoBaja;
+    private String observacionesBaja;
+    private String documentoFundatorioBaja;
+    private String fechaBaja;
+
     private List<CanAdiestramientoDto> adiestramientos;
     private List<CanCartillaVacunacionDto> cartillasVacunacion;
     private List<CanConstanciaSaludDto> constanciasSalud;

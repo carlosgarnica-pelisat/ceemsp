@@ -106,6 +106,7 @@ export class VisitasComponent implements OnInit {
   @ViewChild("modificarRequerimientoModal") modificarRequerimientoModal;
   @ViewChild("eliminarVisitaModal") eliminarVisitaModal;
   @ViewChild("eliminarVisitaArchivoModal") eliminarVisitaArchivoModal;
+  @ViewChild("modificarVisitaModal") modificarVisitaModal;
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
@@ -370,7 +371,35 @@ export class VisitasComponent implements OnInit {
   }
 
   mostrarModalModificar() {
+    let registroPiezas = this.visita.numeroOrden.split("/");
 
+    this.tipoVisita = this.visita.tipoVisita;
+    this.empresa = this.visita.empresa;
+    this.usuario = this.visita.responsable;
+
+    this.crearVisitaForm.patchValue({
+      empresa: this.visita.empresa?.uuid,
+      responsable: this.visita.responsable.uuid,
+      tipoVisita: this.visita.tipoVisita,
+      numeroRegistro: this.visita.numeroRegistro,
+      numeroOrden: registroPiezas[2],
+      fechaVisita: this.visita.fechaVisita,
+      existeEmpresa: this.visita.existeEmpresa,
+      nombreComercial: this.visita.nombreComercial,
+      razonSocial: this.visita.razonSocial,
+      numeroExterior: this.visita.numeroExterior,
+      numeroInterior: this.visita.numeroInterior,
+      codigoPostal: this.visita.codigoPostal,
+      domicilio4: this.visita.domicilio4
+    })
+
+    this.modal = this.modalService.open(this.modificarVisitaModal, {size: "xl"})
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
   }
 
   mostrarModalRequerimiento() {
@@ -544,6 +573,48 @@ export class VisitasComponent implements OnInit {
         `No se ha podido descargar el archivo de la visita`,
         ToastType.ERROR
       )
+    })
+  }
+
+  guardarCambiosVisita(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario es invalido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando los cambios de la visita",
+      ToastType.INFO
+    );
+
+    let formValue: Visita = form.value;
+    if(this.tipoVisita === 'ORDINARIA' || (this.tipoVisita === 'EXTRAORDINARIA' && this.existeEmpresa)) {
+      formValue.nombreComercial = this.empresa.nombreComercial;
+      formValue.razonSocial = this.empresa.razonSocial;
+      formValue.numeroRegistro = this.empresa.registro;
+    }
+    formValue.empresa = this.empresa;
+    formValue.responsable = this.usuario;
+    formValue.numeroOrden = `CESP/EXT/${formValue.numeroOrden}/${this.anio}`
+
+    this.visitaService.modificarVisita(this.visita.uuid, formValue).subscribe((data: Visita) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se han guardado los cambios con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar los cambios de la visita. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 

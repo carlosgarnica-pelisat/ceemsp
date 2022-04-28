@@ -6,4 +6,5 @@
     <include file="db/changelog/vehiculos/initialize/schema.xml" />
     <include file="db/changelog/vehiculos/CEEMSP-4/schema.xml" />
     <include file="db/changelog/vehiculos/CEEMSP-6/schema.xml" />
+    <include file="db/changelog/vehiculos/CEEMSP-41/schema.xml" />
 </databaseChangeLog>

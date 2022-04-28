@@ -32,6 +32,11 @@ export default class  Can implements Deserializable {
   clienteDomicilio: ClienteDomicilio;
   motivos: string;
 
+  motivoBaja: string;
+  observacionesBaja: string;
+  documentoFundatorioBaja: string;
+  fechaBaja: string;
+
   cartillasVacunacion: CanCartillaVacunacion[];
   constanciasSalud: CanConstanciaSalud[];
   adiestramientos: CanAdiestramiento[];

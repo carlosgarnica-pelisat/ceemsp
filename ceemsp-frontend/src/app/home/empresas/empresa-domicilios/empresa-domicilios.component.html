@@ -104,14 +104,57 @@
       </button>
     </div>
     <div class="modal-body">
+      <form [formGroup]="motivosEliminacionForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBaja">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['motivoBaja'].invalid && (motivosEliminacionForm.controls['motivoBaja'].dirty || motivosEliminacionForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBaja">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionForm.controls['fechaBaja'].invalid && (motivosEliminacionForm.controls['fechaBaja'].dirty || motivosEliminacionForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBaja" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBaja">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBaja">
+              <b>Observaciones *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['observacionesBaja'].invalid && (motivosEliminacionForm.controls['observacionesBaja'].dirty || motivosEliminacionForm.controls['observacionesBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['observacionesBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
+            </label>
+            <textarea id="observacionesBaja" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
       <div class="row">
         <div class="col-sm-12">
-          <p>Estas a punto de eliminar un domicilio. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+          <p><br><b>Estas a punto de eliminar un domicilio. Esta operacion no puede ser deshecha. Deseas continuar?</b></p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarDomicilio()">Si, eliminar</button>
+      <button class="btn btn-danger" (click)="confirmarEliminarDomicilio(motivosEliminacionForm)">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>

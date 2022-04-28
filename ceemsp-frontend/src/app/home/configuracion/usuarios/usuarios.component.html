@@ -1,1 +1,282 @@
-<p>usuarios works!</p>
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Configuracion - Usuarios</h1>
+    <div class="btn-group">
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalNuevoUsuario()">Crear nuevo</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-3">
+      <div class="list-group">
+        <a routerLink="/home/configuracion" class="list-group-item list-group-item-action">
+          General
+        </a>
+        <a routerLink="/home/configuracion/usuarios" class="list-group-item list-group-item-action active">Control de usuarios</a>
+        <a routerLink="/home/configuracion/acerca" class="list-group-item list-group-item-action">Acerca</a>
+      </div>
+    </div>
+    <div class="col-sm-9" style="background: white">
+      <ag-grid-angular
+        style="height: 80vh; width: 100%;"
+        class="ag-theme-alpine"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (gridReady)="onGridReady($event)"
+        [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="checkForDetails($event.data)"
+        #agGrid
+      ></ag-grid-angular>
+    </div>
+  </div>
+
+  <ng-template #detallesUsuarioModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="detallesUsuarioModal">Ver detalles del usuario</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Nombres:</b></td>
+              <td>{{usuario?.nombres}}</td>
+            </tr>
+            <tr>
+              <td><b>Apellidos:</b></td>
+              <td>{{usuario?.apellidos}}</td>
+            </tr>
+            <tr>
+              <td><b>Rol:</b></td>
+              <td>{{usuario?.rol}}</td>
+            </tr>
+            <tr>
+              <td><b>Correo:</b></td>
+              <td>{{usuario?.email}}</td>
+            </tr>
+            <tr>
+              <td><b>Usuario:</b></td>
+              <td>{{usuario?.username}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="mostrarModalModificarUsuario()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarUsuario()">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #crearUsuarioModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="crearUsuarioModal">Crear usuario</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearUsuarioForm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="nombres">
+                  <b>Nombres *</b>
+                  <span
+                    *ngIf="crearUsuarioForm.controls['nombres'].invalid && (crearUsuarioForm.controls['nombres'].dirty || crearUsuarioForm.controls['nombres'].touched)">
+                      <i *ngIf="crearUsuarioForm.controls['nombres'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="crearUsuarioForm.controls['nombres'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input class="form-control" id="nombres" type="text" formControlName="nombres" placeholder="Ejemplo: Carlos Jose">
+              </div>
+              <div class="col-sm-4">
+                <label for="apellidos">
+                  <b>Apellidos *</b>
+                  <span
+                    *ngIf="crearUsuarioForm.controls['apellidos'].invalid && (crearUsuarioForm.controls['apellidos'].dirty || crearUsuarioForm.controls['apellidos'].touched)">
+                    <i *ngIf="crearUsuarioForm.controls['apellidos'].errors.required" class="error-text"> - Campo requerido</i>
+                    <i *ngIf="crearUsuarioForm.controls['apellidos'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <input class="form-control" id="apellidos" type="text" formControlName="apellidos" placeholder="Ejemplo: Garcia Gonzalez">
+              </div>
+              <div class="col-sm-4">
+                <label for="email">
+                  <b>Correo electronico *</b>
+                  <span
+                    *ngIf="crearUsuarioForm.controls['email'].invalid && (crearUsuarioForm.controls['email'].dirty || crearUsuarioForm.controls['email'].touched)">
+                        <i *ngIf="crearUsuarioForm.controls['email'].errors.required" class="error-text"> - Campo requerido</i>
+                        <i *ngIf="crearUsuarioForm.controls['email'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        <i *ngIf="crearUsuarioForm.controls['email'].errors.email" class="text-danger"> - No es un email</i>
+                      </span>
+                </label>
+                <input class="form-control" id="email" type="email" formControlName="email" placeholder="Ejemplo: hola@hotmail.com">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="usuario">
+                  <b>Usuario *</b>
+                  <span
+                    *ngIf="crearUsuarioForm.controls['usuario'].invalid && (crearUsuarioForm.controls['usuario'].dirty || crearUsuarioForm.controls['usuario'].touched)">
+                    <i *ngIf="crearUsuarioForm.controls['usuario'].errors.required" class="error-text"> - Campo requerido</i>
+                    <i *ngIf="crearUsuarioForm.controls['usuario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <input class="form-control" id="usuario" type="text" formControlName="usuario" placeholder="Ejemplo: Garcia Gonzalez">
+              </div>
+              <div class="col-sm-4">
+                <label for="password">
+                  <b>Contrasena *</b>
+                  <span
+                    *ngIf="crearUsuarioForm.controls['password'].invalid && (crearUsuarioForm.controls['password'].dirty || crearUsuarioForm.controls['password'].touched)">
+                        <i *ngIf="crearUsuarioForm.controls['password'].errors.required" class="error-text"> - Campo requerido</i>
+                      </span>
+                </label>
+                <input class="form-control" id="password" type="password" formControlName="password" placeholder="De 6 a 15 caracteres.">
+              </div>
+              <div class="col-sm-4">
+                <label for="rol">
+                  <b>Rol *</b>
+                  <span
+                    *ngIf="crearUsuarioForm.controls['rol'].invalid && (crearUsuarioForm.controls['rol'].dirty || crearUsuarioForm.controls['rol'].touched)">
+                      <i *ngIf="crearUsuarioForm.controls['rol'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select id="rol" class="form-control" formControlName="rol">
+                  <option value="CEEMSP_SUPERUSER">Superusuario</option>
+                  <option value="CEEMSP_USER">Usuario</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarUsuario(crearUsuarioForm)">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #modificarUsuarioModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modificarUsuarioModal">Modificar usuario</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearUsuarioForm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="nombresEditar">
+                  <b>Nombres *</b>
+                  <span
+                    *ngIf="crearUsuarioForm.controls['nombres'].invalid && (crearUsuarioForm.controls['nombres'].dirty || crearUsuarioForm.controls['nombres'].touched)">
+                      <i *ngIf="crearUsuarioForm.controls['nombres'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="crearUsuarioForm.controls['nombres'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input class="form-control" id="nombresEditar" type="text" formControlName="nombres" placeholder="Ejemplo: Carlos Jose">
+              </div>
+              <div class="col-sm-4">
+                <label for="apellidosEditar">
+                  <b>Apellidos *</b>
+                  <span
+                    *ngIf="crearUsuarioForm.controls['apellidos'].invalid && (crearUsuarioForm.controls['apellidos'].dirty || crearUsuarioForm.controls['apellidos'].touched)">
+                    <i *ngIf="crearUsuarioForm.controls['apellidos'].errors.required" class="error-text"> - Campo requerido</i>
+                    <i *ngIf="crearUsuarioForm.controls['apellidos'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <input class="form-control" id="apellidosEditar" type="text" formControlName="apellidos" placeholder="Ejemplo: Garcia Gonzalez">
+              </div>
+              <div class="col-sm-4">
+                <label for="emailEditar">
+                  <b>Correo electronico *</b>
+                  <span
+                    *ngIf="crearUsuarioForm.controls['email'].invalid && (crearUsuarioForm.controls['email'].dirty || crearUsuarioForm.controls['email'].touched)">
+                        <i *ngIf="crearUsuarioForm.controls['email'].errors.required" class="error-text"> - Campo requerido</i>
+                        <i *ngIf="crearUsuarioForm.controls['email'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        <i *ngIf="crearUsuarioForm.controls['email'].errors.email" class="text-danger"> - No es un email</i>
+                      </span>
+                </label>
+                <input class="form-control" id="emailEditar" type="email" formControlName="email" placeholder="Ejemplo: hola@hotmail.com">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="usuarioEditar">
+                  <b>Usuario *</b>
+                  <span
+                    *ngIf="crearUsuarioForm.controls['usuario'].invalid && (crearUsuarioForm.controls['usuario'].dirty || crearUsuarioForm.controls['usuario'].touched)">
+                    <i *ngIf="crearUsuarioForm.controls['usuario'].errors.required" class="error-text"> - Campo requerido</i>
+                    <i *ngIf="crearUsuarioForm.controls['usuario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <input class="form-control" id="usuarioEditar" type="text" formControlName="usuario" placeholder="Ejemplo: Garcia Gonzalez">
+              </div>
+              <div class="col-sm-4">
+                <label for="passwordEditar">
+                  <b>Contrasena *</b>
+                  <span
+                    *ngIf="crearUsuarioForm.controls['password'].invalid && (crearUsuarioForm.controls['password'].dirty || crearUsuarioForm.controls['password'].touched)">
+                        <i *ngIf="crearUsuarioForm.controls['password'].errors.required" class="error-text"> - Campo requerido</i>
+                      </span>
+                </label>
+                <input class="form-control" id="passwordEditar" type="password" formControlName="password" placeholder="De 6 a 15 caracteres.">
+              </div>
+              <div class="col-sm-4">
+                <label for="rolEditar">
+                  <b>Rol *</b>
+                  <span
+                    *ngIf="crearUsuarioForm.controls['rol'].invalid && (crearUsuarioForm.controls['rol'].dirty || crearUsuarioForm.controls['rol'].touched)">
+                      <i *ngIf="crearUsuarioForm.controls['rol'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select id="rolEditar" class="form-control" formControlName="rol">
+                  <option value="CEEMSP_SUPERUSER">Superusuario</option>
+                  <option value="CEEMSP_USER">Usuario</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarCambiosUsuario(crearUsuarioForm)">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarUsuarioModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarUsuarioModal">Eliminando el usuario </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar el usuario. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarUsuario()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+</div>

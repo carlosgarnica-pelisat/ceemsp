@@ -5,12 +5,16 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.Empresa;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaModalidad;
+import com.pelisat.cesp.ceemsp.database.model.Usuario;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaModalidadRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
 import com.pelisat.cesp.ceemsp.database.type.EmpresaStatusEnum;
+import com.pelisat.cesp.ceemsp.database.type.NotificacionEmailEnum;
+import com.pelisat.cesp.ceemsp.database.type.RolTypeEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoPersonaEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.NotificacionEmailService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -21,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,17 +41,19 @@ public class EmpresaServiceImpl implements EmpresaService {
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
     private final DaoHelper<CommonModel> daoHelper;
+    private final NotificacionEmailService notificacionEmailService;
 
     @Autowired
     public EmpresaServiceImpl(UsuarioService usuarioService, EmpresaRepository empresaRepository, DaoToDtoConverter daoToDtoConverter,
                               DtoToDaoConverter dtoToDaoConverter, EmpresaModalidadRepository empresaModalidadRepository,
-                              DaoHelper<CommonModel> daoHelper) {
+                              DaoHelper<CommonModel> daoHelper, NotificacionEmailService notificacionEmailService) {
         this.usuarioService = usuarioService;
         this.empresaRepository = empresaRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.empresaModalidadRepository = empresaModalidadRepository;
         this.daoHelper = daoHelper;
+        this.notificacionEmailService = notificacionEmailService;
     }
 
     @Override
@@ -74,7 +81,19 @@ public class EmpresaServiceImpl implements EmpresaService {
 
     @Override
     public EmpresaDto obtenerPorId(int id) {
-        return null;
+        if(id < 1) {
+            logger.warn("El id de la empresa a consultar viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        Empresa empresa = empresaRepository.getOne(id);
+
+        if(empresa == null || empresa.getEliminado()) {
+            logger.warn("La empresa no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return daoToDtoConverter.convertDaoToDtoEmpresa(empresa);
     }
 
     @Override
@@ -122,7 +141,26 @@ public class EmpresaServiceImpl implements EmpresaService {
                     return empresaModalidad;
                 }).collect(Collectors.toList());
 
+        if(empresaDto.getUsuario() != null) {
+            Usuario usuarioEmpresa = new Usuario();
+            usuarioEmpresa.setEmpresa(empresaCreada.getId());
+            usuarioEmpresa.setNombres(empresaDto.getUsuario().getNombres());
+            usuarioEmpresa.setApellidos(empresaDto.getUsuario().getApellidos());
+            usuarioEmpresa.setEmail(empresaDto.getUsuario().getEmail());
+            usuarioEmpresa.setUsername(empresaDto.getUsuario().getUsername());
+            usuarioEmpresa.setPassword(empresaDto.getUsuario().getPassword());
+            usuarioEmpresa.setRol(RolTypeEnum.ENTERPRISE_USER);
+
+            daoHelper.fulfillAuditorFields(true, usuarioEmpresa, usuario.getId());
+        }
+
         List<EmpresaModalidad> createdModalidades = empresaModalidadRepository.saveAll(empresaModalidades);
+
+        /*try {
+            notificacionEmailService.enviarEmail(NotificacionEmailEnum.EMPRESA_REGISTRADA, empresaDto, usuario, empresaDto.getUsuario());
+        } catch(MessagingException mex) {
+            logger.warn("El correo no se ha podido enviar. Motivo: {}", mex);
+        }*/
 
         EmpresaDto response = daoToDtoConverter.convertDaoToDtoEmpresa(empresaCreada);
         response.setModalidades(createdModalidades.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaModalidad).collect(Collectors.toList()));

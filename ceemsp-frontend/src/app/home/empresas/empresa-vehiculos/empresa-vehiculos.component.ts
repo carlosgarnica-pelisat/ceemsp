@@ -18,7 +18,7 @@ import {faCheck, faDownload, faPencilAlt, faTrash} from "@fortawesome/free-solid
 import ExisteVehiculo from "../../../_models/ExisteVehiculo";
 import {ValidacionService} from "../../../_services/validacion.service";
 import ClienteDomicilio from "../../../_models/ClienteDomicilio";
-import Persona from "../../../_models/Persona";
+import Can from "../../../_models/Can";
 
 @Component({
   selector: 'app-empresa-vehiculos',
@@ -54,6 +54,7 @@ export class EmpresaVehiculosComponent implements OnInit {
   crearVehiculoForm: FormGroup;
   crearColorForm: FormGroup;
   crearVehiculoFotografiaForm: FormGroup;
+  motivosEliminacionForm: FormGroup;
 
   marca: VehiculoMarca;
   marcas: VehiculoMarca[];
@@ -85,12 +86,16 @@ export class EmpresaVehiculosComponent implements OnInit {
 
   editandoColor: boolean;
 
+  temporaryIndex: number;
+
   coloresTemp: VehiculoColor[] = [];
+  color: VehiculoColor;
 
   @ViewChild('mostrarFotoVehiculoModal') mostrarFotoVehiculoModal: any;
   @ViewChild('eliminarVehiculoColorModal') eliminarVehiculoColorModal: any;
   @ViewChild('eliminarVehiculoFotografiaModal') eliminarVehiculoFotografiaModal: any;
   @ViewChild('eliminarVehiculoModal') eliminarVehiculoModal: any;
+  @ViewChild('quitarVehiculoColorModal') quitarVehiculoColorModal: any;
 
   constructor(private modalService: NgbModal, private toastService: ToastService,
               private empresaService: EmpresaService, private formBuilder: FormBuilder,
@@ -134,6 +139,12 @@ export class EmpresaVehiculosComponent implements OnInit {
       descripcion: ['', Validators.required]
     });
 
+    this.motivosEliminacionForm = this.formBuilder.group({
+      motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
+      observacionesBaja: ['', Validators.required],
+      documentoFundatorioBaja: ['']
+    });
+
     this.empresaService.obtenerVehiculos(this.uuid).subscribe((data: Vehiculo[]) => {
       this.rowData = data;
     }, (error) => {
@@ -143,14 +154,6 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.ERROR
       )
     })
-  }
-
-  modify() {
-
-  }
-
-  delete() {
-
   }
 
   mostrarModalEliminarFotografia(uuid) {
@@ -205,8 +208,28 @@ export class EmpresaVehiculosComponent implements OnInit {
     })
   }
 
+  mostrarEditarColorForm(index) {
+    this.colorVehiculo = this.coloresTemp[index];
+    this.coloresTemp.splice(index, 1);
+    this.mostrarFormularioColor();
+    this.editandoColor = true;
+    this.crearColorForm.patchValue({
+      color: this.colorVehiculo.color,
+      descripcion: this.colorVehiculo.descripcion
+    })
+  }
+
   mostrarFormularioColor() {
     this.showColorForm = !this.showColorForm;
+
+    if(!this.showColorForm) {
+      this.crearColorForm.reset();
+    }
+
+    if(this.editandoColor) {
+      this.editandoColor = false;
+      this.coloresTemp.push(this.colorVehiculo);
+    }
   }
 
   mostrarModalDetalles(rowData, modal) {
@@ -361,7 +384,7 @@ export class EmpresaVehiculosComponent implements OnInit {
             "Se ha guardado el vehiculo con exito",
             ToastType.SUCCESS
           );
-          this.vehiculo = data;
+          this.vehiculo = formValue;
           this.stepper.next();
         }, (error) => {
           this.toastService.showGenericToast(
@@ -375,9 +398,54 @@ export class EmpresaVehiculosComponent implements OnInit {
 
         break;
       case "RESUMEN":
+        if(this.coloresTemp.length < 1) {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            "Necesitas agregar por lo menos un color para continuar con el alta del vehiculo",
+            ToastType.WARNING
+          );
+          return;
+        }
 
+        this.toastService.showGenericToast(
+          "Espere un momento",
+          "Estamos guardando los colores del vehiculo",
+          ToastType.INFO
+        );
+
+        let coloresGuardados: boolean = true;
+
+        this.coloresTemp.forEach(c => {
+          this.empresaService.guardarVehiculoColor(this.uuid, this.vehiculo.uuid, c).subscribe((data) => {
+            this.toastService.showGenericToast(
+              "Listo",
+              "Se ha guardado el color con exito",
+              ToastType.SUCCESS
+            );
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se ha podido guardar el color del vehiculo. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+            coloresGuardados = false;
+          });
+        })
+
+        if(coloresGuardados) {
+          this.stepper.next();
+        }
         break;
     }
+  }
+
+  finalizar() {
+    window.location.reload();
+  }
+
+  mostrarModalEliminar(modal, temporaryIndex) {
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    this.temporaryIndex = temporaryIndex;
   }
 
   mostrarModalEliminarVehiculo() {
@@ -390,14 +458,35 @@ export class EmpresaVehiculosComponent implements OnInit {
     })
   }
 
-  confirmarEliminarVehiculo() {
+  confirmarEliminarVehiculo(form) {
+
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario es invalido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espere un momento",
       "Se esta eliminando el vehiculo",
       ToastType.INFO
     );
 
-    this.empresaService.eliminarVehiculo(this.uuid, this.vehiculo.uuid).subscribe((data: Vehiculo) => {
+    let formValue: Vehiculo = form.value;
+
+    let formData = new FormData();
+    formData.append('vehiculo', JSON.stringify(formValue));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+    this.empresaService.eliminarVehiculo(this.uuid, this.vehiculo.uuid, formData).subscribe(() => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha eliminado el vehiculo con exito",
@@ -451,10 +540,18 @@ export class EmpresaVehiculosComponent implements OnInit {
     let color: VehiculoColor = form.value;
     this.coloresTemp.push(color);
     form.reset();
+    this.editandoColor = false;
+    this.showColorForm = false;
   }
 
-  eliminarColorCrear(index) {
-    this.coloresTemp.splice(index, 1);
+  mostrarModalQuitarVehiculoColor(index) {
+    this.temporaryIndex = index;
+    this.modal = this.modalService.open(this.quitarVehiculoColorModal, {size: 'lg'})
+  }
+
+  quitarColor() {
+    this.coloresTemp.splice(this.temporaryIndex, 1);
+    this.modal.close();
   }
 
   toggleColumn(field: string) {

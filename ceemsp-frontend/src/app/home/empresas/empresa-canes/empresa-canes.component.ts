@@ -54,6 +54,7 @@ export class EmpresaCanesComponent implements OnInit {
   crearEmpresaCanCartillaVacunacionForm: FormGroup;
   crearEmpresaCanEntrenamientoForm: FormGroup;
   crearCanFotografiaForm: FormGroup;
+  motivosEliminacionForm: FormGroup;
 
   origen: string = "";
 
@@ -61,6 +62,9 @@ export class EmpresaCanesComponent implements OnInit {
 
   pestanaActual: string = "DETALLES";
   can: Can;
+  certificadoSalud: CanConstanciaSalud;
+  constanciaSalud: CanConstanciaSalud;
+  entrenamiento: CanAdiestramiento;
 
   tempFile;
   imagenActual;
@@ -151,6 +155,13 @@ export class EmpresaCanesComponent implements OnInit {
       file: ['', Validators.required],
       descripcion: ['', Validators.required]
     })
+
+    this.motivosEliminacionForm = this.formBuilder.group({
+      motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
+      observacionesBaja: ['', Validators.required],
+      fechaBaja: ['', Validators.required],
+      documentoFundatorioBaja: ['']
+    });
 
     this.canesService.getAllEntrenamientos().subscribe((data: TipoEntrenamiento[]) => {
       this.tiposAdiestramiento = data;
@@ -618,13 +629,37 @@ export class EmpresaCanesComponent implements OnInit {
     switch (stepName) {
       case "CERTIFICADOS":
 
+        let formValue: Can = form.value;
+        console.log(formValue);
+
+        // Validando fechas
+        if(formValue.origen !== 'PROPIO') {
+          if(formValue.fechaInicio === "" || formValue.fechaFin === "") {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              "Al ser un elemento en arrendamiento o comodato, requiere fecha de inicio o fin",
+              ToastType.WARNING
+            );
+            return;
+          }
+
+          let fechaInicio = new Date(formValue.fechaInicio);
+          let fechaFin = new Date(formValue.fechaFin);
+          if(fechaInicio > fechaFin) {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              "La fecha de inicio es mayor que la del final",
+              ToastType.WARNING
+            )
+            return;
+          }
+        }
+
         this.toastService.showGenericToast(
           "Espere un momento",
           "Estamos guardando el can",
           ToastType.INFO
         );
-
-        let formValue: Can = form.value;
 
         formValue.raza = this.razas.filter(x => x.uuid === form.value.raza)[0];
         formValue.domicilioAsignado = this.domicilios.filter(x => x.uuid === form.value.domicilioAsignado)[0];
@@ -641,6 +676,7 @@ export class EmpresaCanesComponent implements OnInit {
           );
           this.can = data;
           this.canGuardado = true;
+          this.desactivarCamposEmpresa();
           this.stepper.next();
         }, (error) => {
           this.toastService.showGenericToast(
@@ -671,6 +707,8 @@ export class EmpresaCanesComponent implements OnInit {
             ToastType.SUCCESS
           );
           this.certificadoGuardado = true;
+          this.certificadoSalud = constanciaSalud;
+          this.desactivarCamposCertificadoSalud();
           this.stepper.next();
         }, (error) => {
           this.toastService.showGenericToast(
@@ -700,6 +738,8 @@ export class EmpresaCanesComponent implements OnInit {
             "Se ha guardado la cartilla de vacunacion con exito",
             ToastType.SUCCESS
           );
+          this.desactivarCamposVacunacion();
+          this.canCartillaVacunacion = value;
           this.vacunacionGuardada = true;
           this.stepper.next();
         }, (error) => {
@@ -721,13 +761,15 @@ export class EmpresaCanesComponent implements OnInit {
         let formData: CanAdiestramiento = form.value;
         formData.canTipoAdiestramiento = this.tipoAdiestramiento;
 
-        this.empresaService.guardarCanAdiestramiento(this.uuid, this.can.uuid, formData).subscribe((data) => {
+        this.empresaService.guardarCanAdiestramiento(this.uuid, this.can.uuid, formData).subscribe((data: CanAdiestramiento) => {
           this.toastService.showGenericToast(
             "Listo",
             "Se ha guardado el adiestramiento en el can con exito",
             ToastType.SUCCESS
           );
           this.entrenamientoGuardado = true;
+          this.entrenamiento = formData;
+          this.desactivarCamposEntrenamiento();
           this.stepper.next();
         }, (error) => {
           this.toastService.showGenericToast(
@@ -746,6 +788,45 @@ export class EmpresaCanesComponent implements OnInit {
 
   actualizarPagina() {
     window.location.reload();
+  }
+
+  private desactivarCamposEmpresa() {
+    this.crearEmpresaCanForm.controls['nombre'].disable();
+    this.crearEmpresaCanForm.controls['genero'].disable();
+    this.crearEmpresaCanForm.controls['raza'].disable();
+    this.crearEmpresaCanForm.controls['razaOtro'].disable();
+    this.crearEmpresaCanForm.controls['domicilioAsignado'].disable();
+    this.crearEmpresaCanForm.controls['fechaIngreso'].disable();
+    this.crearEmpresaCanForm.controls['edad'].disable();
+    this.crearEmpresaCanForm.controls['descripcion'].disable();
+    this.crearEmpresaCanForm.controls['chip'].disable();
+    this.crearEmpresaCanForm.controls['tatuaje'].disable();
+    this.crearEmpresaCanForm.controls['origen'].disable();
+    this.crearEmpresaCanForm.controls['status'].disable();
+    this.crearEmpresaCanForm.controls['razonSocial'].disable();
+    this.crearEmpresaCanForm.controls['fechaInicio'].disable();
+    this.crearEmpresaCanForm.controls['fechaFin'].disable();
+    this.crearEmpresaCanForm.controls['peso'].disable();
+  }
+
+  private desactivarCamposCertificadoSalud() {
+    this.crearEmpresaCanCertificadoSaludForm.controls['expedidoPor'].disable();
+    this.crearEmpresaCanCertificadoSaludForm.controls['cedula'].disable();
+    this.crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].disable();
+    this.crearEmpresaCanCertificadoSaludForm.controls['archivo'].disable();
+  }
+
+  private desactivarCamposVacunacion() {
+    this.crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].disable();
+    this.crearEmpresaCanCartillaVacunacionForm.controls['cedula'].disable();
+    this.crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].disable();
+    this.crearEmpresaCanCartillaVacunacionForm.controls['archivo'].disable();
+  }
+
+  private desactivarCamposEntrenamiento() {
+    this.crearEmpresaCanEntrenamientoForm.controls['nombreInstructor'].disable();
+    this.crearEmpresaCanEntrenamientoForm.controls['tipoAdiestramiento'].disable();
+    this.crearEmpresaCanEntrenamientoForm.controls['fechaConstancia'].disable();
   }
 
   mostrarModalModificarCan() {
@@ -825,14 +906,35 @@ export class EmpresaCanesComponent implements OnInit {
     })
   }
 
-  confirmarEliminarCan() {
+  confirmarEliminarCan(form) {
+
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario es invalido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espere un momento",
       "Se esta eliminando el can",
       ToastType.INFO
     );
 
-    this.empresaService.eliminarCan(this.uuid, this.can.uuid).subscribe((data: Can) => {
+    let formValue: Can = form.value;
+
+    let formData = new FormData();
+    formData.append('can', JSON.stringify(formValue));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+    this.empresaService.eliminarCan(this.uuid, this.can.uuid, formData).subscribe(() => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha eliminado el can con exito",

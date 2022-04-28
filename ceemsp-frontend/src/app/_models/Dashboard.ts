@@ -1,6 +1,7 @@
 import {Deserializable} from "./Deserializable";
 import Modalidad from "./Modalidad";
 import Submodalidad from "./Submodalidad";
+import Visita from "./Visita";
 
 export default class Dashboard implements Deserializable {
   incidenciasAbiertas: number;
@@ -17,6 +18,8 @@ export default class Dashboard implements Deserializable {
   empresasSuspendidas: number;
   empresasRevocadas: number;
   empresasClausuradas: number;
+
+  proximasVisitas: Visita[];
 
   deserialize(input: any): this {
     Object.assign(this, input);

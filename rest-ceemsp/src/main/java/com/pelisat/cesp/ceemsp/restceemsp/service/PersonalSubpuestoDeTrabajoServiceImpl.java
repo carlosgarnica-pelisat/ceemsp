@@ -127,4 +127,59 @@ public class PersonalSubpuestoDeTrabajoServiceImpl implements PersonalSubpuestoD
 
         return daoToDtoConverter.convertDaoToDtoPersonalSubpuestoDeTrabajo(personalSubpuestoCreado);
     }
+
+    @Override
+    public PersonalSubpuestoDeTrabajoDto modificarPuestoTrabajo(PersonalSubpuestoDeTrabajoDto personalSubpuestoDeTrabajoDto, String username, String uuid, String puestoTrabajoUuid) {
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(uuid) || StringUtils.isBlank(puestoTrabajoUuid) || personalSubpuestoDeTrabajoDto == null) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el subpuesto de trabajo con el uuid [{}]", uuid);
+
+        PersonalSubpuesto personalSubpuesto = personalSubpuestoRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(personalSubpuesto == null) {
+            logger.warn("El subpuesto de personal no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        personalSubpuesto.setNombre(personalSubpuestoDeTrabajoDto.getNombre());
+        personalSubpuesto.setDescripcion(personalSubpuestoDeTrabajoDto.getDescripcion());
+        personalSubpuesto.setPortacion(personalSubpuestoDeTrabajoDto.isPortacion());
+        personalSubpuesto.setCuip(personalSubpuestoDeTrabajoDto.isCuip());
+
+        daoHelper.fulfillAuditorFields(false, personalSubpuesto, usuario.getId());
+        personalSubpuestoRepository.save(personalSubpuesto);
+
+        return daoToDtoConverter.convertDaoToDtoPersonalSubpuestoDeTrabajo(personalSubpuesto);
+    }
+
+    @Override
+    public PersonalSubpuestoDeTrabajoDto eliminarPuestoTrabajo(String username, String uuid, String puestoTrabajoUuid) {
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(uuid) || StringUtils.isBlank(puestoTrabajoUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el subpuesto de trabajo con el uuid [{}]", uuid);
+
+        PersonalSubpuesto personalSubpuesto = personalSubpuestoRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(personalSubpuesto == null) {
+            logger.warn("El subpuesto de personal no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        personalSubpuesto.setEliminado(true);
+
+        daoHelper.fulfillAuditorFields(false, personalSubpuesto, usuario.getId());
+        personalSubpuestoRepository.save(personalSubpuesto);
+
+        return daoToDtoConverter.convertDaoToDtoPersonalSubpuestoDeTrabajo(personalSubpuesto);
+    }
 }

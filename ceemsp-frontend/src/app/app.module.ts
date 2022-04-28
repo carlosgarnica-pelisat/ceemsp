@@ -47,6 +47,7 @@ import { SanitizeHtmlPipe } from './_pipes/sanitize-html.pipe';
 import {NgxPrintModule} from "ngx-print";
 import { EmpresaEquipoComponent } from './home/empresas/empresa-equipo/empresa-equipo.component';
 import { EquipoComponent } from './home/catalogos/equipo/equipo.component';
+import { UsuariosComponent } from "./home/configuracion/usuarios/usuarios.component";
 import { UniformesComponent } from './home/catalogos/equipo/uniformes/uniformes.component';
 import { EmpresaUniformesComponent } from './home/empresas/empresa-uniformes/empresa-uniformes.component';
 import {PdfViewerModule} from "ng2-pdf-viewer";
@@ -55,6 +56,7 @@ import { NumberMaskDirective } from './_directives/number-mask.directive';
 import { RfcDirective } from './_directives/rfc.directive';
 import { BuscarNombrePipe } from './_pipes/buscar-nombre.pipe';
 import {GoogleChartsModule} from "angular-google-charts";
+import { AcercaComponent } from './home/configuracion/acerca/acerca.component';
 
 @NgModule({
   declarations: [
@@ -99,7 +101,9 @@ import {GoogleChartsModule} from "angular-google-charts";
     PhoneMaskDirective,
     NumberMaskDirective,
     RfcDirective,
-    BuscarNombrePipe
+    BuscarNombrePipe,
+    UsuariosComponent,
+    AcercaComponent
   ],
   imports: [
     BrowserModule,

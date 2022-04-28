@@ -142,10 +142,10 @@ export class EmpresaDetallesComponent implements OnInit {
     });
 
     this.empresaUsuarioForm = this.formBuilder.group({
-      'email': ['', Validators.required],
-      'password': [''],
-      'nombres': ['', Validators.required],
-      'apellidos': ['', Validators.required]
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
+      password: [''],
+      nombres: ['', Validators.required],
+      apellidos: ['', Validators.required]
     })
   }
 

@@ -189,6 +189,71 @@
                 </div>
               </div>
             </form>
+            <hr>
+            <form [formGroup]="empresaUsuarioForm" style="margin-top: 10px;">
+              <div class="form-row">
+                <div class="col-sm-4">
+                  <label for="nombresUsuario">
+                    <b>Nombres *</b>
+                    <span
+                      *ngIf="empresaUsuarioForm.controls['nombres'].invalid && (empresaUsuarioForm.controls['nombres'].dirty || empresaUsuarioForm.controls['nombres'].touched)">
+                      <i *ngIf="empresaUsuarioForm.controls['nombres'].errors.required" class="error-text"> - Campo requerido</i>
+                      <i *ngIf="empresaUsuarioForm.controls['nombres'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                  </label>
+                  <input class="form-control" id="nombresUsuario" type="text" formControlName="nombres" placeholder="Ejemplo: Carlos Jose">
+                </div>
+                <div class="col-sm-4">
+                  <label for="apellidosUsuario">
+                    <b>Apellidos *</b>
+                    <span
+                      *ngIf="empresaUsuarioForm.controls['apellidos'].invalid && (empresaUsuarioForm.controls['apellidos'].dirty || empresaUsuarioForm.controls['apellidos'].touched)">
+                    <i *ngIf="empresaUsuarioForm.controls['apellidos'].errors.required" class="error-text"> - Campo requerido</i>
+                    <i *ngIf="empresaUsuarioForm.controls['apellidos'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                  </label>
+                  <input class="form-control" id="apellidosUsuario" type="text" formControlName="apellidos" placeholder="Ejemplo: Garcia Gonzalez">
+                </div>
+                <div class="col-sm-4">
+                  <label for="emailUsuario">
+                  <b>Correo electronico *</b>
+                  <span
+                    *ngIf="empresaUsuarioForm.controls['email'].invalid && (empresaUsuarioForm.controls['email'].dirty || empresaUsuarioForm.controls['email'].touched)">
+                        <i *ngIf="empresaUsuarioForm.controls['email'].errors.required" class="error-text"> - Campo requerido</i>
+                        <i *ngIf="empresaUsuarioForm.controls['email'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        <i *ngIf="empresaUsuarioForm.controls['email'].errors.email" class="text-danger"> - No es un email</i>
+                      </span>
+                  </label>
+                  <input class="form-control" id="emailUsuario" type="email" formControlName="email" placeholder="Ejemplo: hola@hotmail.com">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="col-sm-4">
+                  <label for="usuario">
+                    <b>Usuario *</b>
+                    <span
+                      *ngIf="empresaUsuarioForm.controls['usuario'].invalid && (empresaUsuarioForm.controls['usuario'].dirty || empresaUsuarioForm.controls['usuario'].touched)">
+                    <i *ngIf="empresaUsuarioForm.controls['usuario'].errors.required" class="error-text"> - Campo requerido</i>
+                    <i *ngIf="empresaUsuarioForm.controls['usuario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                  </label>
+                  <input class="form-control" id="usuario" type="text" formControlName="usuario" placeholder="Ejemplo: Garcia Gonzalez">
+                </div>
+                <div class="col-sm-4">
+                  <label for="password">
+                    <b>Contrasena *</b>
+                    <span
+                      *ngIf="empresaUsuarioForm.controls['password'].invalid && (empresaUsuarioForm.controls['password'].dirty || empresaUsuarioForm.controls['password'].touched)">
+                        <i *ngIf="empresaUsuarioForm.controls['password'].errors.required" class="error-text"> - Campo requerido</i>
+                      </span>
+                  </label>
+                  <input class="form-control" id="password" type="password" formControlName="password" placeholder="De 6 a 15 caracteres.">
+                </div>
+                <div class="col-sm-4">
+                </div>
+              </div>
+            </form>
+            <hr>
             <form [formGroup]="empresaModalidadForm" style="margin-top: 10px;">
               <div class="form-row">
                 <div class="col-sm-2">
@@ -207,7 +272,7 @@
                   <label for="submodalidad">
                     <b>Submodalidad</b>
                   </label>
-                  <select id="submodalidad" class="form-control" formControlName="submodalidad">
+                  <select id="submodalidad" class="form-control" formControlName="submodalidad" (change)="seleccionarSubmodalidad($event.target)">
                     <option *ngFor="let s of modalidad?.submodalidades" value="{{s?.uuid}}">{{s?.nombre}}</option>
                   </select>
                 </div>
@@ -850,7 +915,168 @@
             <div class="row">
               <div class="col-sm-12">
                 <h2>Listo, se ha registrado correctamente la empresa {{empresa?.razonSocial}}</h2>
-                <p>Ahora, ya puedes comenzar a registrar operaciones en la empresa</p>
+                <p>A continuacion, veras los detalles. Para finalizar, actualiza la pagina o dale click en el boton finalizar</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-12">
+                <h4>Info. Empresa</h4>
+                <table class="table">
+                  <tr>
+                    <td><b>Registro</b></td>
+                    <td>{{empresa?.registro}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Nombre comercial</b></td>
+                    <td>{{empresa?.nombreComercial}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Razon social</b></td>
+                    <td>{{empresa?.razonSocial}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>RFC</b></td>
+                    <td>{{empresa?.rfc}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Tipo de persona</b></td>
+                    <td>{{empresa?.tipoPersona}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Tipo de tramite</b></td>
+                    <td>{{empresa?.tipoTramite}}</td>
+                  </tr>
+
+                  <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
+                    <td><b>CURP</b></td>
+                    <td>{{empresa?.curp}}</td>
+                  </tr>
+                  <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
+                    <td><b>Sexo</b></td>
+                    <td>{{empresa?.sexo}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Correo electronico: </b></td>
+                    <td>{{empresa?.correoElectronico}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Telefono: </b></td>
+                    <td>{{empresa?.telefono}}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <h4>Modalidades</h4>
+                <table class="table">
+                  <tr>
+                    <td><b>Modalidad</b></td>
+                    <td><b>Submodalidad</b></td>
+                    <td><b>Fecha Inicio</b></td>
+                    <td><b>Fecha Fin</b></td>
+                  </tr>
+                  <tr *ngFor="let m of empresaModalidades">
+                    <td>{{m.modalidad?.nombre}}</td>
+                    <td>
+                      <span *ngIf="m.submodalidad !== null">{{m.submodalidad?.nombre}}</span>
+                      <span *ngIf="m.submodalidad === null">NA</span>
+                    </td>
+                    <td>
+                      <span *ngIf="m.fechaInicio !== null">{{m.fechaInicio}}</span>
+                      <span *ngIf="m.fechaInicio === null">NA</span>
+                    </td>
+                    <td>
+                      <span *ngIf="m.fechaFin !== null">{{m.fechaFin}}</span>
+                      <span *ngIf="m.fechaFin === null">NA</span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <h4>Formas de ejecucion</h4>
+                <table class="table">
+                  <tr>
+                    <td><b>Forma de ejecucion</b></td>
+                  </tr>
+                  <tr *ngFor="let fe of empresaFormasEjecucion">
+                    <td [ngSwitch]="fe?.formaEjecucion">
+                      <span *ngSwitchCase="'ARMAS'">Con portacion de armas de fuego</span>
+                      <span *ngSwitchCase="'CANES'">Con el auxilio de canes</span>
+                      <span *ngSwitchCase="'INSTRUMENTOS'">Con portacion de instrumentos de apoyo para control</span>
+                      <span *ngSwitchCase="'TECNOLOGIA'">Con apoyo de tecnologia</span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <h4>Domicilios</h4>
+                <table class="table">
+                  <tr>
+                    <td><b>Nombre</b></td>
+                    <td><b>Tipo</b></td>
+                    <td><b>Calle</b></td>
+                    <td><b>N. Ext</b></td>
+                    <td><b>N. Int</b></td>
+                    <td><b>Colonia</b></td>
+                    <td><b>Localidad</b></td>
+                    <td><b>Municipio</b></td>
+                    <td><b>Entidad</b></td>
+                    <td><b>Código postal</b></td>
+                    <td><b>Referencia</b></td>
+                    <td><b>Teléfono fijo</b></td>
+                    <td><b>Teléfono movil</b></td>
+                  </tr>
+                  <tr *ngFor="let d of empresaDomicilios; let i = index">
+                    <td>{{d.nombre}}</td>
+                    <td [ngSwitch]="d?.matriz">
+                      <span *ngSwitchCase="'true'">Matriz</span>
+                      <span *ngSwitchCase="'false'">Sucursal</span>
+                    </td>
+                    <td>{{d.calleCatalogo?.nombre}}</td>
+                    <td>{{d.numeroExterior}}</td>
+                    <td>{{d.numeroInterior}}</td>
+                    <td>{{d.coloniaCatalogo?.nombre}}</td>
+                    <td>{{d.localidadCatalogo?.nombre}}</td>
+                    <td>{{d.municipioCatalogo?.nombre}}</td>
+                    <td>{{d.estadoCatalogo?.nombre}}</td>
+                    <td>{{d.codigoPostal}}</td>
+                    <td>{{d.domicilio4}}</td>
+                    <td>{{d.telefonoFijo}}</td>
+                    <td>{{d.telefonoMovil}}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <h4>Legal</h4>
+                <table class="table">
+                  <tr>
+                    <td><b>Número de escritura</b></td>
+                    <td><b>Fecha de escritura</b></td>
+                    <td><b>Ciudad</b></td>
+                    <td><b>Tipo de fedatario</b></td>
+                    <td><b>Número</b></td>
+                    <td><b>Nombre de fedatario</b></td>
+                  </tr>
+                  <tr *ngFor="let e of empresaEscrituras; let i = index;">
+                    <td>{{e?.numeroEscritura}}</td>
+                    <td>{{e?.fechaEscritura}}</td>
+                    <td>{{e?.ciudad}}</td>
+                    <td>{{e?.tipoFedatario}}</td>
+                    <td>{{e?.numero}}</td>
+                    <td>{{e?.nombreFedatario}}</td>
+                  </tr>
+                </table>
               </div>
             </div>
             <hr>
@@ -1432,7 +1658,7 @@
       </button>
     </div>
     <div class="modal-body">
-      <p>Estás a punto de eliminar un domicilio que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
+      <p>Estás a punto de eliminar una modalidad que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-danger" (click)="eliminarModalidad(this.temporaryIndex)">Si, borralo</button>

@@ -42,7 +42,9 @@ export class DashboardComponent implements OnInit {
         ['Tramite Estatal',  data.empresasAutorizacionEstatal],
         ['Servicios Propios', data.empresasServiciosPropios],
         ['Aut. Provisional', data.empresasAutorizacionProvisional]
-      ]
+      ];
+
+
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",

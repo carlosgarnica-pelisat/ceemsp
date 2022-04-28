@@ -7,6 +7,7 @@ import ArmaClase from "../_models/ArmaClase";
 import VehiculoMarca from "../_models/VehiculoMarca";
 import VehiculoTipo from "../_models/VehiculoTipo";
 import VehiculoUso from "../_models/VehiculoUso";
+import VehiculoSubmarca from "../_models/VehiculoSubmarca";
 
 @Injectable({
   providedIn: 'root'
@@ -29,8 +30,24 @@ export class VehiculosService {
     return this.http.post(`${this.uri}/catalogos/vehiculos/marcas`, vehiculoMarca)
   }
 
+  modificarVehiculoMarca(uuid: string, vehiculoMarca: VehiculoMarca) {
+    return this.http.put(`${this.uri}/catalogos/vehiculos/marcas/${uuid}`, vehiculoMarca)
+  }
+
   borrarVehiculoMarcaPorUuid(uuid: string) {
     return this.http.delete(`${this.uri}/catalogos/vehiculos/marcas/${uuid}`)
+  }
+
+  guardarSubmarca(uuid: string, submarca: VehiculoSubmarca) {
+    return this.http.post(`${this.uri}/catalogos/vehiculos/marcas/${uuid}/submarcas`, submarca)
+  }
+
+  modificarSubmarca(uuid: string, submarcaUuid: string, submarca: VehiculoSubmarca) {
+    return this.http.put(`${this.uri}/catalogos/vehiculos/marcas/${uuid}/submarcas/${submarcaUuid}`, submarca);
+  }
+
+  eliminarSubmarca(uuid: string, submarcaUuid: string) {
+    return this.http.delete(`${this.uri}/catalogos/vehiculos/marcas/${uuid}/submarcas/${submarcaUuid}`)
   }
 
   // Operaciones para tipos

@@ -65,13 +65,15 @@ public class ClienteController {
         return clienteService.modificarCliente(empresaUuid, clienteUuid, username, clienteDto);
     }
 
-    @DeleteMapping(value = EMPRESA_CLIENTES_URI + "/{clienteUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = EMPRESA_CLIENTES_URI + "/{clienteUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ClienteDto eliminarClienteEmpresa(
             HttpServletRequest request,
+            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam("cliente") String cliente,
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "clienteUuid") String clienteUuid
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return clienteService.eliminarCliente(empresaUuid, clienteUuid, username);
+        return clienteService.eliminarCliente(empresaUuid, clienteUuid, username, new Gson().fromJson(cliente, ClienteDto.class), archivo);
     }
 }

@@ -85,8 +85,8 @@ public class ClienteDomicilio extends CommonModel {
     private int localidadCatalogo;
 
     @Column(name = "APELLIDO_PATERNO_CONTACTO", nullable = false)
-    private int apellidoPaternoContacto;
+    private String apellidoPaternoContacto;
 
     @Column(name = "APELLIDO_MATERNO_CONTACTO", nullable = false)
-    private int apellidoMaternoContacto;
+    private String apellidoMaternoContacto;
 }

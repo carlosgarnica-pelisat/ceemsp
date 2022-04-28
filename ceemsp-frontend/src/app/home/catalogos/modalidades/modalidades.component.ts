@@ -20,11 +20,7 @@ export class ModalidadesComponent implements OnInit {
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
-      }}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
   ];
   rowData = [];
 
@@ -57,14 +53,6 @@ export class ModalidadesComponent implements OnInit {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
     this.gridColumnApi = params.gridApi;
-  }
-
-  modify(rowData) {
-
-  }
-
-  delete(rowData) {
-
   }
 
   mostrarModalCrear(modal) {

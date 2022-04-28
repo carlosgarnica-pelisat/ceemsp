@@ -30,6 +30,8 @@ export class EmpresaDomiciliosComponent implements OnInit {
   colonias: Colonia[] = [];
   localidades: Localidad[] = [];
 
+  tempFile;
+
   uuid: string;
   domicilios: EmpresaDomicilio[];
 
@@ -40,6 +42,9 @@ export class EmpresaDomiciliosComponent implements OnInit {
   localidadSearchForm: FormGroup;
   calleSearchForm: FormGroup;
   coloniaSearchForm: FormGroup;
+
+  motivosEliminacionForm: FormGroup;
+
   modal: NgbModalRef;
   closeResult: string;
 
@@ -69,6 +74,8 @@ export class EmpresaDomiciliosComponent implements OnInit {
   localidadQuery: string = '';
   coloniaQuery: string = '';
   calleQuery: string = '';
+
+  fechaDeHoy = new Date().toISOString().split('T')[0];
 
   obtenerCallesTimeout = undefined;
 
@@ -113,6 +120,13 @@ export class EmpresaDomiciliosComponent implements OnInit {
       telefonoMovil: ['', [Validators.required]]
       // TODO: Volver a agregar los campos latitud y longitud cuando se tenga la extension de google maps
     })
+
+    this.motivosEliminacionForm = this.formbuilder.group({
+      motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
+      observacionesBaja: ['', Validators.required],
+      fechaBaja: ['', Validators.required],
+      documentoFundatorioBaja: ['']
+    });
 
     this.empresaService.obtenerDomicilios(this.uuid).subscribe((data: EmpresaDomicilio[]) => {
       this.rowData = data;
@@ -180,12 +194,8 @@ export class EmpresaDomiciliosComponent implements OnInit {
     })
   }
 
-  modify(rowData) {
-
-  }
-
-  delete(rowData) {
-
+  onFileChange(event) {
+    this.tempFile = event.target.files[0]
   }
 
   seleccionarEstado(estadoUuid) {
@@ -510,14 +520,35 @@ export class EmpresaDomiciliosComponent implements OnInit {
     })
   }
 
-  confirmarEliminarDomicilio() {
+  confirmarEliminarDomicilio(form) {
+
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario es invalido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espere un momento",
       "Estamos eliminando el domicilio",
       ToastType.INFO
     );
 
-    this.empresaService.eliminarDomicilio(this.uuid, this.domicilio.uuid).subscribe((data: EmpresaDomicilio) => {
+    let formValue: EmpresaDomicilio = form.value;
+
+    let formData = new FormData();
+    formData.append('domicilio', JSON.stringify(formValue));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+    this.empresaService.eliminarDomicilio(this.uuid, this.domicilio.uuid, formData).subscribe(() => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha eliminado el domicilio con exito",

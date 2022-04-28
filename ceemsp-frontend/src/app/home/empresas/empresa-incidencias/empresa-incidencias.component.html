@@ -67,12 +67,18 @@
             </tr>
             <tr>
               <td><b>Asignado a:</b></td>
-              <td>{{incidencia?.asignado === null ? 'Sin asignar' : incidencia?.asignado?.givenNames}} <a href="">(Asignar a)</a>
-                <a href="">(Asignarmelo a mi)</a></td>
+              <td>{{incidencia?.asignado === null ? 'Sin asignar' : (incidencia?.asignado?.nombres + ' ' + incidencia?.asignado?.apellidos)}} <button class="btn btn-sm btn-primary" (click)="mostrarModalAsignar()">Asignar a</button>
+                <button class="btn btn-sm btn-primary" (click)="autoasignar()">Asignarmelo a mi</button></td>
             </tr>
             <tr>
               <td><b>Status:</b></td>
-              <td>{{incidencia?.status}}</td>
+              <td [ngSwitch]="incidencia?.status">
+                <span *ngSwitchCase="'ABIERTA'">Abierta</span>
+                <span *ngSwitchCase="'ASIGNADA'">Asignada</span>
+                <span *ngSwitchCase="'ACCION_PENDIENTE'">Accion pendiente</span>
+                <span *ngSwitchCase="'PROCEDENTE'">Procedente</span>
+                <span *ngSwitchCase="'IMPROCEDENTE'">Improcedente</span>
+              </td>
             </tr>
           </table>
         </div>
@@ -96,6 +102,9 @@
             <li class="nav-item">
               <a class="nav-link fakelink" [ngClass]="{ 'active': incidenciaActualTab === 'VEHICULOS' }" (click)="cambiarIncidenciaActualTab('VEHICULOS')">Vehiculos</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': incidenciaActualTab === 'ARCHIVOS' }" (click)="cambiarIncidenciaActualTab('ARCHIVOS')">Archivos</a>
+            </li>
           </ul>
         </div>
       </div>
@@ -103,7 +112,7 @@
         <div class="col-sm-12" style="margin-top: 20px;">
           <div class="card" *ngFor="let c of incidencia?.comentarios">
             <div class="card-header">
-              Comentario de:
+              Comentario de: {{c.usuario?.nombres + " " + c.usuario?.apellidos}} a las {{c.fecha}}
             </div>
             <div class="card-body" [innerHTML]="c?.comentario">
             </div>
@@ -117,11 +126,39 @@
               <td><b>Apellido Paterno</b></td>
               <td><b>Apellido Materno</b></td>
               <td><b>Nombres</b></td>
+              <td><b>Acciones</b></td>
             </tr>
             <tr *ngFor="let p of incidencia?.personasInvolucradas">
               <td>{{p?.apellidoPaterno}}</td>
               <td>{{p?.apellidoMaterno}}</td>
               <td>{{p?.nombres}}</td>
+              <td>
+                <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarPersona(p?.uuid)"></fa-icon>
+              </td>
+            </tr>
+            <tr *ngIf="!mostrarAgregarPersonalForm">
+              <td colspan="4">
+                <button class="btn btn-sm btn-primary" (click)="conmutarAgregarPersonalForm()">Agregar personal</button>
+              </td>
+            </tr>
+            <tr *ngIf="mostrarAgregarPersonalForm">
+              <td colspan="4">
+                <form [formGroup]="crearPersonalIncidenciaForm">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label for="personal">
+                        <b>Personal *</b>
+                      </label>
+                      <select formControlName="personaInvolucrada" id="personal" class="form-control">
+                        <option *ngFor="let p of personales" value="{{p.uuid}}">{{p.nombres + " " + p.apellidoPaterno + " " + p.apellidoMaterno}}</option>
+                      </select>
+                    </div>
+                  </div>
+                </form>
+                <hr>
+                <button class="btn btn-sm btn-primary" (click)="agregarPersonaIncidencia(crearPersonalIncidenciaForm)">Guardar</button>
+                <button class="btn btn-sm btn-danger" (click)="conmutarAgregarPersonalForm()">Cancelar</button>
+              </td>
             </tr>
           </table>
         </div>
@@ -140,7 +177,31 @@
               <td>{{a?.clase?.nombre}}</td>
               <td>{{a?.tipo}}</td>
               <td>
-                <fa-icon [icon]="faTrash" title="Eliminar arma involucrada"></fa-icon>
+                <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarArma(a?.uuid)" title="Eliminar arma involucrada"></fa-icon>
+              </td>
+            </tr>
+            <tr *ngIf="!mostrarAgregarArmaForm">
+              <td colspan="4">
+                <button class="btn btn-sm btn-primary" (click)="conmutarAgregarArmaForm()">Agregar arma</button>
+              </td>
+            </tr>
+            <tr *ngIf="mostrarAgregarArmaForm">
+              <td colspan="4">
+                <form [formGroup]="crearArmaIncidenciaForm">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label for="arma">
+                        <b>Arma *</b>
+                      </label>
+                      <select formControlName="armaInvolucrada" id="arma" class="form-control">
+                        <option *ngFor="let a of armas" value="{{a?.uuid}}">{{a?.marca?.nombre}}</option>
+                      </select>
+                    </div>
+                  </div>
+                </form>
+                <hr>
+                <button class="btn btn-sm btn-primary" (click)="agregarArmaIncidencia(crearArmaIncidenciaForm)">Guardar</button>
+                <button class="btn btn-sm btn-danger" (click)="conmutarAgregarArmaForm()">Cancelar</button>
               </td>
             </tr>
           </table>
@@ -150,27 +211,47 @@
         <div class="col-sm-12">
           <table class="table">
             <tr>
-              <td><b>Apellido Paterno</b></td>
-              <td><b>Apellido Materno</b></td>
-              <td><b>Nombres</b></td>
+              <td><b>Nombre</b></td>
+              <td><b>Raza</b></td>
+              <td><b>Edad</b></td>
+              <td><b>Acciones</b></td>
             </tr>
-            <tr *ngFor="let p of incidencia?.personasInvolucradas">
-              <td>{{p?.apellidoPaterno}}</td>
-              <td>{{p?.apellidoMaterno}}</td>
-              <td>{{p?.nombres}}</td>
+            <tr *ngFor="let c of incidencia?.canesInvolucrados">
+              <td>{{c?.nombre}}</td>
+              <td>{{c?.raza?.nombre}}</td>
+              <td>{{c?.edad}}</td>
+              <td>
+                <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarCan(c?.uuid)" title="Eliminar can involucrado"></fa-icon>
+              </td>
             </tr>
           </table>
         </div>
       </div>
       <div class="row" *ngIf="incidenciaActualTab === 'VEHICULOS'">
         <div class="col-sm-12">
-
+          <table class="table">
+            <tr>
+              <td><b>Serie</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Modelo</b></td>
+              <td><b>Año</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let v of incidencia?.vehiculosInvolucrados">
+              <td>{{v?.serie}}</td>
+              <td>{{v?.marca?.nombre}}</td>
+              <td>{{v?.submarca?.nombre}}</td>
+              <td>{{v?.anio}}</td>
+              <td>
+                <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarVehiculo(v?.uuid)" title="Eliminar vehiculo involucrado"></fa-icon>
+              </td>
+            </tr>
+          </table>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Responder</button>
-      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cambiar status</button>
+      <button type="button" class="btn btn-primary" (click)="mostrarModalResponder()">Responder</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
@@ -439,6 +520,178 @@
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="guardarIncidencia(crearIncidenciaForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #seleccionarAsignadoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="seleccionarAsignadoModal">Asignar a usuario </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="cambiarAsignacionTicketForm">
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="asignado">
+                  <b>Asignado *</b>
+                </label>
+                <select id="asignado" class="form-control" formControlName="asignado">
+                  <option *ngFor="let u of usuarios" value="{{u.uuid}}">{{u.nombres + " " + u.apellidos}}</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="confirmarAsignacion(cambiarAsignacionTicketForm)">Asignar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #responderIncidenciaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="responderIncidenciaModal">Seleccionar persona a asignar </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="responderIncidenciaForm">
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="status">
+                  <b>Status *</b>
+                </label>
+                <select id="status" class="form-control" formControlName="status">
+                  <option value="ABIERTA">Abierta</option>
+                  <option value="ASIGNADA">Asignada</option>
+                  <option value="ACCION_PENDIENTE">Accion pendiente</option>
+                  <option value="PROCEDENTE">Procedente</option>
+                  <option value="IMPROCEDENTE">Improcedente</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <b>Comentario *</b>
+          <ckeditor [(ngModel)]="editorData"></ckeditor>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="agregarComentario(responderIncidenciaForm)">Asignar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarIncidenciaPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarIncidenciaPersonaModal">Eliminando la persona de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar una persona de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarPersona()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarIncidenciaArmaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarIncidenciaArmaModal">Eliminando el arma de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p><br><b>Estas a punto de eliminar un arma de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</b></p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarArma()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarIncidenciaCanModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarIncidenciaCanModal">Eliminando el can de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p><br><b>Estas a punto de eliminar un can de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</b></p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarCan()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarIncidenciaVehiculoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarIncidenciaVehiculoModal">Eliminando el vehiculo de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p><br><b>Estas a punto de eliminar un vehiculo de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</b></p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarVehiculo()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarIncidenciaArchivoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarIncidenciaArchivoModal">Eliminando el archivo de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p><br><b>Estas a punto de eliminar un archivo de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</b></p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarArchivo()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 </div>

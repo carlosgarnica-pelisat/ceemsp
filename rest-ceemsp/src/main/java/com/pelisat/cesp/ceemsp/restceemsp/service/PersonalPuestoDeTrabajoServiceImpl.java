@@ -116,7 +116,30 @@ public class PersonalPuestoDeTrabajoServiceImpl implements PersonalPuestoDeTraba
 
     @Override
     public PersonalPuestoDeTrabajoDto modificar(String uuid, String username, PersonalPuestoDeTrabajoDto personalPuestoDeTrabajoDto) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || personalPuestoDeTrabajoDto == null) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el puesto de trabajo con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        PersonalPuesto personalPuesto = personalPuestoRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(personalPuesto == null) {
+            logger.warn("El puesto de trabajo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        personalPuesto.setNombre(personalPuestoDeTrabajoDto.getNombre());
+        personalPuesto.setDescripcion(personalPuestoDeTrabajoDto.getDescripcion());
+        personalPuesto.setFechaActualizacion(LocalDateTime.now());
+        personalPuesto.setActualizadoPor(usuario.getId());
+
+        personalPuestoRepository.save(personalPuesto);
+
+        return daoToDtoConverter.convertDaoToDtoPersonalPuestoDeTrabajo(personalPuesto);
     }
 
     @Override

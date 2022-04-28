@@ -1,6 +1,7 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
 import com.pelisat.cesp.ceemsp.database.dto.IncidenciaDto;
+import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaVehiculoService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.IncidenciaService;
@@ -51,5 +52,37 @@ public class IncidenciaController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
         return incidenciaService.guardarIncidencia(empresaUuid, username, incidenciaDto);
+    }
+
+    @PostMapping(value = INCIDENCIA_URI + "/{incidenciaUuid}/comentarios", produces = MediaType.APPLICATION_JSON_VALUE)
+    public IncidenciaDto agregarComentario(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "incidenciaUuid") String incidenciaUuid,
+            HttpServletRequest httpServletRequest,
+            @RequestBody IncidenciaDto incidenciaDto
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return incidenciaService.agregarComentario(empresaUuid, incidenciaUuid, username, incidenciaDto);
+    }
+
+    @PutMapping(value = INCIDENCIA_URI + "/{incidenciaUuid}/autoasignar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public IncidenciaDto autoasignarIncidencia(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "incidenciaUuid") String incidenciaUuid,
+            HttpServletRequest httpServletRequest
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return incidenciaService.autoasignarIncidencia(empresaUuid, incidenciaUuid, username);
+    }
+
+    @PutMapping(value = INCIDENCIA_URI + "/{incidenciaUuid}/asignar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public IncidenciaDto asignarIncidencia(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "incidenciaUuid") String incidenciaUuid,
+            HttpServletRequest httpServletRequest,
+            @RequestBody UsuarioDto usuarioDto
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return incidenciaService.asignarIncidencia(empresaUuid, incidenciaUuid, usuarioDto, username);
     }
 }

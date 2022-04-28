@@ -7,9 +7,11 @@ import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoSubmarcaRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -18,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -39,6 +42,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
     private final VehiculoTipoService vehiculoTipoService;
     private final VehiculoColorService vehiculoColorService;
     private final VehiculoFotografiaService vehiculoFotografiaService;
+    private final ArchivosService archivosService;
 
     @Autowired
     public EmpresaVehiculoServiceImpl(VehiculoRepository vehiculoRepository, UsuarioService usuarioService,
@@ -46,7 +50,8 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
                                       DaoHelper<CommonModel> daoHelper, EmpresaService empresaService,
                                       VehiculoMarcaService vehiculoMarcaService, VehiculoSubmarcaService vehiculoSubmarcaService,
                                       VehiculoUsoService vehiculoUsoService, VehiculoTipoService vehiculoTipoService,
-                                      VehiculoColorService vehiculoColorService, VehiculoFotografiaService vehiculoFotografiaService) {
+                                      VehiculoColorService vehiculoColorService, VehiculoFotografiaService vehiculoFotografiaService,
+                                      ArchivosService archivosService) {
         this.vehiculoRepository = vehiculoRepository;
         this.usuarioService = usuarioService;
         this.daoToDtoConverter = daoToDtoConverter;
@@ -59,6 +64,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         this.vehiculoTipoService = vehiculoTipoService;
         this.vehiculoColorService = vehiculoColorService;
         this.vehiculoFotografiaService = vehiculoFotografiaService;
+        this.archivosService = archivosService;
     }
 
     @Override
@@ -211,7 +217,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
     }
 
     @Override
-    public VehiculoDto eliminarVehiculo(String empresaUuid, String vehiculoUuid, String username) {
+    public VehiculoDto eliminarVehiculo(String empresaUuid, String vehiculoUuid, String username, VehiculoDto vehiculoDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(username)) {
             logger.warn("El uuid viene como nulo o vacio");
             throw new InvalidDataException();
@@ -231,7 +237,22 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
             throw new MissingRelationshipException();
         }
 
+        vehiculo.setMotivoBaja(vehiculoDto.getMotivoBaja());
+        vehiculo.setObservacionesBaja(vehiculoDto.getObservacionesBaja());
         vehiculo.setEliminado(true);
+
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Agregando");
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_BAJA_VEHICULO, empresaUuid);
+                vehiculo.setDocumentoFundatorioBaja(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+
         daoHelper.fulfillAuditorFields(false, vehiculo, usuarioDto.getId());
 
         Vehiculo vehiculoCreado = vehiculoRepository.save(vehiculo);

@@ -145,6 +145,293 @@
     </div>
   </ng-template>
 
+  <ng-template #modificarVisitaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modificarVisitaModal">Modificar visita </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearVisitaForm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="tipoVisitaEditar">
+                  <b>Tipo de visita *</b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['tipoVisita'].invalid && (crearVisitaForm.controls['tipoVisita'].dirty || crearVisitaForm.controls['tipoVisita'].touched)">
+                      <i *ngIf="crearVisitaForm.controls['tipoVisita'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select id="tipoVisitaEditar" class="form-control" formControlName="tipoVisita" (change)="cambiarTipoVisita($event.target)">
+                  <option value="ORDINARIA">Ordinaria</option>
+                  <option value="EXTRAORDINARIA">Extraordinaria</option>
+                </select>
+              </div>
+              <div class="col-sm-4" *ngIf="tipoVisita !== undefined && tipoVisita === 'EXTRAORDINARIA'">
+                <label for="existeEmpresaEditar">
+                  <b>Registrada? *</b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['existeEmpresa'].invalid && (crearVisitaForm.controls['existeEmpresa'].dirty || crearVisitaForm.controls['existeEmpresa'].touched)">
+                      <i *ngIf="crearVisitaForm.controls['existeEmpresa'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select id="existeEmpresaEditar" class="form-control" formControlName="existeEmpresa" (change)="cambiarExistenciaEmpresa($event.target)">
+                  <option value="true">SI</option>
+                  <option value="false">NO</option>
+                </select>
+              </div>
+              <div class="col-sm-4" *ngIf="tipoVisita !== undefined && (tipoVisita === 'ORDINARIA' || (tipoVisita === 'EXTRAORDINARIA' && existeEmpresa))">
+                <label for="empresaEditar">
+                  <b>Empresa *</b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['empresa'].invalid && (crearVisitaForm.controls['empresa'].dirty || crearVisitaForm.controls['empresa'].touched)">
+                      <i *ngIf="crearVisitaForm.controls['empresa'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select id="empresaEditar" class="form-control" formControlName="empresa" (change)="seleccionarEmpresa($event.target)">
+                  <option *ngFor="let e of empresas" value="{{e?.uuid}}">{{e?.nombreComercial + " (" + e?.razonSocial + ")"}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="nombreComercialEditar">
+                  <b>Nombre comercial *</b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['nombreComercial'].invalid && (crearVisitaForm.controls['nombreComercial'].dirty || crearVisitaForm.controls['nombreComercial'].touched)">
+                      <i *ngIf="crearVisitaForm.controls['nombreComercial'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <input class="form-control" id="nombreComercialEditar" type="text" formControlName="nombreComercial">
+              </div>
+              <div class="col-sm-4">
+                <label for="razonSocialEditar">
+                  <b>Razon social *</b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['razonSocial'].invalid && (crearVisitaForm.controls['razonSocial'].dirty || crearVisitaForm.controls['razonSocial'].touched)">
+                      <i *ngIf="crearVisitaForm.controls['razonSocial'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <input class="form-control" id="razonSocialEditar" type="text" formControlName="razonSocial">
+              </div>
+              <div class="col-sm-4">
+                <label for="numeroRegistroEditar">
+                  <b>Registro</b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['numeroRegistro'].invalid && (crearVisitaForm.controls['numeroRegistro'].dirty || crearVisitaForm.controls['numeroRegistro'].touched)">
+                      <i *ngIf="crearVisitaForm.controls['numeroRegistro'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <input class="form-control" id="numeroRegistroEditar" type="text" formControlName="numeroRegistro">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="numeroOrdenEditar">
+                  <b>Num. orden (autogenerado) *</b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['numeroOrden'].invalid && (crearVisitaForm.controls['numeroOrden'].dirty || crearVisitaForm.controls['numeroOrden'].touched)">
+                      <i *ngIf="crearVisitaForm.controls['numeroOrden'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="crearVisitaForm.controls['numeroOrden'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                      <i *ngIf="crearVisitaForm.controls['numeroOrden'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                    </span>
+                </label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">CESP/EXT/</span>
+                  </div>
+                  <input class="form-control" id="numeroOrdenEditar" type="tel" formControlName="numeroOrden" placeholder="Se generara automaticamente" appNumberMask>
+                  <div class="input-group-append">
+                    <span class="input-group-text">/{{anio}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <label for="fechaVisitaEditar">
+                  <b>Fecha de visita *</b>
+                </label>
+                <input class="form-control" id="fechaVisitaEditar" type="date" formControlName="fechaVisita" placeholder="Fecha de la visita">
+              </div>
+              <div class="col-sm-4">
+                <label for="responsableEditar">
+                  <b>Asignado / Responsable *</b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['fechaVisita'].invalid && (crearVisitaForm.controls['fechaVisita'].dirty || crearVisitaForm.controls['fechaVisita'].touched)">
+                      <i *ngIf="crearVisitaForm.controls['fechaVisita'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select id="responsableEditar" class="form-control" formControlName="responsable" (change)="seleccionarUsuario($event.target)">
+                  <option *ngFor="let u of usuarios" value="{{u?.uuid}}">{{u?.nombres + " " + u?.apellidos}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
+              <div class="col-sm-3">
+                <label>
+                  <b>Estado *</b>
+                </label>
+                <div class="dropdown" id="customerEditar">
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{estado === undefined ? 'Ninguno' : estado?.nombre}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                    <form [formGroup]="estadoSearchForm" class="px-4 py-3" autocomplete="off">
+                      <label for="estadoSearchQuery"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="estadoSearchQueryEditar" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
+                             [ngModelOptions]="{standalone: true}" autocomplete="off">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let e of estados | buscarNombre: {nombre: estadoQuery}" (click)="seleccionarEstado(e.uuid)">
+                      {{e.nombre}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarEstado()">Quitar</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <label>
+                  <b>Municipio *</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="municipioSearchQueryEditar" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
+                           [ngModelOptions]="{standalone: true}" autocomplete="off">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let m of municipios | buscarNombre: {nombre: municipioQuery}" (click)="seleccionarMunicipio(m.uuid)">
+                    {{m.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <label>
+                  <b>Localidad *</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="localidadSearchForm" class="px-4 py-3" autocomplete="off">
+                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="localidadSearchQueryEditar" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
+                           [ngModelOptions]="{standalone: true}" autocomplete="off">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let l of localidades | buscarNombre: {nombre: localidadQuery}" (click)="seleccionarLocalidad(l.uuid)">
+                    {{l.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <label>
+                  <b>Colonia *</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{colonia === undefined ? 'Ninguno' : colonia?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="coloniaSearchQueryEditar" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
+                           [ngModelOptions]="{standalone: true}" autocomplete="off">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let c of colonias | buscarNombre: {nombre: coloniaQuery}" (click)="seleccionarColonia(c.uuid)">
+                    {{c.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="colonia !== undefined" (click)="eliminarColonia()">Quitar</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
+              <div class="col-sm-4">
+                <label>
+                  <b>Calle * </b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{calle === undefined ? 'Ninguno' : calle?.nombre}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="calleSearchForm" class="px-4 py-3">
+                    <label for="calleSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="calleSearchQueryEditar" placeholder="Ej. Av. Empresarios" [(ngModel)]="calleQuery"
+                           [ngModelOptions]="{standalone: true}" (keyup)="obtenerCalles($event)" autocomplete="off">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let c of calles" (click)="seleccionarCalle(c.uuid)">
+                    {{c.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="calle !== undefined" (click)="eliminarCalle()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-1">
+                <label for="numeroExteriorEditar">
+                  <b>N. Ext * </b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['numeroExterior'].invalid && (crearVisitaForm.controls['numeroExterior'].dirty || crearVisitaForm.controls['numeroExterior'].touched)">
+                          <i *ngIf="crearVisitaForm.controls['numeroExterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="numeroExteriorEditar" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
+              </div>
+              <div class="col-sm-1">
+                <label for="numeroInteriorEditar">
+                  <b>N. Int </b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['numeroInterior'].invalid && (crearVisitaForm.controls['numeroExterior'].dirty || crearVisitaForm.controls['numeroInterior'].touched)">
+                          <i *ngIf="crearVisitaForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="numeroInteriorEditar" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
+              </div>
+
+              <div class="col-sm-3">
+                <label for="codigoPostalEditar">
+                  <b>Codigo Postal *</b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['codigoPostal'].invalid && (crearVisitaForm.controls['codigoPostal'].dirty || crearVisitaForm.controls['codigoPostal'].touched)">
+                            <i *ngIf="crearVisitaForm.controls['codigoPostal'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                            <i *ngIf="crearVisitaForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                          </span>
+                </label>
+                <input id="codigoPostalEditar" type="number" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
+              </div>
+              <div class="col-sm-3">
+                <label for="domicilio4Editar">
+                  <b>Referencia</b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['domicilio4'].invalid && (crearVisitaForm.controls['domicilio4'].dirty || crearVisitaForm.controls['domicilio4'].touched)">
+                            <i *ngIf="crearVisitaForm.controls['domicilio4'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                          </span>
+                </label>
+                <input id="domicilio4Editar" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarCambiosVisita(crearVisitaForm)">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cancelar</button>
+    </div>
+  </ng-template>
+
   <ng-template #modificarRequerimientoModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="modificarRequerimientoModal">Modificar requerimiento </h4>

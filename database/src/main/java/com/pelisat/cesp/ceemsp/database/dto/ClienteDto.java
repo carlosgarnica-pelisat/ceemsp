@@ -21,4 +21,8 @@ public class ClienteDto {
     private String fechaFin;
     private String rutaArchivoContrato;
     private List<ClienteDomicilioDto> domicilios;
+
+    private String motivoBaja;
+    private String observacionesBaja;
+    private String documentoFundatorioBaja;
 }

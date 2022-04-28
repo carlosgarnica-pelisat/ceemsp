@@ -8,6 +8,7 @@ import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.*;
 import com.pelisat.cesp.ceemsp.database.type.IncidenciaStatusEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -104,12 +106,21 @@ public class IncidenciaServiceImpl implements IncidenciaService {
         logger.info("Obteniendo los detalles de la incidencia con el uuid [{}]", empresaUuid);
 
         Incidencia incidencia = incidenciaRepository.getByUuidAndEliminadoFalse(incidenciaUuid);
+
+        if(incidencia == null) {
+            logger.warn("La incidencia no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
         // Obteniendo cada entidad involucrada dentro de la incidencia
         IncidenciaDto incidenciaDto = daoToDtoConverter.convertDaoToDtoIncidencia(incidencia);
 
         if(incidencia.getAsignado() != null && incidencia.getAsignado() > 0) {
             incidenciaDto.setAsignado(usuarioService.getUserById(incidencia.getAsignado()));
         }
+
+        incidenciaDto.setAsignado(usuarioService.getUserById(incidencia.getAsignado()));
+
         List<IncidenciaComentario> incidenciaComentarios = incidenciaComentarioRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
         List<IncidenciaPersona> incidendiaPersonas = incidenciaPersonaRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
         List<IncidenciaArma> incidenciaArmas = incidenciaArmaRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
@@ -120,6 +131,8 @@ public class IncidenciaServiceImpl implements IncidenciaService {
         incidenciaDto.setComentarios(incidenciaComentarios.stream().map(c -> {
             IncidenciaComentarioDto incidenciaComentarioDto = new IncidenciaComentarioDto();
             incidenciaComentarioDto.setComentario(c.getComentario());
+            incidenciaComentarioDto.setFecha(c.getFechaCreacion().toString());
+            incidenciaComentarioDto.setUsuario(usuarioService.getUserById(c.getCreadoPor()));
             return incidenciaComentarioDto;
         }).collect(Collectors.toList()));
 
@@ -231,5 +244,92 @@ public class IncidenciaServiceImpl implements IncidenciaService {
         }
 
         return daoToDtoConverter.convertDaoToDtoIncidencia(incidenciaCreada);
+    }
+
+    @Override
+    public IncidenciaDto autoasignarIncidencia(String empresaUuid, String incidenciaUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(incidenciaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros no es valido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Autoasignando la incidencia al usuario [{}]", username);
+
+        Incidencia incidencia = incidenciaRepository.getByUuidAndEliminadoFalse(incidenciaUuid);
+
+        if(incidencia == null) {
+            logger.warn("La incidencia no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        incidencia.setStatus(IncidenciaStatusEnum.ASIGNADA);
+        incidencia.setAsignado(usuarioDto.getId());
+        incidencia.setFechaActualizacion(LocalDateTime.now());
+        incidencia.setActualizadoPor(usuarioDto.getId());
+        incidenciaRepository.save(incidencia);
+
+        return daoToDtoConverter.convertDaoToDtoIncidencia(incidencia);
+    }
+
+    @Override
+    public IncidenciaDto asignarIncidencia(String empresaUuid, String incidenciaUuid, UsuarioDto usuarioDto, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(incidenciaUuid) || StringUtils.isBlank(username) || usuarioDto == null) {
+            logger.warn("Alguno de los parametros no es valido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Autoasignando la incidencia al usuario [{}]", username);
+
+        Incidencia incidencia = incidenciaRepository.getByUuidAndEliminadoFalse(incidenciaUuid);
+
+        if(incidencia == null) {
+            logger.warn("La incidencia no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        incidencia.setStatus(IncidenciaStatusEnum.ASIGNADA);
+        incidencia.setAsignado(usuarioDto.getId());
+        incidencia.setFechaActualizacion(LocalDateTime.now());
+        incidencia.setActualizadoPor(usuarioDto.getId());
+        incidenciaRepository.save(incidencia);
+
+        return daoToDtoConverter.convertDaoToDtoIncidencia(incidencia);
+    }
+
+    @Override
+    public IncidenciaDto agregarComentario(String empresaUuid, String incidenciaUuid, String username, IncidenciaDto incidenciaDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(incidenciaUuid) || StringUtils.isBlank(username) || incidenciaDto == null) {
+            logger.warn("Alguno de los parametros no es valido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Agregando comentario a la incidencia [{}]", incidenciaUuid);
+
+        Incidencia incidencia = incidenciaRepository.getByUuidAndEliminadoFalse(incidenciaUuid);
+
+        if(incidencia == null) {
+            logger.warn("La incidencia no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        incidencia.setStatus(incidenciaDto.getStatus());
+        daoHelper.fulfillAuditorFields(false, incidencia, usuarioDto.getId());
+        incidenciaRepository.save(incidencia);
+
+        if(incidenciaDto.getComentarios() != null && incidenciaDto.getComentarios().size() > 0) {
+            logger.info("Agregando los comentarios");
+            List<IncidenciaComentario> comentarios = incidenciaDto.getComentarios().stream().map(incidenciaComentario -> {
+                IncidenciaComentario comentario = new IncidenciaComentario();
+                comentario.setComentario(incidenciaComentario.getComentario());
+                comentario.setIncidencia(incidencia.getId());
+                daoHelper.fulfillAuditorFields(true, comentario, usuarioDto.getId());
+                return comentario;
+            }).collect(Collectors.toList());
+            incidenciaComentarioRepository.saveAll(comentarios);
+        }
+
+        return daoToDtoConverter.convertDaoToDtoIncidencia(incidencia);
     }
 }

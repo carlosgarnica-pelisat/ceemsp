@@ -32,6 +32,11 @@ export default class EmpresaDomicilio implements Deserializable {
   coloniaCatalogo: Colonia;
   calleCatalogo: Calle;
 
+  motivoBaja: string;
+  observacionesBaja: string;
+  documentoFundatorioBaja: string;
+  fechaBaja: string;
+
   deserialize(input: any): this {
     Object.assign(this, input);
     return this;

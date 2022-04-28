@@ -28,6 +28,14 @@ public class UsuarioController {
         return usuarioService.getAllUsers();
     }
 
+    @GetMapping(value = USUARIO_URI + "/perfil", produces = MediaType.APPLICATION_JSON_VALUE)
+    public UsuarioDto obtenerPerfil(
+            HttpServletRequest httpServletRequest
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return usuarioService.getUserByEmail(username);
+    }
+
     @GetMapping(value = USUARIO_URI + "/{usuarioUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UsuarioDto obtenerUsuarioPorUuid(
             @PathVariable(value = "usuarioUuid") String usuarioUuid
@@ -42,5 +50,24 @@ public class UsuarioController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return usuarioService.saveUser(usuarioDto, username);
+    }
+
+    @PutMapping(value = USUARIO_URI + "/{usuarioUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public UsuarioDto modificarUsuario(
+            @PathVariable(value = "usuarioUuid") String usuarioUuid,
+            @RequestBody UsuarioDto usuarioDto,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return usuarioService.updateUserByUuid(usuarioUuid, usuarioDto, username);
+    }
+
+    @DeleteMapping(value = USUARIO_URI + "/{usuarioUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public UsuarioDto eliminarUsuario(
+            @PathVariable(value = "usuarioUuid") String usuarioUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return usuarioService.deleteUser(usuarioUuid, username);
     }
 }

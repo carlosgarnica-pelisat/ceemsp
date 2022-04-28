@@ -6,6 +6,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -80,4 +81,16 @@ public class EmpresaDomicilio extends CommonModel {
 
     @Column(name = "LOCALIDAD_CATALOGO", nullable = false)
     private int localidadCatalogo;
+
+    @Column(name = "MOTIVO_BAJA")
+    private String motivoBaja;
+
+    @Column(name = "OBSERVACIONES_BAJA")
+    private String observacionesBaja;
+
+    @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
+    private String documentoFundatorioBaja;
+
+    @Column(name = "FECHA_BAJA")
+    private LocalDate fechaBaja;
 }

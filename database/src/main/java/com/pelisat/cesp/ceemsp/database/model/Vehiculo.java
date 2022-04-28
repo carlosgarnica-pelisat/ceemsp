@@ -78,6 +78,15 @@ public class Vehiculo extends CommonModel {
     @Column(name = "FECHA_FIN")
     private LocalDate fechaFin;
 
+    @Column(name = "MOTIVO_BAJA")
+    private String motivoBaja;
+
+    @Column(name = "OBSERVACIONES_BAJA")
+    private String observacionesBaja;
+
+    @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
+    private String documentoFundatorioBaja;
+
     public Vehiculo() {
         super();
     }

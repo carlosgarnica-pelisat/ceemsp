@@ -178,7 +178,7 @@
                         <b>Estado *</b>
                       </label>
                       <div class="dropdown" id="customer">
-                        <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                           {{estado === undefined ? 'Ninguno' : estado?.nombre}}
                         </a>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
@@ -200,7 +200,7 @@
                       <label>
                         <b>Municipio *</b>
                       </label>
-                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                         {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
                       </a>
                       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
@@ -221,7 +221,7 @@
                       <label>
                         <b>Localidad *</b>
                       </label>
-                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                         {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
                       </a>
                       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
@@ -242,7 +242,7 @@
                       <label>
                         <b>Colonia *</b>
                       </label>
-                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                         {{colonia === undefined ? 'Ninguno' : colonia?.nombre}}
                       </a>
                       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
@@ -266,7 +266,7 @@
                       <label>
                         <b>Calle * </b>
                       </label>
-                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                         {{calle === undefined ? 'Ninguno' : calle?.nombre}}
                       </a>
                       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
@@ -353,33 +353,6 @@
                              formControlName="telefonoMovil" #telefonoMovil appPhoneMask>
                     </div>
                     <div class="col-sm-3">
-                      <label for="contacto">
-                        <b>Contacto *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['contacto'].invalid && (nuevoClienteDomicilioForm.controls['contacto'].dirty || nuevoClienteDomicilioForm.controls['contacto'].touched)">
-                          <i *ngIf="nuevoClienteDomicilioForm.controls['contacto'].errors.required" class="text-danger"> - Campo requerido</i>
-                          <i *ngIf="nuevoClienteDomicilioForm.controls['contacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                        </span>
-                      </label>
-                      <input id="contacto" placeholder="Ej. Juan Gonzalez" type="text" class="form-control"
-                             formControlName="contacto" #contacto>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="correoElectronico">
-                        <b>Correo Electronico *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].invalid && (nuevoClienteDomicilioForm.controls['correoElectronico'].dirty || nuevoClienteDomicilioForm.controls['correoElectronico'].touched)">
-                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.required" class="text-danger"> - Campo requerido</i>
-                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.email" class="text-danger"> - No es un email</i>
-                        </span>
-                      </label>
-                      <input id="correoElectronico" placeholder="juan.gonzalez@empresa.com" type="email"
-                             class="form-control" formControlName="correoElectronico" #correoElectronico>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-sm-3">
                       <label for="tipoInfraestructura">
                         <b>Tipo infraestructura *</b>
                         <span
@@ -401,6 +374,57 @@
                       </label>
                       <input id="tipoInfraestructuraOtro" placeholder="Mencionar otro tipo de infraestructura" type="text"
                              class="form-control" formControlName="tipoInfraestructuraOtro" #tipoInfraestructuraOtro>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <label for="contacto">
+                        <b>Nombre Contacto *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['contacto'].invalid && (nuevoClienteDomicilioForm.controls['contacto'].dirty || nuevoClienteDomicilioForm.controls['contacto'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['contacto'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['contacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="contacto" placeholder="Ej. Juan" type="text" class="form-control"
+                             formControlName="contacto" #contacto>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="apellidoPaternoContacto">
+                        <b>Ap. Paterno Contacto *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].invalid && (nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].dirty || nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="apellidoPaternoContacto" placeholder="Ej. Gonzalez" type="text" class="form-control"
+                             formControlName="apellidoPaternoContacto" #apellidoPaternoContacto>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="apellidoMaternoContacto">
+                        <b>Ap. Materno Contacto *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].invalid && (nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].dirty || nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="apellidoMaternoContacto" placeholder="Ej. Gonzalez" type="text" class="form-control"
+                             formControlName="apellidoMaternoContacto" #apellidoMaternoContacto>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="correoElectronico">
+                        <b>Correo Electronico *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].invalid && (nuevoClienteDomicilioForm.controls['correoElectronico'].dirty || nuevoClienteDomicilioForm.controls['correoElectronico'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.email" class="text-danger"> - No es un email</i>
+                        </span>
+                      </label>
+                      <input id="correoElectronico" placeholder="juan.gonzalez@empresa.com" type="email"
+                             class="form-control" formControlName="correoElectronico" #correoElectronico>
                     </div>
                   </div>
                 </form>
@@ -898,33 +922,6 @@
                              formControlName="telefonoMovil" #telefonoMovil appPhoneMask>
                     </div>
                     <div class="col-sm-3">
-                      <label for="contactoNuevoCliente">
-                        <b>Contacto *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['contacto'].invalid && (nuevoClienteDomicilioForm.controls['contacto'].dirty || nuevoClienteDomicilioForm.controls['contacto'].touched)">
-                          <i *ngIf="nuevoClienteDomicilioForm.controls['contacto'].errors.required" class="text-danger"> - Campo requerido</i>
-                          <i *ngIf="nuevoClienteDomicilioForm.controls['contacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                        </span>
-                      </label>
-                      <input id="contactoNuevoCliente" placeholder="Ej. Juan Gonzalez" type="text" class="form-control"
-                             formControlName="contacto" #contacto>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="correoElectronicoNuevoCliente">
-                        <b>Correo Electronico *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].invalid && (nuevoClienteDomicilioForm.controls['correoElectronico'].dirty || nuevoClienteDomicilioForm.controls['correoElectronico'].touched)">
-                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.required" class="text-danger"> - Campo requerido</i>
-                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.email" class="text-danger"> - No es un email</i>
-                        </span>
-                      </label>
-                      <input id="correoElectronicoNuevoCliente" placeholder="juan.gonzalez@empresa.com" type="email"
-                             class="form-control" formControlName="correoElectronico" #correoElectronico>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-sm-3">
                       <label for="tipoInfraestructuraNuevoCliente">
                         <b>Tipo infraestructura *</b>
                         <span
@@ -946,6 +943,57 @@
                       </label>
                       <input id="tipoInfraestructuraOtroNuevoCliente" placeholder="Mencionar otro tipo de infraestructura" type="text"
                              class="form-control" formControlName="tipoInfraestructuraOtro" #tipoInfraestructuraOtro>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <label for="contactoNuevoCliente">
+                        <b>Nombre Contacto *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['contacto'].invalid && (nuevoClienteDomicilioForm.controls['contacto'].dirty || nuevoClienteDomicilioForm.controls['contacto'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['contacto'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['contacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="contactoNuevoCliente" placeholder="Ej. Juan" type="text" class="form-control"
+                             formControlName="contacto" #contacto>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="apellidoPaternoContactoNuevoCliente">
+                        <b>Ap. Paterno Contacto *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].invalid && (nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].dirty || nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="apellidoPaternoContactoNuevoCliente" placeholder="Ej. Gonzalez" type="text" class="form-control"
+                             formControlName="apellidoPaternoContacto" #apellidoPaternoContacto>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="apellidoMaternoContactoNuevoCliente">
+                        <b>Ap. Materno Contacto *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].invalid && (nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].dirty || nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="apellidoMaternoContactoNuevoCliente" placeholder="Ej. Gonzalez" type="text" class="form-control"
+                             formControlName="apellidoMaternoContacto" #apellidoMaternoContacto>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="correoElectronicoNuevoCliente">
+                        <b>Correo Electronico *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].invalid && (nuevoClienteDomicilioForm.controls['correoElectronico'].dirty || nuevoClienteDomicilioForm.controls['correoElectronico'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.email" class="text-danger"> - No es un email</i>
+                        </span>
+                      </label>
+                      <input id="correoElectronicoNuevoCliente" placeholder="juan.gonzalez@empresa.com" type="email"
+                             class="form-control" formControlName="correoElectronico" #correoElectronico>
                     </div>
                   </div>
                   <div class="form-row" style="margin-top: 20px;">
@@ -1000,17 +1048,80 @@
                 <div class="row">
                   <div class="col-sm-12">
                     <h2>El cliente se ha guardado con exito</h2>
-                    <p>Para continuar, recarga la pagina</p>
+                    <p>A continuacion, veras los detalles. Para finalizar, actualiza la pagina o dale click en el boton terminar</p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Info. Cliente</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Nombre comercial</b></td>
+                        <td>{{cliente?.nombreComercial}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Razon social</b></td>
+                        <td>{{cliente?.razonSocial}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Tipo de persona</b></td>
+                        <td>{{cliente?.tipoPersona}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>RFC</b></td>
+                        <td>{{cliente?.rfc}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Fecha inicio</b></td>
+                        <td>{{cliente?.fechaInicio}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Requiere canes</b></td>
+                        <td>{{cliente?.canes}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Requiere armas</b></td>
+                        <td>{{cliente?.armas}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Domicilios</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Nombre</b></td>
+                        <td><b>Domicilio</b></td>
+                        <td><b>Datos contacto</b></td>
+                        <td><b>Tipo infraestructura</b></td>
+                      </tr>
+                      <tr *ngFor="let d of domicilios; let i = index">
+                        <td>{{d.nombre}}</td>
+                        <td>
+                          {{d.domicilio1}}. Colonia: {{d.domicilio2}}<br>
+                          {{d.domicilio3}}, {{d.estado}}, {{d.pais}}<br>
+                          C.P. {{d.codigoPostal}}
+                        </td>
+                        <td>
+                          Nombre contacto: {{d.contacto}}, email: {{d.telefonoFijo}}. <br>
+                          Telefonos: {{d.telefonoFijo}}; {{d.telefonoMovil}}
+                        </td>
+                        <td>
+                          {{d.tipoInfraestructura?.nombre}}
+                        </td>
+                      </tr>
+                    </table>
                   </div>
                 </div>
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
                     <button class="btn btn-primary" (click)="previous()">
-                      Atras
+                      Anterior: Domicilios
                     </button>
                     <button class="btn btn-primary" (click)="finalizar()">
-                      Cerrar
+                      Terminar
                     </button>
                   </div>
                 </div>

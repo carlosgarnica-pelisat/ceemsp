@@ -26,12 +26,28 @@ export class PersonalService {
     return this.http.get(`${this.uri}/catalogos/personal/puestos/${uuid}`);
   }
 
+  modificarPuesto(uuid: string, puestoTrabajo: PersonalPuestoTrabajo) {
+    return this.http.put(`${this.uri}/catalogos/personal/puestos/${uuid}`, puestoTrabajo);
+  }
+
+  borrarPuesto(uuid: string) {
+    return this.http.delete(`${this.uri}/catalogos/personal/puestos/${uuid}`);
+  }
+
   obtenerSubpuestosTrabajo(uuid: string) {
     return this.http.get(`${this.uri}/catalogos/personal/puestos/${uuid}/subpuestos`)
   }
 
   guardarSubpuestoTrabajo(uuid: string, subpuestoTrabajo: PersonalSubpuestoTrabajo) {
     return this.http.post(`${this.uri}/catalogos/personal/puestos/${uuid}/subpuestos`, subpuestoTrabajo);
+  }
+
+  modificarSubpuestoTrabajo(uuid: string, subpuestoUuid: string, subpuestoTrabajo: PersonalSubpuestoTrabajo) {
+    return this.http.put(`${this.uri}/catalogos/personal/puestos/${uuid}/subpuestos/${subpuestoUuid}`, subpuestoTrabajo)
+  }
+
+  eliminarSubpuestoTrabajo(uuid: string, subpuestoUuid: string) {
+    return this.http.delete(`${this.uri}/catalogos/personal/puestos/${uuid}/subpuestos/${subpuestoUuid}`)
   }
 
   // Operaciones para nacionalidades

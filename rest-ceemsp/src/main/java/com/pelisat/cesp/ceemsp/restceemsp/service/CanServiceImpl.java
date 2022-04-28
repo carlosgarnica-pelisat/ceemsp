@@ -8,8 +8,10 @@ import com.pelisat.cesp.ceemsp.database.model.Can;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
 import com.pelisat.cesp.ceemsp.database.repository.CanRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -18,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.smartcardio.CommandAPDU;
 import javax.transaction.Transactional;
@@ -44,6 +47,7 @@ public class CanServiceImpl implements CanService {
     private final CanConstanciaSaludService canConstanciaSaludService;
     private final CanAdiestramientoService canAdiestramientoService;
     private final CanFotografiaService canFotografiaService;
+    private final ArchivosService archivosService;
 
     @Autowired
     public CanServiceImpl(CanRepository canRepository, EmpresaService empresaService, UsuarioService usuarioService,
@@ -52,7 +56,7 @@ public class CanServiceImpl implements CanService {
                           ClienteService clienteService, ClienteDomicilioService clienteDomicilioService,
                           CanRazaService canRazaService, CanCartillaVacunacionService canCartillaVacunacionService,
                           CanConstanciaSaludService canConstanciaSaludService, CanAdiestramientoService canAdiestramientoService,
-                          CanFotografiaService canFotografiaService) {
+                          CanFotografiaService canFotografiaService, ArchivosService archivosService) {
         this.canRepository = canRepository;
         this.empresaService = empresaService;
         this.usuarioService = usuarioService;
@@ -68,6 +72,7 @@ public class CanServiceImpl implements CanService {
         this.canConstanciaSaludService = canConstanciaSaludService;
         this.canAdiestramientoService = canAdiestramientoService;
         this.canFotografiaService = canFotografiaService;
+        this.archivosService = archivosService;
     }
 
     @Override
@@ -201,8 +206,8 @@ public class CanServiceImpl implements CanService {
     }
 
     @Override
-    public CanDto eliminarCan(String empresaUuid, String canUuid, String username) {
-        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(username)) {
+    public CanDto eliminarCan(String empresaUuid, String canUuid, String username, CanDto canDto, MultipartFile multipartFile) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(username) || canDto == null) {
             logger.warn("Algunos de los parametros vienen como nulo o vacio");
             throw new InvalidDataException();
         }
@@ -214,8 +219,24 @@ public class CanServiceImpl implements CanService {
             throw new NotFoundResourceException();
         }
 
+        can.setMotivoBaja(canDto.getMotivoBaja());
+        can.setObservacionesBaja(canDto.getObservacionesBaja());
+        can.setFechaBaja(LocalDate.parse(canDto.getFechaBaja()));
         can.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Agregando");
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_BAJA_CAN, empresaUuid);
+                can.setDocumentoFundatorioBaja(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+
         canRepository.save(can);
 
         return daoToDtoConverter.convertDaoToDtoCan(can);

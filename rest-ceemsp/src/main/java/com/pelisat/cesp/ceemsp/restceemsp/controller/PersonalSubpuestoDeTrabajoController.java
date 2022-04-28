@@ -42,4 +42,25 @@ public class PersonalSubpuestoDeTrabajoController {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return personalSubpuestoDeTrabajoService.crearNuevo(personalPuestoDeTrabajoDto, username, puestoUuid);
     }
+
+    @PutMapping(value = PERSONALIDAD_SUBPUESTO_TRABAJO_URI + "/{subpuestoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PersonalSubpuestoDeTrabajoDto modificarSubpuesto(
+            HttpServletRequest request,
+            @RequestBody PersonalSubpuestoDeTrabajoDto personalPuestoDeTrabajoDto,
+            @PathVariable(value = "puestoUuid") String puestoUuid,
+            @PathVariable(value = "subpuestoUuid") String subpuestoUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return personalSubpuestoDeTrabajoService.modificarPuestoTrabajo(personalPuestoDeTrabajoDto, username, puestoUuid, subpuestoUuid);
+    }
+
+    @DeleteMapping(value = PERSONALIDAD_SUBPUESTO_TRABAJO_URI + "/{subpuestoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public PersonalSubpuestoDeTrabajoDto eliminarSubpuestoTrabajo(
+            HttpServletRequest request,
+            @PathVariable(value = "puestoUuid") String puestoUuid,
+            @PathVariable(value = "puestoUuid") String subpuestoUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return personalSubpuestoDeTrabajoService.eliminarPuestoTrabajo(username, puestoUuid, subpuestoUuid);
+    }
 }

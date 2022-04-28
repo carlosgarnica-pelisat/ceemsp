@@ -1,11 +1,13 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
+import com.google.gson.Gson;
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaVehiculoService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
@@ -63,13 +65,15 @@ public class EmpresaVehiculoController {
         return empresaVehiculoService.modificarVehiculo(empresaUuid, vehiculoUuid, username, vehiculoDto);
     }
 
-    @DeleteMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public VehiculoDto eliminarVehiculo(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "vehiculoUuid") String vehiculoUuid,
+            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam("vehiculo") String vehiculo,
             HttpServletRequest httpServletRequest
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
-        return empresaVehiculoService.eliminarVehiculo(empresaUuid, vehiculoUuid, username);
+        return empresaVehiculoService.eliminarVehiculo(empresaUuid, vehiculoUuid, username, new Gson().fromJson(vehiculo, VehiculoDto.class), archivo);
     }
 }

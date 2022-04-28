@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UsuarioServiceImpl implements UsuarioService {
+public class  UsuarioServiceImpl implements UsuarioService {
 
     private final Logger logger = LoggerFactory.getLogger(UsuarioServiceImpl.class);
     private final UsuarioRepository usuarioRepository;
@@ -111,16 +111,74 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public UsuarioDto getUserById(int id) {
-        return null;
+        if(id < 1) {
+            logger.warn("El id esta viniendo como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo el usuario con el uuid [{}]", id);
+        Usuario usuario = usuarioRepository.getOne(id);
+
+        if(usuario == null || usuario.getEliminado()) {
+            logger.warn("El usuario no fue encontrado en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return daoToDtoConverter.convertDaoToDtoUser(usuario);
     }
 
     @Override
     public UsuarioDto updateUserByUuid(String uuid, UsuarioDto userDto, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || userDto == null) {
+            logger.warn("El email esta viniendo como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Actualizando el usuario con el uuid [{}]", uuid);
+        Usuario usuario = usuarioRepository.getUsuarioByUuidAndEliminadoFalse(uuid);
+
+        if(usuario == null) {
+            logger.warn("El usuario no fue encontrado en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioQueModifico = getUserByEmail(username);
+
+        usuario.setNombres(userDto.getNombres());
+        usuario.setApellidos(userDto.getApellidos());
+        usuario.setRol(userDto.getRol());
+        usuario.setPassword(userDto.getPassword());
+        usuario.setUsername(userDto.getUsername());
+        usuario.setEmail(userDto.getEmail());
+
+        daoHelper.fulfillAuditorFields(false, usuario, usuarioQueModifico.getId());
+
+        usuarioRepository.save(usuario);
+        return daoToDtoConverter.convertDaoToDtoUser(usuario);
     }
 
     @Override
     public UsuarioDto deleteUser(String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("El email esta viniendo como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el usuario con el uuid [{}]", uuid);
+        Usuario usuario = usuarioRepository.getUsuarioByUuidAndEliminadoFalse(uuid);
+
+        if(usuario == null) {
+            logger.warn("El usuario no fue encontrado en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioQueModifico = getUserByEmail(username);
+
+        usuario.setEliminado(true);
+
+        daoHelper.fulfillAuditorFields(false, usuario, usuarioQueModifico.getId());
+
+        usuarioRepository.save(usuario);
+        return daoToDtoConverter.convertDaoToDtoUser(usuario);
     }
 }

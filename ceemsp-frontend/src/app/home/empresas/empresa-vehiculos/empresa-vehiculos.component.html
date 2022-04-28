@@ -144,7 +144,21 @@
               <td><b>Acciones</b></td>
             </tr>
             <tr *ngFor="let c of vehiculo?.colores; let i = index">
-              <td>{{c?.color}}</td>
+              <td [ngSwitch]="c?.color">
+                <span *ngSwitchCase="'ROJO'">Rojo</span>
+                <span *ngSwitchCase="'VERDE_CLARO'">Verde claro</span>
+                <span *ngSwitchCase="'VERDE_OSCURO'">Verde oscuro</span>
+                <span *ngSwitchCase="'AZUL_CIELO'">Azul cielo</span>
+                <span *ngSwitchCase="'AZUL_MARINO'">Azul marino</span>
+                <span *ngSwitchCase="'NARANJA'">Naranja</span>
+                <span *ngSwitchCase="'AMARILLO'">Amarillo</span>
+                <span *ngSwitchCase="'BLANCO'">Blanco</span>
+                <span *ngSwitchCase="'NEGRO'">Negro</span>
+                <span *ngSwitchCase="'GRIS_CLARO'">Gris claro</span>
+                <span *ngSwitchCase="'GRIS_OSCURO'">Gris oscuro</span>
+                <span *ngSwitchCase="'MORADO'">Morado</span>
+                <span *ngSwitchCase="'ROSA'">Rosa</span>
+              </td>
               <td>{{c?.descripcion}}</td>
               <td>
                 <fa-icon [icon]="faPencilAlt" title="Modificar color del vehiculo" (click)="mostrarEditarVehiculoColor(i)"></fa-icon>
@@ -604,7 +618,6 @@
                 </div>
               </div>
 
-              <!-- STEP 2 - Psychologist information -->
               <div id="test-l-2" class="content">
                 <table class="table">
                   <tr>
@@ -613,10 +626,25 @@
                     <td><b>Acciones</b></td>
                   </tr>
                   <tr *ngFor="let c of coloresTemp; let i = index">
-                    <td>{{c?.color}}</td>
+                    <td [ngSwitch]="c?.color">
+                      <span *ngSwitchCase="'ROJO'">Rojo</span>
+                      <span *ngSwitchCase="'VERDE_CLARO'">Verde claro</span>
+                      <span *ngSwitchCase="'VERDE_OSCURO'">Verde oscuro</span>
+                      <span *ngSwitchCase="'AZUL_CIELO'">Azul cielo</span>
+                      <span *ngSwitchCase="'AZUL_MARINO'">Azul marino</span>
+                      <span *ngSwitchCase="'NARANJA'">Naranja</span>
+                      <span *ngSwitchCase="'AMARILLO'">Amarillo</span>
+                      <span *ngSwitchCase="'BLANCO'">Blanco</span>
+                      <span *ngSwitchCase="'NEGRO'">Negro</span>
+                      <span *ngSwitchCase="'GRIS_CLARO'">Gris claro</span>
+                      <span *ngSwitchCase="'GRIS_OSCURO'">Gris oscuro</span>
+                      <span *ngSwitchCase="'MORADO'">Morado</span>
+                      <span *ngSwitchCase="'ROSA'">Rosa</span>
+                    </td>
                     <td>{{c?.descripcion}}</td>
                     <td>
-                      <fa-icon [icon]="faTrash" (click)="eliminarColorCrear(i)"></fa-icon>
+                      <fa-icon [icon]="faPencilAlt" (click)="mostrarEditarColorForm(i)"></fa-icon>
+                      <fa-icon [icon]="faTrash" (click)="mostrarModalQuitarVehiculoColor(i)"></fa-icon>
                     </td>
                   </tr>
                   <tr *ngIf="!showColorForm">
@@ -682,13 +710,80 @@
                   <div class="col-sm-12">
                     <button (click)="previous()" class="btn btn-primary">Anterior: Informacion
                     </button>
-                    <button (click)="next('FOTOGRAFIAS', crearVehiculoForm)" class="btn btn-primary">Siguiente: Fotografias
+                    <button (click)="next('RESUMEN', crearVehiculoForm)" class="btn btn-primary">Siguiente: Resumen
                     </button>
                   </div>
                 </div>
               </div>
               <div id="test-l-3" class="content">
-
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h2>El vehiculo se ha guardado con exito</h2>
+                    <p>A continuacion, veras los detalles. Para finalizar, actualiza la pagina o dale click en el boton terminar</p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Info. Vehiculo</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Tipo</b></td>
+                        <td>{{vehiculo?.tipo.nombre}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Marca</b></td>
+                        <td>{{vehiculo?.marca.nombre}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Submarca</b></td>
+                        <td>{{vehiculo?.submarca.nombre}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Año</b></td>
+                        <td>{{vehiculo?.anio}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Rotulado</b></td>
+                        <td [ngSwitch]="vehiculo?.rotulado">
+                          <span *ngSwitchCase="true">Si</span>
+                          <span *ngSwitchCase="false">No</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><b>Placas</b></td>
+                        <td>{{vehiculo?.placas}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Número de serie</b></td>
+                        <td>{{vehiculo?.serie}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Blindado</b></td>
+                        <td [ngSwitch]="vehiculo?.blindado">
+                          <span *ngSwitchCase="true">Si</span>
+                          <span *ngSwitchCase="false">No</span>
+                        </td>
+                      </tr>
+                      <tr *ngIf="vehiculo?.blindado">
+                        <td><b>Serie del blindaje</b></td>
+                        <td>{{vehiculo?.serieBlindaje}}</td>
+                      </tr>
+                      <tr *ngIf="vehiculo?.blindado">
+                        <td><b>Fecha del blindaje</b></td>
+                        <td>{{vehiculo.fechaBlindaje}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button (click)="previous()" class="btn btn-primary">Anterior: Colores
+                    </button>
+                    <button (click)="finalizar()" class="btn btn-primary">Finalizar
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -724,14 +819,47 @@
       </button>
     </div>
     <div class="modal-body">
+      <form [formGroup]="motivosEliminacionForm">
+        <div class="row">
+          <div class="col-sm-6">
+            <label for="motivoBaja">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['motivoBaja'].invalid && (motivosEliminacionForm.controls['motivoBaja'].dirty || motivosEliminacionForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-6">
+            <label for="documentoFundatorioBaja">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBaja">
+              <b>Observaciones *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['observacionesBaja'].invalid && (motivosEliminacionForm.controls['observacionesBaja'].dirty || motivosEliminacionForm.controls['observacionesBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['observacionesBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
+            </label>
+            <textarea id="observacionesBaja" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
       <div class="row">
         <div class="col-sm-12">
-          <p>Estás a punto de eliminar un vehiculo. Toma en cuenta que al eliminarlo, todos las fotografias y colores seran eliminados y esta operación no se puede deshacer. ¿Deseas continuar?</p>
+          <p><br><b>Estás a punto de eliminar un vehiculo. Toma en cuenta que al eliminarlo, todos las fotografias y colores seran eliminados y esta operación no se puede deshacer. ¿Deseas continuar?</b></p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarVehiculo()">Si, eliminar</button>
+      <button class="btn btn-danger" (click)="confirmarEliminarVehiculo(motivosEliminacionForm)">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
@@ -752,6 +880,26 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarVehiculoColor()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #quitarVehiculoColorModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="quitarVehiculoColorModal">Quitando un color del vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de quitar el color del vehiculo. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="quitarColor()">Si, quitar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>

@@ -185,7 +185,7 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
-    public ClienteDto eliminarCliente(String empresaUuid, String clienteUuid, String username) {
+    public ClienteDto eliminarCliente(String empresaUuid, String clienteUuid, String username, ClienteDto clienteDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(clienteUuid)) {
             logger.warn("El uuid o el cliente a crear vienen como nulos o vacios");
             throw new InvalidDataException();
@@ -200,8 +200,24 @@ public class ClienteServiceImpl implements ClienteService {
         }
 
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        cliente.setMotivoBaja(clienteDto.getMotivoBaja());
+        cliente.setObservacionesBaja(clienteDto.getObservacionesBaja());
         cliente.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, cliente, usuarioDto.getId());
+
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Agregando");
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_BAJA_CLIENTE, empresaUuid);
+                cliente.setDocumentoFundatorioBaja(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+
         clienteRepository.save(cliente);
         return daoToDtoConverter.convertDaoToDtoCliente(cliente);
     }

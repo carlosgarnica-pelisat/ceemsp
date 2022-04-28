@@ -972,14 +972,121 @@
               <div id="test-l-5" class="content">
                 <div class="row">
                   <div class="col-sm-12">
-                    <h3>Listo</h3>
-                    <p>Se ha guardado el can con exito. Para finalizar, haz click en el boton <b>terminar</b> o bien, actualiza la pagina para poder verlo.</p>
+                    <h2>Listo, se ha registrado correctamente el can {{can?.nombre}}</h2>
+                    <p>A continuacion, veras los detalles. Para finalizar, actualiza la pagina o dale click en el boton finalizar</p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Informacion del can</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Nombre:</b></td>
+                        <td>{{can?.nombre}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Raza:</b></td>
+                        <td>{{can?.raza?.nombre}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Edad:</b></td>
+                        <td>{{can?.edad}} años</td>
+                      </tr>
+                      <tr>
+                        <td><b>Peso:</b></td>
+                        <td>{{can?.peso}} kg</td>
+                      </tr>
+                      <tr>
+                        <td><b>Tatuaje:</b></td>
+                        <td [ngSwitch]="can?.tatuaje">
+                          <span *ngSwitchCase="true">Si</span>
+                          <span *ngSwitchCase="false">No</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><b>Chip:</b></td>
+                        <td [ngSwitch]="can?.chip">
+                          <span *ngSwitchCase="true">Si</span>
+                          <span *ngSwitchCase="false">No</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><b>Descripcion:</b></td>
+                        <td>{{can?.descripcion}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Origen:</b></td>
+                        <td>{{can?.origen}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Domicilio asignado:</b></td>
+                        <td>{{can?.domicilioAsignado?.nombre}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Estatus:</b></td>
+                        <td>{{can?.status}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Certificado de salud</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Expedido por</b></td>
+                        <td><b>Cedula</b></td>
+                        <td><b>Fecha de expedicion</b></td>
+                      </tr>
+                      <tr>
+                        <td>{{certificadoSalud?.expedidoPor}}</td>
+                        <td>{{certificadoSalud?.cedula}}</td>
+                        <td>{{certificadoSalud?.fechaExpedicion}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Cartilla de vacunacion</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Expedido por</b></td>
+                        <td><b>Cedula</b></td>
+                        <td><b>Fecha de expedicion</b></td>
+                      </tr>
+                      <tr>
+                        <td>{{canCartillaVacunacion?.expedidoPor}}</td>
+                        <td>{{canCartillaVacunacion?.cedula}}</td>
+                        <td>{{canCartillaVacunacion?.fechaExpedicion}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Entrenamiento</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Nombre instructor</b></td>
+                        <td><b>Fecha de constancia</b></td>
+                        <td><b>Tipo de adiestramiento</b></td>
+                      </tr>
+                      <tr>
+                        <td>{{entrenamiento?.nombreInstructor}}</td>
+                        <td>{{entrenamiento?.fechaConstancia}}</td>
+                        <td>{{entrenamiento?.canTipoAdiestramiento?.nombre}}</td>
+                      </tr>
+                    </table>
                   </div>
                 </div>
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button (click)="actualizarPagina()" class="btn btn-primary">Terminar
+                    <button (click)="previous()" class="btn btn-primary">Anterior: Entrenamiento
+                    </button>
+                    <button (click)="actualizarPagina()" class="btn btn-primary">Finalizar
                     </button>
                   </div>
                 </div>
@@ -1016,6 +1123,49 @@
       </button>
     </div>
     <div class="modal-body">
+      <form [formGroup]="motivosEliminacionForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBaja">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['motivoBaja'].invalid && (motivosEliminacionForm.controls['motivoBaja'].dirty || motivosEliminacionForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBaja">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionForm.controls['fechaBaja'].invalid && (motivosEliminacionForm.controls['fechaBaja'].dirty || motivosEliminacionForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBaja" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBaja">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBaja">
+              <b>Observaciones *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['observacionesBaja'].invalid && (motivosEliminacionForm.controls['observacionesBaja'].dirty || motivosEliminacionForm.controls['observacionesBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['observacionesBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
+            </label>
+            <textarea id="observacionesBaja" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
       <div class="row">
         <div class="col-sm-12">
           <p>Estás a punto de eliminar el can. Toma en cuenta que esta operacion no se puede deshacer y que eliminaras las cartillas de vacunacion, certificados de salud, entrenamientos y fotografias
@@ -1024,7 +1174,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarCan()">Si, eliminar</button>
+      <button class="btn btn-danger" (click)="confirmarEliminarCan(motivosEliminacionForm)">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>

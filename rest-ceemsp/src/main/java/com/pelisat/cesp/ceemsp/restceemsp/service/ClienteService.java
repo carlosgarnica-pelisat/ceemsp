@@ -11,5 +11,5 @@ public interface ClienteService {
     ClienteDto obtenerClientePorUuid(String empresaUuid, String escrituraUuid, boolean soloEntidad);
     ClienteDto crearCliente(String empresaUuid, String username, ClienteDto clienteDto, MultipartFile archivo);
     ClienteDto modificarCliente(String empresaUuid, String clienteUuid, String username, ClienteDto clienteDto);
-    ClienteDto eliminarCliente(String empresaUuid, String clienteUuid, String username);
+    ClienteDto eliminarCliente(String empresaUuid, String clienteUuid, String username, ClienteDto clienteDto, MultipartFile multipartFile);
 }

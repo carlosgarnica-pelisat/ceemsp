@@ -52,6 +52,7 @@ import { EmpresaEquipoComponent } from './home/empresa-equipo/empresa-equipo.com
 import { EquipoComponent } from './home/catalogos/equipo/equipo.component';
 import { UniformesComponent } from './home/catalogos/equipo/uniformes/uniformes.component';
 import { EmpresaUniformesComponent } from './home/empresa-uniformes/empresa-uniformes.component';
+import { AcercaComponent } from './app/home/configuracion/acerca/acerca.component';
 
 @NgModule({
   declarations: [
@@ -92,7 +93,8 @@ import { EmpresaUniformesComponent } from './home/empresa-uniformes/empresa-unif
     EmpresaEquipoComponent,
     EquipoComponent,
     UniformesComponent,
-    EmpresaUniformesComponent
+    EmpresaUniformesComponent,
+    AcercaComponent
   ],
   imports: [
     BrowserModule,

@@ -85,20 +85,62 @@
               <td><b>Descripcion</b></td>
               <td><b>Acciones</b></td>
             </tr>
-            <tr *ngFor="let s of vehiculoMarca?.submarcas">
+            <tr *ngFor="let s of vehiculoMarca?.submarcas; let i = index">
               <td>{{s.nombre}}</td>
               <td>{{s.descripcion}}</td>
               <td>
-                <fa-icon [icon]="faPencilAlt"></fa-icon>
-                <fa-icon [icon]="faTrash"></fa-icon>
+                <fa-icon [icon]="faPencilAlt" (click)="mostrarEditarSubmarca(i)" title="Modificar la submarca"></fa-icon>
+                <fa-icon [icon]="faTrash" (click)="mostrarEliminarVehiculoSubmarcaModal(s.uuid)" title="Eliminar la submarca"></fa-icon>
+              </td>
+            </tr>
+            <tr *ngIf="!showSubmarcaForm">
+              <td colspan="3">
+                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioSubmarca()">Agregar nuevo</button>
+              </td>
+            </tr>
+            <tr *ngIf="showSubmarcaForm">
+              <td colspan="3">
+                <form [formGroup]="crearVehiculoSubmarcaForm">
+                  <div class="form-row">
+                    <div class="col-sm-6">
+                      <label for="nombreSubmarca">
+                        <b>Nombre *</b>
+                        <span
+                          *ngIf="crearVehiculoSubmarcaForm.controls['nombre'].invalid && (crearVehiculoSubmarcaForm.controls['nombre'].dirty || crearVehiculoSubmarcaForm.controls['nombre'].touched)">
+                          <i *ngIf="crearVehiculoSubmarcaForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearVehiculoSubmarcaForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="nombreSubmarca" type="text" class="form-control" placeholder="Ejemplo: Jetta" formControlName="nombre" #nombre>
+                    </div>
+                    <div class="col-sm-6">
+                      <label for="descripcionSubmarca">
+                        <b>Descripcion</b>
+                        <span
+                          *ngIf="crearVehiculoSubmarcaForm.controls['descripcion'].invalid && (crearVehiculoSubmarcaForm.controls['descripcion'].dirty || crearVehiculoSubmarcaForm.controls['descripcion'].touched)">
+                          <i *ngIf="crearVehiculoSubmarcaForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="descripcionSubmarca" type="text" class="form-control" placeholder="Ejemplo: Vehiculo sedan de 4 puertas" formControlName="descripcion" #descripcion>
+                    </div>
+                  </div>
+                </form>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-sm btn-primary" (click)="guardarSubmarca(crearVehiculoSubmarcaForm)">Guardar cambios</button>
+                    <button class="btn btn-sm btn-danger" (click)="mostrarFormularioSubmarca()">Cancelar</button>
+                  </div>
+                </div>
               </td>
             </tr>
           </table>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    <div class="modal-footer" *ngIf="currentTab === 'DETALLES'">
+      <button class="btn btn-primary" (click)="mostrarModificarVehiculoMarcaModal()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarEliminarVehiculoMarcaModal()">Eliminar</button>
     </div>
   </ng-template>
 
@@ -117,12 +159,21 @@
               <div class="col-sm-6">
                 <label for="nombre">
                   <b>Nombre *</b>
+                  <span
+                    *ngIf="crearVehiculoMarcaForm.controls['nombre'].invalid && (crearVehiculoMarcaForm.controls['nombre'].dirty || crearVehiculoMarcaForm.controls['nombre'].touched)">
+                    <i *ngIf="crearVehiculoMarcaForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearVehiculoMarcaForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="nombre" type="text" class="form-control" placeholder="Ejemplo: Volkswagen" formControlName="nombre" #nombre>
               </div>
               <div class="col-sm-6">
                 <label for="descripcion">
                   <b>Descripcion</b>
+                  <span
+                    *ngIf="crearVehiculoMarcaForm.controls['descripcion'].invalid && (crearVehiculoMarcaForm.controls['descripcion'].dirty || crearVehiculoMarcaForm.controls['descripcion'].touched)">
+                    <i *ngIf="crearVehiculoMarcaForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="descripcion" type="text" class="form-control" placeholder="Ejemplo: Marca alemana de vehiculos" formControlName="descripcion" #descripcion>
               </div>
@@ -134,6 +185,90 @@
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="guardarMarcaVehiculo(crearVehiculoMarcaForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #editarVehiculoMarcaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="editarVehiculoMarcaModal">Modificar marca de vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearVehiculoMarcaForm">
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="nombreEditar">
+                  <b>Nombre *</b>
+                  <span
+                    *ngIf="crearVehiculoMarcaForm.controls['nombre'].invalid && (crearVehiculoMarcaForm.controls['nombre'].dirty || crearVehiculoMarcaForm.controls['nombre'].touched)">
+                    <i *ngIf="crearVehiculoMarcaForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearVehiculoMarcaForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <input id="nombreEditar" type="text" class="form-control" placeholder="Ejemplo: Volkswagen" formControlName="nombre" #nombre>
+              </div>
+              <div class="col-sm-6">
+                <label for="descripcionEditar">
+                  <b>Descripcion</b>
+                  <span
+                    *ngIf="crearVehiculoMarcaForm.controls['descripcion'].invalid && (crearVehiculoMarcaForm.controls['descripcion'].dirty || crearVehiculoMarcaForm.controls['descripcion'].touched)">
+                    <i *ngIf="crearVehiculoMarcaForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <input id="descripcionEditar" type="text" class="form-control" placeholder="Ejemplo: Marca alemana" formControlName="descripcion" #descripcion>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarCambios(crearVehiculoMarcaForm)">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarVehiculoMarcaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarVehiculoMarcaModal">Eliminando una marca </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar una marca de vehiculo. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminar()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarVehiculoSubmarcaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarVehiculoSubmarcaModal">Eliminando una submarca </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar una submarca de vehiculo. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarSubmarca()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 </div>

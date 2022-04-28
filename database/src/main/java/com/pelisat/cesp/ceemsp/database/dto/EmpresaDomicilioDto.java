@@ -29,4 +29,8 @@ public class EmpresaDomicilioDto {
     private LocalidadDto localidadCatalogo;
     private ColoniaDto coloniaCatalogo;
     private CalleDto calleCatalogo;
+    private String motivoBaja;
+    private String observacionesBaja;
+    private String documentoFundatorioBaja;
+    private String fechaBaja;
 }

@@ -176,6 +176,10 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
         clienteDomicilio.setCodigoPostal(clienteDomicilioDto.getCodigoPostal());
         clienteDomicilio.setTelefonoFijo(clienteDomicilioDto.getTelefonoFijo());
         clienteDomicilio.setTelefonoMovil(clienteDomicilioDto.getTelefonoMovil());
+        clienteDomicilio.setContacto(clienteDomicilioDto.getContacto());
+        clienteDomicilio.setApellidoPaternoContacto(clienteDomicilioDto.getApellidoPaternoContacto());
+        clienteDomicilio.setApellidoMaternoContacto(clienteDomicilioDto.getApellidoMaternoContacto());
+        clienteDomicilio.setCorreoElectronico(clienteDomicilioDto.getCorreoElectronico());
 
         clienteDomicilio.setTipoInfraestructura(clienteDomicilioDto.getTipoInfraestructura().getId());
         clienteDomicilio.setEstadoCatalogo(clienteDomicilioDto.getEstadoCatalogo().getId());

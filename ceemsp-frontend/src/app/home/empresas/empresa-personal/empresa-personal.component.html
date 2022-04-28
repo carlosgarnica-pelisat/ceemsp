@@ -11,7 +11,7 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Descargar direcciones como Excel (csv)</a>
+          <a class="dropdown-item" href="#">Descargar personal como Excel (csv)</a>
         </div>
       </div>
     </div>
@@ -68,7 +68,7 @@
               <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'PUESTO' }" (click)="cambiarPestana('PUESTO')">Puesto</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'CERTIFICACIONES' }" (click)="cambiarPestana('CERTIFICACIONES')">Capacitaciones</a>
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'CERTIFICACIONES' }" (click)="cambiarPestana('CERTIFICACIONES')">Certificaciones</a>
             </li>
             <li class="nav-item">
               <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'FOTOGRAFIAS' }" (click)="cambiarPestana('FOTOGRAFIAS')">Fotografias</a>
@@ -278,6 +278,7 @@
               <td>{{c.fechaInicio}}</td>
               <td>{{c.fechaFin}}</td>
               <td>
+                <fa-icon [icon]="faDownload" title="Descargar archivo adjunto" (click)="descargarCapacitacion(c?.uuid)" style="cursor:pointer;"></fa-icon>
                 <fa-icon [icon]="faPencilAlt" title="Modificar capacitacion" (click)="mostrarModalEditarCapacitacion(i)" style="cursor:pointer;"></fa-icon>
                 <fa-icon [icon]="faTrash" title="Eliminar capacitacion" (click)="mostrarModalEliminarCapacitacion(c?.uuid)" style="cursor:pointer;"></fa-icon>
               </td>
@@ -344,7 +345,16 @@
                           </label>
                           <input id="fechaFin" type="date" class="form-control" formControlName="fechaFin" #duracion>
                         </div>
-                        <div class="col-sm-4"></div>
+                        <div class="col-sm-4">
+                          <label for="archivoCertificado">
+                            <b>Archivo (en PDF) *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['archivo'].invalid && (crearPersonalCertificadoForm.controls['archivo'].dirty || crearPersonalCertificadoForm.controls['archivo'].touched)">
+                                  <i *ngIf="crearPersonalCertificadoForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
+                                </span>
+                          </label>
+                          <input id="archivoCertificado" accept="application/pdf" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
+                        </div>
                       </div>
                     </form>
                   </div>
@@ -953,7 +963,16 @@
                           </label>
                           <input id="fechaFinCrear" type="date" class="form-control" formControlName="fechaFin" #duracion>
                         </div>
-                        <div class="col-sm-4"></div>
+                        <div class="col-sm-4">
+                          <label for="archivoCertificadoCrear">
+                            <b>Archivo (en PDF) *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['archivo'].invalid && (crearPersonalCertificadoForm.controls['archivo'].dirty || crearPersonalCertificadoForm.controls['archivo'].touched)">
+                                  <i *ngIf="crearPersonalCertificadoForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
+                                </span>
+                          </label>
+                          <input id="archivoCertificadoCrear" accept="application/pdf" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
+                        </div>
                       </div>
                     </form>
                   </div>
@@ -1380,6 +1399,25 @@
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarFotografia()">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarCertificacionPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarCertificacionPersonaModal">Ver adjunto de la certificacion </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <pdf-viewer [src]="pdfActual"
+                      [render-text]="true"
+                      [original-size]="false"
+                      style="width: 100%; height: 600px"></pdf-viewer>
+        </div>
+      </div>
     </div>
   </ng-template>
 </div>

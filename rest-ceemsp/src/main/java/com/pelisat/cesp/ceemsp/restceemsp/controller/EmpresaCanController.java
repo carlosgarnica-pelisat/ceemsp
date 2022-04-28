@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
+import com.google.gson.Gson;
 import com.pelisat.cesp.ceemsp.database.dto.CanDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDomicilioDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.CanService;
@@ -8,6 +9,7 @@ import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -62,13 +64,15 @@ public class EmpresaCanController {
         return canService.modificarCan(empresaUuid, canUuid, username, canDto);
     }
 
-    @DeleteMapping(value = EMPRESA_CANES_URI + "/{canUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_CANES_URI + "/{canUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CanDto eliminarCan(
             HttpServletRequest request,
+            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam("can") String can,
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "canUuid") String canUuid
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return canService.eliminarCan(empresaUuid, canUuid, username);
+        return canService.eliminarCan(empresaUuid, canUuid, username, new Gson().fromJson(can, CanDto.class), archivo);
     }
 }

@@ -43,6 +43,7 @@ export class EmpresaNuevaComponent implements OnInit {
   fechaDeHoy = new Date().toISOString().split('T')[0];
 
   empresaCreacionForm: FormGroup;
+  empresaUsuarioForm: FormGroup;
   empresaModalidadForm: FormGroup;
   empresaDomiciliosForm: FormGroup;
   nuevaEscrituraForm: FormGroup;
@@ -162,6 +163,14 @@ export class EmpresaNuevaComponent implements OnInit {
       sexo: [''],
       correoElectronico: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
       telefono: ['', [Validators.required]]
+    });
+
+    this.empresaUsuarioForm = this.formBuilder.group({
+      usuario: ['', [Validators.required, Validators.maxLength(20)]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
+      password: ['', [Validators.minLength(8), Validators.maxLength(15)]],
+      nombres: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidos: ['', [Validators.required, Validators.maxLength(60)]]
     })
 
     this.empresaModalidadForm = this.formBuilder.group({
@@ -768,6 +777,17 @@ export class EmpresaNuevaComponent implements OnInit {
             return;
           }
 
+          console.log(this.empresaUsuarioForm);
+
+          if(!this.empresaUsuarioForm.valid) {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              "Falta informacion del usuario por registrar",
+              ToastType.WARNING
+            );
+            return;
+          }
+
           let formData = form.value;
 
           this.toastService.showGenericToast(
@@ -794,6 +814,7 @@ export class EmpresaNuevaComponent implements OnInit {
           }
 
           empresa.modalidades = this.empresaModalidades;
+          empresa.usuario = this.empresaUsuarioForm.value;
 
           this.empresaService.guardarEmpresa(empresa).subscribe((data: Empresa) => {
             this.empresa = data;
@@ -815,7 +836,6 @@ export class EmpresaNuevaComponent implements OnInit {
         }
         break;
       case 'LEGAL':
-        console.log(this.domiciliosGuardados);
         if(this.domiciliosGuardados) {
           this.stepper.next();
         } else {
@@ -1347,14 +1367,18 @@ export class EmpresaNuevaComponent implements OnInit {
 
   seleccionarModalidad(event) {
     let existeModalidad = this.empresaModalidades.filter(m => m.modalidad.uuid === event.value)[0];
+
     if(existeModalidad !== undefined) {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        "Esta modalidad ya se encuentra registrada en la empresa. Favor de seleccionar otra",
-        ToastType.WARNING
-      );
-      this.modalidad = undefined;
-      return;
+      let modalidad = this.modalidades.filter(m => m.uuid === event.value)[0];
+      if(modalidad.submodalidades.length < 1) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "Esta modalidad ya se encuentra registrada en la empresa. Favor de seleccionar otra",
+          ToastType.WARNING
+        );
+        this.modalidad = undefined;
+        return;
+      }
     }
 
     this.modalidad = this.modalidades.filter(m => m.uuid === event.value)[0];
@@ -1364,6 +1388,19 @@ export class EmpresaNuevaComponent implements OnInit {
       this.empresaModalidadForm.patchValue({
         submodalidad: undefined
       });
+    }
+  }
+
+  seleccionarSubmodalidad(event) {
+    let existeSubmodalidad = this.empresaModalidades.filter(m => m.submodalidad?.uuid === event.value)[0];
+    if(existeSubmodalidad !== undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta submodalidad ya esta registrada en esta empresa",
+        ToastType.WARNING
+      );
+      this.modalidad = undefined;
+      return;
     }
   }
 
@@ -1392,6 +1429,13 @@ export class EmpresaNuevaComponent implements OnInit {
     this.empresaCreacionForm.controls['curp'].disable();
     this.empresaCreacionForm.controls['correoElectronico'].disable();
     this.empresaCreacionForm.controls['telefono'].disable();
+
+    this.empresaUsuarioForm.controls['usuario'].disable();
+    this.empresaUsuarioForm.controls['nombres'].disable();
+    this.empresaUsuarioForm.controls['apellidos'].disable();
+    this.empresaUsuarioForm.controls['password'].disable();
+    this.empresaUsuarioForm.controls['email'].disable();
+
 
     this.empresaModalidadForm.controls['modalidad'].disable();
     this.empresaModalidadForm.controls['submodalidad'].disable();

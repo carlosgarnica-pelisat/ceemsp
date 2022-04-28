@@ -100,8 +100,11 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${uuid}/domicilios/${domicilioUuid}`, empresaDomicilio);
   }
 
-  eliminarDomicilio(uuid: string, domicilioUuid: string) {
-    return this.http.delete(`${this.uri}/empresas/${uuid}/domicilios/${domicilioUuid}`);
+  eliminarDomicilio(uuid: string, domicilioUuid: string, formData: FormData) {
+    return this.http.put(
+      `${this.uri}/empresas/${uuid}/domicilios/${domicilioUuid}/borrar`, formData, {
+        headers: {'X-isFile': 'true'}
+      })
   }
 
   // Escrituras
@@ -262,8 +265,11 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}`, vehiculo);
   }
 
-  eliminarVehiculo(uuid: string, vehiculoUuid: string) {
-    return this.http.delete(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}`);
+  eliminarVehiculo(uuid: string, vehiculoUuid: string, formData: FormData) {
+    return this.http.put(
+      `${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}/borrar`, formData,{
+        headers: {'X-isFile': 'true'}
+      })
   }
 
   guardarVehiculoColor(uuid: string, vehiculoUuid: string, color: VehiculoColor) {
@@ -362,12 +368,22 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/certificaciones`)
   }
 
-  guardarPersonalCertificacion(empresaUuid: string, personaUuid: string, certificacion: PersonaCertificacion) {
-    return this.http.post(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/certificaciones`, certificacion);
+  descargarCertificacionPdf(uuid: string, personaUuid: string, certificacionUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/certificaciones/${certificacionUuid}/pdf`, httpOptions)
   }
 
-  modificarPersonalCertificacion(empresaUuid: string, personaUuid: string, capacitacionUuid: string, certificacion: PersonaCertificacion) {
-    return this.http.put(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/certificaciones/${capacitacionUuid}`, certificacion);
+  guardarPersonalCertificacion(empresaUuid: string, personaUuid: string, certificacion: FormData) {
+    return this.http.post(
+      `${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/certificaciones`,
+      certificacion, {headers: {'X-isFile': 'true'}})
+  }
+
+  modificarPersonalCertificacion(empresaUuid: string, personaUuid: string, capacitacionUuid: string, certificacion: FormData) {
+    return this.http.put(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/certificaciones/${capacitacionUuid}`,
+      certificacion, {headers: {'X-isFile': 'true'}});
   }
 
   eliminarPersonalCertificacion(empresaUuid: string, personaUuid: string, capacitacionUuid: string) {
@@ -410,8 +426,12 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${uuid}/canes/${canUuid}`, can);
   }
 
-  eliminarCan(uuid: string, canUuid: string) {
-    return this.http.delete(`${this.uri}/empresas/${uuid}/canes/${canUuid}`);
+  eliminarCan(uuid: string, canUuid: string, formData: FormData) {
+    return this.http.put(
+      `${this.uri}/empresas/${uuid}/canes/${canUuid}/borrar`, formData, {
+        headers: {'X-isFile': 'true'}
+      })
+
   }
 
   descargarCanFotografia(uuid: string, canUuid: string, canFotografiaUuid: string) {
@@ -580,6 +600,54 @@ export class EmpresaService {
 
   guardarIncidencia(uuid: string, incidencia: Incidencia) {
     return this.http.post(`${this.uri}/empresas/${uuid}/incidencias`, incidencia);
+  }
+
+  autoasignarIncidencia(uuid: string, incidenciaUuid: string) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/autoasignar`, {})
+  }
+
+  asignarIncidencia(uuid: string, incidenciaUuid: string, usuario: Usuario) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/asignar`, usuario);
+  }
+
+  agregarComentario(uuid: string, incidenciaUuid: string, incidencia: Incidencia) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/comentarios`, incidencia);
+  }
+
+  agregarPersonaIncidencia(uuid: string, incidenciaUuid: string, personal: Persona) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/personal`, personal)
+  }
+
+  agregarArmaIncidencia(uuid: string, incidenciaUuid: string, arma: Arma) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/armas`, arma)
+  }
+
+  agregarVehiculoIncidencia(uuid: string, incidenciaUuid: string, vehiculo: Vehiculo) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/vehiculos`, vehiculo)
+  }
+
+  agregarCanIncidencia(uuid: string, incidenciaUuid: string, can: Can) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/canes`, can)
+  }
+
+  eliminarPersonaIncidencia(uuid: string, incidenciaUuid: string, incidenciaPersonaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/personal/${incidenciaPersonaUuid}`)
+  }
+
+  eliminarArmaIncidencia(uuid: string, incidenciaUuid: string, incidenciaArmaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/armas/${incidenciaArmaUuid}`)
+  }
+
+  eliminarVehiculoIncidencia(uuid: string, incidenciaUuid: string, incidenciaVehiculoUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/vehiculos/${incidenciaVehiculoUuid}`)
+  }
+
+  eliminarCanIncidencia(uuid: string, incidenciaUuid: string, incidenciaCanUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/canes/${incidenciaCanUuid}`)
+  }
+
+  eliminarArchivoIncidencia(uuid: string, incidenciaUuid: string, incidenciaArchivoUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/archivos/${incidenciaArchivoUuid}`)
   }
 
   // Usuario

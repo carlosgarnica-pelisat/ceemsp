@@ -2,6 +2,7 @@ import { Deserializable } from "./Deserializable";
 import Modalidad from "./Modalidad";
 import EmpresaModalidad from "./EmpresaModalidad";
 import EmpresaFormaEjecucion from "./EmpresaFormaEjecucion";
+import Usuario from "./Usuario";
 
 export default class Empresa implements Deserializable {
   id: number;
@@ -21,6 +22,8 @@ export default class Empresa implements Deserializable {
 
   formasEjecucion: EmpresaFormaEjecucion[];
   modalidades: EmpresaModalidad[];
+
+  usuario: Usuario;
 
   deserialize(input: any): this {
     Object.assign(this, input);
