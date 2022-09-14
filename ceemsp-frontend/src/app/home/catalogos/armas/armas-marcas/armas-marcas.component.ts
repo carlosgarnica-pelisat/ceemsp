@@ -7,6 +7,7 @@ import {ToastType} from "../../../../_enums/ToastType";
 import ArmaMarca from "../../../../_models/ArmaMarca";
 import ArmaClase from "../../../../_models/ArmaClase";
 import TipoEntrenamiento from "../../../../_models/TipoEntrenamiento";
+import {BotonCatalogosComponent} from "../../../../_components/botones/boton-catalogos/boton-catalogos.component";
 
 @Component({
   selector: 'app-armas-marcas',
@@ -14,14 +15,20 @@ import TipoEntrenamiento from "../../../../_models/TipoEntrenamiento";
   styleUrls: ['./armas-marcas.component.css']
 })
 export class ArmasMarcasComponent implements OnInit {
-
+  editandoModal: boolean = false;
   private gridApi;
   private gridColumnApi;
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+    {headerName: 'Acciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
   ];
   rowData = [];
 
@@ -45,6 +52,10 @@ export class ArmasMarcasComponent implements OnInit {
               private armaService: ArmasService, private toastService: ToastService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      catalogoButtonRenderer: BotonCatalogosComponent
+    }
+
     this.armaService.obtenerArmaMarcas().subscribe((data: ArmaMarca[]) => {
       this.rowData = data;
     }, (error) => {
@@ -136,7 +147,12 @@ export class ArmasMarcasComponent implements OnInit {
         ToastType.SUCCESS
       )
 
-      window.location.reload();
+      if(this.editandoModal) {
+        this.armaMarca = data;
+        this.modal.close();
+      } else {
+        window.location.reload();
+      }
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -146,13 +162,40 @@ export class ArmasMarcasComponent implements OnInit {
     })
   }
 
-  mostrarModificarArmaMarcaModal() {
+  verDetalles(rowData) {
+    this.checkForDetails(rowData.rowData);
+  }
+
+  editar(rowData) {
+    this.armaMarca = rowData.rowData;
+    this.editandoModal = false;
     this.crearArmaMarcaForm.patchValue({
       nombre: this.armaMarca.nombre,
       descripcion: this.armaMarca.descripcion
     });
 
     this.modalService.open(this.editarArmaMarcaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  eliminar(rowData) {
+    this.armaMarca = rowData.rowData;
+    this.mostrarEliminarCanEntrenamientoModal();
+  }
+
+  mostrarModificarArmaMarcaModal() {
+    this.editandoModal = true;
+    this.crearArmaMarcaForm.patchValue({
+      nombre: this.armaMarca.nombre,
+      descripcion: this.armaMarca.descripcion
+    });
+
+    this.modal = this.modalService.open(this.editarArmaMarcaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;

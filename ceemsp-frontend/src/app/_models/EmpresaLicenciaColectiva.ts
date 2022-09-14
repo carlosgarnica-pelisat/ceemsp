@@ -12,6 +12,11 @@ export default class EmpresaLicenciaColectiva implements Deserializable {
   fechaFin: string;
   rutaDocumento: string;
 
+  motivoBaja: string;
+  observacionesBaja: string;
+  documentoFundatorioBaja: string;
+  fechaBaja: string;
+
   deserialize(input: any): this {
     Object.assign(this, input);
     return this;

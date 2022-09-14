@@ -88,7 +88,7 @@ public class IncidenciaCanServiceImpl implements IncidenciaCanService {
             throw new NotFoundResourceException();
         }
 
-        IncidenciaCan incidenciaCan = incidenciaCanRepository.getByIncidenciaAndCanAndEliminadoFalse(can.getId(), incidencia.getId());
+        IncidenciaCan incidenciaCan = incidenciaCanRepository.getByIncidenciaAndCanAndEliminadoFalse(incidencia.getId(), can.getId());
 
         if(incidenciaCan == null) {
             logger.warn("El arma en la incidencia no se encuentra registrada");

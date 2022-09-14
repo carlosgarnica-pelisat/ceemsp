@@ -72,15 +72,16 @@ public class EmpresaEscrituraController {
         return empresaEscrituraService.guardarEscritura(empresaUuid, new Gson().fromJson(escritura, EmpresaEscrituraDto.class), username, archivo);
     }
 
-    @PutMapping(value = EMPRESA_ESCRITURA_URI + "/{escrituraUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_ESCRITURA_URI + "/{escrituraUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public EmpresaEscrituraDto modificarEscritura(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "escrituraUuid") String escrituraUuid,
             HttpServletRequest request,
-            @RequestBody EmpresaEscrituraDto empresaEscrituraDto
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
+            @RequestParam("escritura") String escritura
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return empresaEscrituraService.modificarEscritura(empresaUuid, escrituraUuid, empresaEscrituraDto, username);
+        return empresaEscrituraService.modificarEscritura(empresaUuid, escrituraUuid, new Gson().fromJson(escritura, EmpresaEscrituraDto.class), archivo, username);
     }
 
     @DeleteMapping(value = EMPRESA_ESCRITURA_URI + "/{escrituraUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)

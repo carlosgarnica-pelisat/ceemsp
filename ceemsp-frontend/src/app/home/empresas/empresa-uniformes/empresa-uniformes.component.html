@@ -27,10 +27,11 @@
         <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action">
           Detalles
         </a>
+        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
         <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
-        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action">Licencias colectivas / Armas</a>
-        <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action">Canes</a>
+        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneArmas">Licencias colectivas / Armas</a>
+        <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneCanes">Canes</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
         <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
@@ -100,6 +101,8 @@
               <td>{{e?.elemento?.nombre}}</td>
               <td>{{e?.cantidad}}</td>
               <td>
+                <fa-icon [icon]="faDownload" class="fakelink" (click)="descargarFotografiaUniforme(e?.uuid)" title="Descargar fotografia"></fa-icon>
+                <fa-icon [icon]="faBook" class="fakelink" (click)="mostrarMovimientos(i)" title="Ver movimientos"></fa-icon>
                 <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarElemento(i)" title="Modificar elemento del uniforme"></fa-icon>
                 <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarElemento(e?.uuid)" title="Eliminar elemento del uniforme"></fa-icon>
               </td>
@@ -110,7 +113,7 @@
                   <div class="col-sm-12">
                     <form [formGroup]="crearUniformeElementoForm">
                       <div class="form-row">
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                           <label for="elemento">
                             <b>Elemento del uniforme *</b>
                           </label>
@@ -118,11 +121,31 @@
                             <option *ngFor="let u of uniformes" value="{{u?.uuid}}">{{u?.nombre}}</option>
                           </select>
                         </div>
-                        <div class="col-sm-6">
-                          <label for="cantidad">
-                            <b>Cantidad *</b>
+                        <div class="col-sm-8">
+                          <label for="archivo">
+                            <b>Foto del elemento *</b>
                           </label>
-                          <input id="cantidad" class="form-control" formControlName="cantidad" type="number" min="0" step="1" placeholder="Ej. Uniforme local">
+                          <input id="archivo" class="form-control" type="file" accept="image/*" (change)="onFileChange($event)">
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="col-sm-4">
+                          <label for="altas">
+                            <b>Altas *</b>
+                          </label>
+                          <input id="altas" class="form-control" formControlName="altas" type="number" min="0" step="1" placeholder="Pueden ser 0 o mas" (focusout)="actualizarAltas($event.target)">
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="bajas">
+                            <b>Bajas *</b>
+                          </label>
+                          <input id="bajas" class="form-control" formControlName="bajas" type="number" min="0" step="1" placeholder="Pueden ser 0 o mas" (focusout)="actualizarBajas($event.target)">
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="cantidadActual">
+                            <b>Cantidad actual *</b>
+                          </label>
+                          <input id="cantidadActual" class="form-control" formControlName="cantidadActual" type="number" min="0" step="1" placeholder="Ej. Uniforme local">
                         </div>
                       </div>
                     </form>
@@ -206,7 +229,7 @@
   <ng-template #modificarUniformeModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="modificarUniformeModal">Modificando uniforme </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <button type="button" class="close" aria-label="Close" (click)="cerrarModalEditarUniforme()">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -234,9 +257,51 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="guardarCambiosUniforme(crearUniformeForm)">Guardar</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+      <button type="button" class="btn btn-danger" (click)="cerrarModalEditarUniforme()">Cerrar</button>
     </div>
   </ng-template>
+
+  <ng-template #mostrarElementoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarFotoVehiculoModal">Ver fotografia del elemento del uniforme </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarMovimientosModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarMovimientosModal">Ver movimientos </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Altas</b></td>
+              <td><b>Bajas</b></td>
+              <td><b>Nueva cantidad</b></td>
+            </tr>
+            <tr *ngFor="let m of empresaUniformeElemento.movimientos">
+              <td>{{m?.altas}}</td>
+              <td>{{m?.bajas}}</td>
+              <td>{{m?.cantidadActual}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="modal.dismiss('Cross click')">Cerrar</button>
+    </div>
+  </ng-template>
+
 
   <ng-template #eliminarUniformeModal let-modal>
     <div class="modal-header">

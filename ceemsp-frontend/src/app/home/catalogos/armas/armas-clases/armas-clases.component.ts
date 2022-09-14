@@ -7,6 +7,7 @@ import {ToastType} from "../../../../_enums/ToastType";
 import ArmaClase from "../../../../_models/ArmaClase";
 import PersonalNacionalidad from "../../../../_models/PersonalNacionalidad";
 import Uniforme from "../../../../_models/Uniforme";
+import {BotonCatalogosComponent} from "../../../../_components/botones/boton-catalogos/boton-catalogos.component";
 
 @Component({
   selector: 'app-armas-clases',
@@ -14,14 +15,20 @@ import Uniforme from "../../../../_models/Uniforme";
   styleUrls: ['./armas-clases.component.css']
 })
 export class ArmasClasesComponent implements OnInit {
-
+  editandoModal: boolean = false;
   private gridApi;
   private gridColumnApi;
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+    {headerName: 'Acciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
   ];
   rowData = [];
 
@@ -45,6 +52,10 @@ export class ArmasClasesComponent implements OnInit {
               private armaService: ArmasService, private toastService: ToastService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      catalogoButtonRenderer: BotonCatalogosComponent
+    }
+
     this.armaService.obtenerArmaClases().subscribe((data: ArmaClase[]) => {
       this.rowData = data;
     }, (error) => {
@@ -58,6 +69,32 @@ export class ArmasClasesComponent implements OnInit {
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
       descripcion: ['', [Validators.maxLength(100)]]
     })
+  }
+
+  verDetalles(rowData) {
+    this.checkForDetails(rowData.rowData);
+  }
+
+  editar(rowData) {
+    this.armaClase = rowData.rowData;
+    this.editandoModal = false;
+    this.crearArmaClaseForm.patchValue({
+      nombre: this.armaClase.nombre,
+      descripcion: this.armaClase.descripcion
+    });
+
+    this.modal = this.modalService.open(this.editarArmaClaseModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  eliminar(rowData) {
+    this.armaClase = rowData.rowData;
+    this.mostrarEliminarArmaClaseModal();
   }
 
   onGridReady(params) {
@@ -139,7 +176,12 @@ export class ArmasClasesComponent implements OnInit {
         ToastType.SUCCESS
       )
 
-      window.location.reload();
+      if(this.editandoModal) {
+        this.armaClase = data;
+        this.modal.close();
+      } else {
+        window.location.reload();
+      }
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -167,12 +209,13 @@ export class ArmasClasesComponent implements OnInit {
   }
 
   mostrarModificarArmaClaseModal() {
+    this.editandoModal = true;
     this.crearArmaClaseForm.patchValue({
       nombre: this.armaClase.nombre,
       descripcion: this.armaClase.descripcion
     });
 
-    this.modalService.open(this.editarArmaClaseModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+    this.modal = this.modalService.open(this.editarArmaClaseModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;

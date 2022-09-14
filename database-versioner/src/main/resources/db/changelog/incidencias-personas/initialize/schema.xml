@@ -9,7 +9,7 @@
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="INCIDENCIA" type="INT"></column>
-            <column name="CAN" type="INT"></column>
+            <column name="PERSONA" type="INT"></column>
             <column name="ELIMINADO" type="bit" defaultValue="0"></column>
             <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
             <column name="CREADO_POR" type="int"></column>

@@ -19,11 +19,18 @@ export default class Empresa implements Deserializable {
   telefono: string;
   status: string;
   observaciones: string;
+  tieneArmas: boolean;
+  tieneCanes: boolean;
+  registroFederal: string;
+  fechaInicio: string;
+  fechaFin: string;
 
   formasEjecucion: EmpresaFormaEjecucion[];
   modalidades: EmpresaModalidad[];
 
   usuario: Usuario;
+
+  fechaCreacion: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);

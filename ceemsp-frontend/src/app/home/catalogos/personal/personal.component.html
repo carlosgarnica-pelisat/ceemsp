@@ -230,12 +230,21 @@
               <div class="col-sm-6">
                 <label for="nombre">
                   <b>Nombre *</b>
+                  <span
+                    *ngIf="crearPuestoDeTrabajoForm.controls['nombre'].invalid && (crearPuestoDeTrabajoForm.controls['nombre'].dirty || crearPuestoDeTrabajoForm.controls['nombre'].touched)">
+                    <i *ngIf="crearPuestoDeTrabajoForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearPuestoDeTrabajoForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="nombre" type="text" class="form-control" placeholder="Ejemplo: Administrativo" formControlName="nombre" #nombre>
               </div>
               <div class="col-sm-6">
                 <label for="descripcion">
                   <b>Descripcion</b>
+                  <span
+                    *ngIf="crearPuestoDeTrabajoForm.controls['descripcion'].invalid && (crearPuestoDeTrabajoForm.controls['descripcion'].dirty || crearPuestoDeTrabajoForm.controls['descripcion'].touched)">
+                    <i *ngIf="crearPuestoDeTrabajoForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="descripcion" type="text" class="form-control" placeholder="Describa que realiza este trabajo" formControlName="descripcion" #descripcion>
               </div>

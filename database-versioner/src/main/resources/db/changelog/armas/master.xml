@@ -6,4 +6,7 @@
     <include file="db/changelog/armas/initialize/schema.xml" />
     <include file="db/changelog/armas/CEEMSP-36/schema.xml" />
     <include file="db/changelog/armas/CEEMSP-37/schema.xml" />
+    <include file="db/changelog/armas/CEEMSP-46/schema.xml" />
+    <include file="db/changelog/armas/CEEMSP-50/schema.xml" />
+    <include file="db/changelog/armas/CEEMSP-55/schema.xml" />
 </databaseChangeLog>

@@ -7,8 +7,10 @@ import java.util.List;
 
 public interface ArmaRepository extends JpaRepository<Arma, Integer> {
     List<Arma> getAllByEmpresaAndEliminadoFalse(int empresa);
-
     List<Arma> getAllByLicenciaColectivaAndEliminadoFalse(int licenciaColectiva);
-
+    List<Arma> getAllByLicenciaColectiva(int licenciaColectiva);
+    List<Arma> getAllByBunkerAndEliminadoFalse(int bunkerId);
     Arma getByUuidAndEliminadoFalse(String uuid);
+    Arma getFirstBySerie(String serie);
+    Arma getFirstByMatricula(String matricula);
 }

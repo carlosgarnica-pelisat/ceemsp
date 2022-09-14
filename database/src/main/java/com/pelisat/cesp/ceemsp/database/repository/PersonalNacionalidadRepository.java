@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface PersonalNacionalidadRepository extends JpaRepository<PersonalNacionalidad, Integer> {
     List<PersonalNacionalidad> getAllByEliminadoFalse();
+    List<PersonalNacionalidad> getAllByEliminadoFalseOrderByNombre();
 
     PersonalNacionalidad getByUuidAndEliminadoFalse(String uuid);
 }

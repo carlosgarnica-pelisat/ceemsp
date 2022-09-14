@@ -253,7 +253,7 @@
                 <label for="fechaVisitaEditar">
                   <b>Fecha de visita *</b>
                 </label>
-                <input class="form-control" id="fechaVisitaEditar" type="date" formControlName="fechaVisita" placeholder="Fecha de la visita">
+                <input class="form-control" id="fechaVisitaEditar" type="date" formControlName="fechaVisita" [min]="fechaDeHoy" placeholder="Fecha de la visita">
               </div>
               <div class="col-sm-4">
                 <label for="responsableEditar">
@@ -313,7 +313,7 @@
                   <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-6">
                 <label>
                   <b>Localidad *</b>
                 </label>
@@ -334,7 +334,10 @@
                   <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-3">
+            </div>
+
+            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
+              <div class="col-sm-6">
                 <label>
                   <b>Colonia *</b>
                 </label>
@@ -355,10 +358,7 @@
                   <a class="dropdown-item" *ngIf="colonia !== undefined" (click)="eliminarColonia()">Quitar</a>
                 </div>
               </div>
-            </div>
-
-            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
-              <div class="col-sm-4">
+              <div class="col-sm-6">
                 <label>
                   <b>Calle * </b>
                 </label>
@@ -379,7 +379,10 @@
                   <a class="dropdown-item" *ngIf="calle !== undefined" (click)="eliminarCalle()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-1">
+            </div>
+
+            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
+              <div class="col-sm-3">
                 <label for="numeroExteriorEditar">
                   <b>N. Ext * </b>
                   <span
@@ -389,7 +392,7 @@
                 </label>
                 <input id="numeroExteriorEditar" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
               </div>
-              <div class="col-sm-1">
+              <div class="col-sm-3">
                 <label for="numeroInteriorEditar">
                   <b>N. Int </b>
                   <span
@@ -409,7 +412,7 @@
                             <i *ngIf="crearVisitaForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                           </span>
                 </label>
-                <input id="codigoPostalEditar" type="number" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
+                <input id="codigoPostalEditar" type="tel"  class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" appNumberMask #codigoPostal>
               </div>
               <div class="col-sm-3">
                 <label for="domicilio4Editar">
@@ -591,7 +594,7 @@
                 <label for="fechaVisita">
                   <b>Fecha de visita *</b>
                 </label>
-                <input class="form-control" id="fechaVisita" type="date" formControlName="fechaVisita" placeholder="Fecha de la visita">
+                <input class="form-control" id="fechaVisita" type="date"  [min]="fechaDeHoy" formControlName="fechaVisita" placeholder="Fecha de la visita">
               </div>
               <div class="col-sm-4">
                 <label for="responsable">
@@ -651,7 +654,7 @@
                   <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-6">
                 <label>
                   <b>Localidad *</b>
                 </label>
@@ -672,7 +675,10 @@
                   <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-3">
+            </div>
+
+            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
+              <div class="col-sm-6">
                 <label>
                   <b>Colonia *</b>
                 </label>
@@ -693,10 +699,7 @@
                   <a class="dropdown-item" *ngIf="colonia !== undefined" (click)="eliminarColonia()">Quitar</a>
                 </div>
               </div>
-            </div>
-
-            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
-              <div class="col-sm-4">
+              <div class="col-sm-6">
                 <label>
                   <b>Calle * </b>
                 </label>
@@ -717,7 +720,10 @@
                   <a class="dropdown-item" *ngIf="calle !== undefined" (click)="eliminarCalle()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-1">
+            </div>
+
+            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
+              <div class="col-sm-3">
                 <label for="numeroExterior">
                   <b>N. Ext * </b>
                   <span
@@ -727,7 +733,7 @@
                 </label>
                 <input id="numeroExterior" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
               </div>
-              <div class="col-sm-1">
+              <div class="col-sm-3">
                 <label for="numeroInterior">
                   <b>N. Int </b>
                   <span
@@ -747,7 +753,7 @@
                             <i *ngIf="crearVisitaForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                           </span>
                 </label>
-                <input id="codigoPostal" type="number" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
+                <input id="codigoPostal" type="tel" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" appNumberMask #codigoPostal>
               </div>
               <div class="col-sm-3">
                 <label for="domicilio4">

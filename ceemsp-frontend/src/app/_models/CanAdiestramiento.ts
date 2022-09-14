@@ -7,6 +7,7 @@ export default class CanAdiestramiento implements Deserializable {
   nombreInstructor: string;
   fechaConstancia: string;
   canTipoAdiestramiento: TipoEntrenamiento;
+  eliminado: boolean;
 
   deserialize(input: any): this {
     Object.assign(this, input);

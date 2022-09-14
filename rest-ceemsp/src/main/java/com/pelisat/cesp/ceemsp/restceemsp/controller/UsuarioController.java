@@ -28,6 +28,11 @@ public class UsuarioController {
         return usuarioService.getAllUsers();
     }
 
+    @GetMapping(value = USUARIO_URI + "/internos", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<UsuarioDto> obtenerUsuariosInternos() {
+        return usuarioService.obtenerUsuariosInternos();
+    }
+
     @GetMapping(value = USUARIO_URI + "/perfil", produces = MediaType.APPLICATION_JSON_VALUE)
     public UsuarioDto obtenerPerfil(
             HttpServletRequest httpServletRequest

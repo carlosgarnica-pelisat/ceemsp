@@ -19,6 +19,12 @@ import Calle from "../../../_models/Calle";
 import Colonia from "../../../_models/Colonia";
 import Localidad from "../../../_models/Localidad";
 import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {
+  BotonEmpresaClientesComponent
+} from "../../../_components/botones/boton-empresa-clientes/boton-empresa-clientes.component";
+import Empresa from "../../../_models/Empresa";
+import Persona from "../../../_models/Persona";
+import ClienteAsignacionPersonal from "../../../_models/ClienteAsignacionPersonal";
 
 @Component({
   selector: 'app-empresa-clientes',
@@ -26,6 +32,10 @@ import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
   styleUrls: ['./empresa-clientes.component.css']
 })
 export class EmpresaClientesComponent implements OnInit {
+
+  editandoModal: boolean = false;
+
+  empresa: Empresa;
 
   uuid: string;
 
@@ -44,11 +54,15 @@ export class EmpresaClientesComponent implements OnInit {
   colonia: Colonia;
   calle: Calle;
 
+  tipoPersona: string;
+
   estadoQuery: string = '';
   municipioQuery: string = '';
   localidadQuery: string = '';
   coloniaQuery: string = '';
   calleQuery: string = '';
+
+  mostrandoEliminados: boolean = false;
 
   obtenerCallesTimeout = undefined;
 
@@ -56,14 +70,30 @@ export class EmpresaClientesComponent implements OnInit {
   modal: NgbModalRef;
   closeResult: string;
   cliente: Cliente;
+  clientes: Cliente[] = [];
+  clientesEliminados: Cliente[] = [];
+
   showDomicilioForm: boolean = false;
+  showAsignacionForm: boolean = false;
 
   stepper: Stepper;
 
   private gridApi;
   private gridColumnApi;
 
-  columnDefs = Cliente.obtenerColumnasPorDefault();
+  columnDefs = [
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true},
+    {headerName: 'Tipo persona', field: 'tipoPersona', sortable: true, filter: true },
+    {headerName: 'RFC', field: 'rfc', sortable: true, filter: true},
+    {headerName: 'Nombre comercial', field: 'nombreComercial', sortable: true, filter: true},
+    {headerName: 'Razon social', field: 'razonSocial', sortable: true, filter: true},
+    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
+  ];
   allColumnDefs = Cliente.obtenerTodasLasColumnas();
   rowData = [];
 
@@ -75,12 +105,16 @@ export class EmpresaClientesComponent implements OnInit {
   nuevoClienteForm: FormGroup;
   modificarClienteForm: FormGroup;
   nuevoClienteDomicilioForm: FormGroup;
+  nuevaAsignacionForm: FormGroup;
 
   domicilios: ClienteDomicilio[] = [];
   domicilio: ClienteDomicilio;
 
+  asignacion: ClienteAsignacionPersonal;
+
   tiposInfraestructura: TipoInfraestructura[] = [];
   tipoInfraestructura: TipoInfraestructura = undefined;
+  personal: Persona[] = [];
 
   pestanaActual: string = "DETALLES";
   validacionRFCResponse = undefined;
@@ -93,21 +127,27 @@ export class EmpresaClientesComponent implements OnInit {
   localidadSearchForm: FormGroup;
   calleSearchForm: FormGroup;
   coloniaSearchForm: FormGroup;
+  motivosEliminacionForm: FormGroup;
 
   tempUuidDomicilioCliente: string = "";
+  tempUuidAsignacionCliente: string = "";
   tempUuidCliente: string = "";
 
   editandoDomicilio: boolean = false;
+  editandoAsignacionCliente: boolean = false;
 
   clienteGuardado: boolean = false;
   domiciliosGuardados: boolean = false;
 
   temporaryIndex: number;
 
+  @ViewChild('visualizarContratoModal') visualizarContratoModal;
+  @ViewChild('clienteDetallesModal') clienteDetallesModal;
   @ViewChild('eliminarClienteModal') eliminarClienteModal;
   @ViewChild('eliminarDomicilioClienteModal') eliminarDomicilioClienteModal;
   @ViewChild('modificarClienteModal') modificarClienteModal;
   @ViewChild('quitarDomicilioClienteModal') quitarDomicilioClienteModal;
+  @ViewChild('eliminarDomicilioAsignacionModal') eliminarDomicilioAsignacionModal;
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
@@ -115,16 +155,21 @@ export class EmpresaClientesComponent implements OnInit {
               private estadoService: EstadosService, private calleService: CalleService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      buttonRenderer: BotonEmpresaClientesComponent
+    }
+
     this.uuid = this.route.snapshot.paramMap.get("uuid");
 
     this.nuevoClienteForm = this.formBuilder.group({
       tipoPersona: ['', Validators.required],
       rfc: ['', [Validators.required, Validators.minLength(12), Validators.maxLength(13)]],
-      nombreComercial: ['', [Validators.required, Validators.maxLength(100)]],
+      nombreComercial: ['', [Validators.maxLength(100)]],
       razonSocial: ['', [Validators.required, Validators.maxLength(100)]],
       canes: ['', Validators.required],
       armas: ['', Validators.required],
       fechaInicio: ['', Validators.required],
+      fechaFin: ['', Validators.required],
       archivo: ['']
     });
 
@@ -135,7 +180,8 @@ export class EmpresaClientesComponent implements OnInit {
       razonSocial: ['', [Validators.required, Validators.maxLength(100)]],
       canes: ['', Validators.required],
       armas: ['', Validators.required],
-      fechaInicio: ['', Validators.required]
+      fechaInicio: ['', Validators.required],
+      fechaFin: ['', Validators.required]
     });
 
     this.nuevoClienteDomicilioForm = this.formBuilder.group({
@@ -146,12 +192,9 @@ export class EmpresaClientesComponent implements OnInit {
       domicilio4: ['', Validators.maxLength(100)],
       codigoPostal: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(5)]],
       pais: ['Mexico', [Validators.required, Validators.maxLength(100)]],
-      telefonoFijo: ['', [Validators.required]],
-      telefonoMovil: ['', [Validators.required]],
-      contacto: ['', [Validators.required, Validators.maxLength(60)]],
-      apellidoPaternoContacto: ['', [Validators.required, Validators.maxLength(60)]],
-      apellidoMaternoContacto: ['', [Validators.required, Validators.maxLength(60)]],
-      correoElectronico: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
+      telefonoFijo: ['', []],
+      telefonoMovil: ['', []],
+      correoElectronico: ['', [Validators.email, Validators.maxLength(100)]],
       tipoInfraestructura: ['', Validators.required],
       tipoInfraestructuraOtro: ['', Validators.maxLength(30)]
     })
@@ -176,8 +219,31 @@ export class EmpresaClientesComponent implements OnInit {
       nombre: ['']
     })
 
+    this.motivosEliminacionForm = this.formBuilder.group({
+      motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
+      observacionesBaja: ['', Validators.required],
+      fechaBaja: ['', Validators.required],
+      documentoFundatorioBaja: ['']
+    });
+
+    this.nuevaAsignacionForm = this.formBuilder.group({
+      domicilio: ['', [Validators.required]],
+      personal: ['', [Validators.required]]
+    })
+
+    this.empresaService.obtenerPorUuid(this.uuid).subscribe((data: Empresa) => {
+      this.empresa = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
     this.empresaService.obtenerClientes(this.uuid).subscribe((data: Cliente[]) => {
       this.rowData = data;
+      this.clientes = data;
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -185,6 +251,16 @@ export class EmpresaClientesComponent implements OnInit {
         ToastType.ERROR
       )
     });
+
+    this.empresaService.obtenerClientesEliminados(this.uuid).subscribe((data: Cliente[]) => {
+      this.clientesEliminados = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudieron descargar los clientes eliminados. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
 
     this.tipoInfraestructuraService.obtenerTiposInfraestructura().subscribe((data: TipoInfraestructura[]) => {
       this.tiposInfraestructura = data;
@@ -215,6 +291,127 @@ export class EmpresaClientesComponent implements OnInit {
         ToastType.ERROR
       )
     })
+
+    this.empresaService.obtenerPersonal(this.uuid).subscribe((data: Persona[]) => {
+      this.personal = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el personal. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  verDetalles(rowData) {
+    this.mostrarModalDetalles(rowData.rowData, this.clienteDetallesModal)
+  }
+
+  editar(rowData) {
+    if(rowData.rowData?.eliminado) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El elemento ya esta eliminado. No se puede editar`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.empresaService.obtenerClientePorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: Cliente) => {
+      this.cliente = data;
+      this.editandoModal = false;
+
+      this.modal = this.modalService.open(this.modificarClienteModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: "static"})
+
+      this.modal.result.then((result) => {
+        this.closeResult = `Closed with ${result}`;
+      }, (error) => {
+        this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+      })
+
+      this.modificarClienteForm.patchValue({
+        tipoPersona: this.cliente.tipoPersona,
+        rfc: this.cliente.rfc,
+        nombreComercial: this.cliente.nombreComercial,
+        razonSocial: this.cliente.razonSocial,
+        canes: this.cliente.canes,
+        armas: this.cliente.armas,
+        fechaInicio: this.cliente.fechaInicio,
+        fechaFin: this.cliente.fechaFin
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el cliente. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  eliminar(rowData) {
+    if(rowData.rowData?.eliminado) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El elemento ya esta eliminado. No se puede editar`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.empresaService.obtenerClientePorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: Cliente) => {
+      this.cliente = data;
+      this.mostrarModalEliminarCliente(this.uuid);
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el cliente. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  mostrarEliminados() {
+    this.mostrandoEliminados = true;
+    this.rowData = this.clientesEliminados;
+  }
+
+  ocultarEliminados() {
+    this.mostrandoEliminados = false;
+    this.rowData = this.clientes;
+  }
+
+  cambiarTipoPersona(event) {
+    this.tipoPersona = event.value;
+  }
+
+  convertirPdf(pdf: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.pdfActual = reader.result;
+    });
+
+    if(pdf) {
+      reader.readAsDataURL(pdf);
+    }
+  }
+
+  descargarContratoPrestacion() {
+    this.modal = this.modalService.open(this.visualizarContratoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+
+    this.empresaService.obtenerClienteContrato(this.uuid, this.cliente.uuid).subscribe((data: Blob) => {
+      this.convertirPdf(data);
+      // TODO: Manejar esta opcion para descargar
+      /*let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "licencia-colectiva-" + this.licencia.uuid;
+      link.click();*/
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el PDF. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   modificarDomicilio(i) {
@@ -230,9 +427,6 @@ export class EmpresaClientesComponent implements OnInit {
       pais: this.domicilio.pais,
       telefonoFijo: this.domicilio.telefonoFijo,
       telefonoMovil: this.domicilio.telefonoMovil,
-      contacto: this.domicilio.contacto,
-      apellidoPaternoContacto: this.domicilio.apellidoPaternoContacto,
-      apellidoMaternoContacto: this.domicilio.apellidoMaternoContacto,
       correoElectronico: this.domicilio.correoElectronico,
       tipoInfraestructura: this.domicilio.tipoInfraestructura.uuid,
       tipoInfraestructuraOtro: this.domicilio.tipoInfraestructuraOtro
@@ -442,6 +636,21 @@ export class EmpresaClientesComponent implements OnInit {
         let formValue: Cliente = form.value;
         let formData = new FormData();
 
+        if(this.tipoPersona === 'MORAL' && formValue.nombreComercial) {
+          this.toastService.showGenericToast(
+            "Espere un momento",
+            `Favor de agregar razon social a personas morales`,
+            ToastType.WARNING
+          );
+          return;
+        }
+
+        this.toastService.showGenericToast(
+          "Espere un momento",
+          `Estamos guardando el cliente`,
+          ToastType.INFO
+        );
+
         formData.append('cliente', JSON.stringify(formValue));
 
         if(this.tempFile !== undefined) {
@@ -537,6 +746,93 @@ export class EmpresaClientesComponent implements OnInit {
 
   mostrarNuevoDomicilioForm() {
     this.showDomicilioForm = !this.showDomicilioForm;
+    if(!this.showDomicilioForm) {
+      this.nuevoClienteDomicilioForm.reset();
+      this.estado = undefined;
+      this.municipio = undefined;
+      this.localidad = undefined;
+      this.colonia = undefined;
+      this.calle = undefined;
+    }
+  }
+
+  mostrarNuevaAsignacionForm() {
+    this.showAsignacionForm = !this.showAsignacionForm;
+    if(!this.showAsignacionForm) {
+      this.nuevaAsignacionForm.reset();
+    }
+  }
+
+  guardarAsignacion(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Faltan algunos campos obligatorios por llenar",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espera un momento",
+      "Estamos guardando la asignacion del cliente",
+      ToastType.INFO
+    );
+
+    let value = form.value;
+    let cap = new ClienteAsignacionPersonal();
+    cap.domicilio = this.cliente?.domicilios.filter(x => x.uuid === value.domicilio)[0]
+    cap.personal = this.personal.filter(x => x.uuid === value.personal)[0]
+
+    if(this.editandoAsignacionCliente) {
+      this.empresaService.modificarAsignacionCliente(this.uuid, this.cliente.uuid, this.asignacion?.uuid, cap).subscribe((data: ClienteAsignacionPersonal) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha guardado la asignacion con exito`,
+          ToastType.SUCCESS
+        );
+        this.mostrarNuevaAsignacionForm();
+        this.empresaService.obtenerAsignacionesCliente(this.uuid, this.cliente.uuid).subscribe((data: ClienteAsignacionPersonal[]) => {
+          this.cliente.asignaciones = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar las asignaciones. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        });
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar los cambios de la asignacion. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    } else {
+      this.empresaService.guardarAsignacionCliente(this.uuid, this.cliente.uuid, cap).subscribe((data: ClienteAsignacionPersonal) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha guardado la asignacion del cliente con exito",
+          ToastType.SUCCESS
+        );
+        this.mostrarNuevaAsignacionForm();
+        this.empresaService.obtenerAsignacionesCliente(this.uuid, this.cliente.uuid).subscribe((data: ClienteAsignacionPersonal[]) => {
+          this.cliente.asignaciones = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar las asignaciones del cliente. Motivo: ${error}`,
+            ToastType.ERROR
+          )
+        })
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se pudo guardar la asigancion del cliente. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
   }
 
   guardarDomicilio(form) {
@@ -584,7 +880,16 @@ export class EmpresaClientesComponent implements OnInit {
           "Se guardo el domicilio con exito",
           ToastType.SUCCESS
         );
-        window.location.reload();
+        this.mostrarNuevoDomicilioForm();
+        this.empresaService.obtenerClienteDomicilios(this.uuid, this.cliente.uuid).subscribe((data: ClienteDomicilio[]) => {
+          this.cliente.domicilios = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar los domicilios del cliente. Motivo: ${error}`,
+            ToastType.ERROR
+          )
+        })
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
@@ -601,7 +906,16 @@ export class EmpresaClientesComponent implements OnInit {
           "Se ha guardado el domicilio del cliente con exito",
           ToastType.SUCCESS
         );
-        window.location.reload();
+        this.mostrarNuevoDomicilioForm();
+        this.empresaService.obtenerClienteDomicilios(this.uuid, this.cliente.uuid).subscribe((data: ClienteDomicilio[]) => {
+          this.cliente.domicilios = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar los domicilios del cliente. Motivo: ${error}`,
+            ToastType.ERROR
+          )
+        })
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
@@ -613,7 +927,6 @@ export class EmpresaClientesComponent implements OnInit {
   }
 
   agregarDomicilio(form) {
-    console.log(form.value);
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -676,6 +989,8 @@ export class EmpresaClientesComponent implements OnInit {
   }
 
   mostrarModalEditarCliente() {
+    this.editandoModal = true;
+
     this.modal = this.modalService.open(this.modificarClienteModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: "static"})
 
     this.modal.result.then((result) => {
@@ -695,6 +1010,16 @@ export class EmpresaClientesComponent implements OnInit {
     })
   }
 
+  mostrarEditarAsignacionCliente(index) {
+    this.asignacion = this.cliente?.asignaciones[index];
+    this.mostrarNuevaAsignacionForm();
+    this.editandoAsignacionCliente = true;
+    this.nuevaAsignacionForm.patchValue({
+      domicilio: this.asignacion?.domicilio?.uuid,
+      personal: this.asignacion?.personal?.uuid
+    })
+  }
+
   mostrarEditarDomicilioCliente(index) {
     this.domicilio = this.cliente.domicilios[index];
     this.mostrarNuevoDomicilioForm();
@@ -709,9 +1034,6 @@ export class EmpresaClientesComponent implements OnInit {
       pais: this.domicilio.pais,
       telefonoFijo: this.domicilio.telefonoFijo,
       telefonoMovil: this.domicilio.telefonoMovil,
-      contacto: this.domicilio.contacto,
-      apellidoPaternoContacto: this.domicilio.apellidoPaternoContacto,
-      apellidoMaternoContacto: this.domicilio.apellidoMaternoContacto,
       correoElectronico: this.domicilio.correoElectronico,
       tipoInfraestructura: this.domicilio.tipoInfraestructura.uuid,
       tipoInfraestructuraOtro: this.domicilio.tipoInfraestructuraOtro
@@ -735,6 +1057,17 @@ export class EmpresaClientesComponent implements OnInit {
     })
   }
 
+  mostrarModalEliminarAsignacionCliente(uuid) {
+    this.tempUuidAsignacionCliente = uuid;
+    this.modal = this.modalService.open(this.eliminarDomicilioAsignacionModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
   mostrarModalEliminarDomicilioCliente(uuid) {
     this.tempUuidDomicilioCliente = uuid;
     this.modal = this.modalService.open(this.eliminarDomicilioClienteModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
@@ -747,7 +1080,6 @@ export class EmpresaClientesComponent implements OnInit {
   }
 
   guardarCambiosCliente(form) {
-    console.log(form.value);
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -771,8 +1103,21 @@ export class EmpresaClientesComponent implements OnInit {
         "Se ha modificado el cliente con exito",
         ToastType.SUCCESS
       );
-      this.cliente = data;
-      this.stepper.next();
+      if(this.editandoModal) {
+        this.modal.close();
+        this.empresaService.obtenerClientePorUuid(this.uuid, this.cliente.uuid).subscribe((data: Cliente) => {
+          this.cliente = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se ha podido obtener el cliente. Motivo: ${error}`,
+            ToastType.ERROR
+          )
+        })
+      } else {
+        window.location.reload();
+      }
+
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -782,11 +1127,11 @@ export class EmpresaClientesComponent implements OnInit {
     });
   }
 
-  confirmarEliminarCliente() {
-    if(this.tempUuidCliente === undefined) {
+  confirmarEliminarCliente(form) {
+    if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        "El UUID del cliente a eliminar no esta definido",
+        "El formulario es invalido",
         ToastType.WARNING
       );
       return;
@@ -794,11 +1139,22 @@ export class EmpresaClientesComponent implements OnInit {
 
     this.toastService.showGenericToast(
       "Espere un momento",
-      "Se esta eliminando el domicilio del cliente",
+      "Se esta eliminando el cliente",
       ToastType.INFO
     );
 
-    this.empresaService.eliminarCliente(this.uuid, this.cliente.uuid).subscribe((data: ClienteDomicilio) => {
+    let formValue: Cliente = form.value;
+
+    let formData = new FormData();
+    formData.append('cliente', JSON.stringify(formValue));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+    this.empresaService.eliminarCliente(this.uuid, this.cliente.uuid, formData).subscribe((data: Cliente) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha eliminado el cliente con exito",
@@ -809,6 +1165,47 @@ export class EmpresaClientesComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `El cliente no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarAsignacionCliente() {
+    if(this.tempUuidAsignacionCliente === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID de la asignacion del cliente a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando la asignacion del cliente",
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarAsignacionCliente(this.uuid, this.cliente?.uuid, this.tempUuidAsignacionCliente).subscribe((data: ClienteAsignacionPersonal) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la asignacion con exito",
+        ToastType.SUCCESS
+      );
+      this.modal.close();
+      this.empresaService.obtenerAsignacionesCliente(this.uuid, this.cliente.uuid).subscribe((data: ClienteAsignacionPersonal[]) => {
+        this.cliente.asignaciones = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las asignaciones del cliente. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido eliminar la asignacion. Motivo: ${error}`,
         ToastType.ERROR
       );
     })
@@ -836,7 +1233,16 @@ export class EmpresaClientesComponent implements OnInit {
         "Se ha eliminado el domicilio con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerClienteDomicilios(this.uuid, this.cliente.uuid).subscribe((data: ClienteDomicilio[]) => {
+        this.cliente.domicilios = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los domicilios del cliente. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -867,9 +1273,6 @@ export class EmpresaClientesComponent implements OnInit {
     this.nuevoClienteDomicilioForm.controls['matriz'].disable();
     this.nuevoClienteDomicilioForm.controls['telefonoFijo'].disable();
     this.nuevoClienteDomicilioForm.controls['telefonoMovil'].disable();
-    this.nuevoClienteDomicilioForm.controls['contacto'].disable();
-    this.nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].disable();
-    this.nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].disable();
     this.nuevoClienteDomicilioForm.controls['correoElectronico'].disable();
     this.nuevoClienteDomicilioForm.controls['tipoInfraestructura'].disable();
     this.nuevoClienteDomicilioForm.controls['tipoInfraestructuraOtro'].disable();

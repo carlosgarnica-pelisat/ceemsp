@@ -7,8 +7,10 @@ import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraApoderadoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepresentanteRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -17,7 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,12 +36,13 @@ public class EmpresaEscrituraApoderadoServiceImpl implements EmpresaEscrituraApo
     private final DtoToDaoConverter dtoToDaoConverter;
     private final DaoHelper<CommonModel> daoHelper;
     private final EmpresaService empresaService;
+    private final ArchivosService archivosService;
     private final Logger logger = LoggerFactory.getLogger(EmpresaEscrituraSocioService.class);
 
     @Autowired
     public EmpresaEscrituraApoderadoServiceImpl(EmpresaEscrituraApoderadoRepository empresaEscrituraApoderadoRepository, EmpresaEscrituraRepository empresaEscrituraRepository,
                                                     UsuarioService usuarioService, DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
-                                                    DaoHelper<CommonModel> daoHelper, EmpresaService empresaService) {
+                                                    DaoHelper<CommonModel> daoHelper, EmpresaService empresaService, ArchivosService archivosService) {
         this.empresaEscrituraApoderadoRepository = empresaEscrituraApoderadoRepository;
         this.empresaEscrituraRepository = empresaEscrituraRepository;
         this.usuarioService = usuarioService;
@@ -45,6 +50,7 @@ public class EmpresaEscrituraApoderadoServiceImpl implements EmpresaEscrituraApo
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
         this.empresaService = empresaService;
+        this.archivosService = archivosService;
     }
 
     @Override
@@ -70,11 +76,34 @@ public class EmpresaEscrituraApoderadoServiceImpl implements EmpresaEscrituraApo
     }
 
     @Override
+    public List<EmpresaEscrituraApoderadoDto> obtenerTodosApoderadosPorEscritura(String empresaUuid, String escrituraUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid)) {
+            logger.warn("El uuid de la empresa o de la escritura vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        EmpresaEscritura empresaEscritura = empresaEscrituraRepository.findByUuidAndEliminadoFalse(escrituraUuid);
+
+        if(empresaEscritura == null) {
+            logger.warn("No se encontro la escritura en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<EmpresaEscrituraApoderado> empresaEscrituraApoderados = empresaEscrituraApoderadoRepository.findAllByEscritura(empresaEscritura.getId());
+
+        return empresaEscrituraApoderados.stream()
+                .map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraApoderado)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public EmpresaEscrituraApoderadoDto obtenerRepresentantePorUuid(String empresaUuid, String escrituraUuid, boolean soloEntidad) {
         return null;
     }
 
     @Override
+    @Transactional
     public EmpresaEscrituraApoderadoDto crearApoderado(String empresaUuid, String escrituraUuid, String username, EmpresaEscrituraApoderadoDto empresaEscrituraApoderadoDto) {
         if(empresaEscrituraApoderadoDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid)) {
             logger.warn("El apoderado, la empresa o la escritura estan viniendo como nulos o vacios");
@@ -93,8 +122,14 @@ public class EmpresaEscrituraApoderadoServiceImpl implements EmpresaEscrituraApo
         UsuarioDto usuario = usuarioService.getUserByEmail(username);
         EmpresaEscrituraApoderado empresaEscrituraApoderado = dtoToDaoConverter.convertDtoToDaoEmpresaEscrituraApoderado(empresaEscrituraApoderadoDto);
         empresaEscrituraApoderado.setEscritura(empresaEscritura.getId());
-        empresaEscrituraApoderado.setFechaInicio(LocalDate.parse(empresaEscrituraApoderadoDto.getFechaInicio()));
-        empresaEscrituraApoderado.setFechaFin(LocalDate.parse(empresaEscrituraApoderadoDto.getFechaFin()));
+        if(StringUtils.isNotBlank(empresaEscrituraApoderadoDto.getFechaInicio())) {
+            empresaEscrituraApoderado.setFechaInicio(LocalDate.parse(empresaEscrituraApoderadoDto.getFechaInicio()));
+        }
+
+        if(StringUtils.isNotBlank(empresaEscrituraApoderadoDto.getFechaFin())) {
+            empresaEscrituraApoderado.setFechaFin(LocalDate.parse(empresaEscrituraApoderadoDto.getFechaFin()));
+        }
+
         daoHelper.fulfillAuditorFields(true, empresaEscrituraApoderado, usuario.getId());
         EmpresaEscrituraApoderado empresaEscrituraRepresentanteCreada = empresaEscrituraApoderadoRepository.save(empresaEscrituraApoderado);
 
@@ -102,6 +137,7 @@ public class EmpresaEscrituraApoderadoServiceImpl implements EmpresaEscrituraApo
     }
 
     @Override
+    @Transactional
     public EmpresaEscrituraApoderadoDto modificarApoderado(String empresaUuid, String escrituraUuid, String apoderadoUuid, String username, EmpresaEscrituraApoderadoDto empresaEscrituraApoderadoDto) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(apoderadoUuid) || empresaEscrituraApoderadoDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
@@ -122,8 +158,13 @@ public class EmpresaEscrituraApoderadoServiceImpl implements EmpresaEscrituraApo
         empresaEscrituraApoderado.setApellidos(empresaEscrituraApoderadoDto.getApellidos());
         empresaEscrituraApoderado.setApellidoMaterno(empresaEscrituraApoderadoDto.getApellidoMaterno());
         empresaEscrituraApoderado.setCurp(empresaEscrituraApoderadoDto.getCurp());
-        empresaEscrituraApoderado.setFechaInicio(LocalDate.parse(empresaEscrituraApoderadoDto.getFechaInicio()));
-        empresaEscrituraApoderado.setFechaFin(LocalDate.parse(empresaEscrituraApoderadoDto.getFechaFin()));
+        if(StringUtils.isNotBlank(empresaEscrituraApoderadoDto.getFechaInicio())) {
+            empresaEscrituraApoderado.setFechaInicio(LocalDate.parse(empresaEscrituraApoderadoDto.getFechaInicio()));
+        }
+
+        if(StringUtils.isNotBlank(empresaEscrituraApoderadoDto.getFechaFin())) {
+            empresaEscrituraApoderado.setFechaFin(LocalDate.parse(empresaEscrituraApoderadoDto.getFechaFin()));
+        }
 
         daoHelper.fulfillAuditorFields(false, empresaEscrituraApoderado, usuario.getId());
         empresaEscrituraApoderadoRepository.save(empresaEscrituraApoderado);
@@ -131,7 +172,7 @@ public class EmpresaEscrituraApoderadoServiceImpl implements EmpresaEscrituraApo
     }
 
     @Override
-    public EmpresaEscrituraApoderadoDto eliminarApoderado(String empresaUuid, String escrituraUuid, String apoderadoUuid, String username) {
+    public EmpresaEscrituraApoderadoDto eliminarApoderado(String empresaUuid, String escrituraUuid, String apoderadoUuid, String username, EmpresaEscrituraApoderadoDto empresaEscrituraApoderadoDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(apoderadoUuid)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
             throw new InvalidDataException();
@@ -147,8 +188,24 @@ public class EmpresaEscrituraApoderadoServiceImpl implements EmpresaEscrituraApo
             throw new NotFoundResourceException();
         }
 
+        empresaEscrituraApoderado.setObservacionesBaja(empresaEscrituraApoderadoDto.getObservacionesBaja());
+        empresaEscrituraApoderado.setFechaBaja(LocalDate.parse(empresaEscrituraApoderadoDto.getFechaBaja()));
+        empresaEscrituraApoderado.setMotivoBaja(empresaEscrituraApoderadoDto.getMotivoBaja());
         empresaEscrituraApoderado.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, empresaEscrituraApoderado, usuario.getId());
+
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Agregando");
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_BAJA_APODERADO, empresaUuid);
+                empresaEscrituraApoderado.setDocumentoFundatorioBaja(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+
         empresaEscrituraApoderadoRepository.save(empresaEscrituraApoderado);
         return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraApoderado(empresaEscrituraApoderado);
     }

@@ -1,6 +1,8 @@
 import {Deserializable} from "./Deserializable";
 
 export default class PersonaCertificacion implements Deserializable {
+  id: number;
+  uuid: string;
   nombre: string;
   nombreInstructor: string;
   duracion: string;

@@ -18,6 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class IncidenciaPersonalServiceImpl implements IncidenciaPersonalService {
 
@@ -39,6 +42,29 @@ public class IncidenciaPersonalServiceImpl implements IncidenciaPersonalService 
         this.usuarioService = usuarioService;
         this.daoHelper = daoHelper;
         this.personaRepository = personaRepository;
+    }
+
+    @Override
+    public List<PersonaDto> obtenerPersonasIncidencia(String empresaUuid, String incidenciaUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(incidenciaUuid)) {
+            logger.warn("Alguno de los parametros es nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Agregando persona a la incidencia [{}]", incidenciaUuid);
+
+        Incidencia incidencia = incidenciaRepository.getByUuidAndEliminadoFalse(incidenciaUuid);
+
+        if(incidencia == null) {
+            logger.warn("La incidencia no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<IncidenciaPersona> incidenciaPersonas = incidenciaPersonaRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
+        return incidenciaPersonas.stream().map(p -> {
+            Personal personal = personaRepository.getOne(p.getPersona());
+            return daoToDtoConverter.convertDaoToDtoPersona(personal);
+        }).collect(Collectors.toList());
     }
 
     @Override

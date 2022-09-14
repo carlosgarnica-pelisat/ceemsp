@@ -88,7 +88,7 @@ public class IncidenciaVehiculoServiceImpl implements IncidenciaVehiculoService 
             throw new NotFoundResourceException();
         }
 
-        IncidenciaVehiculo incidenciaVehiculo = incidenciaVehiculoRepository.getByIncidenciaAndVehiculoAndEliminadoFalse(vehiculo.getId(), incidencia.getId());
+        IncidenciaVehiculo incidenciaVehiculo = incidenciaVehiculoRepository.getByIncidenciaAndVehiculoAndEliminadoFalse(incidencia.getId(), vehiculo.getId());
 
         if(incidenciaVehiculo == null) {
             logger.warn("El vehiculo en la incidencia no se encuentra registrada");

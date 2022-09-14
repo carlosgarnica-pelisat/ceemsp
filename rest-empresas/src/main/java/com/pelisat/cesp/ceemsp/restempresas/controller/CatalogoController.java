@@ -2,11 +2,10 @@ package com.pelisat.cesp.ceemsp.restempresas.controller;
 
 import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.restempresas.service.CatalogoService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -56,7 +55,7 @@ public class CatalogoController {
         return catalogoService.obtenerPuestosDeTrabajo();
     }
 
-    @GetMapping(value = CATALOGO_URI + "/domicilios/tipos-infraestructura", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = CATALOGO_URI + "/tipos-infraestructura", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<TipoInfraestructuraDto> obtenerTiposInfraestructura() {
         return catalogoService.obtenerTiposInfraestructura();
     }
@@ -76,5 +75,48 @@ public class CatalogoController {
         return catalogoService.obtenerMarcasVehiculos();
     }
 
+    @GetMapping(value = CATALOGO_URI + "/vehiculos/tipos", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<VehiculoTipoDto> obtenerTiposVehiculo() {
+        return catalogoService.obtenerTiposVehiculo();
+    }
 
+    @GetMapping(value = CATALOGO_URI + "/estados", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<EstadoDto> obtenerEstados() {
+        return catalogoService.obtenerTodosLosEstados();
+    }
+
+    @GetMapping(value = CATALOGO_URI + "/estados/{estadoUuid}/municipios")
+    public List<MunicipioDto> obtenerMunicipiosPorEstadoUuid(
+            @PathVariable(value = "estadoUuid") String estadoUuid
+    ) {
+        return catalogoService.obtenerMunicipiosPorEstadoUuid(estadoUuid);
+    }
+
+    @GetMapping(value = CATALOGO_URI + "/estados/{estadoUuid}/municipios/{municipioUuid}/localidades")
+    public List<LocalidadDto> obtenerLocalidadesPorMunicipioYEstadoUuid(
+            @PathVariable(value = "estadoUuid") String estadoUuid,
+            @PathVariable(value = "municipioUuid") String municipioUuid
+    ) {
+        return catalogoService.obtenerLocalidadesPorEstadoUuidYMunicipioUuid(estadoUuid, municipioUuid);
+    }
+
+    @GetMapping(value = CATALOGO_URI + "/estados/{estadoUuid}/municipios/{municipioUuid}/colonias")
+    public List<ColoniaDto> obtenerColoniasPorMunicipioYEstadoUuid(
+            @PathVariable(value = "estadoUuid") String estadoUuid,
+            @PathVariable(value = "municipioUuid") String municipioUuid
+    ) {
+        return catalogoService.obtenerColoniasPorEstadoUuidYMunicipioUuid(estadoUuid, municipioUuid);
+    }
+
+    @GetMapping(value = CATALOGO_URI + "/calles", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<CalleDto> obtenerCalles(
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "limit", required = false) Integer limit
+    ) {
+        if(StringUtils.isBlank(query)) {
+            return catalogoService.obtenerCalles(limit);
+        } else {
+            return catalogoService.obtenerCallesPorQuery(query);
+        }
+    }
 }

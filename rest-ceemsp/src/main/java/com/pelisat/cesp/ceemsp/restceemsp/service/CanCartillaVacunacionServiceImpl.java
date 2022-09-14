@@ -59,7 +59,7 @@ public class CanCartillaVacunacionServiceImpl implements CanCartillaVacunacionSe
 
         logger.info("Obteniendo las cartillas de vacunacion para el can con uuid [{}]", canUuid);
 
-        Can can = canRepository.getByUuidAndEliminadoFalse(canUuid);
+        Can can = canRepository.getByUuid(canUuid);
 
         if(can == null) {
             logger.warn("El can viene como nulo o vacio");
@@ -67,6 +67,24 @@ public class CanCartillaVacunacionServiceImpl implements CanCartillaVacunacionSe
         }
 
         List<CanCartillaVacunacion> canCartillaVacunaciones = canCartillaVacunacionRepository.findAllByCanAndEliminadoFalse(can.getId());
+        return canCartillaVacunaciones.stream().map(daoToDtoConverter::convertDaoToDtoCanCartillaVacunacion).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CanCartillaVacunacionDto> obtenerTodasCartillasVacunacionPorCanUuid(String empresaUuid, String canUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid)) {
+            logger.warn("Alguno de los parametros viene invalido");
+            throw new InvalidDataException();
+        }
+        logger.info("Obteniendo todas las cartillas de vacunacion por el can con uuid [{}]", canUuid);
+        Can can = canRepository.getByUuid(canUuid);
+
+        if(can == null) {
+            logger.warn("El can viene como nulo o vacio");
+            throw new NotFoundResourceException();
+        }
+
+        List<CanCartillaVacunacion> canCartillaVacunaciones = canCartillaVacunacionRepository.findAllByCan(can.getId());
         return canCartillaVacunaciones.stream().map(daoToDtoConverter::convertDaoToDtoCanCartillaVacunacion).collect(Collectors.toList());
     }
 

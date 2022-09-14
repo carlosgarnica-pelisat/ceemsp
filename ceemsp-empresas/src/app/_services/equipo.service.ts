@@ -19,8 +19,4 @@ export class EquipoService {
   obtenerEquipoByUuid(uuid: String) {
     return this.http.get(`${this.uri}/catalogos/equipos/${uuid}`)
   }
-
-  guardarEquipo(equipo: Equipo) {
-    return this.http.post(`${this.uri}/catalogos/equipos`, equipo)
-  }
 }

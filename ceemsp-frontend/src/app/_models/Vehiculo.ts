@@ -5,6 +5,8 @@ import VehiculoSubmarca from "./VehiculoSubmarca";
 import VehiculoColor from "./VehiculoColor";
 import VehiculoFotografiaMetadata from "./VehiculoFotografiaMetadata";
 import VehiculoUso from "./VehiculoUso";
+import EmpresaDomicilio from "./EmpresaDomicilio";
+import Persona from "./Persona";
 
 export default class Vehiculo implements Deserializable {
   id: number;
@@ -29,9 +31,17 @@ export default class Vehiculo implements Deserializable {
   razonSocial: string;
   fechaInicio: string;
   fechaFin: string;
+  personalAsignado: Persona;
+  eliminado: boolean;
+
+  motivoBaja: string;
+  observacionesBaja: string;
+  documentoFundatorioBaja: string;
+  fechaBaja: string;
 
   colores: VehiculoColor[];
   fotografias: VehiculoFotografiaMetadata[];
+  domicilio: EmpresaDomicilio;
 
   deserialize(input: any): this {
     Object.assign(this, input);

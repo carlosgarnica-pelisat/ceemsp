@@ -1,6 +1,7 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
 import com.google.gson.Gson;
+import com.pelisat.cesp.ceemsp.database.dto.CanDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDomicilioDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaDomicilioService;
@@ -32,6 +33,13 @@ public class EmpresaDomicilioController {
             @PathVariable(value = "empresaUuid") String empresaUuid
     ) {
         return empresaDomicilioService.obtenerPorEmpresaUuid(empresaUuid);
+    }
+
+    @GetMapping(value = EMPRESA_DOMICILIOS_URI + "/eliminados")
+    public List<EmpresaDomicilioDto> obtenerDomiciliosEliminadosPorUuid(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) {
+        return empresaDomicilioService.obtenerEliminadosPorEmpresaUuid(empresaUuid);
     }
 
     @GetMapping(value = EMPRESA_DOMICILIOS_URI + "/{domicilioUuid}")
@@ -67,7 +75,7 @@ public class EmpresaDomicilioController {
     public EmpresaDomicilioDto eliminarEmpresaDomicilio(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "domicilioUuid") String domicilioUuid,
-            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
             @RequestParam("domicilio") String domicilio,
             HttpServletRequest request
     ) throws Exception {

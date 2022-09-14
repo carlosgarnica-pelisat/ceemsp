@@ -11,4 +11,5 @@ public class CanAdiestramientoDto {
     private String nombreInstructor;
     private String fechaConstancia;
     private CanTipoAdiestramientoDto canTipoAdiestramiento;
+    private boolean eliminado;
 }

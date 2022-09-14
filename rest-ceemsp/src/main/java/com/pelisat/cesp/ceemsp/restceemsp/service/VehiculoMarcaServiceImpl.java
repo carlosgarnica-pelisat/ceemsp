@@ -9,6 +9,7 @@ import com.pelisat.cesp.ceemsp.database.model.VehiculoTipo;
 import com.pelisat.cesp.ceemsp.database.repository.ArmaTipoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoMarcaRepository;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoSubmarcaRepository;
+import com.pelisat.cesp.ceemsp.database.type.VehiculoTipoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
@@ -49,6 +50,15 @@ public class VehiculoMarcaServiceImpl implements VehiculoMarcaService {
         logger.info("Consultando todas las marcas de vehiculos en la base de datos");
         List<VehiculoMarca> armaTipos = vehiculoMarcaRepository.getAllByEliminadoFalse();
         return armaTipos.stream()
+                .map(daoToDtoConverter::convertDaoToDtoVehiculoMarca)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<VehiculoMarcaDto> obtenerMarcaTipo(VehiculoTipoEnum vehiculoTipoEnum) {
+        logger.info("Consultando las marcas por el tipo [{}]", vehiculoTipoEnum);
+        List<VehiculoMarca> vehiculoMarcas = vehiculoMarcaRepository.getAllByTipoAndEliminadoFalse(vehiculoTipoEnum);
+        return vehiculoMarcas.stream()
                 .map(daoToDtoConverter::convertDaoToDtoVehiculoMarca)
                 .collect(Collectors.toList());
     }
@@ -144,6 +154,7 @@ public class VehiculoMarcaServiceImpl implements VehiculoMarcaService {
 
         vehiculoMarca.setNombre(vehiculoMarcaDto.getNombre());
         vehiculoMarca.setDescripcion(vehiculoMarcaDto.getDescripcion());
+        vehiculoMarca.setTipo(vehiculoMarcaDto.getTipo());
         vehiculoMarca.setFechaActualizacion(LocalDateTime.now());
         vehiculoMarca.setActualizadoPor(usuario.getId());
 

@@ -90,4 +90,14 @@
     <include file="changelog/localidades/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/colonias/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/calles/master.xml" relativeToChangelogFile="true"></include>
+
+    <include file="changelog/buzon-interno/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/buzon_interno_comunicados/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/acuerdos/master.xml" relativeToChangelogFile="true"></include>
+
+    <include file="changelog/empresas-uniformes-elementos-movimientos/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/empresas-equipos-movimientos/master.xml" relativeToChangelogFile="true"></include>
+
+    <include file="changelog/clientes-asignaciones-personal/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/clientes-formas-ejecucion/master.xml" relativeToChangelogFile="true"></include>
 </databaseChangeLog>

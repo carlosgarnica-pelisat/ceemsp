@@ -57,6 +57,25 @@ import { RfcDirective } from './_directives/rfc.directive';
 import { BuscarNombrePipe } from './_pipes/buscar-nombre.pipe';
 import {GoogleChartsModule} from "angular-google-charts";
 import { AcercaComponent } from './home/configuracion/acerca/acerca.component';
+import { BotonEmpresaDomiciliosComponent } from './_components/botones/boton-empresa-domicilios/boton-empresa-domicilios.component';
+import { BotonEmpresaLegalComponent } from './_components/botones/boton-empresa-legal/boton-empresa-legal.component';
+import { BotonEmpresaLicenciasComponent } from './_components/botones/boton-empresa-licencias/boton-empresa-licencias.component';
+import { BotonEmpresaCanesComponent } from './_components/botones/boton-empresa-canes/boton-empresa-canes.component';
+import { BotonEmpresaVehiculosComponent } from './_components/botones/boton-empresa-vehiculos/boton-empresa-vehiculos.component';
+import { BotonEmpresaIncidenciasComponent } from './_components/botones/boton-empresa-incidencias/boton-empresa-incidencias.component';
+import { BotonEmpresaClientesComponent } from './_components/botones/boton-empresa-clientes/boton-empresa-clientes.component';
+import { BotonEmpresaPersonalComponent } from './_components/botones/boton-empresa-personal/boton-empresa-personal.component';
+import { BotonEmpresaEquiposComponent } from './_components/botones/boton-empresa-equipos/boton-empresa-equipos.component';
+import { BotonEmpresaUniformesComponent } from './_components/botones/boton-empresa-uniformes/boton-empresa-uniformes.component';
+import { BotonCatalogosComponent } from './_components/botones/boton-catalogos/boton-catalogos.component';
+import { EmpresaAcuerdosComponent } from './home/empresas/empresa-acuerdos/empresa-acuerdos.component';
+import { BotonEmpresaAcuerdosComponent } from './_components/botones/boton-empresa-acuerdos/boton-empresa-acuerdos.component';
+import { GoogleMapsModule } from "@angular/google-maps";
+import {AgmCoreModule} from "@agm/core";
+import { ModalidadArmadaPipe } from './_pipes/modalidad-armada.pipe';
+import { BotonBuzonSalidaComponent } from './_components/botones/boton-buzon-salida/boton-buzon-salida.component';
+import { BuscarRazonSocialPipe } from './_pipes/buscar-razon-social.pipe';
+import { BuscarNombresPipe } from './_pipes/buscar-nombres.pipe';
 
 @NgModule({
   declarations: [
@@ -103,7 +122,24 @@ import { AcercaComponent } from './home/configuracion/acerca/acerca.component';
     RfcDirective,
     BuscarNombrePipe,
     UsuariosComponent,
-    AcercaComponent
+    AcercaComponent,
+    BotonEmpresaDomiciliosComponent,
+    BotonEmpresaLegalComponent,
+    BotonEmpresaLicenciasComponent,
+    BotonEmpresaCanesComponent,
+    BotonEmpresaVehiculosComponent,
+    BotonEmpresaIncidenciasComponent,
+    BotonEmpresaClientesComponent,
+    BotonEmpresaPersonalComponent,
+    BotonEmpresaEquiposComponent,
+    BotonEmpresaUniformesComponent,
+    BotonCatalogosComponent,
+    EmpresaAcuerdosComponent,
+    BotonEmpresaAcuerdosComponent,
+    ModalidadArmadaPipe,
+    BotonBuzonSalidaComponent,
+    BuscarRazonSocialPipe,
+    BuscarNombresPipe
   ],
   imports: [
     BrowserModule,
@@ -117,7 +153,11 @@ import { AcercaComponent } from './home/configuracion/acerca/acerca.component';
     CKEditorModule,
     NgxPrintModule,
     PdfViewerModule,
-    GoogleChartsModule
+    GoogleChartsModule,
+    GoogleMapsModule,
+    AgmCoreModule.forRoot({
+      apiKey: 'AIzaSyDhtDzSjzQt5q9LI8aR7xXNA4QPsUgaEsY'
+    })
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

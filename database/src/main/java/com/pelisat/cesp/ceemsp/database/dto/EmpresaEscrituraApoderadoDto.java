@@ -16,4 +16,9 @@ public class EmpresaEscrituraApoderadoDto {
     private String fechaInicio;
     private String fechaFin;
     private String curp;
+    private boolean eliminado;
+    private String motivoBaja;
+    private String observacionesBaja;
+    private String documentoFundatorioBaja;
+    private String fechaBaja;
 }

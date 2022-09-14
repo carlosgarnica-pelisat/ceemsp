@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,8 +92,17 @@ public class EmpresaModalidadServiceImpl implements EmpresaModalidadService {
         empresaModalidad.setUuid(RandomStringUtils.randomAlphanumeric(12));
         empresaModalidad.setEmpresa(empresaDto.getId());
         empresaModalidad.setModalidad(empresaModalidadDto.getModalidad().getId());
+        empresaModalidad.setNumeroRegistroFederal(empresaModalidadDto.getNumeroRegistroFederal());
         if(empresaModalidadDto.getSubmodalidad() != null) {
             empresaModalidad.setSubmodalidad(empresaModalidadDto.getSubmodalidad().getId());
+        }
+
+        if(StringUtils.isNotBlank(empresaModalidadDto.getFechaInicio())) {
+            empresaModalidad.setFechaInicio(LocalDate.parse(empresaModalidadDto.getFechaInicio()));
+        }
+
+        if(StringUtils.isNotBlank(empresaModalidadDto.getFechaFin())) {
+            empresaModalidad.setFechaFin(LocalDate.parse(empresaModalidadDto.getFechaFin()));
         }
 
         daoHelper.fulfillAuditorFields(true, empresaModalidad, usuarioDto.getId());

@@ -12,9 +12,13 @@ import Cliente from "../../../_models/Cliente";
 import {ToastType} from "../../../_enums/ToastType";
 import Incidencia from "../../../_models/Incidencia";
 import IncidenciaComentario from "../../../_models/IncidenciaComentario";
-import {faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faDownload, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {UsuariosService} from "../../../_services/usuarios.service";
 import Usuario from "../../../_models/Usuario";
+import {
+  BotonEmpresaIncidenciasComponent
+} from "../../../_components/botones/boton-empresa-incidencias/boton-empresa-incidencias.component";
+import Empresa from "../../../_models/Empresa";
 
 @Component({
   selector: 'app-empresa-incidencias',
@@ -27,16 +31,27 @@ export class EmpresaIncidenciasComponent implements OnInit {
   private gridColumnApi;
 
   faTrash = faTrash;
+  faDownload = faDownload;
 
   columnDefs = [
     {headerName: 'Numero', field: 'numero', sortable: true, filter: true },
-    {headerName: 'Asignado', field: 'asignado === null ? Sin asignar : asignado.nombre', sortable: true, filter: true },
-    {headerName: 'Fecha', field: 'fechaIncidencia', sortable: true, filter: true },
-    {headerName: 'Status', field: 'status', sortable: true, filter: true}
+    {headerName: 'Asignado', sortable: true, filter: true, valueGetter: function (params) {if(params.data.asignado === null) { return 'Sin asignar' } return params.data.asignado?.nombres + " " + params.data.asignado?.apellidos} },
+    {headerName: 'Fecha de incidencia', field: 'fechaIncidencia', sortable: true, filter: true },
+    {headerName: 'Fecha de captura', field: 'fechaCreacion', sortable: true, filter: true },
+    {headerName: 'Status', field: 'status', sortable: true, filter: true},
+    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        cambiarAsignado: this.cambiarAsignado.bind(this),
+        cambiarStatus: this.cambiarStatus.bind(this)
+      }}
   ];
   rowData = [];
 
+  tempFile;
+
   uuid: string;
+  empresa: Empresa;
   modal: NgbModalRef;
   frameworkComponents: any;
   closeResult: string;
@@ -50,6 +65,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
   crearVehiculoIncidenciaForm: FormGroup;
   crearCanIncidenciaForm: FormGroup;
   crearArmaIncidenciaForm: FormGroup;
+  crearArchivoIncidenciaForm: FormGroup;
 
   cambiarAsignacionTicketForm: FormGroup;
   responderIncidenciaForm: FormGroup;
@@ -71,6 +87,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
   mostrarAgregarVehiculoForm: boolean = false;
   mostrarAgregarArmaForm: boolean = false;
   mostrarAgregarPersonalForm: boolean = false;
+  mostrarAgregarArchivoForm: boolean = false;
 
   pestanaActualInvolucramiento: string = 'PERSONAL';
   incidenciaActualTab: string = 'COMENTARIOS';
@@ -80,9 +97,16 @@ export class EmpresaIncidenciasComponent implements OnInit {
   incidencia: Incidencia;
 
   tempUuid: string;
+  tempIndex: number;
 
+  @ViewChild('mostrarIncidenciaDetallesModal') mostrarIncidenciaDetallesModal;
   @ViewChild('responderIncidenciaModal') responderIncidenciaModal;
   @ViewChild('seleccionarAsignadoModal') seleccionarAsignadoModal;
+
+  @ViewChild('quitarIncidenciaPersonaModal') quitarIncidenciaPersonaModal;
+  @ViewChild('quitarIncidenciaArmaModal') quitarIncidenciaArmaModal;
+  @ViewChild('quitarIncidenciaCanModal') quitarIncidenciaCanModal;
+  @ViewChild('quitarIncidenciaVehiculoModal') quitarIncidenciaVehiculoModal;
 
   @ViewChild('eliminarIncidenciaPersonaModal') eliminarIncidenciaPersonaModal;
   @ViewChild('eliminarIncidenciaArmaModal') eliminarIncidenciaArmaModal;
@@ -95,7 +119,21 @@ export class EmpresaIncidenciasComponent implements OnInit {
               private empresaService: EmpresaService, private usuariosService: UsuariosService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      buttonRenderer: BotonEmpresaIncidenciasComponent
+    }
+
     this.uuid = this.route.snapshot.paramMap.get("uuid");
+
+    this.empresaService.obtenerPorUuid(this.uuid).subscribe((data: Empresa) => {
+      this.empresa = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la informacion de la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
 
     this.crearIncidenciaForm = this.formBuilder.group({
       'fechaIncidencia': ['', Validators.required],
@@ -125,6 +163,10 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     this.responderIncidenciaForm = this.formBuilder.group({
       'status': ['', Validators.required]
+    })
+
+    this.crearArchivoIncidenciaForm = this.formBuilder.group({
+      'archivo': ['', Validators.required]
     })
 
     this.empresaService.obtenerClientes(this.uuid).subscribe((data: Cliente[]) => {
@@ -187,13 +229,102 @@ export class EmpresaIncidenciasComponent implements OnInit {
       );
     });
 
-    this.usuariosService.obtenerUsuarios().subscribe((data: Usuario[]) => {
+    this.usuariosService.obtenerUsuariosInternos().subscribe((data: Usuario[]) => {
       this.usuarios = data;
-      console.log(data);
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se han podido descargar los usuarios. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  verDetalles(rowData) {
+    this.mostrarModalDetalles(rowData.rowData, this.mostrarIncidenciaDetallesModal)
+  }
+
+  cambiarStatus(rowData) {
+    console.log(rowData);
+    this.empresaService.obtenerIncidenciaPorUuid(this.uuid, rowData.rowData.uuid).subscribe((data: Incidencia) => {
+      this.incidencia = data;
+      this.mostrarModalResponder();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la informacion de la incidencia. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
+  }
+
+  cambiarAsignado(rowData) {
+    this.empresaService.obtenerIncidenciaPorUuid(this.uuid, rowData.rowData.uuid).subscribe((data: Incidencia) => {
+      this.incidencia = data;
+      this.mostrarModalAsignar();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la informacion de la incidencia. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
+  }
+
+  agregarArchivo(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que no han sido rellenados",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se estan guardando los cambios",
+      ToastType.INFO
+    );
+
+    let formData = new FormData();
+    formData.append('archivo', this.tempFile, this.tempFile.name);
+
+    this.empresaService.agregarArchivoIncidencia(this.uuid, this.incidencia.uuid, formData).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha guardado la incidencia con exito`,
+        ToastType.SUCCESS
+      );
+      this.conmutarAgregarArchivoForm();
+      this.empresaService.obtenerIncidenciaPorUuid(this.uuid, this.incidencia.uuid).subscribe((data: Incidencia) => {
+        this.incidencia = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la incidencia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        `Ocurrio un problema`,
+        `No se ha podido descargar el archivo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  descargarArchivo(uuid) {
+    this.empresaService.descargarArchivoIncidencia(this.uuid, this.incidencia.uuid, uuid).subscribe((data) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "incidencia" + this.incidencia.uuid;
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        `Ocurrio un problema`,
+        `No se ha podido descargar el archivo. Motivo: ${error}`,
         ToastType.ERROR
       );
     })
@@ -264,6 +395,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
         "Se ha asignado la incidencia",
         ToastType.SUCCESS
       );
+      window.location.reload();
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -277,6 +409,16 @@ export class EmpresaIncidenciasComponent implements OnInit {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
     this.gridColumnApi = params.gridApi;
+  }
+
+  onFileChange(event) {
+    this.tempFile = event.target.files[0]
+  }
+
+  mostrarModalEliminarArchivo(uuid) {
+    this.tempUuid = uuid;
+
+    this.modal = this.modalService.open(this.eliminarIncidenciaArchivoModal, {size: "lg"})
   }
 
   mostrarModalEliminarPersona(uuid) {
@@ -345,6 +487,10 @@ export class EmpresaIncidenciasComponent implements OnInit {
     this.mostrarAgregarVehiculoForm = !this.mostrarAgregarVehiculoForm;
   }
 
+  conmutarAgregarArchivoForm() {
+    this.mostrarAgregarArchivoForm = !this.mostrarAgregarArchivoForm;
+  }
+
   mostrarModalDetalles(rowData, modal) {
     let uuid = rowData.uuid;
     this.empresaService.obtenerIncidenciaPorUuid(this.uuid, uuid).subscribe((data: Incidencia) => {
@@ -398,20 +544,44 @@ export class EmpresaIncidenciasComponent implements OnInit {
     this.conmutarAgregarCanForm();
   }
 
-  quitarPersonaIncidencia(index) {
-    this.personalInvolucrado.splice(index, 1);
+  mostrarModalQuitarPersonaIncidencia(index) {
+    this.tempIndex = index;
+    this.modal = this.modalService.open(this.quitarIncidenciaPersonaModal, {size: "lg"})
   }
 
-  quitarArmaIncidencia(index) {
-    this.armasInvolucradas.splice(index, 1);
+  mostrarModalQuitarArmaIncidencia(index) {
+    this.tempIndex = index;
+    this.modal = this.modalService.open(this.quitarIncidenciaArmaModal, {size: "lg"})
   }
 
-  quitarCanIncidencia(index) {
-    this.canesInvolucrados.splice(index, 1);
+  mostrarModalQuitarCanIncidencia(index) {
+    this.tempIndex = index;
+    this.modal = this.modalService.open(this.quitarIncidenciaCanModal, {size: "lg"})
   }
 
-  quitarVehiculoIncidencia(index) {
-    this.vehiculosInvolucrados.splice(index, 1);
+  mostrarModalQuitarVehiculoIncidencia(index) {
+    this.tempIndex = index;
+    this.modal = this.modalService.open(this.quitarIncidenciaVehiculoModal, {size: "lg"})
+  }
+
+  quitarPersonaIncidencia() {
+    this.personalInvolucrado.splice(this.tempIndex, 1);
+    this.modal.close();
+  }
+
+  quitarArmaIncidencia() {
+    this.armasInvolucradas.splice(this.tempIndex, 1);
+    this.modal.close();
+  }
+
+  quitarCanIncidencia() {
+    this.canesInvolucrados.splice(this.tempIndex, 1);
+    this.modal.close();
+  }
+
+  quitarVehiculoIncidencia() {
+    this.vehiculosInvolucrados.splice(this.tempIndex, 1);
+    this.modal.close();
   }
 
   cambiarIncidenciaActualTab(tab) {
@@ -460,7 +630,16 @@ export class EmpresaIncidenciasComponent implements OnInit {
         "Se guardo la persona a la incidencia con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.conmutarAgregarPersonalForm();
+      this.empresaService.obtenerIncidenciaPorUuid(this.uuid, this.incidencia.uuid).subscribe((data: Incidencia) => {
+        this.incidencia = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la incidencia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -507,7 +686,16 @@ export class EmpresaIncidenciasComponent implements OnInit {
         "Se guardo el arma a la incidencia con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.conmutarAgregarArmaForm();
+      this.empresaService.obtenerIncidenciaPorUuid(this.uuid, this.incidencia.uuid).subscribe((data: Incidencia) => {
+        this.incidencia = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la incidencia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -554,7 +742,16 @@ export class EmpresaIncidenciasComponent implements OnInit {
         "Se guardo el can a la incidencia con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.conmutarAgregarCanForm();
+      this.empresaService.obtenerIncidenciaPorUuid(this.uuid, this.incidencia.uuid).subscribe((data: Incidencia) => {
+        this.incidencia = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la incidencia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -601,7 +798,16 @@ export class EmpresaIncidenciasComponent implements OnInit {
         "Se guardo el vehiculo a la incidencia con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.conmutarAgregarVehiculoForm();
+      this.empresaService.obtenerIncidenciaPorUuid(this.uuid, this.incidencia.uuid).subscribe((data: Incidencia) => {
+        this.incidencia = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la incidencia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -628,6 +834,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
   }
 
   agregarVehiculo(form) {
+    console.log(form.value);
     if(!form.valid) {
       this.toastService.showGenericToast(
         'Ocurrio un problema',
@@ -676,7 +883,16 @@ export class EmpresaIncidenciasComponent implements OnInit {
     formValue.comentarios.push(comentario);
     formValue.cliente = this.cliente;
 
-    this.empresaService.guardarIncidencia(this.uuid, formValue).subscribe((data: Incidencia) => {
+    let formData = new FormData();
+    formData.append('incidencia', JSON.stringify(formValue));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+    this.empresaService.guardarIncidencia(this.uuid, formData).subscribe((data: Incidencia) => {
       this.toastService.showGenericToast(
         "Listo",
         `Se ha guardado la incidencia con exito`,
@@ -714,7 +930,16 @@ export class EmpresaIncidenciasComponent implements OnInit {
         "Se ha eliminado la persona con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerIncidenciaPorUuid(this.uuid, this.incidencia.uuid).subscribe((data: Incidencia) => {
+        this.incidencia = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la incidencia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -746,7 +971,16 @@ export class EmpresaIncidenciasComponent implements OnInit {
         "Se ha eliminado el arma con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerIncidenciaPorUuid(this.uuid, this.incidencia.uuid).subscribe((data: Incidencia) => {
+        this.incidencia = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la incidencia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -778,7 +1012,16 @@ export class EmpresaIncidenciasComponent implements OnInit {
         "Se ha eliminado el can con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerIncidenciaPorUuid(this.uuid, this.incidencia.uuid).subscribe((data: Incidencia) => {
+        this.incidencia = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la incidencia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -810,7 +1053,16 @@ export class EmpresaIncidenciasComponent implements OnInit {
         "Se ha eliminado el vehiculo con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerIncidenciaPorUuid(this.uuid, this.incidencia.uuid).subscribe((data: Incidencia) => {
+        this.incidencia = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la incidencia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -821,7 +1073,35 @@ export class EmpresaIncidenciasComponent implements OnInit {
   }
 
   confirmarEliminarArchivo() {
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      `Estamos eliminando el archivo`,
+      ToastType.INFO
+    );
 
+    this.empresaService.eliminarArchivoIncidencia(this.uuid, this.incidencia.uuid, this.tempUuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha eliminado el archivo con exito`,
+        ToastType.SUCCESS
+      );
+      this.modal.close();
+      this.empresaService.obtenerIncidenciaPorUuid(this.uuid, this.incidencia.uuid).subscribe((data: Incidencia) => {
+        this.incidencia = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la incidencia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        `Ocurrio un problema`,
+        `No se ha podido eliminar el archivo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   private getDismissReason(reason: any): string {

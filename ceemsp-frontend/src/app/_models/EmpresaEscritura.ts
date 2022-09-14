@@ -27,6 +27,8 @@ export default class EmpresaEscritura implements Deserializable {
   apoderados: EmpresaEscrituraApoderado[];
   representantes: EmpresaEscrituraRepresentante[];
   consejos: EmpresaEscrituraConsejo[];
+  nombreArchivo: string;
+  fechaCreacion: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);

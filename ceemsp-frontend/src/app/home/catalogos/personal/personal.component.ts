@@ -7,8 +7,7 @@ import {ToastType} from "../../../_enums/ToastType";
 import PersonalPuestoTrabajo from "../../../_models/PersonalPuestoTrabajo";
 import PersonalSubpuestoTrabajo from "../../../_models/PersonalSubpuestoTrabajo";
 import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
-import VehiculoMarca from "../../../_models/VehiculoMarca";
-import VehiculoSubmarca from "../../../_models/VehiculoSubmarca";
+import {BotonCatalogosComponent} from "../../../_components/botones/boton-catalogos/boton-catalogos.component";
 
 @Component({
   selector: 'app-personal',
@@ -16,14 +15,20 @@ import VehiculoSubmarca from "../../../_models/VehiculoSubmarca";
   styleUrls: ['./personal.component.css']
 })
 export class PersonalComponent implements OnInit {
-
+  editandoModal: boolean = false;
   private gridApi;
   private gridColumnApi;
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+    {headerName: 'Acciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
   ];
   rowData: PersonalPuestoTrabajo[] = [];
   puestoTrabajo: PersonalPuestoTrabajo;
@@ -48,6 +53,7 @@ export class PersonalComponent implements OnInit {
   crearPuestoDeTrabajoForm: FormGroup;
   crearSubpuestoDeTrabajoForm: FormGroup;
 
+  @ViewChild('mostrarPuestoDetallesModal') mostrarPuestoDetallesModal;
   @ViewChild('modificarPuestoTrabajoModal') modificarPuestoTrabajoModal;
   @ViewChild("eliminarPuestoModal") eliminarPuestoModal;
   @ViewChild("eliminarSubpuestoModal") eliminarSubpuestoModal;
@@ -56,6 +62,10 @@ export class PersonalComponent implements OnInit {
               private personalService: PersonalService, private toastService: ToastService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      catalogoButtonRenderer: BotonCatalogosComponent
+    }
+
     this.personalService.obtenerPuestosPersonal().subscribe((data: PersonalPuestoTrabajo[]) => {
       this.rowData = data;
     }, (error) => {
@@ -79,6 +89,32 @@ export class PersonalComponent implements OnInit {
     })
   }
 
+  verDetalles(rowData) {
+    this.checkForDetails(rowData.rowData, this.mostrarPuestoDetallesModal);
+  }
+
+  editar(rowData) {
+    this.puestoTrabajo = rowData.rowData;
+    this.editandoModal = false;
+    this.crearPuestoDeTrabajoForm.patchValue({
+      nombre: this.puestoTrabajo.nombre,
+      descripcion: this.puestoTrabajo.descripcion
+    });
+
+    this.modal = this.modalService.open(this.modificarPuestoTrabajoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  eliminar(rowData) {
+    this.puestoTrabajo = rowData.rowData;
+    this.mostrarEliminarPuestoTrabajoModal();
+  }
+
   onGridReady(params) {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
@@ -96,12 +132,13 @@ export class PersonalComponent implements OnInit {
   }
 
   mostrarModificarPuestoTrabajoModal() {
+    this.editandoModal = true;
     this.crearPuestoDeTrabajoForm.patchValue({
       nombre: this.puestoTrabajo.nombre,
       descripcion: this.puestoTrabajo.descripcion
     });
 
-    this.modalService.open(this.modificarPuestoTrabajoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    this.modal = this.modalService.open(this.modificarPuestoTrabajoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -146,7 +183,7 @@ export class PersonalComponent implements OnInit {
   mostrarEliminarSubpuestoModal(uuid) {
     this.tempUuid = uuid;
 
-    this.modal = this.modalService.open(this.eliminarSubpuestoModal, {size: "xl"})
+    this.modal = this.modalService.open(this.eliminarSubpuestoModal, {size: "lg"})
   }
 
   guardarCambios(form) {
@@ -167,13 +204,18 @@ export class PersonalComponent implements OnInit {
 
     let formValue: PersonalPuestoTrabajo = form.value;
 
-    this.personalService.modificarPuesto(this.uuid, formValue).subscribe((data) => {
+    this.personalService.modificarPuesto(this.uuid, formValue).subscribe((data: PersonalPuestoTrabajo) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha actualizado el puesto de trabajo con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      if(this.editandoModal) {
+        this.puestoTrabajo = data;
+        this.modal.close();
+      } else {
+        window.location.reload();
+      }
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -201,20 +243,55 @@ export class PersonalComponent implements OnInit {
 
     let value: PersonalSubpuestoTrabajo = form.value;
 
-    this.personalService.guardarSubpuestoTrabajo(this.puestoTrabajo.uuid, value).subscribe((data: PersonalSubpuestoTrabajo) => {
-      this.toastService.showGenericToast(
-        "Listo",
-        "Se ha guardado el subpuesto de trabajo con exito",
-        ToastType.SUCCESS
-      );
-      window.location.reload();
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se ha podido guardar el subpuesto de trabajo. Motivo: ${error}`,
-        ToastType.ERROR
-      );
-    })
+    if(this.editandoSubpuesto) {
+      this.personalService.modificarSubpuestoTrabajo(this.uuid, this.subpuestoTrabajo.uuid, value).subscribe((data: PersonalSubpuestoTrabajo) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha modificado el subpuesto de trabajo con exito",
+          ToastType.SUCCESS
+        );
+        this.mostrarFormularioSubpuestos();
+        this.personalService.obtenerSubpuestosTrabajo(this.puestoTrabajo.uuid).subscribe((data: PersonalSubpuestoTrabajo[]) => {
+          this.puestoTrabajo.subpuestos = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un proboema",
+            `No se han podido descargar los subpuestos de trabajo. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los subpuestos. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    } else {
+      this.personalService.guardarSubpuestoTrabajo(this.puestoTrabajo.uuid, value).subscribe((data: PersonalSubpuestoTrabajo) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha guardado el subpuesto de trabajo con exito",
+          ToastType.SUCCESS
+        );
+        this.mostrarFormularioSubpuestos();
+        this.personalService.obtenerSubpuestosTrabajo(this.puestoTrabajo.uuid).subscribe((data: PersonalSubpuestoTrabajo[]) => {
+          this.puestoTrabajo.subpuestos = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un proboema",
+            `No se han podido descargar los subpuestos de trabajo. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar el subpuesto de trabajo. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
   }
 
   checkForDetails(data, modal) {
@@ -325,7 +402,16 @@ export class PersonalComponent implements OnInit {
         "Se ha eliminado el subpuesto con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.personalService.obtenerSubpuestosTrabajo(this.puestoTrabajo.uuid).subscribe((data: PersonalSubpuestoTrabajo[]) => {
+        this.puestoTrabajo.subpuestos = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un proboema",
+          `No se han podido descargar los subpuestos de trabajo. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",

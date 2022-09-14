@@ -88,12 +88,26 @@ public class CatalogoServiceImpl implements CatalogoService {
     }
 
     @Override
+    public CanRazaDto obtenerCanRazaPorId(int id) {
+        logger.info("Consultando la raza del can con el id [{}]", id);
+        CanRaza canRaza = canRazaRepository.getById(id);
+        return daoToDtoConverter.convertDaoToDtoCanRaza(canRaza);
+    }
+
+    @Override
     public List<CanTipoAdiestramientoDto> obtenerCanesAdiestramientos() {
         logger.info("Consultando todas las razas guardadas en la base de datos");
         List<CanTipoAdiestramiento> canTiposAdiestramiento = canTipoAdiestramientoRepository.getAllByEliminadoFalse();
         return canTiposAdiestramiento.stream()
                 .map(daoToDtoConverter::convertDaoToDtoCanTipoAdiestramiento)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CanTipoAdiestramientoDto obtenerCanAdiestramientoPorId(int id) {
+        logger.info("Consultando el uniforme con el id [{}]", id);
+        CanTipoAdiestramiento canTipoAdiestramiento = canTipoAdiestramientoRepository.getById(id);
+        return daoToDtoConverter.convertDaoToDtoCanTipoAdiestramiento(canTipoAdiestramiento);
     }
 
     @Override
@@ -161,6 +175,13 @@ public class CatalogoServiceImpl implements CatalogoService {
     }
 
     @Override
+    public UniformeDto obtenerUniformePorId(int id) {
+        logger.info("Consultando el uniforme con el id [{}]", id);
+        Uniforme uniforme = uniformeRepository.getById(id);
+        return daoToDtoConverter.convertDaoToDtoUniforme(uniforme);
+    }
+
+    @Override
     public List<VehiculoUsoDto> obtenerUsosVehiculos() {
         logger.info("Consultando todos los usos de vehiculos guardadas en la base de datos");
         List<VehiculoUso> vehiculoUsos = vehiculoUsoRepository.getAllByEliminadoFalse();
@@ -170,12 +191,26 @@ public class CatalogoServiceImpl implements CatalogoService {
     }
 
     @Override
+    public VehiculoUsoDto obtenerUsoVehiculoPorId(int id) {
+        logger.info("Consultando el uniforme con el id [{}]", id);
+        VehiculoUso vehiculoUso = vehiculoUsoRepository.getById(id);
+        return daoToDtoConverter.convertDaoToDtoVehiculoUso(vehiculoUso);
+    }
+
+    @Override
     public List<VehiculoMarcaDto> obtenerMarcasVehiculos() {
         logger.info("Consultando todas las marcas de vehiculos en la base de datos");
         List<VehiculoMarca> armaTipos = vehiculoMarcaRepository.getAllByEliminadoFalse();
         return armaTipos.stream()
                 .map(daoToDtoConverter::convertDaoToDtoVehiculoMarca)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public VehiculoMarcaDto obtenerMarcaVehiculoPorId(int id) {
+        logger.info("Consultando el uniforme con el id [{}]", id);
+        VehiculoMarca vehiculoMarca = vehiculoMarcaRepository.getById(id);
+        return daoToDtoConverter.convertDaoToDtoVehiculoMarca(vehiculoMarca);
     }
 
     @Override
@@ -500,6 +535,15 @@ public class CatalogoServiceImpl implements CatalogoService {
         }
 
         return daoToDtoConverter.convertDaoToDtoVehiculoSubmarca(vehiculoSubmarca);
+    }
+
+    @Override
+    public List<VehiculoTipoDto> obtenerTiposVehiculo() {
+        logger.info("Consultando todos los tipos de vehiculo en la base de datos");
+        List<VehiculoTipo> tiposVehiculo = vehiculoTipoRepository.getAllByEliminadoFalse();
+        return tiposVehiculo.stream()
+                .map(daoToDtoConverter::convertDaoToDtoVehiculoTipo)
+                .collect(Collectors.toList());
     }
 
     @Override

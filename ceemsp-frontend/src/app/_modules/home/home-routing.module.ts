@@ -39,6 +39,7 @@ import {UniformesComponent} from "../../home/catalogos/equipo/uniformes/uniforme
 import {EmpresaUniformesComponent} from "../../home/empresas/empresa-uniformes/empresa-uniformes.component";
 import {UsuariosComponent} from "../../home/configuracion/usuarios/usuarios.component";
 import {AcercaComponent} from "../../home/configuracion/acerca/acerca.component";
+import {EmpresaAcuerdosComponent} from "../../home/empresas/empresa-acuerdos/empresa-acuerdos.component";
 
 
 const routes: Routes = [
@@ -63,6 +64,10 @@ const routes: Routes = [
       {
         path: 'empresas/:uuid',
         component: EmpresaDetallesComponent
+      },
+      {
+        path: 'empresas/:uuid/acuerdos',
+        component: EmpresaAcuerdosComponent
       },
       {
         path: 'empresas/:uuid/domicilios',
@@ -135,10 +140,6 @@ const routes: Routes = [
       // Armas
       {
         path: 'catalogos/armas',
-        component: ArmasComponent
-      },
-      {
-        path: 'catalogos/armas/marcas',
         component: ArmasMarcasComponent
       },
       {

@@ -7,8 +7,9 @@ import java.util.List;
 
 public interface PersonaService {
     List<PersonaDto> obtenerTodos(String empresaUuid);
+    List<PersonaDto> obtenerPersonasEliminadas(String empresaUuid);
     PersonaDto obtenerPorUuid(String empresaUuid, String personaUuid);
-    PersonaDto obtenerPorId(String empresaUuid, Integer id);
+    PersonaDto obtenerPorId(Integer id);
     PersonaDto crearNuevo(PersonaDto personalDto, String username, String empresaUuid);
     PersonaDto modificarInformacionPuesto(PersonaDto personaDto, String username, String empresaUuid, String personaUuid);
     PersonaDto modificarPersona(String empresaUuid, String personaUuid, String username, PersonaDto personaDto);

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {ActivatedRoute} from "@angular/router";
 import {ToastService} from "../../_services/toast.service";
@@ -8,6 +8,7 @@ import {ToastType} from "../../_enums/ToastType";
 import {EquipoService} from "../../_services/equipo.service";
 import Equipo from "../../_models/Equipo";
 import EmpresaEquipo from "../../_models/EmpresaEquipo";
+import {EmpresaEquipoService} from "../../_services/empresa-equipo.service";
 
 @Component({
   selector: 'app-empresa-equipo',
@@ -38,8 +39,11 @@ export class EmpresaEquipoComponent implements OnInit {
 
   rowData: EmpresaEquipo[] = [];
 
+  @ViewChild('eliminarEquipoModal') eliminarEquipoModal;
+  @ViewChild('modificarEquipoModal') modificarEquipoModal;
+
   constructor(private route: ActivatedRoute, private toastService: ToastService,
-              private modalService: NgbModal, private empresaService: EmpresaService,
+              private modalService: NgbModal, private empresaEquipoService: EmpresaEquipoService,
               private formBuilder: FormBuilder, private equipoService: EquipoService) { }
 
   ngOnInit(): void {
@@ -60,7 +64,7 @@ export class EmpresaEquipoComponent implements OnInit {
       );
     });
 
-    this.empresaService.obtenerEquipos(this.uuid).subscribe((data: EmpresaEquipo[]) => {
+    this.empresaEquipoService.obtenerEquipos().subscribe((data: EmpresaEquipo[]) => {
       this.rowData = data;
     }, (error) => {
       this.toastService.showGenericToast(
@@ -88,12 +92,61 @@ export class EmpresaEquipoComponent implements OnInit {
   }
 
   mostrarModalDetalles(data, modal) {
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+    let equipoUuid = data.uuid;
+
+    this.empresaEquipoService.obtenerEquipoPorUuid(equipoUuid).subscribe((data: EmpresaEquipo) => {
+      this.empresaEquipo = data;
+      this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el equipo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  mostrarModalModificar() {
+    this.modal = this.modalService.open(this.modificarEquipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.crearEquipoForm.setValue({
+      equipo: this.empresaEquipo.equipo.uuid,
+      cantidad: this.empresaEquipo.cantidad
+    });
+
+    this.equipo = this.equipos.filter(x => x.uuid === this.empresaEquipo.equipo.uuid)[0];
+  }
+
+  mostrarModalEliminar() {
+    this.modal = this.modalService.open(this.eliminarEquipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  confirmarEliminarEquipo() {
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el equipo",
+      ToastType.INFO
+    );
+
+    this.empresaEquipoService.eliminarEquipo(this.empresaEquipo.uuid).subscribe((data: EmpresaEquipo) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el equipo con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar el equipo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 
@@ -123,6 +176,41 @@ export class EmpresaEquipoComponent implements OnInit {
     this.equipo = this.equipos.filter(x => x.uuid === event.value)[0];
   }
 
+  guardarCambiosEquipo(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que no se han rellenado",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      `Estamos guardando los cambios en el equipo`,
+      ToastType.INFO
+    );
+
+    let value: EmpresaEquipo = form.value;
+    value.equipo = this.equipo;
+
+    this.empresaEquipoService.modificarEquipo(this.empresaEquipo.uuid, value).subscribe((data: EmpresaEquipo) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado el equipo con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido modificar el equipo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
   guardarEquipo(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
@@ -142,7 +230,7 @@ export class EmpresaEquipoComponent implements OnInit {
     let value: EmpresaEquipo = form.value;
     value.equipo = this.equipo;
 
-    this.empresaService.guardarEquipo(this.uuid, value).subscribe((data: Equipo) => {
+    this.empresaEquipoService.guardarEquipo(value).subscribe((data: Equipo) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha guardado el equipo con exito",

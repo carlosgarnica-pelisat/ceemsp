@@ -7,6 +7,7 @@ import {ToastService} from "../../../../_services/toast.service";
 import VehiculoUso from "../../../../_models/VehiculoUso";
 import PersonalNacionalidad from "../../../../_models/PersonalNacionalidad";
 import Uniforme from "../../../../_models/Uniforme";
+import {BotonCatalogosComponent} from "../../../../_components/botones/boton-catalogos/boton-catalogos.component";
 
 @Component({
   selector: 'app-vehiculos-usos',
@@ -14,14 +15,20 @@ import Uniforme from "../../../../_models/Uniforme";
   styleUrls: ['./vehiculos-usos.component.css']
 })
 export class VehiculosUsosComponent implements OnInit {
-
+  editandoModal: boolean = false;
   private gridApi;
   private gridColumnApi;
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+    {headerName: 'Acciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
   ];
   rowData = [];
 
@@ -45,6 +52,10 @@ export class VehiculosUsosComponent implements OnInit {
               private vehiculoService: VehiculosService, private toastService: ToastService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      catalogoButtonRenderer: BotonCatalogosComponent
+    }
+
     this.crearVehiculoUsoForm = this.formBuilder.group({
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
       descripcion: ['', [Validators.maxLength(100)]]
@@ -59,6 +70,32 @@ export class VehiculosUsosComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
+
+  verDetalles(rowData) {
+    this.checkForDetails(rowData.rowData, this.mostrarUsoVehiculoDetallesModal);
+  }
+
+  editar(rowData) {
+    this.vehiculoUso = rowData.rowData;
+    this.editandoModal = false;
+    this.crearVehiculoUsoForm.patchValue({
+      nombre: this.vehiculoUso.nombre,
+      descripcion: this.vehiculoUso.descripcion
+    });
+
+    this.modal = this.modalService.open(this.editarUsoVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  eliminar(rowData) {
+    this.vehiculoUso = rowData.rowData;
+    this.mostrarEliminarVehiculoUsoModal();
   }
 
   onGridReady(params) {
@@ -135,8 +172,12 @@ export class VehiculosUsosComponent implements OnInit {
         "Se ha modificado con exito el uso del vehiculo",
         ToastType.SUCCESS
       )
-
-      window.location.reload();
+      if(this.editandoModal) {
+        this.vehiculoUso = data;
+        this.modal.close();
+      } else {
+        window.location.reload();
+      }
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -164,12 +205,13 @@ export class VehiculosUsosComponent implements OnInit {
   }
 
   mostrarModificarVehiculoUsoModal() {
+    this.editandoModal = true;
     this.crearVehiculoUsoForm.patchValue({
       nombre: this.vehiculoUso.nombre,
       descripcion: this.vehiculoUso.descripcion
     });
 
-    this.modalService.open(this.editarUsoVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+    this.modal = this.modalService.open(this.editarUsoVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;

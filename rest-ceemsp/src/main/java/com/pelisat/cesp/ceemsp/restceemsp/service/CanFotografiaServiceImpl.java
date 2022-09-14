@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Service
 public class CanFotografiaServiceImpl implements CanFotografiaService {
 
-    private final Logger logger = LoggerFactory.getLogger(VehiculoFotografiaService.class);
+    private final Logger logger = LoggerFactory.getLogger(CanFotografiaService.class);
     private final CanFotografiaRepository canFotografiaRepository;
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
@@ -63,7 +63,7 @@ public class CanFotografiaServiceImpl implements CanFotografiaService {
 
         logger.info("Obteniendo el metadata de las fotos del can [{}]", canUuid);
 
-        Can can = canRepository.getByUuidAndEliminadoFalse(canUuid);
+        Can can = canRepository.getByUuid(canUuid);
         if(can == null) {
             logger.warn("el can no existe en la base de datos");
             throw new NotFoundResourceException();

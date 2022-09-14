@@ -2,16 +2,13 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.Empresa;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaModalidad;
-import com.pelisat.cesp.ceemsp.database.model.Usuario;
+import com.pelisat.cesp.ceemsp.database.model.*;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaFormaEjecucionRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaModalidadRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
-import com.pelisat.cesp.ceemsp.database.type.EmpresaStatusEnum;
-import com.pelisat.cesp.ceemsp.database.type.NotificacionEmailEnum;
-import com.pelisat.cesp.ceemsp.database.type.RolTypeEnum;
-import com.pelisat.cesp.ceemsp.database.type.TipoPersonaEnum;
+import com.pelisat.cesp.ceemsp.database.repository.UsuarioRepository;
+import com.pelisat.cesp.ceemsp.database.type.*;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.DuplicatedEnterpriseException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.services.NotificacionEmailService;
@@ -24,17 +21,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Service
 public class EmpresaServiceImpl implements EmpresaService {
 
-    private final UsuarioService usuarioService;
+    private final UsuarioRepository usuarioRepository;
     private final EmpresaRepository empresaRepository;
     private final EmpresaModalidadRepository empresaModalidadRepository;
     private final Logger logger = LoggerFactory.getLogger(EmpresaService.class);
@@ -42,24 +42,32 @@ public class EmpresaServiceImpl implements EmpresaService {
     private final DtoToDaoConverter dtoToDaoConverter;
     private final DaoHelper<CommonModel> daoHelper;
     private final NotificacionEmailService notificacionEmailService;
+    private final EmpresaFormaEjecucionRepository empresaFormaEjecucionRepository;
 
     @Autowired
-    public EmpresaServiceImpl(UsuarioService usuarioService, EmpresaRepository empresaRepository, DaoToDtoConverter daoToDtoConverter,
+    public EmpresaServiceImpl(UsuarioRepository usuarioRepository, EmpresaRepository empresaRepository, DaoToDtoConverter daoToDtoConverter,
                               DtoToDaoConverter dtoToDaoConverter, EmpresaModalidadRepository empresaModalidadRepository,
-                              DaoHelper<CommonModel> daoHelper, NotificacionEmailService notificacionEmailService) {
-        this.usuarioService = usuarioService;
+                              DaoHelper<CommonModel> daoHelper, NotificacionEmailService notificacionEmailService,
+                              EmpresaFormaEjecucionRepository empresaFormaEjecucionRepository) {
+        this.usuarioRepository = usuarioRepository;
         this.empresaRepository = empresaRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.empresaModalidadRepository = empresaModalidadRepository;
         this.daoHelper = daoHelper;
         this.notificacionEmailService = notificacionEmailService;
+        this.empresaFormaEjecucionRepository = empresaFormaEjecucionRepository;
     }
 
     @Override
     public List<EmpresaDto> obtenerTodas() {
         List<Empresa> empresas = empresaRepository.getAllByEliminadoFalse();
-        return empresas.stream().map(daoToDtoConverter::convertDaoToDtoEmpresa).collect(Collectors.toList());
+        return empresas.stream().map(e -> {
+            EmpresaDto empresaDto  = daoToDtoConverter.convertDaoToDtoEmpresa(e);
+            Usuario usuarioEmpresa = usuarioRepository.getUsuarioByEmpresaAndEliminadoFalse(e.getId());
+            empresaDto.setUsuario(daoToDtoConverter.convertDaoToDtoUser(usuarioEmpresa));
+            return empresaDto;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -76,7 +84,21 @@ public class EmpresaServiceImpl implements EmpresaService {
             throw new NotFoundResourceException();
         }
 
-        return daoToDtoConverter.convertDaoToDtoEmpresa(empresa);
+        EmpresaDto empresaDto = daoToDtoConverter.convertDaoToDtoEmpresa(empresa);
+        Usuario usuarioEmpresa = usuarioRepository.getUsuarioByEmpresaAndEliminadoFalse(empresa.getId());
+        empresaDto.setUsuario(daoToDtoConverter.convertDaoToDtoUser(usuarioEmpresa));
+        List<EmpresaFormaEjecucion> formasEjecucion = this.empresaFormaEjecucionRepository.getAllByEmpresaAndEliminadoFalse(empresaDto.getId());
+        AtomicBoolean tieneArmas = new AtomicBoolean(false);
+        AtomicBoolean tieneCanes = new AtomicBoolean(false);
+
+        formasEjecucion.forEach(x -> {
+            if(x.getFormaEjecucion() == FormaEjecucionEnum.ARMAS) tieneArmas.set(true);
+            if(x.getFormaEjecucion() == FormaEjecucionEnum.CANES) tieneCanes.set(true);
+        });
+
+        empresaDto.setTieneArmas(tieneArmas.get());
+        empresaDto.setTieneCanes(tieneCanes.get());
+        return empresaDto;
     }
 
     @Override
@@ -98,7 +120,7 @@ public class EmpresaServiceImpl implements EmpresaService {
 
     @Override
     @Transactional
-    public EmpresaDto crearEmpresa(EmpresaDto empresaDto, String username) {
+    public EmpresaDto crearEmpresa(EmpresaDto empresaDto, String username, MultipartFile multipartFile) {
         if(StringUtils.isBlank(username) || empresaDto == null) {
             logger.warn("La empresa a crear o el usuario estan viniendo como nulos o vacios");
             throw new InvalidDataException();
@@ -106,11 +128,18 @@ public class EmpresaServiceImpl implements EmpresaService {
 
         logger.info("Dando de alta a una nueva empresa con razon social: [{}]", empresaDto.getNombreComercial());
 
-        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        Usuario usuario = usuarioRepository.getUsuarioByEmail(username);
 
         if(usuario == null) {
             logger.warn("El usuario no existe en la base de datos");
             throw new InvalidDataException();
+        }
+
+        Empresa existeEmpresa = empresaRepository.getFirstByRegistroAndEliminadoFalse(empresaDto.getRegistro());
+
+        if(existeEmpresa != null) {
+            logger.warn("Ya hay una empresa con este registro");
+            throw new DuplicatedEnterpriseException();
         }
 
         Empresa empresa = dtoToDaoConverter.convertDtoToDaoEmpresa(empresaDto);
@@ -120,7 +149,12 @@ public class EmpresaServiceImpl implements EmpresaService {
         empresa.setActualizadoPor(usuario.getId());
         empresa.setFechaActualizacion(LocalDateTime.now());
         empresa.setStatus(EmpresaStatusEnum.ACTIVA);
-
+        if(StringUtils.isNotBlank(empresaDto.getFechaInicio())) {
+            empresa.setFechaInicio(LocalDate.parse(empresaDto.getFechaInicio()));
+        }
+        if(StringUtils.isNotBlank(empresaDto.getFechaFin())) {
+            empresa.setFechaFin(LocalDate.parse(empresaDto.getFechaFin()));
+        }
         Empresa empresaCreada = empresaRepository.save(empresa);
 
         List<EmpresaModalidad> empresaModalidades = empresaDto.getModalidades().stream()
@@ -146,12 +180,15 @@ public class EmpresaServiceImpl implements EmpresaService {
             usuarioEmpresa.setEmpresa(empresaCreada.getId());
             usuarioEmpresa.setNombres(empresaDto.getUsuario().getNombres());
             usuarioEmpresa.setApellidos(empresaDto.getUsuario().getApellidos());
+            usuarioEmpresa.setApellidoMaterno(empresaDto.getUsuario().getApellidoMaterno());
             usuarioEmpresa.setEmail(empresaDto.getUsuario().getEmail());
             usuarioEmpresa.setUsername(empresaDto.getUsuario().getUsername());
             usuarioEmpresa.setPassword(empresaDto.getUsuario().getPassword());
             usuarioEmpresa.setRol(RolTypeEnum.ENTERPRISE_USER);
 
             daoHelper.fulfillAuditorFields(true, usuarioEmpresa, usuario.getId());
+
+            usuarioRepository.save(usuarioEmpresa);
         }
 
         List<EmpresaModalidad> createdModalidades = empresaModalidadRepository.saveAll(empresaModalidades);
@@ -168,6 +205,7 @@ public class EmpresaServiceImpl implements EmpresaService {
         return response;
     }
 
+    @Transactional
     @Override
     public EmpresaDto modificarEmpresa(EmpresaDto empresaDto, String username, String uuid) {
         if(StringUtils.isBlank(username) || StringUtils.isBlank(uuid) || empresaDto == null) {
@@ -175,12 +213,22 @@ public class EmpresaServiceImpl implements EmpresaService {
             throw new InvalidDataException();
         }
 
-        logger.info("Modificando la empresa uuid");
+        logger.info("Modificando la empresa con el uuid [{}]", uuid);
 
-        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        Usuario usuario = usuarioRepository.getUsuarioByEmail(username);
+        if(usuario == null) {
+            logger.warn("El usuario no existe en la base de datos");
+            throw new InvalidDataException();
+        }
+
         Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(uuid);
         if(empresa == null) {
             logger.warn("La empresa no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+        Usuario usuarioEmpresa = usuarioRepository.getUsuarioByEmpresaAndEliminadoFalse(empresa.getId());
+        if(usuarioEmpresa == null) {
+            logger.warn("El usuario registrado a la empresa en la base de datos no existe");
             throw new NotFoundResourceException();
         }
 
@@ -195,8 +243,15 @@ public class EmpresaServiceImpl implements EmpresaService {
             empresa.setSexo(empresaDto.getSexo());
         }
         empresa.setObservaciones(empresaDto.getObservaciones());
+        empresa.setRegistro(empresaDto.getRegistro());
 
-        daoHelper.fulfillAuditorFields(false, empresa, usuarioDto.getId());
+        if(empresa.getRegistro() != usuarioEmpresa.getUsername()) {
+            usuarioEmpresa.setUsername(empresaDto.getRegistro());
+            daoHelper.fulfillAuditorFields(false, usuarioEmpresa, usuario.getId());
+            usuarioRepository.save(usuarioEmpresa);
+        }
+
+        daoHelper.fulfillAuditorFields(false, empresa, usuario.getId());
         empresaRepository.save(empresa);
 
         return daoToDtoConverter.convertDaoToDtoEmpresa(empresa);

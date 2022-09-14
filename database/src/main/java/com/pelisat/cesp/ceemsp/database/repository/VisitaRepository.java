@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface VisitaRepository extends JpaRepository<Visita, Integer> {
     List<Visita> getAllByEliminadoFalse();
+    List<Visita> getAllByEmpresaAndEliminadoFalse(int empresa);
     List<Visita> getAllByFechaVisitaGreaterThanEqualAndEliminadoFalse(LocalDate fecha);
     Visita findByUuidAndEliminadoFalse(String uuid);
+    Visita findFirstByEliminadoFalseOrderByFechaCreacionDesc();
 }

@@ -46,6 +46,8 @@ public class PersonaDto {
     private String numeroVolanteCuip;
     private String fechaVolanteCuip;
     private ModalidadDto modalidad;
+    private String rfc;
+    private boolean eliminado;
 
     private EstadoDto estadoCatalogo;
     private MunicipioDto municipioCatalogo;

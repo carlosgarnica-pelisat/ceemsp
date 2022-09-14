@@ -3,6 +3,8 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaUniforme;
+import com.pelisat.cesp.ceemsp.database.model.EmpresaUniformeElementoMovimiento;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaUniformeElementoMovimientoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaUniformeRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,6 +93,7 @@ public class EmpresaUniformeServiceImpl implements EmpresaUniformeService {
         return empresaUniformeDto;
     }
 
+    @Transactional
     @Override
     public EmpresaUniformeDto guardarUniforme(String empresaUuid, String username, EmpresaUniformeDto empresaUniformeDto) {
         if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || empresaUniformeDto == null) {

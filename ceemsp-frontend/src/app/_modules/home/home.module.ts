@@ -14,12 +14,14 @@ import {NgxPrintModule} from "ngx-print";
 import {PdfViewerComponent} from "ng2-pdf-viewer";
 import {platformBrowserDynamic} from "@angular/platform-browser-dynamic";
 import {GoogleChartsModule} from "angular-google-charts";
+import {BotonEmpresasComponent} from "../../_components/botones/boton-empresas/boton-empresas.component";
 
 @NgModule({
   declarations: [
     HomeComponent,
     DashboardComponent,
-    ToastComponent
+    ToastComponent,
+    BotonEmpresasComponent
   ],
     imports: [
         CommonModule,

@@ -58,7 +58,7 @@ public class PersonalSubpuestoDeTrabajoController {
     public PersonalSubpuestoDeTrabajoDto eliminarSubpuestoTrabajo(
             HttpServletRequest request,
             @PathVariable(value = "puestoUuid") String puestoUuid,
-            @PathVariable(value = "puestoUuid") String subpuestoUuid
+            @PathVariable(value = "subpuestoUuid") String subpuestoUuid
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return personalSubpuestoDeTrabajoService.eliminarPuestoTrabajo(username, puestoUuid, subpuestoUuid);

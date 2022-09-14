@@ -3,6 +3,7 @@ package com.pelisat.cesp.ceemsp.restempresas.service;
 import com.pelisat.cesp.ceemsp.database.dto.ClienteDto;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 
 public interface EmpresaClienteService {

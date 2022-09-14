@@ -137,7 +137,7 @@ public class PersonalSubpuestoDeTrabajoServiceImpl implements PersonalSubpuestoD
 
         logger.info("Modificando el subpuesto de trabajo con el uuid [{}]", uuid);
 
-        PersonalSubpuesto personalSubpuesto = personalSubpuestoRepository.getByUuidAndEliminadoFalse(uuid);
+        PersonalSubpuesto personalSubpuesto = personalSubpuestoRepository.getByUuidAndEliminadoFalse(puestoTrabajoUuid);
 
         if(personalSubpuesto == null) {
             logger.warn("El subpuesto de personal no existe en la base de datos");
@@ -164,9 +164,9 @@ public class PersonalSubpuestoDeTrabajoServiceImpl implements PersonalSubpuestoD
             throw new InvalidDataException();
         }
 
-        logger.info("Modificando el subpuesto de trabajo con el uuid [{}]", uuid);
+        logger.info("Modificando el subpuesto de trabajo con el uuid [{}]", puestoTrabajoUuid);
 
-        PersonalSubpuesto personalSubpuesto = personalSubpuestoRepository.getByUuidAndEliminadoFalse(uuid);
+        PersonalSubpuesto personalSubpuesto = personalSubpuestoRepository.getByUuidAndEliminadoFalse(puestoTrabajoUuid);
 
         if(personalSubpuesto == null) {
             logger.warn("El subpuesto de personal no existe en la base de datos");

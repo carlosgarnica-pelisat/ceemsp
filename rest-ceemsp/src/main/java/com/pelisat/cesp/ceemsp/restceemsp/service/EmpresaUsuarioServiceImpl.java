@@ -68,9 +68,8 @@ public class EmpresaUsuarioServiceImpl implements EmpresaUsuarioService {
             return usuarioDto;
         } else {
             logger.info("El usuario si se encontro en la base de datos. Actualizando para la empresa [{}]", uuid);
-            usuario.setNombres(usuarioDto.getNombres());
-            usuario.setApellidos(usuarioDto.getApellidos());
             usuario.setEmail(usuarioDto.getEmail());
+            usuario.setPassword(usuarioDto.getPassword());
             daoHelper.fulfillAuditorFields(false, usuario, usuarioAuditable.getId());
             usuarioRepository.save(usuario);
             return usuarioDto;

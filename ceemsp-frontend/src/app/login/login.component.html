@@ -1,3 +1,5 @@
+
+
 <div class="container px-4 py-5 mx-auto">
   <div class="card card0">
     <div class="d-flex flex-lg-row flex-column-reverse">
@@ -20,7 +22,7 @@
               <div class="row justify-content-center my-3 px-3">
                 <button (click)="login()" class="btn-block btn-color" type="submit">Iniciar sesión</button>
               </div>
-              <div class="row justify-content-center my-2"><a href="#"><small class="text-muted">Necesito ayuda</small></a>
+              <div class="row justify-content-center my-2"><a href="#"><small class="text-muted">Si has olvidado tu contraseña, haz clic para descargar el formato de restablecimiento</small></a>
               </div>
             </form>
           </div>
@@ -28,15 +30,42 @@
       </div>
       <div class="card card2">
         <div class="my-auto mx-md-5 px-md-5 right">
-          <h3 class="text-white">{{comunicadoGeneral?.titulo}}</h3>
-          <small class="text-white" [innerHTML]="comunicadoGeneral?.descripcion">
-          </small>
-          <hr>
-          <a style="cursor: pointer;" class="text-white" (click)="verHistorialComunicados(mostrarHistorialComunicadosModal)">Ver histórico de comunicados</a>
+          <div class="row">
+            <div class="col-sm-12" style="max-height: 600px; overflow: hidden; ">
+              <h3 class="text-white">{{comunicadoGeneral?.titulo}}</h3>
+              <small class="text-white" [innerHTML]="comunicadoGeneral?.descripcion | sanitizeHtml">
+              </small>
+            </div>
+            <div class="col-sm-12">
+              <small class="text-white"><a style="cursor: pointer;" (click)="mostrarComunicadoCompleto()">Leer mas</a></small>
+              <hr style="border: 1px solid #fff;">
+              <a style="cursor: pointer;" class="text-white" (click)="verHistorialComunicados(mostrarHistorialComunicadosModal)">Ver histórico de comunicados</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
+  <ng-template #mostrarComunicadoCompletoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarComunicadoCompletoModal">{{comunicadoGeneral?.titulo}} </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <small [innerHTML]="comunicadoGeneral?.descripcion">
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
 
   <ng-template #mostrarHistorialComunicadosModal let-modal>
     <div class="modal-header">

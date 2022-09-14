@@ -1,0 +1,30 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-04-13-agregar-tipos-adiestramiento" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <insert tableName="vehiculos_usos">
+            <column name="ID" value="1"></column>
+            <column name="UUID" value="CPW9bMDr9TDn"></column>
+            <column name="NOMBRE" value="Administrativo"></column>
+            <column name="DESCRIPCION" value="Administrativo"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_usos">
+            <column name="ID" value="2"></column>
+            <column name="UUID" value="1c3aInOihIJ1"></column>
+            <column name="NOMBRE" value="Operativo"></column>
+            <column name="DESCRIPCION" value="Operativo"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

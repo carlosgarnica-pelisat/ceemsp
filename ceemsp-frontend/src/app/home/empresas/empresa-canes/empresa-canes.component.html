@@ -3,7 +3,7 @@
 
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Canes</h1>
+    <h1 class="h3 mb-0 text-gray-800">Canes <span *ngIf="mostrandoEliminados">(eliminados)</span></h1>
     <div class="btn-group">
       <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearCanModal)">Nuevo can</button>
       <div class="dropdown">
@@ -19,6 +19,8 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" *ngIf="!mostrandoEliminados" (click)="mostrarEliminados()">Mostrar eliminados</a>
+          <a class="dropdown-item" *ngIf="mostrandoEliminados" (click)="ocultarEliminados()">Ocultar eliminados</a>
           <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar licencias como Excel (csv)</a>
         </div>
       </div>
@@ -32,11 +34,12 @@
         <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action">
           Detalles
         </a>
+        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
         <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
-        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action">Licencias colectivas / Armas</a>
-        <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action active">Canes</a>
-        <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
+        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneArmas">Licencias colectivas / Armas</a>
+        <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action active" *ngIf="empresa?.tieneCanes">Canes</a>
+        <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehículos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
         <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
@@ -75,7 +78,7 @@
                   <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'VACUNACION' }" (click)="cambiarPestana('VACUNACION')">Vacunacion</a>
+                  <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'VACUNACION' }" (click)="cambiarPestana('VACUNACION')">Cartilla de Vacunación</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'CERTIFICADOS' }" (click)="cambiarPestana('CERTIFICADOS')">Certificados de Salud</a>
@@ -84,7 +87,7 @@
                   <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'ENTRENAMIENTO' }" (click)="cambiarPestana('ENTRENAMIENTO')">Entrenamiento</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'FOTOGRAFIAS' }" (click)="cambiarPestana('FOTOGRAFIAS')">Fotografias</a>
+                  <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'FOTOGRAFIAS' }" (click)="cambiarPestana('FOTOGRAFIAS')">Fotografías</a>
                 </li>
               </ul>
             </div>
@@ -124,7 +127,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td><b>Descripcion:</b></td>
+                  <td><b>Descripción:</b></td>
                   <td>{{can?.descripcion}}</td>
                 </tr>
                 <tr>
@@ -132,12 +135,52 @@
                   <td>{{can?.origen}}</td>
                 </tr>
                 <tr>
+                  <td><b>Fecha de ingreso:</b></td>
+                  <td>{{can?.fechaIngreso}}</td>
+                </tr>
+                <tr *ngIf="can?.origen !== 'PROPIO'">
+                  <td><b>Razon social:</b></td>
+                  <td>{{can?.razonSocial}}</td>
+                </tr>
+                <tr *ngIf="can?.origen !== 'PROPIO'">
+                  <td><b>Fecha inicio:</b></td>
+                  <td>{{can?.fechaInicio}}</td>
+                </tr>
+                <tr *ngIf="can?.origen !== 'PROPIO'">
+                  <td><b>Fecha fin:</b></td>
+                  <td>{{can?.fechaFin}}</td>
+                </tr>
+                <tr>
+                  <td><b>Fecha de creacion:</b></td>
+                  <td>{{can?.fechaCreacion}}</td>
+                </tr>
+                <tr>
                   <td><b>Domicilio asignado:</b></td>
-                  <td>{{can?.domicilioAsignado?.nombre}}</td>
+                  <td>
+                    {{can?.domicilioAsignado?.domicilio1}} {{can?.domicilioAsignado?.numeroExterior}} {{can?.domicilioAsignado?.numeroInterior}}. Colonia: {{can?.domicilioAsignado?.domicilio2}}<br>
+                    {{can?.domicilioAsignado?.domicilio3}}, {{can?.domicilioAsignado?.estado}}, {{can?.domicilioAsignado?.pais}}<br>
+                    C.P. {{can?.domicilioAsignado?.codigoPostal}}
+                  </td>
                 </tr>
                 <tr>
                   <td><b>Estatus:</b></td>
                   <td>{{can?.status}}</td>
+                </tr>
+                <tr *ngIf="can?.status === 'BAJA'">
+                  <td><b>Fecha baja:</b></td>
+                  <td>{{can?.fechaBaja}}</td>
+                </tr>
+                <tr *ngIf="can?.status === 'BAJA'">
+                  <td><b>Motivo baja:</b></td>
+                  <td>{{can?.motivoBaja}}</td>
+                </tr>
+                <tr *ngIf="can?.status === 'BAJA'">
+                  <td><b>Observaciones de la baja:</b></td>
+                  <td>{{can?.observacionesBaja}}</td>
+                </tr>
+                <tr *ngIf="can?.status === 'ACTIVO'">
+                  <td><b>Elemento asignado:</b></td>
+                  <td>{{can?.elementoAsignado?.nombres + " " + can?.elementoAsignado?.apellidoPaterno + " " + can?.elementoAsignado?.apellidoMaterno}}</td>
                 </tr>
 
               </table>
@@ -147,18 +190,18 @@
               <table class="table">
                 <tr>
                   <td><b>Expedido por</b></td>
-                  <td><b>Cedula</b></td>
-                  <td><b>Fecha de expedicion</b></td>
+                  <td><b>Cédula</b></td>
+                  <td><b>Fecha de expedición</b></td>
                   <td><b>Acciones</b></td>
                 </tr>
                 <tr *ngFor="let v of can?.cartillasVacunacion; let i = index">
-                  <td>{{v.expedidoPor}}</td>
-                  <td>{{v.cedula}}</td>
-                  <td>{{v.fechaExpedicion}}</td>
+                  <td [ngStyle]="v?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{v.expedidoPor}}</td>
+                  <td [ngStyle]="v?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{v.cedula}}</td>
+                  <td [ngStyle]="v?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{v.fechaExpedicion}}</td>
                   <td>
-                    <fa-icon [icon]="faDownload" title="Descargar el certificado de vacunacion" (click)="descargarCertificadoVacunacion(v?.uuid, visualizarCartillaVacunacionModal)"></fa-icon>
-                    <fa-icon [icon]="faPencilAlt" title="Modificar el certificado de vacunacion" (click)="mostrarModalEditarVacunacion(i)"></fa-icon>
-                    <fa-icon [icon]="faTrash" title="Eliminar el certificado de vacunacion" (click)="mostrarModalEliminarCartillaVacunacion(v?.uuid)"></fa-icon>
+                    <fa-icon [icon]="faDownload" *ngIf="!v?.eliminado" title="Descargar el certificado de vacunacion" (click)="descargarCertificadoVacunacion(v?.uuid, visualizarCartillaVacunacionModal)"></fa-icon>
+                    <fa-icon [icon]="faPencilAlt" *ngIf="!v?.eliminado" title="Modificar el certificado de vacunacion" (click)="mostrarModalEditarVacunacion(i)"></fa-icon>
+                    <fa-icon [icon]="faTrash" *ngIf="!v?.eliminado" title="Eliminar el certificado de vacunacion" (click)="mostrarModalEliminarCartillaVacunacion(v?.uuid)"></fa-icon>
                   </td>
                 </tr>
                 <tr *ngIf="showVacunacionForm">
@@ -180,7 +223,7 @@
                             </div>
                             <div class="col-sm-3">
                               <label for="cedulaVacunacion">
-                                <b>Cedula *</b>
+                                <b>Cédula *</b>
                                 <span
                                   *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['cedula'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['cedula'].touched)">
                                   <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -191,7 +234,7 @@
                             </div>
                             <div class="col-sm-3">
                               <label for="fechaExpedicionVacunacion">
-                                <b>Fecha de vacunacion *</b>
+                                <b>Fecha de vacunación *</b>
                                 <span *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].touched)" class="text-danger"> - Requerido</span>
                               </label>
                               <input id="fechaExpedicionVacunacion" [max]="fechaDeHoy" type="date" class="form-control" formControlName="fechaExpedicion" #fechaExpedicion>
@@ -218,18 +261,18 @@
               <table class="table">
                 <tr>
                   <td><b>Expedido por</b></td>
-                  <td><b>Cedula</b></td>
-                  <td><b>Fecha de expedicion</b></td>
+                  <td><b>Cédula</b></td>
+                  <td><b>Fecha de expedición</b></td>
                   <td><b>Acciones</b></td>
                 </tr>
                 <tr *ngFor="let c of can?.constanciasSalud; let i = index">
-                  <td>{{c.expedidoPor}}</td>
-                  <td>{{c.cedula}}</td>
-                  <td>{{c.fechaExpedicion}}</td>
+                  <td [ngStyle]="c?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{c.expedidoPor}}</td>
+                  <td [ngStyle]="c?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{c.cedula}}</td>
+                  <td [ngStyle]="c?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{c.fechaExpedicion}}</td>
                   <td>
-                    <fa-icon [icon]="faDownload" title="Descargar el certificado de salud" (click)="descargarConstanciaSalud(c?.uuid, visualizarCertificadoSaludModal)"></fa-icon>
-                    <fa-icon [icon]="faPencilAlt" title="Modificar el certificado de salud" (click)="mostrarModalEditarCertificado(i)"></fa-icon>
-                    <fa-icon [icon]="faTrash" title="Eliminar el certificado de salud" (click)="mostrarModalEliminarCertificadoSalud(c?.uuid)"></fa-icon>
+                    <fa-icon [icon]="faDownload" *ngIf="!c?.eliminado" title="Descargar el certificado de salud" (click)="descargarConstanciaSalud(c?.uuid, visualizarCertificadoSaludModal)"></fa-icon>
+                    <fa-icon [icon]="faPencilAlt" *ngIf="!c?.eliminado" title="Modificar el certificado de salud" (click)="mostrarModalEditarCertificado(i)"></fa-icon>
+                    <fa-icon [icon]="faTrash" *ngIf="!c?.eliminado" title="Eliminar el certificado de salud" (click)="mostrarModalEliminarCertificadoSalud(c?.uuid)"></fa-icon>
                   </td>
                 </tr>
                 <tr *ngIf="showCertificadoForm">
@@ -247,14 +290,14 @@
                             </div>
                             <div class="col-sm-3">
                               <label for="cedulaCertificado">
-                                <b>Cedula *</b>
+                                <b>Cédula *</b>
                                 <span *ngIf="crearEmpresaCanCertificadoSaludForm.controls['cedula'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['cedula'].dirty || crearEmpresaCanCertificadoSaludForm.controls['cedula'].touched)" class="text-danger"> - Requerido</span>
                               </label>
                               <input id="cedulaCertificado" type="text" class="form-control" placeholder="Ej. 10912315" formControlName="cedula" #cedula>
                             </div>
                             <div class="col-sm-3">
                               <label for="fechaExpedicionCertificado">
-                                <b>Fecha de expedicion *</b>
+                                <b>Fecha de expedición *</b>
                                 <span *ngIf="crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].dirty || crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].touched)" class="text-danger"> - Requerido</span>
                               </label>
                               <input id="fechaExpedicionCertificado" [max]="fechaDeHoy" type="date" class="form-control" formControlName="fechaExpedicion" #fechaExpedicion>
@@ -286,12 +329,12 @@
                   <td><b>Acciones</b></td>
                 </tr>
                 <tr *ngFor="let a of can?.adiestramientos; let i = index">
-                  <td>{{a?.nombreInstructor}}</td>
-                  <td>{{a?.fechaConstancia}}</td>
-                  <td>{{a?.canTipoAdiestramiento?.nombre}}</td>
+                  <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.nombreInstructor}}</td>
+                  <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.fechaConstancia}}</td>
+                  <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.canTipoAdiestramiento?.nombre}}</td>
                   <td>
-                    <fa-icon [icon]="faPencilAlt" title="Modificar adiestramiento" (click)="mostrarModalEditarAdiestramiento(i)"></fa-icon>
-                    <fa-icon [icon]="faTrash" title="Eliminar adiestramiento" (click)="mostrarModalEliminarAdiestramiento(a?.uuid)"></fa-icon>
+                    <fa-icon [icon]="faPencilAlt" *ngIf="!a?.eliminado" title="Modificar adiestramiento" (click)="mostrarModalEditarAdiestramiento(i)"></fa-icon>
+                    <fa-icon [icon]="faTrash" *ngIf="!a?.eliminado" title="Eliminar adiestramiento" (click)="mostrarModalEliminarAdiestramiento(a?.uuid)"></fa-icon>
                   </td>
                 </tr>
                 <tr *ngIf="showEntrenamientoForm">
@@ -335,7 +378,7 @@
               <table class="table">
                 <tr>
                   <td><b>Archivo</b></td>
-                  <td><b>Descripcion</b></td>
+                  <td><b>Descripción</b></td>
                   <td><b>Opciones</b></td>
                 </tr>
                 <tr *ngFor="let f of can?.fotografias">
@@ -362,9 +405,15 @@
                             </div>
                             <div class="col-sm-6">
                               <label for="fotoDescripcion">
-                                <b>Descripcion</b>
+                                <b>Descripción</b>
                               </label>
-                              <input id="fotoDescripcion" class="form-control" formControlName="descripcion" type="text" placeholder="Ej. Foto frontal">
+                              <select id="fotoDescripcion" class="form-control" formControlName="descripcion">
+                                <option value="DERECHA">DERECHA</option>
+                                <option value="IZQUIERDA">IZQUIERDA</option>
+                                <option value="FRENTE">FRENTE</option>
+                                <option value="TRASERA">TRASERA</option>
+                                <option value="SUPERIOR">SUPERIOR</option>
+                              </select>
                             </div>
                           </div>
                         </form>
@@ -384,22 +433,28 @@
       <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarCan()">Eliminar</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'VACUNACION'">
-      <button class="btn btn-primary" (click)="mostrarVacunacionForm()" *ngIf="!showVacunacionForm">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarVacunacionForm()" *ngIf="!showVacunacionForm && !can.eliminado">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarVacunacionEliminados()" *ngIf="!mostrandoVacunacionEliminados">Mostrar eliminados</button>
+      <button class="btn btn-primary" (click)="ocultarVacunacionEliminados()" *ngIf="mostrandoVacunacionEliminados">Ocultar eliminados</button>
       <button class="btn btn-primary" (click)="guardarCartillaVacunacuion(crearEmpresaCanCartillaVacunacionForm)" *ngIf="showVacunacionForm">Guardar</button>
       <button class="btn btn-danger" (click)="mostrarVacunacionForm()" *ngIf="showVacunacionForm">Cancelar</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'CERTIFICADOS'">
-      <button class="btn btn-primary" (click)="mostrarCertificadoSaludForm()" *ngIf="!showCertificadoForm">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarCertificadoSaludForm()" *ngIf="!showCertificadoForm && !can.eliminado">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarCertificadosEliminados()" *ngIf="!mostrandoCertificadosEliminados">Mostrar eliminados</button>
+      <button class="btn btn-primary" (click)="ocultarCertificadosEliminados()" *ngIf="mostrandoCertificadosEliminados">Ocultar eliminados</button>
       <button class="btn btn-primary" (click)="guardarCertificado(crearEmpresaCanCertificadoSaludForm)" *ngIf="showCertificadoForm">Guardar</button>
       <button class="btn btn-danger" (click)="mostrarCertificadoSaludForm()" *ngIf="showCertificadoForm">Cancelar</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'ENTRENAMIENTO'">
-      <button class="btn btn-primary" (click)="mostrarEntrenamientoForm()" *ngIf="!showEntrenamientoForm">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarEntrenamientoForm()" *ngIf="!showEntrenamientoForm && !can.eliminado">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarEntrenamientosEliminados()" *ngIf="!mostrandoEntrenamientosEliminados">Mostrar eliminados</button>
+      <button class="btn btn-primary" (click)="ocultarEntrenamientosEliminados()" *ngIf="mostrandoEntrenamientosEliminados">Ocultar eliminados</button>
       <button class="btn btn-primary" (click)="guardarAdiestramiento(crearEmpresaCanEntrenamientoForm)" *ngIf="showEntrenamientoForm">Guardar</button>
       <button class="btn btn-danger" (click)="mostrarEntrenamientoForm()" *ngIf="showEntrenamientoForm">Cancelar</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'FOTOGRAFIAS'">
-      <button class="btn btn-primary" (click)="mostrarFormularioNuevaFotografia()" *ngIf="!showFotografiaForm">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarFormularioNuevaFotografia()" *ngIf="!showFotografiaForm && !can.eliminado">Agregar nuevo</button>
       <button class="btn btn-primary" (click)="guardarFotografia(crearCanFotografiaForm)" *ngIf="showFotografiaForm">Guardar</button>
       <button class="btn btn-danger" (click)="mostrarFormularioNuevaFotografia()" *ngIf="showFotografiaForm">Cancelar</button>
     </div>
@@ -408,7 +463,7 @@
   <ng-template #modificarCanModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="modificarCanModal">Modificar can </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <button type="button" class="close" aria-label="Close" (click)="cancelarCambiosCan()">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -430,7 +485,7 @@
               </div>
               <div class="col-sm-3">
                 <label for="genero">
-                  <b>Genero *</b>
+                  <b>Género *</b>
                   <span
                     *ngIf="crearEmpresaCanForm.controls['genero'].invalid && (crearEmpresaCanForm.controls['genero'].dirty || crearEmpresaCanForm.controls['genero'].touched)">
                           <i *ngIf="crearEmpresaCanForm.controls['genero'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -546,7 +601,7 @@
             <div class="form-row">
               <div class="col-sm-12">
                 <label for="descripcionModificar">
-                  <b>Descripcion *</b>
+                  <b>Descripción *</b>
                   <span
                     *ngIf="crearEmpresaCanForm.controls['descripcion'].invalid && (crearEmpresaCanForm.controls['descripcion'].dirty || crearEmpresaCanForm.controls['descripcion'].touched)">
                           <i *ngIf="crearEmpresaCanForm.controls['descripcion'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -555,20 +610,90 @@
                 <textarea id="descripcionModificar" type="text" class="form-control" placeholder="Describir detalladamente el can, sus razgos y demas" formControlName="descripcion" #descripcion></textarea>
               </div>
             </div>
+
+            <div class="form-row">
+              <div class="col-sm-3">
+                <label for="origenModificar">
+                  <b>Origen *</b>
+                  <span
+                    *ngIf="crearEmpresaCanForm.controls['origen'].invalid && (crearEmpresaCanForm.controls['origen'].dirty || crearEmpresaCanForm.controls['origen'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['origen'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="origenModificar" class="form-control" formControlName="origen" (change)="seleccionarOrigen($event.target)">
+                  <option value="PROPIO">Propio</option>
+                  <option value="COMODATO">Comodato</option>
+                  <option value="ARRENDAMIENTO">Arrendamiento</option>
+                </select>
+              </div>
+
+              <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
+                <label for="razonSocialModificar">
+                  <b>Razón social del emisor</b>
+                  <span
+                    *ngIf="crearEmpresaCanForm.controls['razonSocial'].invalid && (crearEmpresaCanForm.controls['razonSocial'].dirty || crearEmpresaCanForm.controls['razonSocial'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['razonSocial'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="razonSocialModificar" type="text" placeholder="Ej. Volkswagen de Mexico" class="form-control" formControlName="razonSocial" #razonSocial>
+              </div>
+
+              <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
+                <label for="fechaInicioModificar">
+                  <b>Fecha de inicio</b>
+                </label>
+                <input id="fechaInicioModificar" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
+              </div>
+
+              <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
+                <label for="fechaFinModificar">
+                  <b>Fecha de fin</b>
+                </label>
+                <input id="fechaFinModificar" type="date" class="form-control" formControlName="fechaFin" #fechaFin>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="col-sm-3">
+                <label for="statusModificar">
+                  <b>Status *</b>
+                  <span
+                    *ngIf="crearEmpresaCanForm.controls['status'].invalid && (crearEmpresaCanForm.controls['status'].dirty || crearEmpresaCanForm.controls['status'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="statusModificar" class="form-control" formControlName="status" (change)="seleccionarStatus($event.target)">
+                  <option value="ACTIVO">Activo</option>
+                  <option value="INSTALACIONES">Instalaciones</option>
+                </select>
+              </div>
+              <div class="col-sm-3" *ngIf="status === 'ACTIVO'">
+                <label for="elementoAsignadoModificar">
+                  <b>Elemento asignado *</b>
+                  <span
+                    *ngIf="crearEmpresaCanForm.controls['elementoAsignado'].invalid && (crearEmpresaCanForm.controls['elementoAsignado'].dirty || crearEmpresaCanForm.controls['elementoAsignado'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['elementoAsignado'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="elementoAsignadoModificar" class="form-control" formControlName="elementoAsignado">
+                  <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres}} {{p.apellidoPaterno}} {{p.apellidoMaterno}}</option>
+                </select>
+              </div>
+            </div>
           </form>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="guardarCambiosCan(crearEmpresaCanForm)">Guardar cambios</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Eliminar</button>
+      <button type="button" class="btn btn-danger" (click)="cancelarCambiosCan()">Cancelar</button>
     </div>
   </ng-template>
 
   <ng-template #crearCanModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="crearCanModal">Nuevo can </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <button type="button" class="close" aria-label="Close" (click)="cancelarCambiosCan()">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -594,20 +719,27 @@
               <div class="step" data-target="#test-l-3">
                 <button class="step-trigger">
                   <span class="bs-stepper-circle">3</span>
-                  <span class="bs-stepper-label">Vacunacion</span>
+                  <span class="bs-stepper-label">Cart. Vacunación</span>
                 </button>
               </div>
               <div class="line"></div>
               <div class="step" data-target="#test-l-4">
                 <button class="step-trigger">
                   <span class="bs-stepper-circle">4</span>
-                  <span class="bs-stepper-label">Entrenamiento</span>
+                  <span class="bs-stepper-label">Fotografías</span>
                 </button>
               </div>
               <div class="line"></div>
               <div class="step" data-target="#test-l-5">
                 <button class="step-trigger">
                   <span class="bs-stepper-circle">5</span>
+                  <span class="bs-stepper-label">Entrenamiento</span>
+                </button>
+              </div>
+              <div class="line"></div>
+              <div class="step" data-target="#test-l-6">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">6</span>
                   <span class="bs-stepper-label">Resumen</span>
                 </button>
               </div>
@@ -630,7 +762,7 @@
                     </div>
                     <div class="col-sm-3">
                       <label for="genero">
-                        <b>Genero *</b>
+                        <b>Género *</b>
                         <span
                           *ngIf="crearEmpresaCanForm.controls['genero'].invalid && (crearEmpresaCanForm.controls['genero'].dirty || crearEmpresaCanForm.controls['genero'].touched)">
                           <i *ngIf="crearEmpresaCanForm.controls['genero'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -746,7 +878,7 @@
                   <div class="form-row">
                     <div class="col-sm-12">
                       <label for="descripcion">
-                        <b>Descripcion *</b>
+                        <b>Descripción *</b>
                         <span
                           *ngIf="crearEmpresaCanForm.controls['descripcion'].invalid && (crearEmpresaCanForm.controls['descripcion'].dirty || crearEmpresaCanForm.controls['descripcion'].touched)">
                           <i *ngIf="crearEmpresaCanForm.controls['descripcion'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -772,9 +904,9 @@
                       </select>
                     </div>
 
-                    <div class="col-sm-3">
+                    <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
                       <label for="razonSocial">
-                        <b>Razon social del emisor</b>
+                        <b>Razón social del emisor</b>
                         <span
                           *ngIf="crearEmpresaCanForm.controls['razonSocial'].invalid && (crearEmpresaCanForm.controls['razonSocial'].dirty || crearEmpresaCanForm.controls['razonSocial'].touched)">
                           <i *ngIf="crearEmpresaCanForm.controls['razonSocial'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
@@ -795,6 +927,34 @@
                         <b>Fecha de fin</b>
                       </label>
                       <input id="fechaFin" type="date" class="form-control" formControlName="fechaFin" #fechaFin>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-sm-3">
+                      <label for="status">
+                        <b>Status *</b>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['status'].invalid && (crearEmpresaCanForm.controls['status'].dirty || crearEmpresaCanForm.controls['status'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                      </label>
+                      <select id="status" class="form-control" formControlName="status" (change)="seleccionarStatus($event.target)">
+                        <option value="ACTIVO">Activo</option>
+                        <option value="INSTALACIONES">Instalaciones</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3" *ngIf="status === 'ACTIVO'">
+                      <label for="elementoAsignado">
+                        <b>Elemento asignado *</b>
+                        <span
+                          *ngIf="crearEmpresaCanForm.controls['elementoAsignado'].invalid && (crearEmpresaCanForm.controls['elementoAsignado'].dirty || crearEmpresaCanForm.controls['elementoAsignado'].touched)">
+                          <i *ngIf="crearEmpresaCanForm.controls['elementoAsignado'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                      </label>
+                      <select id="elementoAsignado" class="form-control" formControlName="elementoAsignado">
+                        <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres}} {{p.apellidoPaterno}} {{p.apellidoMaterno}}</option>
+                      </select>
                     </div>
                   </div>
                 </form>
@@ -823,7 +983,7 @@
                     </div>
                     <div class="col-sm-3">
                       <label for="cedulaCertificadoNuevoCan">
-                        <b>Cedula *</b>
+                        <b>Cédula *</b>
                         <span
                           *ngIf="crearEmpresaCanCertificadoSaludForm.controls['cedula'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['cedula'].dirty || crearEmpresaCanCertificadoSaludForm.controls['cedula'].touched)">
                           <i *ngIf="crearEmpresaCanCertificadoSaludForm.controls['cedula'].errors.required" class="text-danger"> - Requerido</i>
@@ -834,7 +994,7 @@
                     </div>
                     <div class="col-sm-3">
                       <label for="fechaExpedicionCertificadoNuevoCan">
-                        <b>Fecha de expedicion *</b>
+                        <b>Fecha de expedición *</b>
                         <span
                           *ngIf="crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].dirty || crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].touched)">
                           <i *ngIf="crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].errors.required" class="text-danger"> - Requerido</i>
@@ -856,10 +1016,14 @@
                 </form>
                 <hr>
                 <div class="row">
-                  <div class="col-sm-12">
+                  <div class="col-sm-6">
                     <button (click)="previous()" class="btn btn-primary">Anterior: Info. del can
                     </button>
-                    <button (click)="next('VACUNACION', crearEmpresaCanCertificadoSaludForm)" class="btn btn-primary">Siguiente: Vacunacion
+                    <button (click)="next('VACUNACION', crearEmpresaCanCertificadoSaludForm)" class="btn btn-primary">Siguiente: Cartilla(s) de Vacunacion
+                    </button>
+                  </div>
+                  <div class="col-sm-6">
+                    <button (click)="omitirPaso('VACUNACION')" class="btn btn-secondary float-right">Omitir e ir al siguiente paso
                     </button>
                   </div>
                 </div>
@@ -880,7 +1044,7 @@
                     </div>
                     <div class="col-sm-3">
                       <label for="cedulaVacunacionNuevoCan">
-                        <b>Cedula *</b>
+                        <b>Cédula *</b>
                         <span
                           *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['cedula'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['cedula'].touched)">
                           <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -891,7 +1055,7 @@
                     </div>
                     <div class="col-sm-3">
                       <label for="fechaExpedicionVacunacionNuevoCan">
-                        <b>Fecha de vacunacion *</b>
+                        <b>Fecha de vacunación *</b>
                         <span
                           *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].touched)">
                           <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -913,15 +1077,54 @@
                 </form>
                 <hr>
                 <div class="row">
-                  <div class="col-sm-12">
-                    <button (click)="previous()" class="btn btn-primary">Anterior: Info. del can
+                  <div class="col-sm-6">
+                    <button (click)="previous()" class="btn btn-primary">Anterior: Cert. de Salud
                     </button>
-                    <button (click)="next('ENTRENAMIENTO', crearEmpresaCanCartillaVacunacionForm)" class="btn btn-primary">Siguiente: Vacunacion
+                    <button (click)="next('ENTRENAMIENTO', crearEmpresaCanCartillaVacunacionForm)" class="btn btn-primary">Siguiente: Fotografias
+                    </button>
+                  </div>
+                  <div class="col-sm-6">
+                    <button (click)="omitirPaso()" class="btn btn-secondary float-right">Omitir e ir al siguiente paso
                     </button>
                   </div>
                 </div>
               </div>
               <div id="test-l-4" class="content">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <form [formGroup]="crearCanFotografiaForm">
+                      <div class="form-row">
+                        <div class="col-sm-6">
+                          <label for="fotoCrearCan">
+                            <b>Archivo</b>
+                          </label>
+                          <input id="fotoCrearCan" class="form-control" formControlName="file" type="file" accept="image/*" (change)="onFileChange($event)">
+                        </div>
+                        <div class="col-sm-6">
+                          <label for="fotoDescripcionCan">
+                            <b>Descripción</b>
+                          </label>
+                          <select id="fotoDescripcionCan" class="form-control" formControlName="descripcion">
+                            <option value="DERECHA">DERECHA</option>
+                            <option value="IZQUIERDA">IZQUIERDA</option>
+                            <option value="FRENTE">FRENTE</option>
+                            <option value="TRASERA">TRASERA</option>
+                            <option value="SUPERIOR">SUPERIOR</option>
+                          </select>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button (click)="previous()" class="btn btn-primary">Anterior: Cartilla(s) de Vacunacion</button>
+                    <button (click)="next('RESUMEN', crearCanFotografiaForm)" class="btn btn-primary">Siguiente: Entrenamiento</button>
+                  </div>
+                </div>
+              </div>
+              <div id="test-l-5" class="content">
                 <form [formGroup]="crearEmpresaCanEntrenamientoForm">
                   <div class="form-row">
                     <div class="col-sm-4">
@@ -961,19 +1164,23 @@
                 </form>
                 <hr>
                 <div class="row">
-                  <div class="col-sm-12">
-                    <button (click)="previous()" class="btn btn-primary">Anterior: Info. del can
+                  <div class="col-sm-6">
+                    <button (click)="previous()" class="btn btn-primary">Anterior: Fotografias
                     </button>
-                    <button (click)="next('RESUMEN', crearEmpresaCanEntrenamientoForm)" class="btn btn-primary">Siguiente: Resumen
+                    <button (click)="next('FOTOGRAFIA', crearEmpresaCanEntrenamientoForm)" class="btn btn-primary">Siguiente: Resumen
+                    </button>
+                  </div>
+                  <div class="col-sm-6">
+                    <button (click)="omitirPaso()" class="btn btn-secondary float-right">Omitir e ir al siguiente paso
                     </button>
                   </div>
                 </div>
               </div>
-              <div id="test-l-5" class="content">
+              <div id="test-l-6" class="content">
                 <div class="row">
                   <div class="col-sm-12">
                     <h2>Listo, se ha registrado correctamente el can {{can?.nombre}}</h2>
-                    <p>A continuacion, veras los detalles. Para finalizar, actualiza la pagina o dale click en el boton finalizar</p>
+                    <p>A continuación, veras los detalles. Para finalizar, actualiza la página o dale click en el boton finalizar</p>
                   </div>
                 </div>
                 <div class="row">
@@ -997,6 +1204,10 @@
                         <td>{{can?.peso}} kg</td>
                       </tr>
                       <tr>
+                        <td><b>Fecha de ingreso:</b></td>
+                        <td>{{can?.fechaIngreso}}</td>
+                      </tr>
+                      <tr>
                         <td><b>Tatuaje:</b></td>
                         <td [ngSwitch]="can?.tatuaje">
                           <span *ngSwitchCase="true">Si</span>
@@ -1011,7 +1222,7 @@
                         </td>
                       </tr>
                       <tr>
-                        <td><b>Descripcion:</b></td>
+                        <td><b>Descripción:</b></td>
                         <td>{{can?.descripcion}}</td>
                       </tr>
                       <tr>
@@ -1020,11 +1231,20 @@
                       </tr>
                       <tr>
                         <td><b>Domicilio asignado:</b></td>
-                        <td>{{can?.domicilioAsignado?.nombre}}</td>
+
+                        <td>
+                          {{can?.domicilioAsignado?.domicilio1}}. Colonia: {{can?.domicilioAsignado?.domicilio2}}<br>
+                          {{can?.domicilioAsignado?.domicilio3}}, {{can?.domicilioAsignado?.estado}}, {{can?.domicilioAsignado?.pais}}<br>
+                          C.P. {{can?.domicilioAsignado?.codigoPostal}}
+                        </td>
                       </tr>
                       <tr>
                         <td><b>Estatus:</b></td>
                         <td>{{can?.status}}</td>
+                      </tr>
+                      <tr *ngIf="can?.status === 'ACTIVO'">
+                        <td><b>Elemento asignado:</b></td>
+                        <td>{{can?.elementoAsignado?.nombres + " " + can?.elementoAsignado?.apellidoPaterno + " " + can?.elementoAsignado?.apellidoMaterno}}</td>
                       </tr>
                     </table>
                   </div>
@@ -1036,8 +1256,8 @@
                     <table class="table">
                       <tr>
                         <td><b>Expedido por</b></td>
-                        <td><b>Cedula</b></td>
-                        <td><b>Fecha de expedicion</b></td>
+                        <td><b>Cédula</b></td>
+                        <td><b>Fecha de expedición</b></td>
                       </tr>
                       <tr>
                         <td>{{certificadoSalud?.expedidoPor}}</td>
@@ -1049,12 +1269,12 @@
                 </div>
                 <div class="row">
                   <div class="col-sm-12">
-                    <h4>Cartilla de vacunacion</h4>
+                    <h4>Cartilla de vacunación</h4>
                     <table class="table">
                       <tr>
                         <td><b>Expedido por</b></td>
-                        <td><b>Cedula</b></td>
-                        <td><b>Fecha de expedicion</b></td>
+                        <td><b>Cédula</b></td>
+                        <td><b>Fecha de expedicin</b></td>
                       </tr>
                       <tr>
                         <td>{{canCartillaVacunacion?.expedidoPor}}</td>
@@ -1168,7 +1388,7 @@
       </form>
       <div class="row">
         <div class="col-sm-12">
-          <p>Estás a punto de eliminar el can. Toma en cuenta que esta operacion no se puede deshacer y que eliminaras las cartillas de vacunacion, certificados de salud, entrenamientos y fotografias
+          <p>Estás a punto de eliminar el can. Toma en cuenta que esta operación no se puede deshacer y que eliminarás las cartillas de vacunación, certificados de salud, entrenamientos y fotografías
             registradas a este can. ¿Deseas continuar?</p>
         </div>
       </div>
@@ -1189,7 +1409,7 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estás a punto de eliminar la cartilla de vacunacion del can. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estás a punto de eliminar la cartilla de vacunación del can. Toma en cuenta que esta operación no se puede deshacer. ¿Deseas continuar?</p>
         </div>
       </div>
     </div>
@@ -1209,7 +1429,7 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estás a punto de eliminar el certificado de salud del can. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estás a punto de eliminar el certificado de salud del can. Toma en cuenta que esta operación no se puede deshacer. ¿Deseas continuar?</p>
         </div>
       </div>
     </div>
@@ -1229,13 +1449,13 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estás a punto de eliminar la fotografia del can. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estás a punto de eliminar el entrenamiento del can. Toma en cuenta que esta operación no se puede deshacer. ¿Deseas continuar?</p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarFotografiaCan()">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button class="btn btn-danger" (click)="confirmarEliminarEntrenamientoCan()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como está</button>
     </div>
   </ng-template>
 
@@ -1249,7 +1469,7 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estás a punto de eliminar la fotografia del can. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estás a punto de eliminar la fotografía del can. Toma en cuenta que esta operación no se puede deshacer. ¿Deseas continuar?</p>
         </div>
       </div>
     </div>
@@ -1262,7 +1482,7 @@
   <!-- MODALS PARA VER LOS PDF DE CADA UNO DE LOS ENTES CREADOS -->
   <ng-template #visualizarCartillaVacunacionModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="visualizarCartillaVacunacionModal">Ver adjunto de la cartilla de vacunacion </h4>
+      <h4 class="modal-title" id="visualizarCartillaVacunacionModal">Ver adjunto de la cartilla de vacunación </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>

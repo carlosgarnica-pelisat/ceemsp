@@ -87,6 +87,15 @@ public class Vehiculo extends CommonModel {
     @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
     private String documentoFundatorioBaja;
 
+    @Column(name = "DOMICILIO")
+    private int domicilio;
+
+    @Column(name = "CONSTANCIA_BLINDAJE")
+    private String constanciaBlindaje;
+
+    @Column(name = "PERSONAL_ASIGNADO")
+    private Integer personalAsignado;
+
     public Vehiculo() {
         super();
     }

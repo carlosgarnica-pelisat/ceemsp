@@ -8,6 +8,8 @@ import com.pelisat.cesp.ceemsp.database.model.Can;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
 import com.pelisat.cesp.ceemsp.database.repository.CanRepository;
+import com.pelisat.cesp.ceemsp.database.type.CanOrigenEnum;
+import com.pelisat.cesp.ceemsp.database.type.CanStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -91,6 +93,21 @@ public class CanServiceImpl implements CanService {
     }
 
     @Override
+    public List<CanDto> obtenerCanesEliminadosPorEmpresa(String empresaUuid) {
+        if(StringUtils.isBlank(empresaUuid)) {
+            logger.warn("el uuid de la empresa viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo los canes con el uuid [{}]", empresaUuid);
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        List<Can> canes = canRepository.getAllByEmpresaAndEliminadoTrue(empresaDto.getId());
+
+        return canes.stream().map(daoToDtoConverter::convertDaoToDtoCan).collect(Collectors.toList());
+    }
+
+    @Override
     public CanDto obtenerCanPorUuid(String empresaUuid, String canUuid, boolean soloEntidad) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid)) {
             logger.warn("El uuid de la empresa o del can vienen como nulos o vacios");
@@ -98,14 +115,14 @@ public class CanServiceImpl implements CanService {
         }
 
         logger.info("Obteniendo el can con el uuid [{}]", canUuid);
-        Can can = canRepository.getByUuidAndEliminadoFalse(canUuid);
+        Can can = canRepository.getByUuid(canUuid);
         CanDto canDto = daoToDtoConverter.convertDaoToDtoCan(can);
 
         if(!soloEntidad) {
             canDto.setRaza(canRazaService.obtenerPorId(can.getRaza()));
             canDto.setDomicilioAsignado(empresaDomicilioService.obtenerPorId(can.getDomicilioAsignado()));
             if(can.getElementoAsignado() != null && can.getElementoAsignado() > 0) {
-                canDto.setElementoAsignado(personaService.obtenerPorId(empresaUuid, can.getElementoAsignado()));
+                canDto.setElementoAsignado(personaService.obtenerPorId(can.getElementoAsignado()));
             }
 
             if(can.getClienteAsignado() != null && can.getClienteAsignado() > 0) {
@@ -141,7 +158,23 @@ public class CanServiceImpl implements CanService {
             throw new NotFoundResourceException();
         }
 
-        return daoToDtoConverter.convertDaoToDtoCan(can);
+        CanDto canDto = daoToDtoConverter.convertDaoToDtoCan(can);
+
+        canDto.setRaza(canRazaService.obtenerPorId(can.getRaza()));
+        canDto.setDomicilioAsignado(empresaDomicilioService.obtenerPorId(can.getDomicilioAsignado()));
+        if(can.getElementoAsignado() != null && can.getElementoAsignado() > 0) {
+            canDto.setElementoAsignado(personaService.obtenerPorId(can.getElementoAsignado()));
+        }
+
+        if(can.getClienteAsignado() != null && can.getClienteAsignado() > 0) {
+            canDto.setClienteAsignado(clienteService.obtenerClientePorId(can.getClienteAsignado()));
+        }
+
+        if(can.getDomicilioClienteAsignado() != null && can.getClienteAsignado() > 0) {
+            canDto.setClienteDomicilio(clienteDomicilioService.obtenerPorId(can.getDomicilioClienteAsignado()));
+        }
+
+        return canDto;
     }
 
     @Transactional
@@ -163,6 +196,14 @@ public class CanServiceImpl implements CanService {
         can.setEmpresa(empresaDto.getId());
         can.setRaza(canDto.getRaza().getId());
         can.setDomicilioAsignado(canDto.getDomicilioAsignado().getId());
+        if(canDto.getElementoAsignado() != null) {
+            can.setElementoAsignado(canDto.getElementoAsignado().getId());
+        }
+
+        if(canDto.getOrigen() != CanOrigenEnum.PROPIO) {
+            can.setFechaInicio(LocalDate.parse(canDto.getFechaInicio()));
+            can.setFechaFin(LocalDate.parse(canDto.getFechaFin()));
+        }
 
         Can canCreado = canRepository.save(can);
 
@@ -198,6 +239,22 @@ public class CanServiceImpl implements CanService {
 
         can.setRaza(canDto.getRaza().getId());
         can.setDomicilioAsignado(canDto.getDomicilioAsignado().getId());
+        can.setOrigen(canDto.getOrigen());
+        can.setRazonSocial(canDto.getRazonSocial());
+        can.setStatus(canDto.getStatus());
+        if(canDto.getElementoAsignado() != null) {
+            can.setElementoAsignado(canDto.getElementoAsignado().getId());
+        }
+        if(StringUtils.isNotBlank(canDto.getFechaInicio())) {
+            can.setFechaInicio(LocalDate.parse(canDto.getFechaInicio()));
+        }
+        if(StringUtils.isNotBlank(canDto.getFechaFin())) {
+            can.setFechaFin(LocalDate.parse(canDto.getFechaFin()));
+        }
+
+        if(can.getStatus() != CanStatusEnum.ACTIVO) {
+            can.setElementoAsignado(null);
+        }
 
         daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
         canRepository.save(can);
@@ -223,6 +280,7 @@ public class CanServiceImpl implements CanService {
         can.setObservacionesBaja(canDto.getObservacionesBaja());
         can.setFechaBaja(LocalDate.parse(canDto.getFechaBaja()));
         can.setEliminado(true);
+        can.setStatus(CanStatusEnum.BAJA);
         daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
 
         if(multipartFile != null) {

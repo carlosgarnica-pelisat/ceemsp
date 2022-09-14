@@ -18,6 +18,7 @@ public class VehiculoDto {
     private VehiculoMarcaDto marca;
     private VehiculoSubmarcaDto submarca;
     private VehiculoUsoDto uso;
+    private EmpresaDomicilioDto domicilio;
     private String anio;
     private String color;
     private boolean rotulado;
@@ -34,6 +35,8 @@ public class VehiculoDto {
     private String razonSocial;
     private String fechaInicio;
     private String fechaFin;
+    private PersonaDto personalAsignado;
+    private boolean eliminado;
 
     private String motivoBaja;
     private String observacionesBaja;

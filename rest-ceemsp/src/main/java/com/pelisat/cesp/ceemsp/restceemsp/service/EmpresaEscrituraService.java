@@ -10,7 +10,7 @@ public interface EmpresaEscrituraService {
     List<EmpresaEscrituraDto> obtenerEscriturasEmpresaPorUuid(String empresaUuid);
     EmpresaEscrituraDto obtenerEscrituraPorUuid(String empresaUuid, String escrituraUuid, boolean soloEntidad);
     EmpresaEscrituraDto guardarEscritura(String empresaUuid, EmpresaEscrituraDto empresaEscrituraDto, String username, MultipartFile multipartFile);
-    EmpresaEscrituraDto modificarEscritura(String empresaUuid, String escrituraUuid, EmpresaEscrituraDto empresaEscrituraDto, String username);
+    EmpresaEscrituraDto modificarEscritura(String empresaUuid, String escrituraUuid, EmpresaEscrituraDto empresaEscrituraDto, MultipartFile multipartFile, String username);
     EmpresaEscrituraDto eliminarEscritura(String empresaUuid, String escrituraUuid, String username);
     File obtenerEscrituraPdf(String empresaUuid, String escrituraUuid);
 }

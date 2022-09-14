@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class IncidenciaArmaServiceImpl implements IncidenciaArmaService {
 
@@ -35,6 +38,30 @@ public class IncidenciaArmaServiceImpl implements IncidenciaArmaService {
         this.usuarioService = usuarioService;
         this.daoHelper = daoHelper;
         this.armaRepository = armaRepository;
+    }
+
+    @Override
+    public List<ArmaDto> obtenerArmasIncidencia(String empresaUuid, String incidenciaUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(incidenciaUuid)) {
+            logger.warn("Alguno de los parametros es nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Agregando arma a la incidencia [{}]", incidenciaUuid);
+
+        Incidencia incidencia = incidenciaRepository.getByUuidAndEliminadoFalse(incidenciaUuid);
+
+        if(incidencia == null) {
+            logger.warn("La incidencia no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<IncidenciaArma> incidenciaArmas = incidenciaArmaRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
+
+        return incidenciaArmas.stream().map(a -> {
+            Arma arma = armaRepository.getOne(a.getArma());
+            return daoToDtoConverter.convertDaoToDtoArma(arma);
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -88,7 +115,7 @@ public class IncidenciaArmaServiceImpl implements IncidenciaArmaService {
             throw new NotFoundResourceException();
         }
 
-        IncidenciaArma incidenciaArma = incidenciaArmaRepository.getByIncidenciaAndArmaAndEliminadoFalse(arma.getId(), incidencia.getId());
+        IncidenciaArma incidenciaArma = incidenciaArmaRepository.getByIncidenciaAndArmaAndEliminadoFalse(incidencia.getId(), arma.getId());
 
         if(incidenciaArma == null) {
             logger.warn("El arma en la incidencia no se encuentra registrada");

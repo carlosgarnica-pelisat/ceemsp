@@ -11,10 +11,6 @@
             <column name="CLIENTE" type="INT"></column>
             <column name="MODALIDAD" type="VARCHAR(10)"></column>
             <column name="SUBMODALIDAD" type="INT"></column>
-            <column name="MARCA" type="INT"></column>
-            <column name="CALIBRE" type="VARCHAR(10)"></column>
-            <column name="BUNKER" type="INT"></column>
-            <column name="STATUS" type="VARCHAR(15)"></column>
             <column name="ELIMINADO" type="bit" defaultValue="0"></column>
             <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
             <column name="CREADO_POR" type="int"></column>

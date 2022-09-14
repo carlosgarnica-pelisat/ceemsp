@@ -32,6 +32,13 @@ public class PersonaController {
         return personaService.obtenerTodos(empresaUuid);
     }
 
+    @GetMapping(value = PERSONALIDAD_URI + "/eliminados", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<PersonaDto> obtenerPersonasEliminados(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) {
+        return personaService.obtenerPersonasEliminadas(empresaUuid);
+    }
+
     @GetMapping(value = PERSONALIDAD_URI + "/{personaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public PersonaDto obtenerPersonaPorUuid(
             @PathVariable(value = "personaUuid") String personaUuid,

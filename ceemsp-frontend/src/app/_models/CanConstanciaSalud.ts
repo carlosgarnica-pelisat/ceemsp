@@ -7,6 +7,7 @@ export default class CanConstanciaSalud implements Deserializable {
   expedidoPor: string;
   cedula: string;
   fechaExpedicion: string;
+  eliminado: boolean;
 
   deserialize(input: any): this {
     Object.assign(this, input);

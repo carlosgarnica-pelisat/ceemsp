@@ -98,7 +98,7 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
         if(!soloEntidad) {
             empresaLicenciaColectivaDto.setModalidad(modalidadService.obtenerModalidadPorId(licenciaColectiva.getModalidad()));
             if(licenciaColectiva.getSubmodalidad() > 0) {
-                empresaLicenciaColectivaDto.setSubmodalidad(submodalidadService.obtenerSubmodalidadPorId(licenciaColectiva.getId()));
+                empresaLicenciaColectivaDto.setSubmodalidad(submodalidadService.obtenerSubmodalidadPorId(licenciaColectiva.getSubmodalidad()));
             }
         }
 
@@ -194,6 +194,8 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
         licenciaColectiva.setNumeroOficio(empresaLicenciaColectivaDto.getNumeroOficio());
         if(empresaLicenciaColectivaDto.getSubmodalidad() != null) {
             licenciaColectiva.setSubmodalidad(empresaLicenciaColectivaDto.getSubmodalidad().getId());
+        } else {
+            licenciaColectiva.setSubmodalidad(0);
         }
 
         daoHelper.fulfillAuditorFields(false, licenciaColectiva, usuarioDto.getId());
@@ -203,8 +205,8 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
     }
 
     @Override
-    public EmpresaLicenciaColectivaDto eliminarLicenciaColectiva(String empresaUuid, String licenciaUuid, String username) {
-        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(licenciaUuid) || StringUtils.isBlank(username)) {
+    public EmpresaLicenciaColectivaDto eliminarLicenciaColectiva(String empresaUuid, String licenciaUuid, String username, EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto, MultipartFile multipartFile) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(licenciaUuid) || StringUtils.isBlank(username) || empresaLicenciaColectivaDto == null) {
             logger.warn("Alguno de los parametros ingresados es invalido");
             throw new InvalidDataException();
         }
@@ -218,11 +220,24 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
             throw new NotFoundResourceException();
         }
 
+        licenciaColectiva.setMotivoBaja(empresaLicenciaColectivaDto.getMotivoBaja());
+        licenciaColectiva.setObservacionesBaja(empresaLicenciaColectivaDto.getObservacionesBaja());
+        licenciaColectiva.setFechaBaja(LocalDate.parse(empresaLicenciaColectivaDto.getFechaBaja()));
         licenciaColectiva.setEliminado(true);
-
         daoHelper.fulfillAuditorFields(false, licenciaColectiva, usuarioDto.getId());
-        empresaLicenciaColectivaRepository.save(licenciaColectiva);
 
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Agregando");
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_BAJA_LICENCIA, empresaUuid);
+                licenciaColectiva.setDocumentoFundatorioBaja(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+        empresaLicenciaColectivaRepository.save(licenciaColectiva);
         return daoToDtoConverter.convertDaoToDtoEmpresaLicenciaColectiva(licenciaColectiva);
     }
 }

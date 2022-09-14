@@ -1,6 +1,7 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoMarcaDto;
+import com.pelisat.cesp.ceemsp.database.type.VehiculoTipoEnum;
 import com.pelisat.cesp.ceemsp.restceemsp.service.VehiculoMarcaService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,13 @@ public class VehiculoMarcaController {
     @GetMapping(value = VEHICULO_MARCA_URI, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<VehiculoMarcaDto> obtenerArmasMarcas() {
         return vehiculoMarcaService.obtenerTodos();
+    }
+
+    @GetMapping(value = VEHICULO_MARCA_URI + "/tipos/{tipo}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<VehiculoMarcaDto> obtenerVehiculoMarcaTipo(
+            @PathVariable(value = "tipo") VehiculoTipoEnum vehiculoTipoEnum
+    ) {
+        return vehiculoMarcaService.obtenerMarcaTipo(vehiculoTipoEnum);
     }
 
     @GetMapping(value = VEHICULO_MARCA_URI + "/{vehiculoMarcaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)

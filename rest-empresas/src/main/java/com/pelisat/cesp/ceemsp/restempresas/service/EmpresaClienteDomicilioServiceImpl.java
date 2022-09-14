@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,7 +71,7 @@ public class EmpresaClienteDomicilioServiceImpl implements EmpresaClienteDomicil
     }
 
     @Override
-    public List<ClienteDomicilioDto> obtenerDomiciliosPorClienteUuid(String empresaUuid, String clienteUuid) {
+    public List<ClienteDomicilioDto> obtenerDomiciliosPorClienteUuid(String clienteUuid) {
         if(StringUtils.isBlank(clienteUuid)) {
             logger.warn("El uuid del cliente viene como nula o vacia");
             throw new InvalidDataException();
@@ -82,8 +83,9 @@ public class EmpresaClienteDomicilioServiceImpl implements EmpresaClienteDomicil
     }
 
     @Override
-    public List<ClienteDomicilioDto> crearDomicilio(String username, String empresaUuid, String clienteUuid, List<ClienteDomicilioDto> clienteDomicilioDto) {
-        if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(clienteUuid) || clienteDomicilioDto == null) {
+    @Transactional
+    public List<ClienteDomicilioDto> crearDomicilio(String username, String clienteUuid, List<ClienteDomicilioDto> clienteDomicilioDto) {
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(clienteUuid) || clienteDomicilioDto == null) {
             logger.warn("Hay alguno de los parametros que no es valido");
             throw new InvalidDataException();
         }
@@ -138,8 +140,9 @@ public class EmpresaClienteDomicilioServiceImpl implements EmpresaClienteDomicil
     }
 
     @Override
-    public ClienteDomicilioDto modificarDomicilio(String empresaUuid, String clienteUuid, String domicilioUuid, String username, ClienteDomicilioDto clienteDomicilioDto) {
-        if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) | StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(clienteUuid) || clienteDomicilioDto == null) {
+    @Transactional
+    public ClienteDomicilioDto modificarDomicilio(String clienteUuid, String domicilioUuid, String username, ClienteDomicilioDto clienteDomicilioDto) {
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(clienteUuid) || clienteDomicilioDto == null) {
             logger.warn("Alguno de los parametros vienen como nulos o vacios");
             throw new InvalidDataException();
         }
@@ -184,8 +187,9 @@ public class EmpresaClienteDomicilioServiceImpl implements EmpresaClienteDomicil
     }
 
     @Override
-    public ClienteDomicilioDto eliminarDomicilio(String empresaUuid, String clienteUuid, String domicilioUuid, String username) {
-        if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) | StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(clienteUuid)) {
+    @Transactional
+    public ClienteDomicilioDto eliminarDomicilio(String clienteUuid, String domicilioUuid, String username) {
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(clienteUuid)) {
             logger.warn("Alguno de los parametros vienen como nulos o vacios");
             throw new InvalidDataException();
         }

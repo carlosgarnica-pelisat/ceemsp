@@ -8,6 +8,7 @@ import {ToastType} from "../../../_enums/ToastType";
 import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 import VehiculoSubmarca from "../../../_models/VehiculoSubmarca";
 import EmpresaEscrituraSocio from "../../../_models/EmpresaEscrituraSocio";
+import {BotonCatalogosComponent} from "../../../_components/botones/boton-catalogos/boton-catalogos.component";
 
 @Component({
   selector: 'app-vehiculos',
@@ -15,7 +16,7 @@ import EmpresaEscrituraSocio from "../../../_models/EmpresaEscrituraSocio";
   styleUrls: ['./vehiculos.component.css']
 })
 export class VehiculosComponent implements OnInit {
-
+  editandoModal: boolean = false;
   faPencilAlt = faPencilAlt;
   faTrash = faTrash;
 
@@ -28,7 +29,13 @@ export class VehiculosComponent implements OnInit {
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+    {headerName: 'Acciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
   ];
   rowData = [];
 
@@ -49,6 +56,7 @@ export class VehiculosComponent implements OnInit {
 
   currentTab: string = "DETALLES";
 
+  @ViewChild("mostrarVehiculoModal") mostrarVehiculoModal;
   @ViewChild("editarVehiculoMarcaModal") editarVehiculoMarcaModal;
   @ViewChild("eliminarVehiculoMarcaModal") eliminarVehiculoMarcaModal;
   @ViewChild("eliminarVehiculoSubmarcaModal") eliminarVehiculoSubmarcaModal;
@@ -57,6 +65,10 @@ export class VehiculosComponent implements OnInit {
               private vehiculoService: VehiculosService, private toastService: ToastService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      catalogoButtonRenderer: BotonCatalogosComponent
+    }
+
     this.vehiculoService.obtenerVehiculosMarcas().subscribe((data: VehiculoMarca[]) => {
       this.rowData = data;
     }, (error) => {
@@ -76,6 +88,32 @@ export class VehiculosComponent implements OnInit {
       nombre: ['',  [Validators.required, Validators.maxLength(100)]],
       descripcion: ['',  [Validators.maxLength(100)]]
     })
+  }
+
+  verDetalles(rowData) {
+    this.checkForDetails(rowData.rowData, this.mostrarVehiculoModal);
+  }
+
+  editar(rowData) {
+    this.vehiculoMarca = rowData.rowData;
+    this.editandoModal = false;
+    this.crearVehiculoMarcaForm.patchValue({
+      nombre: this.vehiculoMarca.nombre,
+      descripcion: this.vehiculoMarca.descripcion
+    });
+
+    this.modal = this.modalService.open(this.editarVehiculoMarcaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  eliminar(rowData) {
+    this.vehiculoMarca = rowData.rowData;
+    this.mostrarEliminarVehiculoMarcaModal();
   }
 
   mostrarEditarSubmarca(index) {
@@ -155,12 +193,13 @@ export class VehiculosComponent implements OnInit {
   }
 
   mostrarModificarVehiculoMarcaModal() {
+    this.editandoModal = true;
     this.crearVehiculoMarcaForm.patchValue({
       nombre: this.vehiculoMarca.nombre,
       descripcion: this.vehiculoMarca.descripcion
     });
 
-    this.modalService.open(this.editarVehiculoMarcaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    this.modal = this.modalService.open(this.editarVehiculoMarcaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -264,13 +303,18 @@ export class VehiculosComponent implements OnInit {
 
     let formValue: VehiculoMarca = form.value;
 
-    this.vehiculoService.modificarVehiculoMarca(this.uuid, formValue).subscribe((data) => {
+    this.vehiculoService.modificarVehiculoMarca(this.uuid, formValue).subscribe((data: VehiculoMarca) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha actualizado la marca del vehiculo con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      if(this.editandoModal) {
+        this.vehiculoMarca = data;
+        this.modal.close();
+      } else {
+        window.location.reload();
+      }
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",

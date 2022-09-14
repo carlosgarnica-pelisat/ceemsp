@@ -62,7 +62,7 @@ public class VehiculoFotografiaServiceImpl implements VehiculoFotografiaService 
 
         logger.info("Obteniendo el metadata de las fotos del vehiculo [{}]", vehiculoUuid);
 
-        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+        Vehiculo vehiculo = vehiculoRepository.getByUuid(vehiculoUuid);
         if(vehiculo == null) {
             logger.warn("el vehiculo no existe en la base de datos");
             throw new NotFoundResourceException();

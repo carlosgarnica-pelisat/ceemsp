@@ -6,12 +6,14 @@ import Arma from "./Arma";
 import IncidenciaComentario from "./IncidenciaComentario";
 import Persona from "./Persona";
 import Vehiculo from "./Vehiculo";
+import IncidenciaArchivoMetadata from "./IncidenciaArchivoMetadata";
 
 export default class Incidencia implements Deserializable {
   id: number;
   uuid: string;
   numero: string;
   fechaIncidencia: string;
+  fechaCreacion: string;
   cliente: Cliente;
   status: string;
   asignado: Usuario;
@@ -21,6 +23,7 @@ export default class Incidencia implements Deserializable {
   comentarios: IncidenciaComentario[];
   personasInvolucradas: Persona[];
   vehiculosInvolucrados: Vehiculo[];
+  archivos: IncidenciaArchivoMetadata[];
 
   deserialize(input: any): this {
     Object.assign(this, input);

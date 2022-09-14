@@ -10,4 +10,6 @@ public class SubmodalidadDto {
     private String uuid;
     private String nombre;
     private String descripcion;
+    private Boolean canes;
+    private Boolean armas;
 }

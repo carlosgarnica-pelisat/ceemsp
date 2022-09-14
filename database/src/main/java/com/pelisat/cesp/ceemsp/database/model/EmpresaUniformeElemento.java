@@ -21,4 +21,7 @@ public class EmpresaUniformeElemento extends CommonModel {
 
     @Column(name = "CANTIDAD")
     private BigDecimal cantidad;
+
+    @Column(name = "UBICACION_ARCHIVO")
+    private String ubicacionArchivo;
 }

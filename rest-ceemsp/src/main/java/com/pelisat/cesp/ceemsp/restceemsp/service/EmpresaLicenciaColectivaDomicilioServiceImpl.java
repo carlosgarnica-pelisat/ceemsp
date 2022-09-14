@@ -3,10 +3,8 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDomicilioDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaLicenciaColectivaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaLicenciaColectiva;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaLicenciaColectivaDomicilio;
+import com.pelisat.cesp.ceemsp.database.model.*;
+import com.pelisat.cesp.ceemsp.database.repository.ArmaRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaLicenciaColectivaDomicilioRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -34,13 +32,14 @@ public class EmpresaLicenciaColectivaDomicilioServiceImpl implements EmpresaLice
     private final EmpresaLicenciaColectivaDomicilioRepository empresaLicenciaColectivaDomicilioRepository;
     private final EmpresaLicenciaColectivaService empresaLicenciaColectivaService;
     private final EmpresaDomicilioService empresaDomicilioService;
+    private final ArmaRepository armaRepository;
 
     @Autowired
     public EmpresaLicenciaColectivaDomicilioServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                                                         DaoHelper<CommonModel> daoHelper, UsuarioService usuarioService,
                                                         EmpresaLicenciaColectivaDomicilioRepository empresaLicenciaColectivaDomicilioRepository,
                                                         EmpresaLicenciaColectivaService empresaLicenciaColectivaService,
-                                                        EmpresaDomicilioService empresaDomicilioService) {
+                                                        EmpresaDomicilioService empresaDomicilioService, ArmaRepository armaRepository) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
@@ -48,6 +47,7 @@ public class EmpresaLicenciaColectivaDomicilioServiceImpl implements EmpresaLice
         this.empresaLicenciaColectivaDomicilioRepository = empresaLicenciaColectivaDomicilioRepository;
         this.empresaLicenciaColectivaService = empresaLicenciaColectivaService;
         this.empresaDomicilioService = empresaDomicilioService;
+        this.armaRepository = armaRepository;
     }
 
 
@@ -62,6 +62,21 @@ public class EmpresaLicenciaColectivaDomicilioServiceImpl implements EmpresaLice
 
         EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto = empresaLicenciaColectivaService.obtenerLicenciaColectivaPorUuid(empresaUuid, licenciaColectivaUuid, true);
         List<EmpresaLicenciaColectivaDomicilio> domicilios = empresaLicenciaColectivaDomicilioRepository.findAllByLicenciaColectivaAndEliminadoFalse(empresaLicenciaColectivaDto.getId());
+
+        return domicilios.stream().map(d -> empresaDomicilioService.obtenerPorId(d.getDomicilio())).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EmpresaDomicilioDto> obtenerTodosDomiciliosPorLicenciaColectiva(String empresaUuid, String licenciaColectivaUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(licenciaColectivaUuid)) {
+            logger.warn("El uuid de la empresa o el de la licencia colectiva vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo los domicilios de la licencia colectiva con el uuid [{}]", licenciaColectivaUuid);
+
+        EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto = empresaLicenciaColectivaService.obtenerLicenciaColectivaPorUuid(empresaUuid, licenciaColectivaUuid, true);
+        List<EmpresaLicenciaColectivaDomicilio> domicilios = empresaLicenciaColectivaDomicilioRepository.findAllByLicenciaColectiva(empresaLicenciaColectivaDto.getId());
 
         return domicilios.stream().map(d -> empresaDomicilioService.obtenerPorId(d.getDomicilio())).collect(Collectors.toList());
     }
@@ -110,6 +125,14 @@ public class EmpresaLicenciaColectivaDomicilioServiceImpl implements EmpresaLice
         }
 
         UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        List<Arma> armasEnDomicilio = armaRepository.getAllByBunkerAndEliminadoFalse(empresaDomicilioDto.getId());
+        armasEnDomicilio.forEach(a -> {
+            a.setEliminado(true);
+            daoHelper.fulfillAuditorFields(false, a, usuario.getId());
+            armaRepository.save(a);
+        });
+
         empresaLicenciaColectivaDomicilio.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, empresaLicenciaColectivaDomicilio, usuario.getId());
         empresaLicenciaColectivaDomicilioRepository.save(empresaLicenciaColectivaDomicilio);

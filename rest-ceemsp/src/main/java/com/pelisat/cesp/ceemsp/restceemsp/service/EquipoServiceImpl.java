@@ -2,11 +2,12 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.EquipoDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.Equipo;
-import com.pelisat.cesp.ceemsp.database.model.Modalidad;
-import com.pelisat.cesp.ceemsp.database.model.Uniforme;
+import com.pelisat.cesp.ceemsp.database.model.*;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaEquipoRepository;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaFormaEjecucionRepository;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EquipoRepository;
+import com.pelisat.cesp.ceemsp.database.type.FormaEjecucionEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
@@ -31,15 +32,20 @@ public class EquipoServiceImpl implements EquipoService {
     private final DaoHelper<CommonModel> daoHelper;
     private final UsuarioService usuarioService;
     private final EquipoRepository equipoRepository;
+    private final EmpresaRepository empresaRepository;
+    private final EmpresaFormaEjecucionRepository empresaFormaEjecucionRepository;
 
     @Autowired
     public EquipoServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper,
-                             UsuarioService usuarioService, EquipoRepository equipoRepository) {
+                             UsuarioService usuarioService, EquipoRepository equipoRepository, EmpresaRepository empresaRepository,
+                             EmpresaFormaEjecucionRepository empresaFormaEjecucionRepository) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
         this.usuarioService = usuarioService;
         this.equipoRepository = equipoRepository;
+        this.empresaRepository = empresaRepository;
+        this.empresaFormaEjecucionRepository = empresaFormaEjecucionRepository;
     }
 
     @Override
@@ -49,6 +55,30 @@ public class EquipoServiceImpl implements EquipoService {
         return equipos.stream()
                 .map(equipo -> daoToDtoConverter.convertDaoToDtoEquipo(equipo))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EquipoDto> obtenerEquipos(String empresaUuid) {
+        if(StringUtils.isBlank(empresaUuid)) {
+            logger.warn("Alguno de los parametros viene como invalido");
+            throw new InvalidDataException();
+        }
+
+        Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(empresaUuid);
+
+        if(empresa == null) {
+            logger.warn("La empresa no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<EmpresaFormaEjecucion> empresaFormasEjecucion = empresaFormaEjecucionRepository.getAllByEmpresaAndEliminadoFalse(empresa.getId());
+        List<Equipo> equipos = equipoRepository.findAllByFormaEjecucionAndEliminadoFalse(FormaEjecucionEnum.NA);
+
+        empresaFormasEjecucion.forEach(efe -> {
+            equipos.addAll(equipoRepository.findAllByFormaEjecucionAndEliminadoFalse(efe.getFormaEjecucion()));
+        });
+
+        return equipos.stream().map(daoToDtoConverter::convertDaoToDtoEquipo).collect(Collectors.toList());
     }
 
     @Override

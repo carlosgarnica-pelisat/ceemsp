@@ -10,6 +10,7 @@
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(100)"></column>
             <column name="DESCRIPCION" type="varchar(100)"></column>
+            <column name="TIPO" type="varchar(15)"></column>
             <column name="ELIMINADO" type="bit" defaultValue="0"></column>
             <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
             <column name="CREADO_POR" type="int"></column>
@@ -30,6 +31,7 @@
             <column name="UUID" value="SXnZw2lR6BT2"></column>
             <column name="NOMBRE" value="ACURA"></column>
             <column name="DESCRIPCION" value="Marca japonesa. Vehiculos diversos de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -42,6 +44,7 @@
             <column name="UUID" value="xqRL6WFk13uN"></column>
             <column name="NOMBRE" value="ALFA ROMEO"></column>
             <column name="DESCRIPCION" value="Marca italiana. Vehiculos diversos de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -54,6 +57,7 @@
             <column name="UUID" value="jpzQLDH5x3KF"></column>
             <column name="NOMBRE" value="ASTON MARTIN"></column>
             <column name="DESCRIPCION" value="Marca inglesa. Vehiculos de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -66,6 +70,7 @@
             <column name="UUID" value="jfmJ8cGVhE8k"></column>
             <column name="NOMBRE" value="AUDI"></column>
             <column name="DESCRIPCION" value="Marca alemana. Vehiculos diversos de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -78,6 +83,7 @@
             <column name="UUID" value="uThXaMGb8y5w"></column>
             <column name="NOMBRE" value="BENTLEY"></column>
             <column name="DESCRIPCION" value="Marca inglesa. Vehiculos exoticos y de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -90,6 +96,7 @@
             <column name="UUID" value="Ib4vjeaBbQZW"></column>
             <column name="NOMBRE" value="BMW"></column>
             <column name="DESCRIPCION" value="Marca alemana. Vehiculos diversos de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -102,6 +109,7 @@
             <column name="UUID" value="D2Mjzi5BEyVF"></column>
             <column name="NOMBRE" value="BUICK"></column>
             <column name="DESCRIPCION" value="Marca norteamericana. Vehiculos diversos de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -114,6 +122,7 @@
             <column name="UUID" value="ZdqOQMv3C5WT"></column>
             <column name="NOMBRE" value="CADILLAC"></column>
             <column name="DESCRIPCION" value="Marca norteamericana. Vehiculos diversos de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -125,6 +134,7 @@
             <column name="UUID" value="oAr3XyCzmFEs"></column>
             <column name="NOMBRE" value="CHEVROLET"></column>
             <column name="DESCRIPCION" value="Marca norteamericana. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -136,6 +146,7 @@
             <column name="UUID" value="QJkRF7Dg7f36"></column>
             <column name="NOMBRE" value="CHRYSLER"></column>
             <column name="DESCRIPCION" value="Marca norteamericana. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -147,6 +158,7 @@
             <column name="UUID" value="RqgiQm2QyUlf"></column>
             <column name="NOMBRE" value="DODGE"></column>
             <column name="DESCRIPCION" value="Marca norteamericana. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -158,6 +170,7 @@
             <column name="UUID" value="RnLBJmxElGPl"></column>
             <column name="NOMBRE" value="FAW"></column>
             <column name="DESCRIPCION" value="Marca china. Coches economicos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -169,6 +182,7 @@
             <column name="UUID" value="FWmcmGJKH0sw"></column>
             <column name="NOMBRE" value="FERRARI"></column>
             <column name="DESCRIPCION" value="Marca italiana. Vehiculos de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -180,6 +194,7 @@
             <column name="UUID" value="yshf5BbHWPnB"></column>
             <column name="NOMBRE" value="FIAT"></column>
             <column name="DESCRIPCION" value="Marca italiana. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -191,6 +206,7 @@
             <column name="UUID" value="CjeADM99gQs6"></column>
             <column name="NOMBRE" value="FORD"></column>
             <column name="DESCRIPCION" value="Marca nortemaericana. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -202,6 +218,7 @@
             <column name="UUID" value="yTtd9Bd1kYSJ"></column>
             <column name="NOMBRE" value="GMC"></column>
             <column name="DESCRIPCION" value="Marca norteamericana. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -213,6 +230,7 @@
             <column name="UUID" value="nbhrvNr3AVkA"></column>
             <column name="NOMBRE" value="HONDA"></column>
             <column name="DESCRIPCION" value="Marca japonesa. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -224,6 +242,7 @@
             <column name="UUID" value="gmxJDd43uO7Y"></column>
             <column name="NOMBRE" value="HYUNDAI"></column>
             <column name="DESCRIPCION" value="Marca coreana. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -235,6 +254,7 @@
             <column name="UUID" value="LTzWMo621oSW"></column>
             <column name="NOMBRE" value="INFINITI"></column>
             <column name="DESCRIPCION" value="Marca japonesa, Vehiculos premium diversos. Marca premium de Nissan"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -246,6 +266,7 @@
             <column name="UUID" value="QJxrHJ3tkEy5"></column>
             <column name="NOMBRE" value="JAC"></column>
             <column name="DESCRIPCION" value="Marca china. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -257,6 +278,7 @@
             <column name="UUID" value="RroqaTsyWqml"></column>
             <column name="NOMBRE" value="JAGUAR"></column>
             <column name="DESCRIPCION" value="Jaguar"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -268,6 +290,7 @@
             <column name="UUID" value="EjAaT4GTVHJA"></column>
             <column name="NOMBRE" value="JEEP"></column>
             <column name="DESCRIPCION" value="Marca norteamericana, Vehiculos principalmente SUV y todo terreno"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -279,6 +302,7 @@
             <column name="UUID" value="84gVyZaIbMHt"></column>
             <column name="NOMBRE" value="KIA"></column>
             <column name="DESCRIPCION" value="Marca coreana. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -290,6 +314,7 @@
             <column name="UUID" value="U4LKA6BiS1Nw"></column>
             <column name="NOMBRE" value="LAMBORGHINI"></column>
             <column name="DESCRIPCION" value="Marca italiana, Vehiculos exoticos y de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -301,6 +326,7 @@
             <column name="UUID" value="98bz55rEJV5V"></column>
             <column name="NOMBRE" value="LAND ROVER"></column>
             <column name="DESCRIPCION" value="Marca inglesa. Pricipalmente camionetas de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -312,6 +338,7 @@
             <column name="UUID" value="YpRR4kMrrJ5w"></column>
             <column name="NOMBRE" value="LINCOLN"></column>
             <column name="DESCRIPCION" value="Marca estadounidense, Vehiculos premium diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -323,6 +350,7 @@
             <column name="UUID" value="igp39VeZECKX"></column>
             <column name="NOMBRE" value="MASERATI"></column>
             <column name="DESCRIPCION" value="Marca italiana. Vehiculos de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -334,6 +362,7 @@
             <column name="UUID" value="Rf5TnNZhqtQ2"></column>
             <column name="NOMBRE" value="MAZDA"></column>
             <column name="DESCRIPCION" value="Marca japonesa. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -345,6 +374,7 @@
             <column name="UUID" value="PxdKv8z7Wbof"></column>
             <column name="NOMBRE" value="MCLAREN"></column>
             <column name="DESCRIPCION" value="Marca alemana. Vehiculos exoticos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -356,6 +386,7 @@
             <column name="UUID" value="NnESGIunsmj4"></column>
             <column name="NOMBRE" value="MERCEDES-BENZ"></column>
             <column name="DESCRIPCION" value="Marca alemana. Vehiculos diversos de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -367,6 +398,7 @@
             <column name="UUID" value="wDw0qmkZda2E"></column>
             <column name="NOMBRE" value="MG"></column>
             <column name="DESCRIPCION" value="Marca inglesa/china. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -378,6 +410,7 @@
             <column name="UUID" value="v7NuR23g6IXX"></column>
             <column name="NOMBRE" value="MINI"></column>
             <column name="DESCRIPCION" value="Marca inglesa, vehiculos compactos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -389,6 +422,7 @@
             <column name="UUID" value="IKbLB4jyWMWb"></column>
             <column name="NOMBRE" value="MITSUBISHI"></column>
             <column name="DESCRIPCION" value="Marca japonesa. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -400,6 +434,7 @@
             <column name="UUID" value="03HZk2cYuq9p"></column>
             <column name="NOMBRE" value="NISSAN"></column>
             <column name="DESCRIPCION" value="Marca japonesa, Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -411,6 +446,7 @@
             <column name="UUID" value="5Lhz4D8LaT37"></column>
             <column name="NOMBRE" value="PEUGEOT"></column>
             <column name="DESCRIPCION" value="Marca francesa. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -422,6 +458,7 @@
             <column name="UUID" value="ROLkqSoDejBH"></column>
             <column name="NOMBRE" value="PORSCHE"></column>
             <column name="DESCRIPCION" value="Marca alemana. Vehiculos de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -433,6 +470,7 @@
             <column name="UUID" value="Sw0lXtJxVyh3"></column>
             <column name="NOMBRE" value="RENAULT"></column>
             <column name="DESCRIPCION" value="Marca francesa. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -444,6 +482,7 @@
             <column name="UUID" value="HgzKrQLBxhEn"></column>
             <column name="NOMBRE" value="SEAT"></column>
             <column name="DESCRIPCION" value="Marca española. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -455,6 +494,7 @@
             <column name="UUID" value="LEmOvHHNBLV0"></column>
             <column name="NOMBRE" value="SMART"></column>
             <column name="DESCRIPCION" value="Marca alemana. Vehiculos compactos y electricos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -466,6 +506,7 @@
             <column name="UUID" value="oFzslBgohF8b"></column>
             <column name="NOMBRE" value="SUBARU"></column>
             <column name="DESCRIPCION" value="Marca japonesa. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -477,6 +518,7 @@
             <column name="UUID" value="1B58aUULao1G"></column>
             <column name="NOMBRE" value="SUZUKI"></column>
             <column name="DESCRIPCION" value="Marca japonesa. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -488,6 +530,7 @@
             <column name="UUID" value="K5fmxl5PTiGI"></column>
             <column name="NOMBRE" value="TESLA"></column>
             <column name="DESCRIPCION" value="Marca estadounidense. Vehiculos electricos de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -499,6 +542,7 @@
             <column name="UUID" value="xYywd2UIEvaO"></column>
             <column name="NOMBRE" value="TOYOTA"></column>
             <column name="DESCRIPCION" value="Marca japonesa. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -510,6 +554,7 @@
             <column name="UUID" value="8bVbr6ExLgwe"></column>
             <column name="NOMBRE" value="VOLKSWAGEN"></column>
             <column name="DESCRIPCION" value="Marca alemana. Vehiculos diversos"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -521,11 +566,999 @@
             <column name="UUID" value="uLqHb1vRkveS"></column>
             <column name="NOMBRE" value="VOLVO"></column>
             <column name="DESCRIPCION" value="Marca sueca. Vehiculos de lujo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
+
+        <!-- MOTOCICLETAS -->
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="46"></column>
+            <column name="UUID" value="W7gr3fbWrMOY"></column>
+            <column name="NOMBRE" value="AIMA"></column>
+            <column name="DESCRIPCION" value="Aima"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="47"></column>
+            <column name="UUID" value="dn5OaxZZh04f"></column>
+            <column name="NOMBRE" value="APACHE"></column>
+            <column name="DESCRIPCION" value="Apache"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="48"></column>
+            <column name="UUID" value="yHE1oH1k5rKw"></column>
+            <column name="NOMBRE" value="ATOM"></column>
+            <column name="DESCRIPCION" value="ATOM"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="49"></column>
+            <column name="UUID" value="eOxjfBNBbl1t"></column>
+            <column name="NOMBRE" value="AKT"></column>
+            <column name="DESCRIPCION" value="AKT"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="50"></column>
+            <column name="UUID" value="r40UUA74M5Wt"></column>
+            <column name="NOMBRE" value="APIRILA"></column>
+            <column name="DESCRIPCION" value="APIRILA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="51"></column>
+            <column name="UUID" value="P2Y7whBnHRr5"></column>
+            <column name="NOMBRE" value="ATV"></column>
+            <column name="DESCRIPCION" value="ATV"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="52"></column>
+            <column name="UUID" value="kJ0UkOEHSx3G"></column>
+            <column name="NOMBRE" value="ALESSIA"></column>
+            <column name="DESCRIPCION" value="ALESSIA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="53"></column>
+            <column name="UUID" value="x0nemwC9mzPV"></column>
+            <column name="NOMBRE" value="ASIAWING"></column>
+            <column name="DESCRIPCION" value="ASIAWING"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="54"></column>
+            <column name="UUID" value="cl2Y7C9a0wJp"></column>
+            <column name="NOMBRE" value="AVANZADA"></column>
+            <column name="DESCRIPCION" value="AVANZADA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="55"></column>
+            <column name="UUID" value="fUumJM77fgUJ"></column>
+            <column name="NOMBRE" value="BAJAJ"></column>
+            <column name="DESCRIPCION" value="BAJAJ"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="56"></column>
+            <column name="UUID" value="Q8kWNL2ZevZw"></column>
+            <column name="NOMBRE" value="BMW"></column>
+            <column name="DESCRIPCION" value="BMW"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="57"></column>
+            <column name="UUID" value="tTPB2xhv3TlR"></column>
+            <column name="NOMBRE" value="BOSS"></column>
+            <column name="DESCRIPCION" value="BOSS"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="58"></column>
+            <column name="UUID" value="LybLc7vy1TGZ"></column>
+            <column name="NOMBRE" value="BENELLI"></column>
+            <column name="DESCRIPCION" value="BENELLI"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="59"></column>
+            <column name="UUID" value="J6TMbyTLKgL6"></column>
+            <column name="NOMBRE" value="BMW MOTORRAD"></column>
+            <column name="DESCRIPCION" value="BMW MOTORRAD"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="60"></column>
+            <column name="UUID" value="MPAc1KOKwlbG"></column>
+            <column name="NOMBRE" value="BERETTA"></column>
+            <column name="DESCRIPCION" value="BERETTA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="61"></column>
+            <column name="UUID" value="lh2qMZ24UiAh"></column>
+            <column name="NOMBRE" value="BOMBARDIER"></column>
+            <column name="DESCRIPCION" value="BOMBARDIER"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="62"></column>
+            <column name="UUID" value="A8kfKgnxe8G8"></column>
+            <column name="NOMBRE" value="CAGIVA"></column>
+            <column name="DESCRIPCION" value="CAGIVA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="63"></column>
+            <column name="UUID" value="UuGRdUttb9fv"></column>
+            <column name="NOMBRE" value="CARABELA"></column>
+            <column name="DESCRIPCION" value="CARABELA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="64"></column>
+            <column name="UUID" value="ahvBez1SOPul"></column>
+            <column name="NOMBRE" value="COLEMAN"></column>
+            <column name="DESCRIPCION" value="COLEMAN"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="65"></column>
+            <column name="UUID" value="VWwu8K85S7Pn"></column>
+            <column name="NOMBRE" value="CAN-AM"></column>
+            <column name="DESCRIPCION" value="CAN-AM"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="66"></column>
+            <column name="UUID" value="vyhtMexPhV2O"></column>
+            <column name="NOMBRE" value="CFMOTO"></column>
+            <column name="DESCRIPCION" value="CFMOTO"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="67"></column>
+            <column name="UUID" value="IJYA0rfCkaI4"></column>
+            <column name="NOMBRE" value="CROSS"></column>
+            <column name="DESCRIPCION" value="CROSS"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="68"></column>
+            <column name="UUID" value="NBvrAgBtaR5N"></column>
+            <column name="NOMBRE" value="DINAMO"></column>
+            <column name="DESCRIPCION" value="DINAMO"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="69"></column>
+            <column name="UUID" value="MYrfIAM4kKci"></column>
+            <column name="NOMBRE" value="DUCATI"></column>
+            <column name="DESCRIPCION" value="DUCATI"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="70"></column>
+            <column name="UUID" value="UQfTraplZ5th"></column>
+            <column name="NOMBRE" value="DUELL"></column>
+            <column name="DESCRIPCION" value="DUELL"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="71"></column>
+            <column name="UUID" value="1G5kjhYjXKXR"></column>
+            <column name="NOMBRE" value="EXTREME"></column>
+            <column name="DESCRIPCION" value="EXTREME"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="72"></column>
+            <column name="UUID" value="Rgl1ycLjckVK"></column>
+            <column name="NOMBRE" value="GAS GAS"></column>
+            <column name="DESCRIPCION" value="GAS GAS"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="73"></column>
+            <column name="UUID" value="cn3tcXdjeELC"></column>
+            <column name="NOMBRE" value="GILERA"></column>
+            <column name="DESCRIPCION" value="GILERA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="74"></column>
+            <column name="UUID" value="cfaOIKyLrmhY"></column>
+            <column name="NOMBRE" value="GOLOVOLT"></column>
+            <column name="DESCRIPCION" value="GOLOVOLT"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="75"></column>
+            <column name="UUID" value="0IW053XI872k"></column>
+            <column name="NOMBRE" value="GUZZI"></column>
+            <column name="DESCRIPCION" value="GUZZI"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="76"></column>
+            <column name="UUID" value="3IhjzqKzkwMO"></column>
+            <column name="NOMBRE" value="HARLEY-DAVIDSON"></column>
+            <column name="DESCRIPCION" value="HARLEY-DAVIDSON"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="77"></column>
+            <column name="UUID" value="m0Xrl2O9F91x"></column>
+            <column name="NOMBRE" value="HONDA"></column>
+            <column name="DESCRIPCION" value="HONDA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="78"></column>
+            <column name="UUID" value="5xMbmBNNngVU"></column>
+            <column name="NOMBRE" value="HUSABERG"></column>
+            <column name="DESCRIPCION" value="HUSABERG"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="79"></column>
+            <column name="UUID" value="zpUm6VXZBy1L"></column>
+            <column name="NOMBRE" value="HUSQVAMA"></column>
+            <column name="DESCRIPCION" value="HUSQVAMA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="80"></column>
+            <column name="UUID" value="HwQ65mOYBFub"></column>
+            <column name="NOMBRE" value="HYOSUNG"></column>
+            <column name="DESCRIPCION" value="HYOSUNG"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="81"></column>
+            <column name="UUID" value="P8m66Ht2FYbX"></column>
+            <column name="NOMBRE" value="INDIAN"></column>
+            <column name="DESCRIPCION" value="INDIAN"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="82"></column>
+            <column name="UUID" value="wV0YGDz3SJDO"></column>
+            <column name="NOMBRE" value="ISLOIZUKA"></column>
+            <column name="DESCRIPCION" value="ISLOIZUKA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="83"></column>
+            <column name="UUID" value="PLiouxun3Ci3"></column>
+            <column name="NOMBRE" value="ITALIKA"></column>
+            <column name="DESCRIPCION" value="ITALIKA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="84"></column>
+            <column name="UUID" value="cIMGxYya9PR8"></column>
+            <column name="NOMBRE" value="IZUKA"></column>
+            <column name="DESCRIPCION" value="IZUKA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="85"></column>
+            <column name="UUID" value="cKNqZIzIWuCD"></column>
+            <column name="NOMBRE" value="JIAJUE"></column>
+            <column name="DESCRIPCION" value="JIAJUE"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="86"></column>
+            <column name="UUID" value="ehU0XqDj94cw"></column>
+            <column name="NOMBRE" value="KAWASAKI"></column>
+            <column name="DESCRIPCION" value="KAWASAKI"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="87"></column>
+            <column name="UUID" value="CrmpyFXC4l5C"></column>
+            <column name="NOMBRE" value="KEEWAY"></column>
+            <column name="DESCRIPCION" value="KEEWAY"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="88"></column>
+            <column name="UUID" value="biqx5lHjrbri"></column>
+            <column name="NOMBRE" value="KTM"></column>
+            <column name="DESCRIPCION" value="KTM"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="89"></column>
+            <column name="UUID" value="TikCr0TioCBV"></column>
+            <column name="NOMBRE" value="KYMCO"></column>
+            <column name="DESCRIPCION" value="KYMCO"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="90"></column>
+            <column name="UUID" value="3l0043S65pCb"></column>
+            <column name="NOMBRE" value="LIFAN"></column>
+            <column name="DESCRIPCION" value="LIFAN"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="91"></column>
+            <column name="UUID" value="8QZ49TMMAhkM"></column>
+            <column name="NOMBRE" value="LINHAI"></column>
+            <column name="DESCRIPCION" value="LINHAI"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="92"></column>
+            <column name="UUID" value="upKigXjRX2Wy"></column>
+            <column name="NOMBRE" value="LML"></column>
+            <column name="DESCRIPCION" value="LML"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="93"></column>
+            <column name="UUID" value="nbNxoUZIxhlJ"></column>
+            <column name="NOMBRE" value="MB"></column>
+            <column name="DESCRIPCION" value="MB"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="94"></column>
+            <column name="UUID" value="YgOFINDXZZJk"></column>
+            <column name="NOMBRE" value="MEGELLI"></column>
+            <column name="DESCRIPCION" value="MEGELLI"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="95"></column>
+            <column name="UUID" value="CrE3pucuPSKo"></column>
+            <column name="NOMBRE" value="MOTOMEL"></column>
+            <column name="DESCRIPCION" value="MOTOMEL"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="96"></column>
+            <column name="UUID" value="h5V3iwGEkTV7"></column>
+            <column name="NOMBRE" value="MOTOPLEX"></column>
+            <column name="DESCRIPCION" value="MOTOPLEX"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="97"></column>
+            <column name="UUID" value="w9Sw1bk6OFIv"></column>
+            <column name="NOMBRE" value="MOTORRAD"></column>
+            <column name="DESCRIPCION" value="MOTORRAD"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="98"></column>
+            <column name="UUID" value="DCY7sXMgC5wh"></column>
+            <column name="NOMBRE" value="MUEVETEC"></column>
+            <column name="DESCRIPCION" value="MUEVETEC"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="99"></column>
+            <column name="UUID" value="SWVshydTe8SK"></column>
+            <column name="NOMBRE" value="MV AGUSTA"></column>
+            <column name="DESCRIPCION" value="MV AGUSTA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="100"></column>
+            <column name="UUID" value="VE7h17D63p1g"></column>
+            <column name="NOMBRE" value="MZ"></column>
+            <column name="DESCRIPCION" value="MZ"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="101"></column>
+            <column name="UUID" value="J4ZmMGaVRJ7G"></column>
+            <column name="NOMBRE" value="NOTRON"></column>
+            <column name="DESCRIPCION" value="NOTRON"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="102"></column>
+            <column name="UUID" value="L6xYc60zmmeU"></column>
+            <column name="NOMBRE" value="NUUV"></column>
+            <column name="DESCRIPCION" value="NUUV"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="103"></column>
+            <column name="UUID" value="EMtYdWzdB9fr"></column>
+            <column name="NOMBRE" value="ORION"></column>
+            <column name="DESCRIPCION" value="ORION"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="104"></column>
+            <column name="UUID" value="5dSN9mEQPrEQ"></column>
+            <column name="NOMBRE" value="OSET"></column>
+            <column name="DESCRIPCION" value="OSET"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="105"></column>
+            <column name="UUID" value="WlgyQ3tY5fAr"></column>
+            <column name="NOMBRE" value="OSSA"></column>
+            <column name="DESCRIPCION" value="OSSA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="106"></column>
+            <column name="UUID" value="m2hfFHxCZXWU"></column>
+            <column name="NOMBRE" value="PIAGGIO"></column>
+            <column name="DESCRIPCION" value="PIAGGIO"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="107"></column>
+            <column name="UUID" value="1ChzkJ20CrGq"></column>
+            <column name="NOMBRE" value="POLARIS"></column>
+            <column name="DESCRIPCION" value="POLARIS"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="108"></column>
+            <column name="UUID" value="oxwlGgaLzLnF"></column>
+            <column name="NOMBRE" value="PULSAR"></column>
+            <column name="DESCRIPCION" value="PULSAR"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="109"></column>
+            <column name="UUID" value="mBIsxsEj0BEi"></column>
+            <column name="NOMBRE" value="QLINK"></column>
+            <column name="DESCRIPCION" value="QLINK"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="110"></column>
+            <column name="UUID" value="gUhIA3N5gHcT"></column>
+            <column name="NOMBRE" value="REBEL"></column>
+            <column name="DESCRIPCION" value="REBEL"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="111"></column>
+            <column name="UUID" value="lLw13obANR3Y"></column>
+            <column name="NOMBRE" value="ROYAL ENFIELD HYMALAYAN"></column>
+            <column name="DESCRIPCION" value="ROYAL ENFIELD HYMALAYAN"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="112"></column>
+            <column name="UUID" value="thaw13XEMMHz"></column>
+            <column name="NOMBRE" value="SHERCO"></column>
+            <column name="DESCRIPCION" value="SHERCO"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="113"></column>
+            <column name="UUID" value="Bfhd3fF0vA28"></column>
+            <column name="NOMBRE" value="SUNL"></column>
+            <column name="DESCRIPCION" value="SUNL"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="114"></column>
+            <column name="UUID" value="j6D7e3HQpoLT"></column>
+            <column name="NOMBRE" value="SUZUKI"></column>
+            <column name="DESCRIPCION" value="SUZUKI"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="115"></column>
+            <column name="UUID" value="nD9eOKhdFy8L"></column>
+            <column name="NOMBRE" value="TORINO MOTORS"></column>
+            <column name="DESCRIPCION" value="TORINO MOTORS"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="116"></column>
+            <column name="UUID" value="TRd1PJseqmjK"></column>
+            <column name="NOMBRE" value="TRIUMPH"></column>
+            <column name="DESCRIPCION" value="TRIUMPH"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="117"></column>
+            <column name="UUID" value="qlRP2gyTIcnD"></column>
+            <column name="NOMBRE" value="TVS"></column>
+            <column name="DESCRIPCION" value="TVS"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="118"></column>
+            <column name="UUID" value="yXrErplLHxSz"></column>
+            <column name="NOMBRE" value="UM"></column>
+            <column name="DESCRIPCION" value="UM"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="119"></column>
+            <column name="UUID" value="oDvSTpIw2EPd"></column>
+            <column name="NOMBRE" value="VELOCI"></column>
+            <column name="DESCRIPCION" value="VELOCI"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="120"></column>
+            <column name="UUID" value="4u1R7XTIuwhp"></column>
+            <column name="NOMBRE" value="VENTO"></column>
+            <column name="DESCRIPCION" value="VENTO"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="121"></column>
+            <column name="UUID" value="cpYPZOhUlh9s"></column>
+            <column name="NOMBRE" value="VESPA"></column>
+            <column name="DESCRIPCION" value="VESPA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="122"></column>
+            <column name="UUID" value="ry16rJf68LeD"></column>
+            <column name="NOMBRE" value="VICTORIA"></column>
+            <column name="DESCRIPCION" value="VICTORIA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="123"></column>
+            <column name="UUID" value="OhPR3IvAT08Q"></column>
+            <column name="NOMBRE" value="YADEA"></column>
+            <column name="DESCRIPCION" value="YADEA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="124"></column>
+            <column name="UUID" value="9JI4YkTdQo22"></column>
+            <column name="NOMBRE" value="YAMAHA"></column>
+            <column name="DESCRIPCION" value="YAMAHA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="125"></column>
+            <column name="UUID" value="YKnwNFjx5DYj"></column>
+            <column name="NOMBRE" value="YCF"></column>
+            <column name="DESCRIPCION" value="YCF"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="126"></column>
+            <column name="UUID" value="Es8UY6ZvpH6E"></column>
+            <column name="NOMBRE" value="ZENELLA"></column>
+            <column name="DESCRIPCION" value="ZENELLA"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="vehiculos_marcas">
+            <column name="ID" value="127"></column>
+            <column name="UUID" value="rZ3hxpbN0GmO"></column>
+            <column name="NOMBRE" value="ZYNCH"></column>
+            <column name="DESCRIPCION" value="ZYNCH"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
     </changeSet>
 </databaseChangeLog>

@@ -6,6 +6,8 @@ export default class Submodalidad implements Deserializable {
   uuid: string;
   nombre: string;
   descripcion?: string;
+  canes: boolean;
+  armas: boolean;
 
   deserialize(input: any): this {
     Object.assign(this, input);

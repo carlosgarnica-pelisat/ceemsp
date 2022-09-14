@@ -16,6 +16,10 @@ export class EquipoService {
     return this.http.get(`${this.uri}/catalogos/equipos`)
   }
 
+  obtenerEquiposCalificablesParaEmpresa(uuid: string) {
+    return this.http.get(`${this.uri}/catalogos/equipos?empresaUuid=${uuid}`)
+  }
+
   obtenerEquipoByUuid(uuid: String) {
     return this.http.get(`${this.uri}/catalogos/equipos/${uuid}`)
   }

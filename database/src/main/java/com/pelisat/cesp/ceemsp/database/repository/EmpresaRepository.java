@@ -13,6 +13,8 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
     Empresa findFirstByTipoTramiteOrderByFechaCreacionDesc(TipoTramiteEnum tipoTramiteEnum);
     Empresa getByRfcAndEliminadoFalse(String rfc);
     Empresa getByCurpAndEliminadoFalse(String curp);
+    Empresa getByRegistroAndEliminadoFalse(String registro);
+    Empresa getFirstByRegistroAndEliminadoFalse(String registro);
 
     Integer countAllByStatusAndEliminadoFalse(EmpresaStatusEnum status);
     Integer countAllByTipoTramiteAndEliminadoFalse(TipoTramiteEnum tipoTramiteEnum);

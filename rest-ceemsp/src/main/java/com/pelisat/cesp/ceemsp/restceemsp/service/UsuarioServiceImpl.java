@@ -4,6 +4,7 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.Usuario;
 import com.pelisat.cesp.ceemsp.database.repository.UsuarioRepository;
+import com.pelisat.cesp.ceemsp.database.type.RolTypeEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
@@ -15,11 +16,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class  UsuarioServiceImpl implements UsuarioService {
+public class UsuarioServiceImpl implements UsuarioService {
 
     private final Logger logger = LoggerFactory.getLogger(UsuarioServiceImpl.class);
     private final UsuarioRepository usuarioRepository;
@@ -44,6 +46,16 @@ public class  UsuarioServiceImpl implements UsuarioService {
         if(usuarios.size() == 0) {
             logger.warn("No hay usuarios creados ahora");
         }
+
+        return usuarios.stream()
+                .map(user -> daoToDtoConverter.convertDaoToDtoUser(user))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UsuarioDto> obtenerUsuariosInternos() {
+        logger.info("Obteniendo los usuarios internos");
+        List<Usuario> usuarios = usuarioRepository.findAllByRolInAndEliminadoFalse(Arrays.asList(RolTypeEnum.CEEMSP_USER, RolTypeEnum.CEEMSP_SUPERUSER));
 
         return usuarios.stream()
                 .map(user -> daoToDtoConverter.convertDaoToDtoUser(user))

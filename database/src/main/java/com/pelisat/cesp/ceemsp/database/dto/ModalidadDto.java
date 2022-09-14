@@ -15,4 +15,6 @@ public class ModalidadDto {
     private String descripcion;
     private TipoTramiteEnum tipo;
     private List<SubmodalidadDto> submodalidades;
+    private Boolean canes;
+    private Boolean armas;
 }

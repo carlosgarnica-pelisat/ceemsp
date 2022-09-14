@@ -1,14 +1,8 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.*;
-import com.pelisat.cesp.ceemsp.database.model.Empresa;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
-import com.pelisat.cesp.ceemsp.database.model.Personal;
-import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
-import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
-import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
-import com.pelisat.cesp.ceemsp.database.repository.PersonaRepository;
-import com.pelisat.cesp.ceemsp.database.repository.VehiculoRepository;
+import com.pelisat.cesp.ceemsp.database.model.*;
+import com.pelisat.cesp.ceemsp.database.repository.*;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import org.apache.commons.lang3.StringUtils;
@@ -28,16 +22,21 @@ public class ValidacionServiceImpl implements ValidacionService {
     private final EmpresaRepository empresaRepository;
     private final PersonaRepository personaRepository;
     private final VehiculoRepository vehiculoRepository;
+    private final UsuarioRepository usuarioRepository;
     private final EmpresaEscrituraRepository empresaEscrituraRepository;
+    private final ArmaRepository armaRepository;
 
     @Autowired
     public ValidacionServiceImpl(DaoToDtoConverter daoToDtoConverter, EmpresaRepository empresaRepository, PersonaRepository personaRepository,
-                                 VehiculoRepository vehiculoRepository, EmpresaEscrituraRepository empresaEscrituraRepository) {
+                                 VehiculoRepository vehiculoRepository, EmpresaEscrituraRepository empresaEscrituraRepository,
+                                 UsuarioRepository usuarioRepository, ArmaRepository armaRepository) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.empresaRepository = empresaRepository;
         this.personaRepository = personaRepository;
         this.vehiculoRepository = vehiculoRepository;
         this.empresaEscrituraRepository = empresaEscrituraRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.armaRepository = armaRepository;
     }
 
     @Override
@@ -112,7 +111,7 @@ public class ValidacionServiceImpl implements ValidacionService {
             throw new InvalidDataException();
         }
 
-        if(StringUtils.isBlank(existeEmpresaDto.getRfc()) && StringUtils.isBlank(existeEmpresaDto.getCurp())) {
+        if(StringUtils.isBlank(existeEmpresaDto.getRfc()) && StringUtils.isBlank(existeEmpresaDto.getCurp()) && StringUtils.isBlank(existeEmpresaDto.getRegistro())) {
             logger.warn("El parametro a realizar la busqueda viene como nulo o vacio");
             throw new InvalidDataException();
         }
@@ -135,6 +134,16 @@ public class ValidacionServiceImpl implements ValidacionService {
             Empresa empresa = empresaRepository.getByCurpAndEliminadoFalse(existeEmpresaDto.getCurp());
             if(empresa != null) {
                 logger.info("La empresa fue encontrada con el CURP");
+                existeEmpresaDto.setExiste(true);
+                existeEmpresaDto.setEmpresa(daoToDtoConverter.convertDaoToDtoEmpresa(empresa));
+            }
+        }
+
+        if(StringUtils.isNotBlank(existeEmpresaDto.getRegistro())) {
+            logger.info("Buscando la empresa con el registro [{}]", existeEmpresaDto.getRegistro());
+            Empresa empresa = empresaRepository.getByRegistroAndEliminadoFalse(existeEmpresaDto.getRegistro());
+            if(empresa != null) {
+                logger.info("La empresa fue encontrada con el registro");
                 existeEmpresaDto.setExiste(true);
                 existeEmpresaDto.setEmpresa(daoToDtoConverter.convertDaoToDtoEmpresa(empresa));
             }
@@ -169,5 +178,65 @@ public class ValidacionServiceImpl implements ValidacionService {
         }
 
         return existeEscrituraDto;
+    }
+
+    @Override
+    public ExisteUsuarioDto buscarUsuario(ExisteUsuarioDto existeUsuarioDto) {
+        if(existeUsuarioDto == null) {
+            logger.warn("El objeto para buscar la existencia del vehiculo no existe.");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Consultando usuario con usernamme [{}] y correo [{}]", existeUsuarioDto.getUsername(), existeUsuarioDto.getEmail());
+        ExisteUsuarioDto response = new ExisteUsuarioDto();
+
+        Usuario usuarioPorEmail = usuarioRepository.getUsuarioByEmailAndEliminadoFalse(existeUsuarioDto.getEmail());
+        if(usuarioPorEmail != null) {
+            logger.info("Se ha encontrado por email");
+            response.setExiste(true);
+            response.setUsuario(daoToDtoConverter.convertDaoToDtoUser(usuarioPorEmail));
+            return response;
+        }
+
+        response.setExiste(false);
+        return response;
+    }
+
+    @Override
+    public ExisteArmaDto buscarArma(ExisteArmaDto existeArmaDto) {
+        if(existeArmaDto == null) {
+            logger.warn("El objeto a realizar la consulta viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        if(StringUtils.isBlank(existeArmaDto.getMatricula()) && StringUtils.isBlank(existeArmaDto.getSerie())) {
+            logger.warn("El parametro a realizar la busqueda viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Buscando la empresa registrada");
+        existeArmaDto.setExiste(false);
+
+        if(StringUtils.isNotBlank(existeArmaDto.getSerie())) {
+            logger.info("Buscando el arma con la serie [{}]", existeArmaDto.getSerie());
+            Arma arma = armaRepository.getFirstBySerie(existeArmaDto.getSerie());
+            if(arma != null) {
+                logger.info("El arma fue encontrada con el numero de serie");
+                existeArmaDto.setExiste(true);
+                existeArmaDto.setArma(daoToDtoConverter.convertDaoToDtoArma(arma));
+            }
+        }
+
+        if(StringUtils.isNotBlank(existeArmaDto.getMatricula())) {
+            logger.info("Buscando el arma con la Matricula [{}]", existeArmaDto.getMatricula());
+            Arma arma = armaRepository.getFirstByMatricula(existeArmaDto.getMatricula());
+            if(arma != null) {
+                logger.info("La empresa fue encontrada con el CURP");
+                existeArmaDto.setExiste(true);
+                existeArmaDto.setArma(daoToDtoConverter.convertDaoToDtoArma(arma));
+            }
+        }
+
+        return existeArmaDto;
     }
 }

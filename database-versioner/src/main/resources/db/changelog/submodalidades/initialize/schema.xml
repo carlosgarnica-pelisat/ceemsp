@@ -28,7 +28,7 @@
         <insert tableName="submodalidades">
             <column name="ID" value="1"></column>
             <column name="UUID" value="edRCa30Oftzu"></column>
-            <column name="NOMBRE" value="a) De bienes muebles o inmuebles"></column>
+            <column name="NOMBRE" value="a) De bienes"></column>
             <column name="DESCRIPCION" value="Submodalidad enfocada para bienes muebles o inmuebles"></column>
             <column name="CATEGORIA" value="1"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
@@ -56,7 +56,7 @@
             <column name="UUID" value="5rxAQNXrfptA"></column>
             <column name="NOMBRE" value="a) Especial (traslado)"></column>
             <column name="DESCRIPCION" value="Submodalidad enfocada para el traslado de bienes o valores"></column>
-            <column name="CATEGORIA" value="9"></column>
+            <column name="CATEGORIA" value="8"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -69,7 +69,7 @@
             <column name="UUID" value="aeKGo7Nl4vwU"></column>
             <column name="NOMBRE" value="b) Vigilancia (custodia)"></column>
             <column name="DESCRIPCION" value="Submodalidad enfocada para el traslado de bienes o valores"></column>
-            <column name="CATEGORIA" value="9"></column>
+            <column name="CATEGORIA" value="8"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -82,7 +82,7 @@
             <column name="UUID" value="J6Sf7M020LF7"></column>
             <column name="NOMBRE" value="a) La actividad relacionada, directa o indirectamente, con la instalacion o comercializacion de sistemas de blindaje en todo tipo de vehiculos automotores"></column>
             <column name="DESCRIPCION" value="Submodalidad enfocada para servicios de seguridad privada"></column>
-            <column name="CATEGORIA" value="13"></column>
+            <column name="CATEGORIA" value="12"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -95,7 +95,7 @@
             <column name="UUID" value="XIFdWxQyhwBG"></column>
             <column name="NOMBRE" value="b) La actividad relacionada, directa o indirectamente, con la instalacion o comercializacion de: equipos, dispositivos, aparatos, sistemas o procedimientos tecnicos especializados, chalecos blindados, prendas de vestir con proteccion balistica, circuitos cerrados de television (CCTV), sistemas de posicionamiento global (GPS), controles de acceso, cercas electrificadas"></column>
             <column name="DESCRIPCION" value="Submodalidad enfocada para servicios de seguridad privada"></column>
-            <column name="CATEGORIA" value="13"></column>
+            <column name="CATEGORIA" value="12"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -106,8 +106,21 @@
         <insert tableName="submodalidades">
             <column name="ID" value="7"></column>
             <column name="UUID" value="wuvXIycZ7DHN"></column>
-            <column name="NOMBRE" value="a) De bienes muebles o inmuebles"></column>
+            <column name="NOMBRE" value="a) De bienes"></column>
             <column name="DESCRIPCION" value="Submodalidad enfocada para servicios propios de"></column>
+            <column name="CATEGORIA" value="13"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="submodalidades">
+            <column name="ID" value="8"></column>
+            <column name="UUID" value="rb9yA81CrSsY"></column>
+            <column name="NOMBRE" value="a) De bienes"></column>
+            <column name="DESCRIPCION" value="Submodalidad enfocada para bienes muebles o inmuebles"></column>
             <column name="CATEGORIA" value="14"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
@@ -116,7 +129,18 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-
+        <insert tableName="submodalidades">
+            <column name="ID" value="9"></column>
+            <column name="UUID" value="7d7S2fTYjK0D"></column>
+            <column name="NOMBRE" value="b) De personas fisicas"></column>
+            <column name="DESCRIPCION" value="Submodalidad enfocada para proteger personas fisicas"></column>
+            <column name="CATEGORIA" value="14"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
     </changeSet>
 </databaseChangeLog>
 

@@ -25,8 +25,6 @@ import { ArmasMarcasComponent } from './home/catalogos/armas/armas-marcas/armas-
 import { ArmasClasesComponent } from './home/catalogos/armas/armas-clases/armas-clases.component';
 import { VehiculosTiposComponent } from './home/catalogos/vehiculos/vehiculos-tipos/vehiculos-tipos.component';
 import { ComunicadosGeneralesComponent } from './home/comunicados/comunicados-generales/comunicados-generales.component';
-import { BuzonSalidaComponent } from './home/comunicados/buzon-salida/buzon-salida.component';
-import { VisitasComponent } from './home/visitas/visitas.component';
 import { ReporteoComponent } from './home/reporteo/reporteo.component';
 import { ModalidadesComponent } from './home/catalogos/modalidades/modalidades.component';
 import { ToastComponent } from './_components/toast/toast.component';
@@ -53,6 +51,9 @@ import { EquipoComponent } from './home/catalogos/equipo/equipo.component';
 import { UniformesComponent } from './home/catalogos/equipo/uniformes/uniformes.component';
 import { EmpresaUniformesComponent } from './home/empresa-uniformes/empresa-uniformes.component';
 import { AcercaComponent } from './app/home/configuracion/acerca/acerca.component';
+import {BuscarNombrePipe} from "./_pipes/buscar-nombre.pipe";
+import {PdfViewerModule} from "ng2-pdf-viewer";
+import { BotonEmpresaAcuerdosComponent } from './_components/botones/boton-empresa-acuerdos/boton-empresa-acuerdos.component';
 
 @NgModule({
   declarations: [
@@ -70,8 +71,6 @@ import { AcercaComponent } from './app/home/configuracion/acerca/acerca.componen
     ArmasClasesComponent,
     VehiculosTiposComponent,
     ComunicadosGeneralesComponent,
-    BuzonSalidaComponent,
-    VisitasComponent,
     ReporteoComponent,
     ModalidadesComponent,
     AgButtonComponent,
@@ -94,7 +93,9 @@ import { AcercaComponent } from './app/home/configuracion/acerca/acerca.componen
     EquipoComponent,
     UniformesComponent,
     EmpresaUniformesComponent,
-    AcercaComponent
+    AcercaComponent,
+    BuscarNombrePipe,
+    BotonEmpresaAcuerdosComponent
   ],
   imports: [
     BrowserModule,
@@ -106,12 +107,14 @@ import { AcercaComponent } from './app/home/configuracion/acerca/acerca.componen
     FontAwesomeModule,
     AgGridModule,
     CKEditorModule,
-    NgxPrintModule
+    NgxPrintModule,
+    PdfViewerModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-    SanitizeHtmlPipe
+    SanitizeHtmlPipe,
+    BuscarNombrePipe
   ],
   exports: [SanitizeHtmlPipe],
   bootstrap: [AppComponent]

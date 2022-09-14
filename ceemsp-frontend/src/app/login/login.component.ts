@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {EmailValidator, FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {AuthenticationService} from "../_services/authentication.service";
@@ -30,6 +30,8 @@ export class LoginComponent implements OnInit {
   comunicado: ComunicadoGeneral;
 
   private credential: Credential = new Credential();
+
+  @ViewChild('mostrarComunicadoCompletoModal') mostrarComunicadoCompletoModal;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -99,6 +101,10 @@ export class LoginComponent implements OnInit {
       }, (error) => {
         this.loading = false;
       })
+  }
+
+  mostrarComunicadoCompleto() {
+    this.modalService.open(this.mostrarComunicadoCompletoModal, {size: "xl"})
   }
 
   verHistorialComunicados(modal) {

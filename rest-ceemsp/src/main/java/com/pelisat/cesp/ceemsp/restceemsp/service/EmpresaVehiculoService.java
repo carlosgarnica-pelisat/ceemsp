@@ -7,9 +7,10 @@ import java.util.List;
 
 public interface EmpresaVehiculoService {
     List<VehiculoDto> obtenerVehiculosPorEmpresa(String empresaUuid);
+    List<VehiculoDto> obtenerVehiculosEliminadosPorEmpresa(String empresaUuid);
     VehiculoDto obtenerVehiculoPorUuid(String empresaUuid, String vehiculoUuid, boolean soloEntidad);
     VehiculoDto obtenerVehiculoPorId(String empresaUuid, Integer vehiculoId);
-    VehiculoDto guardarVehiculo(String empresaUuid, String username, VehiculoDto vehiculoDto);
+    VehiculoDto guardarVehiculo(String empresaUuid, String username, VehiculoDto vehiculoDto, MultipartFile constanciaBlindaje);
     VehiculoDto modificarVehiculo(String empresaUuid, String vehiculoUuid, String username, VehiculoDto vehiculoDto);
     VehiculoDto eliminarVehiculo(String empresaUuid, String vehiculoUuid, String username, VehiculoDto vehiculoDto, MultipartFile multipartFile);
 }

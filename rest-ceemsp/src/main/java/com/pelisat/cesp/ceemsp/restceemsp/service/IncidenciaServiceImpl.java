@@ -4,11 +4,14 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.IncidenciaComentarioDto;
 import com.pelisat.cesp.ceemsp.database.dto.IncidenciaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
+import com.pelisat.cesp.ceemsp.database.dto.metadata.IncidenciaArchivoMetadata;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.*;
 import com.pelisat.cesp.ceemsp.database.type.IncidenciaStatusEnum;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -18,8 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,6 +53,7 @@ public class IncidenciaServiceImpl implements IncidenciaService {
     private final EmpresaVehiculoService empresaVehiculoService;
     private final ClienteService clienteService;
     private final PersonaService personaService;
+    private final ArchivosService archivosService;
 
     @Autowired
     public IncidenciaServiceImpl(UsuarioService usuarioService, EmpresaService empresaService, DaoToDtoConverter daoToDtoConverter,
@@ -56,7 +62,8 @@ public class IncidenciaServiceImpl implements IncidenciaService {
                                  IncidenciaCanRepository incidenciaCanRepository, IncidenciaVehiculoRepository incidenciaVehiculoRepository,
                                  IncidenciaComentarioRepository incidenciaComentarioRepository, CanService canService,
                                  ArmaService armaService, EmpresaVehiculoService empresaVehiculoService, ClienteService clienteService,
-                                 IncidenciaPersonaRepository incidenciaPersonaRepository, PersonaService personaService) {
+                                 IncidenciaPersonaRepository incidenciaPersonaRepository, PersonaService personaService,
+                                 ArchivosService archivosService) {
         this.usuarioService = usuarioService;
         this.empresaService = empresaService;
         this.daoToDtoConverter = daoToDtoConverter;
@@ -74,6 +81,7 @@ public class IncidenciaServiceImpl implements IncidenciaService {
         this.empresaVehiculoService = empresaVehiculoService;
         this.clienteService = clienteService;
         this.personaService = personaService;
+        this.archivosService = archivosService;
     }
 
     @Override
@@ -88,10 +96,13 @@ public class IncidenciaServiceImpl implements IncidenciaService {
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(uuidEmpresa);
         List<Incidencia> incidencias = incidenciaRepository.findAllByEmpresaAndEliminadoFalse(empresaDto.getId());
 
-        List<IncidenciaDto> response = incidencias.stream().map(daoToDtoConverter::convertDaoToDtoIncidencia).collect(Collectors.toList());
-        response.forEach(incidenciaDto -> {
-
-        });
+        List<IncidenciaDto> response = incidencias.stream().map(incidencia -> {
+            IncidenciaDto incidenciaDto = daoToDtoConverter.convertDaoToDtoIncidencia(incidencia);
+            if(incidencia.getAsignado() != null) {
+                incidenciaDto.setAsignado(usuarioService.getUserById(incidencia.getAsignado()));
+            }
+            return incidenciaDto;
+        }).collect(Collectors.toList());
 
         return response;
     }
@@ -119,13 +130,12 @@ public class IncidenciaServiceImpl implements IncidenciaService {
             incidenciaDto.setAsignado(usuarioService.getUserById(incidencia.getAsignado()));
         }
 
-        incidenciaDto.setAsignado(usuarioService.getUserById(incidencia.getAsignado()));
-
         List<IncidenciaComentario> incidenciaComentarios = incidenciaComentarioRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
         List<IncidenciaPersona> incidendiaPersonas = incidenciaPersonaRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
         List<IncidenciaArma> incidenciaArmas = incidenciaArmaRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
         List<IncidenciaVehiculo> incidenciaVehiculos = incidenciaVehiculoRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
         List<IncidenciaCan> incidenciaCanes = incidenciaCanRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
+        List<IncidenciaArchivo> incidenciaArchivos = incidenciaArchivoRepository.getAllByIncidenciaAndEliminadoFalse(incidencia.getId());
 
         // realizando el parsing de cada uno de los elementos por medio del servicio y despues, agregarlos
         incidenciaDto.setComentarios(incidenciaComentarios.stream().map(c -> {
@@ -136,16 +146,25 @@ public class IncidenciaServiceImpl implements IncidenciaService {
             return incidenciaComentarioDto;
         }).collect(Collectors.toList()));
 
-        incidenciaDto.setPersonasInvolucradas(incidendiaPersonas.stream().map(p -> personaService.obtenerPorId(empresaUuid, p.getPersona())).collect(Collectors.toList()));
+        incidenciaDto.setPersonasInvolucradas(incidendiaPersonas.stream().map(p -> personaService.obtenerPorId(p.getPersona())).collect(Collectors.toList()));
         incidenciaDto.setArmasInvolucradas(incidenciaArmas.stream().map(a -> armaService.obtenerArmaPorId(empresaUuid, a.getArma())).collect(Collectors.toList()));
-        incidenciaDto.setCanesInvolucrados(incidenciaCanes.stream().map(c -> canService.obtenerCanPorId(c.getId())).collect(Collectors.toList()));
+        incidenciaDto.setCanesInvolucrados(incidenciaCanes.stream().map(c -> canService.obtenerCanPorId(c.getCan())).collect(Collectors.toList()));
         incidenciaDto.setVehiculosInvolucrados(incidenciaVehiculos.stream().map(v -> empresaVehiculoService.obtenerVehiculoPorId(empresaUuid, v.getVehiculo())).collect(Collectors.toList()));
+        incidenciaDto.setArchivos(incidenciaArchivos.stream().map(a -> {
+            IncidenciaArchivoMetadata incidenciaArchivoMetadata = new IncidenciaArchivoMetadata();
+            incidenciaArchivoMetadata.setNombreArchivo(a.getRutaArchivo());
+            incidenciaArchivoMetadata.setId(a.getId());
+            incidenciaArchivoMetadata.setUuid(a.getUuid());
+            String[] tokens = a.getRutaArchivo().split("[\\\\|/]");
+            incidenciaArchivoMetadata.setNombreArchivo(tokens[tokens.length - 1]);
+            return incidenciaArchivoMetadata;
+        }).collect(Collectors.toList()));
         return incidenciaDto;
     }
 
     @Transactional
     @Override
-    public IncidenciaDto guardarIncidencia(String empresaUuid, String username, IncidenciaDto incidenciaDto) {
+    public IncidenciaDto guardarIncidencia(String empresaUuid, String username, IncidenciaDto incidenciaDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(username) || incidenciaDto == null) {
             logger.warn("El uuid, el usuario o la incidencia vienen como nulos o vacios");
             throw new InvalidDataException();
@@ -163,7 +182,6 @@ public class IncidenciaServiceImpl implements IncidenciaService {
 
         if(incidenciaDto.isRelevancia()) {
             incidencia.setRelevancia(true);
-            //TODO: agregar validacion para campos requeridos
 
             if(incidenciaDto.getCliente() != null) {
                 incidencia.setCliente(incidenciaDto.getCliente().getId());
@@ -171,7 +189,6 @@ public class IncidenciaServiceImpl implements IncidenciaService {
 
             incidencia.setLatitud(incidenciaDto.getLatitud());
             incidencia.setLongitud(incidenciaDto.getLongitud());
-            incidencia.setStatus(IncidenciaStatusEnum.ABIERTA);
             incidencia.setEmpresa(empresaDto.getId());
             daoHelper.fulfillAuditorFields(true, incidencia, usuarioDto.getId());
         } else {
@@ -241,6 +258,20 @@ public class IncidenciaServiceImpl implements IncidenciaService {
                 return comentario;
             }).collect(Collectors.toList());
             incidenciaComentarioRepository.saveAll(comentarios);
+        }
+
+        if(multipartFile != null) {
+            logger.info("Hay archivo");
+            IncidenciaArchivo incidenciaArchivo = new IncidenciaArchivo();
+            incidenciaArchivo.setIncidencia(incidenciaCreada.getId());
+            daoHelper.fulfillAuditorFields(true, incidenciaArchivo, usuarioDto.getId());
+            try {
+                String ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_INCIDENCIA, empresaUuid);
+                incidenciaArchivo.setRutaArchivo(ruta);
+                incidenciaArchivoRepository.save(incidenciaArchivo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo.", ex);
+            }
         }
 
         return daoToDtoConverter.convertDaoToDtoIncidencia(incidenciaCreada);

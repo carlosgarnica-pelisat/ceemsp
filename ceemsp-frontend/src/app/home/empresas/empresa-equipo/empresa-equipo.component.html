@@ -27,10 +27,11 @@
         <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action">
           Detalles
         </a>
+        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
         <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
-        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action">Licencias colectivas / Armas</a>
-        <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action">Canes</a>
+        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneArmas">Licencias colectivas / Armas</a>
+        <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneCanes">Canes</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
         <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
@@ -77,6 +78,7 @@
       </div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-primary" (click)="mostrarMovimientos()">Mostrar movimientos</button>
       <button class="btn btn-primary" (click)="mostrarModalModificar()">Modificar</button>
       <button type="button" class="btn btn-danger" (click)="mostrarModalEliminar()">Eliminar</button>
     </div>
@@ -94,7 +96,7 @@
         <div class="col-sm-12">
           <form [formGroup]="crearEquipoForm">
             <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-3">
                 <label for="equipo">
                   <b>Equipo *</b>
                   <span *ngIf="crearEquipoForm.controls['equipo'].invalid && (crearEquipoForm.controls['equipo'].dirty || crearEquipoForm.controls['equipo'].touched)" class="text-danger"> - Requerido</span>
@@ -103,12 +105,26 @@
                   <option *ngFor="let e of equipos" value="{{e?.uuid}}">{{e?.nombre}}</option>
                 </select>
               </div>
-              <div class="col-sm-6">
-                <label for="cantidad">
-                  <b>Cantidad *</b>
-                  <span *ngIf="crearEquipoForm.controls['cantidad'].invalid && (crearEquipoForm.controls['cantidad'].dirty || crearEquipoForm.controls['cantidad'].touched)" class="text-danger"> - Requerido</span>
+              <div class="col-sm-3">
+                <label for="altas">
+                  <b>Altas *</b>
+                  <span *ngIf="crearEquipoForm.controls['altas'].invalid && (crearEquipoForm.controls['altas'].dirty || crearEquipoForm.controls['altas'].touched)" class="text-danger"> - Requerido</span>
                 </label>
-                <input id="cantidad" type="number" class="form-control" placeholder="Mayor o igual a 0" formControlName="cantidad" #cantidad>
+                <input id="altas" type="number" class="form-control" placeholder="Mayor o igual a 0" formControlName="altas" (focusout)="actualizarAltas($event.target)" #altas>
+              </div>
+              <div class="col-sm-3">
+                <label for="bajas">
+                  <b>Bajas *</b>
+                  <span *ngIf="crearEquipoForm.controls['bajas'].invalid && (crearEquipoForm.controls['bajas'].dirty || crearEquipoForm.controls['bajas'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="bajas" type="number" class="form-control" placeholder="Mayor o igual a 0" formControlName="bajas" (focusout)="actualizarBajas($event.target)" #bajas>
+              </div>
+              <div class="col-sm-3">
+                <label for="cantidadActual">
+                  <b>Cantidad *</b>
+                  <span *ngIf="crearEquipoForm.controls['cantidadActual'].invalid && (crearEquipoForm.controls['cantidadActual'].dirty || crearEquipoForm.controls['cantidadActual'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="cantidadActual" type="number" class="form-control" placeholder="Mayor o igual a 0" formControlName="cantidadActual" #cantidadActual>
               </div>
             </div>
           </form>
@@ -131,23 +147,28 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <form [formGroup]="crearEquipoForm">
+          <form [formGroup]="modificarEquipoForm">
             <div class="row">
-              <div class="col-sm-6">
-                <label for="equipoEditar">
-                  <b>Equipo *</b>
-                  <span *ngIf="crearEquipoForm.controls['equipo'].invalid && (crearEquipoForm.controls['equipo'].dirty || crearEquipoForm.controls['equipo'].touched)" class="text-danger"> - Requerido</span>
+              <div class="col-sm-3">
+                <label for="altasEditar">
+                  <b>Altas *</b>
+                  <span *ngIf="modificarEquipoForm.controls['altas'].invalid && (modificarEquipoForm.controls['altas'].dirty || modificarEquipoForm.controls['altas'].touched)" class="text-danger"> - Requerido</span>
                 </label>
-                <select id="equipoEditar" class="form-control" formControlName="equipo" (change)="seleccionarEquipo($event.target)">
-                  <option *ngFor="let e of equipos" value="{{e?.uuid}}">{{e?.nombre}}</option>
-                </select>
+                <input id="altasEditar" type="number" class="form-control" placeholder="Mayor o igual a 0" formControlName="altas" (focusout)="actualizarAltas($event.target)" #altas>
               </div>
-              <div class="col-sm-6">
-                <label for="cantidadEditar">
-                  <b>Cantidad *</b>
-                  <span *ngIf="crearEquipoForm.controls['cantidad'].invalid && (crearEquipoForm.controls['cantidad'].dirty || crearEquipoForm.controls['cantidad'].touched)" class="text-danger"> - Requerido</span>
+              <div class="col-sm-3">
+                <label for="bajasEditar">
+                  <b>Bajas *</b>
+                  <span *ngIf="modificarEquipoForm.controls['bajas'].invalid && (modificarEquipoForm.controls['bajas'].dirty || modificarEquipoForm.controls['bajas'].touched)" class="text-danger"> - Requerido</span>
                 </label>
-                <input id="cantidadEditar" type="number" class="form-control" placeholder="Mayor o igual a 0" formControlName="cantidad" #cantidad>
+                <input id="bajasEditar" type="number" class="form-control" placeholder="Mayor o igual a 0" formControlName="bajas" (focusout)="actualizarBajas($event.target)" #bajas>
+              </div>
+              <div class="col-sm-3">
+                <label for="cantidadEditar">
+                  <b>Cantidad Actual *</b>
+                  <span *ngIf="modificarEquipoForm.controls['cantidadActual'].invalid && (modificarEquipoForm.controls['cantidadActual'].dirty || modificarEquipoForm.controls['cantidadActual'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="cantidadEditar" type="number" class="form-control" placeholder="Mayor o igual a 0" formControlName="cantidadActual" #cantidadActual>
               </div>
             </div>
           </form>
@@ -155,8 +176,38 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="guardarCambiosEquipo(crearEquipoForm)">Guardar</button>
+      <button class="btn btn-primary" (click)="guardarCambiosEquipo(modificarEquipoForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarMovimientosModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarMovimientosModal">Ver movimientos </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Altas</b></td>
+              <td><b>Bajas</b></td>
+              <td><b>Nueva cantidad</b></td>
+            </tr>
+            <tr *ngFor="let m of empresaEquipo.movimientos">
+              <td>{{m?.altas}}</td>
+              <td>{{m?.bajas}}</td>
+              <td>{{m?.cantidadActual}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="modal.dismiss('Cross click')">Cerrar</button>
     </div>
   </ng-template>
 

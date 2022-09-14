@@ -71,7 +71,7 @@ public class ComunicadoGeneralServiceImpl implements ComunicadoGeneralService {
     public ComunicadoGeneralDto obtenerUltimoComunicado() {
         logger.info("Obteniendo el ultimo comunicado creado");
 
-        List<ComunicadoGeneral> comunicadoGenerales = comunicadoGeneralRepository.getTop1ByFechaPublicacionBeforeAndEliminadoFalseOrderByFechaPublicacionDesc(LocalDate.now());
+        List<ComunicadoGeneral> comunicadoGenerales = comunicadoGeneralRepository.getTop1ByFechaPublicacionBeforeAndEliminadoFalseOrderByFechaPublicacionDesc(LocalDate.now().plusDays(1));
         if(comunicadoGenerales != null && comunicadoGenerales.size() > 0) {
             return daoToDtoConverter.convertDaoToDtoComunicadoGeneral(comunicadoGenerales.get(0));
         } else {

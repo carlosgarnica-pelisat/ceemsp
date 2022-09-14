@@ -12,23 +12,26 @@ export class DomiciliosService {
 
   constructor(private http: HttpClient) { }
 
-  obtenerDomicilios(uuid: string) {
+  obtenerDomicilios() {
     return this.http.get(`${this.uri}/domicilios`);
   }
 
-  obtenerDomicilioPorUuid(uuid: string, domicilioUuid: string) {
+  obtenerDomicilioPorUuid(domicilioUuid: string) {
     return this.http.get(`${this.uri}/domicilios/${domicilioUuid}`)
   }
 
-  guardarDomicilio(uuid: string, empresaDomicilio: EmpresaDomicilio) {
+  guardarDomicilio(empresaDomicilio: EmpresaDomicilio) {
     return this.http.post(`${this.uri}/domicilios`, empresaDomicilio)
   }
 
-  modificarDomicilio(uuid: string, domicilioUuid: string, empresaDomicilio: EmpresaDomicilio) {
+  modificarDomicilio(domicilioUuid: string, empresaDomicilio: EmpresaDomicilio) {
     return this.http.put(`${this.uri}/domicilios/${domicilioUuid}`, empresaDomicilio);
   }
 
-  eliminarDomicilio(uuid: string, domicilioUuid: string) {
-    return this.http.delete(`${this.uri}/domicilios/${domicilioUuid}`);
+  eliminarDomicilio(domicilioUuid: string, formData: FormData) {
+    return this.http.put(
+      `${this.uri}/domicilios/${domicilioUuid}/borrar`, formData, {
+        headers: {'X-isFile': 'true'}
+      })
   }
 }

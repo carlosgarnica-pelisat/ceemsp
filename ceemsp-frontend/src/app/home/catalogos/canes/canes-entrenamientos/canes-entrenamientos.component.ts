@@ -6,6 +6,7 @@ import {ToastService} from "../../../../_services/toast.service";
 import TipoEntrenamiento from "../../../../_models/TipoEntrenamiento";
 import {ToastType} from "../../../../_enums/ToastType";
 import CanAdiestramiento from "../../../../_models/CanAdiestramiento";
+import {BotonCatalogosComponent} from "../../../../_components/botones/boton-catalogos/boton-catalogos.component";
 
 @Component({
   selector: 'app-canes-entrenamientos',
@@ -13,14 +14,20 @@ import CanAdiestramiento from "../../../../_models/CanAdiestramiento";
   styleUrls: ['./canes-entrenamientos.component.css']
 })
 export class CanesEntrenamientosComponent implements OnInit {
-
+  editandoModal: boolean = false;
   private gridApi;
   private gridColumnApi;
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+    {headerName: 'Acciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
   ];
   rowData = [];
 
@@ -45,6 +52,10 @@ export class CanesEntrenamientosComponent implements OnInit {
               private canesService: CanesService, private toastService: ToastService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      catalogoButtonRenderer: BotonCatalogosComponent
+    }
+
     this.canesService.getAllEntrenamientos().subscribe((response: TipoEntrenamiento[]) => {
       this.rowData = response
     }, (error => {
@@ -65,6 +76,32 @@ export class CanesEntrenamientosComponent implements OnInit {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
     this.gridColumnApi = params.gridApi;
+  }
+
+  verDetalles(rowData) {
+    this.checkForDetails(rowData.rowData);
+  }
+
+  editar(rowData) {
+    this.tipoEntrenamiento = rowData.rowData;
+    this.editandoModal = false;
+    this.crearTipoAdiestramientoForm.patchValue({
+      nombre: this.tipoEntrenamiento.nombre,
+      descripcion: this.tipoEntrenamiento.descripcion
+    });
+
+    this.modalService.open(this.editarCanEntrenamientoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  eliminar(rowData) {
+    this.tipoEntrenamiento = rowData.rowData;
+    this.mostrarEliminarCanEntrenamientoModal();
   }
 
   checkForDetails(data) {
@@ -117,6 +154,11 @@ export class CanesEntrenamientosComponent implements OnInit {
     })
   }
 
+  cerrarModalEditar() {
+    this.crearTipoAdiestramientoForm.reset();
+    this.modal.close();
+  }
+
   guardarCambios(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
@@ -135,8 +177,12 @@ export class CanesEntrenamientosComponent implements OnInit {
         "Se ha modificado con exito la raza",
         ToastType.SUCCESS
       )
-
-      window.location.reload();
+      if(this.editandoModal) {
+        this.modal.close();
+        this.tipoEntrenamiento = data;
+      } else {
+        window.location.reload();
+      }
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -147,6 +193,7 @@ export class CanesEntrenamientosComponent implements OnInit {
   }
 
   mostrarModificarCanEntrenamientoModal() {
+    this.editandoModal = true;
     this.crearTipoAdiestramientoForm.patchValue({
       nombre: this.tipoEntrenamiento.nombre,
       descripcion: this.tipoEntrenamiento.descripcion

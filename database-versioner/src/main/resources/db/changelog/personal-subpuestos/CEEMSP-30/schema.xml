@@ -103,5 +103,63 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
+        <insert tableName="personal_subpuestos">
+            <column name="ID" value="8"></column>
+            <column name="UUID" value="RBqHVHt0A6FB"></column>
+            <column name="PUESTO" value="2"></column>
+            <column name="NOMBRE" value="Administrativo"></column>
+            <column name="DESCRIPCION" value="Administrativo"></column>
+            <column name="PORTACION" valueBoolean="false"></column>
+            <column name="CUIP" valueBoolean="false"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="personal_subpuestos">
+            <column name="ID" value="9"></column>
+            <column name="UUID" value="RrjchboWAVAt"></column>
+            <column name="PUESTO" value="2"></column>
+            <column name="NOMBRE" value="Coordinador"></column>
+            <column name="DESCRIPCION" value="Coordinador"></column>
+            <column name="PORTACION" valueBoolean="false"></column>
+            <column name="CUIP" valueBoolean="false"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="personal_subpuestos">
+            <column name="ID" value="10"></column>
+            <column name="UUID" value="DjlOn9lOGEJL"></column>
+            <column name="PUESTO" value="1"></column>
+            <column name="NOMBRE" value="Director General"></column>
+            <column name="DESCRIPCION" value="Director General"></column>
+            <column name="PORTACION" valueBoolean="false"></column>
+            <column name="CUIP" valueBoolean="false"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="personal_subpuestos">
+            <column name="ID" value="11"></column>
+            <column name="UUID" value="mYZ9c0md4Hv6"></column>
+            <column name="PUESTO" value="1"></column>
+            <column name="NOMBRE" value="Director Administrativo"></column>
+            <column name="DESCRIPCION" value="Director Administrativo"></column>
+            <column name="PORTACION" valueBoolean="false"></column>
+            <column name="CUIP" valueBoolean="false"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
     </changeSet>
 </databaseChangeLog>

@@ -5,6 +5,7 @@ import {UsuariosService} from "../../../_services/usuarios.service";
 import Usuario from "../../../_models/Usuario";
 import {ToastType} from "../../../_enums/ToastType";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import * as sha256 from "js-sha256";
 
 @Component({
   selector: 'app-usuarios',
@@ -15,7 +16,8 @@ export class UsuariosComponent implements OnInit {
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
-    {headerName: 'Apellidos', field: 'apellidos', sortable: true, filter: true },
+    {headerName: 'Apellido Paterno', field: 'apellidos', sortable: true, filter: true },
+    {headerName: 'Apellido Materno', field: 'apellidoMaterno', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombres', sortable: true, filter: true},
     {headerName: 'Rol', field: 'rol', sortable: true, filter: true}
   ];
@@ -48,6 +50,7 @@ export class UsuariosComponent implements OnInit {
       password: ['', [Validators.minLength(8), Validators.maxLength(15)]],
       nombres: ['', [Validators.required, Validators.maxLength(60)]],
       apellidos: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
       rol: ['', Validators.required]
     })
 
@@ -90,6 +93,11 @@ export class UsuariosComponent implements OnInit {
     })
   }
 
+  cerrarModalCrearModificarUsuario() {
+    this.crearUsuarioForm.reset();
+    this.modal.close();
+  }
+
   mostrarModalModificarUsuario() {
     this.crearUsuarioForm.patchValue({
       usuario: this.usuario.username,
@@ -99,7 +107,7 @@ export class UsuariosComponent implements OnInit {
       rol: this.usuario.rol
     })
 
-    this.modal = this.modalService.open(this.modificarUsuarioModal, {size: 'xl'});
+    this.modal = this.modalService.open(this.modificarUsuarioModal, {size: 'xl', backdrop: 'static'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -142,7 +150,7 @@ export class UsuariosComponent implements OnInit {
   }
 
   mostrarModalNuevoUsuario() {
-    this.modal = this.modalService.open(this.crearUsuarioModal, {size: 'xl'})
+    this.modal = this.modalService.open(this.crearUsuarioModal, {size: 'xl', backdrop: 'static'})
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -168,6 +176,8 @@ export class UsuariosComponent implements OnInit {
     );
 
     let value: Usuario = form.value;
+    let tempPassword = value.password;
+    value.password = sha256.sha256(tempPassword);
 
     this.usuarioService.guardarUsuario(value).subscribe((data: Usuario) => {
       this.toastService.showGenericToast(

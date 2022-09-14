@@ -91,6 +91,19 @@ public class PersonaServiceImpl implements PersonaService {
     }
 
     @Override
+    public List<PersonaDto> obtenerPersonasEliminadas(String empresaUuid) {
+        if(StringUtils.isBlank(empresaUuid)) {
+            logger.warn("El uuid de la empresa se encuentra nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        List<Personal> personal = personaRepository.getAllByEmpresaAndEliminadoTrue(empresaDto.getId());
+
+        return personal.stream().map(daoToDtoConverter::convertDaoToDtoPersona).collect(Collectors.toList());
+    }
+
+    @Override
     public PersonaDto obtenerPorUuid(String empresaUuid, String personaUuid) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid)) {
             logger.warn("El uuid de la empresa o de la persona vienen como nulos o vacios");
@@ -114,9 +127,15 @@ public class PersonaServiceImpl implements PersonaService {
         PersonaDto personaDto = daoToDtoConverter.convertDaoToDtoPersona(personal);
         personaDto.setCertificaciones(personalCertificacionService.obtenerCertificacionesPorPersona(empresaUuid, personaUuid));
         personaDto.setNacionalidad(personalNacionalidadService.obtenerPorId(personal.getNacionalidad()));
-        personaDto.setPuestoDeTrabajo(personalPuestoDeTrabajoService.obtenerPorId(personal.getPuesto()));
-        personaDto.setSubpuestoDeTrabajo(personalSubpuestoDeTrabajoService.obtenerPorId(personal.getSubpuesto()));
-        personaDto.setDomicilioAsignado(empresaDomicilioService.obtenerPorId(personal.getDomicilioAsignado()));
+        if(personal.getPuesto() > 0) {
+            personaDto.setPuestoDeTrabajo(personalPuestoDeTrabajoService.obtenerPorId(personal.getPuesto()));
+        }
+        if(personal.getSubpuesto() > 0) {
+            personaDto.setSubpuestoDeTrabajo(personalSubpuestoDeTrabajoService.obtenerPorId(personal.getSubpuesto()));
+        }
+        if(personal.getDomicilioAsignado() > 0) {
+            personaDto.setDomicilioAsignado(empresaDomicilioService.obtenerPorId(personal.getDomicilioAsignado()));
+        }
         personaDto.setFotografias(personalFotografiaService.mostrarPersonalFotografias(empresaUuid, personaUuid));
         personaDto.setCalleCatalogo(calleService.obtenerCallePorId(personal.getCalleCatalogo()));
         personaDto.setColoniaCatalogo(coloniaService.obtenerColoniaPorId(personal.getColoniaCatalogo()));
@@ -127,8 +146,8 @@ public class PersonaServiceImpl implements PersonaService {
     }
 
     @Override
-    public PersonaDto obtenerPorId(String empresaUuid, Integer id) {
-        if(StringUtils.isBlank(empresaUuid) || id == null || id < 1) {
+    public PersonaDto obtenerPorId(Integer id) {
+        if(id == null || id < 1) {
             logger.warn("La empresa o el id vienen como nulos o vacios");
             throw new InvalidDataException();
         }
@@ -207,7 +226,7 @@ public class PersonaServiceImpl implements PersonaService {
         personal.setDomicilioAsignado(personaDto.getDomicilioAsignado().getId());
         personal.setEstatusCuip(personaDto.getEstatusCuip());
         personal.setCuip(personaDto.getCuip());
-        personal.setNumeroVolanteCuip(personaDto.getCuip());
+        personal.setNumeroVolanteCuip(personaDto.getNumeroVolanteCuip());
 
         if(personaDto.getModalidad() != null) {
             logger.info("La informacion del trabajo incluye modalidad");
@@ -242,6 +261,7 @@ public class PersonaServiceImpl implements PersonaService {
             throw new NotFoundResourceException();
         }
 
+        personal.setNacionalidad(personaDto.getNacionalidad().getId());
         personal.setNombres(personaDto.getNombres());
         personal.setApellidoPaterno(personaDto.getApellidoPaterno());
         personal.setApellidoMaterno(personaDto.getApellidoMaterno());
@@ -266,6 +286,8 @@ public class PersonaServiceImpl implements PersonaService {
         personal.setLocalidad(personaDto.getLocalidadCatalogo().getNombre());
         personal.setDomicilio3(personaDto.getMunicipioCatalogo().getNombre());
         personal.setEstado(personaDto.getEstadoCatalogo().getNombre());
+
+        personal.setRfc(personaDto.getRfc());
 
         daoHelper.fulfillAuditorFields(false, personal, usuarioDto.getId());
 

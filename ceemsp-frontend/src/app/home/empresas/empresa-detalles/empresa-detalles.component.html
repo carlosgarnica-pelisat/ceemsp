@@ -14,7 +14,6 @@
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
           <a class="dropdown-item" (click)="mostrarModalModalidades(mostrarModalidadesModal)" style="cursor: pointer;">Ver modalidades</a>
           <a class="dropdown-item" (click)="mostrarModalFormasEjecucion(mostrarFormasEjecucionModal)" style="cursor: pointer;">Ver formas de ejecucion</a>
-          <a class="dropdown-item" (click)="mostrarModalCrearUsuario(crearUsuarioModal)" style="cursor: pointer;">Agregar o modificar usuario</a>
           <a class="dropdown-item" (click)="mostrarModalCambioInicioSesion(crearUsuarioModal)" style="cursor: pointer;">Cambiar datos de inicio de sesion</a> <!-- TODO: CAMBIAR EL MODAL -->
           <a class="dropdown-item" (click)="mostrarModalCambiarStatus(editarStatusModal)" style="cursor: pointer;">Cambiar status / Eliminar</a>
         </div>
@@ -94,9 +93,6 @@
         <div class="row" *ngFor="let m of empresaModalidades; let i = index">
           <h4>Modalidad: {{i + 1}}</h4>
           <p><b>Nombre:</b>{{m?.modalidad.nombre}}</p>
-          <p><b>Numero de registro federal:</b>{{m?.numeroRegistroFederal}}</p>
-          <p><b>Fecha de inicio:</b>{{m?.fechaInicio}}</p>
-          <p><b>Fecha de fin:</b>{{m?.fechaFin}}</p>
           <br>
         </div>
         <br>
@@ -203,6 +199,24 @@
           <p><b>Telefono fijo:</b>{{d.telefonoFijo}}</p>
           <p><b>Telefono movil:</b>{{d.telefonoMovil}}</p>
         </div>
+
+        <h3>Visitas de inspeccion</h3>
+        <hr>
+        <div class="row" *ngFor="let v of visitas;  let i = index">
+          <h4>Visita: {{v?.numeroOrden}}</h4>
+          <p><b>Numero de orden</b> {{v?.numeroOrden}}</p>
+          <p><b>Fecha</b> {{v?.fechaVisita}}</p>
+          <p><b>Tipo</b> {{v?.tipoVisita}}</p>
+          <p><b>Fecha termino</b> {{v?.fechaTermino}}</p>
+          <p><b>Requerimiento</b> {{v?.requerimiento}}</p>
+          <p><b>Detalles del requerimiento</b> {{v?.detallesRequerimiento}}</p>
+        </div>
+
+        <h3>Observaciones</h3>
+        <hr>
+        <div class="row">
+          <p>{{empresa?.observaciones}}</p>
+        </div>
       </div>
 
     </div>
@@ -215,16 +229,21 @@
         <a routerLink="/home/empresas/{{empresa?.uuid}}" class="list-group-item list-group-item-action active">
           Detalles
         </a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
-        <a routerLink="/home/empresas/{{empresa?.uuid}}/licencias" class="list-group-item list-group-item-action">Licencias colectivas / Armas</a>
-        <a routerLink="/home/empresas/{{empresa?.uuid}}/canes" class="list-group-item list-group-item-action">Canes</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/licencias" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneArmas">Licencias colectivas / Armas</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/canes" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneCanes">Canes</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/socios" class="list-group-item list-group-item-action">Socios</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/apoderados" class="list-group-item list-group-item-action">Apoderados</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/representantes" class="list-group-item list-group-item-action">Representantes</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/miembros-consejo" class="list-group-item list-group-item-action">Miembros del consejo</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -270,6 +289,22 @@
           <td><b>Telefono: </b></td>
           <td>{{empresa?.telefono}}</td>
         </tr>
+        <tr *ngIf="empresa?.tipoTramite === 'EAFJAL'">
+          <td><b>Numero de Registro Federal: </b></td>
+          <td>{{empresa?.registroFederal}}</td>
+        </tr>
+        <tr *ngIf="empresa?.tipoTramite === 'EAFJAL'">
+          <td><b>Fecha de inicio: </b></td>
+          <td>{{empresa?.fechaInicio}}</td>
+        </tr>
+        <tr *ngIf="empresa?.tipoTramite === 'EAFJAL'">
+          <td><b>Fecha de fin: </b></td>
+          <td>{{empresa?.fechaFin}}</td>
+        </tr>
+        <tr>
+          <td><b>Fecha de creacion:</b></td>
+          <td>{{empresa?.fechaCreacion}}</td>
+        </tr>
         <tr>
           <td><b>Status</b></td>
           <td [ngSwitch]="empresa?.status">
@@ -301,24 +336,14 @@
           <form [formGroup]="empresaUsuarioForm">
             <div class="form-row">
               <div class="col-sm-4">
-                <label for="nombres">
-                  <b>Nombres *</b>
+                <label for="usuario">
+                  <b>Usuario *</b>
                   <span
-                    *ngIf="empresaUsuarioForm.controls['nombres'].invalid && (empresaUsuarioForm.controls['nombres'].dirty || empresaUsuarioForm.controls['nombres'].touched)">
-                      <i *ngIf="empresaUsuarioForm.controls['nombres'].errors.required" class="error-text"> - Campo requerido</i>
-                    </span>
-                </label>
-                <input class="form-control" id="nombres" type="text" formControlName="nombres" placeholder="Ejemplo: Carlos Jose">
-              </div>
-              <div class="col-sm-4">
-                <label for="apellidos">
-                  <b>Apellidos *</b>
-                  <span
-                    *ngIf="empresaUsuarioForm.controls['apellidos'].invalid && (empresaUsuarioForm.controls['apellidos'].dirty || empresaUsuarioForm.controls['apellidos'].touched)">
+                    *ngIf="empresaUsuarioForm.controls['usuario'].invalid && (empresaUsuarioForm.controls['usuario'].dirty || empresaUsuarioForm.controls['usuario'].touched)">
                         <i *ngIf="empresaUsuarioForm.controls['apellidos'].errors.required" class="error-text"> - Campo requerido</i>
                       </span>
                 </label>
-                <input class="form-control" id="apellidos" type="text" formControlName="apellidos" placeholder="Ejemplo: Garcia Gonzalez">
+                <input class="form-control" id="usuario" type="text" formControlName="usuario" placeholder="Se genera en funcion del registro" disabled>
               </div>
               <div class="col-sm-4">
                 <label for="email">
@@ -326,25 +351,19 @@
                   <span
                     *ngIf="empresaUsuarioForm.controls['email'].invalid && (empresaUsuarioForm.controls['email'].dirty || empresaUsuarioForm.controls['email'].touched)">
                         <i *ngIf="empresaUsuarioForm.controls['email'].errors.required" class="error-text"> - Campo requerido</i>
+                        <i *ngIf="empresaUsuarioForm.controls['email'].errors.email" class="error-text"> - No es un email</i>
                       </span>
                 </label>
-                <input class="form-control" id="email" type="email" formControlName="email" placeholder="Ejemplo: hola@hotmail.com">
+                <input class="form-control" id="email" type="email" formControlName="email" (focusout)="consultarEmail($event.target)" placeholder="Ejemplo: hola@hotmail.com">
               </div>
-            </div>
-            <div class="form-row">
               <div class="col-sm-4">
                 <label for="password">
-                  <b>Contrasena *</b>
+                  <b>Contrasena <a style="color:#0057a0; cursor: pointer;" class="fakelink" (click)="autogenerarContrasena()">(autogenerar)</a></b>
                   <span
                     *ngIf="empresaUsuarioForm.controls['password'].invalid && (empresaUsuarioForm.controls['password'].dirty || empresaUsuarioForm.controls['password'].touched)">
-                        <i *ngIf="empresaUsuarioForm.controls['password'].errors.required" class="error-text"> - Campo requerido</i>
                       </span>
                 </label>
-                <input class="form-control" id="password" type="password" formControlName="password" placeholder="De 6 a 15 caracteres.">
-              </div>
-              <div class="col-sm-4">
-              </div>
-              <div class="col-sm-4">
+                <input class="form-control" id="password" type="password" formControlName="password" placeholder="De 8 a 15 caracteres.">
               </div>
             </div>
           </form>
@@ -506,8 +525,28 @@
               </div>
             </div>
             <div class="form-row">
-              <div class="col-sm-12">
+              <div class="col-sm-6">
                 <label for="telefono">
+                  <b>Registro * <i>(Toma en cuenta que, si actualizas el registro el usuario tambien sera actualizado para coincidir con el numero de registro)</i></b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['registro'].invalid && (empresaCreacionForm.controls['registro'].dirty || empresaCreacionForm.controls['registro'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['registro'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">CESP/{{empresa?.tipoTramite}}/</span>
+                  </div>
+                  <input class="form-control" id="registro" type="tel" formControlName="registro" (focusout)="verificarRegistro($event.target)" appNumberMask>
+                  <div class="input-group-append">
+                    <span class="input-group-text">/{{year}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-sm-12">
+                <label for="observaciones">
                   <b>Observaciones *</b>
                 </label>
                 <textarea class="form-control" id="observaciones" formControlName="observaciones" placeholder="Coloca aqui algun comentario de la empresa"></textarea>
@@ -618,15 +657,15 @@
               <td>{{m.modalidad?.nombre}}</td>
               <td>
                 <span *ngIf="m.submodalidad !== null">{{m.submodalidad?.nombre}}</span>
-                <span *ngIf="m.submodalidad === null">NA</span>
+                <span *ngIf="m.submodalidad === null"></span>
               </td>
               <td>
                 <span *ngIf="m.fechaInicio !== null">{{m.fechaInicio}}</span>
-                <span *ngIf="m.fechaInicio === null">NA</span>
+                <span *ngIf="m.fechaInicio === null"></span>
               </td>
               <td>
                 <span *ngIf="m.fechaFin !== null">{{m.fechaFin}}</span>
-                <span *ngIf="m.fechaFin === null">NA</span>
+                <span *ngIf="m.fechaFin === null"></span>
               </td>
               <td>
                 <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarEliminarModalidadModal(m?.uuid)"></fa-icon>
@@ -691,7 +730,7 @@
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button class="btn btn-sm btn-success" (click)="agregarModalidad(empresaModalidadForm)">Guardar cambios</button>
+                    <button class="btn btn-sm btn-info" (click)="agregarModalidad(empresaModalidadForm)">Guardar cambios</button>
                     <button class="btn btn-sm btn-danger" (click)="ocultarFormularioModalidad()">Cancelar</button>
                   </div>
                 </div>
@@ -722,7 +761,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarModalidad()">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 

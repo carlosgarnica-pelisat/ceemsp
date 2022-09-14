@@ -21,6 +21,7 @@ public class ClienteDto {
     private String fechaFin;
     private String rutaArchivoContrato;
     private List<ClienteDomicilioDto> domicilios;
+    private boolean eliminado;
 
     private String motivoBaja;
     private String observacionesBaja;

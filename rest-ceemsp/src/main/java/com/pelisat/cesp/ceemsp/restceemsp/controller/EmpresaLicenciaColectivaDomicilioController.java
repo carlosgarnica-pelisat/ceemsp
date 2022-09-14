@@ -34,6 +34,14 @@ public class EmpresaLicenciaColectivaDomicilioController {
         return empresaLicenciaColectivaDomicilioService.obtenerDomiciliosPorLicenciaColectiva(empresaUuid, licenciaUuid);
     }
 
+    @GetMapping(value = EMPRESA_LICENCIA_DOMICILIOS_URI + "/todos", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<EmpresaDomicilioDto> obtenerTodosDomiciliosPorLicenciaColectiva(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "licenciaUuid") String licenciaUuid
+    ) {
+        return empresaLicenciaColectivaDomicilioService.obtenerTodosDomiciliosPorLicenciaColectiva(empresaUuid, licenciaUuid);
+    }
+
     @PostMapping(value = EMPRESA_LICENCIA_DOMICILIOS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public EmpresaDomicilioDto guardarDomicilioEnLicenciaColectiva(
             @PathVariable(value = "empresaUuid") String empresaUuid,

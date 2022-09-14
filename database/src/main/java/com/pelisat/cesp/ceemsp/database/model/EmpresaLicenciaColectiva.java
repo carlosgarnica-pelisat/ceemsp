@@ -33,4 +33,16 @@ public class EmpresaLicenciaColectiva extends CommonModel {
 
     @Column(name = "RUTA_DOCUMENTO", nullable = false)
     private String rutaDocumento;
+
+    @Column(name = "MOTIVO_BAJA")
+    private String motivoBaja;
+
+    @Column(name = "OBSERVACIONES_BAJA")
+    private String observacionesBaja;
+
+    @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
+    private String documentoFundatorioBaja;
+
+    @Column(name = "FECHA_BAJA")
+    private LocalDate fechaBaja;
 }

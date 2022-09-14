@@ -97,6 +97,19 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
     }
 
     @Override
+    public List<EmpresaDomicilioDto> obtenerEliminadosPorEmpresaUuid(String empresaUuid) {
+        if(StringUtils.isBlank(empresaUuid)) {
+            logger.warn("El uuid de la empresa no es correcto");
+            throw new InvalidDataException();
+        }
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+
+        List<EmpresaDomicilio> empresaDomicilios = empresaDomicilioRepository.findAllByEmpresaAndEliminadoTrue(empresaDto.getId());
+        return empresaDomicilios.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaDomicilio).collect(Collectors.toList());
+    }
+
+    @Override
     public EmpresaDomicilioDto obtenerPorId(int id) {
         if(id < 1) {
             logger.warn("El id viene como nulo o vacio");
@@ -212,6 +225,9 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         empresaDomicilio.setDomicilio3(empresaDomicilioDto.getMunicipioCatalogo().getNombre());
         empresaDomicilio.setEstado(empresaDomicilioDto.getEstadoCatalogo().getNombre());
         empresaDomicilio.setLocalidad(empresaDomicilioDto.getLocalidadCatalogo().getNombre());
+
+        empresaDomicilio.setLatitud(empresaDomicilioDto.getLatitud());
+        empresaDomicilio.setLongitud(empresaDomicilioDto.getLongitud());
 
         daoHelper.fulfillAuditorFields(false, empresaDomicilio, usuarioDto.getId());
         empresaDomicilioRepository.save(empresaDomicilio);

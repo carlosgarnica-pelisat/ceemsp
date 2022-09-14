@@ -1,5 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {faBell, faFolder, faSignOutAlt} from "@fortawesome/free-solid-svg-icons";
+import {faBell, faFolder, faSignOutAlt, faChevronDown, faHome, faIndustry, faColumns, faComments,
+faCalendar, faClipboardList, faCog, faDoorClosed, faPlus, faList, faDog, faBomb, faCarSide, faHandsHelping,
+faUsers, faLuggageCart, faUser} from "@fortawesome/free-solid-svg-icons";
 import {AuthenticationService} from "../_services/authentication.service";
 import {Router} from "@angular/router";
 import Usuario from "../_models/Usuario";
@@ -18,6 +20,25 @@ export class HomeComponent implements OnInit {
   faBell = faBell;
   faFolder = faFolder;
   faSignOutAlt = faSignOutAlt;
+  faChevronDown = faChevronDown;
+  faHome = faHome;
+  faIndustry = faIndustry;
+  faColumns = faColumns;
+  faComments = faComments;
+  faCalendar = faCalendar;
+  faClipboardList = faClipboardList;
+  faCog = faCog;
+  faDoorClosed = faDoorClosed;
+  faPlus = faPlus;
+  faList = faList;
+  faDog = faDog;
+  faBomb = faBomb;
+  faCarSide = faCarSide;
+  faLuggageCart = faLuggageCart;
+  faUsers = faUsers;
+  faHandsHelping = faHandsHelping;
+  faUser = faUsers;
+
   usuarioActual: Usuario;
 
   constructor(private authenticationService: AuthenticationService, private router: Router, private usuarioService: UsuariosService,

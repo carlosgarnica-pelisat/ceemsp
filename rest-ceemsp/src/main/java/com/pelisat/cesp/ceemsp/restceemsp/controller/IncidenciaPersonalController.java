@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -25,8 +26,16 @@ public class IncidenciaPersonalController {
         this.incidenciaPersonalService = incidenciaPersonalService;
     }
 
+    @GetMapping(value = INCIDENCIA_PERSONAL_URI, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<PersonaDto> obtenerPersonaIncidencias(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "incidenciaUuid") String incidenciaUuid
+    ) {
+        return incidenciaPersonalService.obtenerPersonasIncidencia(empresaUuid, incidenciaUuid);
+    }
+
     @PostMapping(value = INCIDENCIA_PERSONAL_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public PersonaDto guardarIncidencia(
+    public PersonaDto guardarIncidenciaPersona(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "incidenciaUuid") String incidenciaUuid,
             @RequestBody PersonaDto personaDto,
@@ -37,7 +46,7 @@ public class IncidenciaPersonalController {
     }
 
     @DeleteMapping(value = INCIDENCIA_PERSONAL_URI + "/{personaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public PersonaDto eliminarIncidencia(
+    public PersonaDto eliminarIncidenciaPersona(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "incidenciaUuid") String incidenciaUuid,
             @PathVariable(value = "personaUuid") String personaUuid,

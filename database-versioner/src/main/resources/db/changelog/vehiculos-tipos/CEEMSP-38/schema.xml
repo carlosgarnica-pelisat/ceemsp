@@ -9,6 +9,7 @@
             <column name="UUID" value="w8Maj2qecNk9"></column>
             <column name="NOMBRE" value="COMPACTO"></column>
             <column name="DESCRIPCION" value="Compacto"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -20,6 +21,7 @@
             <column name="UUID" value="FKpajRFZKZqc"></column>
             <column name="NOMBRE" value="COUPE"></column>
             <column name="DESCRIPCION" value="Coupe"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -31,6 +33,7 @@
             <column name="UUID" value="qrRlQmzAjcdj"></column>
             <column name="NOMBRE" value="CUATRIMOTO"></column>
             <column name="DESCRIPCION" value="Cuatrimoto"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -42,6 +45,7 @@
             <column name="UUID" value="LfHJGIyOLIKG"></column>
             <column name="NOMBRE" value="DEPORTIVO"></column>
             <column name="DESCRIPCION" value="Deportivo"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -53,6 +57,7 @@
             <column name="UUID" value="k7aQdahjz0oM"></column>
             <column name="NOMBRE" value="HATCHBACK"></column>
             <column name="DESCRIPCION" value="Hatchback"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -64,6 +69,7 @@
             <column name="UUID" value="PCuh7LZd9Jy4"></column>
             <column name="NOMBRE" value="MINIVAN"></column>
             <column name="DESCRIPCION" value="Minivan"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -75,6 +81,7 @@
             <column name="UUID" value="sD6vLRxUS5lu"></column>
             <column name="NOMBRE" value="MOTOCICLETA"></column>
             <column name="DESCRIPCION" value="Motocicleta"></column>
+            <column name="TIPO" value="MOTOCICLETA"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -86,6 +93,7 @@
             <column name="UUID" value="DA7tDRzEGOLs"></column>
             <column name="NOMBRE" value="PICK UP"></column>
             <column name="DESCRIPCION" value="Pick up"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -97,6 +105,7 @@
             <column name="UUID" value="q8N4rpY24aaW"></column>
             <column name="NOMBRE" value="SEDAN"></column>
             <column name="DESCRIPCION" value="Sedan"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -108,6 +117,7 @@
             <column name="UUID" value="EeOZQkAQKKjO"></column>
             <column name="NOMBRE" value="SUV"></column>
             <column name="DESCRIPCION" value="Suv"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -119,6 +129,7 @@
             <column name="UUID" value="XGa1bFngkvpG"></column>
             <column name="NOMBRE" value="VAGONETA"></column>
             <column name="DESCRIPCION" value="Vagoneta"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -129,7 +140,8 @@
             <column name="ID" value="12"></column>
             <column name="UUID" value="QuU52pE6d7yU"></column>
             <column name="NOMBRE" value="VAN"></column>
-            <column name="DESCRIPCION" value="Autobus"></column>
+            <column name="DESCRIPCION" value="Van"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -141,6 +153,7 @@
             <column name="UUID" value="RkRyML7D1Jag"></column>
             <column name="NOMBRE" value="AUTOBUS"></column>
             <column name="DESCRIPCION" value="Autobus"></column>
+            <column name="TIPO" value="AUTOMOVIL"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>

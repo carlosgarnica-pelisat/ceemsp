@@ -5,7 +5,7 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Modalidades</h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearArmaMarcaModal)">Crear nuevo</button>
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearModalidadModal)">Crear nuevo</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Opciones
@@ -33,9 +33,9 @@
     </div>
   </div>
 
-  <ng-template #crearArmaMarcaModal let-modal>
+  <ng-template #crearModalidadModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="modal-survey-response">Nueva modalidad</h4>
+      <h4 class="modal-title" id="crearModalidadModal">Nueva modalidad</h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -45,17 +45,43 @@
         <div class="col-sm-12">
           <form [formGroup]="crearModalidadForm">
             <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="nombre">
                   <b>Nombre *</b>
+                  <span
+                    *ngIf="crearModalidadForm.controls['nombre'].invalid && (crearModalidadForm.controls['nombre'].dirty || crearModalidadForm.controls['nombre'].touched)">
+                    <i *ngIf="crearModalidadForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearModalidadForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="nombre" type="text" class="form-control" placeholder="Ejemplo: Volkswagen" formControlName="nombre" #nombre>
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="descripcion">
-                  <b>Descripcion</b>
+                  <b>Descripcion *</b>
+                  <span
+                    *ngIf="crearModalidadForm.controls['descripcion'].invalid && (crearModalidadForm.controls['descripcion'].dirty || crearModalidadForm.controls['descripcion'].touched)">
+                    <i *ngIf="crearModalidadForm.controls['descripcion'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearModalidadForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="descripcion" type="text" class="form-control" placeholder="Ejemplo: Marca alemana de vehiculos" formControlName="descripcion" #descripcion>
+              </div>
+              <div class="col-sm-4">
+                <label for="tipoTramite">
+                  <b>Tipo de tramite *</b>
+                  <span
+                    *ngIf="crearModalidadForm.controls['tipo'].invalid && (crearModalidadForm.controls['tipo'].dirty || crearModalidadForm.controls['tipo'].touched)">
+                    <i *ngIf="crearModalidadForm.controls['tipo'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearModalidadForm.controls['tipo'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <select id="tipoTramite" class="form-control" formControlName="tipo">
+                  <option value="EAFJAL">TRÁMITE FEDERAL (EAFJAL)</option>
+                  <option value="SPSMD">TRÁMITE ESTATAL (SPSMD)</option>
+                  <option value="RESPRO">SERVICIOS PROPIOS (RESPRO)</option>
+                  <option value="AP">AUTORIZACIÓN PROVISIONAL (AP)</option>
+                </select>
               </div>
             </div>
           </form>
@@ -65,6 +91,252 @@
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="guardarModalidad(crearModalidadForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarModalidadModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarModalidadModal">Ver modalidad </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'SUBMODALIDADES' }" (click)="cambiarPestana('SUBMODALIDADES')">Submodalidades</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'DETALLES'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Nombre:</b></td>
+              <td>{{this.modalidad?.nombre}}</td>
+            </tr>
+            <tr>
+              <td><b>Descripcion:</b></td>
+              <td>{{this.modalidad?.descripcion}}</td>
+            </tr>
+            <tr>
+              <td><b>Tipo de tramite:</b></td>
+              <td>{{this.modalidad?.tipo}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActual === 'SUBMODALIDADES'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Nombre</b></td>
+              <td><b>Descripcion</b></td>
+              <td><b>Canes</b></td>
+              <td><b>Armas</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let s of modalidad?.submodalidades; let i = index;">
+              <td>{{s.nombre}}</td>
+              <td>{{s.descripcion}}</td>
+              <td [ngSwitch]="s.canes">
+                <span *ngSwitchCase="true">SI</span>
+                <span *ngSwitchCase="false">NO</span>
+              </td>
+              <td [ngSwitch]="s.armas">
+                <span *ngSwitchCase="true">SI</span>
+                <span *ngSwitchCase="false">NO</span>
+              </td>
+              <td>
+                <fa-icon [icon]="faPencilAlt" (click)="mostrarEditarSubmodalidad(i)" title="Modificar el subpuesto"></fa-icon>
+                <fa-icon [icon]="faTrash" (click)="mostrarEliminarSubmodalidadModal(s.uuid)" title="Eliminar el subpuesto"></fa-icon>
+              </td>
+            </tr>
+            <tr *ngIf="mostrarFormularioSubmodalidad">
+              <td colspan="5">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <form [formGroup]="crearSubmodalidadForm">
+                      <div class="form-row">
+                        <div class="col-sm-3">
+                          <label for="subpuestoNombre">
+                            <b>Nombre *</b>
+                            <span
+                              *ngIf="crearSubmodalidadForm.controls['nombre'].invalid && (crearSubmodalidadForm.controls['nombre'].dirty || crearSubmodalidadForm.controls['nombre'].touched)">
+                              <i *ngIf="crearSubmodalidadForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                              <i *ngIf="crearSubmodalidadForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                          </label>
+                          <input id="subpuestoNombre" type="text" class="form-control" placeholder="Ejemplo: Vigilante" formControlName="nombre" #nombre>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="subpuestoDescripcion">
+                            <b>Descripcion *</b>
+                            <span
+                              *ngIf="crearSubmodalidadForm.controls['descripcion'].invalid && (crearSubmodalidadForm.controls['descripcion'].dirty || crearSubmodalidadForm.controls['descripcion'].touched)">
+                              <i *ngIf="crearSubmodalidadForm.controls['descripcion'].errors.required" class="text-danger"> - Campo requerido</i>
+                              <i *ngIf="crearSubmodalidadForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                          </label>
+                          <input id="subpuestoDescripcion" type="text" class="form-control" placeholder="Descripcion del puesto" formControlName="descripcion" #descripcion>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="canes">
+                            <b>Canes *</b>
+                          </label>
+                          <select id="canes" class="form-control" formControlName="canes">
+                            <option value="true">SI</option>
+                            <option value="false">NO</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="armas">
+                            <b>Armas *</b>
+                          </label>
+                          <select id="armas" class="form-control" formControlName="armas">
+                            <option value="true">SI</option>
+                            <option value="false">NO</option>
+                          </select>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary btn-sm" (click)="guardarSubmodalidad(crearSubmodalidadForm)">Guardar</button>
+                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioSubmodalidades()">Cancelar</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!mostrarFormularioSubmodalidad">
+              <td colspan="5">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary btn-sm" (click)="mostrarFormularioSubmodalidades()">Crear nueva submodalidad</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="mostrarModificarModalidadModal()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarEliminarModalidadModal()">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #editarModalidadModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="editarModalidadModal">Modificar modalidad </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearModalidadForm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="nombreEditar">
+                  <b>Nombre *</b>
+                  <span
+                    *ngIf="crearModalidadForm.controls['nombre'].invalid && (crearModalidadForm.controls['nombre'].dirty || crearModalidadForm.controls['nombre'].touched)">
+                    <i *ngIf="crearModalidadForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearModalidadForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <input id="nombreEditar" type="text" class="form-control" placeholder="Ejemplo: Volkswagen" formControlName="nombre" #nombre>
+              </div>
+              <div class="col-sm-4">
+                <label for="descripcionEditar">
+                  <b>Descripcion *</b>
+                  <span
+                    *ngIf="crearModalidadForm.controls['descripcion'].invalid && (crearModalidadForm.controls['descripcion'].dirty || crearModalidadForm.controls['descripcion'].touched)">
+                    <i *ngIf="crearModalidadForm.controls['descripcion'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearModalidadForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <input id="descripcionEditar" type="text" class="form-control" placeholder="Ejemplo: Marca alemana de vehiculos" formControlName="descripcion" #descripcion>
+              </div>
+              <div class="col-sm-4">
+                <label for="tipoTramiteEditar">
+                  <b>Tipo de tramite *</b>
+                  <span
+                    *ngIf="crearModalidadForm.controls['tipo'].invalid && (crearModalidadForm.controls['tipo'].dirty || crearModalidadForm.controls['tipo'].touched)">
+                    <i *ngIf="crearModalidadForm.controls['tipo'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearModalidadForm.controls['tipo'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <select id="tipoTramiteEditar" class="form-control" formControlName="tipo">
+                  <option value="EAFJAL">TRÁMITE FEDERAL (EAFJAL)</option>
+                  <option value="SPSMD">TRÁMITE ESTATAL (SPSMD)</option>
+                  <option value="RESPRO">SERVICIOS PROPIOS (RESPRO)</option>
+                  <option value="AP">AUTORIZACIÓN PROVISIONAL (AP)</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarCambios(crearModalidadForm)">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarSubmodalidadModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarSubmodalidadModal">Eliminando una submodalidad </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar una submodalidad. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarSubmodalidad()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarModalidadModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarModalidadModal">Eliminando una modalidad </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar una modalidad. Toma en cuenta que no podras registrar nuevas empresas con esta modalidad y las empresas que se hayan
+            dado de alta con esta modalidad permaneceran en ese estado. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminar()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 </div>

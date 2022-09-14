@@ -22,7 +22,7 @@ import java.util.List;
 @RequestMapping("/api/v1")
 public class EmpresaLegalController {
     private final JwtUtils jwtUtils;
-    private static final String EMPRESA_ESCRITURA_URI = "/empresas/{empresaUuid}/escrituras";
+    private static final String EMPRESA_ESCRITURA_URI = "/escrituras";
     private final EmpresaEscrituraService empresaEscrituraService;
 
     @Autowired

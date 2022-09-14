@@ -16,6 +16,10 @@ export class UsuariosService {
     return this.http.get(`${this.uri}/usuarios`)
   }
 
+  obtenerUsuariosInternos() {
+    return this.http.get(`${this.uri}/usuarios/internos`);
+  }
+
   obtenerUsuarioByUuid(uuid: string) {
     return this.http.get(`${this.uri}/usuarios/${uuid}`)
   }

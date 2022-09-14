@@ -812,8 +812,8 @@
 
         <insert tableName="vehiculos_submarcas">
             <column name="UUID" value="QdTnOaVJHuuG"></column>
-            <column name="NOMBRE" value="lx35"></column>
-            <column name="DESCRIPCION" value="lx35"></column>
+            <column name="NOMBRE" value="LX35"></column>
+            <column name="DESCRIPCION" value="LX35"></column>
             <column name="MARCA" value="18"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
@@ -824,7 +824,7 @@
 
         <insert tableName="vehiculos_submarcas">
             <column name="UUID" value="ZFaspgBwIOtN"></column>
-            <column name="NOMBRE" value="Starez"></column>
+            <column name="NOMBRE" value="Starex"></column>
             <column name="DESCRIPCION" value="Starex"></column>
             <column name="MARCA" value="18"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>

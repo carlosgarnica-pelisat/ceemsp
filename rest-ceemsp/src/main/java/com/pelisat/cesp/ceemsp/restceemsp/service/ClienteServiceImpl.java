@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -72,6 +73,19 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
+    public List<ClienteDto> obtenerClientesEliminadosPorEmpresa(String empresaUuid) {
+        if(StringUtils.isBlank(empresaUuid)) {
+            logger.warn("El uuid de la empresa viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        List<Cliente> clientes = clienteRepository.findAllByEmpresaAndEliminadoTrue(empresaDto.getId());
+        return clientes.stream().map(daoToDtoConverter::convertDaoToDtoCliente)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ClienteDto obtenerClientePorId(Integer id) {
         if(id == null || id < 1) {
             logger.warn("El id viene como nulo o vacio");
@@ -97,7 +111,7 @@ public class ClienteServiceImpl implements ClienteService {
         }
 
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
-        Cliente cliente = clienteRepository.findByUuidAndEliminadoFalse(clienteUuid);
+        Cliente cliente = clienteRepository.findByUuid(clienteUuid);
 
         if(cliente == null) {
             logger.warn("El cliente no fue encontrado en la base de datos");
@@ -116,6 +130,25 @@ public class ClienteServiceImpl implements ClienteService {
         }
 
         return response;
+    }
+
+    @Override
+    public File obtenerContrato(String empresaUuid, String clienteUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(clienteUuid)) {
+            logger.warn("El uuid de la empresa o de la escritura vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando el contrato en PDF para la escritura [{}]", clienteUuid);
+
+        Cliente cliente = clienteRepository.findByUuidAndEliminadoFalse(clienteUuid);
+
+        if(cliente == null) {
+            logger.warn("La escritura no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return new File(cliente.getRutaArchivoContrato());
     }
 
     @Transactional

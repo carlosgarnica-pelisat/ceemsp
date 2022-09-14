@@ -25,6 +25,11 @@ import {EstadosService} from "../../../_services/estados.service";
 import {CalleService} from "../../../_services/calle.service";
 import ExistePersona from "../../../_models/ExistePersona";
 import {ValidacionService} from "../../../_services/validacion.service";
+import PersonaFotografiaMetadata from "../../../_models/PersonaFotografiaMetadata";
+import {
+  BotonEmpresaPersonalComponent
+} from "../../../_components/botones/boton-empresa-personal/boton-empresa-personal.component";
+import Empresa from "../../../_models/Empresa";
 
 @Component({
   selector: 'app-empresa-personal',
@@ -41,6 +46,8 @@ export class EmpresaPersonalComponent implements OnInit {
   faTrash = faTrash;
   faPencilAlt = faPencilAlt;
 
+  cuipValida: boolean = false;
+
   @ViewChild('mostrarFotoPersonaModal') mostrarFotoPersonaModal: any;
   @ViewChild('visualizarCertificacionPersonaModal') visualizarCertificacionPersonaModal: any;
 
@@ -51,11 +58,18 @@ export class EmpresaPersonalComponent implements OnInit {
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Apellido paterno', field: 'apellidoPaterno', sortable: true, filter: true },
     {headerName: 'Apellido materno', field: 'apellidoMaterno', sortable: true, filter: true},
-    {headerName: 'Nombre(s)', field: 'nombres', sortable: true, filter: true}
+    {headerName: 'Nombre(s)', field: 'nombres', sortable: true, filter: true},
+    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
   ];
   rowData = [];
 
   uuid: string;
+  empresa: Empresa;
   modal: NgbModalRef;
   frameworkComponents: any;
   closeResult: string;
@@ -75,6 +89,9 @@ export class EmpresaPersonalComponent implements OnInit {
   calleSearchForm: FormGroup;
   coloniaSearchForm: FormGroup;
 
+  modalidadSearchForm: FormGroup;
+  nacionalidadSearchForm: FormGroup;
+
   estado: Estado;
   municipio: Municipio;
   localidad: Localidad;
@@ -86,6 +103,7 @@ export class EmpresaPersonalComponent implements OnInit {
   localidadQuery: string = '';
   coloniaQuery: string = '';
   calleQuery: string = '';
+  nacionalidadQuery: string = '';
 
   tempFile;
   imagenActual: any;
@@ -94,6 +112,8 @@ export class EmpresaPersonalComponent implements OnInit {
   puestosTrabajo: PersonalPuestoTrabajo[] = [];
   domicilios: EmpresaDomicilio[] = [];
   modalidades: EmpresaModalidad[] = [];
+  personalEliminado: Persona[] = [];
+  personal: Persona[] = [];
 
   puestoTrabajo: PersonalPuestoTrabajo;
   subpuestoTrabajo: PersonalSubpuestoTrabajo;
@@ -105,7 +125,9 @@ export class EmpresaPersonalComponent implements OnInit {
 
   persona: Persona;
   modalidad: Modalidad;
+  empresaModalidad: EmpresaModalidad;
   domicilio: EmpresaDomicilio;
+  nacionalidad: PersonalNacionalidad;
   cuipStatus: string;
 
   showCertificadoForm: boolean;
@@ -124,10 +146,15 @@ export class EmpresaPersonalComponent implements OnInit {
 
   personaCertificacion: PersonaCertificacion;
   pdfActual;
+  mostrandoEliminados: boolean = false;
 
+  editandoModal: boolean = false;
+
+  @ViewChild('mostrarDetallesPersonaModal') mostrarDetallesPersonaModal;
   @ViewChild('eliminarCapacitacionesModal') eliminarCapacitacionesModal;
   @ViewChild('eliminarPersonalModal') eliminarPersonalModal;
   @ViewChild('eliminarFotografiasModal') eliminarFotografiasModal;
+  @ViewChild('modificarPersonalModal') modificarPersonalModal;
 
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
               private toastService: ToastService, private modalService: NgbModal,
@@ -136,12 +163,26 @@ export class EmpresaPersonalComponent implements OnInit {
               private validacionService: ValidacionService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      buttonRenderer: BotonEmpresaPersonalComponent
+    }
+
     this.uuid = this.route.snapshot.paramMap.get("uuid");
+
+    this.empresaService.obtenerPorUuid(this.uuid).subscribe((data: Empresa) => {
+      this.empresa = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la informacion de la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
 
     this.crearPersonalForm = this.formBuilder.group({
       curp: ['', [Validators.minLength(18), Validators.maxLength(18)]],
-      nacionalidad: ['', Validators.required],
-      apellidoPaterno: ['', [Validators.required, Validators.maxLength(60)]],
+      rfc: ['', [Validators.minLength(13), Validators.maxLength(13)]],
+      apellidoPaterno: ['', [Validators.maxLength(60)]],
       apellidoMaterno: ['', [Validators.maxLength(60)]],
       nombres: ['', [Validators.required, Validators.maxLength(60)]],
       fechaNacimiento: ['', Validators.required],
@@ -155,7 +196,7 @@ export class EmpresaPersonalComponent implements OnInit {
       codigoPostal: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(5)]],
       pais: ['Mexico', [Validators.required, Validators.maxLength(100)]],
       telefono: ['', Validators.required],
-      correoElectronico: ['', [Validators.required, Validators.email, Validators.maxLength(255)]]
+      correoElectronico: ['', [Validators.email, Validators.maxLength(255)]]
     });
 
     this.crearPersonalPuestoForm = this.formBuilder.group({
@@ -173,7 +214,7 @@ export class EmpresaPersonalComponent implements OnInit {
     this.crearPersonalCertificadoForm = this.formBuilder.group({
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
       nombreInstructor: ['', [Validators.required, Validators.maxLength(100)]],
-      duracion: ['', [Validators.required, Validators.min(1), Validators.max(99)]],
+      duracion: ['', [Validators.required, Validators.min(1), Validators.max(9999)]],
       fechaInicio: ['', Validators.required],
       fechaFin: ['', Validators.required],
       archivo: ['', Validators.required]
@@ -184,8 +225,13 @@ export class EmpresaPersonalComponent implements OnInit {
       descripcion: ['', Validators.required]
     })
 
+    this.nacionalidadSearchForm = this.formBuilder.group({
+      nombre: ['']
+    })
+
     this.empresaService.obtenerPersonal(this.uuid).subscribe((data: Persona[]) => {
       this.rowData = data;
+      this.personal = data;
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -193,6 +239,16 @@ export class EmpresaPersonalComponent implements OnInit {
         ToastType.ERROR
       );
     });
+
+    this.empresaService.obtenerPersonalEliminado(this.uuid).subscribe((data: Persona[]) => {
+      this.personalEliminado = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar el personal eliminado. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
 
     this.personalService.obtenerNacionalidades().subscribe((data: PersonalNacionalidad[]) => {
       this.nacionalidades = data;
@@ -261,9 +317,126 @@ export class EmpresaPersonalComponent implements OnInit {
     this.gridColumnApi = params.gridApi;
   }
 
+  seleccionarModalidad(uuid) {
+    this.empresaModalidad = this.modalidades.filter(x => x.uuid === uuid)[0];
+  }
+
+  seleccionarNacionalidad(uuid) {
+    this.nacionalidad = this.nacionalidades.filter(x => x.uuid === uuid)[0];
+  }
+
+  quitarModalidad() {
+    this.empresaModalidad = undefined;
+  }
+
+  quitarNacionalidad() {
+    this.nacionalidad = undefined;
+  }
+
+  verDetalles(rowData) {
+    this.mostrarModalDetalles(rowData.rowData, this.mostrarDetallesPersonaModal)
+  }
+
+  mostrarEliminados() {
+    this.mostrandoEliminados = true;
+    this.rowData = this.personalEliminado;
+  }
+
+  ocultarEliminados() {
+    this.mostrandoEliminados = false;
+    this.rowData = this.personal;
+  }
+
+  editar(rowData) {
+    this.empresaService.obtenerPersonalPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: Persona) => {
+      this.persona = data;
+      this.editandoModal = false;
+
+      this.crearPersonalForm.patchValue({
+        curp: this.persona.curp,
+        rfc: this.persona?.rfc,
+        nacionalidad: this.persona.nacionalidad.uuid,
+        apellidoPaterno: this.persona.apellidoPaterno,
+        apellidoMaterno: this.persona.apellidoMaterno,
+        nombres: this.persona.nombres,
+        fechaNacimiento: this.persona.fechaNacimiento,
+        sexo: this.persona.sexo,
+        tipoSangre: this.persona.tipoSangre,
+        fechaIngreso: this.persona.fechaIngreso,
+        estadoCivil: this.persona.estadoCivil,
+        numeroExterior: this.persona.numeroExterior,
+        numeroInterior: this.persona.numeroInterior,
+        domicilio4: this.persona.domicilio4,
+        codigoPostal: this.persona.codigoPostal,
+        pais: this.persona.pais,
+        telefono: this.persona.telefono,
+        correoElectronico: this.persona.correoElectronico
+      })
+
+      this.nacionalidad = this.persona.nacionalidad;
+
+      this.calle = this.persona.calleCatalogo;
+      this.localidad = this.persona.localidadCatalogo;
+      this.municipio = this.persona.municipioCatalogo;
+      this.estado = this.persona.estadoCatalogo;
+      this.colonia = this.persona.coloniaCatalogo;
+
+      this.estadoService.obtenerEstadosPorMunicipio(this.estado.uuid).subscribe((data: Municipio[]) => {
+        this.municipios = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los municipios relacionados. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.estadoService.obtenerLocalidadesPorMunicipioYEstado(this.estado.uuid, this.municipio.uuid).subscribe((data: Localidad[]) => {
+        this.localidades = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las localidades. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      });
+
+      this.estadoService.obtenerColoniasPorMunicipioYEstado(this.estado.uuid, this.municipio.uuid).subscribe((data: Colonia[]) => {
+        this.colonias = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las colonias. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.modal = this.modalService.open(this.modificarPersonalModal,{ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: 'static'})
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido obtener el personal. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  eliminar(rowData) {
+    this.empresaService.obtenerPersonalPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: Persona) => {
+      this.persona = data;
+      this.mostrarModalEliminarPersona();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la persona. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
   verificarPersonal(event) {
     let nacionalidadUuid = this.crearPersonalForm.controls.nacionalidad.value;
-    let nacionalidad = this.nacionalidades.filter(x => x.uuid === nacionalidadUuid)[0];
+    let nacionalidad = this.nacionalidad;
 
     if(nacionalidad.nombre === 'Mexicana') {
       let existePersona: ExistePersona = new ExistePersona();
@@ -455,7 +628,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
         let formValue: Persona = form.value;
 
-        formValue.nacionalidad = this.nacionalidades.filter(x => x.uuid === form.value.nacionalidad)[0];
+        formValue.nacionalidad = this.nacionalidad;
         formValue.calleCatalogo = this.calle;
         formValue.coloniaCatalogo = this.colonia;
         formValue.localidadCatalogo = this.localidad;
@@ -480,6 +653,15 @@ export class EmpresaPersonalComponent implements OnInit {
         break;
       case "CURSOS":
 
+        if(!this.cuipValida && this.cuipStatus === 'TRAMITADO') {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `La CUIP no es valida. Favor de verificarla`,
+            ToastType.WARNING
+          );
+          return;
+        }
+
         let value: Persona = form.value;
 
         value.puestoDeTrabajo = this.puestoTrabajo;
@@ -502,7 +684,7 @@ export class EmpresaPersonalComponent implements OnInit {
           );
         })
         break;
-      case "RESUMEN":
+      case "FOTOGRAFIAS":
         let personaCertificacion: PersonaCertificacion = form.value;
 
         let fechaInicio = new Date(personaCertificacion.fechaInicio);
@@ -524,7 +706,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
         let certificacionFormData = new FormData();
         certificacionFormData.append('archivo', this.tempFile, this.tempFile.name);
-        certificacionFormData.append("certificacion", JSON.stringify(certificacionFormData))
+        certificacionFormData.append("certificacion", JSON.stringify(personaCertificacion))
 
         this.empresaService.guardarPersonalCertificacion(this.uuid, this.persona.uuid, certificacionFormData).subscribe((data: PersonaCertificacion) => {
           this.toastService.showGenericToast(
@@ -540,6 +722,33 @@ export class EmpresaPersonalComponent implements OnInit {
             ToastType.ERROR
           );
         });
+        break;
+      case "RESUMEN":
+        this.toastService.showGenericToast(
+          "Espere un momento",
+          "Estamos guardando la fotografia del elemento",
+          ToastType.INFO
+        );
+
+        let formValueFotografiaPersona = form.value;
+        let formData = new FormData();
+        formData.append('fotografia', this.tempFile, this.tempFile.name);
+        formData.append('metadataArchivo', JSON.stringify(formValueFotografiaPersona));
+
+        this.empresaService.guardarPersonaFotografia(this.uuid, this.persona.uuid, formData).subscribe((data) => {
+          this.toastService.showGenericToast(
+            "Listo",
+            "Se ha guardado la fotografia con exito",
+            ToastType.SUCCESS
+          );
+          this.stepper.next();
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se ha podido guardar la fotografia. Motivo: ${error}`,
+            ToastType.ERROR
+          )
+        })
         break;
     }
   }
@@ -613,6 +822,15 @@ export class EmpresaPersonalComponent implements OnInit {
       return;
     }
 
+    if(!this.cuipValida && this.cuipStatus === 'TRAMITADO') {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `La CUIP proporcionada no es valida.`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     // Validando los tipos
     let value: Persona = form.value;
 
@@ -620,6 +838,7 @@ export class EmpresaPersonalComponent implements OnInit {
     value.subpuestoDeTrabajo = this.subpuestoTrabajo;
     value.domicilioAsignado = this.domicilio;
     value.modalidad = this.modalidad;
+    value.estatusCuip = this.cuipStatus;
 
     this.empresaService.modificarInformacionTrabajo(this.uuid, this.persona.uuid, value).subscribe((data: Persona) => {
       this.toastService.showGenericToast(
@@ -627,7 +846,17 @@ export class EmpresaPersonalComponent implements OnInit {
         `Se ha guardado la informacion del trabajo con exito`,
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.empresaService.obtenerPersonalPorUuid(this.uuid, this.persona.uuid).subscribe((data: Persona) => {
+        this.persona = data;
+        this.mostrarFormularioInformacionPuesto();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la informmacion de la persona. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -654,6 +883,10 @@ export class EmpresaPersonalComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
+
+  finalizar() {
+    window.location.reload()
   }
 
   descargarFotografia(uuid) {
@@ -728,7 +961,16 @@ export class EmpresaPersonalComponent implements OnInit {
           "Se modifico la certificacion con exito",
           ToastType.SUCCESS
         );
-        window.location.reload();
+        this.mostrarFormularioNuevoCertificado();
+        this.empresaService.obtenerCertificacionesPersonalPorUuid(this.uuid, this.persona.uuid).subscribe((data: PersonaCertificacion[]) => {
+          this.persona.certificaciones = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar las certificaciones. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
@@ -747,7 +989,16 @@ export class EmpresaPersonalComponent implements OnInit {
           "Se guardo la certificacion con exito",
           ToastType.SUCCESS
         );
-        window.location.reload();
+        this.mostrarFormularioNuevoCertificado();
+        this.empresaService.obtenerCertificacionesPersonalPorUuid(this.uuid, this.persona.uuid).subscribe((data: PersonaCertificacion[]) => {
+          this.persona.certificaciones = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar las certificaciones. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
@@ -775,6 +1026,8 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   mostrarModificarPersonaModal(modal) {
+    this.editandoModal = true;
+
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: "static"});
 
     this.crearPersonalForm.patchValue({
@@ -787,7 +1040,7 @@ export class EmpresaPersonalComponent implements OnInit {
       sexo: this.persona.sexo,
       tipoSangre: this.persona.tipoSangre,
       fechaIngreso: this.persona.fechaIngreso,
-      estadoCivil: this.persona.estado,
+      estadoCivil: this.persona.estadoCivil,
       numeroExterior: this.persona.numeroExterior,
       numeroInterior: this.persona.numeroInterior,
       domicilio4: this.persona.domicilio4,
@@ -797,12 +1050,43 @@ export class EmpresaPersonalComponent implements OnInit {
       correoElectronico: this.persona.correoElectronico
     })
 
+    this.nacionalidad = this.persona.nacionalidad;
+
     this.calle = this.persona.calleCatalogo;
     this.localidad = this.persona.localidadCatalogo;
     this.municipio = this.persona.municipioCatalogo;
     this.estado = this.persona.estadoCatalogo;
     this.colonia = this.persona.coloniaCatalogo;
 
+    this.estadoService.obtenerEstadosPorMunicipio(this.estado.uuid).subscribe((data: Municipio[]) => {
+      this.municipios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los municipios relacionados. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
+    this.estadoService.obtenerLocalidadesPorMunicipioYEstado(this.estado.uuid, this.municipio.uuid).subscribe((data: Localidad[]) => {
+      this.localidades = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las localidades. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
+
+    this.estadoService.obtenerColoniasPorMunicipioYEstado(this.estado.uuid, this.municipio.uuid).subscribe((data: Colonia[]) => {
+      this.colonias = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las colonias. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -828,7 +1112,7 @@ export class EmpresaPersonalComponent implements OnInit {
     );
 
     let formValue: Persona = form.value;
-    formValue.nacionalidad = this.nacionalidades.filter(x => x.uuid === form.value.nacionalidad)[0];
+    formValue.nacionalidad = this.nacionalidad;
     formValue.calleCatalogo = this.calle;
     formValue.coloniaCatalogo = this.colonia;
     formValue.localidadCatalogo = this.localidad;
@@ -841,7 +1125,20 @@ export class EmpresaPersonalComponent implements OnInit {
         "Se modifico el personal con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      if(this.editandoModal) {
+        this.modal.close();
+        this.empresaService.obtenerPersonalPorUuid(this.uuid, this.persona.uuid).subscribe((data: Persona) => {
+          this.persona = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se ha podido obtener la persona. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
+      } else {
+        window.location.reload();
+      }
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -902,17 +1199,47 @@ export class EmpresaPersonalComponent implements OnInit {
   mostrarFormularioInformacionPuesto() {
     this.showPuestoForm = !this.showPuestoForm;
 
-    this.crearPersonalPuestoForm.patchValue({
-      puesto: this.persona.puestoDeTrabajo?.uuid,
-      subpuesto: this.persona.subpuestoDeTrabajo?.uuid,
-      detallesPuesto: this.persona.detallesPuesto,
-      domicilioAsignado: this.persona.domicilioAsignado?.uuid,
-      estatusCuip: this.persona.estatusCuip,
-      cuip: this.persona.cuip,
-      numeroVolanteCuip: this.persona.numeroVolanteCuip,
-      fechaVolanteCuip: this.persona.fechaVolanteCuip,
-      modalidad: this.persona.modalidad?.uuid
+    this.personalService.obtenerSubpuestosTrabajo(this.persona.puestoDeTrabajo?.uuid).subscribe((data: PersonalSubpuestoTrabajo[]) => {
+      this.cuipStatus = this.persona.estatusCuip;
+      this.puestoTrabajo = this.persona.puestoDeTrabajo;
+      this.subpuestoTrabajo = this.persona.subpuestoDeTrabajo;
+      this.domicilio = this.persona.domicilioAsignado;
+
+      this.puestoTrabajo.subpuestos = data;
+
+      this.crearPersonalPuestoForm.patchValue({
+        puesto: this.persona.puestoDeTrabajo?.uuid,
+        subpuesto: this.persona.subpuestoDeTrabajo?.uuid,
+        detallesPuesto: this.persona.detallesPuesto,
+        domicilioAsignado: this.persona.domicilioAsignado?.uuid,
+        estatusCuip: this.persona.estatusCuip,
+        cuip: this.persona.cuip,
+        numeroVolanteCuip: this.persona.numeroVolanteCuip,
+        fechaVolanteCuip: this.persona.fechaVolanteCuip,
+        modalidad: this.persona.modalidad?.uuid
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar los subpuestos de trabajo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
+  }
+
+  verificarCuip(event) {
+    let cuip = event.value;
+    let cuipRegex = /^[A-Z]{1}[AEIOU]{1}[A-Z]{2}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|1[0-9]|2[0-9]|3[0-1])[HM]{1}[0-9]{8}$/g;
+    if(!cuipRegex.test(cuip)) {
+      this.toastService.showGenericToast(
+        "Espera un momento",
+        `La CUIP no es valida. Revisa que tenga la composicion XAXX010101X00000000`,
+        ToastType.WARNING
+      );
+      this.cuipValida = false;
+    } else {
+      this.cuipValida = true;
+    }
   }
 
   convertirPdf(pdf) {
@@ -957,7 +1284,17 @@ export class EmpresaPersonalComponent implements OnInit {
         "Se ha guardado la fotografia con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.crearPersonaFotografiaForm.reset();
+      this.mostrarFormularioNuevaFotografia();
+      this.empresaService.listarPersonaFotografias(this.uuid, this.persona.uuid).subscribe((data: PersonaFotografiaMetadata[]) => {
+        this.persona.fotografias = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un prboelma",
+          `No se han podido descargar todas las fotografias. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -1012,7 +1349,16 @@ export class EmpresaPersonalComponent implements OnInit {
         "Se ha eliminado la fotografia con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.listarPersonaFotografias(this.uuid, this.persona.uuid).subscribe((data: PersonaFotografiaMetadata[]) => {
+        this.persona.fotografias = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un prboelma",
+          `No se han podido descargar todas las fotografias. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -1044,7 +1390,16 @@ export class EmpresaPersonalComponent implements OnInit {
         "Se ha eliminado la capacitacion con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerCertificacionesPersonalPorUuid(this.uuid, this.persona.uuid).subscribe((data: PersonaCertificacion[]) => {
+        this.persona.certificaciones = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las certificaciones. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",

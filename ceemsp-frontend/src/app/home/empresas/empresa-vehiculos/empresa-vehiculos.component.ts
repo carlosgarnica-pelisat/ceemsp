@@ -17,8 +17,12 @@ import VehiculoColor from "../../../_models/VehiculoColor";
 import {faCheck, faDownload, faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 import ExisteVehiculo from "../../../_models/ExisteVehiculo";
 import {ValidacionService} from "../../../_services/validacion.service";
-import ClienteDomicilio from "../../../_models/ClienteDomicilio";
-import Can from "../../../_models/Can";
+import VehiculoFotografiaMetadata from "../../../_models/VehiculoFotografiaMetadata";
+import {
+  BotonEmpresaVehiculosComponent
+} from "../../../_components/botones/boton-empresa-vehiculos/boton-empresa-vehiculos.component";
+import Persona from "../../../_models/Persona";
+import Empresa from "../../../_models/Empresa";
 
 @Component({
   selector: 'app-empresa-vehiculos',
@@ -32,18 +36,41 @@ export class EmpresaVehiculosComponent implements OnInit {
   private gridApi;
   private gridColumnApi;
 
-  columnDefs = Vehiculo.obtenerColumnasPorDefault();
+  editandoModal: boolean = false;
+  mostrandoEliminados: boolean = false;
+
+  columnDefs =  [
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true},
+    {headerName: 'Tipo', field: 'tipo.nombre', sortable: true, filter: true },
+    {headerName: 'Marca', field: 'marca.nombre', sortable: true, filter: true},
+    {headerName: 'Submarca', field: 'submarca.nombre', sortable: true, filter: true},
+    {headerName: 'Placas', field: 'placas', sortable: true, filter: true},
+    {headerName: 'Serie', field: 'serie', sortable: true, filter: true},
+    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
+  ];
   allColumnDefs = Vehiculo.obtenerTodasLasColumnas();
 
   rowData = [];
   vehiculo: Vehiculo;
 
+  vehiculos: Vehiculo[] = [];
+  vehiculosEliminados: Vehiculo[] = [];
+
   showColorForm: boolean = false;
   showFotografiaForm: boolean = false;
+
+  vehiculoGuardado: boolean = false;
+  coloresGuardados: boolean = false;
 
   pestanaActual: string = "DETALLES";
 
   uuid: string;
+  empresa: Empresa;
   modal: NgbModalRef;
   frameworkComponents: any;
   closeResult: string;
@@ -62,6 +89,7 @@ export class EmpresaVehiculosComponent implements OnInit {
   tipos: VehiculoTipo[];
   domicilios: EmpresaDomicilio[] = [];
   usos: VehiculoUso[] = [];
+  personal: Persona[];
 
   blindado: boolean = false;
   origen: string = "";
@@ -91,11 +119,17 @@ export class EmpresaVehiculosComponent implements OnInit {
   coloresTemp: VehiculoColor[] = [];
   color: VehiculoColor;
 
+  @ViewChild('mostrarDetallesVehiculoModal') mostrarDetallesVehiculoModal: any;
   @ViewChild('mostrarFotoVehiculoModal') mostrarFotoVehiculoModal: any;
   @ViewChild('eliminarVehiculoColorModal') eliminarVehiculoColorModal: any;
   @ViewChild('eliminarVehiculoFotografiaModal') eliminarVehiculoFotografiaModal: any;
   @ViewChild('eliminarVehiculoModal') eliminarVehiculoModal: any;
   @ViewChild('quitarVehiculoColorModal') quitarVehiculoColorModal: any;
+  @ViewChild('modificarVehiculoModal') modificarVehiculoModal: any;
+
+  verDetalles(rowData) {
+    this.mostrarModalDetalles(rowData.rowData, this.mostrarDetallesVehiculoModal)
+  }
 
   constructor(private modalService: NgbModal, private toastService: ToastService,
               private empresaService: EmpresaService, private formBuilder: FormBuilder,
@@ -103,18 +137,31 @@ export class EmpresaVehiculosComponent implements OnInit {
               private validacionService: ValidacionService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      buttonRenderer: BotonEmpresaVehiculosComponent
+    }
+
     this.uuid = this.route.snapshot.paramMap.get("uuid");
+
+    this.empresaService.obtenerPorUuid(this.uuid).subscribe((data: Empresa) => {
+      this.empresa = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la informacion de la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
 
     this.crearVehiculoForm = this.formBuilder.group({
       placas: ['', [Validators.required, Validators.maxLength(15)]],
       serie: ['', [Validators.required, Validators.maxLength(30)]],
       tipo: ['', Validators.required],
       marca: ['', Validators.required],
-      submarca: ['', Validators.required],
+      submarca: [''],
       anio: ['', Validators.required],
       rotulado: ['', Validators.required],
       uso: ['', Validators.required],
-      domicilio: ['', Validators.required],
       origen: ['', Validators.required],
       blindado: ['', Validators.required],
       serieBlindaje: ['', Validators.maxLength(30)],
@@ -125,7 +172,9 @@ export class EmpresaVehiculosComponent implements OnInit {
       nivelBlindaje: [''],
       razonSocial: ['', Validators.maxLength(100)],
       fechaInicio: [''],
-      fechaFin: ['']
+      fechaFin: [''],
+      domicilio: ['', Validators.required],
+      personalAsignado: ['']
       // TODO: Agregar campos para fotos y documentos; asi como constancia de blindaje
     })
 
@@ -141,19 +190,83 @@ export class EmpresaVehiculosComponent implements OnInit {
 
     this.motivosEliminacionForm = this.formBuilder.group({
       motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
+      fechaBaja: ['', Validators.required],
       observacionesBaja: ['', Validators.required],
       documentoFundatorioBaja: ['']
     });
 
     this.empresaService.obtenerVehiculos(this.uuid).subscribe((data: Vehiculo[]) => {
       this.rowData = data;
+      this.vehiculos = data;
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se pudieron descargar los vehiculos. ${error}`,
         ToastType.ERROR
       )
+    });
+
+    this.empresaService.obtenerPersonal(this.uuid).subscribe((data: Persona[]) => {
+      this.personal = data
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudieron descargar las personas. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
+
+    this.empresaService.obtenerVehiculosEliminados(this.uuid).subscribe((data: Vehiculo[]) => {
+      this.vehiculosEliminados = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los vehiculos eliminados. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
+    // Obteniendo la informacion
+    this.vehiculosService.obtenerVehiculosMarcas().subscribe((data: VehiculoMarca[]) => {
+      this.marcas = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudo descargar la informacion de las marcas. ${error}`,
+        ToastType.ERROR
+      );
+    })
+
+    // Obteniendo el resto de informacion
+    this.vehiculosService.obtenerVehiculosUsos().subscribe((data: VehiculoUso[]) => {
+      this.usos = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudo descargar la informacion de los usos de vehiculos. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+
+    this.vehiculosService.obtenerVehiculosTipos().subscribe((data: VehiculoTipo[]) => {
+      this.tipos = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudo descargar la informacion de los tipos de vehiculo. ${error}`,
+        ToastType.ERROR
+      );
+    });
+
+    this.empresaService.obtenerDomicilios(this.uuid).subscribe((data: EmpresaDomicilio[]) => {
+      this.domicilios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudieron descargar los domicilios de la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
   }
 
   mostrarModalEliminarFotografia(uuid) {
@@ -190,6 +303,123 @@ export class EmpresaVehiculosComponent implements OnInit {
     this.crearVehiculoForm.patchValue({
       fechaInicio: '',
       fechaFin: ''
+    })
+  }
+
+  editar(rowData) {
+    if(rowData.rowData?.eliminado) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El elemento ya esta eliminado. No se puede editar`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.empresaService.obtenerVehiculoPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: Vehiculo) => {
+      this.vehiculo = data;
+      this.editandoModal = false;
+
+      let marca = this.marcas.filter(x => x.uuid === this.vehiculo.marca.uuid)[0];
+      this.vehiculosService.obtenerVehiculoMarcaPorUuid(marca.uuid).subscribe((data: VehiculoMarca) => {
+        this.marca = data;
+        this.submarcas = data.submarcas;
+
+        this.crearVehiculoForm.patchValue({
+          placas: this.vehiculo.placas,
+          serie: this.vehiculo.serie,
+          tipo: this.vehiculo.tipo.uuid,
+          marca: this.vehiculo.marca.uuid,
+          submarca: this.vehiculo.submarca.uuid,
+          anio: this.vehiculo.anio,
+          rotulado: this.vehiculo.rotulado,
+          uso: this.vehiculo.uso.uuid,
+          origen: this.vehiculo.origen,
+          blindado: this.vehiculo.blindado,
+          serieBlindaje: this.vehiculo.serieBlindaje,
+          fechaBlindaje: this.vehiculo.fechaBlindaje,
+          numeroHolograma: this.vehiculo.numeroHolograma,
+          placaMetalica: this.vehiculo.placaMetalica,
+          empresaBlindaje: this.vehiculo.empresaBlindaje,
+          nivelBlindaje: this.vehiculo.nivelBlindaje,
+          razonSocial: this.vehiculo.razonSocial,
+          fechaInicio: this.vehiculo.fechaInicio,
+          fechaFin: this.vehiculo.fechaFin,
+          domicilio: this.vehiculo.domicilio.uuid
+        });
+
+        this.blindado = this.vehiculo.blindado;
+        this.origen = this.vehiculo.origen;
+
+        this.modal = this.modalService.open(this.modificarVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: "static"});
+
+        this.modal.result.then((result) => {
+          this.closeResult = `Closed with ${result}`;
+        }, (error) => {
+          this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+        });
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la informacion de la marca. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el vehiculo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  eliminar(rowData) {
+    if(rowData.rowData?.eliminado) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El elemento ya esta eliminado. No se puede eliminar`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.empresaService.obtenerVehiculoPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: Vehiculo) => {
+      this.vehiculo = data;
+      this.mostrarModalEliminarVehiculo();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el vehiculo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  mostrarEliminados() {
+    this.mostrandoEliminados = true;
+    this.rowData = this.vehiculosEliminados;
+  }
+
+  ocultarEliminados() {
+    this.mostrandoEliminados = false;
+    this.rowData = this.vehiculos;
+  }
+
+  descargarMarcasPorTipo(event) {
+    let tipoUuid = event.value;
+    let tipo: VehiculoTipo = this.tipos.filter(x => x.uuid === tipoUuid)[0];
+
+    console.log(tipo)
+
+    this.vehiculosService.obtenerVehiculosTiposMarca(tipo.tipo).subscribe((data: VehiculoMarca[]) => {
+      this.marcas = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las marcas por tipo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 
@@ -277,6 +507,131 @@ export class EmpresaVehiculosComponent implements OnInit {
     })
   }
 
+  cancelarCambiosVehiculo() {
+    this.crearVehiculoForm.reset();
+    this.modal.close();
+  }
+
+  mostrarModalModificarVehiculo() {
+    this.editandoModal = true;
+    let marca = this.marcas.filter(x => x.uuid === this.vehiculo.marca.uuid)[0];
+    this.vehiculosService.obtenerVehiculoMarcaPorUuid(marca.uuid).subscribe((data: VehiculoMarca) => {
+      this.marca = data;
+      this.blindado = this.vehiculo?.blindado;
+      this.origen = this.vehiculo?.origen;
+      this.submarcas = data.submarcas;
+
+      this.crearVehiculoForm.patchValue({
+        placas: this.vehiculo.placas,
+        serie: this.vehiculo.serie,
+        tipo: this.vehiculo.tipo.uuid,
+        marca: this.vehiculo.marca.uuid,
+        submarca: this.vehiculo.submarca.uuid,
+        anio: this.vehiculo.anio,
+        rotulado: this.vehiculo.rotulado,
+        uso: this.vehiculo.uso.uuid,
+        origen: this.vehiculo.origen,
+        blindado: this.vehiculo.blindado,
+        serieBlindaje: this.vehiculo.serieBlindaje,
+        fechaBlindaje: this.vehiculo.fechaBlindaje,
+        numeroHolograma: this.vehiculo.numeroHolograma,
+        placaMetalica: this.vehiculo.placaMetalica,
+        empresaBlindaje: this.vehiculo.empresaBlindaje,
+        nivelBlindaje: this.vehiculo.nivelBlindaje,
+        razonSocial: this.vehiculo.razonSocial,
+        fechaInicio: this.vehiculo.fechaInicio,
+        fechaFin: this.vehiculo.fechaFin,
+        domicilio: this.vehiculo.domicilio.uuid
+      });
+
+      this.modal = this.modalService.open(this.modificarVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: "static"});
+
+      this.modal.result.then((result) => {
+        this.closeResult = `Closed with ${result}`;
+      }, (error) => {
+        this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+      });
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la informacion de la marca. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  guardarCambiosVehiculo(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El formulario no es valido.`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let formValue: Vehiculo = form.value;
+
+    if(formValue.fechaInicio !== undefined && formValue.fechaFin !== undefined) {
+      let fechaInicio = new Date(formValue.fechaInicio);
+      let fechaFin = new Date(formValue.fechaFin);
+      if(fechaInicio > fechaFin) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "La fecha de inicio es mayor que la del final",
+          ToastType.WARNING
+        )
+        return;
+      }
+    }
+
+    formValue.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
+    formValue.submarca = this.submarcas.filter(x => x.uuid === form.value.submarca)[0];
+    formValue.tipo = this.tipos.filter(x => x.uuid === form.value.tipo)[0];
+    formValue.uso = this.usos.filter(x => x.uuid === form.value.uso)[0];
+    formValue.domicilio = this.domicilios.filter(x => x.uuid === form.value.domicilio)[0];
+
+    if(this.blindado) {
+      console.log("Agregar validaciones para blindaje");
+    } else {
+      formValue.nivelBlindaje = null
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando el vehiculo en la base de datos",
+      ToastType.INFO
+    );
+
+    this.empresaService.modificarVehiculo(this.uuid, this.vehiculo.uuid, formValue).subscribe((data: Vehiculo) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha modificado el vehiculo con exito",
+        ToastType.SUCCESS
+      );
+      if(this.editandoModal) {
+        this.modal.close();
+        this.empresaService.obtenerVehiculoPorUuid(this.uuid, this.vehiculo.uuid).subscribe((data: Vehiculo) => {
+          this.vehiculo = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se ha podido descargar el vehiculo. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
+      } else {
+        window.location.reload();
+      }
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido modificar el vehiculo. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
+  }
+
   mostrarModalCrear(modal) {
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
@@ -291,52 +646,10 @@ export class EmpresaVehiculosComponent implements OnInit {
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     });
-
-    // Obteniendo la informacion
-    this.vehiculosService.obtenerVehiculosMarcas().subscribe((data: VehiculoMarca[]) => {
-      this.marcas = data;
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se pudo descargar la informacion de las marcas. ${error}`,
-        ToastType.ERROR
-      );
-    })
-
-    // Obteniendo el resto de informacion
-    this.vehiculosService.obtenerVehiculosUsos().subscribe((data: VehiculoUso[]) => {
-      this.usos = data;
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se pudo descargar la informacion de los usos de vehiculos. Motivo: ${error}`,
-        ToastType.ERROR
-      )
-    })
-
-    this.vehiculosService.obtenerVehiculosTipos().subscribe((data: VehiculoTipo[]) => {
-      this.tipos = data;
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se pudo descargar la informacion de los tipos de vehiculo. ${error}`,
-        ToastType.ERROR
-      );
-    });
-
-    this.empresaService.obtenerDomicilios(this.uuid).subscribe((data: EmpresaDomicilio[]) => {
-      this.domicilios = data;
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se pudieron descargar los domicilios de la empresa. Motivo: ${error}`,
-        ToastType.ERROR
-      )
-    });
   }
 
   next(stepName: string, form) {
-    if(!form.valid) {
+    if(!form.valid && stepName !== "FOTOGRAFIAS") {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "Faltan algunos campos obligatorios por llenarse",
@@ -346,94 +659,122 @@ export class EmpresaVehiculosComponent implements OnInit {
     }
     switch (stepName) {
       case "COLORES":
-        let formValue: Vehiculo = form.value;
+        if(this.vehiculoGuardado) {
+          this.stepper.next();
+        } else {
+          let formValue: Vehiculo = form.value;
 
-        if(formValue.fechaInicio !== undefined && formValue.fechaFin !== undefined) {
-          let fechaInicio = new Date(formValue.fechaInicio);
-          let fechaFin = new Date(formValue.fechaFin);
-          if(fechaInicio > fechaFin) {
+          if(formValue.fechaInicio !== undefined && formValue.fechaFin !== undefined) {
+            let fechaInicio = new Date(formValue.fechaInicio);
+            let fechaFin = new Date(formValue.fechaFin);
+            if(fechaInicio > fechaFin) {
+              this.toastService.showGenericToast(
+                "Ocurrio un problema",
+                "La fecha de inicio es mayor que la del final",
+                ToastType.WARNING
+              )
+              return;
+            }
+          }
+
+          formValue.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
+          formValue.submarca = this.submarcas.filter(x => x.uuid === form.value.submarca)[0];
+          formValue.tipo = this.tipos.filter(x => x.uuid === form.value.tipo)[0];
+          formValue.uso = this.usos.filter(x => x.uuid === form.value.uso)[0];
+          formValue.domicilio = this.domicilios.filter(x => x.uuid === form.value.domicilio)[0];
+          formValue.personalAsignado = this.personal.filter(x => x.uuid === form.value.personalAsignado)[0]
+
+          if(this.blindado) {
+            console.log("Agregar validaciones para blindaje");
+          } else {
+            formValue.nivelBlindaje = null
+          }
+
+          this.toastService.showGenericToast(
+            "Espere un momento",
+            "Estamos guardando el vehiculo en la base de datos",
+            ToastType.INFO
+          );
+
+          let vehiculo = new FormData();
+          if(this.tempFile !== undefined) {
+            vehiculo.append('constanciaBlindaje', this.tempFile, this.tempFile.name);
+          } else {
+            vehiculo.append('constanciaBlindaje', null)
+          }
+          vehiculo.append('vehiculo', JSON.stringify(formValue));
+
+          this.empresaService.guardarVehiculo(this.uuid, vehiculo).subscribe((data: Vehiculo) => {
+            this.toastService.showGenericToast(
+              "Listo",
+              "Se ha guardado el vehiculo con exito",
+              ToastType.SUCCESS
+            );
+            this.vehiculo = data;
+            this.vehiculoGuardado = true;
+            this.stepper.next();
+          }, (error) => {
             this.toastService.showGenericToast(
               "Ocurrio un problema",
-              "La fecha de inicio es mayor que la del final",
-              ToastType.WARNING
+              `No se ha podido guardar el vehiculo. Motivo: ${error}`,
+              ToastType.ERROR
             )
-            return;
-          }
+          });
         }
-
-        formValue.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
-        formValue.submarca = this.submarcas.filter(x => x.uuid === form.value.submarca)[0];
-        formValue.tipo = this.tipos.filter(x => x.uuid === form.value.tipo)[0];
-        formValue.uso = this.usos.filter(x => x.uuid === form.value.uso)[0];
-
-        if(this.blindado) {
-          console.log("Agregar validaciones para blindaje");
-        } else {
-          formValue.nivelBlindaje = null
-        }
-
-        this.toastService.showGenericToast(
-          "Espere un momento",
-          "Estamos guardando el vehiculo en la base de datos",
-          ToastType.INFO
-        );
-
-        this.empresaService.guardarVehiculo(this.uuid, formValue).subscribe((data: Vehiculo) => {
-          this.toastService.showGenericToast(
-            "Listo",
-            "Se ha guardado el vehiculo con exito",
-            ToastType.SUCCESS
-          );
-          this.vehiculo = formValue;
-          this.stepper.next();
-        }, (error) => {
-          this.toastService.showGenericToast(
-            "Ocurrio un problema",
-            `No se ha podido guardar el vehiculo. Motivo: ${error}`,
-            ToastType.ERROR
-          )
-        });
-        break;
-      case "FOTOGRAFIAS":
-
         break;
       case "RESUMEN":
-        if(this.coloresTemp.length < 1) {
+        if(this.vehiculo?.fotografias?.length < 1) {
           this.toastService.showGenericToast(
-            "Ocurrio un problema",
-            "Necesitas agregar por lo menos un color para continuar con el alta del vehiculo",
+            `Espera un momento`,
+            `No se ha guardado ninguna fotografia`,
             ToastType.WARNING
           );
           return;
         }
-
-        this.toastService.showGenericToast(
-          "Espere un momento",
-          "Estamos guardando los colores del vehiculo",
-          ToastType.INFO
-        );
-
-        let coloresGuardados: boolean = true;
-
-        this.coloresTemp.forEach(c => {
-          this.empresaService.guardarVehiculoColor(this.uuid, this.vehiculo.uuid, c).subscribe((data) => {
-            this.toastService.showGenericToast(
-              "Listo",
-              "Se ha guardado el color con exito",
-              ToastType.SUCCESS
-            );
-          }, (error) => {
+        this.stepper.next();
+        break;
+      case "FOTOGRAFIAS":
+        if(this.coloresGuardados) {
+          this.stepper.next();
+        } else {
+          if(this.coloresTemp.length < 1) {
             this.toastService.showGenericToast(
               "Ocurrio un problema",
-              `No se ha podido guardar el color del vehiculo. Motivo: ${error}`,
-              ToastType.ERROR
+              "Necesitas agregar por lo menos un color para continuar con el alta del vehiculo",
+              ToastType.WARNING
             );
-            coloresGuardados = false;
-          });
-        })
+            return;
+          }
 
-        if(coloresGuardados) {
-          this.stepper.next();
+          this.toastService.showGenericToast(
+            "Espere un momento",
+            "Estamos guardando los colores del vehiculo",
+            ToastType.INFO
+          );
+
+          let coloresGuardados: boolean = true;
+
+          this.coloresTemp.forEach(c => {
+            this.empresaService.guardarVehiculoColor(this.uuid, this.vehiculo.uuid, c).subscribe((data) => {
+              this.toastService.showGenericToast(
+                "Listo",
+                "Se ha guardado el color con exito",
+                ToastType.SUCCESS
+              );
+            }, (error) => {
+              this.toastService.showGenericToast(
+                "Ocurrio un problema",
+                `No se ha podido guardar el color del vehiculo. Motivo: ${error}`,
+                ToastType.ERROR
+              );
+              coloresGuardados = false;
+            });
+          })
+
+          if(coloresGuardados) {
+            this.coloresGuardados = true;
+            this.stepper.next();
+          }
         }
         break;
     }
@@ -459,7 +800,8 @@ export class EmpresaVehiculosComponent implements OnInit {
   }
 
   confirmarEliminarVehiculo(form) {
-
+    console.log(form.value);
+    console.log(form.valid);
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -589,13 +931,22 @@ export class EmpresaVehiculosComponent implements OnInit {
       ToastType.INFO
     );
 
-    this.empresaService.eliminarVehiculoColor(this.uuid, this.vehiculo.uuid, this.tempUuidColorVehiculo).subscribe((data: ClienteDomicilio) => {
+    this.empresaService.eliminarVehiculoColor(this.uuid, this.vehiculo.uuid, this.tempUuidColorVehiculo).subscribe((data: VehiculoColor) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha eliminado el color con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerVehiculoColores(this.uuid, this.vehiculo.uuid).subscribe((data: VehiculoColor[]) => {
+        this.vehiculo.colores = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los colores. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -627,7 +978,16 @@ export class EmpresaVehiculosComponent implements OnInit {
         "Se ha eliminado el color con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.listarVehiculoFotografias(this.uuid, this.vehiculo.uuid).subscribe((data: VehiculoFotografiaMetadata[]) => {
+        this.vehiculo.fotografias = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las fotografias. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      });
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -668,7 +1028,16 @@ export class EmpresaVehiculosComponent implements OnInit {
           "Se guardo el color del carro con exito",
           ToastType.INFO
         );
-        window.location.reload();
+        this.mostrarFormularioColor();
+        this.empresaService.obtenerVehiculoColores(this.uuid, this.vehiculo.uuid).subscribe((data: VehiculoColor[]) => {
+          this.vehiculo.colores = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar los colores. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
@@ -683,7 +1052,16 @@ export class EmpresaVehiculosComponent implements OnInit {
           "Se ha guardado el color con exito",
           ToastType.SUCCESS
         );
-        window.location.reload();
+        this.mostrarFormularioColor();
+        this.empresaService.obtenerVehiculoColores(this.uuid, this.vehiculo.uuid).subscribe((data: VehiculoColor[]) => {
+          this.vehiculo.colores = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar los colores. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
@@ -721,7 +1099,16 @@ export class EmpresaVehiculosComponent implements OnInit {
         "Se ha guardado la fotografia con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.mostrarFormularioNuevaFotografia();
+      this.empresaService.listarVehiculoFotografias(this.uuid, this.vehiculo.uuid).subscribe((data: VehiculoFotografiaMetadata[]) => {
+        this.vehiculo.fotografias = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las fotografias. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      });
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",

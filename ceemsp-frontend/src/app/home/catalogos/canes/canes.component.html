@@ -98,11 +98,11 @@
           <table class="table">
             <tr>
               <td><b>Nombre:</b></td>
-              <td>{{this.canRaza.nombre}}</td>
+              <td>{{this.canRaza?.nombre}}</td>
             </tr>
             <tr>
               <td><b>Descripcion:</b></td>
-              <td>{{this.canRaza.descripcion}}</td>
+              <td>{{this.canRaza?.descripcion}}</td>
             </tr>
           </table>
         </div>
@@ -154,7 +154,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="guardarCambios(crearCanRazaForm)">Guardar</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cancelar</button>
+      <button type="button" class="btn btn-danger" (click)="cerrarModalEditar()">Cancelar</button>
     </div>
   </ng-template>
 

@@ -36,9 +36,25 @@
             <column name="UUID" value="1094L9SBR45R"></column>
             <column name="USERNAME" value="jcgarnica"></column>
             <column name="EMAIL" value="carlos.garnica@pelisat.com.mx"></column>
-            <column name="PASSWORD" value="7AF0E0164BF03683077A7228888B1ADB537C4F6B8B7DADC5FEA3C11914F3B9B4"></column>
+            <column name="PASSWORD" value="8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"></column>
             <column name="NOMBRES" value="JUAN CARLOS"></column>
             <column name="APELLIDOS" value="GARNICA GUTIERREZ"></column>
+            <column name="ROL" type="SUPERUSER"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="usuarios">
+            <column name="ID" value="2"></column>
+            <column name="UUID" value="1094L9SBR45S"></column>
+            <column name="USERNAME" value="vbernabe"></column>
+            <column name="EMAIL" value="victor@victor.com"></column>
+            <column name="PASSWORD" value="8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"></column>
+            <column name="NOMBRES" value="VICTOR HUGO"></column>
+            <column name="APELLIDOS" value="BERNABE ESPINOZA"></column>
             <column name="ROL" type="SUPERUSER"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>

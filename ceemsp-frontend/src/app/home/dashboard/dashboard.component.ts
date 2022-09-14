@@ -4,7 +4,7 @@ import {DashboardService} from "../../_services/dashboard.service";
 import Dashboard from "../../_models/Dashboard";
 import {ToastService} from "../../_services/toast.service";
 import {ToastType} from "../../_enums/ToastType";
-import {faTicketAlt} from "@fortawesome/free-solid-svg-icons";
+import {faTicketAlt, faCalendar} from "@fortawesome/free-solid-svg-icons";
 import Visita from "../../_models/Visita";
 
 @Component({
@@ -15,6 +15,7 @@ import Visita from "../../_models/Visita";
 export class DashboardComponent implements OnInit {
 
   faTicketAlt = faTicketAlt;
+  faCalendar = faCalendar;
 
   dashboardData: Dashboard;
 

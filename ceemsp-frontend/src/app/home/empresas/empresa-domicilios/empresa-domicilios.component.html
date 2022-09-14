@@ -19,6 +19,8 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" *ngIf="!mostrandoEliminados" (click)="mostrarEliminados()">Mostrar eliminados</a>
+          <a class="dropdown-item" *ngIf="mostrandoEliminados" (click)="ocultarEliminados()">Ocultar eliminados</a>
           <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar direcciones como Excel (csv)</a>
         </div>
       </div>
@@ -32,10 +34,11 @@
         <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action">
           Detalles
         </a>
+        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action active">Domicilios</a>
         <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
-        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action">Licencias colectivas / Armas</a>
-        <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action">Canes</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/licencias" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneArmas">Licencias colectivas / Armas</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/canes" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneCanes">Canes</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
         <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
@@ -85,8 +88,16 @@
               <td><b>Telefono de contacto (movil):</b></td>
               <td>{{domicilio?.telefonoMovil}}</td>
             </tr>
-
           </table>
+        </div>
+      </div>
+      <div class="row" *ngIf="domicilio?.latitud !== null && domicilio?.longitud !== null">
+        <div class="col-sm-12">
+          <agm-map [latitude]="stringToNumber(this.domicilio?.latitud)" [longitude]="stringToNumber(this.domicilio?.longitud)" [zoom]="16">
+            <agm-marker [latitude]="stringToNumber(this.domicilio?.latitud)" [longitude]="stringToNumber(this.domicilio?.longitud)">
+              <agm-info-window>Aqui se encuentra el domicilio</agm-info-window>
+            </agm-marker>
+          </agm-map>
         </div>
       </div>
     </div>
@@ -137,11 +148,7 @@
         <div class="row">
           <div class="col-sm-12">
             <label for="observacionesBaja">
-              <b>Observaciones *</b>
-              <span
-                *ngIf="motivosEliminacionForm.controls['observacionesBaja'].invalid && (motivosEliminacionForm.controls['observacionesBaja'].dirty || motivosEliminacionForm.controls['observacionesBaja'].touched)">
-                    <i *ngIf="motivosEliminacionForm.controls['observacionesBaja'].errors.required" class="text-danger"> - Campo requerido</i>
-                  </span>
+              <b>Observaciones</b>
             </label>
             <textarea id="observacionesBaja" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
           </div>
@@ -183,14 +190,14 @@
                 <input id="nombreEditar" type="text" class="form-control" placeholder="Ej. Sucursal del norte, Matriz" formControlName="nombre" #nombre>
               </div>
               <div class="col-sm-3">
-                <label for="matriz">
+                <label for="matrizEditar">
                   <b>Tipo *</b>
                   <span
                     *ngIf="modificarDomicilioForm.controls['matriz'].invalid && (modificarDomicilioForm.controls['matriz'].dirty || modificarDomicilioForm.controls['matriz'].touched)">
                     <i *ngIf="modificarDomicilioForm.controls['matriz'].errors.required" class="text-danger"> - Campo requerido</i>
                   </span>
                 </label>
-                <select id="matriz" formControlName="matriz" class="form-control">
+                <select id="matrizEditar" formControlName="matriz" class="form-control">
                   <option value="true">MATRIZ</option>
                   <option value="false">SUCURSAL</option>
                 </select>
@@ -202,14 +209,14 @@
                 <label>
                   <b>Estado *</b>
                 </label>
-                <div class="dropdown" id="customer">
+                <div class="dropdown" id="estadoEditar">
                   <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                     {{estado === undefined ? 'Ninguno' : estado?.nombre}}
                   </a>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                     <form [formGroup]="estadoSearchForm" class="px-4 py-3">
-                      <label for="estadoSearchQuery"><b>Buscar por nombre</b></label>
-                      <input type="text" class="form-control" id="estadoSearchQuery" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
+                      <label for="estadoSearchQueryEditar"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="estadoSearchQueryEditar" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
                              [ngModelOptions]="{standalone: true}" autocomplete="off">
                     </form>
                     <div class="dropdown-divider"></div>
@@ -226,12 +233,12 @@
                   <b>Municipio *</b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
+                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre.substring(0, 20)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="municipioSearchForm" class="px-4 py-3">
-                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
-                    <input type="text" class="form-control" id="municipioSearchQuery" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
+                    <label for="municipioSearchQueryEditar"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="municipioSearchQueryEditar" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
                            [ngModelOptions]="{standalone: true}" autocomplete="off">
                   </form>
                   <div class="dropdown-divider"></div>
@@ -242,17 +249,17 @@
                   <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-6">
                 <label>
                   <b>Localidad *</b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
+                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre.substring(0, 60)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="localidadSearchForm" class="px-4 py-3">
-                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
-                    <input type="text" class="form-control" id="localidadSearchQuery" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
+                    <label for="localidadSearchQueryEditar"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="localidadSearchQueryEditar" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
                            [ngModelOptions]="{standalone: true}" autocomplete="off">
                   </form>
                   <div class="dropdown-divider"></div>
@@ -263,17 +270,20 @@
                   <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-3">
+            </div>
+
+            <div class="row">
+              <div class="col-sm-6">
                 <label>
                   <b>Colonia *</b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{colonia === undefined ? 'Ninguno' : colonia?.nombre}}
+                  {{colonia === undefined ? 'Ninguno' : colonia?.nombre.substring(0, 60)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="municipioSearchForm" class="px-4 py-3">
-                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
-                    <input type="text" class="form-control" id="coloniaSearchQuery" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
+                    <label for="coloniaSearchQueryEditar"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="coloniaSearchQueryEditar" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
                            [ngModelOptions]="{standalone: true}" autocomplete="off">
                   </form>
                   <div class="dropdown-divider"></div>
@@ -284,20 +294,17 @@
                   <a class="dropdown-item" *ngIf="colonia !== undefined" (click)="eliminarColonia()">Quitar</a>
                 </div>
               </div>
-            </div>
-
-            <div class="row">
-              <div class="col-sm-4">
+              <div class="col-sm-6">
                 <label>
                   <b>Calle * </b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{calle === undefined ? 'Ninguno' : calle?.nombre}}
+                  {{calle === undefined ? 'Ninguno' : calle?.nombre.substring(0, 60)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="calleSearchForm" class="px-4 py-3">
-                    <label for="calleSearchQuery"><b>Buscar por nombre</b></label>
-                    <input type="text" class="form-control" id="calleSearchQuery" placeholder="Ej. Av. Empresarios" [(ngModel)]="calleQuery"
+                    <label for="calleSearchQueryEditar"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="calleSearchQueryEditar" placeholder="Ej. Av. Empresarios" [(ngModel)]="calleQuery"
                            [ngModelOptions]="{standalone: true}" (keyup)="obtenerCalles($event)" autocomplete="off">
                   </form>
                   <div class="dropdown-divider"></div>
@@ -308,49 +315,52 @@
                   <a class="dropdown-item" *ngIf="calle !== undefined" (click)="eliminarCalle()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-1">
-                <label for="numeroExterior">
+            </div>
+            <div class="row">
+
+              <div class="col-sm-3">
+                <label for="numeroExteriorEditar">
                   <b>N. Ext * </b>
                   <span
-                    *ngIf="nuevoDomicilioForm.controls['numeroExterior'].invalid && (modificarDomicilioForm.controls['numeroExterior'].dirty || nuevoDomicilioForm.controls['numeroExterior'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['numeroExterior'].errors.required" class="text-danger"> - Campo requerido</i>
-                    <i *ngIf="nuevoDomicilioForm.controls['numeroExterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    *ngIf="modificarDomicilioForm.controls['numeroExterior'].invalid && (modificarDomicilioForm.controls['numeroExterior'].dirty || modificarDomicilioForm.controls['numeroExterior'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['numeroExterior'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="modificarDomicilioForm.controls['numeroExterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                   </span>
                 </label>
-                <input id="numeroExterior" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
+                <input id="numeroExteriorEditar" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
               </div>
-              <div class="col-sm-1">
-                <label for="numeroInterior">
-                  <b>N. Int * </b>
+              <div class="col-sm-3">
+                <label for="numeroInteriorEditar">
+                  <b>N. Int</b>
                   <span
-                    *ngIf="nuevoDomicilioForm.controls['numeroInterior'].invalid && (modificarDomicilioForm.controls['numeroExterior'].dirty || nuevoDomicilioForm.controls['numeroInterior'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    *ngIf="modificarDomicilioForm.controls['numeroInterior'].invalid && (modificarDomicilioForm.controls['numeroExterior'].dirty || modificarDomicilioForm.controls['numeroInterior'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                   </span>
                 </label>
-                <input id="numeroInterior" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
+                <input id="numeroInteriorEditar" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
               </div>
 
               <div class="col-sm-3">
-                <label for="codigoPostal">
+                <label for="codigoPostalEditar">
                   <b>Codigo Postal *</b>
                   <span
-                    *ngIf="nuevoDomicilioForm.controls['codigoPostal'].invalid && (modificarDomicilioForm.controls['codigoPostal'].dirty || nuevoDomicilioForm.controls['codigoPostal'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['codigoPostal'].errors.required" class="text-danger"> - Campo requerido</i>
-                    <i *ngIf="nuevoDomicilioForm.controls['codigoPostal'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
-                    <i *ngIf="nuevoDomicilioForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    *ngIf="modificarDomicilioForm.controls['codigoPostal'].invalid && (modificarDomicilioForm.controls['codigoPostal'].dirty || modificarDomicilioForm.controls['codigoPostal'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['codigoPostal'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="modificarDomicilioForm.controls['codigoPostal'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                    <i *ngIf="modificarDomicilioForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                   </span>
                 </label>
-                <input id="codigoPostal" type="number" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
+                <input id="codigoPostalEditar" type="number" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
               </div>
               <div class="col-sm-3">
-                <label for="domicilio4">
+                <label for="domicilio4Editar">
                   <b>Referencia</b>
                   <span
-                    *ngIf="nuevoDomicilioForm.controls['domicilio4'].invalid && (modificarDomicilioForm.controls['domicilio4'].dirty || nuevoDomicilioForm.controls['domicilio4'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['domicilio4'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    *ngIf="modificarDomicilioForm.controls['domicilio4'].invalid && (modificarDomicilioForm.controls['domicilio4'].dirty || modificarDomicilioForm.controls['domicilio4'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['domicilio4'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                   </span>
                 </label>
-                <input id="domicilio4" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
+                <input id="domicilio4Editar" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
               </div>
             </div>
 
@@ -379,8 +389,18 @@
           </form>
         </div>
       </div>
+      <div class="row" *ngIf="domicilioUbicado">
+        <div class="col-sm-12">
+          <agm-map [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()" [zoom]="16">
+            <agm-marker [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()">
+              <agm-info-window>Aqui se encuentra el domicilio</agm-info-window>
+            </agm-marker>
+          </agm-map>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-primary" (click)="ubicarDomicilio(modificarDomicilioForm)">Ubicar en el mapa</button>
       <button class="btn btn-primary" (click)="modificarDomicilio(modificarDomicilioForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
@@ -453,7 +473,7 @@
                   <b>Municipio *</b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
+                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre.substring(0, 20)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="municipioSearchForm" class="px-4 py-3">
@@ -469,12 +489,12 @@
                   <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-6">
                 <label>
                   <b>Localidad *</b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
+                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre.substring(0, 60)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="localidadSearchForm" class="px-4 py-3">
@@ -490,12 +510,14 @@
                   <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-3">
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
                 <label>
                   <b>Colonia *</b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{colonia === undefined ? 'Ninguno' : colonia?.nombre}}
+                  {{colonia === undefined ? 'Ninguno' : colonia?.nombre.substring(0, 60)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="municipioSearchForm" class="px-4 py-3">
@@ -511,15 +533,12 @@
                   <a class="dropdown-item" *ngIf="colonia !== undefined" (click)="eliminarColonia()">Quitar</a>
                 </div>
               </div>
-            </div>
-
-            <div class="row">
-              <div class="col-sm-4">
+              <div class="col-sm-6">
                 <label>
                   <b>Calle * </b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{calle === undefined ? 'Ninguno' : calle?.nombre}}
+                  {{calle === undefined ? 'Ninguno' : calle?.nombre.substring(0, 60)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="calleSearchForm" class="px-4 py-3">
@@ -535,7 +554,9 @@
                   <a class="dropdown-item" *ngIf="calle !== undefined" (click)="eliminarCalle()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-1">
+            </div>
+            <div class="row">
+              <div class="col-sm-3">
                 <label for="numeroExterior">
                   <b>N. Ext * </b>
                   <span
@@ -546,9 +567,9 @@
                 </label>
                 <input id="numeroExterior" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
               </div>
-              <div class="col-sm-1">
+              <div class="col-sm-3">
                 <label for="numeroInterior">
-                  <b>N. Int * </b>
+                  <b>N. Int </b>
                   <span
                     *ngIf="nuevoDomicilioForm.controls['numeroInterior'].invalid && (nuevoDomicilioForm.controls['numeroExterior'].dirty || nuevoDomicilioForm.controls['numeroInterior'].touched)">
                     <i *ngIf="nuevoDomicilioForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
@@ -605,8 +626,19 @@
           </form>
         </div>
       </div>
+
+      <div class="row" *ngIf="domicilioUbicado">
+        <div class="col-sm-12">
+          <agm-map [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()" [zoom]="16">
+            <agm-marker [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()">
+              <agm-info-window>Aqui se encuentra el domicilio</agm-info-window>
+            </agm-marker>
+          </agm-map>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-primary" (click)="ubicarDomicilio(nuevoDomicilioForm)">Ubicar en el mapa</button>
       <button class="btn btn-primary" (click)="guardarDomicilio(nuevoDomicilioForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>

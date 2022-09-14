@@ -7,5 +7,6 @@ export default class Usuario {
   password: string;
   nombres: string;
   apellidos: string;
+  apellidoMaterno: string;
   rol: string;
 }

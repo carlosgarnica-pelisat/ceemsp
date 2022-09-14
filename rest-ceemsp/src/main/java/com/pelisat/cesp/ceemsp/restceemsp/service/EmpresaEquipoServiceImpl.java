@@ -5,6 +5,9 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaEquipoDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaEquipo;
+import com.pelisat.cesp.ceemsp.database.model.EmpresaEquipoMovimiento;
+import com.pelisat.cesp.ceemsp.database.model.EmpresaUniformeElementoMovimiento;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaEquipoMovimientoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEquipoRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
@@ -17,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,10 +35,12 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
     private final UsuarioService usuarioService;
     private final EquipoService equipoService;
     private final DaoHelper<CommonModel> daoHelper;
+    private final EmpresaEquipoMovimientoRepository empresaEquipoMovimientoRepository;
 
     public EmpresaEquipoServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                                     EmpresaEquipoRepository empresaEquipoRepository, EmpresaService empresaService,
-                                    UsuarioService usuarioService, EquipoService equipoService, DaoHelper<CommonModel> daoHelper) {
+                                    UsuarioService usuarioService, EquipoService equipoService, DaoHelper<CommonModel> daoHelper,
+                                    EmpresaEquipoMovimientoRepository empresaEquipoMovimientoRepository) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.empresaEquipoRepository = empresaEquipoRepository;
@@ -42,6 +48,7 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
         this.usuarioService = usuarioService;
         this.equipoService = equipoService;
         this.daoHelper = daoHelper;
+        this.empresaEquipoMovimientoRepository = empresaEquipoMovimientoRepository;
     }
 
     @Override
@@ -82,12 +89,16 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
             throw new MissingRelationshipException();
         }
 
+        List<EmpresaEquipoMovimiento> movimientos = empresaEquipoMovimientoRepository.getAllByEmpresaEquipoAndEliminadoFalse(empresaEquipo.getId());
+
         EmpresaEquipoDto empresaEquipoDto = daoToDtoConverter.convertDaoToDtoEmpresaEquipo(empresaEquipo);
         empresaEquipoDto.setEquipo(equipoService.obtenerEquipoPorId(empresaEquipo.getEquipo()));
+        empresaEquipoDto.setMovimientos(movimientos.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEquipoMovimiento).collect(Collectors.toList()));
         return empresaEquipoDto;
     }
 
     @Override
+    @Transactional
     public EmpresaEquipoDto guardarEquipo(String empresaUuid, String usuario, EmpresaEquipoDto empresaEquipoDto) {
         if(StringUtils.isBlank(usuario) || StringUtils.isBlank(empresaUuid) || empresaEquipoDto == null) {
             logger.warn("El usuario, la empresa o el uniforme a crear vienen como nulos o vacios");
@@ -105,6 +116,11 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
         empresaEquipo.setEquipo(empresaEquipoDto.getEquipo().getId());
         empresaEquipo.setCantidad(empresaEquipoDto.getCantidad());
         EmpresaEquipo empresaEquipoCreado = empresaEquipoRepository.save(empresaEquipo);
+
+        EmpresaEquipoMovimiento empresaEquipoMovimiento = dtoToDaoConverter.convertDtoToDaoEmpresaEquipoMovimiento(empresaEquipoDto.getMovimientos().get(0));
+        empresaEquipoMovimiento.setEmpresaEquipo(empresaEquipoCreado.getId());
+        daoHelper.fulfillAuditorFields(true, empresaEquipoMovimiento, usuarioDto.getId());
+        empresaEquipoMovimientoRepository.save(empresaEquipoMovimiento);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEquipo(empresaEquipoCreado);
     }
@@ -125,10 +141,14 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
             throw new NotFoundResourceException();
         }
 
-        empresaEquipo.setEquipo(empresaEquipoDto.getEquipo().getId());
         empresaEquipo.setCantidad(empresaEquipoDto.getCantidad());
         daoHelper.fulfillAuditorFields(false, empresaEquipo, usuarioDto.getId());
         EmpresaEquipo empresaEquipoCreado = empresaEquipoRepository.save(empresaEquipo);
+
+        EmpresaEquipoMovimiento empresaEquipoMovimiento = dtoToDaoConverter.convertDtoToDaoEmpresaEquipoMovimiento(empresaEquipoDto.getMovimientos().get(0));
+        empresaEquipoMovimiento.setEmpresaEquipo(empresaEquipoCreado.getId());
+        daoHelper.fulfillAuditorFields(true, empresaEquipoMovimiento, usuarioDto.getId());
+        empresaEquipoMovimientoRepository.save(empresaEquipoMovimiento);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEquipo(empresaEquipoCreado);
     }

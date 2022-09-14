@@ -40,4 +40,170 @@
       ></ag-grid-angular>
     </div>
   </div>
+
+  <ng-template #editarStatusModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="editarStatusModal">Cambiar status de la empresa</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="empresaCambioStatusForm">
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="status">
+                  <b>Nuevo status *</b>
+                  <span
+                    *ngIf="empresaCambioStatusForm.controls['status'].invalid && (empresaCambioStatusForm.controls['status'].dirty || empresaCambioStatusForm.controls['status'].touched)">
+                      <i *ngIf="empresaCambioStatusForm.controls['status'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select class="form-control" name="status" id="status" formControlName="status">
+                  <option value="ACTIVA">Activa</option>
+                  <option value="PERDIDA_EFICACIA">Perdida de eficacia</option>
+                  <option value="SUSPENDIDA">Suspendida</option>
+                  <option value="REVOCADA">Revocada</option>
+                  <option value="CLAUSURADA">Clausurada</option>
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <label for="status">
+                  <b>Observaciones *</b>
+                  <span
+                    *ngIf="empresaCambioStatusForm.controls['observaciones'].invalid && (empresaCambioStatusForm.controls['observaciones'].dirty || empresaCambioStatusForm.controls['observaciones'].touched)">
+                      <i *ngIf="empresaCambioStatusForm.controls['observaciones'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+                </label>
+                <textarea name="observaciones" id="observaciones" class="form-control" formControlName="observaciones"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="cambiarStatusEmpresa(empresaCambioStatusForm)">Guardar cambios</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #editarEmpresaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="editarEmpresaModal">Editar empresa </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="empresaCreacionForm">
+            <div class="form-row">
+              <div class="col-sm-3">
+                <label for="razonSocial">
+                  <b>Razon Social *</b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['razonSocial'].invalid && (empresaCreacionForm.controls['razonSocial'].dirty || empresaCreacionForm.controls['razonSocial'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['razonSocial'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['razonSocial'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input class="form-control" id="razonSocial" type="text" formControlName="razonSocial" placeholder="Ejemplo. Hola S.A. de C.V.">
+              </div>
+              <div class="col-sm-3">
+                <label for="nombreComercial">
+                  <b>Nombre comercial *</b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['nombreComercial'].invalid && (empresaCreacionForm.controls['nombreComercial'].dirty || empresaCreacionForm.controls['nombreComercial'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['nombreComercial'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['nombreComercial'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input class="form-control" id="nombreComercial" type="text" formControlName="nombreComercial" placeholder="Ejemplo. Hola Empresa">
+              </div>
+              <div class="col-sm-3" *ngIf="tipoPersona === 'FISICA'">
+                <label for="curp">
+                  <b>CURP</b>
+                </label>
+                <input class="form-control" id="curp" type="text" formControlName="curp" placeholder="Ejemplo. XAXX010101ABCDEFGH">
+              </div>
+              <div class="col-sm-3" *ngIf="tipoPersona === 'FISICA'">
+                <label for="sexo">
+                  <b>Sexo</b>
+                </label>
+                <select id="sexo" class="form-control" formControlName="sexo">
+                  <option value="MASCULINO">MASCULINO</option>
+                  <option value="FEMENINO">FEMENINO</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-sm-3">
+                <label for="tipoPersona">
+                  <b>Tipo de persona *</b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['tipoPersona'].invalid && (empresaCreacionForm.controls['tipoPersona'].dirty || empresaCreacionForm.controls['tipoPersona'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['tipoPersona'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select id="tipoPersona" class="form-control" formControlName="tipoPersona" (change)="cambiarTipoPersona($event.target)">
+                  <option value="FISICA">FISICA</option>
+                  <option value="MORAL">MORAL</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <label for="rfc">
+                  <b>RFC *</b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['rfc'].invalid && (empresaCreacionForm.controls['rfc'].dirty || empresaCreacionForm.controls['rfc'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['rfc'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['rfc'].errors.minlength" class="text-danger"> - Faltan caracteres </i>
+                      <i *ngIf="empresaCreacionForm.controls['rfc'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input class="form-control" id="rfc" type="text" formControlName="rfc" placeholder="Ejemplo. XAXX010101AAA">
+              </div>
+              <div class="col-sm-3">
+                <label for="correoElectronico">
+                  <b>Correo principal *</b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['correoElectronico'].invalid && (empresaCreacionForm.controls['correoElectronico'].dirty || empresaCreacionForm.controls['correoElectronico'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['correoElectronico'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="empresaCreacionForm.controls['correoElectronico'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                      <i *ngIf="empresaCreacionForm.controls['correoElectronico'].errors.email" class="text-danger"> - No es un email</i>
+                    </span>
+                </label>
+                <input class="form-control" id="correoElectronico" type="email" formControlName="correoElectronico" placeholder="Ejemplo hola@hola.com">
+              </div>
+              <div class="col-sm-3">
+                <label for="telefono">
+                  <b>Telefono *</b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['telefono'].invalid && (empresaCreacionForm.controls['telefono'].dirty || empresaCreacionForm.controls['telefono'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['telefono'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <input class="form-control" id="telefono" type="text" formControlName="telefono" placeholder="Ejemplo 3312345678" appPhoneMask>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-sm-12">
+                <label for="telefono">
+                  <b>Observaciones *</b>
+                </label>
+                <textarea class="form-control" id="observaciones" formControlName="observaciones" placeholder="Coloca aqui algun comentario de la empresa"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modificarEmpresa(empresaCreacionForm)">Guardar cambios</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
 </div>

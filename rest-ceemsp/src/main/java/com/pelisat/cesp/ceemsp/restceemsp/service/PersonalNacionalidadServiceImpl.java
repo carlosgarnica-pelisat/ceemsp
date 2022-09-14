@@ -46,7 +46,7 @@ public class PersonalNacionalidadServiceImpl implements PersonalNacionalidadServ
     @Override
     public List<PersonalNacionalidadDto> obtenerTodos() {
         logger.info("Consultando todas las nacionalidades guardadas en la base de datos");
-        List<PersonalNacionalidad> personalNacionalidades = personalNacionalidadRepository.getAllByEliminadoFalse();
+        List<PersonalNacionalidad> personalNacionalidades = personalNacionalidadRepository.getAllByEliminadoFalseOrderByNombre();
         return personalNacionalidades.stream()
                 .map(daoToDtoConverter::convertDaoToDtoPersonalNacionalidad)
                 .collect(Collectors.toList());

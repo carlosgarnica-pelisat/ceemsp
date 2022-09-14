@@ -1,6 +1,4 @@
 import { Deserializable } from "./Deserializable";
-import Modalidad from "./Modalidad";
-import EmpresaModalidad from "./EmpresaModalidad";
 import Estado from "./Estado";
 import Municipio from "./Municipio";
 import Localidad from "./Localidad";

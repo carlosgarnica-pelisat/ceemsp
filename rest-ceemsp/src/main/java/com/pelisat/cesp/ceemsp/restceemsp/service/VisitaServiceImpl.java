@@ -35,11 +35,17 @@ public class VisitaServiceImpl implements VisitaService {
     private final UsuarioService usuarioService;
     private final DaoHelper<CommonModel> daoHelper;
     private final VisitaArchivoService visitaArchivoService;
+    private final CalleService calleService;
+    private final ColoniaService coloniaService;
+    private final LocalidadService localidadService;
+    private final MunicipioService municipioService;
+    private final EstadoService estadoService;
 
     @Autowired
     public VisitaServiceImpl(VisitaRepository visitaRepository, DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                              EmpresaService empresaService, UsuarioService usuarioService, DaoHelper<CommonModel> daoHelper,
-                             VisitaArchivoService visitaArchivoService) {
+                             VisitaArchivoService visitaArchivoService, CalleService calleService, ColoniaService coloniaService,
+                             LocalidadService localidadService, MunicipioService municipioService, EstadoService estadoService) {
         this.visitaRepository = visitaRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
@@ -47,6 +53,11 @@ public class VisitaServiceImpl implements VisitaService {
         this.usuarioService = usuarioService;
         this.daoHelper = daoHelper;
         this.visitaArchivoService = visitaArchivoService;
+        this.calleService = calleService;
+        this.coloniaService = coloniaService;
+        this.localidadService = localidadService;
+        this.municipioService = municipioService;
+        this.estadoService = estadoService;
     }
 
     @Override
@@ -106,6 +117,22 @@ public class VisitaServiceImpl implements VisitaService {
         visitaDto.setResponsable(usuarioService.getUserById(visita.getResponsable()));
         visitaDto.setArchivos(visitaArchivoService.obtenerArchivosPorVisita(uuid));
 
+        if(visita.getCalleCatalogo() > 0) {
+            visitaDto.setCalleCatalogo(calleService.obtenerCallePorId(visita.getCalleCatalogo()));
+        }
+        if(visita.getColoniaCatalogo() > 0) {
+            visitaDto.setColoniaCatalogo(coloniaService.obtenerColoniaPorId(visita.getColoniaCatalogo()));
+        }
+        if(visita.getLocalidadCatalogo() > 0) {
+            visitaDto.setLocalidadCatalogo(localidadService.obtenerLocalidadPorId(visita.getLocalidadCatalogo()));
+        }
+        if(visita.getMunicipioCatalogo() > 0) {
+            visitaDto.setMunicipioCatalogo(municipioService.obtenerMunicipioPorId(visita.getMunicipioCatalogo()));
+        }
+        if(visita.getEstadoCatalogo() > 0) {
+            visitaDto.setEstadoCatalogo(estadoService.obtenerPorId(visita.getEstadoCatalogo()));
+        }
+
         return visitaDto;
     }
 
@@ -129,6 +156,20 @@ public class VisitaServiceImpl implements VisitaService {
         Visita visita = dtoToDaoConverter.convertDtoToDaoVisita(visitaDto);
         if(visitaDto.getTipoVisita() == TipoVisitaEnum.ORDINARIA || (visitaDto.getTipoVisita() == TipoVisitaEnum.EXTRAORDINARIA && visitaDto.isExisteEmpresa())) {
             visita.setEmpresa(visitaDto.getEmpresa().getId());
+        }
+
+        if(visitaDto.getTipoVisita() == TipoVisitaEnum.EXTRAORDINARIA && !visitaDto.isExisteEmpresa()) {
+            visita.setCalleCatalogo(visitaDto.getCalleCatalogo().getId());
+            visita.setColoniaCatalogo(visitaDto.getColoniaCatalogo().getId());
+            visita.setLocalidadCatalogo(visitaDto.getLocalidadCatalogo().getId());
+            visita.setMunicipioCatalogo(visitaDto.getMunicipioCatalogo().getId());
+            visita.setEstadoCatalogo(visitaDto.getEstadoCatalogo().getId());
+
+            visita.setDomicilio1(visitaDto.getCalleCatalogo().getNombre());
+            visita.setDomicilio2(visitaDto.getColoniaCatalogo().getNombre());
+            visita.setLocalidad(visitaDto.getLocalidadCatalogo().getNombre());
+            visita.setDomicilio3(visitaDto.getMunicipioCatalogo().getNombre());
+            visita.setEstado(visitaDto.getEstadoCatalogo().getNombre());
         }
 
         visita.setResponsable(visitaDto.getResponsable().getId());
@@ -158,13 +199,35 @@ public class VisitaServiceImpl implements VisitaService {
             throw new NotFoundResourceException();
         }
 
-        visita.setFechaVisita(LocalDate.parse(visitaDto.getFechaVisita()));
-        visita.setTipoVisita(visitaDto.getTipoVisita());
-        visita.setEmpresa(visitaDto.getEmpresa().getId());
+        if(visitaDto.getTipoVisita() == TipoVisitaEnum.ORDINARIA || (visitaDto.getTipoVisita() == TipoVisitaEnum.EXTRAORDINARIA && visitaDto.isExisteEmpresa())) {
+            visita.setEmpresa(visitaDto.getEmpresa().getId());
+        }
+
+        if(visitaDto.getTipoVisita() == TipoVisitaEnum.EXTRAORDINARIA && !visitaDto.isExisteEmpresa()) {
+            visita.setCalleCatalogo(visitaDto.getCalleCatalogo().getId());
+            visita.setColoniaCatalogo(visitaDto.getColoniaCatalogo().getId());
+            visita.setLocalidadCatalogo(visitaDto.getLocalidadCatalogo().getId());
+            visita.setMunicipioCatalogo(visitaDto.getMunicipioCatalogo().getId());
+            visita.setEstadoCatalogo(visitaDto.getEstadoCatalogo().getId());
+
+            visita.setDomicilio1(visitaDto.getCalleCatalogo().getNombre());
+            visita.setDomicilio2(visitaDto.getColoniaCatalogo().getNombre());
+            visita.setLocalidad(visitaDto.getLocalidadCatalogo().getNombre());
+            visita.setDomicilio3(visitaDto.getMunicipioCatalogo().getNombre());
+            visita.setEstado(visitaDto.getEstadoCatalogo().getNombre());
+
+            visita.setNumeroExterior(visitaDto.getNumeroExterior());
+            visita.setNumeroInterior(visitaDto.getNumeroInterior());
+        }
         visita.setNombreComercial(visitaDto.getNombreComercial());
         visita.setRazonSocial(visitaDto.getRazonSocial());
-        visita.setNumeroRegistro(visitaDto.getNumeroRegistro());
         visita.setObservaciones(visitaDto.getObservaciones());
+
+        visita.setFechaVisita(LocalDate.parse(visitaDto.getFechaVisita()));
+        visita.setTipoVisita(visitaDto.getTipoVisita());
+        visita.setNumeroRegistro(visitaDto.getNumeroRegistro());
+        visita.setNumeroOrden(visitaDto.getNumeroOrden());
+        visita.setResponsable(visitaDto.getResponsable().getId());
 
         daoHelper.fulfillAuditorFields(false, visita, usuarioDto.getId());
         visitaRepository.save(visita);

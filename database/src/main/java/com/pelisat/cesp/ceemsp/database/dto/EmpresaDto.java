@@ -28,6 +28,13 @@ public class EmpresaDto {
     private String observaciones;
     private List<EmpresaModalidadDto> modalidades;
     private List<EmpresaFormaEjecucionDto> formasEjecucion;
+    private boolean tieneCanes;
+    private boolean tieneArmas;
+    private String registroFederal;
+    private String fechaInicio;
+    private String fechaFin;
 
     private UsuarioDto usuario;
+
+    private String fechaCreacion;
 }

@@ -11,4 +11,5 @@ public class CanConstanciaSaludDto {
     private String expedidoPor;
     private String cedula;
     private String fechaExpedicion;
+    private boolean eliminado;
 }

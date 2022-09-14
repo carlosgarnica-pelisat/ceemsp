@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
+import com.google.gson.Gson;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraRepresentanteDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraSocioDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaEscrituraRepresentanteService;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.ExceptionTypeFilter;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -33,6 +35,14 @@ public class EmpresaEscrituraRepresentanteController {
             @PathVariable(value = "escrituraUuid") String escrituraUuid
     ) {
         return empresaEscrituraRepresentanteService.obtenerRepresentantesPorEscritura(empresaUuid, escrituraUuid);
+    }
+
+    @GetMapping(value = EMPRESA_REPRESENTANTES_URI + "/todos", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<EmpresaEscrituraRepresentanteDto> obtenerTodosRepresentantesPorEscritura(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "escrituraUuid") String escrituraUuid
+    ) {
+        return empresaEscrituraRepresentanteService.obtenerTodosRepresentantesPorEscritura(empresaUuid, escrituraUuid);
     }
 
     @GetMapping(value = EMPRESA_REPRESENTANTES_URI + "/{representanteUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -68,14 +78,16 @@ public class EmpresaEscrituraRepresentanteController {
         return empresaEscrituraRepresentanteService.modificarRepresentante(empresaUuid, escrituraUuid, representanteUuid, username, empresaEscrituraRepresentanteDto);
     }
 
-    @DeleteMapping(value = EMPRESA_REPRESENTANTES_URI + "/{representanteUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_REPRESENTANTES_URI + "/{representanteUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public EmpresaEscrituraRepresentanteDto eliminarEscrituraRepresentante(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "escrituraUuid") String escrituraUuid,
             @PathVariable(value = "representanteUuid") String representanteUuid,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
+            @RequestParam("representante") String representante,
             HttpServletRequest request
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return empresaEscrituraRepresentanteService.eliminarRepresentante(empresaUuid, escrituraUuid, representanteUuid, username);
+        return empresaEscrituraRepresentanteService.eliminarRepresentante(empresaUuid, escrituraUuid, representanteUuid, username, new Gson().fromJson(representante, EmpresaEscrituraRepresentanteDto.class), archivo);
     }
 }

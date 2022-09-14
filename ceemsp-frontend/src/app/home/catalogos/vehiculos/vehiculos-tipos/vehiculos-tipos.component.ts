@@ -6,6 +6,7 @@ import {ToastService} from "../../../../_services/toast.service";
 import {ToastType} from "../../../../_enums/ToastType";
 import VehiculoTipo from "../../../../_models/VehiculoTipo";
 import Uniforme from "../../../../_models/Uniforme";
+import {BotonCatalogosComponent} from "../../../../_components/botones/boton-catalogos/boton-catalogos.component";
 
 @Component({
   selector: 'app-vehiculos-tipos',
@@ -13,14 +14,20 @@ import Uniforme from "../../../../_models/Uniforme";
   styleUrls: ['./vehiculos-tipos.component.css']
 })
 export class VehiculosTiposComponent implements OnInit {
-
+  editandoModal: boolean = false;
   private gridApi;
   private gridColumnApi;
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+    {headerName: 'Acciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
   ];
   rowData = [];
 
@@ -44,6 +51,10 @@ export class VehiculosTiposComponent implements OnInit {
               private vehiculoService: VehiculosService, private toastService: ToastService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      catalogoButtonRenderer: BotonCatalogosComponent
+    }
+
     this.crearVehiculoTipoForm = this.formBuilder.group({
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
       descripcion: ['', [Validators.maxLength(100)]]
@@ -58,6 +69,32 @@ export class VehiculosTiposComponent implements OnInit {
         ToastType.ERROR
       )
     })
+  }
+
+  verDetalles(rowData) {
+    this.checkForDetails(rowData.rowData);
+  }
+
+  editar(rowData) {
+    this.vehiculoTipo = rowData.rowData;
+    this.editandoModal = false;
+    this.crearVehiculoTipoForm.patchValue({
+      nombre: this.vehiculoTipo.nombre,
+      descripcion: this.vehiculoTipo.descripcion
+    });
+
+    this.modal = this.modalService.open(this.editarVehiculoTipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  eliminar(rowData) {
+    this.vehiculoTipo = rowData.rowData;
+    this.mostrarEliminarVehiculoTipoModal();
   }
 
   onGridReady(params) {
@@ -117,14 +154,18 @@ export class VehiculosTiposComponent implements OnInit {
 
     let vehiculoTipo: VehiculoTipo = form.value;
 
-    this.vehiculoService.modificarVehiculoTipo(this.vehiculoTipo.uuid, vehiculoTipo).subscribe((data: Uniforme) => {
+    this.vehiculoService.modificarVehiculoTipo(this.vehiculoTipo.uuid, vehiculoTipo).subscribe((data: VehiculoTipo) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha modificado con exito el tipo de vehiculo",
         ToastType.SUCCESS
       )
-
-      window.location.reload();
+      if(this.editandoModal) {
+        this.vehiculoTipo = data;
+        this.modal.close();
+      } else {
+        window.location.reload();
+      }
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -163,12 +204,13 @@ export class VehiculosTiposComponent implements OnInit {
   }
 
   mostrarModificarVehiculoTipoModal() {
+    this.editandoModal = true;
     this.crearVehiculoTipoForm.patchValue({
       nombre: this.vehiculoTipo.nombre,
       descripcion: this.vehiculoTipo.descripcion
     });
 
-    this.modalService.open(this.editarVehiculoTipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+    this.modal = this.modalService.open(this.editarVehiculoTipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;

@@ -1,0 +1,30 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-08-18-crear-tabla-buzon-interno-destinatarios" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="buzon_interno_destinatarios">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="BUZON_INTERNO" type="INT"></column>
+            <column name="TIPO_DESTINATARIO" type="VARCHAR(60)"></column>
+            <column name="EMAIL" type="VARCHAR(512)"></column>
+            <column name="USUARIO" type="INT"></column>
+            <column name="EMPRESA" type="INT"></column>
+            <column name="ELIMINADO" type="bit" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="int"></column>
+            <column name="FECHA_ACTUALIZACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="int"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="buzon_interno_destinatarios" columnNames="ID" />
+        <addAutoIncrement tableName="buzon_interno_destinatarios" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="buzon_interno" columnNames="UUID" />
+    </changeSet>
+</databaseChangeLog>

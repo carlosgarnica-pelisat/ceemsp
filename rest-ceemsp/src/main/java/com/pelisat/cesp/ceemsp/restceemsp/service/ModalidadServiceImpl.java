@@ -97,7 +97,9 @@ public class ModalidadServiceImpl implements ModalidadService {
             throw new NotFoundResourceException();
         }
 
-        return daoToDtoConverter.convertDaoToDtoModalidad(modalidad);
+        ModalidadDto modalidadDto = daoToDtoConverter.convertDaoToDtoModalidad(modalidad);
+        modalidadDto.setSubmodalidades(submodalidadService.obtenerSubmodalidadesPorModalidad(modalidad.getId()));
+        return modalidadDto;
     }
 
     @Override
@@ -128,7 +130,7 @@ public class ModalidadServiceImpl implements ModalidadService {
 
         logger.info("Creando nueva modalidad");
 
-        UsuarioDto usuario = usuarioService.getUserByUsername(username);
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
 
         if(usuario == null) {
             logger.warn("El usuario no existe en la base de datos");
@@ -167,6 +169,7 @@ public class ModalidadServiceImpl implements ModalidadService {
 
         modalidad.setNombre(modalidadDto.getNombre());
         modalidad.setDescripcion(modalidadDto.getDescripcion());
+        modalidad.setTipo(modalidadDto.getTipo());
         modalidad.setFechaActualizacion(LocalDateTime.now());
         modalidad.setActualizadoPor(usuario.getId());
 

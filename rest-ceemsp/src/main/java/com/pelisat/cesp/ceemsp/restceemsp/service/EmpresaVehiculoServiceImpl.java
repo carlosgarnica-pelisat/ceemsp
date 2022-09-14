@@ -4,6 +4,7 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
+import com.pelisat.cesp.ceemsp.database.model.IncidenciaArchivo;
 import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoSubmarcaRepository;
@@ -43,6 +44,8 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
     private final VehiculoColorService vehiculoColorService;
     private final VehiculoFotografiaService vehiculoFotografiaService;
     private final ArchivosService archivosService;
+    private final EmpresaDomicilioService empresaDomicilioService;
+    private final PersonaService personaService;
 
     @Autowired
     public EmpresaVehiculoServiceImpl(VehiculoRepository vehiculoRepository, UsuarioService usuarioService,
@@ -51,7 +54,8 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
                                       VehiculoMarcaService vehiculoMarcaService, VehiculoSubmarcaService vehiculoSubmarcaService,
                                       VehiculoUsoService vehiculoUsoService, VehiculoTipoService vehiculoTipoService,
                                       VehiculoColorService vehiculoColorService, VehiculoFotografiaService vehiculoFotografiaService,
-                                      ArchivosService archivosService) {
+                                      ArchivosService archivosService, EmpresaDomicilioService empresaDomicilioService,
+                                      PersonaService personaService) {
         this.vehiculoRepository = vehiculoRepository;
         this.usuarioService = usuarioService;
         this.daoToDtoConverter = daoToDtoConverter;
@@ -65,6 +69,8 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         this.vehiculoColorService = vehiculoColorService;
         this.vehiculoFotografiaService = vehiculoFotografiaService;
         this.archivosService = archivosService;
+        this.empresaDomicilioService = empresaDomicilioService;
+        this.personaService = personaService;
     }
 
     @Override
@@ -81,8 +87,32 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
 
         List<VehiculoDto> response = vehiculos.stream().map(vehiculo -> {
             VehiculoDto vehiculoDto = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
-            vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getId()));
-            vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getId()));
+            vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
+            vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
+            vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
+            vehiculoDto.setFotografias(vehiculoFotografiaService.mostrarVehiculoFotografias(empresaUuid, vehiculo.getUuid()));
+            return vehiculoDto;
+        }).collect(Collectors.toList());
+
+        return response;
+    }
+
+    @Override
+    public List<VehiculoDto> obtenerVehiculosEliminadosPorEmpresa(String empresaUuid) {
+        if(StringUtils.isBlank(empresaUuid)) {
+            logger.warn("El uuid de la empresa viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando todos los vehiculos");
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        List<Vehiculo> vehiculos = vehiculoRepository.getAllByEmpresaAndEliminadoTrue(empresaDto.getId());
+
+        List<VehiculoDto> response = vehiculos.stream().map(vehiculo -> {
+            VehiculoDto vehiculoDto = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
+            vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
+            vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
             vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
             vehiculoDto.setFotografias(vehiculoFotografiaService.mostrarVehiculoFotografias(empresaUuid, vehiculo.getUuid()));
             return vehiculoDto;
@@ -101,7 +131,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         logger.info("Obteniendo el vehiculo con el uuid [{}]", vehiculoUuid);
 
         EmpresaDto empresa = empresaService.obtenerPorUuid(empresaUuid);
-        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+        Vehiculo vehiculo = vehiculoRepository.getByUuid(vehiculoUuid);
 
         if(empresa.getId() != vehiculo.getEmpresa()) {
             logger.warn("El vehiculo no pertenece a esa empresa");
@@ -110,11 +140,16 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
 
         VehiculoDto vehiculoDto = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
         if(!soloEntidad) {
+            vehiculoDto.setUso(vehiculoUsoService.obtenerPorId(vehiculo.getUso()));
             vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
             vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
             vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
+            vehiculoDto.setDomicilio(empresaDomicilioService.obtenerPorId(vehiculo.getDomicilio()));
             vehiculoDto.setColores(vehiculoColorService.obtenerTodosPorVehiculoUuid(vehiculoUuid, empresaUuid));
             vehiculoDto.setFotografias(vehiculoFotografiaService.mostrarVehiculoFotografias(empresaUuid, vehiculo.getUuid()));
+            if (vehiculo.getPersonalAsignado() != null) {
+                vehiculoDto.setPersonalAsignado(personaService.obtenerPorId(vehiculo.getPersonalAsignado()));
+            }
         }
 
         return vehiculoDto;
@@ -136,11 +171,21 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
             throw new NotFoundResourceException();
         }
 
-        return daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
+        VehiculoDto vehiculoDto = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
+        vehiculoDto.setUso(vehiculoUsoService.obtenerPorId(vehiculo.getUso()));
+        vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
+        vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
+        vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
+        vehiculoDto.setDomicilio(empresaDomicilioService.obtenerPorId(vehiculo.getDomicilio()));
+        if (vehiculo.getPersonalAsignado() > 0) {
+            vehiculoDto.setPersonalAsignado(personaService.obtenerPorId(vehiculo.getPersonalAsignado()));
+        }
+
+        return vehiculoDto;
     }
 
     @Override
-    public VehiculoDto guardarVehiculo(String empresaUuid, String username, VehiculoDto vehiculoDto) {
+    public VehiculoDto guardarVehiculo(String empresaUuid, String username, VehiculoDto vehiculoDto, MultipartFile constanciaBlindaje) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(username) || vehiculoDto == null) {
             logger.warn("El vehiculo, el uuid de la empresa o el nombre del usuario vienen como nulos o vacios");
             throw new InvalidDataException();
@@ -155,6 +200,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         vehiculo.setSubmarca(vehiculoDto.getSubmarca().getId());
         vehiculo.setUso(vehiculoDto.getUso().getId());
         vehiculo.setTipo(vehiculoDto.getTipo().getId());
+        vehiculo.setDomicilio(vehiculoDto.getDomicilio().getId());
         if(StringUtils.isNotBlank(vehiculoDto.getFechaInicio())) {
             vehiculo.setFechaInicio(LocalDate.parse(vehiculoDto.getFechaInicio()));
         }
@@ -164,10 +210,29 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         if(StringUtils.isNotBlank(vehiculoDto.getFechaBlindaje())) {
             vehiculo.setFechaBlindaje(LocalDate.parse(vehiculoDto.getFechaBlindaje()));
         }
-        daoHelper.fulfillAuditorFields(true, vehiculo, usuarioDto.getId());
+        if(vehiculoDto.getPersonalAsignado() != null) {
+            vehiculo.setPersonalAsignado(vehiculoDto.getPersonalAsignado().getId());
+        }
 
         Vehiculo vehiculoCreado = vehiculoRepository.save(vehiculo);
-        return daoToDtoConverter.convertDaoToDtoVehiculo(vehiculoCreado);
+        VehiculoDto response = new VehiculoDto();
+
+        if(constanciaBlindaje != null) {
+            logger.info("Hay archivo");
+            daoHelper.fulfillAuditorFields(true, vehiculo, usuarioDto.getId());
+            try {
+                String ruta = archivosService.guardarArchivoMultipart(constanciaBlindaje, TipoArchivoEnum.CONSTANCIA_BLINDAJE_VEHICULO, empresaDto.getUuid());
+                vehiculo.setConstanciaBlindaje(ruta);
+                response = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculoCreado);
+                response.setTipo(vehiculoDto.getTipo());
+                response.setMarca(vehiculoDto.getMarca());
+                response.setSubmarca(vehiculoDto.getSubmarca());
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo.", ex);
+                throw new InvalidDataException();
+            }
+        }
+        return response;
     }
 
     @Override
@@ -194,6 +259,20 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         vehiculo.setPlacas(vehiculoDto.getPlacas());
         vehiculo.setSerie(vehiculoDto.getSerie());
         vehiculo.setRotulado(vehiculoDto.isRotulado());
+        vehiculo.setAnio(vehiculoDto.getAnio());
+        vehiculo.setOrigen(vehiculoDto.getOrigen());
+        vehiculo.setRazonSocial(vehiculoDto.getRazonSocial());
+
+        if(StringUtils.isNotBlank(vehiculoDto.getFechaInicio())) {
+            vehiculo.setFechaInicio(LocalDate.parse(vehiculoDto.getFechaInicio()));
+        }
+        if(StringUtils.isNotBlank(vehiculoDto.getFechaFin())) {
+            vehiculo.setFechaFin(LocalDate.parse(vehiculoDto.getFechaFin()));
+        }
+        if(vehiculoDto.getPersonalAsignado() != null) {
+            vehiculo.setPersonalAsignado(vehiculoDto.getPersonalAsignado().getId());
+        }
+
         vehiculo.setBlindado(vehiculoDto.isBlindado());
         vehiculo.setSerieBlindaje(vehiculoDto.getSerieBlindaje());
         vehiculo.setNumeroHolograma(vehiculoDto.getNumeroHolograma());
@@ -209,6 +288,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         vehiculo.setSubmarca(vehiculoDto.getSubmarca().getId());
         vehiculo.setUso(vehiculoDto.getUso().getId());
         vehiculo.setTipo(vehiculoDto.getTipo().getId());
+        vehiculo.setDomicilio(vehiculoDto.getDomicilio().getId());
 
         daoHelper.fulfillAuditorFields(false, vehiculo, usuarioDto.getId());
 

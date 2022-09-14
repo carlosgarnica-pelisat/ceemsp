@@ -1,11 +1,13 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
+import com.google.gson.Gson;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -28,13 +30,14 @@ public class EmpresaController {
         return empresaService.obtenerTodas();
     }
 
-    @PostMapping(value = EMPRESAS_URI, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = EMPRESAS_URI, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public EmpresaDto guardarEmpresa(
-            @RequestBody EmpresaDto empresaDto,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
+            @RequestParam("empresa") String empresa,
             HttpServletRequest request
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return empresaService.crearEmpresa(empresaDto, username);
+        return empresaService.crearEmpresa(new Gson().fromJson(empresa, EmpresaDto.class), username, archivo);
     }
 
     @GetMapping(value = EMPRESAS_URI + "/{empresaUuid}")

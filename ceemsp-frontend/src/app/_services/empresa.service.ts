@@ -27,6 +27,9 @@ import EmpresaUniformeElemento from "../_models/EmpresaUniformeElemento";
 import EmpresaEquipo from "../_models/EmpresaEquipo";
 import Usuario from "../_models/Usuario";
 import Incidencia from "../_models/Incidencia";
+import {formatDate} from "@angular/common";
+import Acuerdo from "../_models/Acuerdo";
+import ClienteAsignacionPersonal from "../_models/ClienteAsignacionPersonal";
 
 @Injectable({
   providedIn: 'root'
@@ -41,8 +44,10 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas`)
   }
 
-  guardarEmpresa(empresa: Empresa) {
-    return this.http.post(`${this.uri}/empresas`, empresa);
+  guardarEmpresa(empresa: FormData) {
+    return this.http.post(`${this.uri}/empresas`, empresa, {
+        headers: {'X-isFile': 'true'}
+      });
   }
 
   obtenerPorUuid(uuid: string) {
@@ -55,6 +60,40 @@ export class EmpresaService {
 
   modificarEmpresa(uuid: string, empresa: Empresa) {
     return this.http.put(`${this.uri}/empresas/${uuid}`, empresa);
+  }
+
+  // Acuerdos
+  obtenerAcuerdos(empresaUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/acuerdos`)
+  }
+
+  obtenerAcuerdoPorUuid(empresaUuid: string, acuerdoUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/acuerdos/${acuerdoUuid}`)
+  }
+
+  descargarAcuerdo(empresaUuid: string, acuerdoUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/acuerdos/${acuerdoUuid}/archivo`, httpOptions);
+  }
+
+  guardarAcuerdo(empresaUuid: string, acuerdo: FormData) {
+    return this.http.post(`${this.uri}/empresas/${empresaUuid}/acuerdos`, acuerdo,  {
+      headers: {'X-isFile': 'true'}
+    })
+  }
+
+  modificarAcuerdo(empresaUuid: string, acuerdoUuid: string, acuerdo: FormData) {
+    return this.http.put(`${this.uri}/empresas/${empresaUuid}/acuerdos/${acuerdoUuid}`, acuerdo, {
+      headers: {'X-isFile': 'true'}
+    })
+  }
+
+  eliminarAcuerdo(empresaUuid: string, acuerdoUuid: string, acuerdo: FormData) {
+    return this.http.put(`${this.uri}/empresas/${empresaUuid}/acuerdos/${acuerdoUuid}/borrar`, acuerdo, {
+      headers: {'X-isFile': 'true'}
+    })
   }
 
   // Modalidades
@@ -86,6 +125,10 @@ export class EmpresaService {
   // Domicilios
   obtenerDomicilios(uuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/domicilios`);
+  }
+
+  obtenerDomiciliosEliminados(uuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/domicilios/eliminados`);
   }
 
   obtenerDomicilioPorUuid(uuid: string, domicilioUuid: string) {
@@ -122,8 +165,9 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/escrituras/${uuidEscritura}`);
   }
 
-  modificarEscritura(uuid: string, uuidEscritura: string, escritura: EmpresaEscritura) {
-    return this.http.put(`${this.uri}/empresas/${uuid}/escrituras/${uuidEscritura}`, escritura);
+  modificarEscritura(uuid: string, uuidEscritura: string, escritura: FormData) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/escrituras/${uuidEscritura}`, escritura,
+      {headers: {'X-isFile': 'true'}});
   }
 
   eliminarEscritura(uuid: string, uuidEscritura: string) {
@@ -142,6 +186,10 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/socios`);
   }
 
+  obtenerEscrituraSociosTodos(empresaUuid: string, escrituraUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/socios/todos`)
+  }
+
   guardarEscrituraSocio(empresaUuid: string, escrituraUuid: string, escrituraSocio: EmpresaEscrituraSocio) {
     return this.http.post(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/socios`, escrituraSocio);
   }
@@ -150,13 +198,17 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/socios/${socioUuid}`, escrituraSocio);
   }
 
-  eliminarEscrituraSocio(empresaUuid: string, escrituraUuid: string, socioUuid: string) {
-    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/socios/${socioUuid}`);
+  eliminarEscrituraSocio(empresaUuid: string, escrituraUuid: string, socioUuid: string, formData: FormData) {
+    return this.http.put(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/socios/${socioUuid}/borrar`, formData, {headers: {'X-isFile': 'true'}});
   }
 
   // Escrituras representantes
   obtenerEscrituraRepresentantes(empresaUuid: string, escrituraUuid: string) {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/representantes`);
+  }
+
+  obtenerEscrituraRepresentantesTodos(empresaUuid: string, escrituraUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/representantes/todos`);
   }
 
   guardarEscrituraRepresentante(empresaUuid: string, escrituraUuid: string, escrituraRepresentante: EmpresaEscrituraRepresentante) {
@@ -167,13 +219,17 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/representantes/${representanteUuid}`, escrituraRepresentante);
   }
 
-  eliminarEscrituraRepresentante(empresaUuid: string, escrituraUuid: string, representanteUuid: string) {
-    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/representantes/${representanteUuid}`);
+  eliminarEscrituraRepresentante(empresaUuid: string, escrituraUuid: string, representanteUuid: string, formData: FormData) {
+    return this.http.put(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/representantes/${representanteUuid}/borrar`, formData, {headers: {'X-isFile': 'true'}});
   }
 
   // Escrituras consejos
   obtenerEscrituraConsejos(empresaUuid: string, escrituraUuid: string) {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/consejos`);
+  }
+
+  obtenerEscrituraConsejosTodos(empresaUuid: string, escrituraUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/consejos/todos`);
   }
 
   guardarEscrituraConsejos(empresaUuid: string, escrituraUuid: string, escrituraConsejo: EmpresaEscrituraConsejo) {
@@ -184,13 +240,17 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/consejos/${consejoUuid}`, escrituraConsejo);
   }
 
-  eliminarEscrituraConsejo(empresaUuid: string, escrituraUuid: string, consejoUuid: string) {
-    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/consejos/${consejoUuid}`)
+  eliminarEscrituraConsejo(empresaUuid: string, escrituraUuid: string, consejoUuid: string, formData: FormData) {
+    return this.http.put(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/consejos/${consejoUuid}/borrar`, formData, {headers: {'X-isFile': 'true'}})
   }
 
   // Escrituras apoderados
   obtenerEscriturasApoderados(empresaUuid: string, escrituraUuid: string) {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/apoderados`);
+  }
+
+  obtenerEscriturasApoderadosTodos(empresaUuid: string, escrituraUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/apoderados/todos`);
   }
 
   guardarEscrituraApoderado(empresaUuid: string, escrituraUuid: string, escrituraApoderado: EmpresaEscrituraApoderado) {
@@ -201,8 +261,8 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/apoderados/${apoderadoUuid}`, escrituraApoderado );
   }
 
-  eliminarEscrituraApoderado(empresaUuid: string, escrituraUuid: string, apoderadoUuid: string) {
-    return this.http.delete(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/apoderados/${apoderadoUuid}`)
+  eliminarEscrituraApoderado(empresaUuid: string, escrituraUuid: string, apoderadoUuid: string, formData: FormData) {
+    return this.http.put(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/apoderados/${apoderadoUuid}/borrar`, formData, {headers: {'X-isFile': 'true'}})
   }
 
   // Licencias colectivas
@@ -231,10 +291,9 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}`, formData, {headers: {'X-isFile': 'true'}})
   }
 
-  eliminarLicenciaColectiva(uuid: string, licenciaColectivaUuid: string) {
-    return this.http.delete(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}`)
+  eliminarLicenciaColectiva(uuid: string, licenciaColectivaUuid: string, formData: FormData) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/borrar`, formData, {headers: {'X-isFile': 'true'}})
   }
-
 
   obtenerDomiciliosPorLicenciaColectiva(uuid: string, licenciaColectivaUuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/domicilios`);
@@ -253,12 +312,18 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/vehiculos`);
   }
 
+  obtenerVehiculosEliminados(uuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/vehiculos/eliminados`)
+  }
+
   obtenerVehiculoPorUuid(uuid: string, vehiculoUuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}`);
   }
 
-  guardarVehiculo(uuid: string, vehiculo: Vehiculo) {
-    return this.http.post(`${this.uri}/empresas/${uuid}/vehiculos`, vehiculo);
+  guardarVehiculo(uuid: string, vehiculo: FormData) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/vehiculos`, vehiculo, {
+      headers: {'X-isFile': 'true'}
+    });
   }
 
   modificarVehiculo(uuid: string, vehiculoUuid: string, vehiculo: Vehiculo) {
@@ -272,6 +337,10 @@ export class EmpresaService {
       })
   }
 
+  obtenerVehiculoColores(uuid: string, vehiculoUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}/colores`)
+  }
+
   guardarVehiculoColor(uuid: string, vehiculoUuid: string, color: VehiculoColor) {
     return this.http.post(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}/colores`, color);
   }
@@ -282,6 +351,10 @@ export class EmpresaService {
 
   eliminarVehiculoColor(uuid: string, vehiculoUuid: string, colorUuid: string) {
     return this.http.delete(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}/colores/${colorUuid}`);
+  }
+
+  listarVehiculoFotografias(empresaUuid: string, vehiculoUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/vehiculos/${vehiculoUuid}/fotografias`);
   }
 
   guardarVehiculoFotografia(empresaUuid: string, vehiculoUuid: string, formData: FormData) {
@@ -307,8 +380,19 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/clientes`);
   }
 
+  obtenerClientesEliminados(uuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/clientes/eliminados`);
+  }
+
   obtenerClientePorUuid(uuid: string, clienteUuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/clientes/${clienteUuid}`)
+  }
+
+  obtenerClienteContrato(uuid: string, clienteUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${uuid}/clientes/${clienteUuid}/pdf`, httpOptions);
   }
 
   guardarCliente(uuid: string, formData: FormData) {
@@ -321,11 +405,18 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}`, cliente);
   }
 
-  eliminarCliente(uuidEmpresa: string, uuidCliente: string) {
-    return this.http.delete(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}`);
+  eliminarCliente(uuidEmpresa: string, uuidCliente: string, formData: FormData) {
+    return this.http.put(
+      `${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/borrar`, formData,{
+        headers: {'X-isFile': 'true'}
+      })
   }
 
   // Clientes domicilios
+  obtenerClienteDomicilios(uuidEmpresa: string, uuidCliente: string) {
+    return this.http.get(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/domicilios`)
+  }
+
   guardarDomicilioCliente(uuidEmpresa: string, uuidCliente: string, clienteDomicilio: ClienteDomicilio[]) {
     return this.http.post(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/domicilios`, clienteDomicilio)
   }
@@ -338,9 +429,30 @@ export class EmpresaService {
     return this.http.delete(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/domicilios/${uuidDomicilio}`)
   }
 
+  // Asignacion clientes
+  obtenerAsignacionesCliente(uuidEmpresa: string, uuidCliente: string) {
+    return this.http.get(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/asignaciones`)
+  }
+
+  guardarAsignacionCliente(uuidEmpresa: string, uuidCliente: string, asignacionCliente: ClienteAsignacionPersonal) {
+    return this.http.post(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/asignaciones`, asignacionCliente)
+  }
+
+  modificarAsignacionCliente(uuidEmpresa: string, uuidCliente: string, uuidAsignacion: string, asignacionCliente: ClienteAsignacionPersonal) {
+    return this.http.put(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/asignaciones/${uuidAsignacion}`, asignacionCliente);
+  }
+
+  eliminarAsignacionCliente(uuidEmpresa: string, uuidCliente: string, uuidAsignacion: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/asignaciones/${uuidAsignacion}`);
+  }
+
   // Personal
   obtenerPersonal(uuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/personas`)
+  }
+
+  obtenerPersonalEliminado(uuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/personas/eliminados`)
   }
 
   obtenerPersonalPorUuid(uuid: string, personaUuid: string) {
@@ -391,6 +503,10 @@ export class EmpresaService {
   }
 
   // Personal fotografias
+  listarPersonaFotografias(empresaUuid: string, personaUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/fotografias`)
+  }
+
   guardarPersonaFotografia(empresaUuid: string, personaUuid: string, formData: FormData) {
     return this.http.post(
       `${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/fotografias`,
@@ -414,6 +530,10 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/canes`);
   }
 
+  obtenerCanesEliminados(uuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes/eliminados`)
+  }
+
   obtenerCanPorUuid(uuid: string, canUuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/canes/${canUuid}`);
   }
@@ -431,7 +551,10 @@ export class EmpresaService {
       `${this.uri}/empresas/${uuid}/canes/${canUuid}/borrar`, formData, {
         headers: {'X-isFile': 'true'}
       })
+  }
 
+  listarCanFotografias(uuid: string, canUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes/${canUuid}/fotografias`)
   }
 
   descargarCanFotografia(uuid: string, canUuid: string, canFotografiaUuid: string) {
@@ -452,6 +575,14 @@ export class EmpresaService {
   }
 
   // Canes adiestramiento
+  descargarCanAdiestramientos(uuid: string, canUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes/${canUuid}/adiestramientos`)
+  }
+
+  obtenerCanAdiestramientosTodos(uuid: string, canUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes/${canUuid}/adiestramientos/todos`)
+  }
+
   guardarCanAdiestramiento(uuid: string, canUuid: string, adiestramiento: CanAdiestramiento) {
     return this.http.post(`${this.uri}/empresas/${uuid}/canes/${canUuid}/adiestramientos`, adiestramiento);
   }
@@ -465,6 +596,14 @@ export class EmpresaService {
   }
 
   // Constancias de salud
+  descargarCanConstanciasSalud(uuid: string, canUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes/${canUuid}/constancias`)
+  }
+
+  obtenerCanConstanciasSaludTodos(uuid: string, canUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes/${canUuid}/constancias/todos`)
+  }
+
   guardarCanConstanciaSalud(uuid: string, canUuid: string, formData: FormData) {
     return this.http.post(
       `${this.uri}/empresas/${uuid}/canes/${canUuid}/constancias`,
@@ -490,6 +629,14 @@ export class EmpresaService {
   }
 
   // Cartillas vacunacion
+  obtenerCanCartillasVacunacion(uuid: string, canUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes/${canUuid}/cartillas`);
+  }
+
+  obtenerCanCartillasVacunacionTodos(uuid: string, canUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes/${canUuid}/cartillas/todos`)
+  }
+
   guardarCanCartillaVacunacion(uuid: string, canUuid: string, formData: FormData) {
     return this.http.post(
       `${this.uri}/empresas/${uuid}/canes/${canUuid}/cartillas`,
@@ -523,6 +670,10 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas`);
   }
 
+  obtenerArmasEliminadasPorLicenciaColectivaUuid(uuid: string, licenciaColectivaUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas/todas`)
+  }
+
   guardarArma(uuid: string, licenciaColectivaUuid: string, arma: Arma) {
     return this.http.post(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas`, arma);
   }
@@ -531,8 +682,17 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas/${armaUuid}`, arma)
   }
 
-  eliminarArma(uuid: string, licenciaColectivaUuid: string, armaUuid: string) {
-    return this.http.delete(`${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas/${armaUuid}`);
+  custodiaArma(uuid: string, licenciaColectivaUuid: string, armaUuid: string, formData: FormData) {
+    return this.http.put(
+      `${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas/${armaUuid}/custodia`,
+      formData, {headers: {'X-isFile': 'true'}})
+  }
+
+  eliminarArma(uuid: string, licenciaColectivaUuid: string, armaUuid: string, formData: FormData) {
+    return this.http.put(
+      `${this.uri}/empresas/${uuid}/licencias/${licenciaColectivaUuid}/armas/${armaUuid}/borrar`, formData, {
+        headers: {'X-isFile': 'true'}
+      })
   }
 
   // equipo
@@ -577,12 +737,23 @@ export class EmpresaService {
     return this.http.delete(`${this.uri}/empresas/${uuid}/uniformes/${uuidUniforme}`);
   }
 
-  guardarUniformeElemento(uuid: string, uniformeUuid: string, elementoUniforme: EmpresaUniformeElemento) {
-    return this.http.post(`${this.uri}/empresas/${uuid}/uniformes/${uniformeUuid}/elementos`, elementoUniforme);
+  descargarFotografiaUniformeElemento(uuid: string, uniformeUuid: string, elementoUniformeUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${uuid}/uniformes/${uniformeUuid}/elementos/${elementoUniformeUuid}/descargar`, httpOptions);
   }
 
-  modificarUniformeElemento(uuid: string, uniformeUuid: string, elementoUuid: string, elementoUniforme: EmpresaUniformeElemento) {
-    return this.http.put(`${this.uri}/empresas/${uuid}/uniformes/${uniformeUuid}/elementos/${elementoUuid}`, elementoUniforme)
+  guardarUniformeElemento(uuid: string, uniformeUuid: string, elementoUniforme: FormData) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/uniformes/${uniformeUuid}/elementos`, elementoUniforme, {
+      headers: {'X-isFile': 'true'}
+    });
+  }
+
+  modificarUniformeElemento(uuid: string, uniformeUuid: string, elementoUuid: string, elementoUniforme: FormData) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/uniformes/${uniformeUuid}/elementos/${elementoUuid}`, elementoUniforme, {
+      headers: {'X-isFile': 'true'}
+    })
   }
 
   eliminarUniformeElemento(uuid: string, uniformeUuid: string, elementoUuid: string) {
@@ -598,8 +769,9 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}`);
   }
 
-  guardarIncidencia(uuid: string, incidencia: Incidencia) {
-    return this.http.post(`${this.uri}/empresas/${uuid}/incidencias`, incidencia);
+  guardarIncidencia(uuid: string, incidencia: FormData) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/incidencias`, incidencia, {
+      headers: {'X-isFile': 'true'}});
   }
 
   autoasignarIncidencia(uuid: string, incidenciaUuid: string) {
@@ -612,6 +784,10 @@ export class EmpresaService {
 
   agregarComentario(uuid: string, incidenciaUuid: string, incidencia: Incidencia) {
     return this.http.post(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/comentarios`, incidencia);
+  }
+
+  obtenerPersonasIncidencia(uuid: string, incidenciaUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/personal`)
   }
 
   agregarPersonaIncidencia(uuid: string, incidenciaUuid: string, personal: Persona) {
@@ -650,8 +826,26 @@ export class EmpresaService {
     return this.http.delete(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/archivos/${incidenciaArchivoUuid}`)
   }
 
+  descargarArchivoIncidencia(uuid: string, incidenciaUuid: string, incidenciaArchivoUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/archivos/${incidenciaArchivoUuid}/descargar`, httpOptions)
+  }
+
+  agregarArchivoIncidencia(uuid: string, incidenciaUuid: string, formData: FormData) {
+    return this.http.post(
+      `${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/archivos`,
+      formData, {headers: {'X-isFile': 'true'}})
+  }
+
   // Usuario
   goardarUsuario(uuid: string, usuario: Usuario) {
     return this.http.post(`${this.uri}/empresas/${uuid}/usuarios`, usuario);
+  }
+
+  // Visitas
+  obtenerVisitas(uuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/visitas`);
   }
 }

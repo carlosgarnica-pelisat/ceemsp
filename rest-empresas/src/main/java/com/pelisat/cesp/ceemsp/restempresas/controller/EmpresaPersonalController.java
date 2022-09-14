@@ -25,15 +25,15 @@ public class EmpresaPersonalController {
 
     @GetMapping(value = PERSONALIDAD_URI, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<PersonaDto> obtenerNacionalidades(
-            @PathVariable(value = "empresaUuid") String empresaUuid
-    ) {
-        return personaService.obtenerTodos(empresaUuid);
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return personaService.obtenerTodos(username);
     }
 
     @GetMapping(value = PERSONALIDAD_URI + "/{personaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public PersonaDto obtenerPersonaPorUuid(
-            @PathVariable(value = "personaUuid") String personaUuid,
-            @PathVariable(value = "empresaUuid") String empresaUuid
+            @PathVariable(value = "personaUuid") String personaUuid
     ) {
         return personaService.obtenerPorUuid(personaUuid);
     }

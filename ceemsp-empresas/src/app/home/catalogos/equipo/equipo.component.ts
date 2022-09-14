@@ -105,7 +105,7 @@ export class EquipoComponent implements OnInit {
 
     let valid: Equipo = form.value;
 
-    this.equipoService.guardarEquipo(valid).subscribe((data: Equipo) => {
+    /*this.equipoService.guardarEquipo(valid).subscribe((data: Equipo) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha guardado el equipo con exito",
@@ -118,7 +118,7 @@ export class EquipoComponent implements OnInit {
         `No se ha podido guardar el equipo. Motivo: ${error}`,
         ToastType.ERROR
       )
-    })
+    })*/
   }
 
   private getDismissReason(reason: any): string {

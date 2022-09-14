@@ -138,5 +138,8 @@ public class Personal extends CommonModel {
 
     @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
     private String documentoFundatorioBaja;
+
+    @Column(name = "RFC")
+    private String rfc;
 }
 

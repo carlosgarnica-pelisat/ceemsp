@@ -37,6 +37,8 @@ public class CanDto {
     private ClienteDto clienteAsignado;
     private ClienteDomicilioDto clienteDomicilio;
     private String motivos;
+    private boolean eliminado;
+    private String fechaCreacion;
 
     private String motivoBaja;
     private String observacionesBaja;

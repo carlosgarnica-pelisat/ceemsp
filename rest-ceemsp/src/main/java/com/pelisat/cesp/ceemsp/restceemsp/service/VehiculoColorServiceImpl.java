@@ -56,7 +56,7 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
             throw new InvalidDataException();
         }
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
-        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+        Vehiculo vehiculo = vehiculoRepository.getByUuid(vehiculoUuid);
 
         if(vehiculo == null) {
             logger.warn("El vehiculo no existe en la base de datos");
@@ -79,7 +79,13 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
             throw new InvalidDataException();
         }
 
-        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+        Vehiculo vehiculo = vehiculoRepository.getByUuid(vehiculoUuid);
+
+        if(vehiculo == null) {
+            logger.warn("El vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
 
         VehiculoColor vehiculoColor = dtoToDaoConverter.convertDtoToDaoColor(vehiculoColorDto);

@@ -35,6 +35,13 @@ public class EmpresaCanController {
         return canService.obtenerCanesPorEmpresa(empresaUuid);
     }
 
+    @GetMapping(value = EMPRESA_CANES_URI + "/eliminados")
+    public List<CanDto> obtenerCanesEliminadosPorEmpresaUuid(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) {
+        return canService.obtenerCanesEliminadosPorEmpresa(empresaUuid);
+    }
+
     @GetMapping(value = EMPRESA_CANES_URI + "/{canUuid}")
     public CanDto obtenerCanPorUuid(
             @PathVariable(value = "empresaUuid") String empresaUuid,

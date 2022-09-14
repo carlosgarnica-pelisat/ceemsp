@@ -27,6 +27,9 @@ public class Usuario extends CommonModel {
     @Column(name = "APELLIDOS", nullable = false)
     private String apellidos;
 
+    @Column(name = "APELLIDO_MATERNO")
+    private String apellidoMaterno;
+
     @Column(name = "EMPRESA")
     private Integer empresa;
 

@@ -43,6 +43,14 @@ public class ArmaController {
         return armaService.obtenerArmasPorLicenciaColectivaUuid(empresaUuid, licenciaUuid);
     }
 
+    @GetMapping(value = EMPRESA_ARMAS_URI + "/todas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ArmaDto> obtenerTodasArmas(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "licenciaUuid") String licenciaUuid
+    ) {
+        return armaService.obtenerTodasArmasPorLicenciaColectivaUuid(empresaUuid, licenciaUuid);
+    }
+
     @PostMapping(value = EMPRESA_ARMAS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ArmaDto guardarArma(
             HttpServletRequest request,
@@ -66,15 +74,17 @@ public class ArmaController {
         return armaService.modificarArma(empresaUuid, licenciaUuid, armaUuid, username, armaDto);
     }
 
-    @DeleteMapping(value = EMPRESA_ARMAS_URI + "/{armaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_ARMAS_URI + "/{armaUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ArmaDto eliminarArma(
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "licenciaUuid") String licenciaUuid,
-            @PathVariable(value = "armaUuid") String armaUuid
+            @PathVariable(value = "armaUuid") String armaUuid,
+            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam("arma") String arma
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return armaService.eliminarArma(empresaUuid, licenciaUuid, armaUuid, username);
+        return armaService.eliminarArma(empresaUuid, licenciaUuid, armaUuid, username, new Gson().fromJson(arma, ArmaDto.class), archivo);
     }
 
     @PutMapping(value = EMPRESA_ARMAS_URI + "/{armaUuid}/custodia", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

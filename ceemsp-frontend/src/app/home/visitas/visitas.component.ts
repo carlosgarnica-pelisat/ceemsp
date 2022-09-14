@@ -19,6 +19,9 @@ import Calle from "../../_models/Calle";
 import Municipio from "../../_models/Municipio";
 import Colonia from "../../_models/Colonia";
 import Localidad from "../../_models/Localidad";
+import {BotonCatalogosComponent} from "../../_components/botones/boton-catalogos/boton-catalogos.component";
+import {PublicService} from "../../_services/public.service";
+import ProximaVisita from "../../_models/ProximaVisita";
 
 @Component({
   selector: 'app-visitas',
@@ -26,7 +29,7 @@ import Localidad from "../../_models/Localidad";
   styleUrls: ['./visitas.component.css']
 })
 export class VisitasComponent implements OnInit {
-
+  editandoModal: boolean = false;
   private gridApi;
   private gridColumnApi;
 
@@ -37,9 +40,17 @@ export class VisitasComponent implements OnInit {
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Tipo', field: 'tipoVisita', sortable: true, filter: true },
     {headerName: 'Num. Orden', field: 'numeroOrden', sortable: true, filter: true},
-    {headerName: 'Fecha de visita', field: 'fechaVisita', sortable: true, filter: true}
+    {headerName: 'Fecha de visita', field: 'fechaVisita', sortable: true, filter: true},
+    {headerName: 'Acciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
   ];
   rowData = [];
+
+  fechaDeHoy = new Date().toISOString().split('T')[0];
 
   uuid: string;
 
@@ -112,9 +123,13 @@ export class VisitasComponent implements OnInit {
               private modalService: NgbModal, private empresaService: EmpresaService,
               private formBuilder: FormBuilder, private estadoService: EstadosService,
               private validacionService: ValidacionService, private usuarioService: UsuariosService,
-              private visitaService: VisitaService, private calleService: CalleService) { }
+              private visitaService: VisitaService, private calleService: CalleService, private publicService: PublicService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      catalogoButtonRenderer: BotonCatalogosComponent
+    }
+
     this.crearVisitaForm = this.formBuilder.group({
       empresa: [''],
       responsable: ['', [Validators.required]],
@@ -127,7 +142,7 @@ export class VisitasComponent implements OnInit {
       razonSocial: ['', [Validators.required]],
       numeroExterior: [''],
       numeroInterior: [''],
-      codigoPostal: [''],
+      codigoPostal: ['', [ Validators.minLength(5), Validators.maxLength(5)]],
       domicilio4: ['']
     })
 
@@ -140,6 +155,26 @@ export class VisitasComponent implements OnInit {
       file: ['', Validators.required],
       descripcion: ['', Validators.required]
     })
+
+    this.estadoSearchForm = this.formBuilder.group({
+      nombre: ['']
+    });
+
+    this.municipioSearchForm = this.formBuilder.group({
+      nombre: ['']
+    });
+
+    this.localidadSearchForm = this.formBuilder.group({
+      nombre: ['']
+    });
+
+    this.coloniaSearchForm = this.formBuilder.group({
+      nombre: ['']
+    });
+
+    this.calleSearchForm = this.formBuilder.group({
+      nombre: ['']
+    });
 
     this.visitaService.obtenerVisitas().subscribe((data: Visita[]) => {
       this.rowData = data;
@@ -161,7 +196,7 @@ export class VisitasComponent implements OnInit {
       );
     })
 
-    this.usuarioService.obtenerUsuarios().subscribe((data: Usuario[]) => {
+    this.usuarioService.obtenerUsuariosInternos().subscribe((data: Usuario[]) => {
       this.usuarios = data;
     }, (error) => {
       this.toastService.showGenericToast(
@@ -189,6 +224,36 @@ export class VisitasComponent implements OnInit {
         `No se pudieron descargar las calles. Motivo: ${error}`,
         ToastType.ERROR
       )
+    })
+  }
+
+  verDetalles(rowData) {
+    this.checkForDetails(rowData.rowData);
+  }
+
+  editar(rowData) {
+    this.visitaService.obtenerVisitaPorUuid(rowData.rowData.uuid).subscribe((data: Visita) => {
+      this.visita = data;
+      this.mostrarModalModificar();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la visita. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  eliminar(rowData) {
+    this.visitaService.obtenerVisitaPorUuid(rowData.rowData.uuid).subscribe((data: Visita) => {
+      this.visita = data;
+      this.mostrarModalEliminarVisita();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la visita. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 
@@ -393,6 +458,13 @@ export class VisitasComponent implements OnInit {
       domicilio4: this.visita.domicilio4
     })
 
+    this.estado = this.visita?.estadoCatalogo;
+    this.municipio = this.visita?.municipioCatalogo;
+    this.calle = this.visita?.calleCatalogo;
+    this.localidad = this.visita?.localidadCatalogo;
+    this.colonia = this.visita?.coloniaCatalogo;
+
+
     this.modal = this.modalService.open(this.modificarVisitaModal, {size: "xl"})
 
     this.modal.result.then((result) => {
@@ -441,6 +513,18 @@ export class VisitasComponent implements OnInit {
   }
 
   mostrarModalNuevaVisita() {
+    this.publicService.obtenerSiguienteVisita().subscribe((data: ProximaVisita) => {
+      this.crearVisitaForm.patchValue({
+        numeroOrden: data?.numeroSiguiente
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el siguiente numero de visita. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
     this.modal = this.modalService.open(this.crearVisitaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'})
 
     this.modal.result.then((result) => {
@@ -601,6 +685,11 @@ export class VisitasComponent implements OnInit {
     formValue.empresa = this.empresa;
     formValue.responsable = this.usuario;
     formValue.numeroOrden = `CESP/EXT/${formValue.numeroOrden}/${this.anio}`
+    formValue.estadoCatalogo = this.estado;
+    formValue.municipioCatalogo = this.municipio;
+    formValue.localidadCatalogo = this.localidad;
+    formValue.coloniaCatalogo = this.colonia;
+    formValue.calleCatalogo = this.calle;
 
     this.visitaService.modificarVisita(this.visita.uuid, formValue).subscribe((data: Visita) => {
       this.toastService.showGenericToast(
@@ -687,6 +776,11 @@ export class VisitasComponent implements OnInit {
     formValue.empresa = this.empresa;
     formValue.responsable = this.usuario;
     formValue.numeroOrden = `CESP/EXT/${formValue.numeroOrden}/${this.anio}`
+    formValue.estadoCatalogo = this.estado;
+    formValue.municipioCatalogo = this.municipio;
+    formValue.localidadCatalogo = this.localidad;
+    formValue.coloniaCatalogo = this.colonia;
+    formValue.calleCatalogo = this.calle;
 
     this.visitaService.guardarVisita(formValue).subscribe((data: Visita) => {
       this.toastService.showGenericToast(

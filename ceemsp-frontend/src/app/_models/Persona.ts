@@ -37,6 +37,8 @@ export default class Persona implements Deserializable {
   codigoPostal: string;
   telefono: string;
   correoElectronico: string;
+  rfc: string;
+  eliminado: boolean;
 
   puestoDeTrabajo: PersonalPuestoTrabajo;
   subpuestoDeTrabajo: PersonalSubpuestoTrabajo;

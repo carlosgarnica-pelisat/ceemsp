@@ -41,6 +41,14 @@ public class CanCartillaVacunacionController {
         return canCartillaVacunacionService.obtenerCartillasVacunacionPorCanUuid(empresaUuid, canUuid);
     }
 
+    @GetMapping(value = CAN_CARTILLA_URI + "/todos", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<CanCartillaVacunacionDto> obtenerTodasCanesCartillasPorCanUuid(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "canUuid") String canUuid
+    ) {
+        return canCartillaVacunacionService.obtenerTodasCartillasVacunacionPorCanUuid(empresaUuid, canUuid);
+    }
+
     @GetMapping(value = CAN_CARTILLA_URI + "/{cartillaUuid}/pdf")
     public ResponseEntity<InputStreamResource> descargarEscrituraPdf(
             @PathVariable(value = "empresaUuid") String empresaUuid,

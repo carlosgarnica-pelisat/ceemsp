@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import Stepper from "bs-stepper";
 import Modalidad from "../../../_models/Modalidad";
@@ -32,6 +32,11 @@ import {EstadosService} from "../../../_services/estados.service";
 import {CalleService} from "../../../_services/calle.service";
 import {Router} from "@angular/router";
 import ExisteEscritura from "../../../_models/ExisteEscritura";
+import * as sha256 from "js-sha256";
+import ExisteUsuario from "../../../_models/ExisteUsuario";
+import Acuerdo from "../../../_models/Acuerdo";
+import {AgmGeocoder} from "@agm/core";
+import GeocoderResult = google.maps.GeocoderResult;
 
 @Component({
   selector: 'app-empresa-nueva',
@@ -40,13 +45,22 @@ import ExisteEscritura from "../../../_models/ExisteEscritura";
 })
 export class EmpresaNuevaComponent implements OnInit {
 
+  geocodeResult: GeocoderResult;
+  domicilioUbicado: boolean = false;
+
   fechaDeHoy = new Date().toISOString().split('T')[0];
+
+  tempFile;
+  pdfActual;
+
+  mostrarContrasena: boolean = false;
 
   empresaCreacionForm: FormGroup;
   empresaUsuarioForm: FormGroup;
   empresaModalidadForm: FormGroup;
   empresaDomiciliosForm: FormGroup;
   nuevaEscrituraForm: FormGroup;
+  nuevoAcuerdoForm: FormGroup;
 
   estados: Estado[] = [];
   municipios: Municipio[] = [];
@@ -86,6 +100,8 @@ export class EmpresaNuevaComponent implements OnInit {
   domiciliosGuardados: boolean = false;
   escriturasGuardadas: boolean = false;
   formasEjecucionGuardadas: boolean = false;
+  acuerdosGuardados: boolean = false;
+  modificandoEscritura: boolean = false;
 
   nuevoSocioForm: FormGroup;
   nuevoApoderadoForm: FormGroup;
@@ -98,12 +114,18 @@ export class EmpresaNuevaComponent implements OnInit {
   localidadSearchForm: FormGroup;
   calleSearchForm: FormGroup;
   coloniaSearchForm: FormGroup;
+  modalidadSearchForm: FormGroup;
 
-  tempFile;
+  motivosEliminacionSocioForm: FormGroup;
+  motivosEliminacionAopderadoForm: FormGroup;
+  motivosEliminacionRepresentanteForm: FormGroup;
+  motivosEliminacionConsejoForm: FormGroup;
+
   pestanaActual = 'SOCIOS';
 
   existeEmpresa: ExisteEmpresa;
   existeEscritura: ExisteEscritura;
+  existeUsuario: ExisteUsuario;
 
   closeResult: string;
   modal: NgbModalRef;
@@ -121,12 +143,14 @@ export class EmpresaNuevaComponent implements OnInit {
   localidadQuery: string = '';
   coloniaQuery: string = '';
   calleQuery: string = '';
+  modalidadQuery: string = '';
 
   rfcVerificationResponse = undefined;
   curpValida: boolean = false;
   obtenerCallesTimeout = undefined;
 
-  temporaryIndex: number;
+  temporaryIndex: number
+  temporaryElementoEscrituraUuid: string;
 
   stepName: string = "EMPRESA";
 
@@ -145,11 +169,17 @@ export class EmpresaNuevaComponent implements OnInit {
   representantes: EmpresaEscrituraRepresentante[] = [];
   consejos: EmpresaEscrituraConsejo[] = [];
 
+  escritura: EmpresaEscritura;
+
+  @ViewChild('visualizarEscrituraModal') visualizarEscrituraModal;
+  @ViewChild('visualizarMapaModal') visualizarMapaModal;
+
   constructor(private formBuilder: FormBuilder, private modalidadService: ModalidadesService,
               private toastService: ToastService, private empresaService: EmpresaService,
               private publicService: PublicService, private validacionService: ValidacionService,
               private modalService: NgbModal, private estadoService: EstadosService,
-              private calleService: CalleService, private router: Router) { }
+              private calleService: CalleService, private router: Router,
+              private geocodeService: AgmGeocoder) { }
 
   ngOnInit(): void {
     this.empresaCreacionForm = this.formBuilder.group({
@@ -162,19 +192,19 @@ export class EmpresaNuevaComponent implements OnInit {
       curp: ['', [Validators.minLength(18), Validators.maxLength(18)]],
       sexo: [''],
       correoElectronico: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
-      telefono: ['', [Validators.required]]
+      telefono: ['', [Validators.required]],
+      registroFederal: [''],
+      fechaInicio: [''],
+      fechaFin: ['']
     });
 
     this.empresaUsuarioForm = this.formBuilder.group({
-      usuario: ['', [Validators.required, Validators.maxLength(20)]],
+      username: ['', [Validators.required, Validators.maxLength(20)]],
       email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
-      password: ['', [Validators.minLength(8), Validators.maxLength(15)]],
-      nombres: ['', [Validators.required, Validators.maxLength(60)]],
-      apellidos: ['', [Validators.required, Validators.maxLength(60)]]
+      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(15)]]
     })
 
     this.empresaModalidadForm = this.formBuilder.group({
-      modalidad: ['', Validators.required],
       submodalidad: [''],
       numeroRegistroFederal: ['', Validators.maxLength(30)],
       fechaInicio: [''],
@@ -190,7 +220,7 @@ export class EmpresaNuevaComponent implements OnInit {
       pais: ['Mexico', [Validators.required, Validators.maxLength(100)]],
       matriz: ['', Validators.required], // TODO: Quitar el si/no y agregar tipo de domicilio como matriz / sucursal
       telefonoFijo: ['', [Validators.required]],
-      telefonoMovil: ['', [Validators.required]]
+      telefonoMovil: ['']
     });
 
     this.nuevaEscrituraForm = this.formBuilder.group({
@@ -200,11 +230,11 @@ export class EmpresaNuevaComponent implements OnInit {
       tipoFedatario: ['', Validators.required],
       numero: ['', [Validators.required, Validators.min(1), Validators.max(9999)]],
       nombreFedatario: ['', [Validators.required, Validators.maxLength(100)]],
-      apellidoPaterno: ['', [Validators.required, Validators.maxLength(60)]],
-      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
-      curp: ['', [Validators.required, Validators.minLength(18), Validators.maxLength(18)]],
+      apellidoPaterno: ['', [Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.maxLength(60)]],
+      curp: ['', [Validators.minLength(18), Validators.maxLength(18)]],
       descripcion: ['', Validators.required],
-      archivo: ['', Validators.required]
+      archivo: ['']
     });
 
     this.stepper = new Stepper(document.querySelector('#stepper1'), {
@@ -252,6 +282,41 @@ export class EmpresaNuevaComponent implements OnInit {
       formaEjecucion: ['', Validators.required]
     });
 
+    this.nuevoAcuerdoForm = this.formBuilder.group({
+      fecha: ['', Validators.required],
+      observaciones: ['']
+    });
+
+    this.motivosEliminacionSocioForm = this.formBuilder.group({
+      motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
+      observacionesBaja: [''],
+      fechaBaja: ['', Validators.required],
+      documentoFundatorioBaja: ['']
+    });
+
+    this.motivosEliminacionAopderadoForm = this.formBuilder.group({
+      motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
+      observacionesBaja: [''],
+      fechaBaja: ['', Validators.required],
+      documentoFundatorioBaja: ['']
+    });
+
+    this.motivosEliminacionRepresentanteForm = this.formBuilder.group({
+      motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
+      observacionesBaja: [''],
+      fechaBaja: ['', Validators.required],
+      documentoFundatorioBaja: ['']
+    });
+
+    this.motivosEliminacionConsejoForm = this.formBuilder.group({
+      motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
+      observacionesBaja: [''],
+      fechaBaja: ['', Validators.required],
+      documentoFundatorioBaja: ['']
+    });
+
+    this.empresaUsuarioForm.controls['username'].disable();
+
     this.estadoService.obtenerEstados().subscribe((data: Estado[]) => {
       this.estados = data;
     }, (error) => {
@@ -273,24 +338,268 @@ export class EmpresaNuevaComponent implements OnInit {
     })
   }
 
-  eliminarSocio(index) {
-    this.empresaEscritura.socios.splice(index, 1);
-    this.modal.close();
+  mostrarPdfActual() {
+    this.modal = this.modalService.open(this.visualizarEscrituraModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+
+    this.empresaService.descargarEscrituraPdf(this.empresa.uuid, this.escritura.uuid).subscribe((data: Blob) => {
+      this.convertirPdf(data);
+      // TODO: Manejar esta opcion para descargar
+      /*let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "licencia-colectiva-" + this.licencia.uuid;
+      link.click();*/
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el PDF. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
-  eliminarApoderado(index) {
-    this.empresaEscritura.apoderados.splice(index, 1);
-    this.modal.close()
+  convertirPdf(pdf: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.pdfActual = reader.result;
+    });
+
+    if(pdf) {
+      reader.readAsDataURL(pdf);
+    }
   }
 
-  eliminarRepresentante(index) {
-    this.empresaEscritura.representantes.splice(index, 1);
-    this.modal.close()
+  verificarRegistro(event) {
+    let existeEmpresa: ExisteEmpresa = new ExisteEmpresa();
+    existeEmpresa.registro = `CESP/${this.tipoTranite}/${event.value}/${this.year}`;
+
+    this.validacionService.validarEmpresa(existeEmpresa).subscribe((data: ExisteEmpresa) => {
+      this.existeEmpresa = data;
+      if(!this.existeEmpresa.existe) {
+        this.empresaUsuarioForm.patchValue({
+          username: existeEmpresa.registro
+        })
+      }
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido validar la empresa por el registro. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
-  eliminarConsejo(index) {
-    this.empresaEscritura.consejos.splice(index, 1);
-    this.modal.close()
+  autogenerarContrasena() {
+    this.empresaUsuarioForm.patchValue({
+      password: this.hacerFalsoUuid(12)
+    })
+  }
+
+  conmutarMostrarContrasena() {
+    this.mostrarContrasena = !this.mostrarContrasena;
+  }
+
+  quitarModalidad() {
+
+  }
+
+  eliminarSocio(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Alguno de los parametros requeridos no se ha rellenado aun`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el socio",
+      ToastType.INFO
+    );
+
+    let formValue: EmpresaEscrituraSocio = form.value;
+
+    let formData = new FormData();
+    formData.append('socio', JSON.stringify(formValue));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+    this.empresaService.eliminarEscrituraSocio(this.empresa.uuid, this.empresaEscritura.uuid, this.temporaryElementoEscrituraUuid, formData).subscribe((data: EmpresaEscrituraSocio) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha eliminado el socio con exito`,
+        ToastType.SUCCESS
+      );
+      this.modal.close();
+      this.empresaService.obtenerEscrituraSocios(this.empresa.uuid, this.empresaEscritura.uuid).subscribe((data: EmpresaEscrituraSocio[]) => {
+        this.empresaEscritura.socios = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los socios de la escritura. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar el socio. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
+
+  }
+
+  eliminarApoderado(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Alguno de los parametros requeridos no se ha rellenado aun`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el apoderado",
+      ToastType.INFO
+    );
+
+    let formValue: EmpresaEscrituraApoderado = form.value;
+
+    let formData = new FormData();
+    formData.append('apoderado', JSON.stringify(formValue));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+    this.empresaService.eliminarEscrituraApoderado(this.empresa.uuid, this.empresaEscritura.uuid, this.temporaryElementoEscrituraUuid, formData).subscribe((data: EmpresaEscrituraApoderado) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha eliminado el apoderado con exito`,
+        ToastType.SUCCESS
+      );
+      this.modal.close()
+      this.empresaService.obtenerEscriturasApoderados(this.empresa.uuid, this.empresaEscritura.uuid).subscribe((data: EmpresaEscrituraApoderado[]) => {
+        this.empresaEscritura.apoderados = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los apoderados de la escritura. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar el apoderado. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
+  }
+
+  eliminarRepresentante(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Alguno de los parametros requeridos no se ha rellenado aun`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el representante",
+      ToastType.INFO
+    );
+
+    let formValue: EmpresaEscrituraRepresentante = form.value;
+
+    let formData = new FormData();
+    formData.append('representante', JSON.stringify(formValue));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+    this.empresaService.eliminarEscrituraRepresentante(this.empresa.uuid, this.empresaEscritura.uuid, this.temporaryElementoEscrituraUuid, formData).subscribe((data: EmpresaEscrituraRepresentante) => {
+      this.modal.close()
+      this.empresaService.obtenerEscrituraRepresentantes(this.empresa.uuid, this.empresaEscritura.uuid).subscribe((data: EmpresaEscrituraRepresentante[]) => {
+        this.empresaEscritura.representantes = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los representantes de la escritura. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar el representante. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
+
+  }
+
+  eliminarConsejo(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Alguno de los parametros requeridos no se ha rellenado aun`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando el miembro del consejo",
+      ToastType.INFO
+    );
+
+    let formValue: EmpresaEscrituraConsejo = form.value;
+
+    let formData = new FormData();
+    formData.append('consejo', JSON.stringify(formValue));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+    this.empresaService.eliminarEscrituraConsejo(this.empresa.uuid, this.empresaEscritura.uuid, this.temporaryElementoEscrituraUuid, formData).subscribe((data: EmpresaEscrituraConsejo) => {
+      this.modal.close();
+      this.empresaService.obtenerEscrituraConsejos(this.empresa.uuid, this.empresaEscritura.uuid).subscribe((data: EmpresaEscrituraConsejo[]) => {
+        this.empresaEscritura.consejos = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los consejos de la escritura. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar el consejo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   mostrarFormularioNuevoSocio() {
@@ -464,7 +773,7 @@ export class EmpresaNuevaComponent implements OnInit {
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrió un problema",
-            `No se pudieron descargar los clientes. Motivo: ${error}`,
+            `No se pudieron descargar las calles. Motivo: ${error}`,
             ToastType.ERROR
           )
         })
@@ -474,7 +783,7 @@ export class EmpresaNuevaComponent implements OnInit {
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
-            `Los clientes no se pudieron obtener. Motivo: ${error}`,
+            `Las calles no se pudieron obtener. Motivo: ${error}`,
             ToastType.ERROR
           )
         });
@@ -550,10 +859,38 @@ export class EmpresaNuevaComponent implements OnInit {
       }
     }
 
-    this.empresaEscritura.socios.push(empresaSocio);
-    this.nuevoSocioForm.reset();
-    this.editandoSocio = false;
-    this.showSocioForm = false;
+    if(this.editandoSocio) {
+      this.empresaService.modificarEscrituraSocio(this.empresa.uuid, this.empresaEscritura.uuid, this.socio.uuid, empresaSocio).subscribe((data: EmpresaEscrituraSocio) => {
+        this.empresaEscritura.socios.push(data);
+        this.nuevoSocioForm.reset();
+        this.editandoSocio = false;
+        this.showSocioForm = false;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido guardar los cambios del socio. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    } else {
+      this.empresaService.guardarEscrituraSocio(this.empresa.uuid, this.empresaEscritura.uuid, empresaSocio).subscribe((data: EmpresaEscrituraSocio) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha guardado la escritura con exito`,
+          ToastType.SUCCESS
+        );
+        this.empresaEscritura.socios.push(data);
+        this.nuevoSocioForm.reset();
+        this.editandoSocio = false;
+        this.showSocioForm = false;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar el socio de la escritura. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      });
+    }
   }
 
   guardarApoderado(form) {
@@ -603,10 +940,37 @@ export class EmpresaNuevaComponent implements OnInit {
     let string = "";
     validateRfc(string);
 
-    this.empresaEscritura.apoderados.push(empresaApoderado);
-    this.nuevoApoderadoForm.reset();
-    this.editandoApoderado = false;
-    this.showApoderadoForm = false;
+    if(this.editandoApoderado) {
+      this.empresaService.modificarEscrituraApoderado(this.empresa.uuid, this.empresaEscritura.uuid, this.apoderado.uuid, empresaApoderado).subscribe((data: EmpresaEscrituraApoderado) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha modificado el apoderado con exito`,
+          ToastType.SUCCESS
+        );
+        this.empresaEscritura.apoderados.push(data);
+        this.nuevoApoderadoForm.reset();
+        this.editandoApoderado = false;
+        this.showApoderadoForm = false;
+      });
+    } else {
+      this.empresaService.guardarEscrituraApoderado(this.empresa.uuid, this.empresaEscritura.uuid, empresaApoderado).subscribe((data: EmpresaEscrituraApoderado) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha guardado el apoderado con exito`,
+          ToastType.SUCCESS
+        );
+        this.empresaEscritura.apoderados.push(data);
+        this.nuevoApoderadoForm.reset();
+        this.editandoApoderado = false;
+        this.showApoderadoForm = false;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar el apoderado de la escritura. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
   }
 
   guardarRepresentante(form) {
@@ -651,10 +1015,43 @@ export class EmpresaNuevaComponent implements OnInit {
       }
     }
 
-    this.empresaEscritura.representantes.push(empresaRepresentante);
-    this.nuevoRepresentanteForm.reset();
-    this.editandoRepresentante = false;
-    this.showRepresentanteForm = false;
+    if(this.editandoRepresentante) {
+      this.empresaService.modificarEscrituraRepresentante(this.empresa.uuid, this.empresaEscritura.uuid, this.representante.uuid, empresaRepresentante).subscribe((data: EmpresaEscrituraRepresentante) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha guardado el representante con exito`,
+          ToastType.SUCCESS
+        );
+        this.empresaEscritura.representantes.push(data);
+        this.nuevoRepresentanteForm.reset();
+        this.editandoRepresentante = false;
+        this.showRepresentanteForm = false;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido modificar el representante. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    } else {
+      this.empresaService.guardarEscrituraRepresentante(this.empresa.uuid, this.empresaEscritura.uuid, empresaRepresentante).subscribe((data: EmpresaEscrituraRepresentante) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha guardado el representante con exito`,
+          ToastType.SUCCESS
+        );
+        this.empresaEscritura.representantes.push(data);
+        this.nuevoRepresentanteForm.reset();
+        this.editandoRepresentante = false;
+        this.showRepresentanteForm = false;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar el representante. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
   }
 
   agregarFormaEjecucion(form) {
@@ -736,20 +1133,106 @@ export class EmpresaNuevaComponent implements OnInit {
       }
     }
 
-    this.empresaEscritura.consejos.push(empresaConsejo);
-    this.nuevoConsejoAdministracionForm.reset();
-    this.editandoConsejo = false;
-    this.showConsejoForm = false;
+    if(this.editandoConsejo) {
+      this.empresaService.modificarEscrituraConsejo(this.empresa.uuid, this.empresaEscritura.uuid, this.consejo.uuid, empresaConsejo).subscribe((data: EmpresaEscrituraConsejo) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha guardado el miembro del consejo con exito`,
+          ToastType.SUCCESS
+        );
+        this.empresaEscritura.consejos.push(data);
+        this.nuevoConsejoAdministracionForm.reset();
+        this.editandoConsejo = false;
+        this.showConsejoForm = false;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se pudo guardar el miembro del consejo. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    } else {
+      this.empresaService.guardarEscrituraConsejos(this.empresa.uuid, this.empresaEscritura.uuid, empresaConsejo).subscribe((data: EmpresaEscrituraConsejo) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha guardado el consejo con exito`,
+          ToastType.SUCCESS
+        );
+        this.empresaEscritura.consejos.push(data);
+        this.nuevoConsejoAdministracionForm.reset();
+        this.editandoConsejo = false;
+        this.showConsejoForm = false;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha guardado el consejo. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
   }
 
   eliminarEscritura(index) {
-    this.empresaEscrituras.splice(index, 1);
-    this.modal.close();
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      `Estamos eliminando la escritura`,
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarEscritura(this.empresa?.uuid, this.escritura.uuid).subscribe((data: EmpresaEscritura) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado la escritura con exito",
+        ToastType.SUCCESS
+      );
+      this.modal.close();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar la escritura`,
+        ToastType.ERROR
+      );
+    })
   }
 
   eliminarFormaEjecucion(index) {
     this.empresaFormasEjecucion.splice(index, 1);
     this.modal.close();
+  }
+
+  ubicarDomicilio(form) {
+    if(!form.valid || this.estado === undefined || this.municipio === undefined || this.localidad === undefined || this.colonia === undefined || this.calle === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Favor de proporcionar mas datos para hacer la busqueda mas precisa",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let domicilioEmpresa: EmpresaDomicilio = form.value;
+    domicilioEmpresa.estadoCatalogo = this.estado;
+    domicilioEmpresa.municipioCatalogo = this.municipio;
+    domicilioEmpresa.localidadCatalogo = this.localidad;
+    domicilioEmpresa.coloniaCatalogo = this.colonia;
+    domicilioEmpresa.calleCatalogo = this.calle;
+
+    let query = `${domicilioEmpresa?.calleCatalogo?.nombre} ${domicilioEmpresa?.numeroExterior} ${domicilioEmpresa?.numeroInterior} ${domicilioEmpresa?.coloniaCatalogo.nombre} ${domicilioEmpresa?.municipioCatalogo?.nombre} ${domicilioEmpresa?.estadoCatalogo?.nombre}`
+
+    this.geocodeService.geocode({
+      address: query
+    }).subscribe((data: GeocoderResult[]) => {
+      this.geocodeResult = data[0];
+      this.domicilioUbicado = true;
+      this.modal = this.modalService.open(this.visualizarMapaModal, {size: 'xl'})
+    }, (error) => {
+      this.domicilioUbicado = false;
+      this.toastService.showGenericToast(
+        `Ocurrio un problema`,
+        `Ocurrio un problema cuando el domicilio era ubicado en el mapa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   next(stepName: string, form) {
@@ -777,8 +1260,6 @@ export class EmpresaNuevaComponent implements OnInit {
             return;
           }
 
-          console.log(this.empresaUsuarioForm);
-
           if(!this.empresaUsuarioForm.valid) {
             this.toastService.showGenericToast(
               "Ocurrio un problema",
@@ -805,6 +1286,9 @@ export class EmpresaNuevaComponent implements OnInit {
           empresa.correoElectronico = formData.correoElectronico;
           empresa.telefono = formData.telefono;
           empresa.registro = `CESP/${this.tipoTranite}/${formData.registro}/${this.year}`;
+          empresa.fechaInicio = formData.fechaInicio;
+          empresa.fechaFin = formData.fechaFin;
+          empresa.registroFederal = formData.registroFederal;
           if(empresa.tipoPersona === 'MORAL') {
             empresa.sexo = 'NA';
             empresa.curp = undefined;
@@ -815,8 +1299,20 @@ export class EmpresaNuevaComponent implements OnInit {
 
           empresa.modalidades = this.empresaModalidades;
           empresa.usuario = this.empresaUsuarioForm.value;
+          empresa.usuario.password = sha256.sha256(empresa.usuario.password);
+          empresa.usuario.username = empresa.registro
 
-          this.empresaService.guardarEmpresa(empresa).subscribe((data: Empresa) => {
+          let formDataEmpresa = new FormData();
+
+          if(this.tempFile !== undefined) {
+            formDataEmpresa.append('archivo', this.tempFile, this.tempFile.name);
+          } else {
+            formDataEmpresa.append('archivo', null)
+          }
+
+          formDataEmpresa.append('empresa', JSON.stringify(empresa));
+
+          this.empresaService.guardarEmpresa(formDataEmpresa).subscribe((data: Empresa) => {
             this.empresa = data;
             this.empresaGuardada = true;
             this.desactivarCamposEmpresa();
@@ -879,7 +1375,6 @@ export class EmpresaNuevaComponent implements OnInit {
             this.domiciliosGuardados = true;
           }
         }
-
         break;
       case 'FORMAS_EJECUCION':
         if(this.escriturasGuardadas) {
@@ -894,44 +1389,13 @@ export class EmpresaNuevaComponent implements OnInit {
             return;
           }
 
-          this.toastService.showGenericToast(
-            "Espere un momento",
-            "Estamos guardando las escrituras",
-            ToastType.INFO
-          );
-
-          let todasLasEscriturasGuardadas: boolean = true;
-
-          this.empresaEscrituras.forEach(ee => {
-            let formData = new FormData();
-            formData.append('archivo', this.tempFile, this.tempFile.name);
-            formData.append('escritura', JSON.stringify(ee));
-
-            this.empresaService.guardarEscritura(this.empresa.uuid, formData).subscribe((data) => {
-              this.toastService.showGenericToast(
-                "Listo",
-                `Se ha guardado la escritura con exito`,
-                ToastType.SUCCESS
-              );
-            }, (error) => {
-              this.toastService.showGenericToast(
-                "Ocurrio un problema",
-                `No se ha podido guardar la escritura. Motivo: ${error}`,
-                ToastType.ERROR
-              );
-              todasLasEscriturasGuardadas = false;
-            });
-          })
-
-          if(todasLasEscriturasGuardadas) {
-            this.escriturasGuardadas = true;
-            this.desactivarCamposEscrituras();
-            this.stepper.next();
-          }
+          this.escriturasGuardadas = true;
+          this.desactivarCamposEscrituras();
+          this.stepper.next();
         }
 
         break;
-      case 'RESUMEN':
+      case 'ACUERDOS':
         if(this.formasEjecucionGuardadas) {
           this.stepper.next();
         } else {
@@ -977,6 +1441,48 @@ export class EmpresaNuevaComponent implements OnInit {
           }
         }
         break;
+      case 'RESUMEN':
+        if(this.acuerdosGuardados) {
+          this.stepper.next();
+        } else {
+          if(this.tempFile === undefined) {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `Favor de adjuntar el archivo del acuerdo`,
+              ToastType.WARNING
+            );
+            return;
+          }
+          this.toastService.showGenericToast(
+            "Espere un momento",
+            `Estamos guardando el acuerdo`,
+            ToastType.INFO
+          );
+
+          let formValue: Acuerdo = form.value;
+
+          let formData: FormData = new FormData();
+          formData.append('archivo', this.tempFile, this.tempFile.name);
+          formData.append('acuerdo', JSON.stringify(formValue));
+
+          this.empresaService.guardarAcuerdo(this.empresa?.uuid, formData).subscribe((data: Acuerdo) => {
+            this.toastService.showGenericToast(
+              "Listo",
+              `Se ha guardado el acuerdo con exito`,
+              ToastType.SUCCESS
+            );
+            this.desactivarCamposAcuerdo();
+            this.acuerdosGuardados = true;
+            this.stepper.next()
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se pudo guardar el acuerdo. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+          })
+        }
+        break;
       default:
         this.toastService.showGenericToast(
           "Ocurrio un problema",
@@ -990,26 +1496,73 @@ export class EmpresaNuevaComponent implements OnInit {
     this.stepper.previous()
   }
 
+  actualizarCorreoElectronico(event) {
+    this.empresaUsuarioForm.patchValue({
+      email: event.value
+    })
+  }
+
+  actualizarRegistroFederal(event) {
+    if(this.tipoTranite === 'EAFJAL') {
+      this.empresaModalidadForm.patchValue({
+        numeroRegistroFederal: event.value
+      })
+    } else {
+      this.empresaModalidadForm.patchValue({
+        numeroRegistroFederal: ''
+      })
+    }
+  }
+
+  actualizarFechaInicio(event) {
+    if(this.tipoTranite === 'EAFJAL') {
+      this.empresaModalidadForm.patchValue({
+        fechaInicio: event.value
+      })
+    } else {
+      this.empresaModalidadForm.patchValue({
+        fechaInicio: ''
+      })
+    }
+  }
+
+  actualizarFechaFin(event) {
+    if(this.tipoTranite === 'EAFJAL') {
+      this.empresaModalidadForm.patchValue({
+        fechaFin: event.value
+      })
+    } else {
+      this.empresaModalidadForm.patchValue({
+        fechaFin: ''
+      })
+    }
+  }
+
   editarEscritura(index) {
-    let escritura = this.empresaEscrituras[index];
+    this.escritura = this.empresaEscrituras[index];
+    this.modificandoEscritura = true;
     this.empresaEscrituras.splice(index, 1);
     this.nuevaEscrituraForm.patchValue({
-      numeroEscritura: escritura.numeroEscritura,
-      fechaEscritura: escritura.fechaEscritura,
-      ciudad: escritura.ciudad,
-      tipoFedatario: escritura.tipoFedatario,
-      numero: escritura.numero,
-      nombreFedatario: escritura.nombreFedatario,
-      apellidoPaterno: escritura.apellidoPaterno,
-      apellidoMaterno: escritura.apellidoMaterno,
-      curp: escritura.curp,
-      descripcion: escritura.descripcion
+      numeroEscritura: this.escritura.numeroEscritura,
+      fechaEscritura: this.escritura.fechaEscritura,
+      ciudad: this.escritura.ciudad,
+      tipoFedatario: this.escritura.tipoFedatario,
+      numero: this.escritura.numero,
+      nombreFedatario: this.escritura.nombreFedatario,
+      apellidoPaterno: this.escritura.apellidoPaterno,
+      apellidoMaterno: this.escritura.apellidoMaterno,
+      curp: this.escritura.curp,
+      descripcion: this.escritura.descripcion
     })
 
-    this.socios = escritura.socios;
-    this.apoderados = escritura.apoderados;
-    this.representantes = escritura.representantes;
-    this.consejos = escritura.consejos;
+    this.estado = this.escritura.estadoCatalogo;
+    this.municipio = this.escritura.municipioCatalogo;
+    this.localidad = this.escritura.localidadCatalogo;
+
+    this.socios = this.escritura.socios;
+    this.apoderados = this.escritura.apoderados;
+    this.representantes = this.escritura.representantes;
+    this.consejos = this.escritura.consejos;
   }
 
   editarDomicilio(index) {
@@ -1036,6 +1589,7 @@ export class EmpresaNuevaComponent implements OnInit {
 
   mostrarEditarSocioForm(index) {
     this.socio = this.empresaEscritura.socios[index];
+    console.log(this.socio);
     this.empresaEscritura.socios.splice(index, 1);
     this.mostrarFormularioNuevoSocio();
     this.editandoSocio = true;
@@ -1097,10 +1651,15 @@ export class EmpresaNuevaComponent implements OnInit {
   // Funciones para la primera pagina (informacion de la empresa)
   cambiarTipoTramite(event) {
     this.tipoTranite = event.value
+    this.modalidad = undefined;
     this.empresaModalidades = [];
     this.publicService.obtenerSiguienteNumero({tipo: this.tipoTranite}).subscribe((data: ProximoRegistro) => {
       this.empresaCreacionForm.patchValue({
         registro: data.numeroSiguiente
+      })
+
+      this.empresaUsuarioForm.patchValue({
+        username: `CESP/${this.tipoTranite}/${data.numeroSiguiente}/${this.year}`
       })
     }, (error) => {
       this.toastService.showGenericToast(
@@ -1125,9 +1684,9 @@ export class EmpresaNuevaComponent implements OnInit {
     this.tipoPersona = event.value;
   }
 
-  mostrarModalEliminar(modal, temporaryIndex) {
+  mostrarModalEliminar(modal, temporaryUuid) {
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
-    this.temporaryIndex = temporaryIndex;
+    this.temporaryElementoEscrituraUuid = temporaryUuid;
   }
 
   eliminarModalidad(index) {
@@ -1150,12 +1709,12 @@ export class EmpresaNuevaComponent implements OnInit {
       return;
     }
 
-    let formData: EmpresaEscritura = form.value;
-    formData.estadoCatalogo = this.estado;
-    formData.municipioCatalogo = this.municipio;
-    formData.localidadCatalogo = this.localidad;
+    let formValue: EmpresaEscritura = form.value;
+    formValue.estadoCatalogo = this.estado;
+    formValue.municipioCatalogo = this.municipio;
+    formValue.localidadCatalogo = this.localidad;
 
-    let existeEscritura = this.empresaEscrituras.filter(x => x.numeroEscritura === formData.numeroEscritura)
+    let existeEscritura = this.empresaEscrituras.filter(x => x.numeroEscritura === formValue.numeroEscritura)
     if(existeEscritura.length > 0) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -1165,16 +1724,70 @@ export class EmpresaNuevaComponent implements OnInit {
       return;
     }
 
-    formData.socios = [];
-    formData.apoderados = [];
-    formData.representantes = [];
-    formData.consejos = [];
-    formData.uuid = this.hacerFalsoUuid(12);
-    this.empresaEscrituras.push(formData);
-    this.estado = undefined;
-    this.municipio = undefined;
-    form.reset();
+    formValue.socios = [];
+    formValue.apoderados = [];
+    formValue.representantes = [];
+    formValue.consejos = [];
+
+    let formData = new FormData();
+    formData.append('archivo', this.tempFile, this.tempFile.name);
+    formData.append('escritura', JSON.stringify(formValue));
+
+    if(this.modificandoEscritura) {
+      this.toastService.showGenericToast(
+        "Espere un momento",
+        "Estamos guardando los cambios en la escritura",
+        ToastType.INFO
+      );
+      this.empresaService.modificarEscritura(this.empresa.uuid, this.escritura.uuid, formData).subscribe((data: EmpresaEscritura) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha modificado la escritura con exito`,
+          ToastType.SUCCESS
+        );
+        this.empresaEscrituras.push(data);
+        this.estado = undefined;
+        this.municipio = undefined;
+        this.localidad = undefined;
+        this.escritura = undefined;
+        form.reset();
+        this.modificandoEscritura = false;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la escritura. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    } else {
+      this.toastService.showGenericToast(
+        "Espere un momento",
+        "Estamos guardando la escritura",
+        ToastType.INFO
+      );
+      this.empresaService.guardarEscritura(this.empresa.uuid, formData).subscribe((data: EmpresaEscritura) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha guardado la escritura con exito`,
+          ToastType.SUCCESS
+        );
+        this.empresaEscrituras.push(data);
+        this.estado = undefined;
+        this.municipio = undefined;
+        this.localidad = undefined;
+        this.escritura = undefined;
+        form.reset();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la escritura. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
   }
+
+
 
   agregarDomicilio(form) {
     if(!form.valid) {
@@ -1205,6 +1818,11 @@ export class EmpresaNuevaComponent implements OnInit {
     if(formData.telefonoFijo.length > 14) {
       let tempString = formData.telefonoFijo;
       formData.telefonoFijo = tempString.slice(0, -1);
+    }
+
+    if(this.geocodeResult !== undefined) {
+      formData.latitud = this.geocodeResult.geometry.location.lat().toString()
+      formData.longitud = this.geocodeResult.geometry.location.lng().toString()
     }
 
     formData.estadoCatalogo = this.estado;
@@ -1238,13 +1856,36 @@ export class EmpresaNuevaComponent implements OnInit {
 
   mostrarModalDetallesEscritura(modal, uuid) {
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', scrollable: true});
-    this.empresaEscritura = this.empresaEscrituras.filter(x => x.uuid === uuid)[0];
+    this.empresaService.obtenerEscrituraPorUuid(this.empresa.uuid, uuid).subscribe((data: EmpresaEscritura) => {
+      this.empresaEscritura = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se puede descargar la escritura. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     });
+  }
+
+  consultarEmail(event) {
+    let existeUsuario: ExisteUsuario = new ExisteUsuario();
+    existeUsuario.email = event.value;
+
+    this.validacionService.validarUsuario(existeUsuario).subscribe((existeUsuario: ExisteUsuario) => {
+      this.existeUsuario = existeUsuario;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido consultar la existencia de la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   consultarEmpresaCurp(event) {
@@ -1366,10 +2007,10 @@ export class EmpresaNuevaComponent implements OnInit {
   }
 
   seleccionarModalidad(event) {
-    let existeModalidad = this.empresaModalidades.filter(m => m.modalidad.uuid === event.value)[0];
+    let existeModalidad = this.empresaModalidades.filter(m => m.modalidad.uuid === event)[0];
 
     if(existeModalidad !== undefined) {
-      let modalidad = this.modalidades.filter(m => m.uuid === event.value)[0];
+      let modalidad = this.modalidades.filter(m => m.uuid === event)[0];
       if(modalidad.submodalidades.length < 1) {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
@@ -1381,7 +2022,7 @@ export class EmpresaNuevaComponent implements OnInit {
       }
     }
 
-    this.modalidad = this.modalidades.filter(m => m.uuid === event.value)[0];
+    this.modalidad = this.modalidades.filter(m => m.uuid === event)[0];
     if(this.modalidad.submodalidades.length > 0) {
       this.modalidad.tieneSubmodalidades = true;
     } else {
@@ -1430,14 +2071,10 @@ export class EmpresaNuevaComponent implements OnInit {
     this.empresaCreacionForm.controls['correoElectronico'].disable();
     this.empresaCreacionForm.controls['telefono'].disable();
 
-    this.empresaUsuarioForm.controls['usuario'].disable();
-    this.empresaUsuarioForm.controls['nombres'].disable();
-    this.empresaUsuarioForm.controls['apellidos'].disable();
+    this.empresaUsuarioForm.controls['username'].disable();
     this.empresaUsuarioForm.controls['password'].disable();
     this.empresaUsuarioForm.controls['email'].disable();
 
-
-    this.empresaModalidadForm.controls['modalidad'].disable();
     this.empresaModalidadForm.controls['submodalidad'].disable();
     this.empresaModalidadForm.controls['fechaInicio'].disable();
     this.empresaModalidadForm.controls['fechaFin'].disable();
@@ -1456,6 +2093,10 @@ export class EmpresaNuevaComponent implements OnInit {
     this.empresaDomiciliosForm.controls['telefonoMovil'].disable();
   }
 
+  private desactivarCamposAcuerdo() {
+    this.nuevoAcuerdoForm.controls['']
+  }
+
   private desactivarCamposEscrituras() {
     this.nuevaEscrituraForm.controls['numeroEscritura'].disable();
     this.nuevaEscrituraForm.controls['fechaEscritura'].disable();
@@ -1463,6 +2104,9 @@ export class EmpresaNuevaComponent implements OnInit {
     this.nuevaEscrituraForm.controls['tipoFedatario'].disable();
     this.nuevaEscrituraForm.controls['numero'].disable();
     this.nuevaEscrituraForm.controls['nombreFedatario'].disable();
+    this.nuevaEscrituraForm.controls['apellidoPaterno'].disable();
+    this.nuevaEscrituraForm.controls['apellidoMaterno'].disable();
+    this.nuevaEscrituraForm.controls['curp'].disable();
     this.nuevaEscrituraForm.controls['descripcion'].disable();
     this.nuevaEscrituraForm.controls['archivo'].disable();
   }

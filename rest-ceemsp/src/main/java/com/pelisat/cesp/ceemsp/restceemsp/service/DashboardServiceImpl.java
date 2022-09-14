@@ -1,6 +1,7 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.DashboardDto;
+import com.pelisat.cesp.ceemsp.database.dto.VisitaDto;
 import com.pelisat.cesp.ceemsp.database.model.Visita;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
 import com.pelisat.cesp.ceemsp.database.repository.IncidenciaRepository;
@@ -58,7 +59,11 @@ public class DashboardServiceImpl implements DashboardService {
         dashboardDto.setIncidenciasAbiertas(incidenciaRepository.countAllByStatusAndEliminadoFalse(IncidenciaStatusEnum.ABIERTA));
 
         List<Visita> visitas = visitaRepository.getAllByFechaVisitaGreaterThanEqualAndEliminadoFalse(LocalDate.now());
-        dashboardDto.setProximasVisitas(visitas.stream().map(daoToDtoConverter::convertDaoToDtoVisita).collect(Collectors.toList()));
+        dashboardDto.setProximasVisitas(visitas.stream().map(v -> {
+            VisitaDto visita = daoToDtoConverter.convertDaoToDtoVisita(v);
+            visita.setResponsable(usuarioService.getUserById(v.getResponsable()));
+            return visita;
+        }).collect(Collectors.toList()));
 
         return dashboardDto;
     }

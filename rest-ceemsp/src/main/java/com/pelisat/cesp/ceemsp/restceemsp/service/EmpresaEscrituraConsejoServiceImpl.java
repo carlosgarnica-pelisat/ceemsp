@@ -6,8 +6,10 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraConsejoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -16,7 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,12 +36,14 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
     private final EmpresaEscrituraConsejoRepository empresaEscrituraConsejoRepository;
     private final EmpresaService empresaService;
     private final EmpresaEscrituraRepository empresaEscrituraRepository;
+    private final ArchivosService archivosService;
 
     @Autowired
     public EmpresaEscrituraConsejoServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                                               DaoHelper<CommonModel> daoHelper, UsuarioService usuarioService,
                                               EmpresaEscrituraConsejoRepository empresaEscrituraConsejoRepository,
-                                              EmpresaService empresaService, EmpresaEscrituraRepository empresaEscrituraRepository) {
+                                              EmpresaService empresaService, EmpresaEscrituraRepository empresaEscrituraRepository,
+                                              ArchivosService archivosService) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
@@ -45,6 +51,7 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
         this.empresaEscrituraConsejoRepository = empresaEscrituraConsejoRepository;
         this.empresaService = empresaService;
         this.empresaEscrituraRepository = empresaEscrituraRepository;
+        this.archivosService = archivosService;
     }
 
     @Override
@@ -63,6 +70,28 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
         }
 
         List<EmpresaEscrituraConsejo> empresaEscrituraConsejos = empresaEscrituraConsejoRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
+
+        return empresaEscrituraConsejos.stream()
+                .map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraConsejo)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EmpresaEscrituraConsejoDto> obtenerTodosConsejosPorEscritura(String empresaUuid, String escrituraUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid)) {
+            logger.warn("El uuid de la empresa o de la escritura vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        EmpresaEscritura empresaEscritura = empresaEscrituraRepository.findByUuidAndEliminadoFalse(escrituraUuid);
+
+        if(empresaEscritura == null) {
+            logger.warn("No se encontro la escritura en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<EmpresaEscrituraConsejo> empresaEscrituraConsejos = empresaEscrituraConsejoRepository.findAllByEscritura(empresaEscritura.getId());
 
         return empresaEscrituraConsejos.stream()
                 .map(daoToDtoConverter::convertDaoToDtoEmpresaEscrituraConsejo)
@@ -128,8 +157,9 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
         return empresaEscrituraConsejoDto;
     }
 
+    @Transactional
     @Override
-    public EmpresaEscrituraConsejoDto eliminarConsejo(String empresaUuid, String escrituraUuid, String consejoUuid, String username) {
+    public EmpresaEscrituraConsejoDto eliminarConsejo(String empresaUuid, String escrituraUuid, String consejoUuid, String username, EmpresaEscrituraConsejoDto empresaEscrituraConsejoDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(consejoUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");
             throw new InvalidDataException();
@@ -145,8 +175,24 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
             throw new NotFoundResourceException();
         }
 
+        empresaEscrituraConsejo.setObservacionesBaja(empresaEscrituraConsejoDto.getObservacionesBaja());
+        empresaEscrituraConsejo.setFechaBaja(LocalDate.parse(empresaEscrituraConsejoDto.getFechaBaja()));
+        empresaEscrituraConsejo.setMotivoBaja(empresaEscrituraConsejoDto.getMotivoBaja());
         empresaEscrituraConsejo.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, empresaEscrituraConsejo, usuario.getId());
+
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Agregando");
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_BAJA_CONSEJO, empresaUuid);
+                empresaEscrituraConsejo.setDocumentoFundatorioBaja(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+
         empresaEscrituraConsejoRepository.save(empresaEscrituraConsejo);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraConsejo(empresaEscrituraConsejo);

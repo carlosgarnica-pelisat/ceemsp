@@ -10,6 +10,12 @@ export default class EmpresaEscrituraApoderado implements Deserializable {
   fechaInicio: string;
   fechaFin: string;
   curp: string;
+  eliminado: boolean;
+
+  motivoBaja: string;
+  observacionesBaja: string;
+  documentoFundatorioBaja: string;
+  fechaBaja: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);

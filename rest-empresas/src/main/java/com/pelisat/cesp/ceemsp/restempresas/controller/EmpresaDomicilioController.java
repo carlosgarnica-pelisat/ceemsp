@@ -1,11 +1,13 @@
 package com.pelisat.cesp.ceemsp.restempresas.controller;
 
+import com.google.gson.Gson;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDomicilioDto;
 import com.pelisat.cesp.ceemsp.restempresas.service.EmpresaDomicilioService;
 import com.pelisat.cesp.ceemsp.restempresas.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -65,9 +67,11 @@ public class EmpresaDomicilioController {
     @DeleteMapping(value = EMPRESA_DOMICILIOS_URI + "/{domicilioUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public EmpresaDomicilioDto eliminarEmpresaDomicilio(
             @PathVariable(value = "domicilioUuid") String domicilioUuid,
-            HttpServletRequest request
+            HttpServletRequest request,
+            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam("domicilio") String domicilio
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return empresaDomicilioService.eliminarEmpresaDomicilio(domicilioUuid, username);
+        return empresaDomicilioService.eliminarEmpresaDomicilio(domicilioUuid, username, new Gson().fromJson(domicilio, EmpresaDomicilioDto.class), archivo);
     }
 }

@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface EmpresaEscrituraSocioRepository extends JpaRepository<EmpresaEscrituraSocio, Integer> {
     List<EmpresaEscrituraSocio> findAllByEscrituraAndEliminadoFalse(int escritura);
+    List<EmpresaEscrituraSocio> findAllByEscritura(int escritura);
     EmpresaEscrituraSocio findByUuidAndEliminadoFalse(String uuid);
 }

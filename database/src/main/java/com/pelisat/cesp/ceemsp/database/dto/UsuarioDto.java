@@ -14,6 +14,7 @@ public class UsuarioDto {
     private String password;
     private String nombres;
     private String apellidos;
+    private String apellidoMaterno;
     private EmpresaDto empresa;
     private RolTypeEnum rol;
 }

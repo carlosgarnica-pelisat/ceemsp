@@ -56,7 +56,7 @@ public class CanAdiestramientoServiceImpl implements CanAdiestramientoService {
             throw new InvalidDataException();
         }
 
-        Can can = canRepository.getByUuidAndEliminadoFalse(canUuid);
+        Can can = canRepository.getByUuid(canUuid);
 
         if(can == null) {
             logger.warn("El can viene como nulo o vacio");
@@ -64,6 +64,29 @@ public class CanAdiestramientoServiceImpl implements CanAdiestramientoService {
         }
 
         List<CanAdiestramiento> canAdiestramientos = canAdiestramientoRepository.findAllByCanAndEliminadoFalse(can.getId());
+
+        return canAdiestramientos.stream().map(ca -> {
+            CanAdiestramientoDto canAdiestramientoDto = daoToDtoConverter.convertDaoToDtoCanAdiestramiento(ca);
+            canAdiestramientoDto.setCanTipoAdiestramiento(canTipoAdiestramientoService.obtenerPorId(ca.getTipoAdiestramiento()));
+            return canAdiestramientoDto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CanAdiestramientoDto> obtenerTodosAdiestramientosPorCanUuid(String empresaUuid, String canUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid)) {
+            logger.warn("El uuid de la empresa o del can vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        Can can = canRepository.getByUuid(canUuid);
+
+        if(can == null) {
+            logger.warn("El can viene como nulo o vacio");
+            throw new NotFoundResourceException();
+        }
+
+        List<CanAdiestramiento> canAdiestramientos = canAdiestramientoRepository.findAllByCan(can.getId());
 
         return canAdiestramientos.stream().map(ca -> {
             CanAdiestramientoDto canAdiestramientoDto = daoToDtoConverter.convertDaoToDtoCanAdiestramiento(ca);

@@ -22,6 +22,11 @@ export class VehiculosService {
     return this.http.get(`${this.uri}/catalogos/vehiculos/marcas`)
   }
 
+  obtenerVehiculosTiposMarca(tipo: string) {
+    return this.http.get(`${this.uri}/catalogos/vehiculos/marcas/tipos/${tipo}`)
+  }
+
+
   obtenerVehiculoMarcaPorUuid(uuid: string) {
     return this.http.get(`${this.uri}/catalogos/vehiculos/marcas/${uuid}`)
   }

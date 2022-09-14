@@ -56,11 +56,6 @@ public class EmpresaFormaEjecucionServiceImpl implements EmpresaFormaEjecucionSe
 
         List<EmpresaFormaEjecucion> empresaFormasEjecucion = empresaFormaEjecucionRepository.getAllByEmpresaAndEliminadoFalse(empresaDto.getId());
 
-        if(empresaFormasEjecucion == null || empresaFormasEjecucion.size() == 0) {
-            logger.warn("La empresa no tiene formas de ejecucion en la base de datos");
-            throw new NotFoundResourceException();
-        }
-
         return empresaFormasEjecucion.stream()
                 .map(daoToDtoConverter::convertDaoToDtoEmpresaFormaEjecucion)
                 .collect(Collectors.toList());

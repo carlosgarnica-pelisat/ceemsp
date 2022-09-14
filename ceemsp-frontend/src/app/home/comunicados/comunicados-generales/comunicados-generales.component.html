@@ -54,7 +54,7 @@
             </tr>
             <tr>
               <td><b>Comunicado</b></td>
-              <td [innerHTML]="comunicadoGeneral?.descripcion"></td>
+              <td [innerHTML]="comunicadoGeneral?.descripcion | sanitizeHtml"></td>
             </tr>
           </table>
         </div>

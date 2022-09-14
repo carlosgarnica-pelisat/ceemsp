@@ -24,6 +24,8 @@ public class EmpresaEscrituraDto {
     private EstadoDto estadoCatalogo;
     private MunicipioDto municipioCatalogo;
     private LocalidadDto localidadCatalogo;
+    private String nombreArchivo;
+    private String fechaCreacion;
 
     private List<EmpresaEscrituraSocioDto> socios;
     private List<EmpresaEscrituraApoderadoDto> apoderados;

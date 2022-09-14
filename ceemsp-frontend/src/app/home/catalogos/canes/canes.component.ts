@@ -5,6 +5,7 @@ import {CanesService} from "../../../_services/canes.service";
 import {ToastService} from "../../../_services/toast.service";
 import CanRaza from "../../../_models/CanRaza";
 import {ToastType} from "../../../_enums/ToastType";
+import {BotonCatalogosComponent} from "../../../_components/botones/boton-catalogos/boton-catalogos.component";
 
 @Component({
   selector: 'app-canes',
@@ -12,14 +13,20 @@ import {ToastType} from "../../../_enums/ToastType";
   styleUrls: ['./canes.component.css']
 })
 export class CanesComponent implements OnInit {
-
+  editandoModal: boolean = false;
   private gridApi;
   private gridColumnApi;
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+    {headerName: 'Acciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
   ];
   rowData = [];
 
@@ -43,6 +50,10 @@ export class CanesComponent implements OnInit {
               private canesService: CanesService, private toastService: ToastService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      catalogoButtonRenderer: BotonCatalogosComponent
+    }
+
     this.canesService.getAllRazas().subscribe((response: CanRaza[]) => {
       this.rowData = response;
     }, (error => {
@@ -57,6 +68,32 @@ export class CanesComponent implements OnInit {
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
       descripcion: ['', [Validators.maxLength(100)]]
     })
+  }
+
+  verDetalles(rowData) {
+    this.checkForDetails(rowData.rowData);
+  }
+
+  editar(rowData) {
+    this.canRaza = rowData.rowData;
+    this.editandoModal = false;
+    this.crearCanRazaForm.patchValue({
+      nombre: this.canRaza.nombre,
+      descripcion: this.canRaza.descripcion
+    });
+
+    this.modal = this.modalService.open(this.editarCanRazaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  eliminar(rowData) {
+    this.canRaza = rowData.rowData;
+    this.mostrarEliminarCanRazaModal();
   }
 
   onGridReady(params) {
@@ -129,6 +166,11 @@ export class CanesComponent implements OnInit {
     })
   }
 
+  cerrarModalEditar() {
+    this.crearCanRazaForm.reset();
+    this.modal.close();
+  }
+
   guardarCambios(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
@@ -147,8 +189,13 @@ export class CanesComponent implements OnInit {
         "Se ha modificado con exito la raza",
         ToastType.SUCCESS
       )
+      if(this.editandoModal) {
+        this.canRaza = data;
+        this.modal.close();
+      } else {
+        window.location.reload();
+      }
 
-      window.location.reload();
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -159,12 +206,13 @@ export class CanesComponent implements OnInit {
   }
 
   mostrarModificarCanRazaModal() {
+    this.editandoModal = true;
     this.crearCanRazaForm.patchValue({
       nombre: this.canRaza.nombre,
       descripcion: this.canRaza.descripcion
     });
 
-    this.modalService.open(this.editarCanRazaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+    this.modal = this.modalService.open(this.editarCanRazaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;

@@ -96,7 +96,7 @@
               <td>{{vehiculo?.placas}}</td>
             </tr>
             <tr>
-              <td><b>Numero de serie</b></td>
+              <td><b>Número de serie</b></td>
               <td>{{vehiculo?.serie}}</td>
             </tr>
             <tr>
@@ -123,13 +123,30 @@
           <table class="table">
             <tr>
               <td><b>Color</b></td>
-              <td><b>Descripcion</b></td>
+              <td><b>Descripción</b></td>
               <td><b>Acciones</b></td>
             </tr>
-            <tr *ngFor="let c of vehiculo?.colores">
-              <td>{{c?.color}}</td>
+            <tr *ngFor="let c of vehiculo?.colores; let i = index">
+              <td [ngSwitch]="c?.color">
+                <span *ngSwitchCase="'ROJO'">Rojo</span>
+                <span *ngSwitchCase="'VERDE_CLARO'">Verde claro</span>
+                <span *ngSwitchCase="'VERDE_OSCURO'">Verde oscuro</span>
+                <span *ngSwitchCase="'AZUL_CIELO'">Azul cielo</span>
+                <span *ngSwitchCase="'AZUL_MARINO'">Azul marino</span>
+                <span *ngSwitchCase="'NARANJA'">Naranja</span>
+                <span *ngSwitchCase="'AMARILLO'">Amarillo</span>
+                <span *ngSwitchCase="'BLANCO'">Blanco</span>
+                <span *ngSwitchCase="'NEGRO'">Negro</span>
+                <span *ngSwitchCase="'GRIS_CLARO'">Gris claro</span>
+                <span *ngSwitchCase="'GRIS_OSCURO'">Gris oscuro</span>
+                <span *ngSwitchCase="'MORADO'">Morado</span>
+                <span *ngSwitchCase="'ROSA'">Rosa</span>
+              </td>
               <td>{{c?.descripcion}}</td>
-              <td></td>
+              <td>
+                <fa-icon [icon]="faPencilAlt" title="Modificar color del vehiculo" (click)="mostrarEditarVehiculoColor(i)"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar color del vehiculo" (click)="mostrarModalEliminarVehiculoColor(c?.uuid)"></fa-icon>
+              </td>
             </tr>
             <tr *ngIf="!showColorForm">
               <td colspan="3"><button class="btn btn-sm btn-primary" (click)="mostrarFormularioColor()">Agregar nuevo</button></td>
@@ -164,7 +181,10 @@
                         <div class="col-sm-6">
                           <label for="descripcionColor">
                             <b>Descripcion</b>
-                            <span *ngIf="crearColorForm.controls['descripcion'].invalid && (crearColorForm.controls['descripcion'].dirty || crearColorForm.controls['descripcion'].touched)" class="text-danger"> - Requerido</span>
+                            <span
+                              *ngIf="crearColorForm.controls['descripcion'].invalid && (crearColorForm.controls['descripcion'].dirty || crearColorForm.controls['descripcion'].touched)">
+                                    <i *ngIf="crearColorForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                                  </span>
                           </label>
                           <input id="descripcionColor" type="text" class="form-control" placeholder="Ej. Primario, Secundario" formControlName="descripcion" #nombres>
                         </div>
@@ -194,10 +214,330 @@
               <td><b>Descripcion</b></td>
               <td><b>Opciones</b></td>
             </tr>
-
+            <tr *ngFor="let f of vehiculo?.fotografias">
+              <td>{{f?.nombreArchivo}}</td>
+              <td>{{f?.descripcion}}</td>
+              <td>
+                <fa-icon [icon]="faDownload" title="Descargar fotografia" (click)="descargarFotografia(f?.uuid)"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar fotografia" (click)="mostrarModalEliminarFotografia(f?.uuid)"></fa-icon>
+              </td>
+            </tr>
+            <tr *ngIf="showFotografiaForm">
+              <td colspan="3">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <form [formGroup]="crearVehiculoFotografiaForm">
+                      <div class="form-row">
+                        <div class="col-sm-6">
+                          <label for="foto">
+                            <b>Archivo</b>
+                          </label>
+                          <input id="foto" class="form-control" formControlName="file" type="file" accept="image/*" (change)="onFileChange($event)">
+                        </div>
+                        <div class="col-sm-6">
+                          <label for="fotoDescripcion">
+                            <b>Descripcion</b>
+                          </label>
+                          <input id="fotoDescripcion" class="form-control" formControlName="descripcion" type="text" placeholder="Ej. Foto frontal">
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary btn-sm" (click)="guardarFotografia(crearVehiculoFotografiaForm)">Guardar</button>
+                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevaFotografia()">Cancelar</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!showFotografiaForm">
+              <td colspan="3">
+                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaFotografia()">Agregar fotografia</button>
+              </td>
+            </tr>
           </table>
         </div>
       </div>
+    </div>
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
+      <button class="btn btn-primary" (click)="mostrarDocumentacion(visualizarEscrituraModal)">Visualizar documentacion</button>
+      <button class="btn btn-primary" (click)="mostrarModalModificarVehiculo()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarVehiculo()">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarFotoVehiculoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarFotoVehiculoModal">Ver fotografia del vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <img [src]="imagenActual" style="width: 100%;">
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #modificarVehiculoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modificarVehiculoModal">Modificar vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="crearVehiculoForm">
+        <div class="form-row">
+          <div class="col-sm-4">
+            <label for="placasEditar">
+              <b>Placas (con guiones) *</b>
+              <span *ngIf="crearVehiculoForm.controls['placas'].invalid && (crearVehiculoForm.controls['placas'].dirty || crearVehiculoForm.controls['placas'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['placas'].errors.required" class="text-danger"> - Campo requerido</i>
+                <i *ngIf="crearVehiculoForm.controls['placas'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+              <i *ngIf="existeVehiculo?.existe && existeVehiculo?.placas !== null" class="text-danger"> - Ya hay vehiculo con estas placas</i>
+            </label>
+            <input id="placasEditar" type="text" class="form-control" placeholder="Ej. JAM-1234" formControlName="placas" (focusout)="consultarPlacasVehiculo($event.target)" #placas>
+          </div>
+          <div class="col-sm-4">
+            <label for="serieEditar">
+              <b>Número de serie *</b>
+              <span *ngIf="crearVehiculoForm.controls['serie'].invalid && (crearVehiculoForm.controls['serie'].dirty || crearVehiculoForm.controls['serie'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['serie'].errors.required" class="text-danger"> - Campo requerido</i>
+                <i *ngIf="crearVehiculoForm.controls['serie'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+              <i *ngIf="existeVehiculo?.existe && existeVehiculo?.numeroSerie !== null" class="text-danger"> - Ya hay vehiculo con esta serie</i>
+            </label>
+            <input id="serieEditar" type="text" class="form-control" placeholder="Ej. VW3NMFU9ABS8BDS" formControlName="serie" (focusout)="consultarSerieVehiculo($event.target)" #serie>
+          </div>
+          <div class="col-sm-4">
+            <label for="tipoEditar">
+              <b>Tipo *</b>
+              <span *ngIf="crearVehiculoForm.controls['tipo'].invalid && (crearVehiculoForm.controls['tipo'].dirty || crearVehiculoForm.controls['tipo'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['tipo'].errors.required" class="text-danger"> - Campo requerido</i>
+              </span>
+            </label>
+            <select id="tipoEditar" class="form-control" formControlName="tipo">
+              <option *ngFor="let t of tipos" value="{{t.uuid}}">{{t.nombre}}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-sm-3">
+            <label for="marcaEditar">
+              <b>Marca *</b>
+              <span *ngIf="crearVehiculoForm.controls['marca'].invalid && (crearVehiculoForm.controls['marca'].dirty || crearVehiculoForm.controls['marca'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['marca'].errors.required" class="text-danger"> - Campo requerido</i>
+              </span>
+            </label>
+            <select id="marcaEditar" class="form-control" formControlName="marca" (change)="seleccionarMarca($event.target)">
+              <option *ngFor="let m of marcas"  value="{{m.uuid}}">{{m.nombre}}</option>
+            </select>
+          </div>
+
+          <div class="col-sm-3">
+            <label for="submarcaEditar">
+              <b>Submarca *</b>
+              <span *ngIf="crearVehiculoForm.controls['submarca'].invalid && (crearVehiculoForm.controls['submarca'].dirty || crearVehiculoForm.controls['submarca'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['submarca'].errors.required" class="text-danger"> - Campo requerido</i>
+              </span>
+            </label>
+            <select id="submarcaEditar" class="form-control" formControlName="submarca">
+              <option *ngFor="let s of marca?.submarcas" value="{{s.uuid}}">{{s.nombre}}</option>
+            </select>
+          </div>
+
+          <div class="col-sm-3">
+            <label for="anioEditar">
+              <b>Año *</b>
+              <span *ngIf="crearVehiculoForm.controls['anio'].invalid && (crearVehiculoForm.controls['anio'].dirty || crearVehiculoForm.controls['anio'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['anio'].errors.required" class="text-danger"> - Campo requerido</i>
+              </span>
+            </label>
+            <select id="anioEditar" class="form-control" formControlName="anio">
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+              <option value="2019">2019</option>
+              <option value="2018">2018</option>
+              <option value="2017">2017</option>
+              <option value="2016">2016</option>
+              <option value="2015">2015</option>
+              <option value="2014">2014</option>
+              <option value="2013">2013</option>
+              <option value="2012">2012</option>
+              <option value="2011">2011</option>
+              <option value="2010">2010</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-sm-3">
+            <label for="rotuladoEditar">
+              <b>Rotulado *</b>
+              <span *ngIf="crearVehiculoForm.controls['rotulado'].invalid && (crearVehiculoForm.controls['rotulado'].dirty || crearVehiculoForm.controls['rotulado'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['rotulado'].errors.required" class="text-danger"> - Campo requerido</i>
+              </span>
+            </label>
+            <select id="rotuladoEditar" class="form-control" formControlName="rotulado">
+              <option value="true">SI</option>
+              <option value="false">NO</option>
+            </select>
+          </div>
+
+          <div class="col-sm-3">
+            <label for="usoEditar">
+              <b>Uso *</b>
+              <span *ngIf="crearVehiculoForm.controls['uso'].invalid && (crearVehiculoForm.controls['uso'].dirty || crearVehiculoForm.controls['uso'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['uso'].errors.required" class="text-danger"> - Campo requerido</i>
+              </span>
+            </label>
+            <select id="usoEditar" class="form-control" formControlName="uso">
+              <option *ngFor="let u of usos" value="{{u.uuid}}">{{u.nombre}}</option>
+            </select>
+          </div>
+
+          <div class="col-sm-3">
+            <label for="domicilioEditar">
+              <b>Domicilio *</b>
+              <span
+                *ngIf="crearVehiculoForm.controls['domicilio'].invalid && (crearVehiculoForm.controls['domicilio'].dirty || crearVehiculoForm.controls['domicilio'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['domicilio'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
+            </label>
+            <select id="domicilioEditar" class="form-control" formControlName="domicilio">
+              <option *ngFor="let d of domicilios" value="{{d.uuid}}">{{d.domicilio1 + ". Colonia: " + d.domicilio2}}</option>
+            </select>
+          </div>
+
+          <div class="col-sm-3">
+            <label for="blindadoEditar">
+              <b>Blindado *</b>
+              <span *ngIf="crearVehiculoForm.controls['blindado'].invalid && (crearVehiculoForm.controls['blindado'].dirty || crearVehiculoForm.controls['blindado'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['blindado'].errors.required" class="text-danger"> - Campo requerido</i>
+              </span>
+            </label>
+            <select id="blindadoEditar" class="form-control" formControlName="blindado" (change)="seleccionarBlindado($event.target)">
+              <option value="true">SI</option>
+              <option value="false">NO</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Blindaje -->
+        <div class="form-row" *ngIf="blindado">
+          <div class="col-sm-4">
+            <label for="serieBlindajeEditar">
+              <b>Número de serie del blindaje</b>
+              <span *ngIf="crearVehiculoForm.controls['serieBlindaje'].invalid && (crearVehiculoForm.controls['serieBlindaje'].dirty || crearVehiculoForm.controls['serieBlindaje'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['serieBlindaje'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input id="serieBlindajeEditar" type="text" class="form-control" placeholder="Ej. MAS1231232141" formControlName="serieBlindaje" #serieBlindaje>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBlindajeEditar">
+              <b>Fecha del blindaje</b>
+            </label>
+            <input [max]="fechaDeHoy" id="fechaBlindajeEditar" type="date" class="form-control" formControlName="fechaBlindaje" #fechaBlindaje>
+          </div>
+          <div class="col-sm-4">
+            <label for="numeroHologramaEditar">
+              <b>Numero del holograma</b>
+              <span *ngIf="crearVehiculoForm.controls['numeroHolograma'].invalid && (crearVehiculoForm.controls['numeroHolograma'].dirty || crearVehiculoForm.controls['numeroHolograma'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['numeroHolograma'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input id="numeroHologramaEditar" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="numeroHolograma" #numeroHolograma>
+          </div>
+        </div>
+
+        <div class="form-row" *ngIf="blindado">
+          <div class="col-sm-4">
+            <label for="placaMetalicaEditar">
+              <b>Número de placa metalica</b>
+              <span *ngIf="crearVehiculoForm.controls['placaMetalica'].invalid && (crearVehiculoForm.controls['placaMetalica'].dirty || crearVehiculoForm.controls['placaMetalica'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['placaMetalica'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input id="placaMetalicaEditar" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="placaMetalica" #placaMetalica>
+          </div>
+          <div class="col-sm-4">
+            <label for="empresaBlindajeEditar">
+              <b>Empresa de blindaje</b>
+              <span *ngIf="crearVehiculoForm.controls['empresaBlindaje'].invalid && (crearVehiculoForm.controls['empresaBlindaje'].dirty || crearVehiculoForm.controls['empresaBlindaje'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['empresaBlindaje'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input id="empresaBlindajeEditar" type="text" placeholder="Ej. Blindadora S.A. de C.V." class="form-control" formControlName="empresaBlindaje" #empresaBlindaje>
+          </div>
+          <div class="col-sm-4">
+            <label for="nivelBlindajeEditar">
+              <b>Nivel de blindaje</b>
+            </label>
+            <select id="nivelBlindajeEditar" class="form-control" formControlName="nivelBlindaje">
+              <option value="NIVEL_1">Nivel 1</option>
+              <option value="NIVEL_2">Nivel 2</option>
+              <option value="NIVEL_3">Nivel 3</option>
+              <option value="NIVEL_4">Nivel 4</option>
+              <option value="NIVEL_5">Nivel 5</option>
+              <option value="NIVEL_6">Nivel 6</option>
+              <option value="NIVEL_7">Nivel 7</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-sm-3">
+            <label for="origenEditar">
+              <b>Origen *</b>
+              <span *ngIf="crearVehiculoForm.controls['origen'].invalid && (crearVehiculoForm.controls['origen'].dirty || crearVehiculoForm.controls['origen'].touched)">
+                <i *ngIf="crearVehiculoForm.controls['origen'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <select id="origenEditar" class="form-control" formControlName="origen" (change)="seleccionarOrigen($event.target)">
+              <option value="PROPIO">Propio</option>
+              <option value="COMODATO">Comodato</option>
+              <option value="ARRENDAMIENTO">Arrendamiento</option>
+            </select>
+          </div>
+
+          <div class="col-sm-3">
+            <label for="razonSocialEditar">
+              <b>Razón social del emisor *</b>
+              <span *ngIf="crearVehiculoForm.controls['razonSocial'].invalid && (crearVehiculoForm.controls['razonSocial'].dirty || crearVehiculoForm.controls['razonSocial'].touched)" class="text-danger"> - Requerido</span>
+            </label>
+            <input id="razonSocialEditar" type="text" placeholder="Ej. Volkswagen de Mexico" class="form-control" formControlName="razonSocial" #razonSocial>
+          </div>
+
+          <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
+            <label for="fechaInicioEditar">
+              <b>Fecha de inicio</b>
+            </label>
+            <input id="fechaInicioEditar" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
+          </div>
+
+          <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
+            <label for="fechaFinEditar">
+              <b>Fecha de fin</b>
+            </label>
+            <input id="fechaFinEditar" type="date" class="form-control" formControlName="fechaFin" #fechaFin>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="guardarCambiosVehiculo(crearVehiculoForm)">Guardar cambios</button>
+      <button class="btn btn-danger">Cancelar</button>
     </div>
   </ng-template>
 
@@ -231,13 +571,6 @@
               <div class="step" data-target="#test-l-3">
                 <button class="step-trigger">
                   <span class="bs-stepper-circle">3</span>
-                  <span class="bs-stepper-label">Fotografias</span>
-                </button>
-              </div>
-              <div class="line"></div>
-              <div class="step" data-target="#test-l-4">
-                <button class="step-trigger">
-                  <span class="bs-stepper-circle">4</span>
                   <span class="bs-stepper-label">Resumen</span>
                 </button>
               </div>
@@ -250,21 +583,34 @@
                     <div class="col-sm-4">
                       <label for="placas">
                         <b>Placas (con guiones) *</b>
-                        <span *ngIf="crearVehiculoForm.controls['placas'].invalid && (crearVehiculoForm.controls['placas'].dirty || crearVehiculoForm.controls['placas'].touched)" class="text-danger"> - Requerido</span>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['placas'].invalid && (crearVehiculoForm.controls['placas'].dirty || crearVehiculoForm.controls['placas'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['placas'].errors.required" class="text-danger"> - Campo requerido</i>
+                              <i *ngIf="crearVehiculoForm.controls['placas'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                        <i *ngIf="existeVehiculo?.existe && existeVehiculo?.placas !== null" class="text-danger"> - Ya hay vehiculo con estas placas</i>
                       </label>
-                      <input id="placas" type="text" class="form-control" placeholder="Ej. JGM-4766" formControlName="placas" #placas>
+                      <input id="placas" type="text" class="form-control" placeholder="Ej. JAM-1234" formControlName="placas" (focusout)="consultarPlacasVehiculo($event.target)" #placas>
                     </div>
                     <div class="col-sm-4">
                       <label for="serie">
-                        <b>Numero de serie *</b>
-                        <span *ngIf="crearVehiculoForm.controls['serie'].invalid && (crearVehiculoForm.controls['serie'].dirty || crearVehiculoForm.controls['serie'].touched)" class="text-danger"> - Requerido</span>
+                        <b>Número de serie *</b>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['serie'].invalid && (crearVehiculoForm.controls['serie'].dirty || crearVehiculoForm.controls['serie'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['serie'].errors.required" class="text-danger"> - Campo requerido</i>
+                              <i *ngIf="crearVehiculoForm.controls['serie'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                        <i *ngIf="existeVehiculo?.existe && existeVehiculo?.numeroSerie !== null" class="text-danger"> - Ya hay vehiculo con esta serie</i>
                       </label>
-                      <input id="serie" type="text" class="form-control" placeholder="Ej. VW3NMFU9ABS8BDS" formControlName="serie" #serie>
+                      <input id="serie" type="text" class="form-control" placeholder="Ej. VW3NMFU9ABS8BDS" formControlName="serie" (focusout)="consultarSerieVehiculo($event.target)" #serie>
                     </div>
                     <div class="col-sm-4">
                       <label for="tipo">
                         <b>Tipo *</b>
-                        <span *ngIf="crearVehiculoForm.controls['tipo'].invalid && (crearVehiculoForm.controls['tipo'].dirty || crearVehiculoForm.controls['tipo'].touched)" class="text-danger"> - Requerido</span>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['tipo'].invalid && (crearVehiculoForm.controls['tipo'].dirty || crearVehiculoForm.controls['tipo'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['tipo'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
                       </label>
                       <select id="tipo" class="form-control" formControlName="tipo">
                         <option *ngFor="let t of tipos" value="{{t.uuid}}">{{t.nombre}}</option>
@@ -276,7 +622,10 @@
                     <div class="col-sm-3">
                       <label for="marca">
                         <b>Marca *</b>
-                        <span *ngIf="crearVehiculoForm.controls['marca'].invalid && (crearVehiculoForm.controls['marca'].dirty || crearVehiculoForm.controls['marca'].touched)" class="text-danger"> - Requerido</span>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['marca'].invalid && (crearVehiculoForm.controls['marca'].dirty || crearVehiculoForm.controls['marca'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['marca'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
                       </label>
                       <select id="marca" class="form-control" formControlName="marca" (change)="seleccionarMarca($event.target)">
                         <option *ngFor="let m of marcas"  value="{{m.uuid}}">{{m.nombre}}</option>
@@ -286,7 +635,10 @@
                     <div class="col-sm-3">
                       <label for="submarca">
                         <b>Submarca *</b>
-                        <span *ngIf="crearVehiculoForm.controls['submarca'].invalid && (crearVehiculoForm.controls['submarca'].dirty || crearVehiculoForm.controls['submarca'].touched)" class="text-danger"> - Requerido</span>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['submarca'].invalid && (crearVehiculoForm.controls['submarca'].dirty || crearVehiculoForm.controls['submarca'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['submarca'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
                       </label>
                       <select id="submarca" class="form-control" formControlName="submarca">
                         <option *ngFor="let s of marca?.submarcas" value="{{s.uuid}}">{{s.nombre}}</option>
@@ -296,7 +648,10 @@
                     <div class="col-sm-3">
                       <label for="anio">
                         <b>Año *</b>
-                        <span *ngIf="crearVehiculoForm.controls['anio'].invalid && (crearVehiculoForm.controls['anio'].dirty || crearVehiculoForm.controls['anio'].touched)" class="text-danger"> - Requerido</span>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['anio'].invalid && (crearVehiculoForm.controls['anio'].dirty || crearVehiculoForm.controls['anio'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['anio'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
                       </label>
                       <select id="anio" class="form-control" formControlName="anio">
                         <option value="2022">2022</option>
@@ -320,7 +675,10 @@
                     <div class="col-sm-3">
                       <label for="rotulado">
                         <b>Rotulado *</b>
-                        <span *ngIf="crearVehiculoForm.controls['rotulado'].invalid && (crearVehiculoForm.controls['rotulado'].dirty || crearVehiculoForm.controls['rotulado'].touched)" class="text-danger"> - Requerido</span>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['rotulado'].invalid && (crearVehiculoForm.controls['rotulado'].dirty || crearVehiculoForm.controls['rotulado'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['rotulado'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
                       </label>
                       <select id="rotulado" class="form-control" formControlName="rotulado">
                         <option value="true">SI</option>
@@ -331,7 +689,10 @@
                     <div class="col-sm-3">
                       <label for="uso">
                         <b>Uso *</b>
-                        <span *ngIf="crearVehiculoForm.controls['uso'].invalid && (crearVehiculoForm.controls['uso'].dirty || crearVehiculoForm.controls['uso'].touched)" class="text-danger"> - Requerido</span>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['uso'].invalid && (crearVehiculoForm.controls['uso'].dirty || crearVehiculoForm.controls['uso'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['uso'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
                       </label>
                       <select id="uso" class="form-control" formControlName="uso">
                         <option *ngFor="let u of usos" value="{{u.uuid}}">{{u.nombre}}</option>
@@ -341,7 +702,10 @@
                     <div class="col-sm-3">
                       <label for="domicilio">
                         <b>Domicilio *</b>
-                        <span *ngIf="crearVehiculoForm.controls['domicilio'].invalid && (crearVehiculoForm.controls['domicilio'].dirty || crearVehiculoForm.controls['domicilio'].touched)" class="text-danger"> - Requerido</span>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['domicilio'].invalid && (crearVehiculoForm.controls['domicilio'].dirty || crearVehiculoForm.controls['domicilio'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['domicilio'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
                       </label>
                       <select id="domicilio" class="form-control" formControlName="domicilio">
                         <option *ngFor="let d of domicilios" value="{{d.uuid}}">{{d.domicilio1 + ". Colonia: " + d.domicilio2}}</option>
@@ -351,7 +715,10 @@
                     <div class="col-sm-3">
                       <label for="blindado">
                         <b>Blindado *</b>
-                        <span *ngIf="crearVehiculoForm.controls['blindado'].invalid && (crearVehiculoForm.controls['blindado'].dirty || crearVehiculoForm.controls['blindado'].touched)" class="text-danger"> - Requerido</span>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['blindado'].invalid && (crearVehiculoForm.controls['blindado'].dirty || crearVehiculoForm.controls['blindado'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['blindado'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
                       </label>
                       <select id="blindado" class="form-control" formControlName="blindado" (change)="seleccionarBlindado($event.target)">
                         <option value="true">SI</option>
@@ -364,7 +731,11 @@
                   <div class="form-row" *ngIf="blindado">
                     <div class="col-sm-4">
                       <label for="serieBlindaje">
-                        <b>Numero de serie del blindaje</b>
+                        <b>Número de serie del blindaje</b>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['serieBlindaje'].invalid && (crearVehiculoForm.controls['serieBlindaje'].dirty || crearVehiculoForm.controls['serieBlindaje'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['serieBlindaje'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
                       </label>
                       <input id="serieBlindaje" type="text" class="form-control" placeholder="Ej. MAS1231232141" formControlName="serieBlindaje" #serieBlindaje>
                     </div>
@@ -372,11 +743,15 @@
                       <label for="fechaBlindaje">
                         <b>Fecha del blindaje</b>
                       </label>
-                      <input id="fechaBlindaje" type="date" class="form-control" formControlName="fechaBlindaje" #fechaBlindaje>
+                      <input [max]="fechaDeHoy" id="fechaBlindaje" type="date" class="form-control" formControlName="fechaBlindaje" #fechaBlindaje>
                     </div>
                     <div class="col-sm-4">
                       <label for="numeroHolograma">
                         <b>Numero del holograma</b>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['numeroHolograma'].invalid && (crearVehiculoForm.controls['numeroHolograma'].dirty || crearVehiculoForm.controls['numeroHolograma'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['numeroHolograma'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
                       </label>
                       <input id="numeroHolograma" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="numeroHolograma" #numeroHolograma>
                     </div>
@@ -385,15 +760,23 @@
                   <div class="form-row" *ngIf="blindado">
                     <div class="col-sm-4">
                       <label for="placaMetalica">
-                        <b>Numero de placa metalica</b>
+                        <b>Número de placa metalica</b>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['placaMetalica'].invalid && (crearVehiculoForm.controls['placaMetalica'].dirty || crearVehiculoForm.controls['placaMetalica'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['placaMetalica'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
                       </label>
                       <input id="placaMetalica" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="placaMetalica" #placaMetalica>
                     </div>
                     <div class="col-sm-4">
                       <label for="empresaBlindaje">
                         <b>Empresa de blindaje</b>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['empresaBlindaje'].invalid && (crearVehiculoForm.controls['empresaBlindaje'].dirty || crearVehiculoForm.controls['empresaBlindaje'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['empresaBlindaje'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
                       </label>
-                      <input id="empresaBlindaje" type="text" placeholder="Ej. 929820039" class="form-control" formControlName="empresaBlindaje" #empresaBlindaje>
+                      <input id="empresaBlindaje" type="text" placeholder="Ej. Blindadora S.A. de C.V." class="form-control" formControlName="empresaBlindaje" #empresaBlindaje>
                     </div>
                     <div class="col-sm-4">
                       <label for="nivelBlindaje">
@@ -415,7 +798,10 @@
                     <div class="col-sm-3">
                       <label for="origen">
                         <b>Origen *</b>
-                        <span *ngIf="crearVehiculoForm.controls['origen'].invalid && (crearVehiculoForm.controls['origen'].dirty || crearVehiculoForm.controls['origen'].touched)" class="text-danger"> - Requerido</span>
+                        <span
+                          *ngIf="crearVehiculoForm.controls['origen'].invalid && (crearVehiculoForm.controls['origen'].dirty || crearVehiculoForm.controls['origen'].touched)">
+                              <i *ngIf="crearVehiculoForm.controls['origen'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
                       </label>
                       <select id="origen" class="form-control" formControlName="origen" (change)="seleccionarOrigen($event.target)">
                         <option value="PROPIO">Propio</option>
@@ -426,7 +812,7 @@
 
                     <div class="col-sm-3">
                       <label for="razonSocial">
-                        <b>Razon social del emisor *</b>
+                        <b>Razón social del emisor *</b>
                         <span *ngIf="crearVehiculoForm.controls['razonSocial'].invalid && (crearVehiculoForm.controls['razonSocial'].dirty || crearVehiculoForm.controls['razonSocial'].touched)" class="text-danger"> - Requerido</span>
                       </label>
                       <input id="razonSocial" type="text" placeholder="Ej. Volkswagen de Mexico" class="form-control" formControlName="razonSocial" #razonSocial>
@@ -434,80 +820,341 @@
 
                     <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
                       <label for="fechaInicio">
-                        <b>Fecha de inicio *</b>
+                        <b>Fecha de inicio</b>
                       </label>
                       <input id="fechaInicio" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
                     </div>
 
                     <div class="col-sm-3" *ngIf="origen !== 'PROPIO'">
                       <label for="fechaFin">
-                        <b>Fecha de fin *</b>
+                        <b>Fecha de fin</b>
                       </label>
                       <input id="fechaFin" type="date" class="form-control" formControlName="fechaFin" #fechaFin>
                     </div>
                   </div>
-
-                  <hr>
-                  <div class="row">
-                    <div class="col-sm-12">
-                      <button (click)="next('INFORMACION', crearVehiculoForm)" class="btn btn-primary">Siguiente: Colores
-                      </button>
-                    </div>
-                  </div>
                 </form>
-              </div>
-
-              <!-- STEP 2 - Psychologist information -->
-              <div id="test-l-2" class="content">
-                <form formControlName="crearColorForm">
-                  <div class="form-row">
-                    <div class="col-sm-6">
-                      <label for="color">
-                        <b>Color *</b>
-                      </label>
-                      <input id="color" type="text" placeholder="Ej. Azul" class="form-control" formControlName="razonSocial" #razonSocial>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="color">
-                        <b>Descripcion</b>
-                      </label>
-                      <input id="descripcion" type="text" placeholder="Ej. Color principal, color secundario" class="form-control" formControlName="descripcion">
-                    </div>
-                    <div class="col-sm-3">
-                      <br>
-                      <button class="btn btn-info">Agregar</button>
-                    </div>
-                  </div>
-                  <div class="form-row">
-                    <div class="col-sm-12">
-                      <table class="table">
-                        <tr>
-                          <td><b>Color</b></td>
-                          <td><b>Descripcion</b></td>
-                          <td><b>Acciones</b></td>
-                        </tr>
-                        <tr>
-
-                        </tr>
-                      </table>
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-              <!-- STEP 3 - SUMMARY -->
-              <div id="test-l-3" class="content">
+                <hr>
                 <div class="row">
-
+                  <div class="col-sm-12">
+                    <button (click)="next('COLORES', crearVehiculoForm)" class="btn btn-primary">Siguiente: Colores
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div id="test-l-4" class="content">
 
+              <div id="test-l-2" class="content">
+                <table class="table">
+                  <tr>
+                    <td><b>Color</b></td>
+                    <td><b>Descripción</b></td>
+                    <td><b>Acciones</b></td>
+                  </tr>
+                  <tr *ngFor="let c of coloresTemp; let i = index">
+                    <td [ngSwitch]="c?.color">
+                      <span *ngSwitchCase="'ROJO'">Rojo</span>
+                      <span *ngSwitchCase="'VERDE_CLARO'">Verde claro</span>
+                      <span *ngSwitchCase="'VERDE_OSCURO'">Verde oscuro</span>
+                      <span *ngSwitchCase="'AZUL_CIELO'">Azul cielo</span>
+                      <span *ngSwitchCase="'AZUL_MARINO'">Azul marino</span>
+                      <span *ngSwitchCase="'NARANJA'">Naranja</span>
+                      <span *ngSwitchCase="'AMARILLO'">Amarillo</span>
+                      <span *ngSwitchCase="'BLANCO'">Blanco</span>
+                      <span *ngSwitchCase="'NEGRO'">Negro</span>
+                      <span *ngSwitchCase="'GRIS_CLARO'">Gris claro</span>
+                      <span *ngSwitchCase="'GRIS_OSCURO'">Gris oscuro</span>
+                      <span *ngSwitchCase="'MORADO'">Morado</span>
+                      <span *ngSwitchCase="'ROSA'">Rosa</span>
+                    </td>
+                    <td>{{c?.descripcion}}</td>
+                    <td>
+                      <fa-icon [icon]="faPencilAlt" (click)="mostrarEditarColorForm(i)"></fa-icon>
+                      <fa-icon [icon]="faTrash" (click)="mostrarModalQuitarVehiculoColor(i)"></fa-icon>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!showColorForm">
+                    <td colspan="3"><button class="btn btn-sm btn-primary" (click)="mostrarFormularioColor()">Agregar nuevo</button></td>
+                  </tr>
+                  <tr *ngIf="showColorForm">
+                    <td colspan="3">
+                      <div class="row">
+                        <div class="col-sm-12">
+                          <form [formGroup]="crearColorForm">
+                            <div class="form-row">
+                              <div class="col-sm-6">
+                                <label for="nuevoColorCrear">
+                                  <b>Color *</b>
+                                  <span
+                                    *ngIf="crearColorForm.controls['color'].invalid && (crearColorForm.controls['color'].dirty || crearColorForm.controls['color'].touched)">
+                                    <i *ngIf="crearColorForm.controls['color'].errors.required" class="text-danger"> - Campo requerido</i>
+                                  </span>
+                                </label>
+                                <select id="nuevoColorCrear" class="form-control" formControlName="color">
+                                  <option value="ROJO">Rojo</option>
+                                  <option value="VERDE_CLARO">Verde claro</option>
+                                  <option value="VERDE_OSCURO">Verde oscuro</option>
+                                  <option value="AZUL_CIELO">Azul cielo</option>
+                                  <option value="AZUL_MARINO">Azul marino</option>
+                                  <option value="NARANJA">Naranja</option>
+                                  <option value="AMARILLO">Amarillo</option>
+                                  <option value="BLANCO">Blanco</option>
+                                  <option value="NEGRO">Negro</option>
+                                  <option value="GRIS_CLARO">Gris claro</option>
+                                  <option value="GRIS_OSCURO">Gris oscuro</option>
+                                  <option value="MORADO">Morado</option>
+                                  <option value="ROSA">Rosa</option>
+                                </select>
+                              </div>
+                              <div class="col-sm-6">
+                                <label for="descripcionColorCrear">
+                                  <b>Descripcion *</b>
+                                  <span
+                                    *ngIf="crearColorForm.controls['descripcion'].invalid && (crearColorForm.controls['descripcion'].dirty || crearColorForm.controls['descripcion'].touched)">
+                                    <i *ngIf="crearColorForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                                  </span>
+                                </label>
+                                <input id="descripcionColorCrear" type="text" class="form-control" placeholder="Ej. Primario, Secundario" formControlName="descripcion" #nombres>
+                              </div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+
+                      <hr>
+                      <div class="row">
+                        <div class="col-sm-12">
+                          <button class="btn btn-primary btn-sm" (click)="guardarColorCrear(crearColorForm)">Guardar</button>
+                          <button class="btn btn-danger btn-sm" (click)="mostrarFormularioColor()">Cancelar</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button (click)="previous()" class="btn btn-primary">Anterior: Informacion
+                    </button>
+                    <button (click)="next('RESUMEN', crearVehiculoForm)" class="btn btn-primary">Siguiente: Resumen
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div id="test-l-3" class="content">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h2>El vehiculo se ha guardado con exito</h2>
+                    <p>A continuacion, veras los detalles. Para finalizar, actualiza la pagina o dale click en el boton terminar</p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Info. Vehiculo</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Tipo</b></td>
+                        <td>{{vehiculo?.tipo?.nombre}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Marca</b></td>
+                        <td>{{vehiculo?.marca?.nombre}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Submarca</b></td>
+                        <td>{{vehiculo?.submarca?.nombre}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Año</b></td>
+                        <td>{{vehiculo?.anio}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Rotulado</b></td>
+                        <td [ngSwitch]="vehiculo?.rotulado">
+                          <span *ngSwitchCase="true">Si</span>
+                          <span *ngSwitchCase="false">No</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><b>Placas</b></td>
+                        <td>{{vehiculo?.placas}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Número de serie</b></td>
+                        <td>{{vehiculo?.serie}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Blindado</b></td>
+                        <td [ngSwitch]="vehiculo?.blindado">
+                          <span *ngSwitchCase="true">Si</span>
+                          <span *ngSwitchCase="false">No</span>
+                        </td>
+                      </tr>
+                      <tr *ngIf="vehiculo?.blindado">
+                        <td><b>Serie del blindaje</b></td>
+                        <td>{{vehiculo?.serieBlindaje}}</td>
+                      </tr>
+                      <tr *ngIf="vehiculo?.blindado">
+                        <td><b>Fecha del blindaje</b></td>
+                        <td>{{vehiculo.fechaBlindaje}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button (click)="previous()" class="btn btn-primary">Anterior: Colores
+                    </button>
+                    <button (click)="finalizar()" class="btn btn-primary">Finalizar
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarEscrituraModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarEscrituraModal">Ver adjunto de la escritura </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <pdf-viewer [src]="pdfActual"
+                      [render-text]="true"
+                      [original-size]="false"
+                      style="width: 100%; height: 600px"></pdf-viewer>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarVehiculoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarVehiculoModal">Eliminando un vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="motivosEliminacionForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBaja">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['motivoBaja'].invalid && (motivosEliminacionForm.controls['motivoBaja'].dirty || motivosEliminacionForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBaja">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionForm.controls['fechaBaja'].invalid && (motivosEliminacionForm.controls['fechaBaja'].dirty || motivosEliminacionForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBaja" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBaja">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBaja">
+              <b>Observaciones *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['observacionesBaja'].invalid && (motivosEliminacionForm.controls['observacionesBaja'].dirty || motivosEliminacionForm.controls['observacionesBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['observacionesBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
+            </label>
+            <textarea id="observacionesBaja" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
+      <div class="row">
+        <div class="col-sm-12">
+          <p><br><b>Estás a punto de eliminar un vehiculo. Toma en cuenta que al eliminarlo, todos las fotografias y colores seran eliminados y esta operación no se puede deshacer. ¿Deseas continuar?</b></p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarVehiculo(motivosEliminacionForm)">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarVehiculoColorModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarVehiculoColorModal">Eliminando un color del vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar el color del vehiculo. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarVehiculoColor()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #quitarVehiculoColorModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="quitarVehiculoColorModal">Quitando un color del vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de quitar el color del vehiculo. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="quitarColor()">Si, quitar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarVehiculoFotografiaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarVehiculoFotografiaModal">Eliminando una fotografia del vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar una fotografia del vehiculo. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarVehiculoFotografia()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 </div>

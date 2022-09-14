@@ -32,6 +32,7 @@
         <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action">
           Detalles
         </a>
+        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
         <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
         <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action active">Licencias colectivas / Armas</a>
@@ -157,6 +158,8 @@
             <tr *ngIf="!showDireccionForm">
               <td colspan="6">
                 <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaDireccion()">Agregar dirección</button>
+                <button class="btn btn-sm btn-primary" *ngIf="!mostrandoDomiciliosEliminadas" (click)="mostrarDomiciliosEliminados()">Mostrar eliminados</button>
+                <button class="btn btn-sm btn-primary" *ngIf="mostrandoDomiciliosEliminadas" (click)="ocultarDomiciliosEliminados()">Ocultar eliminados</button>
               </td>
             </tr>
           </table>
@@ -164,8 +167,9 @@
         <div class="col-sm-12" *ngIf="pestanaActual === 'ARMAS'">
           <table class="table">
             <tr>
-              <td><b>N. Serie</b></td>
+              <td><b>Matricula</b></td>
               <td><b>Marca</b></td>
+              <td><b>Modelo</b></td>
               <td><b>Tipo</b></td>
               <td><b>Clase</b></td>
               <td><b>Calibre</b></td>
@@ -174,24 +178,33 @@
               <td><b>Acciones</b></td>
             </tr>
             <tr *ngFor="let a of armas; let i = index">
-              <td>{{a?.serie}}</td>
-              <td>{{a?.marca?.nombre}}</td>
-              <td>{{a?.tipo}}</td>
-              <td>{{a?.clase?.nombre}}</td>
-              <td>{{a?.calibre}}</td>
-              <td>{{a?.bunker?.domicilio1}}</td>
-              <td>{{a?.status}}</td>
+              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.matricula}}</td>
+              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.marca?.nombre}}</td>
+              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.serie}}</td>
+              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.tipo}}</td>
+              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.clase?.nombre}}</td>
+              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.calibre}}</td>
+              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">
+                {{a?.bunker?.domicilio1}}. Colonia: {{a?.bunker?.domicilio2}}<br>
+                {{a?.bunker?.domicilio3}}, {{a?.bunker?.estado}}, {{a?.bunker?.pais}}<br>
+                C.P. {{a?.bunker?.codigoPostal}}
+              </td>
+              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">
+                {{a?.status
+                    + (a?.status === 'ACTIVA' ? " - " + a?.personal?.apellidoPaterno + " " + a?.personal?.apellidoMaterno + " " + a?.personal?.nombres : "")
+                    + (a?.status === 'CUSTODIA' ? " - Incidencia numero: " + a?.incidencia?.numero : "")}}
+              </td>
               <td>
-                <fa-icon [icon]="faHandPaper" title="Marcar como en custodia" (click)="mostrarCambioStatusForm()" style="cursor: pointer;"></fa-icon>
-                <fa-icon [icon]="faPencil" title="Modificar arma" (click)="mostrarModificarArmaForm(i)" style="cursor: pointer;"></fa-icon>
-                <fa-icon [icon]="faTrash" title="Eliminar arma" (click)="mostrarModalEliminarArma(a?.uuid)" style="cursor: pointer;"></fa-icon>
+                <fa-icon [icon]="faHandPaper" title="Marcar como en custodia" (click)="mostrarCambioStatusForm(a?.uuid)" style="cursor: pointer;" *ngIf="a?.status !== 'CUSTODIA' && !a?.eliminado"></fa-icon>
+                <fa-icon [icon]="faPencil" title="Modificar arma" (click)="mostrarModificarArmaForm(i)" style="cursor: pointer;" *ngIf="a?.status !== 'CUSTODIA' && !a?.eliminado"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar arma" (click)="mostrarModalEliminarArma(a?.uuid)" style="cursor: pointer;" *ngIf="!a?.eliminado"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="showArmaForm">
-              <td colspan="8">
+              <td colspan="9">
                 <form [formGroup]="crearArmaForm">
                   <div class="form-row">
-                    <div class="col-sm-3">
+                    <div class="col-sm-6">
                       <label for="bunker">
                         <b>Domicilio de resguardo *</b>
                         <span *ngIf="crearArmaForm.controls['bunker'].invalid && (crearArmaForm.controls['bunker'].dirty || crearArmaForm.controls['bunker'].touched)" class="text-danger"> - Requerido</span>
@@ -202,35 +215,26 @@
                     </div>
                     <div class="col-sm-3">
                       <label for="serie">
-                        <b>Numero de serie *</b>
+                        <b>Modelo</b>
+                        <a><i *ngIf="existeArma?.existe && existeArma?.serie !== null" class="text-danger"> - El arma ya existe con este modelo</i></a>
                         <span
                           *ngIf="crearArmaForm.controls['serie'].invalid && (crearArmaForm.controls['serie'].dirty || crearArmaForm.controls['serie'].touched)">
-                          <i *ngIf="crearArmaForm.controls['serie'].errors.required" class="text-danger"> - Campo requerido</i>
                           <i *ngIf="crearArmaForm.controls['serie'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                         </span>
                       </label>
-                      <input type="text" class="form-control" id="serie" formControlName="serie" placeholder="Ejemplo: ABC123456"/>
+                      <input type="text" class="form-control" id="serie" formControlName="serie" placeholder="Ejemplo: ABC123456" (focusout)="consultarArmaModelo($event.target)" />
                     </div>
                     <div class="col-sm-3">
-                      <label for="status">
-                        <b>Status *</b>
+                      <label for="matricula">
+                        <b>Matricula *</b>
+                        <a><i *ngIf="existeArma?.existe && existeArma?.matricula !== null" class="text-danger"> - El arma ya existe con esta matricula</i></a>
                         <span
-                          *ngIf="crearArmaForm.controls['status'].invalid && (crearArmaForm.controls['status'].dirty || crearArmaForm.controls['status'].touched)">
-                          <i *ngIf="crearArmaForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
+                          *ngIf="crearArmaForm.controls['matricula'].invalid && (crearArmaForm.controls['matricula'].dirty || crearArmaForm.controls['matricula'].touched)">
+                          <i *ngIf="crearArmaForm.controls['matricula'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearArmaForm.controls['matricula'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                         </span>
                       </label>
-                      <select class="form-control" formControlName="status" id="status" (change)="seleccionarStatus($event.target)">
-                        <option value="ACTIVA">Activa</option>
-                        <option value="DEPOSITO">Deposito</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3" *ngIf="status === 'ACTIVA'">
-                      <label for="personal">
-                        <b>Personal a asignar *</b>
-                      </label>
-                      <select class="form-control" id="personal" formControlName="personal">
-                        <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
-                      </select>
+                      <input type="text" class="form-control" id="matricula" formControlName="matricula" placeholder="Ejemplo: ABC123456" (focusout)="consultarArmaMatricula($event.target)"/>
                     </div>
                   </div>
 
@@ -275,6 +279,29 @@
                       <input type="text" class="form-control" id="calibre" formControlName="calibre" placeholder="Ejemplo: .38 Super, .22"/>
                     </div>
                   </div>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <label for="status">
+                        <b>Status *</b>
+                        <span
+                          *ngIf="crearArmaForm.controls['status'].invalid && (crearArmaForm.controls['status'].dirty || crearArmaForm.controls['status'].touched)">
+                          <i *ngIf="crearArmaForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                      </label>
+                      <select class="form-control" formControlName="status" id="status" (change)="seleccionarStatus($event.target)">
+                        <option value="ACTIVA">Activa</option>
+                        <option value="DEPOSITO">Deposito</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3" *ngIf="status === 'ACTIVA'">
+                      <label for="personal">
+                        <b>Personal a asignar *</b>
+                      </label>
+                      <select class="form-control" id="personal" formControlName="personal">
+                        <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
+                      </select>
+                    </div>
+                  </div>
                 </form>
                 <hr>
                 <div class="row">
@@ -288,19 +315,21 @@
               </td>
             </tr>
             <tr *ngIf="!showArmaForm && !mostrarModificarStatusArma">
-              <td colspan="8">
+              <td colspan="9">
                 <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaArma()">Agregar arma</button>
+                <button class="btn btn-sm btn-primary" *ngIf="!mostrandoArmasEliminadas" (click)="mostrarArmasEliminadas()">Mostrar eliminados</button>
+                <button class="btn btn-sm btn-primary" *ngIf="mostrandoArmasEliminadas" (click)="ocultarArmasEliminadas()">Ocultar eliminados</button>
               </td>
             </tr>
             <tr *ngIf="mostrarModificarStatusArma">
-              <td colspan="8">
+              <td colspan="9">
                 <form formGroup="modificarStatusArmaForm">
                   <div class="form-row">
                     <div class="col-sm-4">
                       <label for="documentoFundatorio">
                         <b>Documento fundatorio</b>
                       </label>
-                      <input id="documentoFundatorio" type="file" class="form-control">
+                      <input id="documentoFundatorio" type="file" class="form-control" (change)="onFileChange($event)">
                     </div>
                   </div>
                 </form>
@@ -315,9 +344,9 @@
               </td>
             </tr>
             <tr *ngIf="mostrarModificarStatusArma">
-              <td colspan="8">
+              <td colspan="9">
                 <button class="btn btn-sm btn-primary" (click)="custodiaArma()">Guardar cambios</button>
-                <button class="btn btn-sm btn-danger" (click)="mostrarCambioStatusForm()">Cancelar</button>
+                <button class="btn btn-sm btn-danger" (click)="mostrarCambioStatusForm(undefined)">Cancelar</button>
               </td>
             </tr>
           </table>
@@ -385,22 +414,26 @@
               </div>
             </div>
             <div class="form-row">
-              <div class="col-sm-4">
-                <label for="modalidadEditar">
-                  <b>Modalidad *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['modalidad'].invalid && (crearEmpresaLicenciaForm.controls['modalidad'].dirty || crearEmpresaLicenciaForm.controls['modalidad'].touched)" class="text-danger"> - Requerido</span>
+              <div class="col-sm-8">
+                <label>
+                  <b>Modalidad * </b>
                 </label>
-                <select id="modalidadEditar" class="form-control" formControlName="modalidad">
-                  <option *ngFor="let m of modalidades" value="{{m?.modalidad?.uuid}}">{{m?.modalidad?.nombre}}</option>
-                </select>
-              </div>
-              <div class="col-sm-4">
-                <label for="submodalidadEditar">
-                  <b>Submodalidad</b>
-                </label>
-                <select id="submodalidadEditar" class="form-control" formControlName="submodalidad">
-                  <option *ngFor="let m of modalidades" value="{{m?.submodalidad?.uuid}}">{{m?.submodalidad?.nombre}}</option>
-                </select>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{modalidad === undefined ? 'Ninguno' : (modalidad?.modalidad.nombre).substr(0, 90)}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                  <form class="px-4 py-3" autocomplete="off">
+                    <label for="modalidadSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="modalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="modalidadQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let m of modalidades | modalidadArmada : {armas: true}" (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                    {{m.modalidad.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="modalidad !== undefined" (click)="quitarModalidad()">Quitar</a>
+                </div>
               </div>
               <div class="col-sm-4">
                 <label for="archivoEditar">
@@ -454,22 +487,27 @@
               </div>
             </div>
             <div class="form-row">
-              <div class="col-sm-4">
-                <label for="modalidad">
-                  <b>Modalidad *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['modalidad'].invalid && (crearEmpresaLicenciaForm.controls['modalidad'].dirty || crearEmpresaLicenciaForm.controls['modalidad'].touched)" class="text-danger"> - Requerido</span>
+              <div class="col-sm-8">
+                <label>
+                  <b>Modalidad * </b>
                 </label>
-                <select id="modalidad" class="form-control" formControlName="modalidad">
-                  <option *ngFor="let m of modalidades" value="{{m?.modalidad?.uuid}}">{{m?.modalidad?.nombre}}</option>
-                </select>
-              </div>
-              <div class="col-sm-4">
-                <label for="submodalidad">
-                  <b>Submodalidad</b>
-                </label>
-                <select id="submodalidad" class="form-control" formControlName="submodalidad">
-                  <option *ngFor="let m of modalidades" value="{{m?.submodalidad?.uuid}}">{{m?.submodalidad?.nombre}}</option>
-                </select>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{modalidad === undefined ? 'Ninguno' : (modalidad?.modalidad.nombre).substr(0, 90  )}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                  <form [formGroup]="modalidadSearchForm" class="px-4 py-3" autocomplete="off">
+                    <label for="modalidadSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="modalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="modalidadQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let m of modalidades | modalidadArmada : {armas: true}" (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                    {{m.modalidad.nombre}}<br>
+                    <span style="font-size: 14px; color: #999; padding-left: 10px;">{{m?.submodalidad?.nombre}}</span>
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="modalidad !== undefined" (click)="quitarModalidad()">Quitar</a>
+                </div>
               </div>
               <div class="col-sm-4">
                 <label for="archivo">
@@ -496,6 +534,45 @@
       </button>
     </div>
     <div class="modal-body">
+      <form [formGroup]="motivosEliminacionForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBaja">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['motivoBaja'].invalid && (motivosEliminacionForm.controls['motivoBaja'].dirty || motivosEliminacionForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBaja">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionForm.controls['fechaBaja'].invalid && (motivosEliminacionForm.controls['fechaBaja'].dirty || motivosEliminacionForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBaja" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBaja">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBaja">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesBaja" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
       <div class="row">
         <div class="col-sm-12">
           <p>Estas a punto de eliminar la licencia colectiva. Toma en cuenta que los domicilios vinculados y las armas se eliminaran tambien. ¿Deseas continuar?</p>
@@ -503,7 +580,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarLicencia()">Si, eliminar</button>
+      <button class="btn btn-danger" (click)="confirmarEliminarLicencia(motivosEliminacionForm)">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
@@ -518,7 +595,7 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estas a punto de eliminar la direccion de la licencia colectiva. Esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estas a punto de eliminar la direccion de la licencia colectiva. Toma en cuenta que TODAS LAS ARMAS vinculadas a este domicilio se eliminaran y esta operacion no se puede deshacer. ¿Deseas continuar?</p>
         </div>
       </div>
     </div>
@@ -536,6 +613,51 @@
       </button>
     </div>
     <div class="modal-body">
+      <form [formGroup]="motivosEliminacionArmaForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBajaArma">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionArmaForm.controls['motivoBaja'].invalid && (motivosEliminacionArmaForm.controls['motivoBaja'].dirty || motivosEliminacionArmaForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionArmaForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionArmaForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <select id="motivoBajaArma" class="form-control" formControlName="motivoBaja">
+              <option value="ROBO">Robo</option>
+              <option value="ASEGURAMIENTO">Aseguramiento</option>
+              <option value="INSERVIBLE">Inservible</option>
+              <option value="CAMBIO_ADSCRIPCION">Cambio de adscripcion</option>
+              <option value="CAMBIO_MODALIDAD">Cambio de modalidad</option>
+            </select>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBajaArma">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionArmaForm.controls['fechaBaja'].invalid && (motivosEliminacionArmaForm.controls['fechaBaja'].dirty || motivosEliminacionArmaForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionArmaForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBajaArma" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBajaArma">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBajaArma" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBajaArma">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesBajaArma" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
       <div class="row">
         <div class="col-sm-12">
           <p>Estas a punto de eliminar el arma de la licencia colectiva. Esta operacion no se puede deshacer. ¿Deseas continuar?</p>
@@ -543,7 +665,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarLicenciaArma()">Si, eliminar</button>
+      <button class="btn btn-danger" (click)="confirmarEliminarLicenciaArma(motivosEliminacionArmaForm)">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>

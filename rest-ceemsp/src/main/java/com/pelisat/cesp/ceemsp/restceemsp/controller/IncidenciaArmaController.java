@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -24,6 +25,13 @@ public class IncidenciaArmaController {
     ) {
         this.jwtUtils = jwtUtils;
         this.incidenciaArmaService = incidenciaArmaService;
+    }
+
+    @GetMapping()
+    public List<ArmaDto> obtenerIncidenciaArmas(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "incidenciaUuid") String incidenciaUuid) {
+       return incidenciaArmaService.obtenerArmasIncidencia(empresaUuid, incidenciaUuid);
     }
 
     @PostMapping(value = INCIDENCIA_ARMA_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)

@@ -15,6 +15,10 @@ export class PublicService {
     return this.http.post(`${this.uri}/public/register/next`, body)
   }
 
+  obtenerSiguienteVisita() {
+    return this.http.post(`${this.uri}/public/visitas/siguiente`, {})
+  }
+
   obtenerUltimoComunicado() {
     return this.http.get(`${this.uri}/public/comunicados/ultimo`)
   }

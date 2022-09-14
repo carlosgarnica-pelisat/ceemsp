@@ -2,6 +2,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
 import com.google.gson.Gson;
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoDto;
+import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaVehiculoService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,13 @@ public class EmpresaVehiculoController {
         return empresaVehiculoService.obtenerVehiculosPorEmpresa(empresaUuid);
     }
 
+    @GetMapping(value = EMPRESA_VEHICULOS_URI + "/eliminados")
+    public List<VehiculoDto> obtenerVehiculosEliminadosPorEmpresa(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) {
+        return empresaVehiculoService.obtenerVehiculosEliminadosPorEmpresa(empresaUuid);
+    }
+
     @GetMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public VehiculoDto obtenerVehiculoPorUuid(
             @PathVariable(value = "empresaUuid") String empresaUuid,
@@ -44,14 +52,15 @@ public class EmpresaVehiculoController {
         return empresaVehiculoService.obtenerVehiculoPorUuid(empresaUuid, vehiculoUuid, false);
     }
 
-    @PostMapping(value = EMPRESA_VEHICULOS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = EMPRESA_VEHICULOS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public VehiculoDto guardarVehiculo(
             @PathVariable(value = "empresaUuid") String empresaUuid,
-            @RequestBody VehiculoDto vehiculoDto,
+            @RequestParam(value = "constanciaBlindaje", required = false) MultipartFile constanciaBlindaje,
+            @RequestParam("vehiculo") String vehiculo,
             HttpServletRequest httpServletRequest
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
-        return empresaVehiculoService.guardarVehiculo(empresaUuid, username, vehiculoDto);
+        return empresaVehiculoService.guardarVehiculo(empresaUuid, username, new Gson().fromJson(vehiculo, VehiculoDto.class), constanciaBlindaje);
     }
 
     @PutMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -65,11 +74,11 @@ public class EmpresaVehiculoController {
         return empresaVehiculoService.modificarVehiculo(empresaUuid, vehiculoUuid, username, vehiculoDto);
     }
 
-    @DeleteMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public VehiculoDto eliminarVehiculo(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "vehiculoUuid") String vehiculoUuid,
-            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
             @RequestParam("vehiculo") String vehiculo,
             HttpServletRequest httpServletRequest
     ) throws Exception {

@@ -105,7 +105,7 @@
               <td><b>Tipo infraestructura</b></td>
               <td><b>Acciones</b></td>
             </tr>
-            <tr *ngFor="let d of cliente.domicilios">
+            <tr *ngFor="let d of cliente.domicilios; let i = index">
               <td>{{d.nombre}}</td>
               <td>
                 {{d.domicilio1}}. Colonia: {{d.domicilio2}}<br>
@@ -117,10 +117,11 @@
                 Telefonos: {{d.telefonoFijo}}; {{d.telefonoMovil}}
               </td>
               <td>
-
+                {{d.tipoInfraestructura?.nombre}}
               </td>
               <td>
-
+                <fa-icon [icon]="faPencilAlt" title="Modificar domicilio del cliente" (click)="mostrarEditarDomicilioCliente(i)" style="cursor:pointer;"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar domicilio del cliente" (click)="mostrarModalEliminarDomicilioCliente(d?.uuid)" style="cursor:pointer;"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="showDomicilioForm">
@@ -131,8 +132,10 @@
                       <label for="nombre">
                         <b>Nombre del domicilio *</b>
                         <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['nombre'].invalid && (nuevoClienteDomicilioForm.controls['nombre'].dirty || nuevoClienteDomicilioForm.controls['nombre'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteDomicilioForm.controls['nombre'].invalid && (nuevoClienteDomicilioForm.controls['nombre'].dirty || nuevoClienteDomicilioForm.controls['nombre'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
                       </label>
                       <input id="nombre" type="text" class="form-control" placeholder="Ej. Sucursal del norte, Matriz"
                              formControlName="nombre" #nombre>
@@ -141,8 +144,9 @@
                       <label for="matriz">
                         <b>Matriz *</b>
                         <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['matriz'].invalid && (nuevoClienteDomicilioForm.controls['matriz'].dirty || nuevoClienteDomicilioForm.controls['matriz'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteDomicilioForm.controls['matriz'].invalid && (nuevoClienteDomicilioForm.controls['matriz'].dirty || nuevoClienteDomicilioForm.controls['matriz'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['matriz'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="matriz" formControlName="matriz" class="form-control">
                         <option value="true">SI</option>
@@ -152,158 +156,192 @@
                   </div>
 
                   <div class="row">
-                    <div class="col-sm-4">
-                      <label for="domicilio1">
-                        <b>Domicilio * </b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['domicilio1'].invalid && (nuevoClienteDomicilioForm.controls['domicilio1'].dirty || nuevoClienteDomicilioForm.controls['domicilio1'].touched)"
-                          class="text-danger"> - Requerido</span>
+                    <div class="col-sm-3">
+                      <label>
+                        <b>Estado *</b>
                       </label>
-                      <input id="domicilio1" type="text" class="form-control" placeholder="Ej. Av. Malecon 1000"
-                             formControlName="domicilio1" #address1>
+                      <div class="dropdown" id="customer">
+                        <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                          {{estado === undefined ? 'Ninguno' : estado?.nombre}}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                          <form [formGroup]="estadoSearchForm" class="px-4 py-3" autocomplete="off">
+                            <label for="estadoSearchQuery"><b>Buscar por nombre</b></label>
+                            <input type="text" class="form-control" id="estadoSearchQuery" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
+                                   [ngModelOptions]="{standalone: true}" autocomplete="off">
+                          </form>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" *ngFor="let e of estados | buscarNombrePipe: {nombre: estadoQuery}" (click)="seleccionarEstado(e.uuid)">
+                            {{e.nombre}}
+                          </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarEstado()">Quitar</a>
+                        </div>
+                      </div>
                     </div>
-                    <div class="col-sm-4">
-                      <label for="domicilio2">
-                        <b>Colonia *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['domicilio2'].invalid && (nuevoClienteDomicilioForm.controls['domicilio2'].dirty || nuevoClienteDomicilioForm.controls['domicilio2'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <input id="domicilio2" type="text" class="form-control" placeholder="Ej. Colonia 20 de Noviembre"
-                             formControlName="domicilio2" #domicilio2>
-                    </div>
-                    <div class="col-sm-4">
-                      <label for="domicilio3">
+                    <div class="col-sm-3">
+                      <label>
                         <b>Municipio *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['domicilio3'].invalid && (nuevoClienteDomicilioForm.controls['domicilio3'].dirty || nuevoClienteDomicilioForm.controls['domicilio3'].touched)"
-                          class="text-danger"> - Requerido</span>
                       </label>
-                      <input id="domicilio3" type="text" class="form-control" placeholder="Ej. Tonala"
-                             formControlName="domicilio3" #domicilio3>
+                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{municipio === undefined ? 'Ninguno' : municipio?.nombre?.substring(0, 15)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                        <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                          <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="municipioSearchQuery" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
+                                 [ngModelOptions]="{standalone: true}" autocomplete="off">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let m of municipios | buscarNombrePipe: {nombre: municipioQuery}" (click)="seleccionarMunicipio(m.uuid)">
+                          {{m.nombre}}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
+                      </div>
+                    </div>
+                    <div class="col-sm-3">
+                      <label>
+                        <b>Localidad *</b>
+                      </label>
+                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{localidad === undefined ? 'Ninguno' : localidad?.nombre?.substring(0, 15)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                        <form [formGroup]="localidadSearchForm" class="px-4 py-3" autocomplete="off">
+                          <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="localidadSearchQuery" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
+                                 [ngModelOptions]="{standalone: true}" autocomplete="off">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let l of localidades | buscarNombrePipe: {nombre: localidadQuery}" (click)="seleccionarLocalidad(l.uuid)">
+                          {{l.nombre}}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
+                      </div>
+                    </div>
+                    <div class="col-sm-3">
+                      <label>
+                        <b>Colonia *</b>
+                      </label>
+                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{colonia === undefined ? 'Ninguno' : colonia?.nombre?.substring(0, 15)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                        <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                          <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="coloniaSearchQuery" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
+                                 [ngModelOptions]="{standalone: true}" autocomplete="off">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let c of colonias | buscarNombrePipe: {nombre: coloniaQuery}" (click)="seleccionarColonia(c.uuid)">
+                          {{c.nombre}}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="colonia !== undefined" (click)="eliminarColonia()">Quitar</a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <label>
+                        <b>Calle * </b>
+                      </label>
+                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{calle === undefined ? 'Ninguno' : calle?.nombre?.substring(0, 15)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                        <form [formGroup]="calleSearchForm" class="px-4 py-3">
+                          <label for="calleSearchQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="calleSearchQuery" placeholder="Ej. Av. Empresarios" [(ngModel)]="calleQuery"
+                                 [ngModelOptions]="{standalone: true}" (keyup)="obtenerCalles($event)" autocomplete="off">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let c of calles" (click)="seleccionarCalle(c.uuid)">
+                          {{c.nombre}}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="calle !== undefined" (click)="eliminarCalle()">Quitar</a>
+                      </div>
+                    </div>
+                    <div class="col-sm-1">
+                      <label for="numeroExterior">
+                        <b>N. Ext * </b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['numeroExterior'].invalid && (nuevoClienteDomicilioForm.controls['numeroExterior'].dirty || nuevoClienteDomicilioForm.controls['numeroExterior'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['numeroExterior'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['numeroExterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="numeroExterior" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
+                    </div>
+                    <div class="col-sm-1">
+                      <label for="numeroInterior">
+                        <b>N. Int </b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['numeroInterior'].invalid && (nuevoClienteDomicilioForm.controls['numeroExterior'].dirty || nuevoClienteDomicilioForm.controls['numeroInterior'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="numeroInterior" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="codigoPostal">
+                        <b>Codigo Postal *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['codigoPostal'].invalid && (nuevoClienteDomicilioForm.controls['codigoPostal'].dirty || nuevoClienteDomicilioForm.controls['codigoPostal'].touched)">
+                            <i *ngIf="nuevoClienteDomicilioForm.controls['codigoPostal'].errors.required" class="text-danger"> - Campo requerido</i>
+                            <i *ngIf="nuevoClienteDomicilioForm.controls['codigoPostal'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                            <i *ngIf="nuevoClienteDomicilioForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                          </span>
+                      </label>
+                      <input id="codigoPostal" type="number" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="domicilio4">
+                        <b>Referencia</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['domicilio4'].invalid && (nuevoClienteDomicilioForm.controls['domicilio4'].dirty || nuevoClienteDomicilioForm.controls['domicilio4'].touched)">
+                            <i *ngIf="nuevoClienteDomicilioForm.controls['domicilio4'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                          </span>
+                      </label>
+                      <input id="domicilio4" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
                     </div>
                   </div>
 
                   <div class="row">
                     <div class="col-sm-3">
-                      <label for="estado">
-                        <b>Estado *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['estado'].invalid && (nuevoClienteDomicilioForm.controls['estado'].dirty || nuevoClienteDomicilioForm.controls['estado'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <select id="estado" formControlName="estado" class="form-control">
-                        <option value="AGUASCALIENTES">Aguascalientes</option>
-                        <option value="BAJA CALIFORNIA">Baja California</option>
-                        <option value="BAJA CALIFORNIA SUR">Baja California Sur</option>
-                        <option value="CAMPECHE">Campeche</option>
-                        <option value="CIUDAD DE MEXICO">Baja California</option>
-                        <option value="COAHUILA">Coahuila</option>
-                        <option value="COLIMA">Colima</option>
-                        <option value="CHIAPAS">Chiapas</option>
-                        <option value="CHIHUAHUA">Chihuahua</option>
-                        <option value="DURANGO">Durango</option>
-                        <option value="ESTADO DE MEXICO">Estado de Mexico</option>
-                        <option value="GUANAJUATO">Guanajuato</option>
-                        <option value="GUERRERO">Guerrero</option>
-                        <option value="HIDALGO">Hidalgo</option>
-                        <option value="JALISCO">Jalisco</option>
-                        <option value="MICHOACAN">Michoacan</option>
-                        <option value="MORELOS">Morelos</option>
-                        <option value="NAYARIT">Nayarit</option>
-                        <option value="NUEVO LEON">Nuevo Leon</option>
-                        <option value="OAXACA">Oaxaca</option>
-                        <option value="PUEBLA">Puebla</option>
-                        <option value="QUERETARO">Queretaro</option>
-                        <option value="QUINTANA ROO">Quintana Roo</option>
-                        <option value="SAN LUIS POTOSI">San Luis Potosi</option>
-                        <option value="SINALOA">Sinaloa</option>
-                        <option value="SONORA">Sonora</option>
-                        <option value="TABASCO">Tabasco</option>
-                        <option value="TAMAULIPAS">Tamaulipas</option>
-                        <option value="TLAXCALA">Tlaxcala</option>
-                        <option value="VERACRUZ">Veracruz</option>
-                        <option value="YUCATAN">Yucatan</option>
-                        <option value="ZACATECAS">Zacatecas</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="pais">
-                        <b>Pais *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['pais'].invalid && (nuevoClienteDomicilioForm.controls['pais'].dirty || nuevoClienteDomicilioForm.controls['pais'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <input id="pais" type="text" class="form-control" placeholder="Ej. Mexico" formControlName="pais"
-                             #pais>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="codigoPostal">
-                        <b>Codigo Postal *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['codigoPostal'].invalid && (nuevoClienteDomicilioForm.controls['codigoPostal'].dirty || nuevoClienteDomicilioForm.controls['codigoPostal'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <input id="codigoPostal" type="text" class="form-control" placeholder="Ej. 45010"
-                             formControlName="codigoPostal" #codigoPostal>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="domicilio4">
-                        <b>Referencia</b>
-                      </label>
-                      <input id="domicilio4" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio"
-                             formControlName="domicilio4" #domicilio4>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-sm-3">
                       <label for="telefonoFijo">
                         <b>Telefono Fijo</b>
                         <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['telefonoFijo'].invalid && (nuevoClienteDomicilioForm.controls['telefonoFijo'].dirty || nuevoClienteDomicilioForm.controls['telefonoFijo'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteDomicilioForm.controls['telefonoFijo'].invalid && (nuevoClienteDomicilioForm.controls['telefonoFijo'].dirty || nuevoClienteDomicilioForm.controls['telefonoFijo'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['telefonoFijo'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <input id="telefonoFijo" type="text" class="form-control" placeholder="Ej. 3312345678"
-                             formControlName="telefonoFijo" #telefonoFijo>
+                             formControlName="telefonoFijo" #telefonoFijo appPhoneMask>
                     </div>
                     <div class="col-sm-3">
                       <label for="telefonoMovil">
                         <b>Telefono Movil</b>
                         <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['telefonoMovil'].invalid && (nuevoClienteDomicilioForm.controls['telefonoMovil'].dirty || nuevoClienteDomicilioForm.controls['telefonoMovil'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteDomicilioForm.controls['telefonoMovil'].invalid && (nuevoClienteDomicilioForm.controls['telefonoMovil'].dirty || nuevoClienteDomicilioForm.controls['telefonoMovil'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['telefonoMovil'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <input id="telefonoMovil" type="text" class="form-control" placeholder="Ej. 3312345678"
-                             formControlName="telefonoMovil" #telefonoMovil>
+                             formControlName="telefonoMovil" #telefonoMovil appPhoneMask>
                     </div>
-                    <div class="col-sm-3">
-                      <label for="contacto">
-                        <b>Contacto *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['contacto'].invalid && (nuevoClienteDomicilioForm.controls['contacto'].dirty || nuevoClienteDomicilioForm.controls['contacto'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <input id="contacto" placeholder="Ej. Juan Gonzalez" type="text" class="form-control"
-                             formControlName="contacto" #contacto>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="correoElectronico">
-                        <b>Correo Electronico *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].invalid && (nuevoClienteDomicilioForm.controls['correoElectronico'].dirty || nuevoClienteDomicilioForm.controls['correoElectronico'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <input id="correoElectronico" placeholder="juan.gonzalez@empresa.com" type="email"
-                             class="form-control" formControlName="correoElectronico" #correoElectronico>
-                    </div>
-                  </div>
-                  <div class="row">
                     <div class="col-sm-3">
                       <label for="tipoInfraestructura">
                         <b>Tipo infraestructura *</b>
                         <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['tipoInfraestructura'].invalid && (nuevoClienteDomicilioForm.controls['tipoInfraestructura'].dirty || nuevoClienteDomicilioForm.controls['tipoInfraestructura'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteDomicilioForm.controls['tipoInfraestructura'].invalid && (nuevoClienteDomicilioForm.controls['tipoInfraestructura'].dirty || nuevoClienteDomicilioForm.controls['tipoInfraestructura'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['tipoInfraestructura'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="tipoInfraestructura" formControlName="tipoInfraestructura" class="form-control" (change)="seleccionarTipoInfraestructura($event.target)">
                         <option *ngFor="let t of tiposInfraestructura" value="{{t.uuid}}" >{{t.nombre}}</option>
@@ -312,9 +350,64 @@
                     <div class="col-sm-3" *ngIf="tipoInfraestructura !== undefined && tipoInfraestructura.nombre === 'Otro'">
                       <label for="tipoInfraestructuraOtro">
                         <b>Especificar </b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['tipoInfraestructuraOtro'].invalid && (nuevoClienteDomicilioForm.controls['tipoInfraestructuraOtro'].dirty || nuevoClienteDomicilioForm.controls['tipoInfraestructuraOtro'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['tipoInfraestructuraOtro'].errors.maxlength" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <input id="tipoInfraestructuraOtro" placeholder="Mencionar otro tipo de infraestructura" type="text"
                              class="form-control" formControlName="tipoInfraestructuraOtro" #tipoInfraestructuraOtro>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <label for="contacto">
+                        <b>Nombre Contacto *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['contacto'].invalid && (nuevoClienteDomicilioForm.controls['contacto'].dirty || nuevoClienteDomicilioForm.controls['contacto'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['contacto'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['contacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="contacto" placeholder="Ej. Juan" type="text" class="form-control"
+                             formControlName="contacto" #contacto>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="apellidoPaternoContacto">
+                        <b>Ap. Paterno Contacto *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].invalid && (nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].dirty || nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="apellidoPaternoContacto" placeholder="Ej. Gonzalez" type="text" class="form-control"
+                             formControlName="apellidoPaternoContacto" #apellidoPaternoContacto>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="apellidoMaternoContacto">
+                        <b>Ap. Materno Contacto *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].invalid && (nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].dirty || nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="apellidoMaternoContacto" placeholder="Ej. Gonzalez" type="text" class="form-control"
+                             formControlName="apellidoMaternoContacto" #apellidoMaternoContacto>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="correoElectronico">
+                        <b>Correo Electronico *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].invalid && (nuevoClienteDomicilioForm.controls['correoElectronico'].dirty || nuevoClienteDomicilioForm.controls['correoElectronico'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.email" class="text-danger"> - No es un email</i>
+                        </span>
+                      </label>
+                      <input id="correoElectronico" placeholder="juan.gonzalez@empresa.com" type="email"
+                             class="form-control" formControlName="correoElectronico" #correoElectronico>
                     </div>
                   </div>
                 </form>
@@ -324,14 +417,130 @@
               <td colspan="5">
                 <button class="btn btn-sm btn-info" (click)="mostrarNuevoDomicilioForm()" *ngIf="!showDomicilioForm">Agregar domicilio</button>
                 <button class="btn btn-sm btn-info" (click)="guardarDomicilio(nuevoClienteDomicilioForm)" *ngIf="showDomicilioForm">Guardar domicilio</button>
+                <button class="btn btn-sm btn-danger" (click)="mostrarNuevoDomicilioForm()" *ngIf="showDomicilioForm">Cancelar</button>
               </td>
             </tr>
           </table>
         </div>
       </div>
     </div>
+    <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
+      <button type="button" class="btn btn-primary" (click)="mostrarModalEditarCliente()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarCliente(this.cliente.uuid)">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #modificarClienteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modificarClienteModal">Modificar cliente </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="modificarClienteForm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="nombreComercialEditar">
+                  <b>Nombre comercial * </b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['nombreComercial'].invalid && (modificarClienteForm.controls['nombreComercial'].dirty || modificarClienteForm.controls['nombreComercial'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['nombreComercial'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="modificarClienteForm.controls['nombreComercial'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="nombreComercialEditar" type="text" class="form-control" placeholder="Ej. Seguridad"
+                       formControlName="nombreComercial" #nombreComercial>
+              </div>
+              <div class="col-sm-4">
+                <label for="razonSocialEditar">
+                  <b>Razon social *</b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['razonSocial'].invalid && (modificarClienteForm.controls['razonSocial'].dirty || modificarClienteForm.controls['razonSocial'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['razonSocial'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="modificarClienteForm.controls['razonSocial'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="razonSocialEditar" type="text" class="form-control"
+                       placeholder="Ej. Empresa de seguridad S.A. de C.V." formControlName="razonSocial"
+                       #razonSocial>
+              </div>
+              <div class="col-sm-4">
+                <label for="tipoPersonaEditar">
+                  <b>Tipo de persona *</b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['tipoPersona'].invalid && (modificarClienteForm.controls['tipoPersona'].dirty || modificarClienteForm.controls['tipoPersona'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['tipoPersona'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="tipoPersonaEditar" formControlName="tipoPersona" class="form-control">
+                  <option value="FISICA">Fisica</option>
+                  <option value="MORAL">Moral</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="rfcEditar">
+                  <b>RFC *</b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['rfc'].invalid && (modificarClienteForm.controls['rfc'].dirty || modificarClienteForm.controls['rfc'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['rfc'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="modificarClienteForm.controls['rfc'].errors.minlength" class="text-danger"> - Faltan caracteres </i>
+                          <i *ngIf="modificarClienteForm.controls['rfc'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="rfcEditar" type="text" class="form-control" placeholder="Ej. XAXX010101AA0"
+                       formControlName="rfc" (focusout)="validarRfc($event.target)" #rfc>
+              </div>
+              <div class="col-sm-4">
+                <label for="fechaInicioEditar">
+                  <b>Fecha Inicio *</b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['fechaInicio'].invalid && (modificarClienteForm.controls['fechaInicio'].dirty || modificarClienteForm.controls['fechaInicio'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['fechaInicio'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <input id="fechaInicioEditar" type="date" class="form-control" formControlName="fechaInicio" [max]="fechaDeHoy"
+                       #fechaInicio>
+              </div>
+              <div class="col-sm-2">
+                <label for="canesEditar">
+                  <b>Canes *</b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['canes'].invalid && (modificarClienteForm.controls['canes'].dirty || modificarClienteForm.controls['canes'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['canes'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="canesEditar" formControlName="canes" class="form-control">
+                  <option value="true">Si</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+              <div class="col-sm-2">
+                <label for="armasEditar">
+                  <b>Armas *</b>
+                  <span
+                    *ngIf="modificarClienteForm.controls['armas'].invalid && (modificarClienteForm.controls['armas'].dirty || modificarClienteForm.controls['armas'].touched)">
+                          <i *ngIf="modificarClienteForm.controls['armas'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="armasEditar" formControlName="armas" class="form-control">
+                  <option value="true">Si</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+      <button class="btn btn-info" (click)="guardarCambiosCliente(modificarClienteForm)">Guardar cambios</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Salir</button>
     </div>
   </ng-template>
 
@@ -374,22 +583,26 @@
               <div id="test-l-1" class="content">
                 <form [formGroup]="nuevoClienteForm">
                   <div class="row">
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                       <label for="nombreComercial">
                         <b>Nombre comercial * </b>
                         <span
-                          *ngIf="nuevoClienteForm.controls['nombreComercial'].invalid && (nuevoClienteForm.controls['nombreComercial'].dirty || nuevoClienteForm.controls['nombreComercial'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteForm.controls['nombreComercial'].invalid && (nuevoClienteForm.controls['nombreComercial'].dirty || nuevoClienteForm.controls['nombreComercial'].touched)">
+                          <i *ngIf="nuevoClienteForm.controls['nombreComercial'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteForm.controls['nombreComercial'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
                       </label>
                       <input id="nombreComercial" type="text" class="form-control" placeholder="Ej. Seguridad"
                              formControlName="nombreComercial" #nombreComercial>
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                       <label for="razonSocial">
                         <b>Razon social *</b>
                         <span
-                          *ngIf="nuevoClienteForm.controls['razonSocial'].invalid && (nuevoClienteForm.controls['razonSocial'].dirty || nuevoClienteForm.controls['razonSocial'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteForm.controls['razonSocial'].invalid && (nuevoClienteForm.controls['razonSocial'].dirty || nuevoClienteForm.controls['razonSocial'].touched)">
+                          <i *ngIf="nuevoClienteForm.controls['razonSocial'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteForm.controls['razonSocial'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
                       </label>
                       <input id="razonSocial" type="text" class="form-control"
                              placeholder="Ej. Empresa de seguridad S.A. de C.V." formControlName="razonSocial"
@@ -399,8 +612,9 @@
                       <label for="tipoPersona">
                         <b>Tipo de persona *</b>
                         <span
-                          *ngIf="nuevoClienteForm.controls['tipoPersona'].invalid && (nuevoClienteForm.controls['tipoPersona'].dirty || nuevoClienteForm.controls['tipoPersona'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteForm.controls['tipoPersona'].invalid && (nuevoClienteForm.controls['tipoPersona'].dirty || nuevoClienteForm.controls['tipoPersona'].touched)">
+                          <i *ngIf="nuevoClienteForm.controls['tipoPersona'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="tipoPersona" formControlName="tipoPersona" class="form-control">
                         <option value="FISICA">Fisica</option>
@@ -410,44 +624,50 @@
                   </div>
 
                   <div class="row">
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                       <label for="rfc">
                         <b>RFC *</b>
                         <span
-                          *ngIf="nuevoClienteForm.controls['rfc'].invalid && (nuevoClienteForm.controls['rfc'].dirty || nuevoClienteForm.controls['rfc'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteForm.controls['rfc'].invalid && (nuevoClienteForm.controls['rfc'].dirty || nuevoClienteForm.controls['rfc'].touched)">
+                          <i *ngIf="nuevoClienteForm.controls['rfc'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteForm.controls['rfc'].errors.minlength" class="text-danger"> - Faltan caracteres </i>
+                          <i *ngIf="nuevoClienteForm.controls['rfc'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
                       </label>
                       <input id="rfc" type="text" class="form-control" placeholder="Ej. XAXX010101AA0"
-                             formControlName="rfc" #rfc>
+                             formControlName="rfc" (focusout)="validarRfc($event.target)" #rfc>
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                       <label for="fechaInicio">
                         <b>Fecha Inicio *</b>
                         <span
-                          *ngIf="nuevoClienteForm.controls['fechaInicio'].invalid && (nuevoClienteForm.controls['fechaInicio'].dirty || nuevoClienteForm.controls['fechaInicio'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteForm.controls['fechaInicio'].invalid && (nuevoClienteForm.controls['fechaInicio'].dirty || nuevoClienteForm.controls['fechaInicio'].touched)">
+                          <i *ngIf="nuevoClienteForm.controls['fechaInicio'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
-                      <input id="fechaInicio" type="date" class="form-control" formControlName="fechaInicio"
+                      <input id="fechaInicio" type="date" class="form-control" formControlName="fechaInicio" [max]="fechaDeHoy"
                              #fechaInicio>
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-2">
                       <label for="canes">
                         <b>Canes *</b>
                         <span
-                          *ngIf="nuevoClienteForm.controls['canes'].invalid && (nuevoClienteForm.controls['canes'].dirty || nuevoClienteForm.controls['canes'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteForm.controls['canes'].invalid && (nuevoClienteForm.controls['canes'].dirty || nuevoClienteForm.controls['canes'].touched)">
+                          <i *ngIf="nuevoClienteForm.controls['canes'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="canes" formControlName="canes" class="form-control">
                         <option value="true">Si</option>
                         <option value="false">No</option>
                       </select>
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-2">
                       <label for="canes">
                         <b>Armas *</b>
                         <span
-                          *ngIf="nuevoClienteForm.controls['armas'].invalid && (nuevoClienteForm.controls['armas'].dirty || nuevoClienteForm.controls['armas'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteForm.controls['armas'].invalid && (nuevoClienteForm.controls['armas'].dirty || nuevoClienteForm.controls['armas'].touched)">
+                          <i *ngIf="nuevoClienteForm.controls['armas'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="armas" formControlName="armas" class="form-control">
                         <option value="true">Si</option>
@@ -455,11 +675,19 @@
                       </select>
                     </div>
                   </div>
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <label for="archivo">
+                        <b>Archivo (en pdf)</b>
+                      </label>
+                      <input id="archivo" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
+                    </div>
+                  </div>
                 </form>
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button (click)="next('INFORMACION', nuevoClienteForm)" class="btn btn-primary">Siguiente: Domicilios
+                    <button (click)="next('DOMICILIOS', nuevoClienteForm)" class="btn btn-primary">Siguiente: Domicilios
                     </button>
                   </div>
                 </div>
@@ -473,8 +701,10 @@
                       <label for="nombreNuevoCliente">
                         <b>Nombre del domicilio *</b>
                         <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['nombre'].invalid && (nuevoClienteDomicilioForm.controls['nombre'].dirty || nuevoClienteDomicilioForm.controls['nombre'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteDomicilioForm.controls['nombre'].invalid && (nuevoClienteDomicilioForm.controls['nombre'].dirty || nuevoClienteDomicilioForm.controls['nombre'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
                       </label>
                       <input id="nombreNuevoCliente" type="text" class="form-control" placeholder="Ej. Sucursal del norte, Matriz"
                              formControlName="nombre" #nombre>
@@ -483,8 +713,9 @@
                       <label for="matrizNuevoCliente">
                         <b>Matriz *</b>
                         <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['matriz'].invalid && (nuevoClienteDomicilioForm.controls['matriz'].dirty || nuevoClienteDomicilioForm.controls['matriz'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteDomicilioForm.controls['matriz'].invalid && (nuevoClienteDomicilioForm.controls['matriz'].dirty || nuevoClienteDomicilioForm.controls['matriz'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['matriz'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="matrizNuevoCliente" formControlName="matriz" class="form-control">
                         <option value="true">SI</option>
@@ -494,158 +725,192 @@
                   </div>
 
                   <div class="row">
-                    <div class="col-sm-4">
-                      <label for="domicilio1NuevoCliente">
-                        <b>Domicilio * </b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['domicilio1'].invalid && (nuevoClienteDomicilioForm.controls['domicilio1'].dirty || nuevoClienteDomicilioForm.controls['domicilio1'].touched)"
-                          class="text-danger"> - Requerido</span>
+                    <div class="col-sm-3">
+                      <label>
+                        <b>Estado *</b>
                       </label>
-                      <input id="domicilio1NuevoCliente" type="text" class="form-control" placeholder="Ej. Av. Malecon 1000"
-                             formControlName="domicilio1" #address1>
+                      <div class="dropdown" id="customer">
+                        <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                          {{estado === undefined ? 'Ninguno' : estado?.nombre}}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                          <form [formGroup]="estadoSearchForm" class="px-4 py-3" autocomplete="off">
+                            <label for="estadoSearchQuery"><b>Buscar por nombre</b></label>
+                            <input type="text" class="form-control" id="estadoSearchQuery" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
+                                   [ngModelOptions]="{standalone: true}" autocomplete="off">
+                          </form>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" *ngFor="let e of estados | buscarNombrePipe: {nombre: estadoQuery}" (click)="seleccionarEstado(e.uuid)">
+                            {{e.nombre}}
+                          </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarEstado()">Quitar</a>
+                        </div>
+                      </div>
                     </div>
-                    <div class="col-sm-4">
-                      <label for="domicilio2NuevoCliente">
-                        <b>Colonia *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['domicilio2'].invalid && (nuevoClienteDomicilioForm.controls['domicilio2'].dirty || nuevoClienteDomicilioForm.controls['domicilio2'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <input id="domicilio2NuevoCliente" type="text" class="form-control" placeholder="Ej. Colonia 20 de Noviembre"
-                             formControlName="domicilio2" #domicilio2>
-                    </div>
-                    <div class="col-sm-4">
-                      <label for="domicilio3NuevoCliente">
+                    <div class="col-sm-3">
+                      <label>
                         <b>Municipio *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['domicilio3'].invalid && (nuevoClienteDomicilioForm.controls['domicilio3'].dirty || nuevoClienteDomicilioForm.controls['domicilio3'].touched)"
-                          class="text-danger"> - Requerido</span>
                       </label>
-                      <input id="domicilio3NuevoCliente" type="text" class="form-control" placeholder="Ej. Tonala"
-                             formControlName="domicilio3" #domicilio3>
+                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{municipio === undefined ? 'Ninguno' : municipio?.nombre?.substring(0, 15)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                        <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                          <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="municipioSearchQuery" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
+                                 [ngModelOptions]="{standalone: true}" autocomplete="off">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let m of municipios | buscarNombrePipe: {nombre: municipioQuery}" (click)="seleccionarMunicipio(m.uuid)">
+                          {{m.nombre}}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
+                      </div>
+                    </div>
+                    <div class="col-sm-3">
+                      <label>
+                        <b>Localidad *</b>
+                      </label>
+                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{localidad === undefined ? 'Ninguno' : localidad?.nombre?.substring(0, 15)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                        <form [formGroup]="localidadSearchForm" class="px-4 py-3" autocomplete="off">
+                          <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="localidadSearchQuery" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
+                                 [ngModelOptions]="{standalone: true}" autocomplete="off">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let l of localidades | buscarNombrePipe: {nombre: localidadQuery}" (click)="seleccionarLocalidad(l.uuid)">
+                          {{l.nombre}}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
+                      </div>
+                    </div>
+                    <div class="col-sm-3">
+                      <label>
+                        <b>Colonia *</b>
+                      </label>
+                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{colonia === undefined ? 'Ninguno' : colonia?.nombre?.substring(0, 15)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                        <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                          <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="coloniaSearchQuery" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
+                                 [ngModelOptions]="{standalone: true}" autocomplete="off">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let c of colonias | buscarNombrePipe: {nombre: coloniaQuery}" (click)="seleccionarColonia(c.uuid)">
+                          {{c.nombre}}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="colonia !== undefined" (click)="eliminarColonia()">Quitar</a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <label>
+                        <b>Calle * </b>
+                      </label>
+                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{calle === undefined ? 'Ninguno' : calle?.nombre?.substring(0, 15)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                        <form [formGroup]="calleSearchForm" class="px-4 py-3">
+                          <label for="calleSearchQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="calleSearchQuery" placeholder="Ej. Av. Empresarios" [(ngModel)]="calleQuery"
+                                 [ngModelOptions]="{standalone: true}" (keyup)="obtenerCalles($event)" autocomplete="off">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let c of calles" (click)="seleccionarCalle(c.uuid)">
+                          {{c.nombre}}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="calle !== undefined" (click)="eliminarCalle()">Quitar</a>
+                      </div>
+                    </div>
+                    <div class="col-sm-1">
+                      <label for="numeroExterior">
+                        <b>N. Ext * </b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['numeroExterior'].invalid && (nuevoClienteDomicilioForm.controls['numeroExterior'].dirty || nuevoClienteDomicilioForm.controls['numeroExterior'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['numeroExterior'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['numeroExterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="numeroExterior" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
+                    </div>
+                    <div class="col-sm-1">
+                      <label for="numeroInterior">
+                        <b>N. Int </b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['numeroInterior'].invalid && (nuevoClienteDomicilioForm.controls['numeroExterior'].dirty || nuevoClienteDomicilioForm.controls['numeroInterior'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="numeroInterior" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="codigoPostal">
+                        <b>Codigo Postal *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['codigoPostal'].invalid && (nuevoClienteDomicilioForm.controls['codigoPostal'].dirty || nuevoClienteDomicilioForm.controls['codigoPostal'].touched)">
+                            <i *ngIf="nuevoClienteDomicilioForm.controls['codigoPostal'].errors.required" class="text-danger"> - Campo requerido</i>
+                            <i *ngIf="nuevoClienteDomicilioForm.controls['codigoPostal'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                            <i *ngIf="nuevoClienteDomicilioForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                          </span>
+                      </label>
+                      <input id="codigoPostal" type="number" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="domicilio4">
+                        <b>Referencia</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['domicilio4'].invalid && (nuevoClienteDomicilioForm.controls['domicilio4'].dirty || nuevoClienteDomicilioForm.controls['domicilio4'].touched)">
+                            <i *ngIf="nuevoClienteDomicilioForm.controls['domicilio4'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                          </span>
+                      </label>
+                      <input id="domicilio4" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
                     </div>
                   </div>
 
                   <div class="row">
                     <div class="col-sm-3">
-                      <label for="estadoNuevoCliente">
-                        <b>Estado *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['estado'].invalid && (nuevoClienteDomicilioForm.controls['estado'].dirty || nuevoClienteDomicilioForm.controls['estado'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <select id="estadoNuevoCliente" formControlName="estado" class="form-control">
-                        <option value="AGUASCALIENTES">Aguascalientes</option>
-                        <option value="BAJA CALIFORNIA">Baja California</option>
-                        <option value="BAJA CALIFORNIA SUR">Baja California Sur</option>
-                        <option value="CAMPECHE">Campeche</option>
-                        <option value="CIUDAD DE MEXICO">Baja California</option>
-                        <option value="COAHUILA">Coahuila</option>
-                        <option value="COLIMA">Colima</option>
-                        <option value="CHIAPAS">Chiapas</option>
-                        <option value="CHIHUAHUA">Chihuahua</option>
-                        <option value="DURANGO">Durango</option>
-                        <option value="ESTADO DE MEXICO">Estado de Mexico</option>
-                        <option value="GUANAJUATO">Guanajuato</option>
-                        <option value="GUERRERO">Guerrero</option>
-                        <option value="HIDALGO">Hidalgo</option>
-                        <option value="JALISCO">Jalisco</option>
-                        <option value="MICHOACAN">Michoacan</option>
-                        <option value="MORELOS">Morelos</option>
-                        <option value="NAYARIT">Nayarit</option>
-                        <option value="NUEVO LEON">Nuevo Leon</option>
-                        <option value="OAXACA">Oaxaca</option>
-                        <option value="PUEBLA">Puebla</option>
-                        <option value="QUERETARO">Queretaro</option>
-                        <option value="QUINTANA ROO">Quintana Roo</option>
-                        <option value="SAN LUIS POTOSI">San Luis Potosi</option>
-                        <option value="SINALOA">Sinaloa</option>
-                        <option value="SONORA">Sonora</option>
-                        <option value="TABASCO">Tabasco</option>
-                        <option value="TAMAULIPAS">Tamaulipas</option>
-                        <option value="TLAXCALA">Tlaxcala</option>
-                        <option value="VERACRUZ">Veracruz</option>
-                        <option value="YUCATAN">Yucatan</option>
-                        <option value="ZACATECAS">Zacatecas</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="paisNuevoCliente">
-                        <b>Pais *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['pais'].invalid && (nuevoClienteDomicilioForm.controls['pais'].dirty || nuevoClienteDomicilioForm.controls['pais'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <input id="paisNuevoCliente" type="text" class="form-control" placeholder="Ej. Mexico" formControlName="pais"
-                             #pais>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="codigoPostalNuevoCliente">
-                        <b>Codigo Postal *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['codigoPostal'].invalid && (nuevoClienteDomicilioForm.controls['codigoPostal'].dirty || nuevoClienteDomicilioForm.controls['codigoPostal'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <input id="codigoPostalNuevoCliente" type="text" class="form-control" placeholder="Ej. 45010"
-                             formControlName="codigoPostal" #codigoPostal>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="domicilio4NuevoCliente">
-                        <b>Referencia</b>
-                      </label>
-                      <input id="domicilio4NuevoCliente" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio"
-                             formControlName="domicilio4" #domicilio4>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-sm-3">
                       <label for="telefonoFijoNuevoCliente">
                         <b>Telefono Fijo</b>
                         <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['telefonoFijo'].invalid && (nuevoClienteDomicilioForm.controls['telefonoFijo'].dirty || nuevoClienteDomicilioForm.controls['telefonoFijo'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteDomicilioForm.controls['telefonoFijo'].invalid && (nuevoClienteDomicilioForm.controls['telefonoFijo'].dirty || nuevoClienteDomicilioForm.controls['telefonoFijo'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['telefonoFijo'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <input id="telefonoFijoNuevoCliente" type="text" class="form-control" placeholder="Ej. 3312345678"
-                             formControlName="telefonoFijo" #telefonoFijo>
+                             formControlName="telefonoFijo" #telefonoFijo appPhoneMask>
                     </div>
                     <div class="col-sm-3">
                       <label for="telefonoMovilNuevoCliente">
                         <b>Telefono Movil</b>
                         <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['telefonoMovil'].invalid && (nuevoClienteDomicilioForm.controls['telefonoMovil'].dirty || nuevoClienteDomicilioForm.controls['telefonoMovil'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteDomicilioForm.controls['telefonoMovil'].invalid && (nuevoClienteDomicilioForm.controls['telefonoMovil'].dirty || nuevoClienteDomicilioForm.controls['telefonoMovil'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['telefonoMovil'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <input id="telefonoMovilNuevoCliente" type="text" class="form-control" placeholder="Ej. 3312345678"
-                             formControlName="telefonoMovil" #telefonoMovil>
+                             formControlName="telefonoMovil" #telefonoMovil appPhoneMask>
                     </div>
-                    <div class="col-sm-3">
-                      <label for="contactoNuevoCliente">
-                        <b>Contacto *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['contacto'].invalid && (nuevoClienteDomicilioForm.controls['contacto'].dirty || nuevoClienteDomicilioForm.controls['contacto'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <input id="contactoNuevoCliente" placeholder="Ej. Juan Gonzalez" type="text" class="form-control"
-                             formControlName="contacto" #contacto>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="correoElectronicoNuevoCliente">
-                        <b>Correo Electronico *</b>
-                        <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].invalid && (nuevoClienteDomicilioForm.controls['correoElectronico'].dirty || nuevoClienteDomicilioForm.controls['correoElectronico'].touched)"
-                          class="text-danger"> - Requerido</span>
-                      </label>
-                      <input id="correoElectronicoNuevoCliente" placeholder="juan.gonzalez@empresa.com" type="email"
-                             class="form-control" formControlName="correoElectronico" #correoElectronico>
-                    </div>
-                  </div>
-                  <div class="row">
                     <div class="col-sm-3">
                       <label for="tipoInfraestructuraNuevoCliente">
                         <b>Tipo infraestructura *</b>
                         <span
-                          *ngIf="nuevoClienteDomicilioForm.controls['tipoInfraestructura'].invalid && (nuevoClienteDomicilioForm.controls['tipoInfraestructura'].dirty || nuevoClienteDomicilioForm.controls['tipoInfraestructura'].touched)"
-                          class="text-danger"> - Requerido</span>
+                          *ngIf="nuevoClienteDomicilioForm.controls['tipoInfraestructura'].invalid && (nuevoClienteDomicilioForm.controls['tipoInfraestructura'].dirty || nuevoClienteDomicilioForm.controls['tipoInfraestructura'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['tipoInfraestructura'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="tipoInfraestructuraNuevoCliente" formControlName="tipoInfraestructura" class="form-control" (change)="seleccionarTipoInfraestructura($event.target)">
                         <option *ngFor="let t of tiposInfraestructura" value="{{t.uuid}}" >{{t.nombre}}</option>
@@ -654,9 +919,64 @@
                     <div class="col-sm-3" *ngIf="tipoInfraestructura !== undefined && tipoInfraestructura.nombre === 'Otro'">
                       <label for="tipoInfraestructuraOtroNuevoCliente">
                         <b>Especificar </b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['tipoInfraestructuraOtro'].invalid && (nuevoClienteDomicilioForm.controls['tipoInfraestructuraOtro'].dirty || nuevoClienteDomicilioForm.controls['tipoInfraestructuraOtro'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['tipoInfraestructuraOtro'].errors.maxlength" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <input id="tipoInfraestructuraOtroNuevoCliente" placeholder="Mencionar otro tipo de infraestructura" type="text"
                              class="form-control" formControlName="tipoInfraestructuraOtro" #tipoInfraestructuraOtro>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <label for="contactoNuevoCliente">
+                        <b>Nombre Contacto *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['contacto'].invalid && (nuevoClienteDomicilioForm.controls['contacto'].dirty || nuevoClienteDomicilioForm.controls['contacto'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['contacto'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['contacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="contactoNuevoCliente" placeholder="Ej. Juan" type="text" class="form-control"
+                             formControlName="contacto" #contacto>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="apellidoPaternoContactoNuevoCliente">
+                        <b>Ap. Paterno Contacto *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].invalid && (nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].dirty || nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoPaternoContacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="apellidoPaternoContactoNuevoCliente" placeholder="Ej. Gonzalez" type="text" class="form-control"
+                             formControlName="apellidoPaternoContacto" #apellidoPaternoContacto>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="apellidoMaternoContactoNuevoCliente">
+                        <b>Ap. Materno Contacto *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].invalid && (nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].dirty || nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['apellidoMaternoContacto'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="apellidoMaternoContactoNuevoCliente" placeholder="Ej. Gonzalez" type="text" class="form-control"
+                             formControlName="apellidoMaternoContacto" #apellidoMaternoContacto>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="correoElectronicoNuevoCliente">
+                        <b>Correo Electronico *</b>
+                        <span
+                          *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].invalid && (nuevoClienteDomicilioForm.controls['correoElectronico'].dirty || nuevoClienteDomicilioForm.controls['correoElectronico'].touched)">
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                          <i *ngIf="nuevoClienteDomicilioForm.controls['correoElectronico'].errors.email" class="text-danger"> - No es un email</i>
+                        </span>
+                      </label>
+                      <input id="correoElectronicoNuevoCliente" placeholder="juan.gonzalez@empresa.com" type="email"
+                             class="form-control" formControlName="correoElectronico" #correoElectronico>
                     </div>
                   </div>
                   <div class="form-row" style="margin-top: 20px;">
@@ -671,16 +991,23 @@
                       <tr>
                         <td><b>Nombre</b></td>
                         <td><b>Domicilio</b></td>
+                        <td><b>Colonia</b></td>
+                        <td><b>Localidad</b></td>
                         <td><b>Info. Contacto</b></td>
                         <td><b>Tipo infraestructura</b></td>
                         <td><b>Acciones</b></td>
                       </tr>
-                      <tr *ngFor="let d of domicilios">
+                      <tr *ngFor="let d of domicilios; let i = index">
                         <td>{{d.nombre}}</td>
-                        <td>{{d.domicilio1}}</td>
+                        <td>{{d.calleCatalogo?.nombre + " " + d.numeroExterior + " " + d.numeroInterior}}</td>
+                        <td>{{d.coloniaCatalogo?.nombre}}</td>
+                        <td>{{d.localidadCatalogo?.nombre}}</td>
                         <td>{{d.contacto}}</td>
-                        <td>{{d.tipoInfraestructura?.nombre}}</td>
-                        <td></td>
+                        <td>{{d.tipoInfraestructura.descripcion}}</td>
+                        <td>
+                          <fa-icon [icon]="faPencilAlt" title="Editar domicilio" (click)="modificarDomicilio(i)"></fa-icon>
+                          <fa-icon [icon]="faTrash" title="Eliminar domicilio" (click)="mostrarQuitarClienteDomicilioModal(i)"></fa-icon>
+                        </td>
                       </tr>
                     </table>
                   </div>
@@ -689,10 +1016,10 @@
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button (click)="previous('INFORMACION', nuevoClienteForm)" class="btn btn-primary">Anterior:
+                    <button (click)="previous()" class="btn btn-primary">Anterior:
                       Info. Cliente
                     </button>
-                    <button (click)="next('DOMICILIOS', nuevoClienteForm)" class="btn btn-primary">Siguiente:
+                    <button (click)="next('RESUMEN', undefined)" class="btn btn-primary">Siguiente:
                       Resumen
                     </button>
                   </div>
@@ -703,7 +1030,82 @@
               <div id="test-l-3" class="content">
                 <div class="row">
                   <div class="col-sm-12">
-
+                    <h2>El cliente se ha guardado con exito</h2>
+                    <p>A continuacion, veras los detalles. Para finalizar, actualiza la pagina o dale click en el boton terminar</p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Info. Cliente</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Nombre comercial</b></td>
+                        <td>{{cliente?.nombreComercial}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Razon social</b></td>
+                        <td>{{cliente?.razonSocial}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Tipo de persona</b></td>
+                        <td>{{cliente?.tipoPersona}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>RFC</b></td>
+                        <td>{{cliente?.rfc}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Fecha inicio</b></td>
+                        <td>{{cliente?.fechaInicio}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Requiere canes</b></td>
+                        <td>{{cliente?.canes}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Requiere armas</b></td>
+                        <td>{{cliente?.armas}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Domicilios</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Nombre</b></td>
+                        <td><b>Domicilio</b></td>
+                        <td><b>Datos contacto</b></td>
+                        <td><b>Tipo infraestructura</b></td>
+                      </tr>
+                      <tr *ngFor="let d of domicilios; let i = index">
+                        <td>{{d.nombre}}</td>
+                        <td>
+                          {{d.domicilio1}}. Colonia: {{d.domicilio2}}<br>
+                          {{d.domicilio3}}, {{d.estado}}, {{d.pais}}<br>
+                          C.P. {{d.codigoPostal}}
+                        </td>
+                        <td>
+                          Nombre contacto: {{d.contacto}}, email: {{d.telefonoFijo}}. <br>
+                          Telefonos: {{d.telefonoFijo}}; {{d.telefonoMovil}}
+                        </td>
+                        <td>
+                          {{d.tipoInfraestructura?.nombre}}
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary" (click)="previous()">
+                      Anterior: Domicilios
+                    </button>
+                    <button class="btn btn-primary" (click)="finalizar()">
+                      Terminar
+                    </button>
                   </div>
                 </div>
               </div>
@@ -711,6 +1113,111 @@
           </div>
         </div>
       </div>
+    </div>
+  </ng-template>
+
+
+
+  <ng-template #eliminarClienteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarClienteModal">Eliminando un cliente </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="motivosEliminacionForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBaja">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['motivoBaja'].invalid && (motivosEliminacionForm.controls['motivoBaja'].dirty || motivosEliminacionForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBaja">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionForm.controls['fechaBaja'].invalid && (motivosEliminacionForm.controls['fechaBaja'].dirty || motivosEliminacionForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBaja" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBaja">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBaja">
+              <b>Observaciones *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['observacionesBaja'].invalid && (motivosEliminacionForm.controls['observacionesBaja'].dirty || motivosEliminacionForm.controls['observacionesBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['observacionesBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
+            </label>
+            <textarea id="observacionesBaja" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar un cliente. Toma en cuenta que al eliminarlo, todos los domicilios seran eliminados y esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarCliente(motivosEliminacionForm)">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarDomicilioClienteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarDomicilioClienteModal">Eliminando un domicilio del cliente </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar el domicilio del cliente. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarDomicilioCliente()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #quitarDomicilioClienteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="quitarDomicilioClienteModal">Quitando un domicilio del cliente </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de quitar el domicilio del cliente. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarQuitarDomicilioCliente()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 </div>

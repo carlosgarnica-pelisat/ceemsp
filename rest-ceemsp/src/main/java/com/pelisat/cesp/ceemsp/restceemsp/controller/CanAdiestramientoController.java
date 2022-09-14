@@ -34,6 +34,14 @@ public class CanAdiestramientoController {
         return canAdiestramientoService.obtenerAdiestramientosPorCanUuid(empresaUuid, canUuid);
     }
 
+    @GetMapping(value = CAN_ADIESTRAMIENTO_URI + "/todos", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<CanAdiestramientoDto> obtenerTodosCanesAdiestramientosPorCanUuid(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "canUuid") String canUuid
+    ) {
+        return canAdiestramientoService.obtenerTodosAdiestramientosPorCanUuid(empresaUuid, canUuid);
+    }
+
     @PostMapping(value = CAN_ADIESTRAMIENTO_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public CanAdiestramientoDto guardarCanAdiestramiento(
             @PathVariable(value = "empresaUuid") String empresaUuid,

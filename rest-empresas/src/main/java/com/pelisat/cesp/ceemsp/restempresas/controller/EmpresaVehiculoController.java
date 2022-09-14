@@ -1,11 +1,13 @@
 package com.pelisat.cesp.ceemsp.restempresas.controller;
 
+import com.google.gson.Gson;
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoDto;
 import com.pelisat.cesp.ceemsp.restempresas.service.EmpresaVehiculoService;
 import com.pelisat.cesp.ceemsp.restempresas.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -28,17 +30,17 @@ public class EmpresaVehiculoController {
 
     @GetMapping(value = EMPRESA_VEHICULOS_URI, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<VehiculoDto> obtenerVehiculosPorEmpresa(
-            @PathVariable(value = "empresaUuid") String empresaUuid
-    ) {
-        return empresaVehiculoService.obtenerVehiculos(empresaUuid);
+            HttpServletRequest httpServletRequest
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return empresaVehiculoService.obtenerVehiculos(username);
     }
 
     @GetMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public VehiculoDto obtenerVehiculoPorUuid(
-            @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "vehiculoUuid") String vehiculoUuid
     ) {
-        return empresaVehiculoService.obtenerVehiculoPorUuid(empresaUuid, vehiculoUuid);
+        return empresaVehiculoService.obtenerVehiculoPorUuid(vehiculoUuid);
     }
 
     @PostMapping(value = EMPRESA_VEHICULOS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -63,9 +65,11 @@ public class EmpresaVehiculoController {
     @DeleteMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public VehiculoDto eliminarVehiculo(
             @PathVariable(value = "vehiculoUuid") String vehiculoUuid,
+            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam("vehiculo") String vehiculo,
             HttpServletRequest httpServletRequest
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
-        return empresaVehiculoService.eliminarVehiculo(vehiculoUuid, username);
+        return empresaVehiculoService.eliminarVehiculo(vehiculoUuid, username, new Gson().fromJson(vehiculo, VehiculoDto.class), archivo);
     }
 }

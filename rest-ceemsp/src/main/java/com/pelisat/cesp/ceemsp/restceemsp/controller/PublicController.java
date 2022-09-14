@@ -1,8 +1,6 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
-import com.pelisat.cesp.ceemsp.database.dto.ComunicadoGeneralDto;
-import com.pelisat.cesp.ceemsp.database.dto.ExisteVehiculoDto;
-import com.pelisat.cesp.ceemsp.database.dto.NextRegisterDto;
+import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.restceemsp.service.ComunicadoGeneralService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.PublicService;
@@ -29,6 +27,11 @@ public class PublicController {
             @RequestBody NextRegisterDto nextRegisterDto
     ) {
         return publicService.findNextRegister(nextRegisterDto);
+    }
+
+    @PostMapping(value = "/public/visitas/siguiente", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ProximaVisitaDto generarSiguienteVisita() {
+        return publicService.buscarProximaVisita();
     }
 
     @PostMapping(value = "/public/vehiculos/existencias", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)

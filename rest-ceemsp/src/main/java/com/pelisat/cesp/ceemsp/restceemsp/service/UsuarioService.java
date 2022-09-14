@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface UsuarioService {
     List<UsuarioDto> getAllUsers();
+    List<UsuarioDto> obtenerUsuariosInternos();
     UsuarioDto saveUser(UsuarioDto usuarioDto, String username);
     UsuarioDto getUserByUuid(String uuid);
     UsuarioDto getUserByUsername(String username);

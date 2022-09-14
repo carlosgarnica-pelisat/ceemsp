@@ -84,6 +84,10 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
         return empresaEscrituras.stream()
                 .map(empresaEscritura -> {
                     EmpresaEscrituraDto empresaEscrituraDto = daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscritura);
+                    empresaEscrituraDto.setEstadoCatalogo(estadoService.obtenerPorId(empresaEscritura.getEstadoCatalogo()));
+                    empresaEscrituraDto.setMunicipioCatalogo(municipioService.obtenerMunicipioPorId(empresaEscritura.getMunicipioCatalogo()));
+                    empresaEscrituraDto.setLocalidadCatalogo(localidadService.obtenerLocalidadPorId(empresaEscritura.getLocalidadCatalogo()));
+
                     List<EmpresaEscrituraSocio> socios = empresaEscrituraSociosRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
                     List<EmpresaEscrituraApoderado> apoderados = empresaEscrituraApoderadoRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
                     List<EmpresaEscrituraRepresentante> representantes = empresaEscrituraRepresentanteRepository.findAllByEscrituraAndEliminadoFalse(empresaEscritura.getId());
@@ -234,7 +238,13 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
                 empresaEscrituraConsejoRepository.saveAll(empresaEscrituraConsejos);
             }
 
-            return daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscrituraCreada);
+            EmpresaEscrituraDto response = daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscrituraCreada);
+            String[] tokens = empresaEscrituraCreada.getRutaArchivo().split("[\\\\|/]");
+            response.setNombreArchivo(tokens[tokens.length - 1]);
+            response.setLocalidadCatalogo(empresaEscrituraDto.getLocalidadCatalogo());
+            response.setMunicipioCatalogo(empresaEscrituraDto.getMunicipioCatalogo());
+            response.setEstadoCatalogo(empresaEscrituraDto.getEstadoCatalogo());
+            return response;
         } catch (Exception ex) {
             logger.warn(ex.getMessage());
             archivosService.eliminarArchivo(ruta);
@@ -244,7 +254,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
 
     @Transactional
     @Override
-    public EmpresaEscrituraDto modificarEscritura(String empresaUuid, String escrituraUuid, EmpresaEscrituraDto empresaEscrituraDto, String username) {
+    public EmpresaEscrituraDto modificarEscritura(String empresaUuid, String escrituraUuid, EmpresaEscrituraDto empresaEscrituraDto, MultipartFile multipartFile, String username) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || empresaEscrituraDto == null) {
             logger.warn("El uuid de la empresa, la escritura, el usuario o la escritura a modificar vienen como nulas o vacias");
             throw new InvalidDataException();
@@ -275,8 +285,27 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
 
         daoHelper.fulfillAuditorFields(false, empresaEscritura, usuarioDto.getId());
 
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Eliminando y modificando");
+            archivosService.eliminarArchivo(empresaEscritura.getRutaArchivo());
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.ESCRITURA, empresaUuid);
+                empresaEscritura.setRutaArchivo(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+
         empresaEscrituraRepository.save(empresaEscritura);
-        return daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscritura);
+        EmpresaEscrituraDto response = daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscritura);
+        String[] tokens = empresaEscritura.getRutaArchivo().split("[\\\\|/]");
+        response.setNombreArchivo(tokens[tokens.length - 1]);
+        response.setLocalidadCatalogo(empresaEscrituraDto.getLocalidadCatalogo());
+        response.setMunicipioCatalogo(empresaEscrituraDto.getMunicipioCatalogo());
+        response.setEstadoCatalogo(empresaEscrituraDto.getEstadoCatalogo());
+        return response;
     }
 
     @Transactional

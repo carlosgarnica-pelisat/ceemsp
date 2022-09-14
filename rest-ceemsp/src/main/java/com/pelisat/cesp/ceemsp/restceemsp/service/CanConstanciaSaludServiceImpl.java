@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,7 +62,7 @@ public class CanConstanciaSaludServiceImpl implements CanConstanciaSaludService 
 
         logger.info("Obteniendo constancias de salud del can con uuid [{}]", canUuid);
 
-        Can can = canRepository.getByUuidAndEliminadoFalse(canUuid);
+        Can can = canRepository.getByUuid(canUuid);
 
         if(can == null) {
             logger.warn("El can viene como nulo o vacio");
@@ -70,6 +71,58 @@ public class CanConstanciaSaludServiceImpl implements CanConstanciaSaludService 
 
         List<CanConstanciaSalud> canConstanciasdeSalud = canConstanciaSaludRepository.findAllByCanAndEliminadoFalse(can.getId());
         return canConstanciasdeSalud.stream().map(daoToDtoConverter::convertDaoToDtoCanConstanciaSalud).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CanConstanciaSaludDto> obtenerTodasConstanciasSaludPorCanUuid(String empresaUuid, String canUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid)) {
+            logger.warn("El uuid de la empresa o del can vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo todas las constancias de salud del can con uuid [{}]", canUuid);
+
+        Can can = canRepository.getByUuid(canUuid);
+
+        if(can == null) {
+            logger.warn("El can viene como nulo o vacio");
+            throw new NotFoundResourceException();
+        }
+
+        List<CanConstanciaSalud> canConstanciasdeSalud = canConstanciaSaludRepository.findAllByCan(can.getId());
+        return canConstanciasdeSalud.stream().map(daoToDtoConverter::convertDaoToDtoCanConstanciaSalud).collect(Collectors.toList());
+    }
+
+    @Override
+    public File obtenerPdfConstanciaSalud(String empresaUuid, String canUuid, String constanciaSaludUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(constanciaSaludUuid)) {
+            logger.warn("El uuid de la empresa, el can, el usuario o la constancia de salud de vacunacion a guardar vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando la cartilla de vacunacion en PDF con el uuid [{}]", constanciaSaludUuid);
+
+        CanConstanciaSalud canConstanciaSalud = canConstanciaSaludRepository.findByUuidAndEliminadoFalse(constanciaSaludUuid);
+
+        if(canConstanciaSalud == null) {
+            logger.warn("La constancia no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(StringUtils.isBlank(canConstanciaSalud.getRutaDocumento())) {
+            logger.warn("No hay archivo definido para esta constancia de salud");
+            throw new NotFoundResourceException();
+        }
+
+        File constanciaSaludPdf = new File(canConstanciaSalud.getRutaDocumento());
+
+        if(!constanciaSaludPdf.exists() &&
+                constanciaSaludPdf.isDirectory()) {
+            logger.warn("El archvo no existe en el sistema de archivos");
+            throw new NotFoundResourceException();
+        }
+
+        return constanciaSaludPdf;
     }
 
     @Override

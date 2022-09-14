@@ -481,4 +481,49 @@ public class DaoToDtoConverter {
 
         return modelMapper.map(colonia, ColoniaDto.class);
     }
+
+    public BuzonInternoDto convertDaoToDtoBuzonInterno(BuzonInterno buzonInterno) {
+        if(buzonInterno == null) {
+            logger.warn("El buzon interno a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(buzonInterno, BuzonInternoDto.class);
+    }
+
+    public BuzonInternoDestinatarioDto convertDaoToDtoBuzonInternoDestinatario(BuzonInternoDestinatario buzonInternoDestinatario) {
+        if(buzonInternoDestinatario == null) {
+            logger.warn("El buzon interno a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(buzonInternoDestinatario, BuzonInternoDestinatarioDto.class);
+    }
+
+    public AcuerdoDto convertDaoToDtoAcuerdo(Acuerdo acuerdo) {
+        if(acuerdo == null) {
+            logger.warn("El acuerdo viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(acuerdo, AcuerdoDto.class);
+    }
+
+    public EmpresaUniformeElementoMovimientoDto convertDaoToDtoUniformeElementoMovimiento(EmpresaUniformeElementoMovimiento empresaUniformeElementoMovimiento) {
+        if(empresaUniformeElementoMovimiento == null) {
+            logger.warn("El movimiento viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaUniformeElementoMovimiento, EmpresaUniformeElementoMovimientoDto.class);
+    }
+
+    public EmpresaEquipoMovimientoDto convertDaoToDtoEmpresaEquipoMovimiento(EmpresaEquipoMovimiento empresaEquipoMovimiento) {
+        if(empresaEquipoMovimiento == null) {
+            logger.warn("El movimiento viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaEquipoMovimiento, EmpresaEquipoMovimientoDto.class);
+    }
 }
