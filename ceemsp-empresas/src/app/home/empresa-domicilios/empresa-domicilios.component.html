@@ -1,4 +1,4 @@
-\<!-- Begin Page Content -->
+<!-- Begin Page Content -->
 <div class="container-fluid">
 
   <!-- Page Heading -->
@@ -51,6 +51,18 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'TELEFONOS' }" (click)="cambiarPestana('TELEFONOS')">Telefonos</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row" *ngIf="pestanaActual === 'DETALLES'">
+        <div class="col-sm-12">
           <table class="table">
             <tr>
               <td><b>Nombre del domicilio:</b></td>
@@ -69,6 +81,64 @@
               <td>{{domicilio?.telefonoMovil}}</td>
             </tr>
 
+          </table>
+        </div>
+      </div>
+      <div class="row" *ngIf="pestanaActual === 'TELEFONOS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Tipo</b></td>
+              <td><b>Telefono</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let t of domicilio?.telefonos; let i = index">
+              <td [ngSwitch]="t?.tipoTelefono">
+                <span *ngSwitchCase="'FIJO'">Telefono fijo</span>
+                <span *ngSwitchCase="'CELULAR'">Celular</span>
+                <span *ngSwitchCase="'FAX'">Fax</span>
+              </td>
+              <td>{{t?.telefono}}</td>
+              <td>
+                <fa-icon [icon]="faPencil" (click)="mostrarEditarTelefonoForm(i)"></fa-icon>
+                <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarTelefono(t?.uuid)"></fa-icon>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3" *ngIf="showTelefonoForm">
+                <form [formGroup]="crearTelefonoForm">
+                  <div class="form-row">
+                    <div class="col-sm-6">
+                      <b>Tipo de telefono *</b>
+                      <span
+                        *ngIf="crearTelefonoForm.controls['tipoTelefono'].invalid && (crearTelefonoForm.controls['tipoTelefono'].dirty || crearTelefonoForm.controls['tipoTelefono'].touched)">
+                        <i *ngIf="crearTelefonoForm.controls['tipoTelefono'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+                      <select id="tipoTelefono" class="form-control" formControlName="tipoTelefono">
+                        <option value="FIJO">Telefono fijo</option>
+                        <option value="CELULAR">Celular</option>
+                        <option value="FAX">Fax</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-6">
+                      <b>Telefono *</b>
+                      <span
+                        *ngIf="crearTelefonoForm.controls['telefono'].invalid && (crearTelefonoForm.controls['telefono'].dirty || crearTelefonoForm.controls['telefono'].touched)">
+                        <i *ngIf="crearTelefonoForm.controls['telefono'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+                      <input id="telefono" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefono" appPhoneMask #telefonoFijo>
+                    </div>
+                  </div>
+                </form>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <button class="btn btn-sm btn-primary" *ngIf="!showTelefonoForm" (click)="mostrarAgregarTelefonoForm()">Agregar telefono</button>
+                <button class="btn btn-sm btn-primary" *ngIf="showTelefonoForm" (click)="guardarTelefono(crearTelefonoForm)">Guardar</button>
+                <button class="btn btn-sm btn-danger" *ngIf="showTelefonoForm" (click)="mostrarAgregarTelefonoForm()">Cancelar</button>
+              </td>
+            </tr>
           </table>
         </div>
       </div>

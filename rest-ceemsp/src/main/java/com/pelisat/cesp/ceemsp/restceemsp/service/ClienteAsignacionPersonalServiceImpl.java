@@ -70,6 +70,8 @@ public class ClienteAsignacionPersonalServiceImpl implements ClienteAsignacionPe
 
         return asignaciones.stream().map(a -> {
             ClienteAsignacionPersonalDto capd = new ClienteAsignacionPersonalDto();
+            capd.setId(a.getId());
+            capd.setUuid(a.getUuid());
             capd.setPersonal(personaService.obtenerPorId(a.getPersonal()));
             capd.setDomicilio(clienteDomicilioService.obtenerPorId(a.getClienteDomicilio()));
             return capd;

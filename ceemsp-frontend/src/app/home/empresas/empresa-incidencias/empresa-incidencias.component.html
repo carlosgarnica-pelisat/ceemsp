@@ -81,6 +81,10 @@
                 <span *ngSwitchCase="'IMPROCEDENTE'">Improcedente</span>
               </td>
             </tr>
+            <tr>
+              <td>Ubicacion</td>
+              <td><button class="btn btn-sm btn-primary" (click)="revelarUbicacion()">Ver ubicacion</button></td>
+            </tr>
           </table>
         </div>
       </div>
@@ -114,6 +118,8 @@
           <div class="card" *ngFor="let c of incidencia?.comentarios">
             <div class="card-header">
               Comentario de: {{c.usuario?.nombres + " " + c.usuario?.apellidos}} a las {{c.fecha}}
+              (<a style="cursor: pointer;" (click)="mostrarModalEditarComentario(c?.uuid)">Modificar</a> |
+              <a style="cursor: pointer;" (click)="mostrarModalEliminarComentario(c?.uuid)">Eliminar</a>)
             </div>
             <div class="card-body" [innerHTML]="c?.comentario">
             </div>
@@ -285,7 +291,7 @@
                         <b>Vehiculo *</b>
                       </label>
                       <select formControlName="vehiculoInvolucrado" id="vehiculo" class="form-control">
-                        <option *ngFor="let v of vehiculos" value="{{v?.uuid}}">{{v?.placas}} - {{v.marca.nombre + " " + v.submarca.nombre + " " + v.anio}}</option>
+                        <option *ngFor="let v of vehiculos" value="{{v?.uuid}}">{{v?.placas}} - {{v.marca.nombre + " " + (v.submarca === null ? '' : v.submarca?.nombre) + " " + v.anio}}</option>
                       </select>
                     </div>
                   </div>
@@ -374,6 +380,15 @@
                 <select id="cliente" class="form-control" formControlName="cliente" (change)="seleccionarCliente($event.target)">
                   <option *ngFor="let c of clientes" value="{{c.uuid}}">{{c.razonSocial}}</option>
                 </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-sm-4">
+                <label>
+                  <b>Ubicacion</b>
+                </label>
+                <br>
+                <button class="btn btn-primary btn-sm" (click)="mostrarModalSeleccionarUbicacion()">Seleccionar ubicacion</button>
               </div>
             </div>
           </form>
@@ -580,7 +595,7 @@
                             <b>Vehiculo *</b>
                           </label>
                           <select id="vehiculo" class="form-control" formControlName="vehiculoInvolucrado">
-                            <option *ngFor="let v of vehiculos" value="{{v.uuid}}">{{v?.placas}} - {{v.marca.nombre + " " + v.submarca.nombre + " " + v.anio}}</option>
+                            <option *ngFor="let v of vehiculos" value="{{v.uuid}}">{{v?.placas}} - {{v.marca.nombre + " " + (v.submarca === null ? '' : v.submarca?.nombre) + " " + v.anio}}</option>
                           </select>
                         </div>
                       </div>
@@ -655,7 +670,7 @@
 
   <ng-template #responderIncidenciaModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="responderIncidenciaModal">Seleccionar persona a asignar </h4>
+      <h4 class="modal-title" id="responderIncidenciaModal">Responder incidencia </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -689,7 +704,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="agregarComentario(responderIncidenciaForm)">Asignar</button>
+      <button class="btn btn-primary" (click)="agregarComentario(responderIncidenciaForm)">Responder incidencia</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
@@ -725,7 +740,7 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p><br><b>Estas a punto de quitar un arma de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</b></p>
+          <p>Estas a punto de quitar un arma de la incidencia. Esta operacion no se podra deshacer. Deseas continuar?</p>
         </div>
       </div>
     </div>
@@ -745,7 +760,7 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p><br><b>Estas a punto de quitar un can de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</b></p>
+          <p>Estas a punto de quitar un can de la incidencia. Esta operacion no se podra deshacer. Deseas continuar?</p>
         </div>
       </div>
     </div>
@@ -765,7 +780,7 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p><br><b>Estas a punto de quitar un vehiculo de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</b></p>
+          <p>Estas a punto de quitar un vehiculo de la incidencia. Esta operacion no se podra deshacer. Deseas continuar?</p>
         </div>
       </div>
     </div>
@@ -786,7 +801,7 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estas a punto de eliminar una persona de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+          <p>Estas a punto de eliminar una persona de la incidencia. Esta operacion no se podra deshacer. Deseas continuar?</p>
         </div>
       </div>
     </div>
@@ -806,7 +821,7 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p><br><b>Estas a punto de eliminar un arma de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</b></p>
+          <p>Estas a punto de eliminar un arma de la incidencia. Esta operacion no se podra deshacer. Deseas continuar?</p>
         </div>
       </div>
     </div>
@@ -826,7 +841,7 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p><br><b>Estas a punto de eliminar un can de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</b></p>
+          <p>Estas a punto de eliminar un can de la incidencia. Esta operacion no se podra deshacer. Deseas continuar?</p>
         </div>
       </div>
     </div>
@@ -846,7 +861,7 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p><br><b>Estas a punto de eliminar un vehiculo de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</b></p>
+          <p>Estas a punto de eliminar un vehiculo de la incidencia. Esta operacion no se podra deshacer. Deseas continuar?</p>
         </div>
       </div>
     </div>
@@ -866,13 +881,108 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p><br><b>Estas a punto de eliminar un archivo de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</b></p>
+          <p>Estas a punto de eliminar un archivo de la incidencia. Esta operacion no se podra deshacer. Deseas continuar?</p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarArchivo()">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarIncidenciaComentarioModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarIncidenciaComentarioModal">Eliminando el comentario de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar el comentario de la incidencia. Esta operacion no se podra deshacer y la empresa involucrada sera notificada de esta accion. Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarIncidencia()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #editarComentarioIncidenciaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="editarComentarioIncidenciaModal">Modificando el comentario de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ckeditor editorUrl="http://www.pelisat.com.mx/cdn/ckeditor/ckeditor.js" [(ngModel)]="editorData"></ckeditor>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarCambiosComentario()">Guardar cambios</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarUbicacionModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarUbicacionModal">Mostrando ubicacion de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.close()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <agm-map [latitude]="convertStringToNumber(this.incidencia?.latitud)" [longitude]="convertStringToNumber(this.incidencia?.longitud)" [zoom]="16">
+            <agm-marker [latitude]="convertStringToNumber(this.incidencia?.latitud)" [longitude]="convertStringToNumber(this.incidencia?.longitud)"></agm-marker>
+          </agm-map>
+          <div>Latitud: {{this.incidencia?.latitud}}</div>
+          <div>Longitud: {{this.incidencia?.longitud}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #seleccionarUbicacionModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="seleccionarUbicacionModal">Seleccionar la ubicacion de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="quitarUbicacion()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <!--div class="form-group">
+            <label>Selecciona la ubicacion moviendo el pin o introduce la ubicacion</label>
+            <input type="text" class="form-control" (keydown.enter)="$event.preventDefault()" placeholder="Search Nearest Location" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #busquedaDireccion>
+          </div-->
+          <div class="form-group">
+            <p>Selecciona la ubicacion arrastrando y soltando el marcador rojo</p>
+          </div>
+          <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="zoom">
+            <agm-marker [latitude]="latitude" [longitude]="longitude" [markerDraggable]="true"
+                        (dragEnd)="markerDragEnd($event)"></agm-marker>
+          </agm-map>
+          <div>Latitud: {{latitude}}</div>
+          <div>Longitud: {{longitude}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Seleccionar</button>
+      <button class="btn btn-danger" (click)="quitarUbicacion()">Cancelar</button>
     </div>
   </ng-template>
 </div>

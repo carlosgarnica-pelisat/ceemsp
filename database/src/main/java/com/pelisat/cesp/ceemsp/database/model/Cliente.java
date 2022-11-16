@@ -49,6 +49,9 @@ public class Cliente extends CommonModel {
     @Column(name = "OBSERVACIONES_BAJA")
     private String observacionesBaja;
 
+    @Column(name = "FECHA_BAJA")
+    private LocalDate fechaBaja;
+
     @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
     private String documentoFundatorioBaja;
 }

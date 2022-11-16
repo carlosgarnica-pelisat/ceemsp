@@ -30,6 +30,9 @@ import Incidencia from "../_models/Incidencia";
 import {formatDate} from "@angular/common";
 import Acuerdo from "../_models/Acuerdo";
 import ClienteAsignacionPersonal from "../_models/ClienteAsignacionPersonal";
+import ClienteModalidad from "../_models/ClienteModalidad";
+import IncidenciaComentario from "../_models/IncidenciaComentario";
+import EmpresaDomicilioTelefono from "../_models/EmpresaDomicilioTelefono";
 
 @Injectable({
   providedIn: 'root'
@@ -148,6 +151,23 @@ export class EmpresaService {
       `${this.uri}/empresas/${uuid}/domicilios/${domicilioUuid}/borrar`, formData, {
         headers: {'X-isFile': 'true'}
       })
+  }
+
+  // Telefonos de dommicilios
+  obtenerTelefonosPorDomicilio(uuid: string, domicilioUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/domicilios/${domicilioUuid}/telefonos`);
+  }
+
+  guardarTelefonoDomicilio(uuid: string, domicilioUuid: string, telefono: EmpresaDomicilioTelefono) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/domicilios/${domicilioUuid}/telefonos`, telefono);
+  }
+
+  modificarTelefonoDomicilio(uuid: string, domicilioUuid: string, telefonoUuid: string, telefono: EmpresaDomicilioTelefono) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/domicilios/${domicilioUuid}/telefonos/${telefonoUuid}`, telefono);
+  }
+
+  eliminarTelefonoDomicilio(uuid: string, domicilioUuid: string, telefonoUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/domicilios/${domicilioUuid}/telefonos/${telefonoUuid}`);
   }
 
   // Escrituras
@@ -446,6 +466,23 @@ export class EmpresaService {
     return this.http.delete(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/asignaciones/${uuidAsignacion}`);
   }
 
+  // Clientes modalidades
+  obtenerModalidadesCliente(uuidEmpresa: string, uuidCliente: string) {
+    return this.http.get(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/modalidades`);
+  }
+
+  guardarModalidadCliente(uuidEmpresa: string, uuidCliente: string, modalidadCliente: ClienteModalidad) {
+    return this.http.post(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/modalidades`, modalidadCliente)
+  }
+
+  modificarModalidadCliente(uuidEmpresa: string, uuidCliente: string, uuidModalidad: string, modalidadCliente: ClienteModalidad) {
+    return this.http.put(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/modalidades/${uuidModalidad}`, modalidadCliente);
+  }
+
+  eliminarModalidadCliente(uuidEmpresa: string, uuidCliente: string, uuidModalidad: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/modalidades/${uuidModalidad}`)
+  }
+
   // Personal
   obtenerPersonal(uuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/personas`)
@@ -463,16 +500,20 @@ export class EmpresaService {
     return this.http.post(`${this.uri}/empresas/${uuid}/personas`, persona);
   }
 
-  modificarInformacionTrabajo(uuid: string, personaUuid: string, persona: Persona) {
-    return this.http.put(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/puestos`, persona)
+  modificarInformacionTrabajo(uuid: string, personaUuid: string, persona: FormData) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/puestos`, persona, {
+      headers: {'X-isFile': 'true'}
+    })
   }
 
   modificarPersonal(uuid: string, personaUuid: string, persona: Persona) {
     return this.http.put(`${this.uri}/empresas/${uuid}/personas/${personaUuid}`, persona);
   }
 
-  eliminarPersonal(uuid: string, personaUuid: string) {
-    return this.http.delete(`${this.uri}/empresas/${uuid}/personas/${personaUuid}`);
+  eliminarPersonal(uuid: string, personaUuid: string,  persona: FormData) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/personas/${personaUuid}`, persona, {
+      headers: {'X-isFile': 'true'}
+    });
   }
 
   // Personal certificaciones
@@ -837,6 +878,18 @@ export class EmpresaService {
     return this.http.post(
       `${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/archivos`,
       formData, {headers: {'X-isFile': 'true'}})
+  }
+
+  obtenerComentariosIncidencia(uuid: string, incidenciaUuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/comentarios`)
+  }
+
+  modificarComentarioIncidencia(uuid: string, incidenciaUuid: string, comentarioUuid: string, comentario: IncidenciaComentario) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/comentarios/${comentarioUuid}`, comentario)
+  }
+
+  eliminarComentarioIncidencia(uuid: string, incidenciaUuid: string, comentarioUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/incidencias/${incidenciaUuid}/comentarios/${comentarioUuid}`);
   }
 
   // Usuario

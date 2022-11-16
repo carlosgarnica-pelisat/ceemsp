@@ -3,6 +3,11 @@ import {Deserializable} from "./Deserializable";
 export default class Acuerdo implements Deserializable {
   id: number;
   uuid: string;
+  tipo: string;
+  fechaInicio: string;
+  fechaFin: string;
+  multaUmas: number;
+  multaPesos: number;
   rutaArchivo: string;
   fecha: string;
   observaciones: string;

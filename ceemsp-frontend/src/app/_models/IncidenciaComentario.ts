@@ -3,6 +3,8 @@ import Usuario from "./Usuario";
 
 export default class IncidenciaComentario implements Deserializable {
 
+  id: number;
+  uuid: string;
   comentario: string;
   usuario: Usuario;
   fecha: string;

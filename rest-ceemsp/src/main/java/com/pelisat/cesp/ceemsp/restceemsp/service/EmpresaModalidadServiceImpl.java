@@ -79,6 +79,31 @@ public class EmpresaModalidadServiceImpl implements EmpresaModalidadService {
     }
 
     @Override
+    public EmpresaModalidadDto obtenerEmpresaModalidadPorId(int id) {
+        if(id < 1) {
+            logger.warn("El id suministrado es invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo la modalidad de la empresa con el id [{}]", id);
+
+        EmpresaModalidad empresaModalidad = empresaModalidadRepository.getOne(id);
+
+        if(empresaModalidad == null || empresaModalidad.getEliminado()) {
+            logger.warn("La modalidad no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        EmpresaModalidadDto empresaModalidadDto = daoToDtoConverter.convertDaoToDtoEmpresaModalidad(empresaModalidad);
+        empresaModalidadDto.setModalidad(modalidadService.obtenerModalidadPorId(empresaModalidad.getModalidad()));
+        if(empresaModalidad.getSubmodalidad() != null && empresaModalidad.getSubmodalidad() > 0 ){
+            empresaModalidadDto.setSubmodalidad(submodalidadService.obtenerSubmodalidadPorId(empresaModalidad.getSubmodalidad()));
+        }
+        return empresaModalidadDto;
+    }
+
+
+    @Override
     public EmpresaModalidadDto guardarModalidad(String empresaUuid, String username, EmpresaModalidadDto empresaModalidadDto) {
         if(StringUtils.isBlank(empresaUuid) || empresaModalidadDto == null || StringUtils.isBlank(username)) {
             logger.warn("El uuid o la escritura a crear vienen como nulos o vacios");

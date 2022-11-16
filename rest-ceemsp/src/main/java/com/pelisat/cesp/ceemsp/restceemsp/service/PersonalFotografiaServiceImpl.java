@@ -65,7 +65,7 @@ public class PersonalFotografiaServiceImpl implements PersonalFotografiaService 
 
         logger.info("Mostrando los metadatos de las fotografias del personal con id [{}]", personalUuid);
 
-        Personal personal = personaRepository.getByUuidAndEliminadoFalse(personalUuid);
+        Personal personal = personaRepository.getByUuid(personalUuid);
         if(personal == null) {
             logger.warn("La persona no existe en la base de datos");
             throw new NotFoundResourceException();

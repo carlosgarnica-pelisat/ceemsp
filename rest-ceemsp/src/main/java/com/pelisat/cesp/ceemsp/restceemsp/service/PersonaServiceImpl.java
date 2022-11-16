@@ -9,9 +9,11 @@ import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
 import com.pelisat.cesp.ceemsp.database.model.Personal;
 import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
 import com.pelisat.cesp.ceemsp.database.repository.PersonaRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -20,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -46,6 +49,7 @@ public class PersonaServiceImpl implements PersonaService {
     private final ColoniaService coloniaService;
     private final LocalidadService localidadService;
     private final CalleService calleService;
+    private final ArchivosService archivosService;
     private final Logger logger = LoggerFactory.getLogger(PersonaService.class);
 
     @Autowired
@@ -56,7 +60,8 @@ public class PersonaServiceImpl implements PersonaService {
                               EmpresaDomicilioService empresaDomicilioService, PersonalNacionalidadService personalNacionalidadService,
                               PersonalCertificacionService personalCertificacionService, PersonalSubpuestoDeTrabajoService personalSubpuestoDeTrabajoService,
                               PersonalFotografiaService personalFotografiaService, EstadoService estadoService, MunicipioService municipioService,
-                              LocalidadService localidadService, ColoniaService coloniaService, CalleService calleService) {
+                              LocalidadService localidadService, ColoniaService coloniaService, CalleService calleService,
+                              ArchivosService archivosService) {
         this.daoHelper = daoHelper;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
@@ -75,6 +80,7 @@ public class PersonaServiceImpl implements PersonaService {
         this.localidadService = localidadService;
         this.estadoService = estadoService;
         this.municipioService = municipioService;
+        this.archivosService = archivosService;
     }
 
     @Override
@@ -113,7 +119,7 @@ public class PersonaServiceImpl implements PersonaService {
         logger.info("Obteniendo a la persona con el uuid [{}]", personaUuid);
 
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
-        Personal personal = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+        Personal personal = personaRepository.getByUuid(personaUuid);
         if(personal == null) {
             logger.warn("La persona no existe en la base de datos");
             throw new NotFoundResourceException();
@@ -199,11 +205,17 @@ public class PersonaServiceImpl implements PersonaService {
         Personal personalCreado = personaRepository.save(personal);
 
         PersonaDto response = daoToDtoConverter.convertDaoToDtoPersona(personalCreado);
+        response.setNacionalidad(personalDto.getNacionalidad());
+        response.setCalleCatalogo(personalDto.getCalleCatalogo());
+        response.setColoniaCatalogo(personalDto.getColoniaCatalogo());
+        response.setLocalidadCatalogo(personalDto.getLocalidadCatalogo());
+        response.setMunicipioCatalogo(personalDto.getMunicipioCatalogo());
+        response.setEstadoCatalogo(personalDto.getEstadoCatalogo());
         return response;
     }
 
     @Override
-    public PersonaDto modificarInformacionPuesto(PersonaDto personaDto, String username, String empresaUuid, String personaUuid) {
+    public PersonaDto modificarInformacionPuesto(PersonaDto personaDto, String username, String empresaUuid, String personaUuid, MultipartFile multipartFile) {
         if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) | StringUtils.isBlank(personaUuid) || personaDto == null) {
             logger.warn("El usuario, la empresa, la persona o la informacion del trabajo a modificar vienen como nulas o invalidas");
             throw new InvalidDataException();
@@ -238,10 +250,25 @@ public class PersonaServiceImpl implements PersonaService {
             personal.setFechaVolanteCuip(LocalDate.parse(personaDto.getFechaVolanteCuip()));
         }
 
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Agregando");
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.VOLANTE_CUIP, empresaUuid);
+                personal.setRutaVolanteCuip(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo.", ex);
+                throw new InvalidDataException();
+            }
+        }
+
         daoHelper.fulfillAuditorFields(false, personal, usuarioDto.getId());
         personaRepository.save(personal);
 
-        return daoToDtoConverter.convertDaoToDtoPersona(personal);
+        PersonaDto response = daoToDtoConverter.convertDaoToDtoPersona(personal);
+        response.setPuestoDeTrabajo(personaDto.getPuestoDeTrabajo());
+        response.setSubpuestoDeTrabajo(personaDto.getSubpuestoDeTrabajo());
+        return response;
     }
 
     @Override
@@ -296,8 +323,8 @@ public class PersonaServiceImpl implements PersonaService {
     }
 
     @Override
-    public PersonaDto eliminarPersona(String empresaUuid, String personaUuid, String username) {
-        if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) | StringUtils.isBlank(personaUuid)) {
+    public PersonaDto eliminarPersona(String empresaUuid, String personaUuid, String username, PersonaDto personaDto, MultipartFile multipartFile) {
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid) || personaDto == null) {
             logger.warn("El usuario, la empresa, la persona o la informacion del trabajo a modificar vienen como nulas o invalidas");
             throw new InvalidDataException();
         }
@@ -312,8 +339,24 @@ public class PersonaServiceImpl implements PersonaService {
             throw new NotFoundResourceException();
         }
 
+        daoHelper.fulfillAuditorFields(false, personal, usuarioDto.getId());
+        personal.setMotivoBaja(personaDto.getMotivoBaja());
+        personal.setObservacionesBaja(personaDto.getObservacionesBaja());
+        personal.setFechaBaja(LocalDate.parse(personaDto.getFechaBaja()));
         personal.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, personal, usuarioDto.getId());
+
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Agregando");
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_BAJA_PERSONAL, personaUuid);
+                personal.setDocumentoFundatorioBaja(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
         personaRepository.save(personal);
         return daoToDtoConverter.convertDaoToDtoPersona(personal);
     }

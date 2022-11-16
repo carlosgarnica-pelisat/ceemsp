@@ -212,6 +212,8 @@ export class EmpresaUniformesComponent implements OnInit {
     empresaUniformeElemento.elemento = this.elementoUniforme;
     empresaUniformeElemento.movimientos = [];
 
+    console.log(empresaUniformeElemento);
+
     empresaUniformeElemento.movimientos.push(movimiento);
     let formData: FormData = new FormData();
     formData.append('elemento', JSON.stringify(empresaUniformeElemento));
@@ -314,7 +316,7 @@ export class EmpresaUniformesComponent implements OnInit {
       elemento: this.empresaUniformeElemento.elemento.uuid,
       cantidadActual: this.empresaUniformeElemento.cantidad
     });
-    this.elementoUniforme = this.uniformes.filter(x => x.uuid === this.empresaUniformeElemento.uuid)[0];
+    this.elementoUniforme = this.uniformes.filter(x => x.uuid === this.empresaUniformeElemento.elemento.uuid)[0];
     this.cantidadActual = this.empresaUniformeElemento.cantidad;
   }
 

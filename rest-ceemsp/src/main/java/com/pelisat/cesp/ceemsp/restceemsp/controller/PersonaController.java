@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
+import com.google.gson.Gson;
 import com.pelisat.cesp.ceemsp.database.dto.PersonaDto;
 import com.pelisat.cesp.ceemsp.database.dto.PersonalNacionalidadDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.PersonaService;
@@ -8,6 +9,7 @@ import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -68,24 +70,27 @@ public class PersonaController {
         return personaService.modificarPersona(empresaUuid, personaUuid, username, personaDto);
     }
 
-    @DeleteMapping(value = PERSONALIDAD_URI + "/{personaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = PERSONALIDAD_URI + "/{personaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public PersonaDto eliminarPersona(
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
-            @PathVariable(value = "personaUuid") String personaUuid
+            @PathVariable(value = "personaUuid") String personaUuid,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
+            @RequestParam("persona") String persona
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return personaService.eliminarPersona(empresaUuid, personaUuid, username);
+        return personaService.eliminarPersona(empresaUuid, personaUuid, username, new Gson().fromJson(persona, PersonaDto.class), archivo);
     }
 
-    @PutMapping(value = PERSONALIDAD_URI + "/{personaUuid}/puestos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = PERSONALIDAD_URI + "/{personaUuid}/puestos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public PersonaDto modificarPuestoTrabajo(
             HttpServletRequest request,
-            @RequestBody PersonaDto personaDto,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
+            @RequestParam("persona") String persona,
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "personaUuid") String personaUuid
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return personaService.modificarInformacionPuesto(personaDto, username, empresaUuid, personaUuid);
+        return personaService.modificarInformacionPuesto(new Gson().fromJson(persona, PersonaDto.class), username, empresaUuid, personaUuid, archivo);
     }
 }

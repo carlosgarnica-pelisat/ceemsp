@@ -26,9 +26,6 @@ export class BotonEmpresaVehiculosComponent implements ICellRendererAngularComp 
 
   constructor() { }
 
-  ngOnInit(): void {
-  }
-
   agInit(params: ICellRendererParams): void {
     this.params = params;
     this.label = this.params.label || null;

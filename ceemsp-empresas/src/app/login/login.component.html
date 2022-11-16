@@ -4,18 +4,20 @@
       <div class="card card1">
         <div class="row justify-content-center my-auto">
           <div class="col-md-8 col-10 my-5">
-            <div class="row justify-content-center px-3 mb-3"><img id="logo" src="assets/logo.png">
+            <div class="row justify-content-center px-3 mb-3"><img id="logo" src="assets/logo-ajustado.png">
             </div>
             <h4 class="mb-5 text-center heading">Empresas</h4>
             <h6 class="msg-info">Ingresa tus datos a continuacion para iniciar sesion</h6>
             <form [formGroup]="loginForm">
               <div class="form-group">
                 <label class="form-control-label text-muted">Correo electronico o registro</label>
-                <input type="email" id="inputEmail" name="email" placeholder="Correo electronico" class="form-control" autofocus formControlName="email" #email>
+                <input type="email" id="inputEmail" name="email" placeholder="Correo electronico" class="form-control"
+                       autofocus formControlName="email" #email>
               </div>
               <div class="form-group">
                 <label class="form-control-label text-muted">Contraseña</label>
-                <input type="password" id="psw" name="password" class="form-control" placeholder="Contraseña" formControlName="password" #password>
+                <input type="password" id="psw" name="password" class="form-control" placeholder="Contraseña"
+                       formControlName="password" #password>
               </div>
               <div class="row justify-content-center my-3 px-3">
                 <button (click)="login()" class="btn-block btn-color" type="submit">Iniciar sesion</button>
@@ -28,16 +30,43 @@
       </div>
       <div class="card card2">
         <div class="my-auto mx-md-5 px-md-5 right">
-          <h3 class="text-white">{{comunicadoGeneral?.titulo}}</h3>
-          <small class="text-white" [innerHTML]="comunicadoGeneral?.descripcion">
-          </small>
-          <hr>
-          <a style="cursor: pointer;" class="text-white" (click)="verHistorialComunicados(mostrarHistorialComunicadosModal)">Ver historico de comunicados</a><br>
-          <a style="cursor: pointer;" class="text-white" (click)="verHistorialComunicados(mostrarHistorialComunicadosModal)">Directorio telefonico</a>
+          <div class="row">
+            <div class="col-sm-12" style="max-height: 600px; overflow: hidden; ">
+              <h3 class="text-white">{{comunicadoGeneral?.titulo}}</h3>
+              <small class="text-white" [innerHTML]="comunicadoGeneral?.descripcion | sanitizeHtml">
+              </small>
+            </div>
+            <div class="col-sm-12">
+              <small class="text-white"><a style="cursor: pointer;" (click)="mostrarComunicadoCompleto()">Leer
+                mas</a></small>
+              <hr style="border: 1px solid #fff;">
+              <a style="cursor: pointer;" class="text-white"
+                 (click)="verHistorialComunicados(mostrarHistorialComunicadosModal)">Ver histórico de comunicados</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+  <ng-template #mostrarComunicadoCompletoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarComunicadoCompletoModal">{{comunicadoGeneral?.titulo}} </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <small [innerHTML]="comunicadoGeneral?.descripcion">
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
 
   <ng-template #mostrarHistorialComunicadosModal let-modal>
     <div class="modal-header">
@@ -90,10 +119,11 @@
         </div>
       </div>
       <hr>
-      <div class="row" >
+      <div class="row">
         <div class="col-sm-4">
           <div class="list-group">
-            <a *ngFor="let c of comunicadosGenerales" class="list-group-item list-group-item-action fakelink" [ngClass]="{ 'active': comunicadoUuid === c?.uuid }" (click)="obtenerComunicado(c?.uuid)">
+            <a *ngFor="let c of comunicadosGenerales" class="list-group-item list-group-item-action fakelink"
+               [ngClass]="{ 'active': comunicadoUuid === c?.uuid }" (click)="obtenerComunicado(c?.uuid)">
               <b>{{c?.titulo?.length > 25 ? c?.titulo?.slice(0, 25) + "..." : c?.titulo}}</b><br>
               Publicado el {{c?.fechaPublicacion}}
             </a>
@@ -115,7 +145,7 @@
       <div class="row">
         <div class="col-sm-12">
           <p class="text-center"><i>Solo se muestran los ultimos 5 comunicados. Utilice el formulario de arriba para
-          buscar comunicados anteriores</i></p>
+            buscar comunicados anteriores</i></p>
         </div>
       </div>
     </div>

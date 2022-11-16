@@ -80,7 +80,7 @@ public class ArmaController {
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "licenciaUuid") String licenciaUuid,
             @PathVariable(value = "armaUuid") String armaUuid,
-            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
             @RequestParam("arma") String arma
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));

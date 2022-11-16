@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.database.dto;
 
+import com.pelisat.cesp.ceemsp.database.model.ClienteModalidad;
 import com.pelisat.cesp.ceemsp.database.type.TipoPersonaEnum;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,8 +21,13 @@ public class ClienteDto {
     private String fechaInicio;
     private String fechaFin;
     private String rutaArchivoContrato;
+    private String fechaCreacion;
     private List<ClienteDomicilioDto> domicilios;
+    private List<ClienteAsignacionPersonalDto> asignaciones;
+    private List<ClienteModalidadDto> modalidades;
     private boolean eliminado;
+    private int numeroSucursales;
+    private int numeroElementosAsignados;
 
     private String motivoBaja;
     private String observacionesBaja;

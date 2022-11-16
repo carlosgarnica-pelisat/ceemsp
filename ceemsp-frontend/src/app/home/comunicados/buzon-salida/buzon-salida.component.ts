@@ -12,7 +12,6 @@ import BuzonSalida from "../../../_models/BuzonSalida";
 import {BotonBuzonSalidaComponent} from "../../../_components/botones/boton-buzon-salida/boton-buzon-salida.component";
 import BuzonInternoDestinatario from "../../../_models/BuzonInternoDestinatario";
 import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
-import Can from "../../../_models/Can";
 
 @Component({
   selector: 'app-buzon-salida',
@@ -56,6 +55,7 @@ export class BuzonSalidaComponent implements OnInit {
 
   destinatarios: BuzonInternoDestinatario[] = [];
   showDestinatarioForm: boolean = false;
+  editandoDestinatario: boolean = false;
 
   editorData: string = "Favor de escribir el motivo por el cual manda el mensaje."
 
@@ -68,10 +68,13 @@ export class BuzonSalidaComponent implements OnInit {
 
   pestanaActual: string = "DETALLES";
 
+  destinatario: BuzonInternoDestinatario;
+  temporaryUuid: string;
 
   @ViewChild('crearMensajeModal') crearMensajeModal;
   @ViewChild('mostrarMensajeModal') mostrarMensajeModal;
   @ViewChild('eliminarBuzonSalidaModal') eliminarBuzonSalidaModal;
+  @ViewChild('eliminarBuzonSalidaDestinatario') eliminarBuzonSalidaDestinatarioModal;
   @ViewChild('modificarMensajeModal') modificarMensajeModal;
 
   constructor(private modalService: NgbModal, private toastService: ToastService, private empresaService: EmpresaService,
@@ -367,11 +370,134 @@ export class BuzonSalidaComponent implements OnInit {
     })
   }
 
-  mostrarModalEditarDestinatario() {
-
+  mostrarModalEditarDestinatario(index) {
+    this.destinatario = this.mensaje.destinatarios[index];
+    this.mostrarAgregarDestinatarioForm();
+    this.editandoDestinatario = true;
+    this.tipoDestinatario = this.destinatario.tipoDestinatario;
+    this.crearDestinatarioForm.patchValue({
+      tipoDestinatario: this.destinatario.tipoDestinatario,
+      email: this.destinatario.email
+    })
+    this.empresa = this.empresas.filter(x => x.uuid === this.destinatario.empresa?.uuid)[0]
   }
 
-  mostrarModalEliminarDestinatario() {
+  mostrarModalEliminarDestinatario(uuid) {
+    this.temporaryUuid = uuid;
+    this.modal = this.modalService.open(this.eliminarBuzonSalidaDestinatarioModal, {size: 'lg', backdrop: "static"})
+  }
+
+  confirmarEliminarDestinatario() {
+    this.buzonInternoService.eliminarDestinatario(this.uuid, this.temporaryUuid).subscribe((data: BuzonInternoDestinatario) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha eliminado el destinatario con exito`,
+        ToastType.SUCCESS
+      );
+      this.modal.close();
+      this.buzonInternoService.obtenerMensajePorUuid(this.uuid).subscribe((data: BuzonSalida) => {
+        this.mensaje = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar el mensaje. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar el destinatario. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  mostrarAgregarDestinatarioForm() {
+    this.showDestinatarioForm = !this.showDestinatarioForm;
+
+    if(!this.showDestinatarioForm) {
+      this.crearDestinatarioForm.reset();
+    }
+
+    if(this.editandoDestinatario) {
+      this.editandoDestinatario = false;
+      //this.coloresTemp.push(this.colorVehiculo);
+    }
+  }
+
+  guardarDestinatario(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Hay campos requeridos que no se han rellanado`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      `Estamos guardando el nuevo destinatario`,
+      ToastType.INFO
+    );
+
+    let buzonDestinatario: BuzonInternoDestinatario = new BuzonInternoDestinatario();
+    buzonDestinatario.tipoDestinatario = this.tipoDestinatario;
+    buzonDestinatario.empresa = this.empresa;
+    buzonDestinatario.usuario = this.usuario;
+    buzonDestinatario.email = form.value.email;
+
+    if(this.editandoDestinatario) {
+      this.buzonInternoService.modificarDestinatario(this.uuid, this.destinatario.uuid, buzonDestinatario).subscribe((data: BuzonInternoDestinatario) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha modificado el destinatario con exito`,
+          ToastType.SUCCESS
+        );
+        this.mostrarAgregarDestinatarioForm();
+        this.buzonInternoService.obtenerMensajePorUuid(this.uuid).subscribe((data: BuzonSalida) => {
+          this.mensaje = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se ha podido descargar el mensaje. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido editar el destinatario. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    } else {
+      this.buzonInternoService.agregarDestinatario(this.uuid, buzonDestinatario).subscribe((data: BuzonInternoDestinatario) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha guardado el destinatario con exito`,
+          ToastType.SUCCESS
+        );
+        this.mostrarAgregarDestinatarioForm();
+        this.buzonInternoService.obtenerMensajePorUuid(this.uuid).subscribe((data: BuzonSalida) => {
+          this.mensaje = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se ha podido descargar el mensaje. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido agregar el destinatario`,
+          ToastType.ERROR
+        );
+      });
+    }
+
 
   }
 

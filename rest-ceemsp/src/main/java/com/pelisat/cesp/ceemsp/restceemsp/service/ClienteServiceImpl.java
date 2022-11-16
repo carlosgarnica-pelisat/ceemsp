@@ -1,8 +1,6 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.ClienteDto;
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
-import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
+import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.database.model.Cliente;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
@@ -39,7 +37,9 @@ public class ClienteServiceImpl implements ClienteService {
     private final EmpresaService empresaService;
     private final DaoHelper<CommonModel> daoHelper;
     private final ClienteDomicilioService clienteDomicilioService;
+    private final ClienteAsignacionPersonalService clienteAsignacionPersonalService;
     private final ArchivosService archivosService;
+    private final ClienteModalidadService clienteModalidadService;
 
     private final Logger logger = LoggerFactory.getLogger(ClienteService.class);
 
@@ -47,7 +47,8 @@ public class ClienteServiceImpl implements ClienteService {
     public ClienteServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                               ClienteRepository clienteRepository, UsuarioService usuarioService,
                               EmpresaService empresaService, DaoHelper<CommonModel> daoHelper,
-                              ClienteDomicilioService clienteDomicilioService, ArchivosService archivosService) {
+                              ClienteDomicilioService clienteDomicilioService, ArchivosService archivosService,
+                              ClienteAsignacionPersonalService clienteAsignacionPersonalService, ClienteModalidadService clienteModalidadService) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.clienteRepository = clienteRepository;
@@ -56,6 +57,8 @@ public class ClienteServiceImpl implements ClienteService {
         this.daoHelper = daoHelper;
         this.clienteDomicilioService = clienteDomicilioService;
         this.archivosService = archivosService;
+        this.clienteAsignacionPersonalService = clienteAsignacionPersonalService;
+        this.clienteModalidadService = clienteModalidadService;
     }
 
 
@@ -68,8 +71,14 @@ public class ClienteServiceImpl implements ClienteService {
 
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
         List<Cliente> clientes = clienteRepository.findAllByEmpresaAndEliminadoFalse(empresaDto.getId());
-        return clientes.stream().map(daoToDtoConverter::convertDaoToDtoCliente)
-                .collect(Collectors.toList());
+        return clientes.stream().map(c -> {
+                ClienteDto clienteDto = daoToDtoConverter.convertDaoToDtoCliente(c);
+                List<ClienteDomicilioDto> domicilios = clienteDomicilioService.obtenerDomiciliosPorCliente(c.getId());
+                List<ClienteAsignacionPersonalDto> asignacionPersonalDtos = clienteAsignacionPersonalService.obtenerAsignacionesCliente(empresaUuid, c.getUuid());
+                clienteDto.setNumeroSucursales(domicilios.size());
+                clienteDto.setNumeroElementosAsignados(asignacionPersonalDtos.size());
+                return clienteDto;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -127,6 +136,8 @@ public class ClienteServiceImpl implements ClienteService {
 
         if(!soloEntidad) {
             response.setDomicilios(clienteDomicilioService.obtenerDomiciliosPorCliente(response.getId()));
+            response.setAsignaciones(clienteAsignacionPersonalService.obtenerAsignacionesCliente(empresaUuid, clienteUuid));
+            response.setModalidades(clienteModalidadService.obtenerModalidadesPorCliente(empresaUuid, clienteUuid));
         }
 
         return response;

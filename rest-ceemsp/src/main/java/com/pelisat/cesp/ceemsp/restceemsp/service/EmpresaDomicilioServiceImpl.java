@@ -6,7 +6,9 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.Empresa;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
+import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilioTelefono;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaDomicilioRepository;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaDomicilioTelefonoRepository;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -42,6 +44,7 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
     private final LocalidadService localidadService;
     private final CalleService calleService;
     private final ArchivosService archivosService;
+    private final EmpresaDomicilioTelefonoRepository empresaDomicilioTelefonoRepository;
 
     @Autowired
     public EmpresaDomicilioServiceImpl(
@@ -56,7 +59,8 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         LocalidadService localidadService,
         ColoniaService coloniaService,
         CalleService calleService,
-        ArchivosService archivosService
+        ArchivosService archivosService,
+        EmpresaDomicilioTelefonoRepository empresaDomicilioTelefonoRepository
     ) {
         this.empresaDomicilioRepository = empresaDomicilioRepository;
         this.daoToDtoConverter = daoToDtoConverter;
@@ -70,6 +74,7 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         this.coloniaService = coloniaService;
         this.calleService = calleService;
         this.archivosService = archivosService;
+        this.empresaDomicilioTelefonoRepository = empresaDomicilioTelefonoRepository;
     }
 
     @Override
@@ -143,6 +148,10 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         empresaDomicilioDto.setEstadoCatalogo(estadoService.obtenerPorId(empresaDomicilio.getEstadoCatalogo()));
         empresaDomicilioDto.setMunicipioCatalogo(municipioService.obtenerMunicipioPorId(empresaDomicilio.getMunicipioCatalogo()));
 
+        List<EmpresaDomicilioTelefono> telefonos = empresaDomicilioTelefonoRepository.findAllByDomicilioAndEliminadoFalse(empresaDomicilio.getId());
+
+        empresaDomicilioDto.setTelefonos(telefonos.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaDomicilioTelefono).collect(Collectors.toList()));
+
         return empresaDomicilioDto;
     }
 
@@ -185,7 +194,13 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
 
         EmpresaDomicilio empresaDomicilioCreado = empresaDomicilioRepository.save(empresaDomicilio);
 
-        return daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilioCreado);
+        EmpresaDomicilioDto response = daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilioCreado);
+        response.setCalleCatalogo(empresaDomicilioDto.getCalleCatalogo());
+        response.setColoniaCatalogo(empresaDomicilioDto.getColoniaCatalogo());
+        response.setLocalidadCatalogo(empresaDomicilioDto.getLocalidadCatalogo());
+        response.setMunicipioCatalogo(empresaDomicilioDto.getMunicipioCatalogo());
+        response.setEstadoCatalogo(empresaDomicilioDto.getEstadoCatalogo());
+        return response;
     }
 
     @Override
@@ -230,9 +245,16 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         empresaDomicilio.setLongitud(empresaDomicilioDto.getLongitud());
 
         daoHelper.fulfillAuditorFields(false, empresaDomicilio, usuarioDto.getId());
-        empresaDomicilioRepository.save(empresaDomicilio);
+        EmpresaDomicilio empresaDomicilioCreado = empresaDomicilioRepository.save(empresaDomicilio);
 
-        return daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilio);
+        EmpresaDomicilioDto response = daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilioCreado);
+        response.setCalleCatalogo(empresaDomicilioDto.getCalleCatalogo());
+        response.setColoniaCatalogo(empresaDomicilioDto.getColoniaCatalogo());
+        response.setLocalidadCatalogo(empresaDomicilioDto.getLocalidadCatalogo());
+        response.setMunicipioCatalogo(empresaDomicilioDto.getMunicipioCatalogo());
+        response.setEstadoCatalogo(empresaDomicilioDto.getEstadoCatalogo());
+
+        return response;
     }
 
     @Override

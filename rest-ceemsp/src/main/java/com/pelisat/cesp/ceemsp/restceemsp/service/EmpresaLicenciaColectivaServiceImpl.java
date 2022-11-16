@@ -5,7 +5,9 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaLicenciaColectivaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaLicenciaColectiva;
+import com.pelisat.cesp.ceemsp.database.repository.ArmaRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaLicenciaColectivaRepository;
+import com.pelisat.cesp.ceemsp.database.type.ArmaTipoEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -39,13 +41,15 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
     private final DaoHelper<CommonModel> daoHelper;
     private final ArchivosService archivosService;
     private final Logger logger = LoggerFactory.getLogger(EmpresaLicenciaColectivaService.class);
+    private final ArmaRepository armaRepository;
 
     @Autowired
     public EmpresaLicenciaColectivaServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                                                EmpresaLicenciaColectivaRepository empresaLicenciaColectivaRepository,
                                                UsuarioService usuarioService, DaoHelper<CommonModel> daoHelper,
                                                EmpresaService empresaService, ModalidadService modalidadService,
-                                               SubmodalidadService submodalidadService, ArchivosService archivosService) {
+                                               SubmodalidadService submodalidadService, ArchivosService archivosService,
+                                               ArmaRepository armaRepository) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.empresaLicenciaColectivaRepository = empresaLicenciaColectivaRepository;
@@ -55,6 +59,7 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
         this.modalidadService = modalidadService;
         this.submodalidadService = submodalidadService;
         this.archivosService = archivosService;
+        this.armaRepository = armaRepository;
     }
 
     @Override
@@ -72,6 +77,8 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
         return empresaLicenciasColectivas.stream().map(elc -> {
             EmpresaLicenciaColectivaDto elcd = daoToDtoConverter.convertDaoToDtoEmpresaLicenciaColectiva(elc);
             elcd.setModalidad(modalidadService.obtenerModalidadPorId(elc.getModalidad()));
+            elcd.setCantidadArmasCortas(armaRepository.countAllByTipoAndLicenciaColectivaAndEliminadoFalse(ArmaTipoEnum.CORTA, elc.getId()));
+            elcd.setCantidadArmasLargas(armaRepository.countAllByTipoAndLicenciaColectivaAndEliminadoFalse(ArmaTipoEnum.LARGA, elc.getId()));
             return elcd;
         }).collect(Collectors.toList());
     }

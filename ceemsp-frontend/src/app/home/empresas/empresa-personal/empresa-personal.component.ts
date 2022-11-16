@@ -91,6 +91,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
   modalidadSearchForm: FormGroup;
   nacionalidadSearchForm: FormGroup;
+  motivosEliminacionForm: FormGroup;
 
   estado: Estado;
   municipio: Municipio;
@@ -107,6 +108,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
   tempFile;
   imagenActual: any;
+  imagenPrincipal: any;
 
   nacionalidades: PersonalNacionalidad[] = [];
   puestosTrabajo: PersonalPuestoTrabajo[] = [];
@@ -149,6 +151,8 @@ export class EmpresaPersonalComponent implements OnInit {
   mostrandoEliminados: boolean = false;
 
   editandoModal: boolean = false;
+  personaCurso: PersonaCertificacion;
+  personaFotografia: PersonaFotografiaMetadata;
 
   @ViewChild('mostrarDetallesPersonaModal') mostrarDetallesPersonaModal;
   @ViewChild('eliminarCapacitacionesModal') eliminarCapacitacionesModal;
@@ -209,6 +213,13 @@ export class EmpresaPersonalComponent implements OnInit {
       numeroVolanteCuip: [''],
       fechaVolanteCuip: [''],
       modalidad: ['']
+    });
+
+    this.motivosEliminacionForm = this.formBuilder.group({
+      motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
+      observacionesBaja: [''],
+      fechaBaja: ['', Validators.required],
+      documentoFundatorioBaja: ['']
     });
 
     this.crearPersonalCertificadoForm = this.formBuilder.group({
@@ -579,6 +590,20 @@ export class EmpresaPersonalComponent implements OnInit {
   mostrarModalDetalles(data, modal) {
     this.empresaService.obtenerPersonalPorUuid(this.uuid, data.uuid).subscribe((data: Persona) => {
       this.persona = data;
+      if(this.persona?.fotografias.length > 0) {
+        let personaFoto = this.persona?.fotografias[0];
+        this.empresaService.descargarPersonaFotografia(this?.uuid, this?.persona?.uuid, personaFoto.uuid).subscribe((data: Blob) => {
+          this.convertirImagenPrincipal(data);
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se ha podido descargar la fotografia. Motivo: ${error}`,
+            ToastType.ERROR
+          )
+        })
+      } else {
+        this.imagenPrincipal = undefined;
+      }
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -669,12 +694,27 @@ export class EmpresaPersonalComponent implements OnInit {
         value.domicilioAsignado = this.domicilio;
         value.modalidad = this.modalidad;
 
-        this.empresaService.modificarInformacionTrabajo(this.uuid, this.persona.uuid, value).subscribe((data: Persona) => {
+        let puestoTrabajoFormData: FormData = new FormData();
+        puestoTrabajoFormData.append('persona', JSON.stringify(value));
+        if(this.tempFile !== undefined) {
+          puestoTrabajoFormData.append('archivo', this.tempFile, this.tempFile.name);
+        } else {
+          puestoTrabajoFormData.append('archivo', null);
+        }
+
+        this.empresaService.modificarInformacionTrabajo(this.uuid, this.persona.uuid, puestoTrabajoFormData).subscribe((data: Persona) => {
           this.toastService.showGenericToast(
             "Listo",
             `Se ha guardado la informacion del trabajo con exito`,
             ToastType.SUCCESS
           );
+          this.persona.puestoDeTrabajo = data.puestoDeTrabajo
+          this.persona.subpuestoDeTrabajo = data?.subpuestoDeTrabajo
+          this.persona.detallesPuesto = data?.detallesPuesto
+          this.persona.estatusCuip = data?.estatusCuip
+          this.persona.cuip = data?.cuip
+          this.persona.numeroVolanteCuip = data?.numeroVolanteCuip
+          this.persona.fechaVolanteCuip = data?.fechaVolanteCuip
           this.stepper.next();
         }, (error) => {
           this.toastService.showGenericToast(
@@ -714,7 +754,9 @@ export class EmpresaPersonalComponent implements OnInit {
             "Se guardo la certificacion con exito",
             ToastType.SUCCESS
           );
+          this.personaCertificacion = data;
           this.stepper.next();
+
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -735,12 +777,13 @@ export class EmpresaPersonalComponent implements OnInit {
         formData.append('fotografia', this.tempFile, this.tempFile.name);
         formData.append('metadataArchivo', JSON.stringify(formValueFotografiaPersona));
 
-        this.empresaService.guardarPersonaFotografia(this.uuid, this.persona.uuid, formData).subscribe((data) => {
+        this.empresaService.guardarPersonaFotografia(this.uuid, this.persona.uuid, formData).subscribe((data: PersonaFotografiaMetadata) => {
           this.toastService.showGenericToast(
             "Listo",
             "Se ha guardado la fotografia con exito",
             ToastType.SUCCESS
           );
+          this.personaFotografia = data;
           this.stepper.next();
         }, (error) => {
           this.toastService.showGenericToast(
@@ -840,7 +883,15 @@ export class EmpresaPersonalComponent implements OnInit {
     value.modalidad = this.modalidad;
     value.estatusCuip = this.cuipStatus;
 
-    this.empresaService.modificarInformacionTrabajo(this.uuid, this.persona.uuid, value).subscribe((data: Persona) => {
+    let formData = new FormData();
+    formData.append('persona', JSON.stringify(value));
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null);
+    }
+
+    this.empresaService.modificarInformacionTrabajo(this.uuid, this.persona.uuid, formData).subscribe((data: Persona) => {
       this.toastService.showGenericToast(
         "Listo",
         `Se ha guardado la informacion del trabajo con exito`,
@@ -911,6 +962,17 @@ export class EmpresaPersonalComponent implements OnInit {
 
     if(imagen) {
       reader.readAsDataURL(imagen);
+    }
+  }
+
+  convertirImagenPrincipal(imagen: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.imagenPrincipal = reader.result
+    });
+
+    if(imagen) {
+      reader.readAsDataURL(imagen)
     }
   }
 
@@ -1304,14 +1366,35 @@ export class EmpresaPersonalComponent implements OnInit {
     })
   }
 
-  confirmarEliminarPersonal() {
+  confirmarEliminarPersonal(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario es invalido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espere un momento",
       "Se esta eliminando el personal",
       ToastType.INFO
     );
 
-    this.empresaService.eliminarPersonal(this.uuid, this.persona.uuid).subscribe((data: Persona) => {
+    let formValue: EmpresaDomicilio = form.value;
+
+    let formData = new FormData();
+    formData.append('persona', JSON.stringify(formValue));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+
+    this.empresaService.eliminarPersonal(this.uuid, this.persona.uuid, formData).subscribe((data: Persona) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha eliminado la persona con exito",

@@ -11,4 +11,6 @@ public class EmpresaUniformeElementoMovimientoDto {
     private Integer altas;
     private Integer bajas;
     private Integer cantidadActual;
+    private String fechaCreacion;
+    private String fechaActualizacion;
 }

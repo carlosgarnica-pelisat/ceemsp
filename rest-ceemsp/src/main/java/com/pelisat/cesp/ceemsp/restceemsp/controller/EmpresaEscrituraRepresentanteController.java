@@ -78,7 +78,7 @@ public class EmpresaEscrituraRepresentanteController {
         return empresaEscrituraRepresentanteService.modificarRepresentante(empresaUuid, escrituraUuid, representanteUuid, username, empresaEscrituraRepresentanteDto);
     }
 
-    @PutMapping(value = EMPRESA_REPRESENTANTES_URI + "/{representanteUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_REPRESENTANTES_URI + "/{representanteUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public EmpresaEscrituraRepresentanteDto eliminarEscrituraRepresentante(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "escrituraUuid") String escrituraUuid,

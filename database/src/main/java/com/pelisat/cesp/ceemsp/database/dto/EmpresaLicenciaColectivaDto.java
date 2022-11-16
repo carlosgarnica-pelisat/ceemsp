@@ -18,4 +18,6 @@ public class EmpresaLicenciaColectivaDto {
     private String observacionesBaja;
     private String documentoFundatorioBaja;
     private String fechaBaja;
+    private Integer cantidadArmasCortas;
+    private Integer cantidadArmasLargas;
 }

@@ -140,6 +140,8 @@ public class IncidenciaServiceImpl implements IncidenciaService {
         // realizando el parsing de cada uno de los elementos por medio del servicio y despues, agregarlos
         incidenciaDto.setComentarios(incidenciaComentarios.stream().map(c -> {
             IncidenciaComentarioDto incidenciaComentarioDto = new IncidenciaComentarioDto();
+            incidenciaComentarioDto.setId(c.getId());
+            incidenciaComentarioDto.setUuid(c.getUuid());
             incidenciaComentarioDto.setComentario(c.getComentario());
             incidenciaComentarioDto.setFecha(c.getFechaCreacion().toString());
             incidenciaComentarioDto.setUsuario(usuarioService.getUserById(c.getCreadoPor()));

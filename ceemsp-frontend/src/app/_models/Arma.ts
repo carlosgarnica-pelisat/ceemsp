@@ -22,6 +22,11 @@ export default class Arma implements Deserializable {
   eliminado: boolean;
   incidencia: Incidencia;
 
+  motivoBaja: string;
+  observacionesBaja: string;
+  documentoFundatorioBaja: string;
+  fechaBaja: string;
+
   deserialize(input: any): this {
     Object.assign(this, input);
     return this;

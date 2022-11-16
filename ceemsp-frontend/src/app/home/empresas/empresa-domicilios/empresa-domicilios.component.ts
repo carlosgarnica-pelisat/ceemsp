@@ -6,7 +6,7 @@ import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
 import {ActivatedRoute} from "@angular/router";
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {ToastType} from "../../../_enums/ToastType";
-import {faCheck} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {EstadosService} from "../../../_services/estados.service";
 import {CalleService} from "../../../_services/calle.service";
 import Estado from "../../../_models/Estado";
@@ -19,6 +19,7 @@ import {
 } from "../../../_components/botones/boton-empresa-domicilios/boton-empresa-domicilios.component";
 import Empresa from "../../../_models/Empresa";
 import {AgmGeocoder} from "@agm/core";
+import EmpresaDomicilioTelefono from "../../../_models/EmpresaDomicilioTelefono";
 import GeocoderResult = google.maps.GeocoderResult;
 
 @Component({
@@ -30,6 +31,8 @@ export class EmpresaDomiciliosComponent implements OnInit {
 
   editandoModal: boolean = false;
   faCheck = faCheck;
+  faPencil = faPencilAlt;
+  faTrash = faTrash;
 
   estados: Estado[] = [];
   municipios: Municipio[] = [];
@@ -53,9 +56,12 @@ export class EmpresaDomiciliosComponent implements OnInit {
   calleSearchForm: FormGroup;
   coloniaSearchForm: FormGroup;
   motivosEliminacionForm: FormGroup;
+  crearTelefonoForm: FormGroup;
 
   modal: NgbModalRef;
   closeResult: string;
+
+  domicilioTelefono: EmpresaDomicilioTelefono;
 
   private gridApi;
   private gridColumnApi;
@@ -64,6 +70,8 @@ export class EmpresaDomiciliosComponent implements OnInit {
 
   domicilio: EmpresaDomicilio;
   domicilioUbicado: boolean = false;
+
+  temporaryUuid: string;
 
   columnDefs = [
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
@@ -107,9 +115,14 @@ export class EmpresaDomiciliosComponent implements OnInit {
   obtenerCallesTimeout = undefined;
   empresa: Empresa;
 
+  pestanaActual: string = 'DETALLES';
+  showTelefonoForm: boolean = false;
+  editandoTelefono: boolean = false;
+
   @ViewChild('mostrarDetallesDomicilioModal') mostrarDetallesDomicilioModal: any;
   @ViewChild('modificarDomicilioModal') modificarDomicilioModal: any;
   @ViewChild('eliminarDomicilioModal') eliminarDomicilioModal: any;
+  @ViewChild('eliminarDomicilioTelefonoModal') eliminarDomicilioTelefonoModal: any;
 
   constructor(private toastService: ToastService, private formbuilder: FormBuilder,
               private empresaService: EmpresaService, private route: ActivatedRoute,
@@ -165,6 +178,11 @@ export class EmpresaDomiciliosComponent implements OnInit {
       telefonoFijo: [''],
       telefonoMovil: ['']
     });
+
+    this.crearTelefonoForm = this.formbuilder.group({
+      tipoTelefono: ['', Validators.required],
+      telefono: ['', Validators.required]
+    })
 
     this.nuevoDomicilioForm = this.formbuilder.group({
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
@@ -318,6 +336,10 @@ export class EmpresaDomiciliosComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
+
+  cambiarPestana(pestana) {
+    this.pestanaActual = pestana;
   }
 
   mostrarEliminados() {
@@ -816,6 +838,135 @@ export class EmpresaDomiciliosComponent implements OnInit {
     }
   }
 
+  mostrarAgregarTelefonoForm() {
+    this.showTelefonoForm = !this.showTelefonoForm;
+
+    if(!this.showTelefonoForm) {
+      this.crearTelefonoForm.reset();
+    }
+
+    if(this.editandoTelefono) {
+      this.editandoTelefono = false;
+      //this.coloresTemp.push(this.colorVehiculo);
+    }
+  }
+
+  guardarTelefono(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El formulario es invalido`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espera un momento",
+      `Estamos guardando el telefono en el domicilio`,
+      ToastType.INFO
+    );
+
+    let domicilio: EmpresaDomicilioTelefono = form.value;
+
+    if(this.editandoTelefono) {
+      this.empresaService.modificarTelefonoDomicilio(this.uuid, this.domicilio?.uuid, this.domicilioTelefono?.uuid, domicilio).subscribe((data: EmpresaDomicilioTelefono) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se han guardado los cambios con exito`,
+          ToastType.SUCCESS
+        );
+        this.mostrarAgregarTelefonoForm();
+        this.empresaService.obtenerTelefonosPorDomicilio(this.uuid, this.domicilio?.uuid).subscribe((data: EmpresaDomicilioTelefono[]) => {
+          this.domicilio.telefonos = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido obtener los telefonos. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido modificar el telefono. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    } else {
+      this.empresaService.guardarTelefonoDomicilio(this.uuid, this.domicilio?.uuid, domicilio).subscribe((data: EmpresaDomicilioTelefono) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha guardado el telefono con exito`,
+          ToastType.SUCCESS
+        )
+        this.mostrarAgregarTelefonoForm();
+        this.empresaService.obtenerTelefonosPorDomicilio(this.uuid, this.domicilio?.uuid).subscribe((data: EmpresaDomicilioTelefono[]) => {
+          this.domicilio.telefonos = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar los domicilios. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar el telefono. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
+  }
+
+  mostrarEditarTelefonoForm(index) {
+    this.domicilioTelefono = this.domicilio.telefonos[index];
+    this.domicilio.telefonos.splice(index, 1);
+    this.mostrarAgregarTelefonoForm();
+    this.editandoTelefono = true;
+    this.crearTelefonoForm.patchValue({
+      tipoTelefono: this.domicilioTelefono.tipoTelefono,
+      telefono: this.domicilioTelefono.telefono
+    })
+  }
+
+  mostrarModalEliminarTelefono(uuid) {
+    this.temporaryUuid = uuid;
+    this.modal = this.modalService.open(this.eliminarDomicilioTelefonoModal, {size: "lg", backdrop: "static"})
+  }
+
+  confirmarEliminarTelefono() {
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      `Estamos eliminando el telefono`,
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarTelefonoDomicilio(this.uuid, this.domicilio?.uuid, this.temporaryUuid).subscribe((data: EmpresaDomicilioTelefono) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha eliminado el telefono con exito`,
+        ToastType.SUCCESS
+      );
+      this.modal.close();
+      this.empresaService.obtenerTelefonosPorDomicilio(this.uuid, this.domicilio.uuid).subscribe((data: EmpresaDomicilioTelefono[]) => {
+        this.domicilio.telefonos = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los domicilios. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar el telefono. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
 
   private getDismissReason(reason: any): string {
     if (reason == ModalDismissReasons.ESC) {

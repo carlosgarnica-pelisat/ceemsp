@@ -89,4 +89,10 @@ public class ClienteDomicilio extends CommonModel {
 
     @Column(name = "APELLIDO_MATERNO_CONTACTO", nullable = false)
     private String apellidoMaternoContacto;
+
+    @Column(name = "LATITUD")
+    private String latitud;
+
+    @Column(name = "LONGITUD")
+    private String longitud;
 }

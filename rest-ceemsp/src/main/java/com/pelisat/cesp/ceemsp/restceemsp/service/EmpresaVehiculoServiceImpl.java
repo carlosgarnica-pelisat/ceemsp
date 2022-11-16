@@ -88,7 +88,9 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         List<VehiculoDto> response = vehiculos.stream().map(vehiculo -> {
             VehiculoDto vehiculoDto = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
             vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
-            vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
+            if(vehiculoDto.getSubmarca() != null) {
+                vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
+            }
             vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
             vehiculoDto.setFotografias(vehiculoFotografiaService.mostrarVehiculoFotografias(empresaUuid, vehiculo.getUuid()));
             return vehiculoDto;
@@ -112,7 +114,9 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         List<VehiculoDto> response = vehiculos.stream().map(vehiculo -> {
             VehiculoDto vehiculoDto = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
             vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
-            vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
+            if(vehiculoDto.getSubmarca() != null) {
+                vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
+            }
             vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
             vehiculoDto.setFotografias(vehiculoFotografiaService.mostrarVehiculoFotografias(empresaUuid, vehiculo.getUuid()));
             return vehiculoDto;
@@ -142,7 +146,9 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         if(!soloEntidad) {
             vehiculoDto.setUso(vehiculoUsoService.obtenerPorId(vehiculo.getUso()));
             vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
-            vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
+            if(vehiculoDto.getSubmarca() != null) {
+                vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
+            }
             vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
             vehiculoDto.setDomicilio(empresaDomicilioService.obtenerPorId(vehiculo.getDomicilio()));
             vehiculoDto.setColores(vehiculoColorService.obtenerTodosPorVehiculoUuid(vehiculoUuid, empresaUuid));
@@ -174,10 +180,12 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         VehiculoDto vehiculoDto = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
         vehiculoDto.setUso(vehiculoUsoService.obtenerPorId(vehiculo.getUso()));
         vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
-        vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
+        if(vehiculoDto.getSubmarca() != null) {
+            vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
+        }
         vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
         vehiculoDto.setDomicilio(empresaDomicilioService.obtenerPorId(vehiculo.getDomicilio()));
-        if (vehiculo.getPersonalAsignado() > 0) {
+        if (vehiculo.getPersonalAsignado() != null && vehiculo.getPersonalAsignado() > 0) {
             vehiculoDto.setPersonalAsignado(personaService.obtenerPorId(vehiculo.getPersonalAsignado()));
         }
 
@@ -197,7 +205,10 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         Vehiculo vehiculo = dtoToDaoConverter.convertDtoToDaoVehiculo(vehiculoDto);
         vehiculo.setEmpresa(empresaDto.getId());
         vehiculo.setMarca(vehiculoDto.getMarca().getId());
-        vehiculo.setSubmarca(vehiculoDto.getSubmarca().getId());
+        if(vehiculoDto.getSubmarca() != null) {
+            vehiculo.setSubmarca(vehiculoDto.getSubmarca().getId());
+        }
+
         vehiculo.setUso(vehiculoDto.getUso().getId());
         vehiculo.setTipo(vehiculoDto.getTipo().getId());
         vehiculo.setDomicilio(vehiculoDto.getDomicilio().getId());
@@ -285,7 +296,10 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         }
 
         vehiculo.setMarca(vehiculoDto.getMarca().getId());
-        vehiculo.setSubmarca(vehiculoDto.getSubmarca().getId());
+        if(vehiculoDto.getSubmarca() != null) {
+            vehiculo.setSubmarca(vehiculoDto.getSubmarca().getId());
+        }
+
         vehiculo.setUso(vehiculoDto.getUso().getId());
         vehiculo.setTipo(vehiculoDto.getTipo().getId());
         vehiculo.setDomicilio(vehiculoDto.getDomicilio().getId());

@@ -35,7 +35,7 @@ public class ClienteAsignacionPersonalController {
 
     @PostMapping(value = CLIENTE_ASIGNACION_PERSONAL_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ClienteAsignacionPersonalDto guardarAsignacion(
-            @PathVariable(value = "empresaUuuid") String empresaUuid,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "clienteUuid") String clienteUuid,
             @RequestBody ClienteAsignacionPersonalDto clienteAsignacionPersonalDto,
             HttpServletRequest request

@@ -287,18 +287,20 @@
               <td><b>Altas</b></td>
               <td><b>Bajas</b></td>
               <td><b>Nueva cantidad</b></td>
+              <td><b>Fecha movimiento</b></td>
             </tr>
             <tr *ngFor="let m of empresaUniformeElemento.movimientos">
               <td>{{m?.altas}}</td>
               <td>{{m?.bajas}}</td>
               <td>{{m?.cantidadActual}}</td>
+              <td>{{m?.fechaCreacion}}</td>
             </tr>
           </table>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="modal.dismiss('Cross click')">Cerrar</button>
+      <button class="btn btn-primary" (click)="modal.dismiss('Cross click')">Cerrar</button>
     </div>
   </ng-template>
 

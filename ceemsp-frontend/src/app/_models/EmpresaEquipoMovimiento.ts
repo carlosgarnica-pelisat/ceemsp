@@ -6,6 +6,8 @@ export default class EmpresaEquipoMovimiento implements Deserializable {
   altas: number;
   bajas: number;
   cantidadActual: number;
+  fechaCreacion: string;
+  fechaActualizacion: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);

@@ -1,11 +1,11 @@
 package com.pelisat.cesp.ceemsp.database.model;
 
+import com.pelisat.cesp.ceemsp.database.type.AcuerdoTipoEnum;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -21,6 +21,22 @@ public class Acuerdo extends CommonModel {
 
     @Column(name = "FECHA", nullable = false)
     private LocalDate fecha;
+
+    @Column(name = "TIPO", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private AcuerdoTipoEnum tipo;
+
+    @Column(name = "FECHA_INICIO")
+    private LocalDate fechaInicio;
+
+    @Column(name = "FECHA_FIN")
+    private LocalDate fechaFin;
+
+    @Column(name = "MULTA_UMAS")
+    private BigDecimal multaUmas;
+
+    @Column(name = "MULTA_PESOS")
+    private BigDecimal multaPesos;
 
     @Column(name = "OBSERVACIONES")
     private String observaciones;

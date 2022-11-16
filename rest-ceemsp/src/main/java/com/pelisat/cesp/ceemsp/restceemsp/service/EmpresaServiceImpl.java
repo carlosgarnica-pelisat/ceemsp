@@ -11,6 +11,7 @@ import com.pelisat.cesp.ceemsp.database.type.*;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.DuplicatedEnterpriseException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.EmailService;
 import com.pelisat.cesp.ceemsp.infrastructure.services.NotificacionEmailService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
@@ -42,13 +43,14 @@ public class EmpresaServiceImpl implements EmpresaService {
     private final DtoToDaoConverter dtoToDaoConverter;
     private final DaoHelper<CommonModel> daoHelper;
     private final NotificacionEmailService notificacionEmailService;
+    private final EmailService emailService;
     private final EmpresaFormaEjecucionRepository empresaFormaEjecucionRepository;
 
     @Autowired
     public EmpresaServiceImpl(UsuarioRepository usuarioRepository, EmpresaRepository empresaRepository, DaoToDtoConverter daoToDtoConverter,
                               DtoToDaoConverter dtoToDaoConverter, EmpresaModalidadRepository empresaModalidadRepository,
                               DaoHelper<CommonModel> daoHelper, NotificacionEmailService notificacionEmailService,
-                              EmpresaFormaEjecucionRepository empresaFormaEjecucionRepository) {
+                              EmpresaFormaEjecucionRepository empresaFormaEjecucionRepository, EmailService emailService) {
         this.usuarioRepository = usuarioRepository;
         this.empresaRepository = empresaRepository;
         this.daoToDtoConverter = daoToDtoConverter;
@@ -57,6 +59,7 @@ public class EmpresaServiceImpl implements EmpresaService {
         this.daoHelper = daoHelper;
         this.notificacionEmailService = notificacionEmailService;
         this.empresaFormaEjecucionRepository = empresaFormaEjecucionRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -193,11 +196,11 @@ public class EmpresaServiceImpl implements EmpresaService {
 
         List<EmpresaModalidad> createdModalidades = empresaModalidadRepository.saveAll(empresaModalidades);
 
-        /*try {
-            notificacionEmailService.enviarEmail(NotificacionEmailEnum.EMPRESA_REGISTRADA, empresaDto, usuario, empresaDto.getUsuario());
-        } catch(MessagingException mex) {
+        try {
+            emailService.sendEmail(NotificacionEmailEnum.EMPRESA_REGISTRADA, empresaDto.getCorreoElectronico());
+        } catch(Exception mex) {
             logger.warn("El correo no se ha podido enviar. Motivo: {}", mex);
-        }*/
+        }
 
         EmpresaDto response = daoToDtoConverter.convertDaoToDtoEmpresa(empresaCreada);
         response.setModalidades(createdModalidades.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaModalidad).collect(Collectors.toList()));
@@ -257,6 +260,7 @@ public class EmpresaServiceImpl implements EmpresaService {
         return daoToDtoConverter.convertDaoToDtoEmpresa(empresa);
     }
 
+    @Transactional
     @Override
     public EmpresaDto cambiarStatusEmpresa(EmpresaDto empresaDto, String username, String uuid) {
         if(empresaDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(uuid)) {

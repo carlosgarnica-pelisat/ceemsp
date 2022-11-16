@@ -70,7 +70,7 @@
                     <option value="EAFJAL">TRÁMITE FEDERAL (EAFJAL)</option>
                     <option value="SPSMD">TRÁMITE ESTATAL (SPSMD)</option>
                     <option value="RESPRO">SERVICIOS PROPIOS (RESPRO)</option>
-                    <option value="AP">AUTORIZACIÓN PROVISIONAL (AP)</option>
+                    <option value="AP">AUTORIZACIÓN PROVISIONAL (AP/SPSMD)</option>
                   </select>
                 </div>
                 <div class="col-sm-4">
@@ -86,7 +86,10 @@
                   </label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text">CESP/{{tipoTranite}}/</span>
+                      <span class="input-group-text" *ngIf="tipoTranite === 'SPSMD'">CESP/SPSMD/</span>
+                      <span class="input-group-text" *ngIf="tipoTranite === 'EAFJAL'">CESP/EAFJAL/</span>
+                      <span class="input-group-text" *ngIf="tipoTranite === 'RESPRO'">CESP/RESPRO/</span>
+                      <span class="input-group-text" *ngIf="tipoTranite === 'AP'">CESP/AP/SPSMD/</span>
                     </div>
                     <input class="form-control" id="registro" type="tel" formControlName="registro" placeholder="Se generara automaticamente" (focusout)="verificarRegistro($event.target)" appNumberMask>
                     <div class="input-group-append">
@@ -619,8 +622,9 @@
                     <td>{{d.telefonoFijo}}</td>
                     <td>{{d.telefonoMovil}}</td>
                     <td>
+                      <fa-icon [icon]="faPhone" style="cursor: pointer;" (click)="mostrarModalTelefonosDomicilio(d?.uuid)" title="Ver telefonos" *ngIf="!domiciliosGuardados"></fa-icon>
                       <fa-icon [icon]="faPencil" style="cursor: pointer;" (click)="editarDomicilio(i)" title="Modificar domicililo" *ngIf="!domiciliosGuardados"></fa-icon>
-                      <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarModalEliminar(eliminarDomicilioModal, i)" title="Eliminar domicilio" *ngIf="!domiciliosGuardados"></fa-icon>
+                      <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarModalEliminar(eliminarDomicilioModal, d?.uuid)" title="Eliminar domicilio" *ngIf="!domiciliosGuardados"></fa-icon>
                     </td>
                   </tr>
                 </table>
@@ -939,7 +943,18 @@
               <div class="col-sm-12">
                 <form [formGroup]="nuevoAcuerdoForm">
                   <div class="row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
+                      <label for="fecha">
+                        <b>Tipo de acuerdo *</b>
+                      </label>
+                      <select id="tipo" class="form-control" formControlName="tipo">
+                        <option value="AUTORIZACION_ESTATAL">Autorizacion estatal</option>
+                        <option value="AUTORIZACION_PROVISIONAL">Autorizacion provisional</option>
+                        <option value="REGISTRO_FEDERAL">Registro federal</option>
+                        <option value="REGISTRO_SERVICIOS_PROPIOS">Registro de servicios propios</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-4">
                       <label for="fecha">
                         <b>Fecha del acuerdo *</b>
                         <span *ngIf="nuevoAcuerdoForm.controls['fecha'].invalid && (nuevoAcuerdoForm.controls['fecha'].dirty || nuevoAcuerdoForm.controls['fecha'].touched)">
@@ -948,7 +963,7 @@
                       </label>
                       <input class="form-control" id="fecha" type="date" formControlName="fecha" placeholder="Fecha del acuerdo">
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                       <label for="documentoAcuerdo">
                         <b>Archivo del acuerdo (en pdf) *</b>
                       </label>
@@ -1741,11 +1756,50 @@
       </button>
     </div>
     <div class="modal-body">
+      <form [formGroup]="motivosEliminacionForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBaja">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['motivoBaja'].invalid && (motivosEliminacionForm.controls['motivoBaja'].dirty || motivosEliminacionForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBaja">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionForm.controls['fechaBaja'].invalid && (motivosEliminacionForm.controls['fechaBaja'].dirty || motivosEliminacionForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBaja" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBaja">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBaja">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesBaja" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
       <p>Estás a punto de eliminar un domicilio que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="eliminarDomicilio(this.temporaryIndex)">Si, borrarlo</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, ya lo reconsidere</button>
+      <button type="button" class="btn btn-danger" (click)="eliminarDomicilio(motivosEliminacionForm)">Si, borrarlo</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 
@@ -2037,6 +2091,75 @@
     </div>
   </ng-template>
 
+  <ng-template #visualizarTelefonosModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarTelefonosModal">Visualizar telefonos del domicilio </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Tipo</b></td>
+              <td><b>Telefono</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let t of this.empresaDomicilio?.telefonos; let i = index">
+              <td [ngSwitch]="t?.tipoTelefono">
+                <span *ngSwitchCase="'FIJO'">Telefono fijo</span>
+                <span *ngSwitchCase="'CELULAR'">Celular</span>
+                <span *ngSwitchCase="'FAX'">Fax</span>
+              </td>
+              <td>{{t?.telefono}}</td>
+              <td>
+                <fa-icon [icon]="faPencil" (click)="mostrarEditarTelefonoForm(i)"></fa-icon>
+                <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarTelefono(t?.uuid)"></fa-icon>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3" *ngIf="showTelefonoForm">
+                <form [formGroup]="crearTelefonoForm">
+                  <div class="form-row">
+                    <div class="col-sm-6">
+                      <b>Tipo de telefono *</b>
+                      <span
+                        *ngIf="crearTelefonoForm.controls['tipoTelefono'].invalid && (crearTelefonoForm.controls['tipoTelefono'].dirty || crearTelefonoForm.controls['tipoTelefono'].touched)">
+                        <i *ngIf="crearTelefonoForm.controls['tipoTelefono'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+                      <select id="tipoTelefono" class="form-control" formControlName="tipoTelefono">
+                        <option value="FIJO">Telefono fijo</option>
+                        <option value="CELULAR">Celular</option>
+                        <option value="FAX">Fax</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-6">
+                      <b>Telefono *</b>
+                      <span
+                        *ngIf="crearTelefonoForm.controls['telefono'].invalid && (crearTelefonoForm.controls['telefono'].dirty || crearTelefonoForm.controls['telefono'].touched)">
+                        <i *ngIf="crearTelefonoForm.controls['telefono'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+                      <input id="telefono" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefono" appPhoneMask #telefonoFijo>
+                    </div>
+                  </div>
+                </form>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <button class="btn btn-sm btn-primary" *ngIf="!showTelefonoForm" (click)="mostrarAgregarTelefonoForm()">Agregar telefono</button>
+                <button class="btn btn-sm btn-primary" *ngIf="showTelefonoForm" (click)="guardarTelefono(crearTelefonoForm)">Guardar</button>
+                <button class="btn btn-sm btn-danger" *ngIf="showTelefonoForm" (click)="mostrarAgregarTelefonoForm()">Cancelar</button>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
   <ng-template #visualizarMapaModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="visualizarMapaModal">Visualizar ubicacion en el mapa </h4>
@@ -2054,6 +2177,22 @@
           </agm-map>
         </div>
       </div>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarTelefonoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarTelefonoModal">Eliminando un telefono </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Estas a punto de eliminar un telefono. Toma en cuenta que esta accion <b>no puede deshacerse</b>. ¿Quieres continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="eliminarTelefono()">Si, eliminar telefono</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 

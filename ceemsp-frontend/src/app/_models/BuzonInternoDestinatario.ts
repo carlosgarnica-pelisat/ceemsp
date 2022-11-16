@@ -9,6 +9,9 @@ export default class BuzonInternoDestinatario implements Deserializable {
   email: string;
   usuario: Usuario;
   empresa: Empresa;
+  visto: boolean;
+  fechaVisto: string;
+  fechaActualizacion: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);

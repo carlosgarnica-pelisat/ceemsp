@@ -526,4 +526,13 @@ public class DaoToDtoConverter {
 
         return modelMapper.map(empresaEquipoMovimiento, EmpresaEquipoMovimientoDto.class);
     }
+
+    public EmpresaDomicilioTelefonoDto convertDaoToDtoEmpresaDomicilioTelefono(EmpresaDomicilioTelefono empresaDomicilioTelefono) {
+        if(empresaDomicilioTelefono == null) {
+            logger.warn("El telefono viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaDomicilioTelefono, EmpresaDomicilioTelefonoDto.class);
+    }
 }

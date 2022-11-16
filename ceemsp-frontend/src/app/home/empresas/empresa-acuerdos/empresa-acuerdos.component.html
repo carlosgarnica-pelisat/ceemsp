@@ -75,7 +75,19 @@
               <td>{{acuerdo?.fecha}}</td>
             </tr>
             <tr>
-              <td>Observaciones</td>
+              <td><b>Tipo del acuerdo</b></td>
+              <td [ngSwitch]="acuerdo?.tipo">
+                <span *ngSwitchCase="'REFRENDO'">Refrendo</span>
+                <span *ngSwitchCase="'REVOCACION'">Revocacion</span>
+                <span *ngSwitchCase="'PERDIDA_EFICACIA'">Perdida de Eficacia</span>
+                <span *ngSwitchCase="'SUSPENSION'">Suspension</span>
+                <span *ngSwitchCase="'CLAUSURA'">Clausura</span>
+                <span *ngSwitchCase="'MULTA'">Multa</span>
+                <span *ngSwitchCase="'AMONESTACION'">Amonestacion</span>
+              </td>
+            </tr>
+            <tr>
+              <td><b>Observaciones</b></td>
               <td>{{acuerdo.observaciones}}</td>
             </tr>
           </table>
@@ -101,17 +113,36 @@
         <div class="col-sm-12">
           <form [formGroup]="nuevoAcuerdoForm">
             <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-4">
+                <label for="fecha">
+                  <b>Tipo de acuerdo *</b>
+                </label>
+                <select id="tipoTramite" class="form-control" formControlName="tipo" (change)="cambiarTipoAcuerdo($event.target)">
+                  <option value="REFRENDO">Refrendo</option>
+                  <option value="REVOCACION">Revocacion</option>
+                  <option value="PERDIDA_EFICACIA">Perdida de eficacia</option>
+                  <option value="SUSPENSION">Suspension</option>
+                  <option value="CLAUSURA">Clausura</option>
+                  <option value="MULTA">Multa</option>
+                  <option value="AMONESTACION">Amonestacion</option>
+                </select>
+              </div>
+              <div class="col-sm-4">
                 <label for="fecha">
                   <b>Fecha del acuerdo *</b>
                 </label>
                 <input class="form-control" id="fecha" type="date" formControlName="fecha" placeholder="Fecha del acuerdo">
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="documentoRegistroFederal">
                   <b>Archivo del acuerdo (en pdf) *</b>
                 </label>
-                <input id="documentoRegistroFederal" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
+                <input id="documentoRegistroFederal" class="form-control" type="file" accept="application/pdf" (change)="onFileChange($event)">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-12">
+
               </div>
             </div>
             <div class="row">
@@ -120,6 +151,16 @@
                   <b>Observaciones</b>
                 </label>
                 <textarea id="observaciones" type="text" class="form-control" placeholder="Detallar si hay observaciones del acuerdo" formControlName="observaciones" #observaciones></textarea>
+              </div>
+            </div>
+            <hr *ngIf="tipoAcuerdo === 'REVOCACION' || tipoAcuerdo === 'PERDIDA_EFICACIA' || tipoAcuerdo === 'SUSPENSION' || tipoAcuerdo === 'CLAUSURA'">
+            <div class="row" *ngIf="tipoAcuerdo === 'REVOCACION' || tipoAcuerdo === 'PERDIDA_EFICACIA' || tipoAcuerdo === 'SUSPENSION' || tipoAcuerdo === 'CLAUSURA'">
+              <div class="col-sm-12">
+                <b>Nota importante:</b>
+                <p *ngIf="tipoAcuerdo === 'REVOCACION'">Al seleccionar <b>Revocacion</b>, la empresa quedara en status <b>REVOCADA</b> definitivamente, haciendo que no pueda iniciar sesion ni realizar ningun tipo de tramite.</p>
+                <p *ngIf="tipoAcuerdo === 'PERDIDA_EFICACIA'">Al seleccionar <b>Perdida de Eficacia</b> la empresa en status <b>PERDIDA DE EFICACIA</b> definitivamente, haciendo que no pueda iniciar sesion ni realizar ningun tipo de tramite.</p>
+                <p *ngIf="tipoAcuerdo === 'SUSPENSION'">Al seleccionar <b>Suspension</b> la empresa quedara <b>SUSPENDIDA</b> de manera temporal. Durante ese tiempo la empresa no podra realizar tramites ni iniciar sesion.</p>
+                <p *ngIf="tipoAcuerdo === 'CLAUSURA'">Al seleccionar <b>Clausura</b> la empresa quedara <b>CLAUSURADA</b> de manera temporal. Durante ese tiempo la empresa no podra realizar tramites ni iniciar sesion.</p>
               </div>
             </div>
           </form>
@@ -144,17 +185,31 @@
         <div class="col-sm-12">
           <form [formGroup]="nuevoAcuerdoForm">
               <div class="row">
-                <div class="col-sm-6">
+                <div class="col-sm-4">
+                  <label for="tipoTramiteEditar">
+                    <b>Tipo de acuerdo *</b>
+                  </label>
+                  <select id="tipoTramiteEditar" class="form-control" formControlName="tipo" (change)="cambiarTipoAcuerdo($event.target)">
+                    <option value="REFRENDO">Refrendo</option>
+                    <option value="REVOCACION">Revocacion</option>
+                    <option value="PERDIDA_EFICACIA">Perdida de eficacia</option>
+                    <option value="SUSPENSION">Suspension</option>
+                    <option value="CLAUSURA">Clausura</option>
+                    <option value="MULTA">Multa</option>
+                    <option value="AMONESTACION">Amonestacion</option>
+                  </select>
+                </div>
+                <div class="col-sm-4">
                   <label for="fechaEditar">
                     <b>Fecha del acuerdo *</b>
                   </label>
                   <input class="form-control" id="fechaEditar" type="date" formControlName="fecha" placeholder="Fecha del acuerdo">
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-4">
                   <label for="documentoRegistroFederalEditar">
                     <b>Archivo del acuerdo (en pdf) *</b>
                   </label>
-                  <input id="documentoRegistroFederalEditar" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
+                  <input id="documentoRegistroFederalEditar" class="form-control" type="file" accept="application/pdf" (change)="onFileChange($event)">
                 </div>
               </div>
               <div class="row">

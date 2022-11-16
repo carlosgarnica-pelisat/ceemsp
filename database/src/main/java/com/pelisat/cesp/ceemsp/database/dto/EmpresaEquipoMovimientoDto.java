@@ -12,4 +12,6 @@ public class EmpresaEquipoMovimientoDto {
     private Integer bajas;
     private Integer cantidadActual;
     private String observaciones;
+    private String fechaCreacion;
+    private String fechaActualizacion;
 }

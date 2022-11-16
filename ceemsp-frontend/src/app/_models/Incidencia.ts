@@ -17,6 +17,8 @@ export default class Incidencia implements Deserializable {
   cliente: Cliente;
   status: string;
   asignado: Usuario;
+  latitud: string;
+  longitud: string;
 
   canesInvolucrados: Can[];
   armasInvolucradas: Arma[];

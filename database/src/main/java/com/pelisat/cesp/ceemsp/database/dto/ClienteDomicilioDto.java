@@ -33,4 +33,6 @@ public class ClienteDomicilioDto {
     private CalleDto calleCatalogo;
     private String apellidoPaternoContacto;
     private String apellidoMaternoContacto;
+    private String latitud;
+    private String longitud;
 }

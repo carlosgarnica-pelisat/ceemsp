@@ -12,6 +12,9 @@ export default class EmpresaLicenciaColectiva implements Deserializable {
   fechaFin: string;
   rutaDocumento: string;
 
+  cantidadArmasCortas: number;
+  cantidadArmasLargas: number;
+
   motivoBaja: string;
   observacionesBaja: string;
   documentoFundatorioBaja: string;

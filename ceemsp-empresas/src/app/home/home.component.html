@@ -9,7 +9,9 @@
       <div class="sidebar-brand-icon rotate-n-15">
         <i class="fas fa-laugh-wink"></i>
       </div>
-      <div class="sidebar-brand-text mx-3">SIESP</div>
+      <div class="sidebar-brand-text mx-3">
+        <img src="assets/logo-ajustado-blanco.png" style="width: 100%;">
+      </div>
     </a>
 
     <!-- Divider -->
@@ -19,7 +21,7 @@
     <li class="nav-item active">
       <a class="nav-link" href="index.html">
         <i class="fas fa-fw fa-tachometer-alt"></i>
-        <span>Inicio</span></a>
+        <span><fa-icon [icon]="faHome"></fa-icon> Inicio</span></a>
     </li>
 
     <!-- Divider -->
@@ -34,38 +36,39 @@
     <li class="nav-item">
       <a class="nav-link" routerLink="/home/domicilios">
         <i class="fas fa-fw fa-chart-area"></i>
-        <span>Domicilios</span></a>
+        <span><fa-icon [icon]="faBuilding"></fa-icon> Domicilios</span></a>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="/home/legal">
         <i class="fas fa-fw fa-chart-area"></i>
-        <span>Legal</span></a>
+        <span><fa-icon [icon]="faFileContract"></fa-icon> Legal</span></a>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="/home/licencias">
         <i class="fas fa-fw fa-chart-area"></i>
-        <span>Licencias colectivas / Armas</span></a>
+        <span><fa-icon [icon]="faBomb"></fa-icon> Licencias colectivas / Armas</span></a>
     </li>
 
     <!-- Nav Item - Tables -->
     <li class="nav-item">
       <a class="nav-link" routerLink="/home/canes">
         <i class="fas fa-fw fa-table"></i>
-        <span>Canes</span></a>
+        <span><fa-icon [icon]="faDog"></fa-icon> Canes</span></a>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="/home/vehiculos">
         <i class="fas fa-fw fa-table"></i>
-        <span>Vehiculos</span></a>
+        <span><fa-icon [icon]="faCar"></fa-icon> Vehiculos</span>
+      </a>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="/home/incidencias">
         <i class="fas fa-fw fa-table"></i>
-        <span>Incidencias</span></a>
+        <span><fa-icon [icon]="faTicketAlt"></fa-icon> Incidencias</span></a>
     </li>
 
     <li class="nav-item">
@@ -77,13 +80,13 @@
     <li class="nav-item">
       <a class="nav-link" routerLink="/home/personal">
         <i class="fas fa-fw fa-table"></i>
-        <span>Personal</span></a>
+        <span><fa-icon [icon]="faUsers"></fa-icon> Personal</span></a>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" routerLink="/home/equipo">
         <i class="fas fa-fw fa-table"></i>
-        <span>Equipo / Fornituras</span></a>
+        <span><fa-icon [icon]="faLuggageCart"></fa-icon> Equipo / Fornituras</span></a>
     </li>
 
     <li class="nav-item">
@@ -176,7 +179,7 @@
                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <fa-icon class="text-primary" size="lg" [icon]="faBell"></fa-icon>
               <!-- Counter - Alerts -->
-              <span class="badge badge-danger badge-counter">3+</span>
+              <!--span class="badge badge-danger badge-counter">3+</span-->
             </a>
             <!-- Dropdown - Alerts -->
             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -184,39 +187,24 @@
               <h6 class="dropdown-header">
                 Notificaciones
               </h6>
-              <a class="dropdown-item d-flex align-items-center" href="#">
-                <div class="mr-3">
+              <a *ngIf="notificaciones.length === 0" class="dropdown-item d-flex align-items-center" href="#">
+                <div>
+                  <span class="font-weight-bold">Actualmente no tienes nuevas notificaciones. Te avisaremos cuando algo nuevo ocurra.</span>
+                </div>
+              </a>
+              <a *ngFor="let n of notificaciones; let i = index;" class="dropdown-item d-flex align-items-center"
+                 (click)="leerNotificacion(n?.uuid)">
+                <!--div class="mr-3">
                   <div class="icon-circle bg-primary">
                     <i class="fas fa-file-alt text-white"></i>
                   </div>
-                </div>
+                </div-->
                 <div>
-                  <div class="small text-gray-500">Septiembre 20, 2021</div>
-                  <span class="font-weight-bold">La empresa <b>SEGUVAL</b> ha actualizado su estado de fuerza. Haz click para ver los cambios</span>
+                  <div class="small text-gray-500">{{n?.fechaCreacion}}</div>
+                  <span class="font-weight-bold">{{n?.motivo}}</span>
                 </div>
               </a>
-              <a class="dropdown-item d-flex align-items-center" href="#">
-                <div class="mr-3">
-                  <div class="icon-circle bg-success">
-                    <i class="fas fa-donate text-white"></i>
-                  </div>
-                </div>
-                <div>
-                  <div class="small text-gray-500">Septiembre 19, 2021</div>
-                  Recordatorio: Visita programada a SEGUVAL
-                </div>
-              </a>
-              <a class="dropdown-item d-flex align-items-center" href="#">
-                <div class="mr-3">
-                  <div class="icon-circle bg-warning">
-                    <i class="fas fa-exclamation-triangle text-white"></i>
-                  </div>
-                </div>
-                <div>
-                  <div class="small text-gray-500">Septiembre 1, 2021</div>
-                  Se ha programado una nueva visita a SEGUVAL para el 19 de Septiembre del 2021
-                </div>
-              </a>
+
               <a class="dropdown-item text-center small text-gray-500" href="#">Ver todas</a>
             </div>
           </li>
@@ -326,39 +314,55 @@
       <app-toasts></app-toasts>
 
 
-    <!-- Footer -->
-    <!--footer class="sticky-footer bg-white">
-      <div class="container my-auto">
-        <div class="copyright text-center my-auto">
-          <span>Copyright &copy; Your Website 2021</span>
+      <!-- Footer -->
+      <!--footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>Copyright &copy; Your Website 2021</span>
+          </div>
         </div>
-      </div>
-    </footer-->
-    <!-- End of Footer -->
+      </footer-->
+      <!-- End of Footer -->
 
-  </div>
-</div>
+    </div>
 
-<a class="scroll-to-top rounded" href="#page-top">
-  <i class="fas fa-angle-up"></i>
-</a>
-
-<!-- Logout Modal-->
-<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-     aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
+    <ng-template #leerNotificacionModal let-modal>
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+        <h4 class="modal-title" id="leerNotificacionModal">{{notificacion?.motivo}}</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
           <span aria-hidden="true">×</span>
         </button>
       </div>
-      <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+      <div class="modal-body">
+        <small class="text-white" [innerHTML]="notificacion?.mensaje">
+        </small>
+      </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-        <a class="btn btn-primary" href="login.html">Logout</a>
+
+      </div>
+    </ng-template>
+  </div>
+
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Logout Modal-->
+  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+          <a class="btn btn-primary" href="login.html">Logout</a>
+        </div>
       </div>
     </div>
   </div>
-</div>

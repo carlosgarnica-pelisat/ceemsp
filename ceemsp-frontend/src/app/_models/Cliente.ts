@@ -1,6 +1,7 @@
 import {Deserializable} from "./Deserializable";
 import ClienteDomicilio from "./ClienteDomicilio";
 import ClienteAsignacionPersonal from "./ClienteAsignacionPersonal";
+import ClienteModalidad from "./ClienteModalidad";
 
 export default class Cliente implements Deserializable {
 
@@ -14,10 +15,15 @@ export default class Cliente implements Deserializable {
   armas: boolean;
   fechaInicio: string;
   fechaFin: string;
+  fechaCreacion: string;
   eliminado: boolean;
+
+  numeroSucursales: number;
+  numeroElementosAsignados: number;
 
   domicilios: ClienteDomicilio[];
   asignaciones: ClienteAsignacionPersonal[];
+  modalidades: ClienteModalidad[];
 
   deserialize(input: any): this {
     Object.assign(this, input);

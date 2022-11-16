@@ -58,6 +58,8 @@ export class EmpresaVehiculosComponent implements OnInit {
   rowData = [];
   vehiculo: Vehiculo;
 
+  tipo: VehiculoTipo;
+
   vehiculos: Vehiculo[] = [];
   vehiculosEliminados: Vehiculo[] = [];
 
@@ -408,11 +410,15 @@ export class EmpresaVehiculosComponent implements OnInit {
 
   descargarMarcasPorTipo(event) {
     let tipoUuid = event.value;
-    let tipo: VehiculoTipo = this.tipos.filter(x => x.uuid === tipoUuid)[0];
+    this.tipo = this.tipos.filter(x => x.uuid === tipoUuid)[0];
 
-    console.log(tipo)
+    if(this.tipo?.nombre === 'MOTOCICLETA' || this.tipo?.nombre === 'CUATRIMOTO') {
+      this.crearVehiculoForm.controls["submarca"].disable();
+    } else {
+      this.crearVehiculoForm.controls["submarca"].enable();
+    }
 
-    this.vehiculosService.obtenerVehiculosTiposMarca(tipo.tipo).subscribe((data: VehiculoMarca[]) => {
+    this.vehiculosService.obtenerVehiculosTiposMarca(this.tipo.tipo).subscribe((data: VehiculoMarca[]) => {
       this.marcas = data;
     }, (error) => {
       this.toastService.showGenericToast(
@@ -517,16 +523,23 @@ export class EmpresaVehiculosComponent implements OnInit {
     let marca = this.marcas.filter(x => x.uuid === this.vehiculo.marca.uuid)[0];
     this.vehiculosService.obtenerVehiculoMarcaPorUuid(marca.uuid).subscribe((data: VehiculoMarca) => {
       this.marca = data;
+      this.tipo = this.vehiculo.tipo;
       this.blindado = this.vehiculo?.blindado;
       this.origen = this.vehiculo?.origen;
       this.submarcas = data.submarcas;
+
+      if(this.tipo?.nombre === 'MOTOCICLETA' || this.tipo?.nombre === 'CUATRIMOTO') {
+        this.crearVehiculoForm.controls["submarca"].disable();
+      } else {
+        this.crearVehiculoForm.controls["submarca"].enable();
+      }
 
       this.crearVehiculoForm.patchValue({
         placas: this.vehiculo.placas,
         serie: this.vehiculo.serie,
         tipo: this.vehiculo.tipo.uuid,
         marca: this.vehiculo.marca.uuid,
-        submarca: this.vehiculo.submarca.uuid,
+        submarca: this.vehiculo?.submarca?.uuid,
         anio: this.vehiculo.anio,
         rotulado: this.vehiculo.rotulado,
         uso: this.vehiculo.uso.uuid,
@@ -590,6 +603,7 @@ export class EmpresaVehiculosComponent implements OnInit {
     formValue.tipo = this.tipos.filter(x => x.uuid === form.value.tipo)[0];
     formValue.uso = this.usos.filter(x => x.uuid === form.value.uso)[0];
     formValue.domicilio = this.domicilios.filter(x => x.uuid === form.value.domicilio)[0];
+    formValue.personalAsignado = this.personal.filter(x => x.uuid === form.value.personalAsignado)[0];
 
     if(this.blindado) {
       console.log("Agregar validaciones para blindaje");
@@ -710,6 +724,7 @@ export class EmpresaVehiculosComponent implements OnInit {
               "Se ha guardado el vehiculo con exito",
               ToastType.SUCCESS
             );
+            console.log(data);
             this.vehiculo = data;
             this.vehiculoGuardado = true;
             this.stepper.next();

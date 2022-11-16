@@ -18,13 +18,18 @@ import Municipio from "../../../_models/Municipio";
 import Calle from "../../../_models/Calle";
 import Colonia from "../../../_models/Colonia";
 import Localidad from "../../../_models/Localidad";
-import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faPencilAlt, faTrash, faMapPin} from "@fortawesome/free-solid-svg-icons";
 import {
   BotonEmpresaClientesComponent
 } from "../../../_components/botones/boton-empresa-clientes/boton-empresa-clientes.component";
 import Empresa from "../../../_models/Empresa";
 import Persona from "../../../_models/Persona";
 import ClienteAsignacionPersonal from "../../../_models/ClienteAsignacionPersonal";
+import EmpresaModalidad from "../../../_models/EmpresaModalidad";
+import ClienteModalidad from "../../../_models/ClienteModalidad";
+import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
+import {AgmGeocoder} from "@agm/core";
+import GeocoderResult = google.maps.GeocoderResult;
 
 @Component({
   selector: 'app-empresa-clientes',
@@ -41,12 +46,15 @@ export class EmpresaClientesComponent implements OnInit {
 
   faTrash = faTrash;
   faPencilAlt = faPencilAlt;
+  faMapPin = faMapPin;
 
   estados: Estado[] = [];
   municipios: Municipio[] = [];
   calles: Calle[] = [];
   colonias: Colonia[] = [];
   localidades: Localidad[] = [];
+
+  empresaModalidades: EmpresaModalidad[] = [];
 
   estado: Estado;
   municipio: Municipio;
@@ -75,11 +83,15 @@ export class EmpresaClientesComponent implements OnInit {
 
   showDomicilioForm: boolean = false;
   showAsignacionForm: boolean = false;
+  showModalidadForm: boolean = false;
 
   stepper: Stepper;
 
   private gridApi;
   private gridColumnApi;
+
+  geocodeResult: GeocoderResult;
+  domicilioUbicado: boolean = false;
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true},
@@ -87,6 +99,8 @@ export class EmpresaClientesComponent implements OnInit {
     {headerName: 'RFC', field: 'rfc', sortable: true, filter: true},
     {headerName: 'Nombre comercial', field: 'nombreComercial', sortable: true, filter: true},
     {headerName: 'Razon social', field: 'razonSocial', sortable: true, filter: true},
+    {headerName: 'Sucursales', field: 'numeroSucursales', sortable: true, filter: true},
+    {headerName: 'Elementos', field: 'numeroElementosAsignados', sortable: true, filter: true},
     {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
         label: 'Ver detalles',
         verDetalles: this.verDetalles.bind(this),
@@ -106,6 +120,7 @@ export class EmpresaClientesComponent implements OnInit {
   modificarClienteForm: FormGroup;
   nuevoClienteDomicilioForm: FormGroup;
   nuevaAsignacionForm: FormGroup;
+  nuevaModalidadForm: FormGroup;
 
   domicilios: ClienteDomicilio[] = [];
   domicilio: ClienteDomicilio;
@@ -131,6 +146,7 @@ export class EmpresaClientesComponent implements OnInit {
 
   tempUuidDomicilioCliente: string = "";
   tempUuidAsignacionCliente: string = "";
+  tempUuidModalidadCliente: string = "";
   tempUuidCliente: string = "";
 
   editandoDomicilio: boolean = false;
@@ -148,11 +164,14 @@ export class EmpresaClientesComponent implements OnInit {
   @ViewChild('modificarClienteModal') modificarClienteModal;
   @ViewChild('quitarDomicilioClienteModal') quitarDomicilioClienteModal;
   @ViewChild('eliminarDomicilioAsignacionModal') eliminarDomicilioAsignacionModal;
+  @ViewChild('eliminarDomicilioModalidadModal') eliminarDomicilioModalidadModal;
+  @ViewChild('mostrarUbicacionModal') mostrarUbicacionModal;
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
               private formBuilder: FormBuilder, private tipoInfraestructuraService: TipoInfraestructuraService,
-              private estadoService: EstadosService, private calleService: CalleService) { }
+              private estadoService: EstadosService, private calleService: CalleService,
+              private geocodeService: AgmGeocoder) { }
 
   ngOnInit(): void {
     this.frameworkComponents = {
@@ -197,6 +216,10 @@ export class EmpresaClientesComponent implements OnInit {
       correoElectronico: ['', [Validators.email, Validators.maxLength(100)]],
       tipoInfraestructura: ['', Validators.required],
       tipoInfraestructuraOtro: ['', Validators.maxLength(30)]
+    })
+
+    this.nuevaModalidadForm = this.formBuilder.group({
+      modalidad: ['', [Validators.required]]
     })
 
     this.estadoSearchForm = this.formBuilder.group({
@@ -259,6 +282,16 @@ export class EmpresaClientesComponent implements OnInit {
         "Ocurrio un problema",
         `No se pudieron descargar los clientes eliminados. Motivo: ${error}`,
         ToastType.ERROR
+      )
+    })
+
+    this.empresaService.obtenerModalidades(this.uuid).subscribe((data: EmpresaModalidad[]) => {
+      this.empresaModalidades = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las modalidades. Motivo: ${error}`,
+          ToastType.ERROR
       )
     })
 
@@ -617,19 +650,19 @@ export class EmpresaClientesComponent implements OnInit {
   }
 
   next(stepName: string, form) {
-    if(form !== undefined && !form.valid && !this.clienteGuardado) {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        "Faltan algunos campos obligatorios por llenarse",
-        ToastType.WARNING
-      );
-      return;
-    }
-
     switch (stepName) {
       case "DOMICILIOS":
         if(this.clienteGuardado) {
           this.stepper.next();
+          return;
+        }
+
+        if(!form.valid) {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            "Faltan algunos campos obligatorios por llenarse",
+            ToastType.WARNING
+          );
           return;
         }
 
@@ -677,7 +710,7 @@ export class EmpresaClientesComponent implements OnInit {
           )
         });
         break;
-      case "RESUMEN":
+      case "MODALIDADES":
         if(this.domiciliosGuardados) {
           this.stepper.next();
           return;
@@ -706,6 +739,7 @@ export class EmpresaClientesComponent implements OnInit {
           );
           this.domiciliosGuardados = true;
           this.desactivarCamposDireccion();
+          this.cliente.domicilios = this.domicilios;
           this.stepper.next();
         }, (error) => {
           this.toastService.showGenericToast(
@@ -714,7 +748,12 @@ export class EmpresaClientesComponent implements OnInit {
             ToastType.ERROR
           );
         });
-
+        break;
+      case "ELEMENTOS":
+        this.stepper.next()
+        break;
+      case "RESUMEN":
+        this.stepper.next();
         break;
     }
   }
@@ -763,7 +802,16 @@ export class EmpresaClientesComponent implements OnInit {
     }
   }
 
+  mostrarNuevaModalidadForm() {
+    this.showModalidadForm = !this.showModalidadForm;
+    if(!this.showModalidadForm) {
+      this.nuevaModalidadForm.reset();
+    }
+  }
+
   guardarAsignacion(form) {
+    console.log(form)
+
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -835,6 +883,76 @@ export class EmpresaClientesComponent implements OnInit {
     }
   }
 
+  guardarModalidad(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `El formulario no es valido`,
+          ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+        "Espere un momento",
+        `Estamos guardando la modalidad`,
+        ToastType.INFO
+    );
+
+    let clienteModalidad: ClienteModalidad = new ClienteModalidad();
+    clienteModalidad.modalidad = this.empresaModalidades.filter(x => x.uuid === form.value.modalidad)[0]
+
+    this.empresaService.guardarModalidadCliente(this.uuid, this.cliente.uuid, clienteModalidad).subscribe((data: ClienteModalidad) => {
+      this.toastService.showGenericToast(
+          "Listo",
+          `Se ha guardado la modalidad con exito`,
+          ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar la modalidad. Motivo: ${error}`,
+          ToastType.ERROR
+      );
+    })
+  }
+
+  ubicarDomicilio(form) {
+    if(!form.valid || this.estado === undefined || this.municipio === undefined || this.localidad === undefined || this.colonia === undefined || this.calle === undefined) {
+      this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "Favor de proporcionar mas datos para hacer la busqueda mas precisa",
+          ToastType.WARNING
+      );
+      return;
+    }
+
+    let clienteDomicilio: ClienteDomicilio = form.value;
+    clienteDomicilio.estadoCatalogo = this.estado;
+    clienteDomicilio.municipioCatalogo = this.municipio;
+    clienteDomicilio.localidadCatalogo = this.localidad;
+    clienteDomicilio.coloniaCatalogo = this.colonia;
+    clienteDomicilio.calleCatalogo = this.calle;
+
+    let query = `${clienteDomicilio?.calleCatalogo?.nombre} ${clienteDomicilio?.numeroExterior} ${clienteDomicilio?.numeroInterior} ${clienteDomicilio?.coloniaCatalogo.nombre} ${clienteDomicilio?.municipioCatalogo?.nombre} ${clienteDomicilio?.estadoCatalogo?.nombre}`
+
+    this.geocodeService.geocode({
+      address: query
+    }).subscribe((data: GeocoderResult[]) => {
+      this.geocodeResult = data[0];
+      this.domicilioUbicado = true;
+
+    }, (error) => {
+      this.domicilioUbicado = false;
+      this.toastService.showGenericToast(
+          `Ocurrio un problema`,
+          `Ocurrio un problema cuando el domicilio era ubicado en el mapa. Motivo: ${error}`,
+          ToastType.ERROR
+      );
+    })
+  }
+
   guardarDomicilio(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
@@ -869,6 +987,11 @@ export class EmpresaClientesComponent implements OnInit {
     domicilio.coloniaCatalogo = this.colonia;
     domicilio.calleCatalogo = this.calle;
     domicilio.localidadCatalogo = this.localidad;
+
+    if(this.geocodeResult !== undefined) {
+      domicilio.latitud = this.geocodeResult.geometry.location.lat().toString()
+      domicilio.longitud = this.geocodeResult.geometry.location.lng().toString()
+    }
 
     if(this.editandoDomicilio) {
       domicilio.id = this.domicilio.id;
@@ -1057,9 +1180,25 @@ export class EmpresaClientesComponent implements OnInit {
     })
   }
 
+  mostrarUbicacionDomicilioModal(uuid) {
+    this.domicilio = this.cliente.domicilios.filter(x => x.uuid === uuid)[0]
+    this.modal = this.modalService.open(this.mostrarUbicacionModal, {size: "xl", backdrop: "static"})
+  }
+
   mostrarModalEliminarAsignacionCliente(uuid) {
     this.tempUuidAsignacionCliente = uuid;
     this.modal = this.modalService.open(this.eliminarDomicilioAsignacionModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModalEliminarModalidadCliente(uuid) {
+    this.tempUuidModalidadCliente = uuid;
+    this.modal = this.modalService.open(this.eliminarDomicilioModalidadModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -1170,6 +1309,38 @@ export class EmpresaClientesComponent implements OnInit {
     })
   }
 
+  confirmarEliminarModalidad() {
+    if(this.tempUuidAsignacionCliente === undefined) {
+      this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "El UUID de la asignacion del cliente a eliminar no esta definido",
+          ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+        "Espere un momento",
+        "Se esta eliminando la modalidad del cliente",
+        ToastType.INFO
+    );
+
+    this.empresaService.eliminarModalidadCliente(this.uuid, this.cliente.uuid, this.tempUuidModalidadCliente).subscribe((data: ClienteModalidad) => {
+      this.toastService.showGenericToast(
+          "Listo",
+          `Se ha eliminado la modalidad con exito`,
+          ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido eliminar la modalidad. Motivo: ${error}`,
+          ToastType.ERROR
+      );
+    })
+  }
+
   confirmarEliminarAsignacionCliente() {
     if(this.tempUuidAsignacionCliente === undefined) {
       this.toastService.showGenericToast(
@@ -1276,6 +1447,14 @@ export class EmpresaClientesComponent implements OnInit {
     this.nuevoClienteDomicilioForm.controls['correoElectronico'].disable();
     this.nuevoClienteDomicilioForm.controls['tipoInfraestructura'].disable();
     this.nuevoClienteDomicilioForm.controls['tipoInfraestructuraOtro'].disable();
+  }
+
+  convertStringToNumber(input: string) {
+    if (!input) return NaN;
+    if (input.trim().length==0) {
+      return NaN;
+    }
+    return Number(input);
   }
 
   private getDismissReason(reason: any): string {

@@ -76,6 +76,8 @@ import { ModalidadArmadaPipe } from './_pipes/modalidad-armada.pipe';
 import { BotonBuzonSalidaComponent } from './_components/botones/boton-buzon-salida/boton-buzon-salida.component';
 import { BuscarRazonSocialPipe } from './_pipes/buscar-razon-social.pipe';
 import { BuscarNombresPipe } from './_pipes/buscar-nombres.pipe';
+import {DataTablesModule} from "angular-datatables";
+import {TableModule} from "primeng/table";
 
 @NgModule({
   declarations: [
@@ -141,24 +143,27 @@ import { BuscarNombresPipe } from './_pipes/buscar-nombres.pipe';
     BuscarRazonSocialPipe,
     BuscarNombresPipe
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    NgbModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    FormsModule,
-    FontAwesomeModule,
-    AgGridModule,
-    CKEditorModule,
-    NgxPrintModule,
-    PdfViewerModule,
-    GoogleChartsModule,
-    GoogleMapsModule,
-    AgmCoreModule.forRoot({
-      apiKey: 'AIzaSyDhtDzSjzQt5q9LI8aR7xXNA4QPsUgaEsY'
-    })
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        NgbModule,
+        ReactiveFormsModule,
+        HttpClientModule,
+        FormsModule,
+        FontAwesomeModule,
+        AgGridModule,
+        CKEditorModule,
+        NgxPrintModule,
+        PdfViewerModule,
+        GoogleChartsModule,
+        GoogleMapsModule,
+        AgmCoreModule.forRoot({
+            apiKey: 'AIzaSyDhtDzSjzQt5q9LI8aR7xXNA4QPsUgaEsY',
+            libraries: ['geometry', 'places']
+        }),
+        DataTablesModule,
+      TableModule
+    ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

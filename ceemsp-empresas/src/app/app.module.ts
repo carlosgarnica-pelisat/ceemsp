@@ -54,6 +54,16 @@ import { AcercaComponent } from './app/home/configuracion/acerca/acerca.componen
 import {BuscarNombrePipe} from "./_pipes/buscar-nombre.pipe";
 import {PdfViewerModule} from "ng2-pdf-viewer";
 import { BotonEmpresaAcuerdosComponent } from './_components/botones/boton-empresa-acuerdos/boton-empresa-acuerdos.component';
+import { BotonEmpresaCanesComponent } from './_components/botones/boton-empresa-canes/boton-empresa-canes.component';
+import { BotonEmpresaClientesComponent } from './_components/botones/boton-empresa-clientes/boton-empresa-clientes.component';
+import { BotonEmpresaDomiciliosComponent } from './_components/botones/boton-empresa-domicilios/boton-empresa-domicilios.component';
+import { BotonEmpresaEquiposComponent } from './_components/botones/boton-empresa-equipos/boton-empresa-equipos.component';
+import { BotonEmpresaIncidenciasComponent } from './_components/botones/boton-empresa-incidencias/boton-empresa-incidencias.component';
+import { BotonEmpresaLegalComponent } from './_components/botones/boton-empresa-legal/boton-empresa-legal.component';
+import { BotonEmpresaLicenciasComponent } from './_components/botones/boton-empresa-licencias/boton-empresa-licencias.component';
+import { BotonEmpresaPersonalComponent } from './_components/botones/boton-empresa-personal/boton-empresa-personal.component';
+import { BotonEmpresaUniformeComponent } from './_components/botones/boton-empresa-uniforme/boton-empresa-uniforme.component';
+import { BotonEmpresaVehiculosComponent } from './_components/botones/boton-empresa-vehiculos/boton-empresa-vehiculos.component';
 
 @NgModule({
   declarations: [
@@ -95,7 +105,17 @@ import { BotonEmpresaAcuerdosComponent } from './_components/botones/boton-empre
     EmpresaUniformesComponent,
     AcercaComponent,
     BuscarNombrePipe,
-    BotonEmpresaAcuerdosComponent
+    BotonEmpresaAcuerdosComponent,
+    BotonEmpresaCanesComponent,
+    BotonEmpresaClientesComponent,
+    BotonEmpresaDomiciliosComponent,
+    BotonEmpresaEquiposComponent,
+    BotonEmpresaIncidenciasComponent,
+    BotonEmpresaLegalComponent,
+    BotonEmpresaLicenciasComponent,
+    BotonEmpresaPersonalComponent,
+    BotonEmpresaUniformeComponent,
+    BotonEmpresaVehiculosComponent
   ],
   imports: [
     BrowserModule,

@@ -102,7 +102,7 @@
             </tr>
             <tr>
               <td><b>Submarca</b></td>
-              <td>{{vehiculo?.submarca.nombre}}</td>
+              <td>{{vehiculo?.submarca?.nombre}}</td>
             </tr>
             <tr>
               <td><b>Año</b></td>
@@ -126,7 +126,7 @@
             <tr>
               <td><b>Domicilio</b></td>
               <td>
-                {{vehiculo?.domicilio?.domicilio1}}. Colonia: {{vehiculo?.domicilio?.domicilio2}}<br>
+                {{vehiculo?.domicilio?.domicilio1}} {{vehiculo?.domicilio?.numeroExterior}} {{vehiculo?.domicilio?.numeroInterior}}. Colonia: {{vehiculo?.domicilio?.domicilio2}}<br>
                 {{vehiculo?.domicilio?.domicilio3}}, {{vehiculo?.domicilio?.estado}}, {{vehiculo?.domicilio?.pais}}<br>
                 C.P. {{vehiculo?.domicilio?.codigoPostal}}
               </td>

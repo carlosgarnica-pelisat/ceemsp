@@ -9,8 +9,7 @@
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="CLIENTE" type="INT"></column>
-            <column name="MODALIDAD" type="VARCHAR(10)"></column>
-            <column name="SUBMODALIDAD" type="INT"></column>
+            <column name="EMPRESA_MODALIDAD" type="INT"></column>
             <column name="ELIMINADO" type="bit" defaultValue="0"></column>
             <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
             <column name="CREADO_POR" type="int"></column>

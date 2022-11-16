@@ -7,6 +7,7 @@ import com.pelisat.cesp.ceemsp.database.type.ArmaStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.IncidenciaStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingMandatoryDocumentException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
@@ -265,6 +266,12 @@ public class ArmaServiceImpl implements ArmaService {
         if(arma == null) {
             logger.warn("El arma no existe en la base de datos");
             throw new NotFoundResourceException();
+        }
+
+        // Validando si el archivo debe de venir en algun status que asi lo requiera
+        if(multipartFile == null && (StringUtils.equals("ROBO", armaDto.getMotivoBaja()) || StringUtils.equals("ASEGURAMIENTO", armaDto.getMotivoBaja()))) {
+            logger.warn("El tipo de bntoaja [{}] requiere un documento fundatorio", arma.getMotivoBaja());
+            throw new MissingMandatoryDocumentException();
         }
 
         UsuarioDto usuario = usuarioService.getUserByEmail(username);

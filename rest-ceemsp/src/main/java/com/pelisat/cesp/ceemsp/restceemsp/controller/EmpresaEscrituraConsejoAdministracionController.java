@@ -78,7 +78,7 @@ public class EmpresaEscrituraConsejoAdministracionController {
         return empresaEscrituraConsejoService.actualizarConsejo(empresaUuid, escrituraUuid, consejoUuid, username, empresaEscrituraApoderadoDto);
     }
 
-    @PutMapping(value = EMPRESA_CONSEJO_URI + "/{consejoUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_CONSEJO_URI + "/{consejoUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public EmpresaEscrituraConsejoDto eliminarEscrituraConsejo(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "escrituraUuid") String escrituraUuid,

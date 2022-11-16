@@ -82,81 +82,104 @@
 
       <div class="row" style="margin-top: 20px;">
         <div class="col-sm-12" *ngIf="pestanaActual === 'DETALLES'">
-          <table class="table">
-            <tr>
-              <td><b>Apellido paterno</b></td>
-              <td>{{persona?.apellidoPaterno}}</td>
-            </tr>
-            <tr>
-              <td><b>Apellido materno</b></td>
-              <td>{{persona?.apellidoMaterno}}</td>
-            </tr>
-            <tr>
-              <td><b>Nombre(s)</b></td>
-              <td>{{persona?.nombres}}</td>
-            </tr>
-            <tr>
-              <td><b>CURP</b></td>
-              <td>{{persona?.curp}}</td>
-            </tr>
-            <tr>
-              <td><b>RFC</b></td>
-              <td>{{persona?.rfc}}</td>
-            </tr>
-            <tr>
-              <td><b>Domicilio</b></td>
-              <td>{{persona?.domicilio1}} {{persona?.numeroExterior}} {{persona?.numeroInterior}}. Colonia: {{persona?.domicilio2}}<br>
-                {{persona?.domicilio3}}, {{persona?.estado}}, {{persona?.pais}}<br>
-                C.P. {{persona?.codigoPostal}}</td>
-            </tr>
-            <tr>
-              <td><b>Nacionalidad</b></td>
-              <td>{{persona?.nacionalidad?.nombre}}</td>
-            </tr>
-            <tr>
-              <td><b>Sexo</b></td>
-              <td>{{persona?.sexo}}</td>
-            </tr>
-            <tr>
-              <td><b>Fecha de nacimiento</b></td>
-              <td>{{persona?.fechaNacimiento}}</td>
-            </tr>
-            <tr>
-              <td><b>Fecha de ingreso</b></td>
-              <td>{{persona?.fechaIngreso}}</td>
-            </tr>
-            <tr>
-              <td><b>Correo electronico</b></td>
-              <td>{{persona?.correoElectronico}}</td>
-            </tr>
-            <tr>
-              <td><b>Telefono</b></td>
-              <td>{{persona?.telefono}}</td>
-            </tr>
-            <tr>
-              <td><b>Estado civil</b></td>
-              <td [ngSwitch]="persona?.estadoCivil">
-                <span *ngSwitchCase="'SOLTERO'">Soltero</span>
-                <span *ngSwitchCase="'CASADO'">Casado</span>
-                <span *ngSwitchCase="'DIVORCIADO'">Divorciado</span>
-                <span *ngSwitchCase="'UNION_LIBRE'">Union libre</span>
-                <span *ngSwitchCase="'VIUDO'">Viudo</span>
-              </td>
-            </tr>
-            <tr>
-              <td><b>Tipo de sangre</b></td>
-              <td [ngSwitch]="persona?.tipoSangre">
-                <span *ngSwitchCase="'AB_P'">AB+</span>
-                <span *ngSwitchCase="'AB_N'">AB-</span>
-                <span *ngSwitchCase="'B_P'">B+</span>
-                <span *ngSwitchCase="'B_N'">B-</span>
-                <span *ngSwitchCase="'A_P'">A-</span>
-                <span *ngSwitchCase="'A_N'">A-</span>
-                <span *ngSwitchCase="'O_P'">O+</span>
-                <span *ngSwitchCase="'O_N'">O-</span>
-              </td>
-            </tr>
-          </table>
+          <div class="row">
+            <div class="col-sm-3">
+              <img [src]="imagenPrincipal" style="width: 100%;">
+            </div>
+            <div class="col-sm-9">
+              <table class="table">
+                <tr>
+                  <td><b>Apellido paterno</b></td>
+                  <td>{{persona?.apellidoPaterno}}</td>
+                </tr>
+                <tr>
+                  <td><b>Apellido materno</b></td>
+                  <td>{{persona?.apellidoMaterno}}</td>
+                </tr>
+                <tr>
+                  <td><b>Nombre(s)</b></td>
+                  <td>{{persona?.nombres}}</td>
+                </tr>
+                <tr>
+                  <td><b>CURP</b></td>
+                  <td>{{persona?.curp}}</td>
+                </tr>
+                <tr>
+                  <td><b>RFC</b></td>
+                  <td>{{persona?.rfc}}</td>
+                </tr>
+                <tr>
+                  <td><b>Domicilio</b></td>
+                  <td>{{persona?.domicilio1}} {{persona?.numeroExterior}} {{persona?.numeroInterior}}. Colonia: {{persona?.domicilio2}}<br>
+                    {{persona?.domicilio3}}, {{persona?.estado}}, {{persona?.pais}}<br>
+                    C.P. {{persona?.codigoPostal}}</td>
+                </tr>
+                <tr>
+                  <td><b>Nacionalidad</b></td>
+                  <td>{{persona?.nacionalidad?.nombre}}</td>
+                </tr>
+                <tr>
+                  <td><b>Sexo</b></td>
+                  <td>{{persona?.sexo}}</td>
+                </tr>
+                <tr>
+                  <td><b>Fecha de nacimiento</b></td>
+                  <td>{{persona?.fechaNacimiento}}</td>
+                </tr>
+                <tr>
+                  <td><b>Fecha de ingreso</b></td>
+                  <td>{{persona?.fechaIngreso}}</td>
+                </tr>
+                <tr>
+                  <td><b>Correo electronico</b></td>
+                  <td>{{persona?.correoElectronico}}</td>
+                </tr>
+                <tr>
+                  <td><b>Telefono</b></td>
+                  <td>{{persona?.telefono}}</td>
+                </tr>
+                <tr>
+                  <td><b>Estado civil</b></td>
+                  <td [ngSwitch]="persona?.estadoCivil">
+                    <span *ngSwitchCase="'SOLTERO'">Soltero</span>
+                    <span *ngSwitchCase="'CASADO'">Casado</span>
+                    <span *ngSwitchCase="'DIVORCIADO'">Divorciado</span>
+                    <span *ngSwitchCase="'UNION_LIBRE'">Union libre</span>
+                    <span *ngSwitchCase="'VIUDO'">Viudo</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Tipo de sangre</b></td>
+                  <td [ngSwitch]="persona?.tipoSangre">
+                    <span *ngSwitchCase="'AB_P'">AB+</span>
+                    <span *ngSwitchCase="'AB_N'">AB-</span>
+                    <span *ngSwitchCase="'B_P'">B+</span>
+                    <span *ngSwitchCase="'B_N'">B-</span>
+                    <span *ngSwitchCase="'A_P'">A-</span>
+                    <span *ngSwitchCase="'A_N'">A-</span>
+                    <span *ngSwitchCase="'O_P'">O+</span>
+                    <span *ngSwitchCase="'O_N'">O-</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Fecha de creacion</b></td>
+                  <td>{{persona?.fechaCreacion}}</td>
+                </tr>
+                <tr *ngIf="persona?.eliminado">
+                  <td><b>Motivo de la baja</b></td>
+                  <td>{{persona?.motivoBaja}}</td>
+                </tr>
+                <tr *ngIf="persona?.eliminado">
+                  <td><b>Fecha de la baja</b></td>
+                  <td>{{persona?.fechaBaja}}</td>
+                </tr>
+                <tr *ngIf="persona?.eliminado">
+                  <td><b>Observaciones de la baja</b></td>
+                  <td>{{persona?.observacionesBaja}}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
         </div>
 
         <div class="col-sm-12" *ngIf="pestanaActual === 'PUESTO'">
@@ -192,6 +215,10 @@
             <tr *ngIf="persona?.estatusCuip === 'EN_TRAMITE'">
               <td><b>Fecha de tramitacion de CUIP</b></td>
               <td>{{persona?.fechaVolanteCuip}}</td>
+            </tr>
+            <tr *ngIf="persona?.estatusCuip === 'EN_TRAMITE'">
+              <td><b>Volante del CUIP</b></td>
+              <td>{{persona?.rutaVolanteCuip}}</td>
             </tr>
             <tr *ngIf="showPuestoForm">
               <td colspan="2">
@@ -288,6 +315,12 @@
                             </span>
                           </label>
                           <input id="crearCuipNumero" type="text" class="form-control" formControlName="cuip" (focusout)="verificarCuip($event.target)">
+                        </div>
+                        <div class="col-sm-3" *ngIf="cuipStatus === 'EN_TRAMITE'">
+                          <label for="archivoVolanteCuip">
+                            <b>Archivo de volante *</b>
+                          </label>
+                          <input id="archivoVolanteCuip" accept="application/pdf" type="file" class="form-control" (change)="onFileChange($event)">
                         </div>
                       </div>
                     </form>
@@ -1239,6 +1272,45 @@
                     </table>
                   </div>
                 </div>
+
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Info. del curso</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Nombre</b></td>
+                        <td><b>Instructor</b></td>
+                        <td><b>Duracion</b></td>
+                        <td><b>Fecha de Inicio</b></td>
+                        <td><b>Fecha de Fin</b></td>
+                      </tr>
+                      <tr>
+                        <td>{{this.personaCertificacion?.nombre}}</td>
+                        <td>{{this.personaCertificacion?.nombreInstructor}}</td>
+                        <td>{{this.personaCertificacion?.duracion}}</td>
+                        <td>{{this.personaCertificacion?.fechaInicio}}</td>
+                        <td>{{this.personaCertificacion?.fechaFin}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Fotografias</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Informacion de la foto</b></td>
+                        <td><b>Archivo</b></td>
+                      </tr>
+                      <tr>
+                        <td>{{this.personaFotografia?.descripcion}}</td>
+                        <td>{{this.personaFotografia?.nombreArchivo}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
@@ -1619,6 +1691,50 @@
       </button>
     </div>
     <div class="modal-body">
+      <form [formGroup]="motivosEliminacionForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBaja">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['motivoBaja'].invalid && (motivosEliminacionForm.controls['motivoBaja'].dirty || motivosEliminacionForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja"
+                   formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBaja">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionForm.controls['fechaBaja'].invalid && (motivosEliminacionForm.controls['fechaBaja'].dirty || motivosEliminacionForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBaja" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy"
+                   #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBaja">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file"
+                   (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBaja">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesBaja" type="text" class="form-control"
+                      placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja"
+                      #descripcion></textarea>
+          </div>
+        </div>
+      </form>
       <div class="row">
         <div class="col-sm-12">
           <p>Estás a punto de eliminar una persona. Toma en cuenta que al eliminarlo, todos las certificaciones y fotografias seran eliminadas y esta operación no se puede deshacer. ¿Deseas continuar?</p>
@@ -1626,7 +1742,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarPersonal()">Si, eliminar</button>
+      <button class="btn btn-danger" (click)="confirmarEliminarPersonal(motivosEliminacionForm)">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>

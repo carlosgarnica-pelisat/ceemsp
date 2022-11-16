@@ -39,6 +39,12 @@ export default class Persona implements Deserializable {
   correoElectronico: string;
   rfc: string;
   eliminado: boolean;
+  fechaCreacion: string;
+
+  motivoBaja: string;
+  observacionesBaja: string;
+  documentoFundatorioBaja: string;
+  fechaBaja: string;
 
   puestoDeTrabajo: PersonalPuestoTrabajo;
   subpuestoDeTrabajo: PersonalSubpuestoTrabajo;
@@ -49,6 +55,7 @@ export default class Persona implements Deserializable {
   numeroVolanteCuip: string;
   fechaVolanteCuip: string;
   modalidad: Modalidad;
+  rutaVolanteCuip: string;
 
   estadoCatalogo: Estado;
   municipioCatalogo: Municipio;

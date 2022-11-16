@@ -45,9 +45,16 @@ public class PersonaDto {
     private String cuip;
     private String numeroVolanteCuip;
     private String fechaVolanteCuip;
+    private String rutaVolanteCuip;
     private ModalidadDto modalidad;
     private String rfc;
     private boolean eliminado;
+    private String fechaCreacion;
+
+    private String motivoBaja;
+    private String observacionesBaja;
+    private String documentoFundatorioBaja;
+    private String fechaBaja;
 
     private EstadoDto estadoCatalogo;
     private MunicipioDto municipioCatalogo;

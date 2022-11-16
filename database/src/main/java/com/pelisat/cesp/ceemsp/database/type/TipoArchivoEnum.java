@@ -57,7 +57,9 @@ public enum TipoArchivoEnum {
     CONSTANCIA_BLINDAJE_VEHICULO("CONSTANCIA_BLINDAJE_VEHICULO", "Constancia de blindaje de vehiculo", "Documento que valida el blindaje de un vehiculo. No obligatorio",
             "vehiculos/constancias-blindaje/", "constancia-blindaje"),
     EMPRESA_ACUERDO("EMPRESA_ACUERDO", "Acuerdo","Documento que respalda el acuerdo de registro de una empresa de seguridad privada",
-            "acuerdos/", "acuerdo");
+            "acuerdos/", "acuerdo"),
+    VOLANTE_CUIP("VOLANTE_CUIP", "Volante CUIP", "Documento que consta la solicitud de un CUIP",
+            "personal/volantes-cuip/", "volante-cuip");
 
     private String codigo;
     private String nombre;

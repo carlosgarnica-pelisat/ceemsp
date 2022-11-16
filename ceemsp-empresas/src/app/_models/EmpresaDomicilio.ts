@@ -4,6 +4,7 @@ import Municipio from "./Municipio";
 import Localidad from "./Localidad";
 import Colonia from "./Colonia";
 import Calle from "./Calle";
+import EmpresaDomicilioTelefono from "./EmpresaDomicilioTelefono";
 
 export default class EmpresaDomicilio implements Deserializable {
   id: number;
@@ -34,6 +35,8 @@ export default class EmpresaDomicilio implements Deserializable {
   observacionesBaja: string;
   documentoFundatorioBaja: string;
   fechaBaja: string;
+
+  telefonos: EmpresaDomicilioTelefono[];
 
   deserialize(input: any): this {
     Object.assign(this, input);

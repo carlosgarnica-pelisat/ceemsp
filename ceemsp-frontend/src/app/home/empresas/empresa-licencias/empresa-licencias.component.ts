@@ -8,7 +8,7 @@ import {ToastType} from "../../../_enums/ToastType";
 import EmpresaLicenciaColectiva from "../../../_models/EmpresaLicenciaColectiva";
 import EmpresaModalidad from "../../../_models/EmpresaModalidad";
 import Arma from "../../../_models/Arma";
-import {faCheck, faEdit, faHandPaper, faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faEdit, faHandPaper, faPencilAlt, faTrash, faInfoCircle} from "@fortawesome/free-solid-svg-icons";
 import Persona from "../../../_models/Persona";
 import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
 import ArmaMarca from "../../../_models/ArmaMarca";
@@ -42,6 +42,7 @@ export class EmpresaLicenciasComponent implements OnInit {
   faTrash = faTrash;
   faCheck = faCheck;
   faPencil = faPencilAlt;
+  faInfoCircle = faInfoCircle;
 
   fechaDeHoy = new Date().toISOString().split('T')[0];
 
@@ -55,6 +56,9 @@ export class EmpresaLicenciasComponent implements OnInit {
     {headerName: 'Numero de oficio', field: 'numeroOficio', sortable: true, filter: true },
     {headerName: 'Fecha de Inicio', field: 'fechaInicio', sortable: true, filter: true},
     {headerName: 'Fecha de Término', field: 'fechaFin', sortable: true, filter: true},
+    {headerName: 'Modalidad', field: 'modalidad.nombre', sortable: true, filter: true},
+    {headerName: 'Armas cortas', field: 'cantidadArmasCortas', sortable: true, filter: true},
+    {headerName: 'Armas largas', field: 'cantidadArmasLargas', sortable: true, filter: true},
     {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
         label: 'Ver detalles',
         verDetalles: this.verDetalles.bind(this),
@@ -92,6 +96,7 @@ export class EmpresaLicenciasComponent implements OnInit {
   modificarStatusArmaForm: FormGroup;
   crearDireccionForm: FormGroup;
   crearArmaForm: FormGroup;
+  editarArmaForm: FormGroup;
   modalidadSearchForm: FormGroup;
   motivosEliminacionForm: FormGroup;
   motivosEliminacionArmaForm: FormGroup;
@@ -110,17 +115,26 @@ export class EmpresaLicenciasComponent implements OnInit {
     editorData: '<p>Escribe con detalle el relato de los hechos. Toma en cuenta que al finalizar se creara una incidencia de manera automatica y el arma quedara EN CUSTODIA.</p>'
   }
 
+  dtOptions: DataTables.Settings = {
+  }
+
   @ViewChild('mostrarLicenciaDetallesModal') mostrarLicenciaDetallesModal;
   @ViewChild('modificarLicenciaModal') modificarLicenciaModal;
   @ViewChild('eliminarEmpresaLicenciaModal') eliminarEmpresaLicenciaModal;
   @ViewChild('eliminarEmpresaLicenciaDireccionModal') eliminarEmpresaLicenciaDireccionModal;
   @ViewChild('eliminarEmpresaLicenciaArmaModal') eliminarEmpresaLicenciaArmaModal;
+  @ViewChild('agregarArmaModal') agregarArmaModal;
+  @ViewChild('editarArmaModal') editarArmaModal;
 
   constructor(private modalService: NgbModal, private empresaService: EmpresaService, private toastService: ToastService,
               private route: ActivatedRoute, private formBuilder: FormBuilder, private armaService: ArmasService,
               private validacionService: ValidacionService) { }
 
   ngOnInit(): void {
+    this.dtOptions = {
+      pagingType: 'full_numbers'
+    }
+
     this.frameworkComponents = {
       buttonRenderer: BotonEmpresaLicenciasComponent
     }
@@ -155,7 +169,19 @@ export class EmpresaLicenciasComponent implements OnInit {
       personal: [''],
       serie: ['', [Validators.maxLength(30)]],
       matricula: ['', [Validators.required, Validators.maxLength(30)]]
-    })
+    });
+
+    this.editarArmaForm = this.formBuilder.group({
+      tipo: ['', Validators.required],
+      clase: ['', Validators.required],
+      marca: ['', Validators.required],
+      calibre: ['', [Validators.required, Validators.maxLength(10)]],
+      bunker: ['', Validators.required],
+      status: ['', Validators.required],
+      personal: [''],
+      serie: ['', [Validators.maxLength(30)]],
+      matricula: ['', [Validators.required, Validators.maxLength(30)]]
+    });
 
     this.motivosEliminacionForm = this.formBuilder.group({
       motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
@@ -492,7 +518,7 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   mostrarModalDetalles(rowData, modal) {
     let licenciaUuid = rowData.uuid;
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: "modal-basic-title", size: 'xl'});
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: "modal-basic-title", size: 'xl', scrollable: true});
 
     this.empresaService.obtenerLicenciaColectivaPorUuid(this.uuid, licenciaUuid).subscribe((data: EmpresaLicenciaColectiva) => {
       this.licencia = data;
@@ -729,11 +755,9 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   mostrarModificarArmaForm(index) {
     this.arma = this.armas[index];
-    this.mostrarFormularioArma();
+    this.modal = this.modalService.open(this.editarArmaModal, {size: "xl", backdrop: "static"})
     this.editandoArma = true;
-    console.log(this.arma);
-    console.log(this.personal);
-    this.crearArmaForm.patchValue({
+    this.editarArmaForm.patchValue({
       tipo: this.arma.tipo,
       clase: this.arma.clase.uuid,
       serie: this.arma.serie,
@@ -778,7 +802,7 @@ export class EmpresaLicenciasComponent implements OnInit {
   }
 
   mostrarFormularioNuevaArma() {
-    this.showArmaForm = !this.showArmaForm;
+    this.modal = this.modalService.open(this.agregarArmaModal, {size: "xl", backdrop: "static"})
   }
 
   mostrarModalEliminarDomicilio(uuid) {
@@ -801,6 +825,76 @@ export class EmpresaLicenciasComponent implements OnInit {
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     })
+  }
+
+  cerrarModalCrearArma() {
+    this.modal.close();
+  }
+
+  modificarArma(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos requeridos sin rellenar",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    if(this.existeArma?.existe) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Esta arma ya cuenta con modelo o matricula registrada`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando el arma",
+      ToastType.INFO
+    );
+
+    let formData: Arma = form.value;
+
+    if(formData.status === 'ACTIVA' && (form.value.personal === undefined || form.value.personal === null)) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Cuando un arma se configura como ACTIVA, se requiere asignar un personal",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    formData.bunker = this.domicilios.filter(x => x.uuid === form.value.bunker)[0];
+    formData.clase = this.clases.filter(x => x.uuid === form.value.clase)[0];
+    formData.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
+    formData.personal = this.personal.filter(x => x.uuid === form.value.personal)[0];
+
+    this.empresaService.modificarArma(this.uuid, this.licencia.uuid, this.arma.uuid, formData).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha modificado el arma con exito",
+        ToastType.SUCCESS
+      );
+      this.modal.close();
+      this.empresaService.obtenerArmasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
+        this.armas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido obtener las armas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido modificar el arma. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
   }
 
   crearArma(form) {
@@ -844,65 +938,39 @@ export class EmpresaLicenciasComponent implements OnInit {
     formData.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
     formData.personal = this.personal.filter(x => x.uuid === form.value.personal)[0];
 
-    if(this.editandoArma) {
-      this.empresaService.modificarArma(this.uuid, this.licencia.uuid, this.arma.uuid, formData).subscribe((data) => {
-        this.toastService.showGenericToast(
-          "Listo",
-          "Se ha modificado el arma con exito",
-          ToastType.SUCCESS
-        );
-        this.mostrarFormularioArma();
-        this.empresaService.obtenerArmasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
-          this.armas = data;
-        }, (error) => {
-          this.toastService.showGenericToast(
-            "Ocurrio un problema",
-            `No se han podido obtener las armas. Motivo: ${error}`,
-            ToastType.ERROR
-          );
-        })
+    this.empresaService.guardarArma(this.uuid, this.licencia.uuid, formData).subscribe((data: Arma) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado el arma con exito",
+        ToastType.SUCCESS
+      );
+      this.modal.close();
+      this.empresaService.obtenerArmasEliminadasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
+        this.armasEliminadas = data;
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
-          `No se ha podido modificar el arma. Motivo: ${error}`,
-          ToastType.ERROR
-        );
-      });
-    } else {
-      this.empresaService.guardarArma(this.uuid, this.licencia.uuid, formData).subscribe((data: Arma) => {
-        this.toastService.showGenericToast(
-          "Listo",
-          "Se ha guardado el arma con exito",
-          ToastType.SUCCESS
-        );
-        this.mostrarFormularioArma();
-        this.empresaService.obtenerArmasEliminadasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
-          this.armasEliminadas = data;
-        }, (error) => {
-          this.toastService.showGenericToast(
-            "Ocurrio un problema",
-            `No se pudiieron descargar las armas eliminadas. Motivo: ${error}`,
-            ToastType.ERROR
-          );
-        })
-        this.empresaService.obtenerArmasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
-          this.armas = data;
-          this.armasNoEliminadas = data;
-        }, (error) => {
-          this.toastService.showGenericToast(
-            "Ocurrio un problema",
-            `No se han podido obtener las armas. Motivo: ${error}`,
-            ToastType.ERROR
-          );
-        })
-      }, (error) => {
-        this.toastService.showGenericToast(
-          "Ocurrio un problema",
-          `no se pudo guarar el arma. Motivo: ${error}`,
+          `No se pudiieron descargar las armas eliminadas. Motivo: ${error}`,
           ToastType.ERROR
         );
       })
-    }
+      this.empresaService.obtenerArmasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
+        this.armas = data;
+        this.armasNoEliminadas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido obtener las armas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `no se pudo guarar el arma. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   confirmarEliminarLicencia(form) {
@@ -939,7 +1007,7 @@ export class EmpresaLicenciasComponent implements OnInit {
         "Se ha eliminado la licencia colectiva con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -974,7 +1042,7 @@ export class EmpresaLicenciasComponent implements OnInit {
       ToastType.INFO
     );
 
-    let formValue: EmpresaDomicilio = form.value;
+    let formValue: Arma = form.value;
 
     let formData = new FormData();
     formData.append('arma', JSON.stringify(formValue));

@@ -8,6 +8,7 @@ import com.pelisat.cesp.ceemsp.database.model.BuzonInternoDestinatario;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.repository.BuzonInternoDestinatarioRepository;
 import com.pelisat.cesp.ceemsp.database.repository.BuzonInternoRepository;
+import com.pelisat.cesp.ceemsp.database.type.NotificacionEmailEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoDestinatarioEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,7 +57,7 @@ public class BuzonSalidaServiceImpl implements BuzonSalidaService {
     @Override
     public List<BuzonInternoDto> obtenerTodosLosMensajes() {
         logger.info("Obteniendo todos los mensajes del buzon interno");
-        List<BuzonInterno> mensajes = buzonInternoRepository.findAll();
+        List<BuzonInterno> mensajes = buzonInternoRepository.getAllByEliminadoFalse();
         return mensajes.stream().map(daoToDtoConverter::convertDaoToDtoBuzonInterno).collect(Collectors.toList());
     }
 
@@ -81,9 +83,9 @@ public class BuzonSalidaServiceImpl implements BuzonSalidaService {
         buzonInternoDto.setDestinatarios(destinatarios.stream().map(d -> {
             BuzonInternoDestinatarioDto destinatario = daoToDtoConverter.convertDaoToDtoBuzonInternoDestinatario(d);
             if(d.getTipoDestinatario() == TipoDestinatarioEnum.EMPRESA) {
-                destinatario.setEmpresa(empresaService.obtenerPorId(d.getId()));
+                destinatario.setEmpresa(empresaService.obtenerPorId(d.getEmpresa()));
             } else if(d.getTipoDestinatario() == TipoDestinatarioEnum.USUARIO) {
-                destinatario.setUsuario(usuarioService.getUserById(d.getId()));
+                destinatario.setUsuario(usuarioService.getUserById(d.getUsuario()));
             }
 
             return destinatario;
@@ -119,6 +121,12 @@ public class BuzonSalidaServiceImpl implements BuzonSalidaService {
             }
             daoHelper.fulfillAuditorFields(true, bid, usuarioDto.getId());
             buzonInternoDestinatarioRepository.save(bid);
+
+            try {
+                //notificacionEmailService.enviarEmail(NotificacionEmailEnum.EMPRESA_REGISTRADA, empresaDto, daoToDtoConverter.convertDaoToDtoUser(usuario), empresaDto.getUsuario());
+            } catch(Exception ex) {
+                logger.warn("El correo no se ha podido enviar. Motivo: {}", ex);
+            }
         });
 
         return daoToDtoConverter.convertDaoToDtoBuzonInterno(buzonInternoCreado);

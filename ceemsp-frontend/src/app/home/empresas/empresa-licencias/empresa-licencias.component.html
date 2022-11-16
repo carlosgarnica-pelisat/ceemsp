@@ -5,17 +5,23 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Licencias colectivas</h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearLicencia)">Nueva licencia colectiva</button>
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+              (click)="mostrarModalCrear(crearLicencia)">Nueva licencia colectiva
+      </button>
       <div class="dropdown">
-        <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button" id="mostrarColumnasDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button"
+                id="mostrarColumnasDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Mostrar / Ocultar columnas
         </button>
         <div class="dropdown-menu" aria-labelledby="mostrarColumnasDropdown">
-          <a class="dropdown-item" *ngFor="let columnDef of allColumnDefs" (click)="toggleColumn(columnDef.field)"><fa-icon [icon]="faCheck" *ngIf="isColumnListed(columnDef.field)"></fa-icon> {{columnDef?.headerName}}</a>
+          <a class="dropdown-item" *ngFor="let columnDef of allColumnDefs" (click)="toggleColumn(columnDef.field)">
+            <fa-icon [icon]="faCheck" *ngIf="isColumnListed(columnDef.field)"></fa-icon>
+            {{columnDef?.headerName}}</a>
         </div>
       </div>
       <div class="dropdown">
-        <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button"
+                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -35,13 +41,16 @@
         <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
         <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
-        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action active">Licencias colectivas / Armas</a>
+        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action active">Licencias
+          colectivas / Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action">Canes</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
-        <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
+        <a routerLink="/home/empresas/{{uuid}}/incidencias"
+           class="list-group-item list-group-item-action">Incidencias</a>
         <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
-        <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
+        <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo /
+          Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
       </div>
     </div>
@@ -71,13 +80,16 @@
         <div class="col-sm-12">
           <ul class="nav nav-pills nav-fill">
             <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }"
+                 (click)="cambiarPestana('DETALLES')">Detalles</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DIRECCIONES' }" (click)="cambiarPestana('DIRECCIONES')">Direcciones</a>
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DIRECCIONES' }"
+                 (click)="cambiarPestana('DIRECCIONES')">Direcciones</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'ARMAS' }" (click)="cambiarPestana('ARMAS')">Armas</a>
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'ARMAS' }"
+                 (click)="cambiarPestana('ARMAS')">Armas</a>
             </li>
           </ul>
         </div>
@@ -125,7 +137,8 @@
               <td>{{d?.estado}}</td>
               <td>{{d?.codigoPostal}}</td>
               <td>
-                <fa-icon [icon]="faTrash" title="Eliminar domicilio de la licencia colectiva" (click)="mostrarModalEliminarDomicilio(d?.uuid)"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar domicilio de la licencia colectiva"
+                         (click)="mostrarModalEliminarDomicilio(d?.uuid)"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="showDireccionForm">
@@ -139,7 +152,8 @@
                             <b>Dirección *</b>
                           </label>
                           <select id="direccion" class="form-control" formControlName="direccion">
-                            <option *ngFor="let d of domicilios" value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1 + " " + d.numeroExterior + " " + d.numeroInterior}}</option>
+                            <option *ngFor="let d of domicilios"
+                                    value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1 + " " + d.numeroExterior + " " + d.numeroInterior}}</option>
                           </select>
                         </div>
                       </div>
@@ -149,7 +163,8 @@
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button class="btn btn-primary btn-sm" (click)="guardarDireccion(crearDireccionForm)">Guardar</button>
+                    <button class="btn btn-primary btn-sm" (click)="guardarDireccion(crearDireccionForm)">Guardar
+                    </button>
                     <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevaDireccion()">Cancelar</button>
                   </div>
                 </div>
@@ -157,206 +172,351 @@
             </tr>
             <tr *ngIf="!showDireccionForm">
               <td colspan="6">
-                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaDireccion()">Agregar dirección</button>
-                <button class="btn btn-sm btn-primary" *ngIf="!mostrandoDomiciliosEliminadas" (click)="mostrarDomiciliosEliminados()">Mostrar eliminados</button>
-                <button class="btn btn-sm btn-primary" *ngIf="mostrandoDomiciliosEliminadas" (click)="ocultarDomiciliosEliminados()">Ocultar eliminados</button>
+                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaDireccion()">Agregar dirección
+                </button>
+                <button class="btn btn-sm btn-primary" *ngIf="!mostrandoDomiciliosEliminadas"
+                        (click)="mostrarDomiciliosEliminados()">Mostrar eliminados
+                </button>
+                <button class="btn btn-sm btn-primary" *ngIf="mostrandoDomiciliosEliminadas"
+                        (click)="ocultarDomiciliosEliminados()">Ocultar eliminados
+                </button>
               </td>
             </tr>
           </table>
         </div>
         <div class="col-sm-12" *ngIf="pestanaActual === 'ARMAS'">
-          <table class="table">
-            <tr>
-              <td><b>Matricula</b></td>
-              <td><b>Marca</b></td>
-              <td><b>Modelo</b></td>
-              <td><b>Tipo</b></td>
-              <td><b>Clase</b></td>
-              <td><b>Calibre</b></td>
-              <td><b>Bunker</b></td>
-              <td><b>Status</b></td>
-              <td><b>Acciones</b></td>
-            </tr>
-            <tr *ngFor="let a of armas; let i = index">
-              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.matricula}}</td>
-              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.marca?.nombre}}</td>
-              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.serie}}</td>
-              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.tipo}}</td>
-              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.clase?.nombre}}</td>
-              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.calibre}}</td>
-              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">
-                {{a?.bunker?.domicilio1}}. Colonia: {{a?.bunker?.domicilio2}}<br>
-                {{a?.bunker?.domicilio3}}, {{a?.bunker?.estado}}, {{a?.bunker?.pais}}<br>
-                C.P. {{a?.bunker?.codigoPostal}}
-              </td>
-              <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">
-                {{a?.status
-                    + (a?.status === 'ACTIVA' ? " - " + a?.personal?.apellidoPaterno + " " + a?.personal?.apellidoMaterno + " " + a?.personal?.nombres : "")
-                    + (a?.status === 'CUSTODIA' ? " - Incidencia numero: " + a?.incidencia?.numero : "")}}
-              </td>
-              <td>
-                <fa-icon [icon]="faHandPaper" title="Marcar como en custodia" (click)="mostrarCambioStatusForm(a?.uuid)" style="cursor: pointer;" *ngIf="a?.status !== 'CUSTODIA' && !a?.eliminado"></fa-icon>
-                <fa-icon [icon]="faPencil" title="Modificar arma" (click)="mostrarModificarArmaForm(i)" style="cursor: pointer;" *ngIf="a?.status !== 'CUSTODIA' && !a?.eliminado"></fa-icon>
-                <fa-icon [icon]="faTrash" title="Eliminar arma" (click)="mostrarModalEliminarArma(a?.uuid)" style="cursor: pointer;" *ngIf="!a?.eliminado"></fa-icon>
-              </td>
-            </tr>
-            <tr *ngIf="showArmaForm">
-              <td colspan="9">
-                <form [formGroup]="crearArmaForm">
-                  <div class="form-row">
-                    <div class="col-sm-6">
-                      <label for="bunker">
-                        <b>Domicilio de resguardo *</b>
-                        <span *ngIf="crearArmaForm.controls['bunker'].invalid && (crearArmaForm.controls['bunker'].dirty || crearArmaForm.controls['bunker'].touched)" class="text-danger"> - Requerido</span>
-                      </label>
-                      <select id="bunker" class="form-control" formControlName="bunker">
-                        <option *ngFor="let d of domiciliosLicenciaColectiva" value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1}}</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="serie">
-                        <b>Modelo</b>
-                        <a><i *ngIf="existeArma?.existe && existeArma?.serie !== null" class="text-danger"> - El arma ya existe con este modelo</i></a>
-                        <span
-                          *ngIf="crearArmaForm.controls['serie'].invalid && (crearArmaForm.controls['serie'].dirty || crearArmaForm.controls['serie'].touched)">
-                          <i *ngIf="crearArmaForm.controls['serie'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                        </span>
-                      </label>
-                      <input type="text" class="form-control" id="serie" formControlName="serie" placeholder="Ejemplo: ABC123456" (focusout)="consultarArmaModelo($event.target)" />
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="matricula">
-                        <b>Matricula *</b>
-                        <a><i *ngIf="existeArma?.existe && existeArma?.matricula !== null" class="text-danger"> - El arma ya existe con esta matricula</i></a>
-                        <span
-                          *ngIf="crearArmaForm.controls['matricula'].invalid && (crearArmaForm.controls['matricula'].dirty || crearArmaForm.controls['matricula'].touched)">
-                          <i *ngIf="crearArmaForm.controls['matricula'].errors.required" class="text-danger"> - Campo requerido</i>
-                          <i *ngIf="crearArmaForm.controls['matricula'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                        </span>
-                      </label>
-                      <input type="text" class="form-control" id="matricula" formControlName="matricula" placeholder="Ejemplo: ABC123456" (focusout)="consultarArmaMatricula($event.target)"/>
-                    </div>
-                  </div>
-
-                  <div class="form-row">
-                    <div class="col-sm-3">
-                      <label for="marca">
-                        <b>Marca *</b>
-                        <span *ngIf="crearArmaForm.controls['marca'].invalid && (crearArmaForm.controls['marca'].dirty || crearArmaForm.controls['marca'].touched)" class="text-danger"> - Requerido</span>
-                      </label>
-                      <select id="marca" class="form-control" formControlName="marca">
-                        <option *ngFor="let m of marcas" value="{{m.uuid}}">{{m.nombre}}</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="clase">
-                        <b>Clase *</b>
-                        <span *ngIf="crearArmaForm.controls['clase'].invalid && (crearArmaForm.controls['clase'].dirty || crearArmaForm.controls['clase'].touched)" class="text-danger"> - Requerido</span>
-                      </label>
-                      <select id="clase" class="form-control" formControlName="clase">
-                        <option *ngFor="let c of clases" value="{{c.uuid}}">{{c.nombre}}</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="tipo">
-                        <b>Tipo *</b>
-                        <span *ngIf="crearArmaForm.controls['tipo'].invalid && (crearArmaForm.controls['tipo'].dirty || crearArmaForm.controls['tipo'].touched)" class="text-danger"> - Requerido</span>
-                      </label>
-                      <select id="tipo" class="form-control" formControlName="tipo">
-                        <option value="CORTA">Corta</option>
-                        <option value="LARGA">Larga</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="calibre">
-                        <b>Calibre *</b>
-                        <span
-                          *ngIf="crearArmaForm.controls['calibre'].invalid && (crearArmaForm.controls['calibre'].dirty || crearArmaForm.controls['calibre'].touched)">
-                          <i *ngIf="crearArmaForm.controls['calibre'].errors.required" class="text-danger"> - Campo requerido</i>
-                          <i *ngIf="crearArmaForm.controls['calibre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                        </span>
-                      </label>
-                      <input type="text" class="form-control" id="calibre" formControlName="calibre" placeholder="Ejemplo: .38 Super, .22"/>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-sm-3">
-                      <label for="status">
-                        <b>Status *</b>
-                        <span
-                          *ngIf="crearArmaForm.controls['status'].invalid && (crearArmaForm.controls['status'].dirty || crearArmaForm.controls['status'].touched)">
-                          <i *ngIf="crearArmaForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
-                        </span>
-                      </label>
-                      <select class="form-control" formControlName="status" id="status" (change)="seleccionarStatus($event.target)">
-                        <option value="ACTIVA">Activa</option>
-                        <option value="DEPOSITO">Deposito</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3" *ngIf="status === 'ACTIVA'">
-                      <label for="personal">
-                        <b>Personal a asignar *</b>
-                      </label>
-                      <select class="form-control" id="personal" formControlName="personal">
-                        <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
-                      </select>
-                    </div>
-                  </div>
-                </form>
-                <hr>
-                <div class="row">
-                  <div class="col-sm-12">
-                    <button (click)="crearArma(crearArmaForm)" class="btn btn-sm btn-primary">Guardar arma
-                    </button>
-                    <button (click)="mostrarFormularioArma()" class="btn btn-sm btn-danger">Cancelar
-                    </button>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="!showArmaForm && !mostrarModificarStatusArma">
-              <td colspan="9">
-                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaArma()">Agregar arma</button>
-                <button class="btn btn-sm btn-primary" *ngIf="!mostrandoArmasEliminadas" (click)="mostrarArmasEliminadas()">Mostrar eliminados</button>
-                <button class="btn btn-sm btn-primary" *ngIf="mostrandoArmasEliminadas" (click)="ocultarArmasEliminadas()">Ocultar eliminados</button>
-              </td>
-            </tr>
-            <tr *ngIf="mostrarModificarStatusArma">
-              <td colspan="9">
-                <form formGroup="modificarStatusArmaForm">
-                  <div class="form-row">
-                    <div class="col-sm-4">
-                      <label for="documentoFundatorio">
-                        <b>Documento fundatorio</b>
-                      </label>
-                      <input id="documentoFundatorio" type="file" class="form-control" (change)="onFileChange($event)">
-                    </div>
-                  </div>
-                </form>
-                <div class="form-row">
-                  <div class="col-sm-12">
-                    <label>
-                      <b>Relato de hechos *</b>
-                    </label>
-                    <ckeditor [(ngModel)]="model.editorData"></ckeditor>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="mostrarModificarStatusArma">
-              <td colspan="9">
-                <button class="btn btn-sm btn-primary" (click)="custodiaArma()">Guardar cambios</button>
-                <button class="btn btn-sm btn-danger" (click)="mostrarCambioStatusForm(undefined)">Cancelar</button>
-              </td>
-            </tr>
-          </table>
+          <p-table [value]="armas">
+            <ng-template pTemplate="caption">
+              Lista de armas en la licencia
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="matricula"><b>Matricula <p-sortIcon field="matricula"></p-sortIcon></b></th>
+                <th pSortableColumn="marca?.nombre"><b>Marca <p-sortIcon field="marca?.nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="serie"><b>Modelo <p-sortIcon field="serie"></p-sortIcon></b></th>
+                <th pSortableColumn="tipo"><b>Tipo <p-sortIcon field="tipo"></p-sortIcon></b></th>
+                <th pSortableColumn="clase?.nombre"><b>Clase <p-sortIcon field="clase?.nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="calibre"><b>Calibre <p-sortIcon field="calibre"></p-sortIcon></b></th>
+                <th pSortableColumn="status"><b>Status <p-sortIcon field="status"></p-sortIcon></b></th>
+                <th><b>Bunker </b></th>
+                <th><b>Acciones</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7">No hay armas creadas en la licencia hasta ahora. <a class="fakelink" (click)="mostrarFormularioNuevaArma()">Da clic aqui para crear uno</a></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-arma>
+              <tr>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.matricula}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.marca?.nombre}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.serie}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.tipo}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.clase?.nombre}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.calibre}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.status}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">
+                  {{arma?.bunker?.domicilio1}} {{arma?.bunker?.numeroExterior}} {{arma?.bunker?.numeroInterior}}.
+                  Colonia: {{arma?.bunker?.domicilio2}}<br>
+                  {{arma?.bunker?.domicilio3}}, {{arma?.bunker?.estado}}, {{arma?.bunker?.pais}}<br>
+                  C.P. {{arma?.bunker?.codigoPostal}}
+                </td>
+                <td>
+                  <fa-icon [icon]="faHandPaper" title="Marcar como en custodia" (click)="mostrarCambioStatusForm(arma?.uuid)"
+                           style="cursor: pointer;" *ngIf="arma?.status !== 'CUSTODIA' && !arma?.eliminado"></fa-icon>
+                  <fa-icon [icon]="faPencil" title="Modificar arma" (click)="mostrarModificarArmaForm(i)"
+                           style="cursor: pointer;" *ngIf="arma?.status !== 'CUSTODIA' && !arma?.eliminado"></fa-icon>
+                  <fa-icon [icon]="faTrash" title="Eliminar arma" (click)="mostrarModalEliminarArma(arma?.uuid)"
+                           style="cursor: pointer;" *ngIf="!arma?.eliminado"></fa-icon>
+                  <fa-icon [icon]="faInfoCircle" class="fakelink" (click)="mostrarDetallesEliminacionSocio(arma?.uuid)" *ngIf="arma?.eliminado" title="Mostrar motivos de borrado"></fa-icon>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              Hay en total {{armas?.length}} socios
+            </ng-template>
+          </p-table>
         </div>
       </div>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
-      <button class="btn btn-primary" (click)="descargarLicencia(licencia.uuid, mostrarLicenciaPdfModal)">Descargar licencia</button>
+      <button class="btn btn-primary" (click)="descargarLicencia(licencia.uuid, mostrarLicenciaPdfModal)">Descargar
+        licencia
+      </button>
       <button class="btn btn-primary" (click)="mostrarModificarLicenciaModal()">Modificar</button>
       <button type="button" class="btn btn-danger" (click)="mostrarEliminarLicenciaModal()">Eliminar</button>
+    </div>
+    <div class="modal-footer" *ngIf="pestanaActual === 'ARMAS'">
+      <button class="btn btn-primary" (click)="mostrarFormularioNuevaArma()">Agregar arma</button>
+      <button class="btn btn-primary" *ngIf="!mostrandoArmasEliminadas"
+              (click)="mostrarArmasEliminadas()">Mostrar eliminados
+      </button>
+      <button class="btn btn-primary" *ngIf="mostrandoArmasEliminadas"
+              (click)="ocultarArmasEliminadas()">Ocultar eliminados
+      </button>
+    </div>
+  </ng-template>
+
+  <ng-template #editarArmaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="editarArmaModal">Editar arma </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="editarArmaForm">
+        <div class="form-row">
+          <div class="col-sm-6">
+            <label for="bunker">
+              <b>Domicilio de resguardo *</b>
+              <span
+                *ngIf="editarArmaForm.controls['bunker'].invalid && (editarArmaForm.controls['bunker'].dirty || editarArmaForm.controls['bunker'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="bunkerEditar" class="form-control" formControlName="bunker">
+              <option *ngFor="let d of domiciliosLicenciaColectiva"
+                      value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="serieEditar">
+              <b>Modelo</b>
+              <a><i *ngIf="existeArma?.existe && existeArma?.serie !== null" class="text-danger"> - El arma ya
+                existe con este modelo</i></a>
+              <span
+                *ngIf="editarArmaForm.controls['serie'].invalid && (editarArmaForm.controls['serie'].dirty || editarArmaForm.controls['serie'].touched)">
+                <i *ngIf="editarArmaForm.controls['serie'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input type="text" class="form-control" id="serieEditar" formControlName="serie"
+                   placeholder="Ejemplo: ABC123456" (focusout)="consultarArmaModelo($event.target)"/>
+          </div>
+          <div class="col-sm-3">
+            <label for="matriculaEditar">
+              <b>Matricula *</b>
+              <a><i *ngIf="existeArma?.existe && existeArma?.matricula !== null" class="text-danger"> - El
+                arma ya existe con esta matricula</i></a>
+              <span
+                *ngIf="editarArmaForm.controls['matricula'].invalid && (editarArmaForm.controls['matricula'].dirty || editarArmaForm.controls['matricula'].touched)">
+                <i *ngIf="editarArmaForm.controls['matricula'].errors.required" class="text-danger"> - Campo requerido</i>
+                <i *ngIf="editarArmaForm.controls['matricula'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input type="text" class="form-control" id="matriculaEditar" formControlName="matricula"
+                   placeholder="Ejemplo: ABC123456" (focusout)="consultarArmaMatricula($event.target)"/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-sm-3">
+            <label for="marcaEditar">
+              <b>Marca *</b>
+              <span
+                *ngIf="editarArmaForm.controls['marca'].invalid && (editarArmaForm.controls['marca'].dirty || editarArmaForm.controls['marca'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="marcaEditar" class="form-control" formControlName="marca">
+              <option *ngFor="let m of marcas" value="{{m.uuid}}">{{m.nombre}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="claseEditar">
+              <b>Clase *</b>
+              <span
+                *ngIf="editarArmaForm.controls['clase'].invalid && (editarArmaForm.controls['clase'].dirty || editarArmaForm.controls['clase'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="claseEditar" class="form-control" formControlName="clase">
+              <option *ngFor="let c of clases" value="{{c.uuid}}">{{c.nombre}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="tipoEditar">
+              <b>Tipo *</b>
+              <span
+                *ngIf="editarArmaForm.controls['tipo'].invalid && (editarArmaForm.controls['tipo'].dirty || editarArmaForm.controls['tipo'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="tipoEditar" class="form-control" formControlName="tipo">
+              <option value="CORTA">Corta</option>
+              <option value="LARGA">Larga</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="calibreEditar">
+              <b>Calibre *</b>
+              <span
+                *ngIf="editarArmaForm.controls['calibre'].invalid && (editarArmaForm.controls['calibre'].dirty || editarArmaForm.controls['calibre'].touched)">
+                <i *ngIf="editarArmaForm.controls['calibre'].errors.required" class="text-danger"> - Campo requerido</i>
+                <i *ngIf="editarArmaForm.controls['calibre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input type="text" class="form-control" id="calibreEditar" formControlName="calibre" placeholder="Ejemplo: .38 Super, .22"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-3">
+            <label for="statusEditar">
+              <b>Status *</b>
+              <span
+                *ngIf="editarArmaForm.controls['status'].invalid && (editarArmaForm.controls['status'].dirty || editarArmaForm.controls['status'].touched)">
+                <i *ngIf="editarArmaForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
+              </span>
+            </label>
+            <select class="form-control" formControlName="status" id="statusEditar"
+                    (change)="seleccionarStatus($event.target)">
+              <option value="ACTIVA">Activa</option>
+              <option value="DEPOSITO">Deposito</option>
+            </select>
+          </div>
+          <div class="col-sm-3" *ngIf="status === 'ACTIVA'">
+            <label for="personalEditar">
+              <b>Personal a asignar *</b>
+            </label>
+            <select class="form-control" id="personalEditar" formControlName="personal">
+              <option *ngFor="let p of personal"
+                      value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button (click)="modificarArma(editarArmaForm)" class="btn btn-primary">Guardar arma</button>
+      <button (click)="cerrarModalCrearArma()" class="btn btn-danger">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #agregarArmaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="agregarArmaModal">Agregar arma </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="crearArmaForm">
+        <div class="form-row">
+          <div class="col-sm-6">
+            <label for="bunker">
+              <b>Domicilio de resguardo *</b>
+              <span
+                *ngIf="crearArmaForm.controls['bunker'].invalid && (crearArmaForm.controls['bunker'].dirty || crearArmaForm.controls['bunker'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="bunker" class="form-control" formControlName="bunker">
+              <option *ngFor="let d of domiciliosLicenciaColectiva"
+                      value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="serie">
+              <b>Modelo</b>
+              <a><i *ngIf="existeArma?.existe && existeArma?.serie !== null" class="text-danger"> - El arma ya
+                existe con este modelo</i></a>
+              <span
+                *ngIf="crearArmaForm.controls['serie'].invalid && (crearArmaForm.controls['serie'].dirty || crearArmaForm.controls['serie'].touched)">
+                <i *ngIf="crearArmaForm.controls['serie'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input type="text" class="form-control" id="serie" formControlName="serie"
+                   placeholder="Ejemplo: ABC123456" (focusout)="consultarArmaModelo($event.target)"/>
+          </div>
+          <div class="col-sm-3">
+            <label for="matricula">
+              <b>Matricula *</b>
+              <a><i *ngIf="existeArma?.existe && existeArma?.matricula !== null" class="text-danger"> - El
+                arma ya existe con esta matricula</i></a>
+              <span
+                *ngIf="crearArmaForm.controls['matricula'].invalid && (crearArmaForm.controls['matricula'].dirty || crearArmaForm.controls['matricula'].touched)">
+                <i *ngIf="crearArmaForm.controls['matricula'].errors.required" class="text-danger"> - Campo requerido</i>
+                <i *ngIf="crearArmaForm.controls['matricula'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input type="text" class="form-control" id="matricula" formControlName="matricula"
+                   placeholder="Ejemplo: ABC123456" (focusout)="consultarArmaMatricula($event.target)"/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-sm-3">
+            <label for="marca">
+              <b>Marca *</b>
+              <span
+                *ngIf="crearArmaForm.controls['marca'].invalid && (crearArmaForm.controls['marca'].dirty || crearArmaForm.controls['marca'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="marca" class="form-control" formControlName="marca">
+              <option *ngFor="let m of marcas" value="{{m.uuid}}">{{m.nombre}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="clase">
+              <b>Clase *</b>
+              <span
+                *ngIf="crearArmaForm.controls['clase'].invalid && (crearArmaForm.controls['clase'].dirty || crearArmaForm.controls['clase'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="clase" class="form-control" formControlName="clase">
+              <option *ngFor="let c of clases" value="{{c.uuid}}">{{c.nombre}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="tipo">
+              <b>Tipo *</b>
+              <span
+                *ngIf="crearArmaForm.controls['tipo'].invalid && (crearArmaForm.controls['tipo'].dirty || crearArmaForm.controls['tipo'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="tipo" class="form-control" formControlName="tipo">
+              <option value="CORTA">Corta</option>
+              <option value="LARGA">Larga</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="calibre">
+              <b>Calibre *</b>
+              <span
+                *ngIf="crearArmaForm.controls['calibre'].invalid && (crearArmaForm.controls['calibre'].dirty || crearArmaForm.controls['calibre'].touched)">
+                <i *ngIf="crearArmaForm.controls['calibre'].errors.required" class="text-danger"> - Campo requerido</i>
+                <i *ngIf="crearArmaForm.controls['calibre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input type="text" class="form-control" id="calibre" formControlName="calibre" placeholder="Ejemplo: .38 Super, .22"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-3">
+            <label for="status">
+              <b>Status *</b>
+              <span
+                *ngIf="crearArmaForm.controls['status'].invalid && (crearArmaForm.controls['status'].dirty || crearArmaForm.controls['status'].touched)">
+                <i *ngIf="crearArmaForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
+              </span>
+            </label>
+            <select class="form-control" formControlName="status" id="status"
+                    (change)="seleccionarStatus($event.target)">
+              <option value="ACTIVA">Activa</option>
+              <option value="DEPOSITO">Deposito</option>
+            </select>
+          </div>
+          <div class="col-sm-3" *ngIf="status === 'ACTIVA'">
+            <label for="personal">
+              <b>Personal a asignar *</b>
+            </label>
+            <select class="form-control" id="personal" formControlName="personal">
+              <option *ngFor="let p of personal"
+                      value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button (click)="crearArma(crearArmaForm)" class="btn btn-primary">Guardar arma</button>
+      <button (click)="cerrarModalCrearArma()" class="btn btn-danger">Cancelar</button>
     </div>
   </ng-template>
 
@@ -394,23 +554,32 @@
               <div class="col-sm-4">
                 <label for="numeroOficioEditar">
                   <b>Número de oficio *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['numeroOficio'].invalid && (crearEmpresaLicenciaForm.controls['numeroOficio'].dirty || crearEmpresaLicenciaForm.controls['numeroOficio'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="crearEmpresaLicenciaForm.controls['numeroOficio'].invalid && (crearEmpresaLicenciaForm.controls['numeroOficio'].dirty || crearEmpresaLicenciaForm.controls['numeroOficio'].touched)"
+                    class="text-danger"> - Requerido</span>
                 </label>
-                <input id="numeroOficioEditar" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroOficio" #numeroOficio>
+                <input id="numeroOficioEditar" type="text" class="form-control" placeholder="Ej. 01830"
+                       formControlName="numeroOficio" #numeroOficio>
               </div>
               <div class="col-sm-4">
                 <label for="fechaInicioEditar">
                   <b>Fecha de Inicio *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaInicio'].invalid && (crearEmpresaLicenciaForm.controls['fechaInicio'].dirty || crearEmpresaLicenciaForm.controls['fechaInicio'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="crearEmpresaLicenciaForm.controls['fechaInicio'].invalid && (crearEmpresaLicenciaForm.controls['fechaInicio'].dirty || crearEmpresaLicenciaForm.controls['fechaInicio'].touched)"
+                    class="text-danger"> - Requerido</span>
                 </label>
-                <input id="fechaInicioEditar" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaInicio" #fechaInicio>
+                <input id="fechaInicioEditar" type="date" class="form-control" placeholder="Selecciona una fecha"
+                       formControlName="fechaInicio" #fechaInicio>
               </div>
               <div class="col-sm-4">
                 <label for="fechaFinEditar">
                   <b>Fecha de fin *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaFin'].invalid && (crearEmpresaLicenciaForm.controls['fechaFin'].dirty || crearEmpresaLicenciaForm.controls['fechaFin'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="crearEmpresaLicenciaForm.controls['fechaFin'].invalid && (crearEmpresaLicenciaForm.controls['fechaFin'].dirty || crearEmpresaLicenciaForm.controls['fechaFin'].touched)"
+                    class="text-danger"> - Requerido</span>
                 </label>
-                <input id="fechaFinEditar" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaFin" #fechaFin>
+                <input id="fechaFinEditar" type="date" class="form-control" placeholder="Selecciona una fecha"
+                       formControlName="fechaFin" #fechaFin>
               </div>
             </div>
             <div class="form-row">
@@ -418,17 +587,21 @@
                 <label>
                   <b>Modalidad * </b>
                 </label>
-                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown"
+                   aria-expanded="false" style="width: 100%;">
                   {{modalidad === undefined ? 'Ninguno' : (modalidad?.modalidad.nombre).substr(0, 90)}}
                 </a>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton"
+                     style="overflow-y: scroll; max-height: 300px; width: 500px;">
                   <form class="px-4 py-3" autocomplete="off">
                     <label for="modalidadSearchQuery"><b>Buscar por nombre</b></label>
-                    <input type="text" class="form-control" id="modalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="modalidadQuery"
+                    <input type="text" class="form-control" id="modalidadSearchQuery" placeholder="Ej. dsadasdas"
+                           [(ngModel)]="modalidadQuery"
                            [ngModelOptions]="{standalone: true}">
                   </form>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" *ngFor="let m of modalidades | modalidadArmada : {armas: true}" (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                  <a class="dropdown-item" *ngFor="let m of modalidades | modalidadArmada : {armas: true}"
+                     (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
                     {{m.modalidad.nombre}}
                   </a>
                   <div class="dropdown-divider"></div>
@@ -439,7 +612,8 @@
                 <label for="archivoEditar">
                   <b>Archivo (en pdf)</b>
                 </label>
-                <input id="archivoEditar" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
+                <input id="archivoEditar" class="form-control" formControlName="archivo" type="file"
+                       accept="application/pdf" (change)="onFileChange($event)">
               </div>
             </div>
           </form>
@@ -467,23 +641,32 @@
               <div class="col-sm-4">
                 <label for="numeroOficio">
                   <b>Número de oficio *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['numeroOficio'].invalid && (crearEmpresaLicenciaForm.controls['numeroOficio'].dirty || crearEmpresaLicenciaForm.controls['numeroOficio'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="crearEmpresaLicenciaForm.controls['numeroOficio'].invalid && (crearEmpresaLicenciaForm.controls['numeroOficio'].dirty || crearEmpresaLicenciaForm.controls['numeroOficio'].touched)"
+                    class="text-danger"> - Requerido</span>
                 </label>
-                <input id="numeroOficio" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroOficio" #numeroOficio>
+                <input id="numeroOficio" type="text" class="form-control" placeholder="Ej. 01830"
+                       formControlName="numeroOficio" #numeroOficio>
               </div>
               <div class="col-sm-4">
                 <label for="fechaInicio">
                   <b>Fecha de Inicio *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaInicio'].invalid && (crearEmpresaLicenciaForm.controls['fechaInicio'].dirty || crearEmpresaLicenciaForm.controls['fechaInicio'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="crearEmpresaLicenciaForm.controls['fechaInicio'].invalid && (crearEmpresaLicenciaForm.controls['fechaInicio'].dirty || crearEmpresaLicenciaForm.controls['fechaInicio'].touched)"
+                    class="text-danger"> - Requerido</span>
                 </label>
-                <input id="fechaInicio" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaInicio" #fechaInicio>
+                <input id="fechaInicio" type="date" class="form-control" placeholder="Selecciona una fecha"
+                       formControlName="fechaInicio" #fechaInicio>
               </div>
               <div class="col-sm-4">
                 <label for="fechaFin">
                   <b>Fecha de fin *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaFin'].invalid && (crearEmpresaLicenciaForm.controls['fechaFin'].dirty || crearEmpresaLicenciaForm.controls['fechaFin'].touched)" class="text-danger"> - Requerido</span>
+                  <span
+                    *ngIf="crearEmpresaLicenciaForm.controls['fechaFin'].invalid && (crearEmpresaLicenciaForm.controls['fechaFin'].dirty || crearEmpresaLicenciaForm.controls['fechaFin'].touched)"
+                    class="text-danger"> - Requerido</span>
                 </label>
-                <input id="fechaFin" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaFin" #fechaFin>
+                <input id="fechaFin" type="date" class="form-control" placeholder="Selecciona una fecha"
+                       formControlName="fechaFin" #fechaFin>
               </div>
             </div>
             <div class="form-row">
@@ -491,17 +674,21 @@
                 <label>
                   <b>Modalidad * </b>
                 </label>
-                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{modalidad === undefined ? 'Ninguno' : (modalidad?.modalidad.nombre).substr(0, 90  )}}
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown"
+                   aria-expanded="false" style="width: 100%;">
+                  {{modalidad === undefined ? 'Ninguno' : (modalidad?.modalidad.nombre).substr(0, 90)}}
                 </a>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton"
+                     style="overflow-y: scroll; max-height: 300px; width: 500px;">
                   <form [formGroup]="modalidadSearchForm" class="px-4 py-3" autocomplete="off">
                     <label for="modalidadSearchQuery"><b>Buscar por nombre</b></label>
-                    <input type="text" class="form-control" id="modalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="modalidadQuery"
+                    <input type="text" class="form-control" id="modalidadSearchQuery" placeholder="Ej. dsadasdas"
+                           [(ngModel)]="modalidadQuery"
                            [ngModelOptions]="{standalone: true}">
                   </form>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" *ngFor="let m of modalidades | modalidadArmada : {armas: true}" (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                  <a class="dropdown-item" *ngFor="let m of modalidades | modalidadArmada : {armas: true}"
+                     (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
                     {{m.modalidad.nombre}}<br>
                     <span style="font-size: 14px; color: #999; padding-left: 10px;">{{m?.submodalidad?.nombre}}</span>
                   </a>
@@ -513,7 +700,8 @@
                 <label for="archivo">
                   <b>Archivo (en pdf)</b>
                 </label>
-                <input id="archivo" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
+                <input id="archivo" class="form-control" formControlName="archivo" type="file" accept="application/pdf"
+                       (change)="onFileChange($event)">
               </div>
             </div>
           </form>
@@ -545,7 +733,8 @@
                     <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                   </span>
             </label>
-            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja"
+                   formControlName="motivoBaja" #nombre>
           </div>
           <div class="col-sm-4">
             <label for="fechaBaja">
@@ -555,13 +744,15 @@
               *ngIf="motivosEliminacionForm.controls['fechaBaja'].invalid && (motivosEliminacionForm.controls['fechaBaja'].dirty || motivosEliminacionForm.controls['fechaBaja'].touched)">
               <i *ngIf="motivosEliminacionForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
             </span>
-            <input id="fechaBaja" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+            <input id="fechaBaja" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy"
+                   #nombre>
           </div>
           <div class="col-sm-4">
             <label for="documentoFundatorioBaja">
               <b>Documento fundatorio</b>
             </label>
-            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file"
+                   (change)="onFileChange($event)">
           </div>
         </div>
         <div class="row">
@@ -569,13 +760,16 @@
             <label for="observacionesBaja">
               <b>Observaciones</b>
             </label>
-            <textarea id="observacionesBaja" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+            <textarea id="observacionesBaja" type="text" class="form-control"
+                      placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja"
+                      #descripcion></textarea>
           </div>
         </div>
       </form>
       <div class="row">
         <div class="col-sm-12">
-          <p>Estas a punto de eliminar la licencia colectiva. Toma en cuenta que los domicilios vinculados y las armas se eliminaran tambien. ¿Deseas continuar?</p>
+          <p>Estas a punto de eliminar la licencia colectiva. Toma en cuenta que los domicilios vinculados y las armas
+            se eliminaran tambien. ¿Deseas continuar?</p>
         </div>
       </div>
     </div>
@@ -595,7 +789,8 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estas a punto de eliminar la direccion de la licencia colectiva. Toma en cuenta que TODAS LAS ARMAS vinculadas a este domicilio se eliminaran y esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estas a punto de eliminar la direccion de la licencia colectiva. Toma en cuenta que TODAS LAS ARMAS
+            vinculadas a este domicilio se eliminaran y esta operacion no se puede deshacer. ¿Deseas continuar?</p>
         </div>
       </div>
     </div>
@@ -640,13 +835,15 @@
               *ngIf="motivosEliminacionArmaForm.controls['fechaBaja'].invalid && (motivosEliminacionArmaForm.controls['fechaBaja'].dirty || motivosEliminacionArmaForm.controls['fechaBaja'].touched)">
               <i *ngIf="motivosEliminacionArmaForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
             </span>
-            <input id="fechaBajaArma" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+            <input id="fechaBajaArma" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy"
+                   #nombre>
           </div>
           <div class="col-sm-4">
             <label for="documentoFundatorioBajaArma">
               <b>Documento fundatorio</b>
             </label>
-            <input id="documentoFundatorioBajaArma" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+            <input id="documentoFundatorioBajaArma" class="form-control" formControlName="file" type="file"
+                   (change)="onFileChange($event)">
           </div>
         </div>
         <div class="row">
@@ -654,18 +851,22 @@
             <label for="observacionesBajaArma">
               <b>Observaciones</b>
             </label>
-            <textarea id="observacionesBajaArma" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+            <textarea id="observacionesBajaArma" type="text" class="form-control"
+                      placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja"
+                      #descripcion></textarea>
           </div>
         </div>
       </form>
       <div class="row">
         <div class="col-sm-12">
-          <p>Estas a punto de eliminar el arma de la licencia colectiva. Esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estas a punto de eliminar el arma de la licencia colectiva. Esta operacion no se puede deshacer. ¿Deseas
+            continuar?</p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarLicenciaArma(motivosEliminacionArmaForm)">Si, eliminar</button>
+      <button class="btn btn-danger" (click)="confirmarEliminarLicenciaArma(motivosEliminacionArmaForm)">Si, eliminar
+      </button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>

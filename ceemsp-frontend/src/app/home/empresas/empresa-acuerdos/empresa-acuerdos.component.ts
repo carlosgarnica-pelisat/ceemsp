@@ -54,6 +54,7 @@ export class EmpresaAcuerdosComponent implements OnInit {
 
   rowData = [];
   acuerdo: Acuerdo;
+  tipoAcuerdo: string;
 
   @ViewChild('verDetallesAcuerdoModal') verDetallesAcuerdoModal;
   @ViewChild('crearAcuerdoModal') crearAcuerdoModal;
@@ -92,6 +93,7 @@ export class EmpresaAcuerdosComponent implements OnInit {
     })
 
     this.nuevoAcuerdoForm = this.formBuilder.group({
+      tipo: ['', Validators.required],
       fecha: ['', Validators.required],
       observaciones: ['']
     });
@@ -102,6 +104,10 @@ export class EmpresaAcuerdosComponent implements OnInit {
       fechaBaja: ['', Validators.required],
       documentoFundatorioBaja: ['']
     });
+  }
+
+  cambiarTipoAcuerdo(tipoAcuerdo) {
+    this.tipoAcuerdo = tipoAcuerdo.value;
   }
 
   verDetalles(rowData) {
@@ -123,7 +129,8 @@ export class EmpresaAcuerdosComponent implements OnInit {
 
       this.nuevoAcuerdoForm.patchValue({
         fecha: this.acuerdo.fecha,
-        observaciones: this.acuerdo.observaciones
+        observaciones: this.acuerdo.observaciones,
+        tipo: this.acuerdo.tipo
       })
 
       this.modal = this.modalService.open(this.modificarAcuerdoModal, {'size': 'xl'})
@@ -295,7 +302,8 @@ export class EmpresaAcuerdosComponent implements OnInit {
   mostrarModificarAcuerdoModal() {
     this.nuevoAcuerdoForm.patchValue({
       fecha: this.acuerdo.fecha,
-      observaciones: this.acuerdo.observaciones
+      observaciones: this.acuerdo.observaciones,
+      tipo: this.acuerdo.tipo
     })
 
     this.modal = this.modalService.open(this.modificarAcuerdoModal, {'size': 'xl'})

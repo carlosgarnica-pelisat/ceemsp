@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -26,4 +27,10 @@ public class BuzonInternoDestinatario extends CommonModel {
 
     @Column(name = "EMPRESA")
     private Integer empresa;
+
+    @Column(name = "VISTO")
+    private boolean visto;
+
+    @Column(name = "FECHA_VISTO")
+    private LocalDateTime fechaVisto;
 }

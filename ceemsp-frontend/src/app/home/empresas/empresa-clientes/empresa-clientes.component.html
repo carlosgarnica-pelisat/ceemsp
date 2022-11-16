@@ -127,6 +127,10 @@
               <td><b>Fecha de fin</b></td>
               <td>{{cliente?.fechaFin}}</td>
             </tr>
+            <tr>
+              <td><b>Fecha de alta</b></td>
+              <td>{{cliente?.fechaCreacion}}</td>
+            </tr>
           </table>
         </div>
         <div class="col-sm-12" *ngIf="pestanaActual === 'DOMICILIOS'">
@@ -148,6 +152,7 @@
                 {{d.tipoInfraestructura?.nombre}}
               </td>
               <td>
+                <fa-icon *ngIf="d?.latitud !== null && d?.longitud !== null" [icon]="faMapPin" title="Eliminar domicilio del cliente" (click)="mostrarUbicacionDomicilioModal(d?.uuid)" style="cursor:pointer;"></fa-icon>
                 <fa-icon [icon]="faPencilAlt" title="Modificar domicilio del cliente" (click)="mostrarEditarDomicilioCliente(i)" style="cursor:pointer;"></fa-icon>
                 <fa-icon [icon]="faTrash" title="Eliminar domicilio del cliente" (click)="mostrarModalEliminarDomicilioCliente(d?.uuid)" style="cursor:pointer;"></fa-icon>
               </td>
@@ -405,13 +410,23 @@
                              class="form-control" formControlName="correoElectronico" #correoElectronico>
                     </div>
                   </div>
+                  <div class="row" *ngIf="domicilioUbicado">
+                    <div class="col-sm-12">
+                      <agm-map [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()" [zoom]="16">
+                        <agm-marker [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()">
+                          <agm-info-window>Aqui se encuentra el domicilio</agm-info-window>
+                        </agm-marker>
+                      </agm-map>
+                    </div>
+                  </div>
                 </form>
               </td>
             </tr>
             <tr>
               <td colspan="5">
-                <button class="btn btn-sm btn-info" (click)="mostrarNuevoDomicilioForm()" *ngIf="!this.cliente.eliminado && !showDomicilioForm">Agregar domicilio</button>
-                <button class="btn btn-sm btn-info" (click)="guardarDomicilio(nuevoClienteDomicilioForm)" *ngIf="showDomicilioForm">Guardar domicilio</button>
+                <button class="btn btn-sm btn-primary" (click)="mostrarNuevoDomicilioForm()" *ngIf="!this.cliente.eliminado && !showDomicilioForm">Agregar domicilio</button>
+                <button class="btn btn-sm btn-primary" (click)="ubicarDomicilio(nuevoClienteDomicilioForm)" *ngIf="showDomicilioForm">Ubicar en el mapa</button>
+                <button class="btn btn-sm btn-primary" (click)="guardarDomicilio(nuevoClienteDomicilioForm)" *ngIf="showDomicilioForm">Guardar domicilio</button>
                 <button class="btn btn-sm btn-danger" (click)="mostrarNuevoDomicilioForm()" *ngIf="showDomicilioForm">Cancelar</button>
               </td>
             </tr>
@@ -472,15 +487,58 @@
             </tr>
             <tr>
               <td colspan="3">
-                <button class="btn btn-sm btn-info" (click)="mostrarNuevaAsignacionForm()" *ngIf="!this.cliente.eliminado && !showAsignacionForm">Asignar personal</button>
-                <button class="btn btn-sm btn-info" (click)="guardarAsignacion(nuevaAsignacionForm)" *ngIf="showAsignacionForm">Guardar asignacion</button>
+                <button class="btn btn-sm btn-primary" (click)="mostrarNuevaAsignacionForm()" *ngIf="!this.cliente.eliminado && !showAsignacionForm">Asignar personal</button>
+                <button class="btn btn-sm btn-primary" (click)="guardarAsignacion(nuevaAsignacionForm)" *ngIf="showAsignacionForm">Guardar asignacion</button>
                 <button class="btn btn-sm btn-danger" (click)="mostrarNuevaAsignacionForm()" *ngIf="showAsignacionForm">Cancelar</button>
               </td>
             </tr>
           </table>
         </div>
         <div class="col-sm-12" *ngIf="pestanaActual === 'MODALIDADES'">
+          <table class="table">
+            <tr>
+              <td><b>Modalidad</b></td>
+              <td><b>Submodalidad</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let m of cliente.modalidades; let i = index">
+              <td>{{m.modalidad?.modalidad?.nombre}}</td>
+              <td>
 
+              </td>
+              <td>
+                <fa-icon [icon]="faPencilAlt" title="Modificar domicilio del cliente" (click)="mostrarEditarDomicilioCliente(i)" style="cursor:pointer;"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar domicilio del cliente" (click)="mostrarModalEliminarModalidadCliente(m?.uuid)" style="cursor:pointer;"></fa-icon>
+              </td>
+            </tr>
+            <tr *ngIf="showModalidadForm">
+              <td colspan="3">
+                <form [formGroup]="nuevaModalidadForm">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label for="modalidad">
+                        <b>Modalidad / Submodalidad *</b>
+                        <span
+                          *ngIf="nuevaModalidadForm.controls['modalidad'].invalid && (nuevaModalidadForm.controls['modalidad'].dirty || nuevaModalidadForm.controls['modalidad'].touched)">
+                          <i *ngIf="nuevaModalidadForm.controls['modalidad'].errors.required" class="text-danger"> - Requerido</i>
+                        </span>
+                      </label>
+                      <select id="modalidad" formControlName="modalidad" class="form-control">
+                        <option *ngFor="let m of empresaModalidades" value="{{m?.uuid}}">{{m?.modalidad?.nombre}}</option>
+                      </select>
+                    </div>
+                  </div>
+                </form>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <button class="btn btn-sm btn-primary" (click)="mostrarNuevaModalidadForm()" *ngIf="!this.cliente.eliminado && !showModalidadForm">Agregar modalidad</button>
+                <button class="btn btn-sm btn-primary" (click)="guardarModalidad(nuevaModalidadForm)" *ngIf="showModalidadForm">Guardar asignacion</button>
+                <button class="btn btn-sm btn-danger" (click)="mostrarNuevaModalidadForm()" *ngIf="showModalidadForm">Cancelar</button>
+              </td>
+            </tr>
+          </table>
         </div>
         <div class="col-sm-12" *ngIf="pestanaActual === 'FORMAS_EJECUCION'">
 
@@ -653,6 +711,20 @@
               <div class="step" data-target="#test-l-3">
                 <button class="step-trigger">
                   <span class="bs-stepper-circle">3</span>
+                  <span class="bs-stepper-label">Modalidades</span>
+                </button>
+              </div>
+              <div class="line"></div>
+              <div class="step" data-target="#test-l-4">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">4</span>
+                  <span class="bs-stepper-label">Elementos asignados</span>
+                </button>
+              </div>
+              <div class="line"></div>
+              <div class="step" data-target="#test-l-5">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">5</span>
                   <span class="bs-stepper-label">Resumen</span>
                 </button>
               </div>
@@ -1074,6 +1146,103 @@
                     <button (click)="previous()" class="btn btn-primary">Anterior:
                       Info. Cliente
                     </button>
+                    <button (click)="next('MODALIDADES', undefined)" class="btn btn-primary">Siguiente: Modalidades
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="test-l-3" class="content">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <table class="table">
+                      <tr>
+                        <td><b>Elemento</b></td>
+                        <td><b>Domicilio asignado</b></td>
+                        <td><b>Acciones</b></td>
+                      </tr>
+                      <tr *ngFor="let c of cliente?.asignaciones; let i = index">
+                        <td>
+                          {{c?.personal?.rfc}} - {{c?.personal?.apellidoPaterno}} {{c?.personal?.apellidoMaterno}} {{c?.personal?.nombres}}
+                        </td>
+                        <td>
+                          {{c?.domicilio?.domicilio1}} {{c?.domicilio?.numeroExterior}} {{c?.domicilio?.numeroInterior}}. Colonia: {{c?.domicilio?.domicilio2}}<br>
+                          {{c?.domicilio?.domicilio3}}, {{c?.domicilio?.estado}}<br>
+                          C.P. {{c?.domicilio?.codigoPostal}}
+                        </td>
+                        <td>
+                          <fa-icon [icon]="faPencilAlt" title="Modificar domicilio del cliente" (click)="mostrarEditarAsignacionCliente(i)" style="cursor:pointer;"></fa-icon>
+                          <fa-icon [icon]="faTrash" title="Eliminar domicilio del cliente" (click)="mostrarModalEliminarAsignacionCliente(c?.uuid)" style="cursor:pointer;"></fa-icon>
+                        </td>
+                      </tr>
+                      <tr *ngIf="showAsignacionForm">
+                        <td colspan="3">
+                          <form [formGroup]="nuevaAsignacionForm">
+                            <div class="row">
+                              <div class="col-sm-6">
+                                <label for="personalAsignacion">
+                                  <b>Elemento *</b>
+                                  <span
+                                    *ngIf="nuevaAsignacionForm.controls['personal'].invalid && (nuevaAsignacionForm.controls['personal'].dirty || nuevaAsignacionForm.controls['personal'].touched)">
+                          <i *ngIf="nuevaAsignacionForm.controls['personal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                                </label>
+                                <select id="personalAsignacion" formControlName="personal" class="form-control">
+                                  <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.rfc}} - {{p?.apellidoPaterno}} {{p?.apellidoMaterno}} {{p?.nombres}}</option>
+                                </select>
+                              </div>
+                              <div class="col-sm-6">
+                                <label for="domicilioClienteAsignacion">
+                                  <b>Domicilio del cliente *</b>
+                                  <span
+                                    *ngIf="nuevaAsignacionForm.controls['domicilio'].invalid && (nuevaAsignacionForm.controls['domicilio'].dirty || nuevaAsignacionForm.controls['domicilio'].touched)">
+                          <i *ngIf="nuevaAsignacionForm.controls['domicilio'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                                </label>
+                                <select id="domicilioClienteAsignacion" formControlName="domicilio" class="form-control">
+                                  <option *ngFor="let d of cliente?.domicilios" value="{{d?.uuid}}">{{d?.domicilio1}} {{d?.numeroExterior}} {{d?.numeroInterior}}</option>
+                                </select>
+                              </div>
+                            </div>
+                          </form>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="3">
+                          <button class="btn btn-sm btn-primary" (click)="mostrarNuevaAsignacionForm()" *ngIf="!this.cliente?.eliminado && !showAsignacionForm">Asignar personal</button>
+                          <button class="btn btn-sm btn-primary" (click)="guardarAsignacion(nuevaAsignacionForm)" *ngIf="showAsignacionForm">Guardar asignacion</button>
+                          <button class="btn btn-sm btn-danger" (click)="mostrarNuevaAsignacionForm()" *ngIf="showAsignacionForm">Cancelar</button>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button (click)="previous()" class="btn btn-primary">Anterior:
+                      Domicilios
+                    </button>
+                    <button (click)="next('MODALIDADES', undefined)" class="btn btn-primary">Siguiente:
+                      Formas de ejecucion
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="test-l-4" class="content">
+                <div class="row">
+                  <div class="col-sm-12">
+
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button (click)="previous()" class="btn btn-primary">Anterior:
+                      Modalidades
+                    </button>
                     <button (click)="next('RESUMEN', undefined)" class="btn btn-primary">Siguiente:
                       Resumen
                     </button>
@@ -1081,8 +1250,8 @@
                 </div>
               </div>
 
-              <!-- STEP 3 - SUMMARY -->
-              <div id="test-l-3" class="content">
+              <!-- STEP 5 - SUMMARY -->
+              <div id="test-l-5" class="content">
                 <div class="row">
                   <div class="col-sm-12">
                     <h2>El cliente se ha guardado con exito</h2>
@@ -1161,7 +1330,7 @@
                 <div class="row">
                   <div class="col-sm-12">
                     <button class="btn btn-primary" (click)="previous()">
-                      Anterior: Domicilios
+                      Anterior: Formas de ejecucion
                     </button>
                     <button class="btn btn-primary" (click)="finalizar()">
                       Terminar
@@ -1254,7 +1423,27 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarDomicilioCliente()">Si, eliminar</button>
+      <button class="btn btn-danger" (click)="confirmarEliminarAsignacionCliente()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarDomicilioModalidadModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarDomicilioModalidadModal">Eliminando una modalidad al cliente </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar la modalidad al cliente. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarModalidad()">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
@@ -1315,6 +1504,29 @@
                       style="width: 100%; height: 600px"></pdf-viewer>
         </div>
       </div>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarUbicacionModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarUbicacionModal">Mostrando ubicacion del domicilio del cliente </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.close()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <agm-map [latitude]="convertStringToNumber(this.domicilio?.latitud)" [longitude]="convertStringToNumber(this.domicilio?.longitud)" [zoom]="16">
+            <agm-marker [latitude]="convertStringToNumber(this.domicilio?.latitud)" [longitude]="convertStringToNumber(this.domicilio?.longitud)"></agm-marker>
+          </agm-map>
+          <div>Latitud: {{this.domicilio?.latitud}}</div>
+          <div>Longitud: {{this.domicilio?.longitud}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
 </div>

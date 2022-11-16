@@ -73,7 +73,7 @@ public class ClienteController {
 
     @PostMapping(value = EMPRESA_CLIENTES_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ClienteDto guardarClienteEmpresa(
-            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
             @RequestParam("cliente") String cliente,
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid

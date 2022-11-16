@@ -139,7 +139,13 @@ public class Personal extends CommonModel {
     @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
     private String documentoFundatorioBaja;
 
+    @Column(name = "FECHA_BAJA")
+    private LocalDate fechaBaja;
+
     @Column(name = "RFC")
     private String rfc;
+
+    @Column(name = "RUTA_VOLANTE_CUIP")
+    private String rutaVolanteCuip;
 }
 

@@ -6,6 +6,8 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.Acuerdo;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.repository.AcuerdoRepository;
+import com.pelisat.cesp.ceemsp.database.type.AcuerdoTipoEnum;
+import com.pelisat.cesp.ceemsp.database.type.EmpresaStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -101,6 +104,7 @@ public class AcuerdoServiceImpl implements AcuerdoService {
         return new File(acuerdo.getRutaArchivo());
     }
 
+    @Transactional
     @Override
     public AcuerdoDto guardarAcuerdo(String uuid, AcuerdoDto acuerdoDto, String username, MultipartFile multipartFile) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || acuerdoDto == null) {
@@ -115,6 +119,29 @@ public class AcuerdoServiceImpl implements AcuerdoService {
         daoHelper.fulfillAuditorFields(true, acuerdo, usuarioDto.getId());
         acuerdo.setFecha(LocalDate.parse(acuerdoDto.getFecha()));
         acuerdo.setEmpresa(empresaDto.getId());
+        acuerdo.setTipo(acuerdoDto.getTipo());
+
+        if(acuerdo.getTipo() == AcuerdoTipoEnum.PERDIDA_EFICACIA) {
+            empresaDto.setStatus(EmpresaStatusEnum.PERDIDA_EFICACIA);
+            empresaDto.setObservaciones(acuerdo.getObservaciones());
+            empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.CLAUSURA) {
+            empresaDto.setStatus(EmpresaStatusEnum.CLAUSURADA);
+            empresaDto.setObservaciones(acuerdo.getObservaciones());
+            empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.SUSPENSION) {
+            empresaDto.setStatus(EmpresaStatusEnum.SUSPENDIDA);
+            empresaDto.setObservaciones(acuerdo.getObservaciones());
+            empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.REV0CACION) {
+            empresaDto.setStatus(EmpresaStatusEnum.REVOCADA);
+            empresaDto.setObservaciones(acuerdo.getObservaciones());
+            empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.MULTA) {
+            // Agregar codigo para manejar multas
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.REFRENDO) {
+            // Crear tabla para refrendar
+        }
 
         String ruta = "";
         try {

@@ -823,6 +823,22 @@ public class DtoToDaoConverter {
         return buzonInterno;
     }
 
+    public EmpresaDomicilioTelefono convertDtoToDaoEmpresaDomicilioTelefono(EmpresaDomicilioTelefonoDto empresaDomicilioTelefonoDto) {
+        if(empresaDomicilioTelefonoDto == null) {
+            logger.warn("El telefono a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        EmpresaDomicilioTelefono empresaDomicilioTelefono = modelMapper.map(empresaDomicilioTelefonoDto, EmpresaDomicilioTelefono.class);
+
+        if(StringUtils.isBlank(empresaDomicilioTelefono.getUuid())) {
+            logger.info("El uuid viene como nulo o vacio. Generando uno nuevo");
+            empresaDomicilioTelefono.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaDomicilioTelefono;
+    }
+
     public Acuerdo convertDtoToDaoAcuerdo(AcuerdoDto acuerdoDto) {
         if(acuerdoDto == null) {
             logger.warn("El acuerdo a convertir viene como nulo o vacio");

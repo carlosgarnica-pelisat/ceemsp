@@ -64,6 +64,10 @@
               <td><b>Contenido del mensaje:</b></td>
               <td [innerHTML]="mensaje?.mensaje"></td>
             </tr>
+            <tr>
+              <td><b>Fecha de creacion del mensaje</b></td>
+              <td>{{mensaje?.fechaCreacion}}</td>
+            </tr>
           </table>
         </div>
       </div>
@@ -74,9 +78,11 @@
               <td><b>Tipo de destinatario</b></td>
               <td><b>Destinatario</b></td>
               <td><b>Correo</b></td>
+              <td><b>Fecha Act.</b></td>
+              <td><b>Leido</b></td>
               <td><b>Acciones</b></td>
             </tr>
-            <tr *ngFor="let d of mensaje.destinatarios">
+            <tr *ngFor="let d of mensaje.destinatarios; let i = index">
               <td>{{d?.tipoDestinatario}}</td>
               <td>
                 <p *ngIf="d?.tipoDestinatario === 'EMPRESA'">{{d?.empresa?.registro + " - " + d?.empresa?.razonSocial}}</p>
@@ -84,9 +90,105 @@
                 <p *ngIf="d?.tipoDestinatario === 'EMAIL'">Correo electronico</p>
               </td>
               <td>{{d?.email}}</td>
+              <td>{{d?.fechaActualizacion}}</td>
+              <td [ngSwitch]="d?.visto">
+                <span *ngSwitchCase="true">Si, a las {{d?.fechaVisto}}</span>
+                <span *ngSwitchCase="false">No</span>
+              </td>
               <td>
                 <fa-icon [icon]="faPencilAlt" title="Modificar el destinatario" (click)="mostrarModalEditarDestinatario(i)"></fa-icon>
-                <fa-icon [icon]="faTrash" title="Eliminar el destinatario" (click)="mostrarModalEliminarDestinatario(v?.uuid)"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar el destinatario" (click)="mostrarModalEliminarDestinatario(d?.uuid)"></fa-icon>
+              </td>
+            </tr>
+            <tr *ngIf="showDestinatarioForm">
+              <td colspan="6">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <form [formGroup]="crearDestinatarioForm">
+                      <div class="form-row">
+                        <div class="col-sm-3">
+                          <label for="tipoDestinatario">
+                            <b>Tipo de destinatario *</b>
+                            <span
+                              *ngIf="crearDestinatarioForm.controls['tipoDestinatario'].invalid && (crearDestinatarioForm.controls['tipoDestinatario'].dirty || crearDestinatarioForm.controls['tipoDestinatario'].touched)">
+                                  <i *ngIf="crearDestinatarioForm.controls['tipoDestinatario'].errors.required" class="text-danger"> - Campo requerido</i>
+                                  <i *ngIf="crearDestinatarioForm.controls['tipoDestinatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                                </span>
+                          </label>
+                          <select id="tipoDestinatario" class="form-control" formControlName="tipoDestinatario" (change)="cambiarTipoDestinatario($event.target)">
+                            <option value="EMAIL">Correo electronico</option>
+                            <option value="USUARIO">Usuario</option>
+                            <option value="EMPRESA">Empresa</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-6" *ngIf="tipoDestinatario === 'EMPRESA'">
+                          <label>
+                            <b>Empresa *</b>
+                          </label>
+                          <div class="dropdown" id="empresa">
+                            <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                              {{empresa === undefined ? 'Ninguno' : empresa?.razonSocial}}
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                              <form class="px-4 py-3">
+                                <label for="estadoSearchQueryEditar"><b>Buscar por razon social</b></label>
+                                <input type="text" class="form-control" id="estadoSearchQueryEditar" placeholder="Ej. Empresa S.A. de C.V." [(ngModel)]="empresaQuery"
+                                       [ngModelOptions]="{standalone: true}" autocomplete="off">
+                              </form>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" *ngFor="let e of empresas | buscarRazonSocial: {razonSocial: empresaQuery}" (click)="seleccionarEmpresa(e.uuid)">
+                                {{e.registro}} - {{e.razonSocial}}
+                              </a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" *ngIf="empresa !== undefined" (click)="eliminarEmpresa()">Quitar</a>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-sm-6" *ngIf="tipoDestinatario === 'USUARIO'">
+                          <label>
+                            <b>Usuario *</b>
+                          </label>
+                          <div class="dropdown" id="usuario">
+                            <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                              {{usuario === undefined ? 'Ninguno' : usuario?.nombres + " " + usuario?.apellidos + " " + usuario?.apellidoMaterno}}
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                              <form class="px-4 py-3">
+                                <label for="estadoSearchQueryEditar"><b>Buscar por nombre</b></label>
+                                <input type="text" class="form-control" id="estadoSearchQueryEditar" placeholder="Ej. Victor Hugo" [(ngModel)]="empresaQuery"
+                                       [ngModelOptions]="{standalone: true}" autocomplete="off">
+                              </form>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" *ngFor="let u of usuarios | buscarNombres: {nombres: usuarios}" (click)="seleccionarUsuario(u.uuid)">
+                                {{u.nombres}} {{u.apellidos}} {{u.apellidoMaterno}}
+                              </a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" *ngIf="empresa !== undefined" (click)="eliminarEmpresa()">Quitar</a>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-sm-3">
+                          <label for="email">
+                            <b>Correo electronico *</b>
+                            <span
+                              *ngIf="crearDestinatarioForm.controls['email'].invalid && (crearDestinatarioForm.controls['email'].dirty || crearDestinatarioForm.controls['email'].touched)">
+                                    <i *ngIf="crearDestinatarioForm.controls['email'].errors.required" class="text-danger"> - Campo requerido</i>
+                                    <i *ngIf="crearDestinatarioForm.controls['email'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                                  </span>
+                          </label>
+                          <input id="email" type="email" class="form-control" placeholder="Ej. hola@hola.com" formControlName="email" #email>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="6">
+                <button class="btn btn-sm btn-primary" *ngIf="!showDestinatarioForm" (click)="mostrarAgregarDestinatarioForm()">Agregar destinatario</button>
+                <button class="btn btn-sm btn-primary" *ngIf="showDestinatarioForm" (click)="guardarDestinatario(crearDestinatarioForm)">Guardar</button>
+                <button class="btn btn-sm btn-danger" *ngIf="showDestinatarioForm" (click)="mostrarAgregarDestinatarioForm()">Cancelar</button>
               </td>
             </tr>
           </table>
@@ -179,7 +281,7 @@
                                 <option value="EMPRESA">Empresa</option>
                               </select>
                             </div>
-                            <div class="col-sm-3" *ngIf="tipoDestinatario === 'EMPRESA'">
+                            <div class="col-sm-6" *ngIf="tipoDestinatario === 'EMPRESA'">
                               <label>
                                 <b>Empresa *</b>
                               </label>
@@ -202,7 +304,7 @@
                                 </div>
                               </div>
                             </div>
-                            <div class="col-sm-3" *ngIf="tipoDestinatario === 'USUARIO'">
+                            <div class="col-sm-6" *ngIf="tipoDestinatario === 'USUARIO'">
                               <label>
                                 <b>Usuario *</b>
                               </label>
@@ -319,6 +421,26 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarMensaje()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarBuzonSalidaDestinatario let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarBuzonSalidaDestinatario">Eliminando el destinatario</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar el destinatario. Toma en cuenta que esta operación no se puede deshacer y que el destinatario sera notificado de que fue removido del mensaje. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarDestinatario()">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>

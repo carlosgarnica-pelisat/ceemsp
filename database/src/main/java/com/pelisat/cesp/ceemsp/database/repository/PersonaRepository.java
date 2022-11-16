@@ -10,5 +10,6 @@ public interface PersonaRepository extends JpaRepository<Personal, Integer> {
     List<Personal> getAllByEmpresaAndEliminadoFalse(int empresa);
     List<Personal> getAllByEmpresaAndEliminadoTrue(int empresa);
     Personal getByUuidAndEliminadoFalse(String uuid);
+    Personal getByUuid(String uuid);
     Personal getByCurpAndEliminadoFalse(String curp);
 }

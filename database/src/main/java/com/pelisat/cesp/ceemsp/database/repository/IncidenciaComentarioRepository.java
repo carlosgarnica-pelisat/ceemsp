@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface IncidenciaComentarioRepository extends JpaRepository<IncidenciaComentario, Integer> {
     List<IncidenciaComentario> getAllByIncidenciaAndEliminadoFalse(int incidenciaId);
+    IncidenciaComentario getByUuidAndEliminadoFalse(String uuid);
 }

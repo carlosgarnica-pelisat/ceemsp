@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, NgZone, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ActivatedRoute} from "@angular/router";
@@ -19,6 +19,7 @@ import {
   BotonEmpresaIncidenciasComponent
 } from "../../../_components/botones/boton-empresa-incidencias/boton-empresa-incidencias.component";
 import Empresa from "../../../_models/Empresa";
+import {MapsAPILoader} from "@agm/core";
 
 @Component({
   selector: 'app-empresa-incidencias',
@@ -95,9 +96,18 @@ export class EmpresaIncidenciasComponent implements OnInit {
   editorData: string = "<p>Favor de escribir con detalle el relato de la incidencia</p>"
 
   incidencia: Incidencia;
+  comentario: IncidenciaComentario;
 
   tempUuid: string;
   tempIndex: number;
+
+  latitude: number;
+  longitude: number;
+  zoom: number;
+  address: string;
+  private geoCoder;
+
+  @ViewChild('busquedaDireccion') searchElementRef;
 
   @ViewChild('mostrarIncidenciaDetallesModal') mostrarIncidenciaDetallesModal;
   @ViewChild('responderIncidenciaModal') responderIncidenciaModal;
@@ -114,9 +124,16 @@ export class EmpresaIncidenciasComponent implements OnInit {
   @ViewChild('eliminarIncidenciaVehiculoModal') eliminarIncidenciaVehiculoModal;
   @ViewChild('eliminarIncidenciaArchivoModal') eliminarIncidenciaArchivoModal;
 
+  @ViewChild('editarComentarioIncidenciaModal') editarComentarioIncidenciaModal;
+  @ViewChild('eliminarIncidenciaComentarioModal') eliminarIncidenciaComentarioModal;
+
+  @ViewChild('seleccionarUbicacionModal') seleccionarUbicacionModal;
+  @ViewChild('mostrarUbicacionModal') mostrarUbicacionModal;
+
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
               private toastService: ToastService, private modalService: NgbModal,
-              private empresaService: EmpresaService, private usuariosService: UsuariosService) { }
+              private empresaService: EmpresaService, private usuariosService: UsuariosService,
+              private mapsApiLoader: MapsAPILoader, private ngZone: NgZone) { }
 
   ngOnInit(): void {
     this.frameworkComponents = {
@@ -335,6 +352,15 @@ export class EmpresaIncidenciasComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "Hay campos requeridos que no han sido rellenados",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    if(this.editorData.length < 30) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El campo descripcion esta muy corto o vacio`,
         ToastType.WARNING
       );
       return;
@@ -761,6 +787,30 @@ export class EmpresaIncidenciasComponent implements OnInit {
     })
   }
 
+  mostrarModalSeleccionarUbicacion() {
+    this.modal = this.modalService.open(this.seleccionarUbicacionModal, {size: 'xl', backdrop: 'static'})
+
+    this.mapsApiLoader.load().then(() => {
+      this.setCurrentLocation();
+      this.geoCoder = new google.maps.Geocoder()
+      console.log(this.searchElementRef)
+      let autocomplete = new google.maps.places.Autocomplete(this.searchElementRef.nativeElement)
+      autocomplete.addListener("place_changed", () => {
+        this.ngZone.run(() => {
+          let place: google.maps.places.PlaceResult = autocomplete.getPlace();
+
+          if(place.geometry === undefined || place.geometry === null) {
+            return;
+          }
+
+          this.latitude = place.geometry.location.lat();
+          this.longitude = place.geometry.location.lng();
+          this.zoom = 12
+        });
+      })
+    })
+  }
+
   agregarVehiculoIncidencia(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
@@ -864,6 +914,15 @@ export class EmpresaIncidenciasComponent implements OnInit {
       return;
     }
 
+    if(this.editorData.length < 30) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El campo descripcion esta muy corto o vacio`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espera un momento",
       "Estamos registrando la incidencia",
@@ -882,6 +941,14 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     formValue.comentarios.push(comentario);
     formValue.cliente = this.cliente;
+
+    if(this.longitude !== undefined) {
+      formValue.longitud = this.longitude.toString()
+    }
+
+    if(this.latitude !== undefined) {
+      formValue.latitud = this.latitude.toString()
+    }
 
     let formData = new FormData();
     formData.append('incidencia', JSON.stringify(formValue));
@@ -906,6 +973,10 @@ export class EmpresaIncidenciasComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
+
+  revelarUbicacion() {
+    this.modal = this.modalService.open(this.mostrarUbicacionModal, {size: "xl", backdrop: "static"})
   }
 
   confirmarEliminarPersona() {
@@ -1104,6 +1175,136 @@ export class EmpresaIncidenciasComponent implements OnInit {
     })
   }
 
+  mostrarModalEditarComentario(uuid) {
+    this.comentario = this.incidencia.comentarios.filter(x => x.uuid === uuid)[0];
+    this.editorData = this.comentario?.comentario;
+    this.modal = this.modalService.open(this.editarComentarioIncidenciaModal, {size: "xl", backdrop: "static"})
+  }
+
+  mostrarModalEliminarComentario(uuid) {
+    this.tempUuid = uuid;
+    this.modal = this.modalService.open(this.eliminarIncidenciaComentarioModal, {size: "lg", backdrop: "static"})
+  }
+
+  confirmarEliminarIncidencia() {
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      `Estamos eliminando el comentario`,
+      ToastType.INFO
+    );
+
+    this.empresaService.eliminarComentarioIncidencia(this.uuid, this.incidencia.uuid, this.tempUuid).subscribe((data: IncidenciaComentario) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se elimino el comentario con exito",
+        ToastType.SUCCESS
+      );
+      this.modal.close();
+
+      this.empresaService.obtenerComentariosIncidencia(this.uuid, this.incidencia?.uuid).subscribe((data: IncidenciaComentario[]) => {
+        this.incidencia.comentarios = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido obtener los comentarios. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar la incidencia. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  private setCurrentLocation() {
+    if('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.latitude = position.coords.latitude;
+        this.longitude = position.coords.longitude;
+        this.zoom = 8;
+        this.getAddress(this.latitude, this.longitude)
+      }, () => {
+        this.latitude = 20.6681644;
+        this.longitude = -103.3482356;
+        this.zoom = 8;
+        this.getAddress(this.latitude, this.longitude);
+      })
+    }
+  }
+
+  markerDragEnd($event: google.maps.MouseEvent) {
+    this.latitude = $event.latLng.lat();
+    this.longitude = $event.latLng.lng();
+    this.getAddress(this.latitude, this.longitude)
+  }
+
+  getAddress(latitude, longitude) {
+    this.geoCoder.geocode({
+      'location': {
+        lat: latitude,
+        lng: longitude
+      }
+    }, (results, status) => {
+      if(status === 'OK') {
+        if(results[0]) {
+          this.zoom = 12;
+          this.address = results[0].formatted_address;
+        } else {
+          window.alert("No se encontraron resultados");
+        }
+      } else {
+        window.alert("El geolocalizador ha fallado.")
+      }
+    });
+  }
+
+  quitarUbicacion() {
+    this.latitude = undefined;
+    this.longitude = undefined;
+    this.modal.close();
+  }
+
+  guardarCambiosComentario() {
+    if(this.editorData.length < 30) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El campo descripcion esta muy corto o vacio`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let incidenciaComentario = this.comentario;
+    incidenciaComentario.comentario = this.editorData;
+
+    this.empresaService.modificarComentarioIncidencia(this.uuid, this.incidencia.uuid, this.comentario.uuid, incidenciaComentario).subscribe((data: IncidenciaComentario) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha modificado el comentario con exito`,
+        ToastType.SUCCESS
+      );
+      this.modal.close();
+      this.empresaService.obtenerComentariosIncidencia(this.uuid, this.incidencia?.uuid).subscribe((data: IncidenciaComentario[]) => {
+        this.incidencia.comentarios = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los comentarios. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido modificar el comentario de la incidencia. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
+  }
+
   private getDismissReason(reason: any): string {
     if (reason == ModalDismissReasons.ESC) {
       return `by pressing ESC`;
@@ -1112,6 +1313,14 @@ export class EmpresaIncidenciasComponent implements OnInit {
     } else {
       return `with ${reason}`;
     }
+  }
+
+  convertStringToNumber(input: string) {
+    if (!input) return NaN;
+    if (input.trim().length==0) {
+      return NaN;
+    }
+    return Number(input);
   }
 
 }
