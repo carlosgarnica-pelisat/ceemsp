@@ -7,7 +7,7 @@ import {ToastService} from "../../../_services/toast.service";
 import {EmpresaService} from "../../../_services/empresa.service";
 import {ToastType} from "../../../_enums/ToastType";
 import EmpresaEscrituraSocio from "../../../_models/EmpresaEscrituraSocio";
-import {faCheck, faPencilAlt, faTrash, faInfoCircle} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faInfoCircle, faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 import EmpresaEscrituraApoderado from "../../../_models/EmpresaEscrituraApoderado";
 import EmpresaEscrituraRepresentante from "../../../_models/EmpresaEscrituraRepresentante";
 import EmpresaEscrituraConsejo from "../../../_models/EmpresaEscrituraConsejo";
@@ -626,6 +626,9 @@ export class EmpresaLegalComponent implements OnInit {
         if(this.editandoSocio && s.uuid === this.socio.uuid) {
           return;
         }
+        if(s?.eliminado) {
+          return;
+        }
         this.porcentaje += parseInt(String(s.porcentajeAcciones));
       })
 
@@ -662,6 +665,7 @@ export class EmpresaLegalComponent implements OnInit {
         );
         this.modal.close();
         this.empresaService.obtenerEscrituraSocios(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraSocio[]) => {
+          this.mostrandoSociosEliminados = false;
           this.escritura.socios = data;
           this.mostrarFormularioNuevoSocio();
         }, (error) => {
@@ -688,6 +692,7 @@ export class EmpresaLegalComponent implements OnInit {
         );
         this.modal.close();
         this.empresaService.obtenerEscrituraSocios(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraSocio[]) => {
+          this.mostrandoSociosEliminados = false;
           this.escritura.socios = data;
           this.mostrarFormularioNuevoSocio();
         }, (error) => {
@@ -769,17 +774,19 @@ export class EmpresaLegalComponent implements OnInit {
         );
         return;
       }
+
+      let existeSocioRfc = this.escritura.apoderados.filter(x => (x.curp === formValue.curp && x.uuid !== this.apoderado?.uuid))
+      if(existeSocioRfc.length > 0) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "Ya hay un apoderado registrado con este CURP",
+          ToastType.WARNING
+        );
+        return;
+      }
     }
 
-    let existeSocioRfc = this.escritura.apoderados.filter(x => (x.curp === formValue.curp && x.uuid !== this.apoderado?.uuid))
-    if(existeSocioRfc.length > 0) {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        "Ya hay un apoderado registrado con este CURP",
-        ToastType.WARNING
-      );
-      return;
-    }
+
 
     let fechaInicio = new Date(formValue.fechaInicio);
     let fechaFin = new Date(formValue.fechaFin);
@@ -1719,6 +1726,21 @@ export class EmpresaLegalComponent implements OnInit {
   mostrarDetallesEliminacionConsejo(uuid) {
     this.modal = this.modalService.open(this.mostrarMotivosEliminacionConsejo, {size: 'lg', backdrop: 'static'})
     this.consejo = this.escritura?.consejos.filter(x => x.uuid === uuid)[0];
+  }
+
+  descargarDocumentoFundatorioSocio() {
+    this.empresaService.descargarDocumentoFundatorioSocio(this?.uuid, this.escritura?.uuid, this.socio?.uuid).subscribe((data: Blob) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "documento-fundatorio-" + this.socio?.uuid;
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el documento fundatorio. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   private getDismissReason(reason: any): string {

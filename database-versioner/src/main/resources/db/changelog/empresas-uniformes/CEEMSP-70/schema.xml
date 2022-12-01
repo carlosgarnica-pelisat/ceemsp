@@ -1,0 +1,11 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-11-28-agregar-fotografia-uniforme-columna" author="carlos.garnica@pelisat.com.mx">
+        <addColumn tableName="empresas_uniformes">
+            <column name="UBICACION_ARCHIVO" type="VARCHAR(512)"></column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

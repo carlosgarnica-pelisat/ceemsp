@@ -125,6 +125,7 @@ export class EmpresaLicenciasComponent implements OnInit {
   @ViewChild('eliminarEmpresaLicenciaArmaModal') eliminarEmpresaLicenciaArmaModal;
   @ViewChild('agregarArmaModal') agregarArmaModal;
   @ViewChild('editarArmaModal') editarArmaModal;
+  @ViewChild('mostrarMotivosEliminacionArma') mostrarMotivosEliminacionArma;
 
   constructor(private modalService: NgbModal, private empresaService: EmpresaService, private toastService: ToastService,
               private route: ActivatedRoute, private formBuilder: FormBuilder, private armaService: ArmasService,
@@ -753,8 +754,8 @@ export class EmpresaLicenciasComponent implements OnInit {
     return this.columnDefs.filter(s => s.field === field)[0] !== undefined;
   }
 
-  mostrarModificarArmaForm(index) {
-    this.arma = this.armas[index];
+  mostrarModificarArmaForm(uuid) {
+    this.arma = this.armas.filter(x => x.uuid === uuid)[0];
     this.modal = this.modalService.open(this.editarArmaModal, {size: "xl", backdrop: "static"})
     this.editandoArma = true;
     this.editarArmaForm.patchValue({
@@ -763,7 +764,7 @@ export class EmpresaLicenciasComponent implements OnInit {
       serie: this.arma.serie,
       marca: this.arma.marca.uuid,
       calibre: this.arma.calibre,
-      bunker: this.arma.bunker.uuid,
+      bunker: this.arma.bunker?.uuid,
       matricula: this.arma.matricula,
       personal: this.arma.personal?.uuid,
       status: this.arma.status
@@ -844,7 +845,7 @@ export class EmpresaLicenciasComponent implements OnInit {
     if(this.existeArma?.existe) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        `Esta arma ya cuenta con modelo o matricula registrada`,
+        `Esta arma ya cuenta con matricula registrada`,
         ToastType.WARNING
       );
       return;
@@ -855,6 +856,8 @@ export class EmpresaLicenciasComponent implements OnInit {
       "Estamos guardando el arma",
       ToastType.INFO
     );
+
+    let bunkerUuid = form.controls['bunker'].value;
 
     let formData: Arma = form.value;
 
@@ -867,7 +870,7 @@ export class EmpresaLicenciasComponent implements OnInit {
       return;
     }
 
-    formData.bunker = this.domicilios.filter(x => x.uuid === form.value.bunker)[0];
+    formData.bunker = this.domiciliosLicenciaColectiva .filter(x => x.uuid === bunkerUuid)[0];
     formData.clase = this.clases.filter(x => x.uuid === form.value.clase)[0];
     formData.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
     formData.personal = this.personal.filter(x => x.uuid === form.value.personal)[0];
@@ -895,6 +898,11 @@ export class EmpresaLicenciasComponent implements OnInit {
         ToastType.ERROR
       );
     });
+  }
+
+  mostrarDetallesEliminacionArma(uuid) {
+    this.modal = this.modalService.open(this.mostrarMotivosEliminacionArma, {size: 'lg', backdrop: 'static'})
+    this.arma = this.armas?.filter(x => x.uuid === uuid)[0];
   }
 
   crearArma(form) {

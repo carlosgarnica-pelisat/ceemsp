@@ -25,7 +25,7 @@ public class ComunicadoGeneralController {
 
     @GetMapping(value = COMUNICADOS_GENERALES_URI, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ComunicadoGeneralDto> obtenerComunicadosGenerales() {
-        return comunicadoGeneralService.obtenerComunicadosGenerales();
+        return comunicadoGeneralService.obtenerComunicadosGenerales(null, null, null);
     }
 
     @GetMapping(value = COMUNICADOS_GENERALES_URI + "/ultimo", produces = MediaType.APPLICATION_JSON_VALUE)

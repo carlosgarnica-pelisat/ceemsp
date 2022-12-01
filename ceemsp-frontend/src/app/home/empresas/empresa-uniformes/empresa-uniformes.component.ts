@@ -9,7 +9,7 @@ import {ToastType} from "../../../_enums/ToastType";
 import Uniforme from "../../../_models/Uniforme";
 import EmpresaUniforme from "../../../_models/EmpresaUniforme";
 import EmpresaUniformeElemento from "../../../_models/EmpresaUniformeElemento";
-import {faDownload, faPencilAlt, faTrash, faBook} from "@fortawesome/free-solid-svg-icons";
+import {faBook, faDownload, faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {
   BotonEmpresaUniformesComponent
 } from "../../../_components/botones/boton-empresa-uniformes/boton-empresa-uniformes.component";
@@ -69,6 +69,8 @@ export class EmpresaUniformesComponent implements OnInit {
   faDownload = faDownload;
   faBook = faBook;
 
+  imagenUniforme;
+
   empresaUniformeElemento: EmpresaUniformeElemento;
 
   frameworkComponents: any;
@@ -79,6 +81,7 @@ export class EmpresaUniformesComponent implements OnInit {
   @ViewChild('eliminarUniformeElementoModal') eliminarUniformeElementoModal;
   @ViewChild('mostrarElementoModal') mostrarElementoModal;
   @ViewChild('mostrarMovimientosModal') mostrarMovimientosModal;
+  @ViewChild('mostrarUniformeCompletoModal') mostrarUniformeCompletoModal;
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
@@ -443,7 +446,16 @@ export class EmpresaUniformesComponent implements OnInit {
 
     let value: Uniforme = form.value;
 
-    this.empresaService.modificarUniforme(this.uuid, this.uniforme.uuid, value).subscribe((data: Uniforme) => {
+    let formData = new FormData();
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+    formData.append('uniforme', JSON.stringify(value))
+
+    this.empresaService.modificarUniforme(this.uuid, this.uniforme.uuid, formData).subscribe((data: Uniforme) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha modificado el uniforme con exito",
@@ -469,6 +481,15 @@ export class EmpresaUniformesComponent implements OnInit {
       return;
     }
 
+    if(this.tempFile === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Favor de subir un archivo`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espere un momento",
       `Estamos guardando el uniforme`,
@@ -476,8 +497,11 @@ export class EmpresaUniformesComponent implements OnInit {
     );
 
     let value: Uniforme = form.value;
+    let formData: FormData = new FormData();
+    formData.append('uniforme', JSON.stringify(value));
+    formData.append('archivo', this.tempFile, this.tempFile.name);
 
-    this.empresaService.guardarUniforme(this.uuid, value).subscribe((data: Uniforme) => {
+    this.empresaService.guardarUniforme(this.uuid, formData).subscribe((data: Uniforme) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha guardado el uniforme con exito",
@@ -511,6 +535,30 @@ export class EmpresaUniformesComponent implements OnInit {
       this.editandoElemento = false;
       this.empresaUniformeElemento = undefined;
     }
+  }
+
+  convertirFotoUniforme(imagen: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.imagenUniforme = reader.result
+    });
+
+    if(imagen) {
+      reader.readAsDataURL(imagen)
+    }
+  }
+
+  mostrarFotoUniforme() {
+    this.empresaService.descargarFotografiaUniforme(this.uuid, this.uniforme?.uuid).subscribe((data: Blob) => {
+      this.modal = this.modalService.open(this.mostrarUniformeCompletoModal, {size: 'xl', backdrop: 'static'})
+      this.convertirFotoUniforme(data);
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la fotografia. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   actualizarAltas(event) {

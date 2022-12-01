@@ -50,6 +50,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
   @ViewChild('mostrarFotoPersonaModal') mostrarFotoPersonaModal: any;
   @ViewChild('visualizarCertificacionPersonaModal') visualizarCertificacionPersonaModal: any;
+  @ViewChild('visualizarVolanteCuip') visualizarVolanteCuip: any;
 
   stepper: Stepper;
   pestanaActual: string = "DETALLES";
@@ -359,6 +360,15 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   editar(rowData) {
+    if(rowData.rowData?.eliminado) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El elemento ya esta eliminado. No se puede editar`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerPersonalPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: Persona) => {
       this.persona = data;
       this.editandoModal = false;
@@ -433,6 +443,15 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   eliminar(rowData) {
+    if(rowData.rowData?.eliminado) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El elemento ya esta eliminado. No se puede eliminar`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerPersonalPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: Persona) => {
       this.persona = data;
       this.mostrarModalEliminarPersona();
@@ -1487,6 +1506,19 @@ export class EmpresaPersonalComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `La capacitacion no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  descargarVolanteCuip() {
+    this.empresaService.descargarVolanteCuip(this.uuid, this.persona?.uuid).subscribe((data: Blob) => {
+      this.convertirPdf(data);
+      this.modal = this.modalService.open(this.visualizarVolanteCuip, {size: 'xl', backdrop: 'static'})
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el volante. Motivo: ${error}`,
         ToastType.ERROR
       );
     })

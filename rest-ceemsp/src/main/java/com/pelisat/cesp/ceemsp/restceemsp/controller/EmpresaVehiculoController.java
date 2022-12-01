@@ -6,12 +6,18 @@ import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaVehiculoService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 @RestController
@@ -52,26 +58,42 @@ public class EmpresaVehiculoController {
         return empresaVehiculoService.obtenerVehiculoPorUuid(empresaUuid, vehiculoUuid, false);
     }
 
+    @GetMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}/pdf")
+    public ResponseEntity<InputStreamResource> descargarEscrituraPdf(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "vehiculoUuid") String vehiculoUuid
+    ) throws Exception {
+        File file = empresaVehiculoService.obtenerConstanciaBlindaje(empresaUuid, vehiculoUuid);
+        HttpHeaders responseHeaders = new HttpHeaders();
+
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentLength(file.length());
+        responseHeaders.setContentDispositionFormData("attachment", file.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+        return new ResponseEntity<>(isr, responseHeaders, HttpStatus.OK);
+    }
+
     @PostMapping(value = EMPRESA_VEHICULOS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public VehiculoDto guardarVehiculo(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @RequestParam(value = "constanciaBlindaje", required = false) MultipartFile constanciaBlindaje,
-            @RequestParam("vehiculo") String vehiculo,
+            @RequestParam(value = "vehiculo") String vehiculo,
             HttpServletRequest httpServletRequest
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
         return empresaVehiculoService.guardarVehiculo(empresaUuid, username, new Gson().fromJson(vehiculo, VehiculoDto.class), constanciaBlindaje);
     }
 
-    @PutMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public VehiculoDto modificarVehiculo(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "vehiculoUuid") String vehiculoUuid,
-            @RequestBody VehiculoDto vehiculoDto,
+            @RequestParam(value = "constanciaBlindaje", required = false) MultipartFile constanciaBlindaje,
+            @RequestParam(value = "vehiculo") String vehiculo,
             HttpServletRequest httpServletRequest
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
-        return empresaVehiculoService.modificarVehiculo(empresaUuid, vehiculoUuid, username, vehiculoDto);
+        return empresaVehiculoService.modificarVehiculo(empresaUuid, vehiculoUuid, username, new Gson().fromJson(vehiculo, VehiculoDto.class), constanciaBlindaje);
     }
 
     @PutMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

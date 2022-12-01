@@ -176,6 +176,7 @@
       </div>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
+      <button class="btn btn-primary" (click)="mostrarFotoUniforme()">Ver foto de uniforme</button>
       <button class="btn btn-primary" (click)="mostrarModalModificarUniforme()">Modificar</button>
       <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarUniforme()">Eliminar</button>
     </div>
@@ -193,7 +194,7 @@
         <div class="col-sm-12">
           <form [formGroup]="crearUniformeForm">
             <div class="form-row">
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="nombre">
                   <b>Nombre *</b>
                   <span
@@ -204,7 +205,7 @@
                 </label>
                 <input id="nombre" class="form-control" formControlName="nombre" type="text" placeholder="Ej. Uniforme local">
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="descripcion">
                   <b>Descripcion *</b>
                   <span
@@ -214,6 +215,12 @@
                   </span>
                 </label>
                 <input id="descripcion" class="form-control" formControlName="descripcion" type="text" placeholder="Ej. Uniforme local">
+              </div>
+              <div class="col-sm-4">
+                <label for="fotoUniformeArchivo">
+                  <b>Foto del uniforme completo *</b>
+                </label>
+                <input id="fotoUniformeArchivo" class="form-control" type="file" accept="image/*" (change)="onFileChange($event)">
               </div>
             </div>
           </form>
@@ -238,20 +245,41 @@
         <div class="col-sm-12">
           <form [formGroup]="crearUniformeForm">
             <div class="form-row">
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="nombreEditar">
                   <b>Nombre *</b>
+                  <span
+                    *ngIf="crearUniformeForm.controls['nombre'].invalid && (crearUniformeForm.controls['nombre'].dirty || crearUniformeForm.controls['nombre'].touched)">
+                    <i *ngIf="crearUniformeForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearUniformeForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="nombreEditar" class="form-control" formControlName="nombre" type="text" placeholder="Ej. Uniforme local">
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="descripcionEditar">
                   <b>Descripcion *</b>
+                  <span
+                    *ngIf="crearUniformeForm.controls['descripcion'].invalid && (crearUniformeForm.controls['descripcion'].dirty || crearUniformeForm.controls['descripcion'].touched)">
+                    <i *ngIf="crearUniformeForm.controls['descripcion'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearUniformeForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
                 <input id="descripcionEditar" class="form-control" formControlName="descripcion" type="text" placeholder="Ej. Uniforme local">
               </div>
+              <div class="col-sm-4">
+                <label for="fotoUniformeArchivoEditar">
+                  <b>Foto del uniforme completo</b>
+                </label>
+                <input id="fotoUniformeArchivoEditar" class="form-control" type="file" accept="image/*" (change)="onFileChange($event)">
+              </div>
             </div>
           </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <i>Nota, al subir una nueva imagen sobreescribira la actual. En caso de no subir nada, la imagen permanecera</i>
         </div>
       </div>
     </div>
@@ -263,12 +291,28 @@
 
   <ng-template #mostrarElementoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="mostrarFotoVehiculoModal">Ver fotografia del elemento del uniforme </h4>
+      <h4 class="modal-title" id="mostrarElementoModal">Ver fotografia del elemento del uniforme </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
     </div>
     <div class="modal-body">
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarUniformeCompletoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarUniformeCompletoModal">Ver fotografia del uniforme </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <img [src]="imagenUniforme" style="width: 100%;">
+        </div>
+      </div>
     </div>
   </ng-template>
 

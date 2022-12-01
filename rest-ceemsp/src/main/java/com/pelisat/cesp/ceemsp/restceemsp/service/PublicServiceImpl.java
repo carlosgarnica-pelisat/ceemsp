@@ -12,6 +12,7 @@ import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
 import com.pelisat.cesp.ceemsp.database.repository.UsuarioRepository;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.VisitaRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoTramiteEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -54,7 +55,13 @@ public class PublicServiceImpl implements PublicService {
         if(empresa == null) {
             response.setNumeroSiguiente("001");
         } else {
-            String currentNumber = empresa.getRegistro().split("/")[2];
+            String currentNumber;
+            if(nextRegisterDto.getTipo() == TipoTramiteEnum.AP) {
+                currentNumber = empresa.getRegistro().split("/")[3];
+            } else {
+                currentNumber = empresa.getRegistro().split("/")[2];
+            }
+
             int nextNumber = Integer.parseInt(currentNumber);
             nextNumber = nextNumber+1;
             String nextNumberString = Integer.toString(nextNumber);

@@ -42,7 +42,7 @@ public class ArchivosServiceImpl implements ArchivosService {
         }
 
         File file = new File(basePath + tipoArchivo.getRutaCarpeta() + tipoArchivo.getPrefijoArchivo() +
-                "-" + RandomStringUtils.randomAlphanumeric(6) + FilenameUtils.getExtension(multipartFile.getName()));
+                "-" + RandomStringUtils.randomAlphanumeric(6) + "." + FilenameUtils.getExtension(multipartFile.getOriginalFilename()));
         FileUtils.writeByteArrayToFile(file, multipartFile.getBytes());
 
         return file.getAbsolutePath();

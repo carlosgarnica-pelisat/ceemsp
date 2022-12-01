@@ -128,6 +128,7 @@ export class EmpresaVehiculosComponent implements OnInit {
   @ViewChild('eliminarVehiculoModal') eliminarVehiculoModal: any;
   @ViewChild('quitarVehiculoColorModal') quitarVehiculoColorModal: any;
   @ViewChild('modificarVehiculoModal') modificarVehiculoModal: any;
+  @ViewChild('visualizarConstanciaBlindajeModal') visualizarConstanciaBlindajeModal;
 
   verDetalles(rowData) {
     this.mostrarModalDetalles(rowData.rowData, this.mostrarDetallesVehiculoModal)
@@ -294,6 +295,17 @@ export class EmpresaVehiculosComponent implements OnInit {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
     this.gridColumnApi = params.gridApi;
+  }
+
+  convertirPdf(pdf: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.pdfActual = reader.result;
+    });
+
+    if(pdf) {
+      reader.readAsDataURL(pdf);
+    }
   }
 
   seleccionarBlindado(event) {
@@ -617,7 +629,15 @@ export class EmpresaVehiculosComponent implements OnInit {
       ToastType.INFO
     );
 
-    this.empresaService.modificarVehiculo(this.uuid, this.vehiculo.uuid, formValue).subscribe((data: Vehiculo) => {
+    let vehiculo = new FormData();
+    if(this.tempFile !== undefined) {
+      vehiculo.append('constanciaBlindaje', this.tempFile, this.tempFile.name);
+    } else {
+      vehiculo.append('constanciaBlindaje', null)
+    }
+    vehiculo.append('vehiculo', JSON.stringify(formValue));
+
+    this.empresaService.modificarVehiculo(this.uuid, this.vehiculo.uuid, vehiculo).subscribe((data: Vehiculo) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha modificado el vehiculo con exito",
@@ -1160,6 +1180,25 @@ export class EmpresaVehiculosComponent implements OnInit {
     if(imagen) {
       reader.readAsDataURL(imagen);
     }
+  }
+
+  mostrarModalVerConstanciaBlindaje() {
+    this.modal = this.modalService.open(this.visualizarConstanciaBlindajeModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+
+    this.empresaService.descargarVehiculoConstanciaPdf(this.uuid, this.vehiculo?.uuid).subscribe((data: Blob) => {
+      this.convertirPdf(data);
+      // TODO: Manejar esta opcion para descargar
+      /*let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "licencia-colectiva-" + this.licencia.uuid;
+      link.click();*/
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el PDF. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   exportGridData(format) {

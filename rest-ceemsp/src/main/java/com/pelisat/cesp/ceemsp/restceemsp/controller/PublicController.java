@@ -42,8 +42,12 @@ public class PublicController {
     }
 
     @GetMapping(value = "/public/comunicados", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<ComunicadoGeneralDto> obtenerComunicados() {
-        return comunicadoGeneralService.obtenerComunicadosGenerales();
+    public List<ComunicadoGeneralDto> obtenerComunicados(
+            @RequestParam(value = "titulo", required = false) String titulo,
+            @RequestParam(value = "mes", required = false) Integer mes,
+            @RequestParam(value = "ano", required = false) Integer ano
+    ) {
+        return comunicadoGeneralService.obtenerComunicadosGenerales(titulo, mes, ano);
     }
 
     @GetMapping(value = "/public/comunicados/ultimo", produces = MediaType.APPLICATION_JSON_VALUE)

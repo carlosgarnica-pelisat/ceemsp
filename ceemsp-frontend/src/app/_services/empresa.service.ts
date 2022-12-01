@@ -222,6 +222,13 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/socios/${socioUuid}/borrar`, formData, {headers: {'X-isFile': 'true'}});
   }
 
+  descargarDocumentoFundatorioSocio(empresaUuid: string, escrituraUuid: string, socioUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/socios/${socioUuid}/documentos/fundatorios`, httpOptions)
+  }
+
   // Escrituras representantes
   obtenerEscrituraRepresentantes(empresaUuid: string, escrituraUuid: string) {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/representantes`);
@@ -340,14 +347,23 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}`);
   }
 
+  descargarVehiculoConstanciaPdf(uuid: string, vehiculoUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}/pdf`, httpOptions)
+  }
+
   guardarVehiculo(uuid: string, vehiculo: FormData) {
     return this.http.post(`${this.uri}/empresas/${uuid}/vehiculos`, vehiculo, {
       headers: {'X-isFile': 'true'}
     });
   }
 
-  modificarVehiculo(uuid: string, vehiculoUuid: string, vehiculo: Vehiculo) {
-    return this.http.put(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}`, vehiculo);
+  modificarVehiculo(uuid: string, vehiculoUuid: string, vehiculo: FormData) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/vehiculos/${vehiculoUuid}`, vehiculo, {
+      headers: {'X-isFile': 'true'}
+    });
   }
 
   eliminarVehiculo(uuid: string, vehiculoUuid: string, formData: FormData) {
@@ -514,6 +530,13 @@ export class EmpresaService {
     return this.http.put(`${this.uri}/empresas/${uuid}/personas/${personaUuid}`, persona, {
       headers: {'X-isFile': 'true'}
     });
+  }
+
+  descargarVolanteCuip(uuid: string, personaUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/volante`, httpOptions);
   }
 
   // Personal certificaciones
@@ -766,12 +789,23 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/uniformes/${uniformeUuid}`);
   }
 
-  guardarUniforme(uuid: string, uniforme: Uniforme) {
-    return this.http.post(`${this.uri}/empresas/${uuid}/uniformes`, uniforme);
+  descargarFotografiaUniforme(uuid: string, uniformeUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${uuid}/uniformes/${uniformeUuid}/fotos`, httpOptions)
   }
 
-  modificarUniforme(uuid: string, uuidUniforme: string, uniforme: Uniforme) {
-    return this.http.put(`${this.uri}/empresas/${uuid}/uniformes/${uuidUniforme}`, uniforme);
+  guardarUniforme(uuid: string, uniforme: FormData) {
+    return this.http.post(`${this.uri}/empresas/${uuid}/uniformes`, uniforme, {
+      headers: {'X-isFile': 'true'}
+    });
+  }
+
+  modificarUniforme(uuid: string, uuidUniforme: string, uniforme: FormData) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/uniformes/${uuidUniforme}`, uniforme, {
+      headers: {'X-isFile': 'true'}
+    });
   }
 
   eliminarUniforme(uuid: string, uuidUniforme: string) {

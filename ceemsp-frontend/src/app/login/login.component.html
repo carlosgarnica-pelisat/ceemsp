@@ -55,13 +55,13 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <small [innerHTML]="comunicadoGeneral?.descripcion">
+          <small [innerHTML]="comunicadoGeneral?.descripcion | sanitizeHtml">
           </small>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
 
@@ -73,49 +73,62 @@
       </button>
     </div>
     <div class="modal-body">
+
       <div class="row">
-        <div class="col-sm-6">
-          <label for="titulo">
-            <b>Título</b>
-          </label>
-          <input id="titulo" class="form-control" placeholder="Ejemplo: Vacaciones" type="text">
+        <div class="col-sm-12">
+          <form [formGroup]="buscarComunicadoForm">
+            <div class="form-row">
+              <div class="col-sm-6">
+                <label for="titulo">
+                  <b>Título</b>
+                </label>
+                <input id="titulo" class="form-control" placeholder="Ejemplo: Vacaciones" type="text" formControlName="titulo">
+              </div>
+              <div class="col-sm-2">
+                <label for="mes">
+                  <b>Mes</b>
+                </label>
+                <select id="mes" class="form-control" formControlName="mes">
+                  <option value="12">Diciembre</option>
+                  <option value="11">Noviembre</option>
+                  <option value="10">Octubre</option>
+                  <option value="09">Septiembre</option>
+                  <option value="08">Agosto</option>
+                  <option value="07">Julio</option>
+                  <option value="06">Junio</option>
+                  <option value="05">Mayo</option>
+                  <option value="04">Abril</option>
+                  <option value="03">Marzo</option>
+                  <option value="02">Febrero</option>
+                  <option value="01">Enero</option>
+                </select>
+              </div>
+              <div class="col-sm-2">
+                <label for="ano">
+                  <b>Año</b>
+                </label>
+                <select id="ano" class="form-control" formControlName="ano">
+                  <option value="2022">2022</option>
+                  <option value="2021">2021</option>
+                  <option value="2020">2020</option>
+                  <option value="2019">2019</option>
+                </select>
+              </div>
+              <div class="col-sm-2">
+                <button class="btn btn-primary" style="margin-top: 32px;" (click)="buscarComunicados(buscarComunicadoForm)" >Buscar</button>
+              </div>
+            </div>
+          </form>
         </div>
-        <div class="col-sm-2">
-          <label for="mes">
-            <b>Selecciona mes</b>
-          </label>
-          <select id="mes" class="form-control">
-            <option value="12">Diciembre</option>
-            <option value="11">Noviembre</option>
-            <option value="10">Octubre</option>
-            <option value="09">Septiembre</option>
-            <option value="08">Agosto</option>
-            <option value="07">Julio</option>
-            <option value="06">Junio</option>
-            <option value="05">Mayo</option>
-            <option value="04">Abril</option>
-            <option value="03">Marzo</option>
-            <option value="02">Febrero</option>
-            <option value="01">Enero</option>
-          </select>
-        </div>
-        <div class="col-sm-2">
-          <label for="ano">
-            <b>Selecciona año</b>
-          </label>
-          <select id="ano" class="form-control">
-            <option value="2022">2022</option>
-            <option value="2021">2021</option>
-            <option value="2020">2020</option>
-            <option value="2019">2019</option>
-          </select>
-        </div>
-        <div class="col-sm-2">
-          <button class="btn btn-primary" style="margin-top: 32px;">Buscar</button>
-        </div>
+
       </div>
       <hr>
-      <div class="row" >
+      <div class="row"  *ngIf="comunicadosGenerales.length <= 0">
+        <div class="col-sm-12">
+          <p class="text-center">No hay comunicados o no se han encontrado comunicados con el criterio de busqueda</p>
+        </div>
+      </div>
+      <div class="row" *ngIf="comunicadosGenerales.length > 0">
         <div class="col-sm-4">
           <div class="list-group">
             <a *ngFor="let c of comunicadosGenerales" class="list-group-item list-group-item-action fakelink" [ngClass]="{ 'active': comunicadoUuid === c?.uuid }" (click)="obtenerComunicado(c?.uuid)">
@@ -130,14 +143,14 @@
             <div class="col-sm-12">
               <h4>{{comunicado?.titulo}}</h4>
             </div>
-            <div class="col-sm-12" [innerHTML]="comunicado?.descripcion">
+            <div class="col-sm-12" [innerHTML]="comunicado?.descripcion | sanitizeHtml">
 
             </div>
           </div>
         </div>
       </div>
-      <hr>
-      <div class="row">
+      <hr  *ngIf="comunicadosGenerales.length > 0">
+      <div class="row"  *ngIf="comunicadosGenerales.length > 0">
         <div class="col-sm-12">
           <p class="text-center"><i>Solo se muestran los últimos 5 comunicados. Utilice el formulario de arriba para
           buscar comunicados anteriores</i></p>
@@ -145,7 +158,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
 </div>

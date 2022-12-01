@@ -225,16 +225,16 @@
                 <td>
                   <fa-icon [icon]="faHandPaper" title="Marcar como en custodia" (click)="mostrarCambioStatusForm(arma?.uuid)"
                            style="cursor: pointer;" *ngIf="arma?.status !== 'CUSTODIA' && !arma?.eliminado"></fa-icon>
-                  <fa-icon [icon]="faPencil" title="Modificar arma" (click)="mostrarModificarArmaForm(i)"
+                  <fa-icon [icon]="faPencil" title="Modificar arma" (click)="mostrarModificarArmaForm(arma?.uuid)"
                            style="cursor: pointer;" *ngIf="arma?.status !== 'CUSTODIA' && !arma?.eliminado"></fa-icon>
                   <fa-icon [icon]="faTrash" title="Eliminar arma" (click)="mostrarModalEliminarArma(arma?.uuid)"
                            style="cursor: pointer;" *ngIf="!arma?.eliminado"></fa-icon>
-                  <fa-icon [icon]="faInfoCircle" class="fakelink" (click)="mostrarDetallesEliminacionSocio(arma?.uuid)" *ngIf="arma?.eliminado" title="Mostrar motivos de borrado"></fa-icon>
+                  <fa-icon [icon]="faInfoCircle" class="fakelink" (click)="mostrarDetallesEliminacionArma(arma?.uuid)" *ngIf="arma?.eliminado" title="Mostrar motivos de borrado"></fa-icon>
                 </td>
               </tr>
             </ng-template>
             <ng-template pTemplate="summary">
-              Hay en total {{armas?.length}} socios
+              Hay en total {{armas?.length}} armas
             </ng-template>
           </p-table>
         </div>
@@ -291,7 +291,7 @@
               </span>
             </label>
             <input type="text" class="form-control" id="serieEditar" formControlName="serie"
-                   placeholder="Ejemplo: ABC123456" (focusout)="consultarArmaModelo($event.target)"/>
+                   placeholder="Ejemplo: ABC123456" />
           </div>
           <div class="col-sm-3">
             <label for="matriculaEditar">
@@ -422,7 +422,7 @@
               </span>
             </label>
             <input type="text" class="form-control" id="serie" formControlName="serie"
-                   placeholder="Ejemplo: ABC123456" (focusout)="consultarArmaModelo($event.target)"/>
+                   placeholder="Ejemplo: ABC123456" />
           </div>
           <div class="col-sm-3">
             <label for="matricula">
@@ -868,6 +868,38 @@
       <button class="btn btn-danger" (click)="confirmarEliminarLicenciaArma(motivosEliminacionArmaForm)">Si, eliminar
       </button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarMotivosEliminacionArma let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarMotivosEliminacionArma">Motivos de eliminacion del arma </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Fecha de eliminacion</b></td>
+              <td>{{arma?.fechaBaja}}</td>
+            </tr>
+            <tr>
+              <td><b>Motivos de eliminacion</b></td>
+              <td>{{arma?.motivoBaja}}</td>
+            </tr>
+            <tr>
+              <td><b>Observaciones</b></td>
+              <td>{{arma?.observacionesBaja}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
 </div>

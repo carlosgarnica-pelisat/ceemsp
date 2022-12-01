@@ -345,8 +345,28 @@
       </div>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
+      <button class="btn btn-primary" (click)="mostrarModalVerConstanciaBlindaje()" *ngIf="!vehiculo?.eliminado && (vehiculo?.constanciaBlindaje !== null || vehiculo?.constanciaBlindaje !== undefined)">Ver certificado</button>
       <button class="btn btn-primary" (click)="mostrarModalModificarVehiculo()" *ngIf="!vehiculo?.eliminado">Modificar</button>
       <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarVehiculo()" *ngIf="!vehiculo?.eliminado">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarConstanciaBlindajeModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarConstanciaBlindajeModal">Ver la constancia de blindaje </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <pdf-viewer [src]="pdfActual"
+                      [render-text]="true"
+                      [original-size]="false"
+                      style="width: 100%; height: 600px"></pdf-viewer>
+        </div>
+      </div>
     </div>
   </ng-template>
 

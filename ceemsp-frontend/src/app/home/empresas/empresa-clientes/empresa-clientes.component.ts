@@ -669,7 +669,7 @@ export class EmpresaClientesComponent implements OnInit {
         let formValue: Cliente = form.value;
         let formData = new FormData();
 
-        if(this.tipoPersona === 'MORAL' && formValue.nombreComercial) {
+        if(this.tipoPersona === 'MORAL' && (formValue.nombreComercial === null) || formValue.nombreComercial === undefined) {
           this.toastService.showGenericToast(
             "Espere un momento",
             `Favor de agregar razon social a personas morales`,
@@ -710,7 +710,7 @@ export class EmpresaClientesComponent implements OnInit {
           )
         });
         break;
-      case "MODALIDADES":
+      case "ELEMENTOS":
         if(this.domiciliosGuardados) {
           this.stepper.next();
           return;
@@ -749,7 +749,7 @@ export class EmpresaClientesComponent implements OnInit {
           );
         });
         break;
-      case "ELEMENTOS":
+      case "MODALIDADES":
         this.stepper.next()
         break;
       case "RESUMEN":

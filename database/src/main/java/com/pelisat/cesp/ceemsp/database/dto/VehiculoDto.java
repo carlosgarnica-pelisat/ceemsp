@@ -31,6 +31,7 @@ public class VehiculoDto {
     private String numeroHolograma;
     private String placaMetalica;
     private String empresaBlindaje;
+    private String constanciaBlindaje;
     private NivelBlindajeEnum nivelBlindaje;
     private String razonSocial;
     private String fechaInicio;

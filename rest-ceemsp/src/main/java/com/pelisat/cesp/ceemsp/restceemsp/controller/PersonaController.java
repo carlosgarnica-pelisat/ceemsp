@@ -6,12 +6,20 @@ import com.pelisat.cesp.ceemsp.database.dto.PersonalNacionalidadDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.PersonaService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.PersonalNacionalidadService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 @RestController
@@ -92,5 +100,39 @@ public class PersonaController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return personaService.modificarInformacionPuesto(new Gson().fromJson(persona, PersonaDto.class), username, empresaUuid, personaUuid, archivo);
+    }
+
+    @GetMapping(value = PERSONALIDAD_URI + "/{personaUuid}/volante", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> descargarVolanteCuip(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "personaUuid") String personaUuid
+    ) throws Exception {
+        File file = personaService.descargarVolanteCuip(empresaUuid, personaUuid);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        MediaType mediaType = null;
+
+        switch(FilenameUtils.getExtension(file.getName())) {
+            case "pdf":
+                mediaType = MediaType.APPLICATION_PDF;
+                break;
+            case "jpg":
+                mediaType = MediaType.IMAGE_JPEG;
+                break;
+            case "jpeg":
+                mediaType = MediaType.IMAGE_JPEG;
+                break;
+            case "gif":
+                mediaType = MediaType.IMAGE_GIF;
+                break;
+            case "png":
+                mediaType = MediaType.IMAGE_PNG;
+                break;
+        }
+
+        responseHeaders.setContentType(mediaType);
+        responseHeaders.setContentLength(file.length());
+        responseHeaders.setContentDispositionFormData("attachment", file.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+        return new ResponseEntity<>(isr, responseHeaders, HttpStatus.OK);
     }
 }

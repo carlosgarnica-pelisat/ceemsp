@@ -3,7 +3,7 @@
 
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Personal</h1>
+    <h1 class="h3 mb-0 text-gray-800">Personal <span *ngIf="mostrandoEliminados">(eliminados)</span></h1>
     <div class="btn-group">
       <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearPersonaModal)">Nueva persona</button>
       <div class="dropdown">
@@ -84,7 +84,35 @@
         <div class="col-sm-12" *ngIf="pestanaActual === 'DETALLES'">
           <div class="row">
             <div class="col-sm-3">
-              <img [src]="imagenPrincipal" style="width: 100%;">
+              <div class="row">
+                <div class="col-sm-12">
+                  <img [src]="imagenPrincipal" style="width: 100%;">
+                </div>
+              </div>
+              <div class="row" *ngIf="persona?.estatusCuip === 'TRAMITADO'">
+                <div class="col-sm-12">
+                  <b>Arma corta asignada</b><br>
+                  <a class="fakelink">Asignar arma corta</a>
+                </div>
+              </div>
+              <div class="row" *ngIf="persona?.estatusCuip === 'TRAMITADO'">
+                <div class="col-sm-12">
+                  <b>Arma larga asignada</b><br>
+                  <a class="fakelink">Asignar arma larga</a>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-12">
+                  <b>Can asignado</b><br>
+                  <a class="fakelink">Asignar can</a>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-12">
+                  <b>Vehiculo asignado</b><br>
+                  <a class="fakelink">Asignar vehiculo</a>
+                </div>
+              </div>
             </div>
             <div class="col-sm-9">
               <table class="table">
@@ -216,10 +244,6 @@
               <td><b>Fecha de tramitacion de CUIP</b></td>
               <td>{{persona?.fechaVolanteCuip}}</td>
             </tr>
-            <tr *ngIf="persona?.estatusCuip === 'EN_TRAMITE'">
-              <td><b>Volante del CUIP</b></td>
-              <td>{{persona?.rutaVolanteCuip}}</td>
-            </tr>
             <tr *ngIf="showPuestoForm">
               <td colspan="2">
                 <div class="row">
@@ -341,6 +365,9 @@
                   <div class="col-sm-12">
                     <button class="btn btn-sm btn-primary" (click)="mostrarFormularioInformacionPuesto()">
                       Agregar / Modificar info. puesto
+                    </button>
+                    <button class="btn btn-sm btn-primary" *ngIf="persona?.estatusCuip === 'EN_TRAMITE'" (click)="descargarVolanteCuip()">
+                      Descargar volante
                     </button>
                   </div>
                 </div>
@@ -520,8 +547,8 @@
       </div>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
-      <button class="btn btn-info" (click)="mostrarModificarPersonaModal(modificarPersonalModal)">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarPersona()">Eliminar</button>
+      <button class="btn btn-info" (click)="mostrarModificarPersonaModal(modificarPersonalModal)" *ngIf="!persona?.eliminado">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarPersona()" *ngIf="!persona?.eliminado">Eliminar</button>
     </div>
   </ng-template>
 
@@ -1790,6 +1817,25 @@
   <ng-template #visualizarCertificacionPersonaModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="visualizarCertificacionPersonaModal">Ver adjunto de la certificacion </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <pdf-viewer [src]="pdfActual"
+                      [render-text]="true"
+                      [original-size]="false"
+                      style="width: 100%; height: 600px"></pdf-viewer>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarVolanteCuip let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarVolanteCuip">Ver volante de CUIP </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>

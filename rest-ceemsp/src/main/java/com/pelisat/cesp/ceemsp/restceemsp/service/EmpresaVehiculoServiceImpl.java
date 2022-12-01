@@ -4,6 +4,7 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
+import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
 import com.pelisat.cesp.ceemsp.database.model.IncidenciaArchivo;
 import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoRepository;
@@ -23,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -88,7 +91,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         List<VehiculoDto> response = vehiculos.stream().map(vehiculo -> {
             VehiculoDto vehiculoDto = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
             vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
-            if(vehiculoDto.getSubmarca() != null) {
+            if(vehiculo.getSubmarca() > 0) {
                 vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
             }
             vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
@@ -114,7 +117,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         List<VehiculoDto> response = vehiculos.stream().map(vehiculo -> {
             VehiculoDto vehiculoDto = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
             vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
-            if(vehiculoDto.getSubmarca() != null) {
+            if(vehiculo.getSubmarca() > 0) {
                 vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
             }
             vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
@@ -146,7 +149,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         if(!soloEntidad) {
             vehiculoDto.setUso(vehiculoUsoService.obtenerPorId(vehiculo.getUso()));
             vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
-            if(vehiculoDto.getSubmarca() != null) {
+            if(vehiculo.getSubmarca() > 0) {
                 vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
             }
             vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
@@ -159,6 +162,25 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         }
 
         return vehiculoDto;
+    }
+
+    @Override
+    public File obtenerConstanciaBlindaje(String empresaUuid, String vehiculoUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid)) {
+            logger.warn("El uuid de la empresa o del vehiculo vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando la constancia en blindaje en PDF para la escritura [{}]", vehiculoUuid);
+
+        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+
+        if(vehiculo == null) {
+            logger.warn("La escritura no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return new File(vehiculo.getConstanciaBlindaje());
     }
 
     @Override
@@ -180,7 +202,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         VehiculoDto vehiculoDto = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
         vehiculoDto.setUso(vehiculoUsoService.obtenerPorId(vehiculo.getUso()));
         vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
-        if(vehiculoDto.getSubmarca() != null) {
+        if(vehiculo.getSubmarca() > 0) {
             vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
         }
         vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
@@ -192,6 +214,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         return vehiculoDto;
     }
 
+    @Transactional
     @Override
     public VehiculoDto guardarVehiculo(String empresaUuid, String username, VehiculoDto vehiculoDto, MultipartFile constanciaBlindaje) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(username) || vehiculoDto == null) {
@@ -225,29 +248,28 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
             vehiculo.setPersonalAsignado(vehiculoDto.getPersonalAsignado().getId());
         }
 
-        Vehiculo vehiculoCreado = vehiculoRepository.save(vehiculo);
-        VehiculoDto response = new VehiculoDto();
-
         if(constanciaBlindaje != null) {
             logger.info("Hay archivo");
             daoHelper.fulfillAuditorFields(true, vehiculo, usuarioDto.getId());
             try {
                 String ruta = archivosService.guardarArchivoMultipart(constanciaBlindaje, TipoArchivoEnum.CONSTANCIA_BLINDAJE_VEHICULO, empresaDto.getUuid());
                 vehiculo.setConstanciaBlindaje(ruta);
-                response = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculoCreado);
-                response.setTipo(vehiculoDto.getTipo());
-                response.setMarca(vehiculoDto.getMarca());
-                response.setSubmarca(vehiculoDto.getSubmarca());
             } catch(Exception ex) {
                 logger.warn("No se ha podido guardar el archivo.", ex);
                 throw new InvalidDataException();
             }
         }
+        Vehiculo vehiculoCreado = vehiculoRepository.save(vehiculo);
+        VehiculoDto response = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculoCreado);
+        response.setTipo(vehiculoDto.getTipo());
+        response.setMarca(vehiculoDto.getMarca());
+        response.setSubmarca(vehiculoDto.getSubmarca());
         return response;
     }
 
+    @Transactional
     @Override
-    public VehiculoDto modificarVehiculo(String empresaUuid, String vehiculoUuid, String username, VehiculoDto vehiculoDto) {
+    public VehiculoDto modificarVehiculo(String empresaUuid, String vehiculoUuid, String username, VehiculoDto vehiculoDto, MultipartFile constanciaBlindaje) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(username) || vehiculoDto == null) {
             logger.warn("El uuid viene como nulo o vacio");
             throw new InvalidDataException();
@@ -303,6 +325,18 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         vehiculo.setUso(vehiculoDto.getUso().getId());
         vehiculo.setTipo(vehiculoDto.getTipo().getId());
         vehiculo.setDomicilio(vehiculoDto.getDomicilio().getId());
+
+        if(constanciaBlindaje != null) {
+            logger.info("Hay archivo");
+            daoHelper.fulfillAuditorFields(true, vehiculo, usuarioDto.getId());
+            try {
+                String ruta = archivosService.guardarArchivoMultipart(constanciaBlindaje, TipoArchivoEnum.CONSTANCIA_BLINDAJE_VEHICULO, empresaDto.getUuid());
+                vehiculo.setConstanciaBlindaje(ruta);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo.", ex);
+                throw new InvalidDataException();
+            }
+        }
 
         daoHelper.fulfillAuditorFields(false, vehiculo, usuarioDto.getId());
 

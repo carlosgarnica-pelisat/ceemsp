@@ -8,6 +8,7 @@ import {ComunicadosGeneralesService} from "../_services/comunicados-generales.se
 import ComunicadoGeneral from "../_models/ComunicadoGeneral";
 import {PublicService} from "../_services/public.service";
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
+import {ToastService} from "../_services/toast.service";
 
 @Component({
   selector: 'app-login',
@@ -30,6 +31,7 @@ export class LoginComponent implements OnInit {
   comunicado: ComunicadoGeneral;
 
   private credential: Credential = new Credential();
+  buscarComunicadoForm: FormGroup;
 
   @ViewChild('mostrarComunicadoCompletoModal') mostrarComunicadoCompletoModal;
 
@@ -40,7 +42,8 @@ export class LoginComponent implements OnInit {
     private authenticationService: AuthenticationService,
     private comunicadosGeneralesService: ComunicadosGeneralesService,
     private publicService: PublicService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private toastService: ToastService
   ) {
     if(this.authenticationService.currentUserValue) {
       this.router.navigate(['/']);
@@ -52,6 +55,12 @@ export class LoginComponent implements OnInit {
       email: ['', Validators.required],
       password: ['', Validators.required]
     });
+
+    this.buscarComunicadoForm = this.formBuilder.group({
+      titulo: [''],
+      mes: [''],
+      ano: ['']
+    })
 
     this.obtenerComunicadosGenerales()
 
@@ -73,6 +82,20 @@ export class LoginComponent implements OnInit {
       this.closeResult = `Closed with ${result}`;
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  buscarComunicados(form) {
+    let titulo = form.controls['titulo'].value;
+    let mes = form.controls['mes'].value;
+    let ano = form.controls['ano'].value;
+
+    this.publicService.buscarComunicados(titulo, mes, ano).subscribe((data: ComunicadoGeneral[]) => {
+      this.comunicado = undefined;
+      this.comunicadosGenerales = data;
+      this.comunicadoUuid = undefined;
+    }, (error) => {
+      console.error(error);
     })
   }
 

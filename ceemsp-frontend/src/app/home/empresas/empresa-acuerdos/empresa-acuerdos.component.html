@@ -77,6 +77,10 @@
             <tr>
               <td><b>Tipo del acuerdo</b></td>
               <td [ngSwitch]="acuerdo?.tipo">
+                <span *ngSwitchCase="'AUTORIZACION_ESTATAL'">Autorizacion Estatal</span>
+                <span *ngSwitchCase="'AUTORIZACION_PROVISIONAL'">Autorizacion Provisional</span>
+                <span *ngSwitchCase="'REGISTRO_FEDERAL'">Registro Federal</span>
+                <span *ngSwitchCase="'REGISTRO_SERVICIOS_PROPIOS'">Registro de Servicios Propios</span>
                 <span *ngSwitchCase="'REFRENDO'">Refrendo</span>
                 <span *ngSwitchCase="'REVOCACION'">Revocacion</span>
                 <span *ngSwitchCase="'PERDIDA_EFICACIA'">Perdida de Eficacia</span>
@@ -118,6 +122,10 @@
                   <b>Tipo de acuerdo *</b>
                 </label>
                 <select id="tipoTramite" class="form-control" formControlName="tipo" (change)="cambiarTipoAcuerdo($event.target)">
+                  <option value="AUTORIZACION_ESTATAL">Autorizacion estatal</option>
+                  <option value="AUTORIZACION_PROVISIONAL">Autorizacion provisional</option>
+                  <option value="REGISTRO_FEDERAL">Registro federal</option>
+                  <option value="REGISTRO_SERVICIOS_PROPIOS">Registro de servicios propios</option>
                   <option value="REFRENDO">Refrendo</option>
                   <option value="REVOCACION">Revocacion</option>
                   <option value="PERDIDA_EFICACIA">Perdida de eficacia</option>
@@ -190,6 +198,10 @@
                     <b>Tipo de acuerdo *</b>
                   </label>
                   <select id="tipoTramiteEditar" class="form-control" formControlName="tipo" (change)="cambiarTipoAcuerdo($event.target)">
+                    <option value="AUTORIZACION_ESTATAL">Autorizacion estatal</option>
+                    <option value="AUTORIZACION_PROVISIONAL">Autorizacion provisional</option>
+                    <option value="REGISTRO_FEDERAL">Registro federal</option>
+                    <option value="REGISTRO_SERVICIOS_PROPIOS">Registro de servicios propios</option>
                     <option value="REFRENDO">Refrendo</option>
                     <option value="REVOCACION">Revocacion</option>
                     <option value="PERDIDA_EFICACIA">Perdida de eficacia</option>

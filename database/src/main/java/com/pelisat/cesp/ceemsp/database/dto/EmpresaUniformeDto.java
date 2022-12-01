@@ -12,5 +12,6 @@ public class EmpresaUniformeDto {
     private String uuid;
     private String nombre;
     private String descripcion;
+    private String ubicacionArchivo;
     private List<EmpresaUniformeElementoDto> elementos;
 }

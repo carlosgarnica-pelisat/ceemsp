@@ -174,12 +174,14 @@
         <div class="col-sm-12">
           <table class="table">
             <tr>
+              <td><b>Matricula</b></td>
               <td><b>Marca</b></td>
               <td><b>Clase</b></td>
               <td><b>Tipo</b></td>
               <td><b>Acciones</b></td>
             </tr>
             <tr *ngFor="let a of incidencia?.armasInvolucradas">
+              <td>{{a?.matricula}}</td>
               <td>{{a?.marca?.nombre}}</td>
               <td>{{a?.clase?.nombre}}</td>
               <td>{{a?.tipo}}</td>
@@ -188,7 +190,7 @@
               </td>
             </tr>
             <tr *ngIf="!mostrarAgregarArmaForm">
-              <td colspan="4">
+              <td colspan="5">
                 <button class="btn btn-sm btn-primary" (click)="conmutarAgregarArmaForm()">Agregar arma</button>
               </td>
             </tr>
@@ -266,6 +268,7 @@
               <td><b>Marca</b></td>
               <td><b>Modelo</b></td>
               <td><b>Año</b></td>
+              <td><b>Placas</b></td>
               <td><b>Acciones</b></td>
             </tr>
             <tr *ngFor="let v of incidencia?.vehiculosInvolucrados">
@@ -273,12 +276,13 @@
               <td>{{v?.marca?.nombre}}</td>
               <td>{{v?.submarca?.nombre}}</td>
               <td>{{v?.anio}}</td>
+              <td>{{v?.placas}}</td>
               <td>
                 <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarVehiculo(v?.uuid)" title="Eliminar vehiculo involucrado"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="!mostrarAgregarVehiculoForm">
-              <td colspan="5">
+              <td colspan="6">
                 <button class="btn btn-sm btn-primary" (click)="conmutarAgregarVehiculoForm()">Agregar vehiculo</button>
               </td>
             </tr>
@@ -475,12 +479,14 @@
             <div class="col-sm-12">
               <table class="table">
                 <tr>
+                  <td><b>Matricula</b></td>
                   <td><b>Marca</b></td>
                   <td><b>Clase</b></td>
                   <td><b>Tipo</b></td>
                   <td><b>Acciones</b></td>
                 </tr>
                 <tr *ngFor="let a of armasInvolucradas; let i = index">
+                  <td>{{a?.matricula}}</td>
                   <td>{{a?.marca?.nombre}}</td>
                   <td>{{a?.clase?.nombre}}</td>
                   <td>{{a?.tipo}}</td>
@@ -489,7 +495,7 @@
                   </td>
                 </tr>
                 <tr *ngIf="mostrarAgregarArmaForm">
-                  <td colspan="4">
+                  <td colspan="5">
                     <form [formGroup]="crearArmaIncidenciaForm">
                       <div class="row">
                         <div class="col-sm-6">

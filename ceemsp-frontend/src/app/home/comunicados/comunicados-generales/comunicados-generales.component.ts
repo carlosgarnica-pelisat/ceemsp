@@ -151,7 +151,7 @@ export class ComunicadosGeneralesComponent implements OnInit {
   mostrarModificarEquipoModal() {
     this.nuevoComunicadoForm.patchValue({
       titulo: this.comunicadoGeneral.titulo,
-      fecha: this.comunicadoGeneral.fechaPublicacion
+      fechaPublicacion: this.comunicadoGeneral.fechaPublicacion
     });
 
     this.model.editorData = this.comunicadoGeneral.descripcion;

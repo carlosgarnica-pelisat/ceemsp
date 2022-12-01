@@ -9,6 +9,7 @@ import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
 import com.pelisat.cesp.ceemsp.database.model.Personal;
 import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
 import com.pelisat.cesp.ceemsp.database.repository.PersonaRepository;
+import com.pelisat.cesp.ceemsp.database.type.CuipStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -359,5 +361,29 @@ public class PersonaServiceImpl implements PersonaService {
         }
         personaRepository.save(personal);
         return daoToDtoConverter.convertDaoToDtoPersona(personal);
+    }
+
+    @Override
+    public File descargarVolanteCuip(String empresaUuid, String personaUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando el volante de cuip para la persona [{}]", personaUuid);
+
+        Personal personal = personaRepository.getByUuid(personaUuid);
+
+        if(personal == null) {
+            logger.warn("El personal no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(personal.getEstatusCuip() != CuipStatusEnum.EN_TRAMITE) {
+            logger.warn("El status no es en tramite. No es posible descargar el volante");
+            throw new InvalidDataException();
+        }
+
+        return new File(personal.getRutaVolanteCuip());
     }
 }

@@ -4,6 +4,7 @@ import com.pelisat.cesp.ceemsp.database.dto.PersonaDto;
 import com.pelisat.cesp.ceemsp.database.dto.PersonalNacionalidadDto;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 
 public interface PersonaService {
@@ -15,4 +16,5 @@ public interface PersonaService {
     PersonaDto modificarInformacionPuesto(PersonaDto personaDto, String username, String empresaUuid, String personaUuid, MultipartFile multipartFile);
     PersonaDto modificarPersona(String empresaUuid, String personaUuid, String username, PersonaDto personaDto);
     PersonaDto eliminarPersona(String empresaUuid, String personaUuid, String username, PersonaDto persona, MultipartFile multipartFile);
+    File descargarVolanteCuip(String empresaUuid, String personaUuid);
 }

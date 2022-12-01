@@ -28,6 +28,7 @@ export default class Vehiculo implements Deserializable {
   placaMetalica: string;
   empresaBlindaje: string;
   nivelBlindaje: string;
+  constanciaBlindaje: string;
   razonSocial: string;
   fechaInicio: string;
   fechaFin: string;
