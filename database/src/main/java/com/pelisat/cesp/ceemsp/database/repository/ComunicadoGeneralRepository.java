@@ -14,9 +14,11 @@ public interface ComunicadoGeneralRepository extends JpaRepository<ComunicadoGen
     ComunicadoGeneral getByUuidAndEliminadoFalse(String uuid);
     List<ComunicadoGeneral> getTop1ByFechaPublicacionBeforeAndEliminadoFalseOrderByFechaPublicacionDesc(LocalDate time);
 
-    @Query("select c from ComunicadoGeneral c where year(c.fechaActualizacion) = ?1 and month(c.fechaActualizacion) = ?2")
-    List<ComunicadoGeneral> getAllByFechaActualizacion(Integer year, Integer month);
+    List<ComunicadoGeneral> getAllByFechaPublicacionBetweenAndEliminadoFalse(LocalDate fechaInicio, LocalDate fechaFin);
 
-    @Query("select c from ComunicadoGeneral c where year(c.fechaActualizacion) = ?1 and month(c.fechaActualizacion) = ?2 and c.titulo like %?3%")
-    List<ComunicadoGeneral> getAllByFechaActualizacionAndTitulo(Integer year, Integer month, String titulo);
+    @Query("select c from ComunicadoGeneral c where c.fechaPublicacion between ?1 and ?2 and c.titulo like %?3%")
+    List<ComunicadoGeneral> getAllByFechaPublicacionAndTitulo(LocalDate fechaInicio, LocalDate fechaFin, String titulo);
+
+    @Query("select c from ComunicadoGeneral c where c.titulo like %?1%")
+    List<ComunicadoGeneral> getAllByComunicadoGeneral(String titulo);
 }

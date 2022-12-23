@@ -176,8 +176,7 @@ export class EmpresaVehiculosComponent implements OnInit {
       razonSocial: ['', Validators.maxLength(100)],
       fechaInicio: [''],
       fechaFin: [''],
-      domicilio: ['', Validators.required],
-      personalAsignado: ['']
+      domicilio: ['', Validators.required]
       // TODO: Agregar campos para fotos y documentos; asi como constancia de blindaje
     })
 
@@ -615,7 +614,6 @@ export class EmpresaVehiculosComponent implements OnInit {
     formValue.tipo = this.tipos.filter(x => x.uuid === form.value.tipo)[0];
     formValue.uso = this.usos.filter(x => x.uuid === form.value.uso)[0];
     formValue.domicilio = this.domicilios.filter(x => x.uuid === form.value.domicilio)[0];
-    formValue.personalAsignado = this.personal.filter(x => x.uuid === form.value.personalAsignado)[0];
 
     if(this.blindado) {
       console.log("Agregar validaciones para blindaje");
@@ -716,7 +714,6 @@ export class EmpresaVehiculosComponent implements OnInit {
           formValue.tipo = this.tipos.filter(x => x.uuid === form.value.tipo)[0];
           formValue.uso = this.usos.filter(x => x.uuid === form.value.uso)[0];
           formValue.domicilio = this.domicilios.filter(x => x.uuid === form.value.domicilio)[0];
-          formValue.personalAsignado = this.personal.filter(x => x.uuid === form.value.personalAsignado)[0]
 
           if(this.blindado) {
             console.log("Agregar validaciones para blindaje");

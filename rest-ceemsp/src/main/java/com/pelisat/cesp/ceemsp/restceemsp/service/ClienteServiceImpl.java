@@ -177,7 +177,7 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = dtoToDaoConverter.convertDtoToDaoCliente(clienteDto);
         cliente.setEmpresa(empresaDto.getId());
         cliente.setFechaInicio(LocalDate.parse(clienteDto.getFechaInicio()));
-        if(cliente.getFechaFin() != null) {
+        if(clienteDto.getFechaFin() != null) {
             cliente.setFechaFin(LocalDate.parse(clienteDto.getFechaFin()));
         }
         daoHelper.fulfillAuditorFields(true, cliente, usuarioDto.getId());
@@ -222,6 +222,10 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setArmas(clienteDto.isArmas());
         cliente.setCanes(clienteDto.isCanes());
 
+        if(clienteDto.getFechaFin() != null) {
+            cliente.setFechaFin(LocalDate.parse(clienteDto.getFechaFin()));
+        }
+
         daoHelper.fulfillAuditorFields(false, cliente, usuarioDto.getId());
 
         clienteRepository.save(cliente);
@@ -229,6 +233,7 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
+    @Transactional
     public ClienteDto eliminarCliente(String empresaUuid, String clienteUuid, String username, ClienteDto clienteDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(clienteUuid)) {
             logger.warn("El uuid o el cliente a crear vienen como nulos o vacios");
@@ -247,6 +252,7 @@ public class ClienteServiceImpl implements ClienteService {
 
         cliente.setMotivoBaja(clienteDto.getMotivoBaja());
         cliente.setObservacionesBaja(clienteDto.getObservacionesBaja());
+        cliente.setFechaBaja(LocalDate.parse(clienteDto.getFechaBaja()));
         cliente.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, cliente, usuarioDto.getId());
 

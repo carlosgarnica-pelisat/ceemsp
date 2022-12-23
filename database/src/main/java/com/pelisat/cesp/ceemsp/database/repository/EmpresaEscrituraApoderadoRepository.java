@@ -9,4 +9,5 @@ public interface EmpresaEscrituraApoderadoRepository extends JpaRepository<Empre
     List<EmpresaEscrituraApoderado> findAllByEscrituraAndEliminadoFalse(int escritura);
     List<EmpresaEscrituraApoderado> findAllByEscritura(int escritura);
     EmpresaEscrituraApoderado findByUuidAndEliminadoFalse(String uuid);
+    EmpresaEscrituraApoderado findByUuid(String uuid);
 }

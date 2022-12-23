@@ -550,6 +550,17 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     let formValue = form.value;
 
+    let existeArma = this.armasInvolucradas.filter(x => x.uuid === formValue.armaInvolucrada)
+
+    if(existeArma.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra esta arma en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.armasInvolucradas.push(this.armas.filter(x => x.uuid === formValue.armaInvolucrada)[0]);
     this.conmutarAgregarArmaForm();
   }
@@ -565,6 +576,17 @@ export class EmpresaIncidenciasComponent implements OnInit {
     }
 
     let formValue = form.value;
+
+    let existeCan = this.canesInvolucrados.filter(x => x.uuid === formValue.canInvolucrado)
+
+    if(existeCan.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra este can en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
 
     this.canesInvolucrados.push(this.canes.filter(x => x.uuid === formValue.canInvolucrado)[0]);
     this.conmutarAgregarCanForm();
@@ -879,12 +901,22 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     let formValue = form.value;
 
+    let existePersona = this.personalInvolucrado.filter(x => x.uuid === formValue.personaInvolucrada)
+
+    if(existePersona.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra esta persona en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.personalInvolucrado.push(this.personales.filter(x => x.uuid === formValue.personaInvolucrada)[0]);
     this.conmutarAgregarPersonalForm();
   }
 
   agregarVehiculo(form) {
-    console.log(form.value);
     if(!form.valid) {
       this.toastService.showGenericToast(
         'Ocurrio un problema',
@@ -895,6 +927,17 @@ export class EmpresaIncidenciasComponent implements OnInit {
     }
 
     let formValue = form.value;
+
+    let existeVehiculo = this.vehiculosInvolucrados.filter(x => x.uuid === formValue.vehiculoInvolucrado)
+
+    if(existeVehiculo.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra este vehiculo en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
 
     this.vehiculosInvolucrados.push(this.vehiculos.filter(x => x.uuid === formValue.vehiculoInvolucrado)[0]);
     this.conmutarAgregarVehiculoForm();

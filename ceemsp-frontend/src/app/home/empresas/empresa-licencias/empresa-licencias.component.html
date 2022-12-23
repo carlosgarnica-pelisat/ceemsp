@@ -25,6 +25,8 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" *ngIf="!mostrandoEliminados" (click)="mostrarEliminados()">Mostrar eliminados</a>
+          <a class="dropdown-item" *ngIf="mostrandoEliminados" (click)="ocultarEliminados()">Ocultar eliminados</a>
           <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar licencias como Excel (csv)</a>
         </div>
       </div>
@@ -185,7 +187,7 @@
           </table>
         </div>
         <div class="col-sm-12" *ngIf="pestanaActual === 'ARMAS'">
-          <p-table [value]="armas">
+          <p-table [value]="armas" [autoLayout]="true" [resizableColumns]="true">
             <ng-template pTemplate="caption">
               Lista de armas en la licencia
             </ng-template>
@@ -365,19 +367,8 @@
                 <i *ngIf="editarArmaForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
               </span>
             </label>
-            <select class="form-control" formControlName="status" id="statusEditar"
-                    (change)="seleccionarStatus($event.target)">
-              <option value="ACTIVA">Activa</option>
+            <select class="form-control" formControlName="status" id="statusEditar">
               <option value="DEPOSITO">Deposito</option>
-            </select>
-          </div>
-          <div class="col-sm-3" *ngIf="status === 'ACTIVA'">
-            <label for="personalEditar">
-              <b>Personal a asignar *</b>
-            </label>
-            <select class="form-control" id="personalEditar" formControlName="personal">
-              <option *ngFor="let p of personal"
-                      value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
             </select>
           </div>
         </div>
@@ -408,7 +399,7 @@
             </label>
             <select id="bunker" class="form-control" formControlName="bunker">
               <option *ngFor="let d of domiciliosLicenciaColectiva"
-                      value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1}}</option>
+                      value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1 + " " + d?.numeroExterior}}</option>
             </select>
           </div>
           <div class="col-sm-3">
@@ -496,19 +487,8 @@
                 <i *ngIf="crearArmaForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
               </span>
             </label>
-            <select class="form-control" formControlName="status" id="status"
-                    (change)="seleccionarStatus($event.target)">
-              <option value="ACTIVA">Activa</option>
+            <select class="form-control" formControlName="status" id="status">
               <option value="DEPOSITO">Deposito</option>
-            </select>
-          </div>
-          <div class="col-sm-3" *ngIf="status === 'ACTIVA'">
-            <label for="personal">
-              <b>Personal a asignar *</b>
-            </label>
-            <select class="form-control" id="personal" formControlName="personal">
-              <option *ngFor="let p of personal"
-                      value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
             </select>
           </div>
         </div>
@@ -602,7 +582,8 @@
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" *ngFor="let m of modalidades | modalidadArmada : {armas: true}"
                      (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
-                    {{m.modalidad.nombre}}
+                    {{m.modalidad.nombre}}<br />
+                    <span style="font-size: 14px; color: #999; padding-left: 10px;">{{m?.submodalidad?.nombre}}</span>
                   </a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" *ngIf="modalidad !== undefined" (click)="quitarModalidad()">Quitar</a>
@@ -842,7 +823,7 @@
             <label for="documentoFundatorioBajaArma">
               <b>Documento fundatorio</b>
             </label>
-            <input id="documentoFundatorioBajaArma" class="form-control" formControlName="file" type="file"
+            <input id="documentoFundatorioBajaArma" accept="application/pdf" class="form-control" formControlName="file" type="file"
                    (change)="onFileChange($event)">
           </div>
         </div>

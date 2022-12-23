@@ -1,7 +1,6 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.PersonaDto;
-import com.pelisat.cesp.ceemsp.database.dto.PersonalNacionalidadDto;
+import com.pelisat.cesp.ceemsp.database.dto.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -17,4 +16,12 @@ public interface PersonaService {
     PersonaDto modificarPersona(String empresaUuid, String personaUuid, String username, PersonaDto personaDto);
     PersonaDto eliminarPersona(String empresaUuid, String personaUuid, String username, PersonaDto persona, MultipartFile multipartFile);
     File descargarVolanteCuip(String empresaUuid, String personaUuid);
+    void asignarCanAPersona(String empresaUuid, String personaUuid, PersonalCanDto personaDto, String username);
+    void desasignarCanAPersona(String empresaUuid, String personaUuid, String username);
+    void asignarVehiculoAPersona(String empresaUuid, String personaUuid, PersonalVehiculoDto personaDto, String username);
+    void desasignarVehiculoAPersona(String empresaUuid, String personaUuid, String username);
+    void asignarArmaCortaAPersona(String empresaUuid, String personaUuid, PersonalArmaDto personaDto, String username);
+    void desasignarArmaCortaAPersona(String empresaUuid, String personaUuid, String username);
+    void asignarArmaLargaAPersona(String empresaUuid, String personaUuid, PersonalArmaDto personaDto, String username);
+    void desasignarArmaLargaAPersona(String empresaUuid, String personaUuid, String username);
 }

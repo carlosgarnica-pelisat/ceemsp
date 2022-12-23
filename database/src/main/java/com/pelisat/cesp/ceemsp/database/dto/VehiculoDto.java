@@ -36,12 +36,14 @@ public class VehiculoDto {
     private String razonSocial;
     private String fechaInicio;
     private String fechaFin;
-    private PersonaDto personalAsignado;
     private boolean eliminado;
+    private String fechaCreacion;
+    private String fechaActualizacion;
 
     private String motivoBaja;
     private String observacionesBaja;
     private String documentoFundatorioBaja;
+    private String fechaBaja;
 
     private List<VehiculoColorDto> colores;
     private List<VehiculoFotografiaMetadata> fotografias;

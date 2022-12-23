@@ -4,6 +4,7 @@ import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.*;
 import com.pelisat.cesp.ceemsp.database.type.ArmaStatusEnum;
+import com.pelisat.cesp.ceemsp.database.type.ArmaTipoEnum;
 import com.pelisat.cesp.ceemsp.database.type.IncidenciaStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -44,7 +45,6 @@ public class ArmaServiceImpl implements ArmaService {
     private final ArmaMarcaService armaMarcaService;
     private final ArmaClaseService armaClaseService;
     private final EmpresaLicenciaColectivaService empresaLicenciaColectivaService;
-    private final PersonaService personaService;
     private final ArchivosService archivosService;
     private final IncidenciaRepository incidenciaRepository;
     private final IncidenciaArmaRepository incidenciaArmaRepository;
@@ -57,7 +57,7 @@ public class ArmaServiceImpl implements ArmaService {
                            UsuarioService usuarioService, DaoHelper<CommonModel> daoHelper,
                            EmpresaDomicilioService empresaDomicilioService, ArmaMarcaService armaMarcaService,
                            ArmaClaseService armaClaseService, EmpresaLicenciaColectivaService empresaLicenciaColectivaService,
-                           PersonaService personaService, IncidenciaRepository incidenciaRepository, IncidenciaArmaRepository incidenciaArmaRepository,
+                           IncidenciaRepository incidenciaRepository, IncidenciaArmaRepository incidenciaArmaRepository,
                            IncidenciaComentarioRepository incidenciaComentarioRepository, ArchivosService archivosService,
                            IncidenciaArchivoRepository incidenciaArchivoRepository) {
         this.armaRepository = armaRepository;
@@ -70,7 +70,6 @@ public class ArmaServiceImpl implements ArmaService {
         this.armaMarcaService = armaMarcaService;
         this.armaClaseService = armaClaseService;
         this.empresaLicenciaColectivaService = empresaLicenciaColectivaService;
-        this.personaService = personaService;
         this.incidenciaRepository = incidenciaRepository;
         this.incidenciaArmaRepository = incidenciaArmaRepository;
         this.incidenciaComentarioRepository = incidenciaComentarioRepository;
@@ -102,6 +101,50 @@ public class ArmaServiceImpl implements ArmaService {
     }
 
     @Override
+    public List<ArmaDto> obtenerArmasCortasPorEmpresaUuid(String uuid) {
+        if(StringUtils.isBlank(uuid)) {
+            logger.warn("El uuid viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo las armas guardadas para la empresa {}", uuid);
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(uuid);
+        List<Arma> armas = armaRepository.getAllByEmpresaAndTipoAndStatusAndEliminadoFalse(empresaDto.getId(), ArmaTipoEnum.CORTA, ArmaStatusEnum.DEPOSITO);
+
+        List<ArmaDto> response = armas.stream().map(arma -> {
+            ArmaDto armaDto = daoToDtoConverter.convertDaoToDtoArma(arma);
+            armaDto.setBunker(empresaDomicilioService.obtenerPorId(arma.getBunker()));
+            armaDto.setMarca(armaMarcaService.obtenerPorId(arma.getMarca()));
+            armaDto.setClase(armaClaseService.obtenerPorId(arma.getClase()));
+            return armaDto;
+        }).collect(Collectors.toList());
+
+        return response;
+    }
+
+    @Override
+    public List<ArmaDto> obtenerArmasLargasPorEmpresaUuid(String uuid) {
+        if(StringUtils.isBlank(uuid)) {
+            logger.warn("El uuid viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo las armas guardadas para la empresa {}", uuid);
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(uuid);
+        List<Arma> armas = armaRepository.getAllByEmpresaAndTipoAndStatusAndEliminadoFalse(empresaDto.getId(), ArmaTipoEnum.LARGA, ArmaStatusEnum.DEPOSITO);
+
+        List<ArmaDto> response = armas.stream().map(arma -> {
+            ArmaDto armaDto = daoToDtoConverter.convertDaoToDtoArma(arma);
+            armaDto.setBunker(empresaDomicilioService.obtenerPorId(arma.getBunker()));
+            armaDto.setMarca(armaMarcaService.obtenerPorId(arma.getMarca()));
+            armaDto.setClase(armaClaseService.obtenerPorId(arma.getClase()));
+            return armaDto;
+        }).collect(Collectors.toList());
+
+        return response;
+    }
+
+    @Override
     public List<ArmaDto> obtenerArmasPorLicenciaColectivaUuid(String empresaUuid, String licenciaColectivaUuid) {
         if(StringUtils.isBlank(licenciaColectivaUuid)) {
             logger.warn("El uuid viene como nulo o vacio");
@@ -117,9 +160,6 @@ public class ArmaServiceImpl implements ArmaService {
             armaDto.setBunker(empresaDomicilioService.obtenerPorId(arma.getBunker()));
             armaDto.setMarca(armaMarcaService.obtenerPorId(arma.getMarca()));
             armaDto.setClase(armaClaseService.obtenerPorId(arma.getClase()));
-            if(arma.getPersonal() != null) {
-                armaDto.setPersonal(personaService.obtenerPorId(arma.getPersonal()));
-            }
             if(arma.getIncidencia() != null) {
                 Incidencia incidencia = incidenciaRepository.getOne(arma.getIncidencia());
                 armaDto.setIncidencia(daoToDtoConverter.convertDaoToDtoIncidencia(incidencia));
@@ -146,9 +186,6 @@ public class ArmaServiceImpl implements ArmaService {
             armaDto.setBunker(empresaDomicilioService.obtenerPorId(arma.getBunker()));
             armaDto.setMarca(armaMarcaService.obtenerPorId(arma.getMarca()));
             armaDto.setClase(armaClaseService.obtenerPorId(arma.getClase()));
-            if(arma.getPersonal() != null) {
-                armaDto.setPersonal(personaService.obtenerPorId(arma.getPersonal()));
-            }
             return armaDto;
         }).collect(Collectors.toList());
 
@@ -207,10 +244,6 @@ public class ArmaServiceImpl implements ArmaService {
         arma.setLicenciaColectiva(empresaLicenciaColectivaDto.getId());
         arma.setStatus(armaDto.getStatus());
 
-        if(armaDto.getPersonal() != null) {
-            arma.setPersonal(armaDto.getPersonal().getId());
-        }
-
         Arma armaCreada = armaRepository.save(arma);
 
         return daoToDtoConverter.convertDaoToDtoArma(armaCreada);
@@ -241,11 +274,6 @@ public class ArmaServiceImpl implements ArmaService {
         arma.setSerie(armaDto.getSerie());
         arma.setMatricula(armaDto.getMatricula());
         arma.setStatus(armaDto.getStatus());
-
-        if(armaDto.getPersonal() != null) {
-            arma.setPersonal(armaDto.getPersonal().getId());
-        }
-
         daoHelper.fulfillAuditorFields(false, arma, usuario.getId());
 
         armaRepository.save(arma);

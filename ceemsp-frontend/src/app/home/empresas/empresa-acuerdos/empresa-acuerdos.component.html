@@ -90,6 +90,22 @@
                 <span *ngSwitchCase="'AMONESTACION'">Amonestacion</span>
               </td>
             </tr>
+            <tr *ngIf="acuerdo?.tipo === 'MULTA'">
+              <td><b>Multa en UMAs</b></td>
+              <td>{{acuerdo?.multaUmas}}</td>
+            </tr>
+            <tr *ngIf="acuerdo?.tipo === 'MULTA'">
+              <td><b>Multa en pesos</b></td>
+              <td>{{acuerdo?.multaPesos}}</td>
+            </tr>
+            <tr *ngIf="acuerdo?.tipo === 'AUTORIZACION_ESTATAL' || acuerdo?.tipo === 'AUTORIZACION_PROVISIONAL' || acuerdo?.tipo === 'REGISTRO_FEDERAL' || acuerdo?.tipo === 'REGISTRO_SERVICIOS_PROPIOS' || acuerdo?.tipo === 'REFRENDO'">
+              <td><b>Fecha de inicio</b></td>
+              <td>{{acuerdo?.fechaInicio}}</td>
+            </tr>
+            <tr *ngIf="acuerdo?.tipo === 'AUTORIZACION_ESTATAL' || acuerdo?.tipo === 'AUTORIZACION_PROVISIONAL' || acuerdo?.tipo === 'REGISTRO_FEDERAL' || acuerdo?.tipo === 'REGISTRO_SERVICIOS_PROPIOS' || acuerdo?.tipo === 'REFRENDO'">
+              <td><b>Fecha de fin</b></td>
+              <td>{{acuerdo?.fechaFin}}</td>
+            </tr>
             <tr>
               <td><b>Observaciones</b></td>
               <td>{{acuerdo.observaciones}}</td>
@@ -149,8 +165,29 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-sm-12">
-
+              <div class="col-sm-4" *ngIf="tipoAcuerdo === 'REFRENDO' || tipoAcuerdo === 'AUTORIZACION_ESTATAL' || tipoAcuerdo === 'AUTORIZACION_PROVISIONAL' || tipoAcuerdo === 'REGISTRO_FEDERAL' || tipoAcuerdo === 'REGISTRO_SERVICIOS_PROPIOS'">
+                <label for="fecha">
+                  <b>Fecha de inicio *</b>
+                </label>
+                <input class="form-control" id="fechaInicio" type="date" formControlName="fechaInicio" placeholder="Fecha de inicio">
+              </div>
+              <div class="col-sm-4" *ngIf="tipoAcuerdo === 'REFRENDO' || tipoAcuerdo === 'AUTORIZACION_ESTATAL' || tipoAcuerdo === 'AUTORIZACION_PROVISIONAL' || tipoAcuerdo === 'REGISTRO_FEDERAL' || tipoAcuerdo === 'REGISTRO_SERVICIOS_PROPIOS'">
+                <label for="fecha">
+                  <b>Fecha de fin *</b>
+                </label>
+                <input class="form-control" id="fechaFin" type="date" formControlName="fechaFin" placeholder="Fecha de fin">
+              </div>
+              <div class="col-sm-4" *ngIf="tipoAcuerdo === 'MULTA'">
+                <label for="multaUmas">
+                  <b>Multa en UMAs *</b>
+                </label>
+                <input class="form-control" id="multaUmas" type="number" formControlName="multaUmas" placeholder="Multa en UMAs" (focusout)="calcularUmasAPesos($event.target)">
+              </div>
+              <div class="col-sm-4" *ngIf="tipoAcuerdo === 'MULTA'">
+                <label for="multaPesos">
+                  <b>Multa en pesos (autocalculado) *</b>
+                </label>
+                <input class="form-control" id="multaPesos" type="number" formControlName="multaPesos" placeholder="Multa en pesos (autocalculada)">
               </div>
             </div>
             <div class="row">
@@ -161,7 +198,13 @@
                 <textarea id="observaciones" type="text" class="form-control" placeholder="Detallar si hay observaciones del acuerdo" formControlName="observaciones" #observaciones></textarea>
               </div>
             </div>
-            <hr *ngIf="tipoAcuerdo === 'REVOCACION' || tipoAcuerdo === 'PERDIDA_EFICACIA' || tipoAcuerdo === 'SUSPENSION' || tipoAcuerdo === 'CLAUSURA'">
+            <hr *ngIf="tipoAcuerdo === 'REVOCACION' || tipoAcuerdo === 'PERDIDA_EFICACIA' || tipoAcuerdo === 'SUSPENSION' || tipoAcuerdo === 'CLAUSURA' || tipoAcuerdo === 'MULTA'">
+            <div class="row" *ngIf="tipoAcuerdo === 'MULTA'">
+              <div class="col-sm-12">
+                <b>Valor de la UMA en MXN</b>
+                <p> 1 UMA = {{VALOR_UMA_PESOS}} MXN</p>
+              </div>
+            </div>
             <div class="row" *ngIf="tipoAcuerdo === 'REVOCACION' || tipoAcuerdo === 'PERDIDA_EFICACIA' || tipoAcuerdo === 'SUSPENSION' || tipoAcuerdo === 'CLAUSURA'">
               <div class="col-sm-12">
                 <b>Nota importante:</b>
@@ -222,6 +265,32 @@
                     <b>Archivo del acuerdo (en pdf) *</b>
                   </label>
                   <input id="documentoRegistroFederalEditar" class="form-control" type="file" accept="application/pdf" (change)="onFileChange($event)">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-4" *ngIf="tipoAcuerdo === 'AUTORIZACION_ESTATAL' || tipoAcuerdo === 'AUTORIZACION_PROVISIONAL' || tipoAcuerdo === 'REGISTRO_FEDERAL' || tipoAcuerdo === 'REGISTRO_SERVICIOS_PROPIOS' || tipoAcuerdo === 'REFRENDO'">
+                  <label for="fechaInicioEditar">
+                    <b>Fecha de inicio *</b>
+                  </label>
+                  <input class="form-control" id="fechaInicioEditar" type="date" formControlName="fechaInicio" placeholder="Fecha de inicio">
+                </div>
+                <div class="col-sm-4" *ngIf="tipoAcuerdo === 'AUTORIZACION_ESTATAL' || tipoAcuerdo === 'AUTORIZACION_PROVISIONAL' || tipoAcuerdo === 'REGISTRO_FEDERAL' || tipoAcuerdo === 'REGISTRO_SERVICIOS_PROPIOS' || tipoAcuerdo === 'REFRENDO'">
+                  <label for="fechaFinEditar">
+                    <b>Fecha de fin *</b>
+                  </label>
+                  <input class="form-control" id="fechaFinEditar" type="date" formControlName="fechaFin" placeholder="Fecha de fin">
+                </div>
+                <div class="col-sm-4" *ngIf="tipoAcuerdo === 'MULTA'">
+                  <label for="multaUmasEditar">
+                    <b>Multa en UMAs *</b>
+                  </label>
+                  <input class="form-control" id="multaUmasEditar" type="number" formControlName="multaUmas" placeholder="Multa en UMAs" (focusout)="calcularUmasAPesos($event.target)">
+                </div>
+                <div class="col-sm-4" *ngIf="tipoAcuerdo === 'MULTA'">
+                  <label for="multaPesosEditar">
+                    <b>Multa en pesos (autocalculado) *</b>
+                  </label>
+                  <input class="form-control" id="multaPesosEditar" type="number" formControlName="multaPesos" placeholder="Multa en pesos (autocalculada)">
                 </div>
               </div>
               <div class="row">

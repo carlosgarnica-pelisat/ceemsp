@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -196,5 +197,28 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
         empresaEscrituraConsejoRepository.save(empresaEscrituraConsejo);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraConsejo(empresaEscrituraConsejo);
+    }
+
+    @Override
+    public File obtenerDocumentoFundatorioBajaConsejo(String empresaUuid, String escrituraUuid, String consejoUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(consejoUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando el documento fundatorio con uuid [{}]", consejoUuid);
+        EmpresaEscrituraConsejo consejo = empresaEscrituraConsejoRepository.findByUuid(consejoUuid);
+
+        if(consejo == null) {
+            logger.warn("La fotografia esta eliminada o no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(!consejo.getEliminado()) {
+            logger.warn("El elemento no se encuentra eliminado");
+            throw new NotFoundResourceException();
+        }
+
+        return new File(consejo.getDocumentoFundatorioBaja());
     }
 }

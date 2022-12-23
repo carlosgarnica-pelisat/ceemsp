@@ -90,10 +90,17 @@ export class LoginComponent implements OnInit {
     let mes = form.controls['mes'].value;
     let ano = form.controls['ano'].value;
 
+    // creando las fechas
+    let fechaInicio = new Date(parseInt(ano), parseInt(mes) - 1, 1)
+    let fechaFin = new Date(parseInt(ano), parseInt(mes), 0);
+    console.log(fechaInicio);
+    console.log(fechaFin);
+
     this.publicService.buscarComunicados(titulo, mes, ano).subscribe((data: ComunicadoGeneral[]) => {
       this.comunicado = undefined;
       this.comunicadosGenerales = data;
       this.comunicadoUuid = undefined;
+      form.reset();
     }, (error) => {
       console.error(error);
     })

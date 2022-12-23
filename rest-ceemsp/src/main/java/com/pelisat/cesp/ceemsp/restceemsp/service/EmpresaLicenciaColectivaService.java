@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface EmpresaLicenciaColectivaService {
     List<EmpresaLicenciaColectivaDto> obtenerLicenciasColectivasPorEmpresa(String empresaUuid);
+    List<EmpresaLicenciaColectivaDto> obtenerLicenciasColectivasEliminadasPorEmpresa(String empresaUuid);
     EmpresaLicenciaColectivaDto obtenerLicenciaColectivaPorUuid(String empresaUuid, String licenciaUuid, boolean soloEntidad);
     EmpresaLicenciaColectivaDto guardarLicenciaColectiva(String empresaUuid, String username, EmpresaLicenciaColectivaDto licenciaColectivaDto, MultipartFile multipartFile);
     File descargarLicenciaPdf(String empresaUuid, String licenciaUuid);

@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface EmpresaLicenciaColectivaRepository extends JpaRepository<EmpresaLicenciaColectiva, Integer> {
     List<EmpresaLicenciaColectiva> findAllByEmpresaAndEliminadoFalse(Integer empresa);
-
+    List<EmpresaLicenciaColectiva> findAllByEmpresaAndEliminadoTrue(Integer empresa);
     EmpresaLicenciaColectiva findByUuidAndEliminadoFalse(String uuid);
 }

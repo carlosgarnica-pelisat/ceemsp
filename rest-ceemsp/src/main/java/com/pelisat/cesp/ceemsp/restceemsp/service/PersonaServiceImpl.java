@@ -1,23 +1,15 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
-import com.pelisat.cesp.ceemsp.database.dto.ModalidadDto;
-import com.pelisat.cesp.ceemsp.database.dto.PersonaDto;
-import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
-import com.pelisat.cesp.ceemsp.database.model.Personal;
-import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
-import com.pelisat.cesp.ceemsp.database.repository.PersonaRepository;
-import com.pelisat.cesp.ceemsp.database.type.CuipStatusEnum;
-import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
-import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
-import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
-import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.database.dto.*;
+import com.pelisat.cesp.ceemsp.database.model.*;
+import com.pelisat.cesp.ceemsp.database.repository.*;
+import com.pelisat.cesp.ceemsp.database.type.*;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.*;
 import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,6 +46,14 @@ public class PersonaServiceImpl implements PersonaService {
     private final LocalidadService localidadService;
     private final CalleService calleService;
     private final ArchivosService archivosService;
+
+    private final CanRepository canRepository;
+    private final VehiculoRepository vehiculoRepository;
+    private final ArmaRepository armaRepository;
+    private final PersonalArmaRepository personalArmaRepository;
+    private final PersonalCanRepository personalCanRepository;
+    private final PersonalVehiculoRepository personalVehiculoRepository;
+
     private final Logger logger = LoggerFactory.getLogger(PersonaService.class);
 
     @Autowired
@@ -63,7 +65,9 @@ public class PersonaServiceImpl implements PersonaService {
                               PersonalCertificacionService personalCertificacionService, PersonalSubpuestoDeTrabajoService personalSubpuestoDeTrabajoService,
                               PersonalFotografiaService personalFotografiaService, EstadoService estadoService, MunicipioService municipioService,
                               LocalidadService localidadService, ColoniaService coloniaService, CalleService calleService,
-                              ArchivosService archivosService) {
+                              ArchivosService archivosService, CanRepository canRepository, VehiculoRepository vehiculoRepository,
+                              ArmaRepository armaRepository, PersonalArmaRepository personalArmaRepository, PersonalCanRepository personalCanRepository,
+                              PersonalVehiculoRepository personalVehiculoRepository) {
         this.daoHelper = daoHelper;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
@@ -83,6 +87,12 @@ public class PersonaServiceImpl implements PersonaService {
         this.estadoService = estadoService;
         this.municipioService = municipioService;
         this.archivosService = archivosService;
+        this.armaRepository = armaRepository;
+        this.canRepository = canRepository;
+        this.vehiculoRepository = vehiculoRepository;
+        this.personalArmaRepository = personalArmaRepository;
+        this.personalCanRepository = personalCanRepository;
+        this.personalVehiculoRepository = personalVehiculoRepository;
     }
 
     @Override
@@ -150,6 +160,27 @@ public class PersonaServiceImpl implements PersonaService {
         personaDto.setLocalidadCatalogo(localidadService.obtenerLocalidadPorId(personal.getLocalidadCatalogo()));
         personaDto.setMunicipioCatalogo(municipioService.obtenerMunicipioPorId(personal.getMunicipioCatalogo()));
         personaDto.setEstadoCatalogo(estadoService.obtenerPorId(personal.getEstadoCatalogo()));
+
+        if(personal.getCan() != null) {
+            Can can = canRepository.getOne(personal.getCan());
+            personaDto.setCan(daoToDtoConverter.convertDaoToDtoCan(can));
+        }
+
+        if(personal.getArmaCorta() != null) {
+            Arma arma = armaRepository.getOne(personal.getArmaCorta());
+            personaDto.setArmaCorta(daoToDtoConverter.convertDaoToDtoArma(arma));
+        }
+
+        if(personal.getArmaLarga() != null) {
+            Arma arma = armaRepository.getOne(personal.getArmaLarga());
+            personaDto.setArmaLarga(daoToDtoConverter.convertDaoToDtoArma(arma));
+        }
+
+        if(personal.getVehiculo() != null) {
+            Vehiculo vehiculo = vehiculoRepository.getOne(personal.getVehiculo());
+            personaDto.setVehiculo(daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo));
+        }
+
         return personaDto;
     }
 
@@ -216,6 +247,7 @@ public class PersonaServiceImpl implements PersonaService {
         return response;
     }
 
+    @Transactional
     @Override
     public PersonaDto modificarInformacionPuesto(PersonaDto personaDto, String username, String empresaUuid, String personaUuid, MultipartFile multipartFile) {
         if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) | StringUtils.isBlank(personaUuid) || personaDto == null) {
@@ -239,29 +271,37 @@ public class PersonaServiceImpl implements PersonaService {
         personal.setDetallesPuesto(personaDto.getDetallesPuesto());
         personal.setDomicilioAsignado(personaDto.getDomicilioAsignado().getId());
         personal.setEstatusCuip(personaDto.getEstatusCuip());
-        personal.setCuip(personaDto.getCuip());
-        personal.setNumeroVolanteCuip(personaDto.getNumeroVolanteCuip());
+
+        if(personaDto.getEstatusCuip() == CuipStatusEnum.NA) {
+            personal.setFechaVolanteCuip(null);
+            personal.setNumeroVolanteCuip(null);
+            personal.setCuip(null);
+            personal.setRutaVolanteCuip(null);
+        } else if(personaDto.getEstatusCuip() == CuipStatusEnum.EN_TRAMITE) {
+            personal.setCuip(null);
+            personal.setFechaVolanteCuip(LocalDate.parse(personaDto.getFechaVolanteCuip()));
+            personal.setNumeroVolanteCuip(personaDto.getNumeroVolanteCuip());
+            if(multipartFile != null) {
+                logger.info("Se subio con un archivo. Agregando");
+                String rutaArchivoNuevo = "";
+                try {
+                    rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.VOLANTE_CUIP, empresaUuid);
+                    personal.setRutaVolanteCuip(rutaArchivoNuevo);
+                } catch(Exception ex) {
+                    logger.warn("No se ha podido guardar el archivo.", ex);
+                    throw new InvalidDataException();
+                }
+            }
+        } else if(personaDto.getEstatusCuip() == CuipStatusEnum.TRAMITADO) {
+            personal.setFechaVolanteCuip(null);
+            personal.setNumeroVolanteCuip(null);
+            personal.setRutaVolanteCuip(null);
+            personal.setCuip(personaDto.getCuip());
+        }
 
         if(personaDto.getModalidad() != null) {
             logger.info("La informacion del trabajo incluye modalidad");
             personal.setModalidad(personaDto.getModalidad().getId());
-        }
-
-        if(!StringUtils.isBlank(personaDto.getFechaVolanteCuip())) {
-            logger.info("El volante de CUIP esta puesto. Convirtiendo");
-            personal.setFechaVolanteCuip(LocalDate.parse(personaDto.getFechaVolanteCuip()));
-        }
-
-        if(multipartFile != null) {
-            logger.info("Se subio con un archivo. Agregando");
-            String rutaArchivoNuevo = "";
-            try {
-                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.VOLANTE_CUIP, empresaUuid);
-                personal.setRutaVolanteCuip(rutaArchivoNuevo);
-            } catch(Exception ex) {
-                logger.warn("No se ha podido guardar el archivo.", ex);
-                throw new InvalidDataException();
-            }
         }
 
         daoHelper.fulfillAuditorFields(false, personal, usuarioDto.getId());
@@ -385,5 +425,459 @@ public class PersonaServiceImpl implements PersonaService {
         }
 
         return new File(personal.getRutaVolanteCuip());
+    }
+
+    @Transactional
+    @Override
+    public void asignarCanAPersona(String empresaUuid, String personaUuid, PersonalCanDto personalCanDto, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid) || personalCanDto == null || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        if(personalCanDto.getCan() == null) {
+            logger.info("El can que se le va a asignar a la persona viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Asignando el can a la persona con uuid [{}]", personaUuid);
+
+        Personal persona = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+
+        if(persona == null) {
+            logger.warn("La persona no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        PersonalCan existePersonaCan = personalCanRepository.getByPersonalAndEliminadoFalse(persona.getId());
+
+        if (existePersonaCan != null || persona.getCan() != null) {
+            logger.warn("La persona ya tiene un can asignado");
+            throw new AlreadyAssignedResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        Can can = canRepository.getByUuidAndEliminadoFalse(personalCanDto.getCan().getUuid());
+
+        if(can.getStatus() != CanStatusEnum.INSTALACIONES) {
+            logger.warn("El can no se encuentra en un status adecuado");
+            throw new NotFoundResourceException();
+        }
+
+        persona.setCan(personalCanDto.getCan().getId());
+        daoHelper.fulfillAuditorFields(false, persona, usuarioDto.getId());
+        personaRepository.save(persona);
+
+        can.setStatus(CanStatusEnum.ACTIVO);
+        daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+        canRepository.save(can);
+
+        PersonalCan personalCan = new PersonalCan();
+        personalCan.setPersonal(persona.getId());
+        personalCan.setCan(personalCanDto.getCan().getId());
+        personalCan.setObservaciones(personalCanDto.getObservaciones());
+        personalCan.setUuid(RandomStringUtils.randomAlphanumeric(12));
+        daoHelper.fulfillAuditorFields(true, personalCan, usuarioDto.getId());
+
+        personalCanRepository.save(personalCan);
+    }
+
+    @Transactional
+    @Override
+    public void desasignarCanAPersona(String empresaUuid, String personaUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Quitando la asignacion del can a la persona con uuid [{personaUuid}]");
+
+        Personal persona = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+
+        if(persona == null) {
+            logger.warn("La persona no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        PersonalCan personalCan = personalCanRepository.getByPersonalAndEliminadoFalse(persona.getId());
+
+        if (personalCan == null || persona.getCan() == null) {
+            logger.warn("La persona no tiene can asignado actualmente");
+            throw new AlreadyAssignedResourceException();
+        }
+
+        Can can = canRepository.getOne(personalCan.getCan());
+
+        if(can.getStatus() != CanStatusEnum.ACTIVO || can.getEliminado()) {
+            logger.warn("El can no se encuentra en un status adecuado");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        persona.setCan(null);
+        daoHelper.fulfillAuditorFields(false, persona, usuarioDto.getId());
+        personaRepository.save(persona);
+
+        can.setStatus(CanStatusEnum.INSTALACIONES);
+        daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+        canRepository.save(can);
+
+        personalCan.setEliminado(true);
+        daoHelper.fulfillAuditorFields(true, personalCan, usuarioDto.getId());
+
+        personalCanRepository.save(personalCan);
+    }
+
+    @Transactional
+    @Override
+    public void asignarVehiculoAPersona(String empresaUuid, String personaUuid, PersonalVehiculoDto personalVehiculoDto, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid) || personalVehiculoDto == null || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        if(personalVehiculoDto.getVehiculo() == null) {
+            logger.info("El vehiculo que se le va a asignar a la persona viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Asignando el vehiculo a la persona con uuid [{}]", personaUuid);
+
+        Personal persona = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+
+        if(persona == null) {
+            logger.warn("La persona no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        PersonalVehiculo existePersonaVehiculo = personalVehiculoRepository.getByPersonalAndEliminadoFalse(persona.getId());
+
+        if (existePersonaVehiculo != null || persona.getVehiculo() != null) {
+            logger.warn("La persona ya tiene un vehiculo asignado");
+            throw new AlreadyAssignedResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        /*Can can = canRepository.getByUuidAndEliminadoFalse(personalCanDto.getCan().getUuid());
+
+        if(can.getStatus() != CanStatusEnum.INSTALACIONES) {
+            logger.warn("El can no se encuentra en un status adecuado");
+            throw new NotFoundResourceException();
+        }*/
+
+        persona.setVehiculo(personalVehiculoDto.getVehiculo().getId());
+        daoHelper.fulfillAuditorFields(false, persona, usuarioDto.getId());
+        personaRepository.save(persona);
+
+        /*can.setStatus(CanStatusEnum.ACTIVO);
+        daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+        canRepository.save(can);*/
+
+        PersonalVehiculo personalVehiculo = new PersonalVehiculo();
+        personalVehiculo.setPersonal(persona.getId());
+        personalVehiculo.setVehiculo(personalVehiculoDto.getVehiculo().getId());
+        personalVehiculo.setObservaciones(personalVehiculoDto.getObservaciones());
+        personalVehiculo.setUuid(RandomStringUtils.randomAlphanumeric(12));
+        daoHelper.fulfillAuditorFields(true, personalVehiculo, usuarioDto.getId());
+
+        personalVehiculoRepository.save(personalVehiculo);
+    }
+
+    @Transactional
+    @Override
+    public void desasignarVehiculoAPersona(String empresaUuid, String personaUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Quitando la asignacion del can a la persona con uuid [{personaUuid}]");
+
+        Personal persona = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+
+        if(persona == null) {
+            logger.warn("La persona no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        PersonalVehiculo personalVehiculo = personalVehiculoRepository.getByPersonalAndEliminadoFalse(persona.getId());
+
+        if (personalVehiculo == null || persona.getVehiculo() == null) {
+            logger.warn("La persona no tiene vehiculo asignado actualmente");
+            throw new AlreadyAssignedResourceException();
+        }
+
+        /*Can can = canRepository.getOne(personalCan.getCan());
+
+        if(can.getStatus() != CanStatusEnum.ACTIVO || can.getEliminado()) {
+            logger.warn("El can no se encuentra en un status adecuado");
+            throw new NotFoundResourceException();
+        }*/
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        persona.setVehiculo(null);
+        daoHelper.fulfillAuditorFields(false, persona, usuarioDto.getId());
+        personaRepository.save(persona);
+
+        /*can.setStatus(CanStatusEnum.INSTALACIONES);
+        daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+        canRepository.save(can);*/
+
+        personalVehiculo.setEliminado(true);
+        daoHelper.fulfillAuditorFields(true, personalVehiculo, usuarioDto.getId());
+
+        personalVehiculoRepository.save(personalVehiculo);
+    }
+
+    @Transactional
+    @Override
+    public void asignarArmaCortaAPersona(String empresaUuid, String personaUuid, PersonalArmaDto personalArmaDto, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid) || personalArmaDto == null || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        if(personalArmaDto.getArma() == null) {
+            logger.info("El arma corta que se le va a asignar a la persona viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Asignando el arma corta a la persona con uuid [{}]", personaUuid);
+
+        Personal persona = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+
+        if(persona == null) {
+            logger.warn("La persona no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(persona.getEstatusCuip() != CuipStatusEnum.TRAMITADO) {
+            logger.warn("La persona no tiene su CUIP tramitada. No se puede asignar el arma corta");
+            throw new MissingCuipException();
+        }
+
+        PersonalArma existePersonaArma = personalArmaRepository.getByPersonalAndArmaAndEliminadoFalse(persona.getId(), personalArmaDto.getArma().getId());
+
+        if (existePersonaArma != null || persona.getArmaCorta() != null) {
+            logger.warn("La persona ya tiene un can asignado");
+            throw new AlreadyAssignedResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        Arma arma = armaRepository.getByUuidAndEliminadoFalse(personalArmaDto.getArma().getUuid());
+
+        if(arma.getStatus() != ArmaStatusEnum.DEPOSITO) {
+            logger.warn("El can no se encuentra en un status adecuado");
+            throw new NotFoundResourceException();
+        }
+
+        if(arma.getTipo() != ArmaTipoEnum.CORTA) {
+            logger.warn("El arma a asignar no es corta. Se intenta asignar un arma corta");
+            throw new NotFoundResourceException();
+        }
+
+        persona.setArmaCorta(personalArmaDto.getArma().getId());
+        daoHelper.fulfillAuditorFields(false, persona, usuarioDto.getId());
+        personaRepository.save(persona);
+
+        arma.setStatus(ArmaStatusEnum.ACTIVA);
+        daoHelper.fulfillAuditorFields(false, arma, usuarioDto.getId());
+        armaRepository.save(arma);
+
+        PersonalArma personalArma = new PersonalArma();
+        personalArma.setPersonal(persona.getId());
+        personalArma.setArma(personalArmaDto.getArma().getId());
+        personalArma.setObservaciones(personalArmaDto.getObservaciones());
+        personalArma.setUuid(RandomStringUtils.randomAlphanumeric(12));
+        daoHelper.fulfillAuditorFields(true, personalArma, usuarioDto.getId());
+
+        personalArmaRepository.save(personalArma);
+    }
+
+    @Transactional
+    @Override
+    public void desasignarArmaCortaAPersona(String empresaUuid, String personaUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Quitando la asignacion del arma corta a la persona con uuid [{personaUuid}]");
+
+        Personal persona = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+
+        if(persona == null) {
+            logger.warn("La persona no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<PersonalArma> personalArmas = personalArmaRepository.getAllByPersonalAndEliminadoFalse(persona.getId());
+
+        AtomicReference<PersonalArma> armaEncontrada = new AtomicReference<>();
+
+        personalArmas.forEach(pa -> {
+            Arma arma = armaRepository.getOne(pa.getArma());
+            if(arma.getTipo() == ArmaTipoEnum.CORTA) {
+                armaEncontrada.set(pa);
+            }
+        });
+
+        PersonalArma personalArma = armaEncontrada.get();
+
+        if (personalArma == null || persona.getArmaCorta() == null) {
+            logger.warn("La persona no tiene can asignado actualmente");
+            throw new AlreadyAssignedResourceException();
+        }
+
+        Arma armaCorta = armaRepository.getOne(personalArma.getArma());
+
+        if(armaCorta.getStatus() != ArmaStatusEnum.ACTIVA || armaCorta.getEliminado()) {
+            logger.warn("El can no se encuentra en un status adecuado");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        persona.setArmaCorta(null);
+        daoHelper.fulfillAuditorFields(false, persona, usuarioDto.getId());
+        personaRepository.save(persona);
+
+        armaCorta.setStatus(ArmaStatusEnum.DEPOSITO);
+        daoHelper.fulfillAuditorFields(false, armaCorta, usuarioDto.getId());
+        armaRepository.save(armaCorta);
+
+        personalArma.setEliminado(true);
+        daoHelper.fulfillAuditorFields(true, personalArma, usuarioDto.getId());
+
+        personalArmaRepository.save(personalArma);
+    }
+
+    @Transactional
+    @Override
+    public void asignarArmaLargaAPersona(String empresaUuid, String personaUuid, PersonalArmaDto personalArmaDto, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid) || personalArmaDto == null || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        if(personalArmaDto.getArma() == null) {
+            logger.info("El arma larga que se le va a asignar a la persona viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Asignando el arma larga a la persona con uuid [{}]", personaUuid);
+
+        Personal persona = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+
+        if(persona == null) {
+            logger.warn("La persona no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(persona.getEstatusCuip() != CuipStatusEnum.TRAMITADO) {
+            logger.warn("La persona no tiene su CUIP tramitada. No se puede asignar el arma corta");
+            throw new MissingCuipException();
+        }
+
+        PersonalArma existePersonaArma = personalArmaRepository.getByPersonalAndArmaAndEliminadoFalse(persona.getId(), personalArmaDto.getArma().getId());
+
+        if (existePersonaArma != null || persona.getArmaLarga() != null) {
+            logger.warn("La persona ya tiene un arma larga asignada");
+            throw new AlreadyAssignedResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        Arma arma = armaRepository.getByUuidAndEliminadoFalse(personalArmaDto.getArma().getUuid());
+
+        if(arma.getStatus() != ArmaStatusEnum.DEPOSITO) {
+            logger.warn("El can no se encuentra en un status adecuado");
+            throw new NotFoundResourceException();
+        }
+
+        if(arma.getTipo() != ArmaTipoEnum.LARGA) {
+            logger.warn("El arma a asignar no es larga. Se intenta asignar un arma larga");
+            throw new NotFoundResourceException();
+        }
+
+        persona.setArmaLarga(personalArmaDto.getArma().getId());
+        daoHelper.fulfillAuditorFields(false, persona, usuarioDto.getId());
+        personaRepository.save(persona);
+
+        arma.setStatus(ArmaStatusEnum.ACTIVA);
+        daoHelper.fulfillAuditorFields(false, arma, usuarioDto.getId());
+        armaRepository.save(arma);
+
+        PersonalArma personalArma = new PersonalArma();
+        personalArma.setPersonal(persona.getId());
+        personalArma.setArma(personalArmaDto.getArma().getId());
+        personalArma.setObservaciones(personalArmaDto.getObservaciones());
+        personalArma.setUuid(RandomStringUtils.randomAlphanumeric(12));
+        daoHelper.fulfillAuditorFields(true, personalArma, usuarioDto.getId());
+
+        personalArmaRepository.save(personalArma);
+    }
+
+    @Transactional
+    @Override
+    public void desasignarArmaLargaAPersona(String empresaUuid, String personaUuid, String username) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Quitando la asignacion del arma larga a la persona con uuid [{personaUuid}]");
+
+        Personal persona = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+
+        if(persona == null) {
+            logger.warn("La persona no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<PersonalArma> personalArmas = personalArmaRepository.getAllByPersonalAndEliminadoFalse(persona.getId());
+
+        AtomicReference<PersonalArma> armaEncontrada = new AtomicReference<>();
+
+        personalArmas.forEach(pa -> {
+            Arma arma = armaRepository.getOne(pa.getArma());
+            if(arma.getTipo() == ArmaTipoEnum.LARGA) {
+                armaEncontrada.set(pa);
+            }
+        });
+
+        PersonalArma personalArma = armaEncontrada.get();
+
+        if (personalArma == null || persona.getArmaLarga() == null) {
+            logger.warn("La persona no tiene can asignado actualmente");
+            throw new AlreadyAssignedResourceException();
+        }
+
+        Arma armaLarga = armaRepository.getOne(personalArma.getArma());
+
+        if(armaLarga.getStatus() != ArmaStatusEnum.ACTIVA || armaLarga.getEliminado()) {
+            logger.warn("El can no se encuentra en un status adecuado");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        persona.setArmaLarga(null);
+        daoHelper.fulfillAuditorFields(false, persona, usuarioDto.getId());
+        personaRepository.save(persona);
+
+        armaLarga.setStatus(ArmaStatusEnum.DEPOSITO);
+        daoHelper.fulfillAuditorFields(false, armaLarga, usuarioDto.getId());
+        armaRepository.save(armaLarga);
+
+        personalArma.setEliminado(true);
+        daoHelper.fulfillAuditorFields(true, personalArma, usuarioDto.getId());
+
+        personalArmaRepository.save(personalArma);
     }
 }

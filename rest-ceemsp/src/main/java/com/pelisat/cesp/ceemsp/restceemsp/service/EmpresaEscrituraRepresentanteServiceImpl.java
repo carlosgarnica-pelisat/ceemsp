@@ -3,10 +3,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraRepresentanteDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscrituraRepresentante;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscrituraSocio;
+import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepresentanteRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraSocioRepository;
@@ -25,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -197,6 +195,29 @@ public class EmpresaEscrituraRepresentanteServiceImpl implements EmpresaEscritur
         empresaEscrituraRepresentanteRepository.save(empresaEscrituraRepresentante);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraRepresentante(empresaEscrituraRepresentante);
+    }
+
+    @Override
+    public File obtenerDocumentoFundatorioBajaRepresentante(String empresaUuid, String escrituraUuid, String representanteUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(representanteUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando el documento fundatorio con uuid [{}]", representanteUuid);
+        EmpresaEscrituraRepresentante representante = empresaEscrituraRepresentanteRepository.findByUuid(representanteUuid);
+
+        if(representante == null) {
+            logger.warn("La fotografia esta eliminada o no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(!representante.getEliminado()) {
+            logger.warn("El elemento no se encuentra eliminado");
+            throw new NotFoundResourceException();
+        }
+
+        return new File(representante.getDocumentoFundatorioBaja());
     }
 
 

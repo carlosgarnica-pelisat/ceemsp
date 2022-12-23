@@ -92,25 +92,29 @@
               <div class="row" *ngIf="persona?.estatusCuip === 'TRAMITADO'">
                 <div class="col-sm-12">
                   <b>Arma corta asignada</b><br>
-                  <a class="fakelink">Asignar arma corta</a>
+                  <a *ngIf="persona?.armaCorta === null" class="fakelink" (click)="mostrarModalAsignarArmaCorta()">Asignar arma corta</a>
+                  <a *ngIf="persona?.armaCorta !== null" class="fakelink" (click)="mostrarModalDesasignarArmaCorta()">{{persona?.armaCorta?.matricula}}</a>
                 </div>
               </div>
               <div class="row" *ngIf="persona?.estatusCuip === 'TRAMITADO'">
                 <div class="col-sm-12">
                   <b>Arma larga asignada</b><br>
-                  <a class="fakelink">Asignar arma larga</a>
+                  <a *ngIf="persona?.armaLarga === null" class="fakelink" (click)="mostrarModalAsignarArmaLarga()">Asignar arma larga</a>
+                  <a *ngIf="persona?.armaLarga !== null" class="fakelink" (click)="mostrarModalDesasignarArmaLarga()">{{persona?.armaLarga?.matricula}}</a>
                 </div>
               </div>
               <div class="row">
                 <div class="col-sm-12">
                   <b>Can asignado</b><br>
-                  <a class="fakelink">Asignar can</a>
+                  <a *ngIf="persona?.can === null" class="fakelink" (click)="mostrarModalAsignarCan()">Asignar can</a>
+                  <a *ngIf="persona?.can !== null" class="fakelink" (click)="mostrarModalDesasignarCan()">{{persona?.can?.nombre}}</a>
                 </div>
               </div>
               <div class="row">
                 <div class="col-sm-12">
                   <b>Vehiculo asignado</b><br>
-                  <a class="fakelink">Asignar vehiculo</a>
+                  <a *ngIf="persona?.vehiculo === null" class="fakelink" (click)="mostrarModalAsignarVehiculo()">Asignar vehiculo</a>
+                  <a *ngIf="persona?.vehiculo !== null" class="fakelink" (click)="mostrarModalDesasignarVehiculo()">{{persona?.vehiculo?.placas}}</a>
                 </div>
               </div>
             </div>
@@ -1010,7 +1014,7 @@
                         <option value="TRAMITADO">Tramitado</option>
                       </select>
                     </div>
-                    <div class="col-sm-6" *ngIf="subpuestoTrabajo?.portacion">
+                    <div class="col-sm-3" *ngIf="subpuestoTrabajo?.portacion">
                       <label>
                         <b>Modalidad * </b>
                       </label>
@@ -1044,6 +1048,12 @@
                         <b>Numero de CUIP *</b>
                       </label>
                       <input id="crearCuipNumeroCrearPersonal" type="text" class="form-control" formControlName="cuip" (focusout)="verificarCuip($event.target)">
+                    </div>
+                    <div class="col-sm-3" *ngIf="cuipStatus === 'EN_TRAMITE'">
+                      <label for="archivoVolanteCuip">
+                        <b>Archivo de volante *</b>
+                      </label>
+                      <input id="archivoVolanteCuip" accept="application/pdf" type="file" class="form-control" (change)="onFileChange($event)">
                     </div>
                   </div>
                 </form>
@@ -1135,10 +1145,14 @@
                 </div>
                 <hr>
                 <div class="row">
-                  <div class="col-sm-12">
+                  <div class="col-sm-6">
                     <button (click)="previous()" class="btn btn-primary">Anterior: Puesto de trabajo
                     </button>
                     <button (click)="next('FOTOGRAFIAS', crearPersonalCertificadoForm)" class="btn btn-primary">Siguiente: Fotografias
+                    </button>
+                  </div>
+                  <div class="col-sm-6" *ngIf="this.persona?.puestoDeTrabajo?.nombre !== 'Tecnico'">
+                    <button (click)="omitirPaso('FOTOGRAFIAS')" class="btn btn-secondary float-right">Omitir e ir al siguiente paso
                     </button>
                   </div>
                 </div>
@@ -1849,6 +1863,217 @@
                       style="width: 100%; height: 600px"></pdf-viewer>
         </div>
       </div>
+    </div>
+  </ng-template>
+
+  <ng-template #asignarCanPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="asignarCanPersonaModal">Asignar can </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="asignarCanPersonalForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="can">
+              <b>Can *</b>
+              <span
+                *ngIf="asignarCanPersonalForm.controls['can'].invalid && (asignarCanPersonalForm.controls['can'].dirty || asignarCanPersonalForm.controls['can'].touched)">
+                      <i *ngIf="asignarCanPersonalForm.controls['can'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+            </label>
+            <select id="can" class="form-control" formControlName="can">
+              <option *ngFor="let c of canes" value="{{c?.uuid}}">{{c?.nombre}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-sm-12">
+          <label for="observacionesCan">
+            <b>Observaciones</b>
+          </label>
+          <textarea id="observacionesCan" type="text" class="form-control" placeholder="Describir las razones por las que el elemento tiene al can" formControlName="observaciones"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="asignarCanPersona(asignarCanPersonalForm)">Asignar can</button>
+    </div>
+  </ng-template>
+
+  <ng-template #asignarVehiculoPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="asignarVehiculoPersonaModal">Asignar vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="asignarVehiculoPersonalForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="vehiculo">
+              <b>Vehiculo *</b>
+              <span
+                *ngIf="asignarVehiculoPersonalForm.controls['vehiculo'].invalid && (asignarVehiculoPersonalForm.controls['vehiculo'].dirty || asignarVehiculoPersonalForm.controls['vehiculo'].touched)">
+                      <i *ngIf="asignarVehiculoPersonalForm.controls['vehiculo'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+            </label>
+            <select id="vehiculo" class="form-control" formControlName="vehiculo">
+              <option *ngFor="let v of vehiculos" value="{{v?.uuid}}">{{v?.placas}} - {{v?.marca?.nombre}} {{(v?.submarca === null) ? '' : v?.submarca?.nombre}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesVehiculo">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesVehiculo" type="text" class="form-control" placeholder="Describir las razones por las que el elemento tiene este vehiculo" formControlName="observaciones"></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="asignarVehiculoPersona(asignarVehiculoPersonalForm)">Asignar vehiculo</button>
+    </div>
+  </ng-template>
+
+  <ng-template #asignarArmaCortaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="asignarArmaCortaModal">Asignar arma corta </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="asignarArmaCortaForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="armaCorta">
+              <b>Arma *</b>
+              <span
+                *ngIf="asignarArmaCortaForm.controls['arma'].invalid && (asignarArmaCortaForm.controls['arma'].dirty || asignarArmaCortaForm.controls['arma'].touched)">
+                      <i *ngIf="asignarArmaCortaForm.controls['arma'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+            </label>
+            <select id="armaCorta" class="form-control" formControlName="arma">
+              <option *ngFor="let a of armasCortas" value="{{a?.uuid}}">{{a?.matricula}} - {{a?.marca?.nombre}} {{a?.calibre}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesArmaCorta">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesArmaCorta" type="text" class="form-control" placeholder="Describir las razones por las que el elemento tiene esta arma" formControlName="observaciones"></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="asignarArmaCortaPersona(asignarArmaCortaForm)">Asignar arma corta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #asignarArmaLargaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="asignarArmaCortaModal">Asignar arma larga </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="asignarArmaLargaForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="armaCorta">
+              <b>Arma *</b>
+              <span
+                *ngIf="asignarArmaLargaForm.controls['arma'].invalid && (asignarArmaLargaForm.controls['arma'].dirty || asignarArmaLargaForm.controls['arma'].touched)">
+                      <i *ngIf="asignarArmaLargaForm.controls['arma'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+            </label>
+            <select id="armaCorta" class="form-control" formControlName="arma">
+              <option *ngFor="let a of armasLargas" value="{{a?.uuid}}">{{a?.matricula}} - {{a?.marca?.nombre}} {{a?.calibre}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesArmaLarga">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesArmaLarga" type="text" class="form-control" placeholder="Describir las razones por las que el elemento tiene esta arma" formControlName="observaciones"></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="asignarArmaLargaPersona(asignarArmaLargaForm)">Asignar arma larga</button>
+    </div>
+  </ng-template>
+
+  <!-- DESASIGNACIONES -->
+  <ng-template #desasignarCanPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="desasignarCanPersonaModal">Quitar asignacion de can </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Estas a punto de quitar esta asignacion. Esta operacion no podra deshacerse. Deseas continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="desasignarCanPersona()">Si, quitar asignacion</button>
+    </div>
+  </ng-template>
+
+  <ng-template #desasignarVehiculoPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="desasignarVehiculoPersonaModal">Quitar asignacion de vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Estas a punto de quitar esta asignacion. Esta operacion no podra deshacerse. Deseas continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="desasignarVehiculoPersona()">Si, quitar asignacion</button>
+    </div>
+  </ng-template>
+
+  <ng-template #desasignarArmaCortaPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="desasignarArmaCortaPersonaModal">Quitar asignacion de arma corta </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Estas a punto de quitar esta asignacion. Esta operacion no podra deshacerse. Deseas continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="desasignarArmaCorta()">Si, quitar asignacion</button>
+    </div>
+  </ng-template>
+
+  <ng-template #desasignarArmaLargaPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="desasignarArmaLargaPersonaModal">Quitar asignacion de arma larga </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Estas a punto de quitar esta asignacion. Esta operacion no podra deshacerse. Deseas continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="desasignarArmaLarga()">Si, quitar asignacion</button>
     </div>
   </ng-template>
 </div>

@@ -61,14 +61,14 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="mostrarModificarEquipoModal()">Modificar</button>
+      <button class="btn btn-primary" (click)="mostrarModificarComunicadoModal()">Modificar</button>
       <button type="button" class="btn btn-danger" (click)="mostrarEliminarEquipoModal()">Eliminar</button>
     </div>
   </ng-template>
 
   <ng-template #editarComunicadoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="editarEquipoModal">Modificar equipo </h4>
+      <h4 class="modal-title" id="editarEquipoModal">Modificar comunicado </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -103,7 +103,7 @@
               <label>
                 <b>Cuerpo del comunicado</b>
               </label>
-              <ckeditor [(ngModel)]="model.editorData"></ckeditor>
+              <ckeditor editorUrl="http://www.pelisat.com.mx/cdn/ckeditor/ckeditor.js" [(ngModel)]="model.editorData"></ckeditor>
             </div>
           </div>
         </div>

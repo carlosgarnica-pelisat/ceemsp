@@ -95,95 +95,106 @@
 
           <div class="row">
             <div class="col-sm-12" *ngIf="pestanaActual === 'DETALLES'">
-              <table class="table">
-                <tr>
-                  <td><b>Nombre:</b></td>
-                  <td>{{can?.nombre}}</td>
-                </tr>
-                <tr>
-                  <td><b>Raza:</b></td>
-                  <td>{{can?.raza?.nombre}}</td>
-                </tr>
-                <tr>
-                  <td><b>Edad:</b></td>
-                  <td>{{can?.edad}} años</td>
-                </tr>
-                <tr>
-                  <td><b>Peso:</b></td>
-                  <td>{{can?.peso}} kg</td>
-                </tr>
-                <tr>
-                  <td><b>Tatuaje:</b></td>
-                  <td [ngSwitch]="can?.tatuaje">
-                    <span *ngSwitchCase="true">Si</span>
-                    <span *ngSwitchCase="false">No</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td><b>Chip:</b></td>
-                  <td [ngSwitch]="can?.chip">
-                    <span *ngSwitchCase="true">Si</span>
-                    <span *ngSwitchCase="false">No</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td><b>Descripción:</b></td>
-                  <td>{{can?.descripcion}}</td>
-                </tr>
-                <tr>
-                  <td><b>Origen:</b></td>
-                  <td>{{can?.origen}}</td>
-                </tr>
-                <tr>
-                  <td><b>Fecha de ingreso:</b></td>
-                  <td>{{can?.fechaIngreso}}</td>
-                </tr>
-                <tr *ngIf="can?.origen !== 'PROPIO'">
-                  <td><b>Razon social:</b></td>
-                  <td>{{can?.razonSocial}}</td>
-                </tr>
-                <tr *ngIf="can?.origen !== 'PROPIO'">
-                  <td><b>Fecha inicio:</b></td>
-                  <td>{{can?.fechaInicio}}</td>
-                </tr>
-                <tr *ngIf="can?.origen !== 'PROPIO'">
-                  <td><b>Fecha fin:</b></td>
-                  <td>{{can?.fechaFin}}</td>
-                </tr>
-                <tr>
-                  <td><b>Fecha de creacion:</b></td>
-                  <td>{{can?.fechaCreacion}}</td>
-                </tr>
-                <tr>
-                  <td><b>Domicilio asignado:</b></td>
-                  <td>
-                    {{can?.domicilioAsignado?.domicilio1}} {{can?.domicilioAsignado?.numeroExterior}} {{can?.domicilioAsignado?.numeroInterior}}. Colonia: {{can?.domicilioAsignado?.domicilio2}}<br>
-                    {{can?.domicilioAsignado?.domicilio3}}, {{can?.domicilioAsignado?.estado}}, {{can?.domicilioAsignado?.pais}}<br>
-                    C.P. {{can?.domicilioAsignado?.codigoPostal}}
-                  </td>
-                </tr>
-                <tr>
-                  <td><b>Estatus:</b></td>
-                  <td>{{can?.status}}</td>
-                </tr>
-                <tr *ngIf="can?.status === 'BAJA'">
-                  <td><b>Fecha baja:</b></td>
-                  <td>{{can?.fechaBaja}}</td>
-                </tr>
-                <tr *ngIf="can?.status === 'BAJA'">
-                  <td><b>Motivo baja:</b></td>
-                  <td>{{can?.motivoBaja}}</td>
-                </tr>
-                <tr *ngIf="can?.status === 'BAJA'">
-                  <td><b>Observaciones de la baja:</b></td>
-                  <td>{{can?.observacionesBaja}}</td>
-                </tr>
-                <tr *ngIf="can?.status === 'ACTIVO'">
-                  <td><b>Elemento asignado:</b></td>
-                  <td>{{can?.elementoAsignado?.nombres + " " + can?.elementoAsignado?.apellidoPaterno + " " + can?.elementoAsignado?.apellidoMaterno}}</td>
-                </tr>
+              <div class="row">
+                <div class="col-sm-3">
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <img [src]="imagenPrincipal" style="width: 100%;">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-9">
+                  <table class="table">
+                    <tr>
+                      <td><b>Nombre:</b></td>
+                      <td>{{can?.nombre}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Raza:</b></td>
+                      <td>{{can?.raza?.nombre}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Edad:</b></td>
+                      <td>{{can?.edad}} años</td>
+                    </tr>
+                    <tr>
+                      <td><b>Peso:</b></td>
+                      <td>{{can?.peso}} kg</td>
+                    </tr>
+                    <tr>
+                      <td><b>Tatuaje:</b></td>
+                      <td [ngSwitch]="can?.tatuaje">
+                        <span *ngSwitchCase="true">Si</span>
+                        <span *ngSwitchCase="false">No</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><b>Chip:</b></td>
+                      <td [ngSwitch]="can?.chip">
+                        <span *ngSwitchCase="true">Si</span>
+                        <span *ngSwitchCase="false">No</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><b>Descripción:</b></td>
+                      <td>{{can?.descripcion}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Origen:</b></td>
+                      <td>{{can?.origen}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Fecha de ingreso:</b></td>
+                      <td>{{can?.fechaIngreso}}</td>
+                    </tr>
+                    <tr *ngIf="can?.origen !== 'PROPIO'">
+                      <td><b>Razon social:</b></td>
+                      <td>{{can?.razonSocial}}</td>
+                    </tr>
+                    <tr *ngIf="can?.origen !== 'PROPIO'">
+                      <td><b>Fecha inicio:</b></td>
+                      <td>{{can?.fechaInicio}}</td>
+                    </tr>
+                    <tr *ngIf="can?.origen !== 'PROPIO'">
+                      <td><b>Fecha fin:</b></td>
+                      <td>{{can?.fechaFin}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Fecha de creacion:</b></td>
+                      <td>{{can?.fechaCreacion}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Domicilio asignado:</b></td>
+                      <td>
+                        {{can?.domicilioAsignado?.domicilio1}} {{can?.domicilioAsignado?.numeroExterior}} {{can?.domicilioAsignado?.numeroInterior}}. Colonia: {{can?.domicilioAsignado?.domicilio2}}<br>
+                        {{can?.domicilioAsignado?.domicilio3}}, {{can?.domicilioAsignado?.estado}}, {{can?.domicilioAsignado?.pais}}<br>
+                        C.P. {{can?.domicilioAsignado?.codigoPostal}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><b>Estatus:</b></td>
+                      <td>{{can?.status}}</td>
+                    </tr>
+                    <tr *ngIf="can?.status === 'BAJA'">
+                      <td><b>Fecha baja:</b></td>
+                      <td>{{can?.fechaBaja}}</td>
+                    </tr>
+                    <tr *ngIf="can?.status === 'BAJA'">
+                      <td><b>Motivo baja:</b></td>
+                      <td>{{can?.motivoBaja}}</td>
+                    </tr>
+                    <tr *ngIf="can?.status === 'BAJA'">
+                      <td><b>Observaciones de la baja:</b></td>
+                      <td>{{can?.observacionesBaja}}</td>
+                    </tr>
+                    <tr *ngIf="can?.status === 'ACTIVO'">
+                      <td><b>Elemento asignado:</b></td>
+                      <td>{{can?.elementoAsignado?.nombres + " " + can?.elementoAsignado?.apellidoPaterno + " " + can?.elementoAsignado?.apellidoMaterno}}</td>
+                    </tr>
 
-              </table>
+                  </table>
+                </div>
+              </div>
             </div>
 
             <div class="col-sm-12" *ngIf="pestanaActual === 'VACUNACION'">
@@ -662,21 +673,8 @@
                           <i *ngIf="crearEmpresaCanForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
                         </span>
                 </label>
-                <select id="statusModificar" class="form-control" formControlName="status" (change)="seleccionarStatus($event.target)">
-                  <option value="ACTIVO">Activo</option>
+                <select id="statusModificar" class="form-control" formControlName="status">
                   <option value="INSTALACIONES">Instalaciones</option>
-                </select>
-              </div>
-              <div class="col-sm-3" *ngIf="status === 'ACTIVO'">
-                <label for="elementoAsignadoModificar">
-                  <b>Elemento asignado *</b>
-                  <span
-                    *ngIf="crearEmpresaCanForm.controls['elementoAsignado'].invalid && (crearEmpresaCanForm.controls['elementoAsignado'].dirty || crearEmpresaCanForm.controls['elementoAsignado'].touched)">
-                          <i *ngIf="crearEmpresaCanForm.controls['elementoAsignado'].errors.required" class="text-danger"> - Campo requerido</i>
-                        </span>
-                </label>
-                <select id="elementoAsignadoModificar" class="form-control" formControlName="elementoAsignado">
-                  <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres}} {{p.apellidoPaterno}} {{p.apellidoMaterno}}</option>
                 </select>
               </div>
             </div>
@@ -939,21 +937,8 @@
                           <i *ngIf="crearEmpresaCanForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
                         </span>
                       </label>
-                      <select id="status" class="form-control" formControlName="status" (change)="seleccionarStatus($event.target)">
-                        <option value="ACTIVO">Activo</option>
+                      <select id="status" class="form-control" formControlName="status">
                         <option value="INSTALACIONES">Instalaciones</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3" *ngIf="status === 'ACTIVO'">
-                      <label for="elementoAsignado">
-                        <b>Elemento asignado *</b>
-                        <span
-                          *ngIf="crearEmpresaCanForm.controls['elementoAsignado'].invalid && (crearEmpresaCanForm.controls['elementoAsignado'].dirty || crearEmpresaCanForm.controls['elementoAsignado'].touched)">
-                          <i *ngIf="crearEmpresaCanForm.controls['elementoAsignado'].errors.required" class="text-danger"> - Campo requerido</i>
-                        </span>
-                      </label>
-                      <select id="elementoAsignado" class="form-control" formControlName="elementoAsignado">
-                        <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres}} {{p.apellidoPaterno}} {{p.apellidoMaterno}}</option>
                       </select>
                     </div>
                   </div>

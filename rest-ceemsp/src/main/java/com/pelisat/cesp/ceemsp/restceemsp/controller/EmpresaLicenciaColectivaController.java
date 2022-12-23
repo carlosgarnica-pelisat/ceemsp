@@ -35,6 +35,13 @@ public class EmpresaLicenciaColectivaController {
         return empresaLicenciaColectivaService.obtenerLicenciasColectivasPorEmpresa(empresaUuid);
     }
 
+    @GetMapping(value = EMPRESA_LICENCIAS_URI + "/eliminados", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<EmpresaLicenciaColectivaDto> obtenerLicenciasColectivasEliminadasPorEmpresa(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) {
+        return empresaLicenciaColectivaService.obtenerLicenciasColectivasEliminadasPorEmpresa(empresaUuid);
+    }
+
     @GetMapping(value = EMPRESA_LICENCIAS_URI + "/{licenciaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public EmpresaLicenciaColectivaDto obtenerLicenciaColectiva(
             @PathVariable(value = "empresaUuid") String empresaUuid,

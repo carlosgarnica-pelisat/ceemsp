@@ -8,7 +8,7 @@
         <createTable tableName="usuarios">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
-            <column name="USERNAME" type="varchar(20)"></column>
+            <column name="USERNAME" type="varchar(30)"></column>
             <column name="EMAIL" type="varchar(255)"></column>
             <column name="PASSWORD" type="varchar(64)"></column>
             <column name="NOMBRES" type="varchar(60)"></column>
@@ -39,7 +39,7 @@
             <column name="PASSWORD" value="8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"></column>
             <column name="NOMBRES" value="JUAN CARLOS"></column>
             <column name="APELLIDOS" value="GARNICA GUTIERREZ"></column>
-            <column name="ROL" type="SUPERUSER"></column>
+            <column name="ROL" type="CEEMSP_SUPERUSER"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -55,7 +55,7 @@
             <column name="PASSWORD" value="8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"></column>
             <column name="NOMBRES" value="VICTOR HUGO"></column>
             <column name="APELLIDOS" value="BERNABE ESPINOZA"></column>
-            <column name="ROL" type="SUPERUSER"></column>
+            <column name="ROL" type="CEEMSP_SUPERUSER"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>

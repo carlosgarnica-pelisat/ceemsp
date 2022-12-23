@@ -45,7 +45,7 @@ public class VisitaArchivoController {
     ) throws Exception {
         File file = visitaArchivoService.descargarArchivoVisita(visitaUuid, archivoUuid);
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.IMAGE_JPEG); // TODO: Validar el tipo de imagen en funcion de su formato
+        httpHeaders.setContentType(MediaType.APPLICATION_PDF); // TODO: Validar el tipo de imagen en funcion de su formato
         httpHeaders.setContentDispositionFormData("attachment",  file.getName());
         InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
         return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);

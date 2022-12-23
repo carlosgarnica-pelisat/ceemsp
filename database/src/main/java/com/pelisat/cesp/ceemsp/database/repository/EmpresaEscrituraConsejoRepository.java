@@ -10,4 +10,5 @@ public interface EmpresaEscrituraConsejoRepository extends JpaRepository<Empresa
     List<EmpresaEscrituraConsejo> findAllByEscrituraAndEliminadoFalse(int escritura);
     List<EmpresaEscrituraConsejo> findAllByEscritura(int escritura);
     EmpresaEscrituraConsejo findByUuidAndEliminadoFalse(String uuid);
+    EmpresaEscrituraConsejo findByUuid(String uuid);
 }

@@ -131,6 +131,18 @@
               <td><b>Fecha de alta</b></td>
               <td>{{cliente?.fechaCreacion}}</td>
             </tr>
+            <tr *ngIf="cliente?.eliminado">
+              <td><b>Fecha de baja</b></td>
+              <td>{{cliente?.fechaBaja}}</td>
+            </tr>
+            <tr *ngIf="cliente?.eliminado">
+              <td><b>Motivo de baja</b></td>
+              <td>{{cliente?.motivoBaja}}</td>
+            </tr>
+            <tr *ngIf="cliente?.eliminado">
+              <td><b>Observaciones de baja</b></td>
+              <td>{{cliente?.observacionesBaja}}</td>
+            </tr>
           </table>
         </div>
         <div class="col-sm-12" *ngIf="pestanaActual === 'DOMICILIOS'">
@@ -425,7 +437,7 @@
             <tr>
               <td colspan="5">
                 <button class="btn btn-sm btn-primary" (click)="mostrarNuevoDomicilioForm()" *ngIf="!this.cliente.eliminado && !showDomicilioForm">Agregar domicilio</button>
-                <button class="btn btn-sm btn-primary" (click)="ubicarDomicilio(nuevoClienteDomicilioForm)" *ngIf="showDomicilioForm">Ubicar en el mapa</button>
+                <button class="btn btn-sm btn-primary" (click)="localizarDomicilio(nuevoClienteDomicilioForm)" *ngIf="showDomicilioForm">Ubicar en el mapa</button>
                 <button class="btn btn-sm btn-primary" (click)="guardarDomicilio(nuevoClienteDomicilioForm)" *ngIf="showDomicilioForm">Guardar domicilio</button>
                 <button class="btn btn-sm btn-danger" (click)="mostrarNuevoDomicilioForm()" *ngIf="showDomicilioForm">Cancelar</button>
               </td>
@@ -504,10 +516,11 @@
             <tr *ngFor="let m of cliente.modalidades; let i = index">
               <td>{{m.modalidad?.modalidad?.nombre}}</td>
               <td>
-
+                <span *ngIf="m.modalidad?.submodalidad !== null">{{m.modalidad?.submodalidad.nombre}}</span>
+                <span *ngIf="m.modalidad?.submodalidad === null">NA</span>
               </td>
               <td>
-                <fa-icon [icon]="faPencilAlt" title="Modificar domicilio del cliente" (click)="mostrarEditarDomicilioCliente(i)" style="cursor:pointer;"></fa-icon>
+                <fa-icon [icon]="faPencilAlt" title="Modificar domicilio del cliente" (click)="mostrarEditarModalidadCliente(i)" style="cursor:pointer;"></fa-icon>
                 <fa-icon [icon]="faTrash" title="Eliminar domicilio del cliente" (click)="mostrarModalEliminarModalidadCliente(m?.uuid)" style="cursor:pointer;"></fa-icon>
               </td>
             </tr>
@@ -516,6 +529,32 @@
                 <form [formGroup]="nuevaModalidadForm">
                   <div class="row">
                     <div class="col-sm-6">
+                      <label>
+                        <b>Modalidad * </b>
+                      </label>
+                      <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown"
+                         aria-expanded="false" style="width: 100%;">
+                        {{modalidad === undefined ? 'Ninguno' : (modalidad?.modalidad.nombre).substr(0, 90)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton"
+                           style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                        <form class="px-4 py-3" autocomplete="off">
+                          <label for="modalidadSearchQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="modalidadSearchQuery" placeholder="Ej. dsadasdas"
+                                 [(ngModel)]="modalidadQuery"
+                                 [ngModelOptions]="{standalone: true}">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let m of empresaModalidades"
+                           (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                          {{m.modalidad.nombre}} <br/>
+                          <span style="font-size: 14px; color: #999; padding-left: 10px;">{{m?.submodalidad?.nombre}}</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="modalidad !== undefined" (click)="quitarModalidad()">Quitar</a>
+                      </div>
+                    </div>
+                    <!--div class="col-sm-6">
                       <label for="modalidad">
                         <b>Modalidad / Submodalidad *</b>
                         <span
@@ -526,7 +565,7 @@
                       <select id="modalidad" formControlName="modalidad" class="form-control">
                         <option *ngFor="let m of empresaModalidades" value="{{m?.uuid}}">{{m?.modalidad?.nombre}}</option>
                       </select>
-                    </div>
+                    </div-->
                   </div>
                 </form>
               </td>
@@ -541,12 +580,17 @@
           </table>
         </div>
         <div class="col-sm-12" *ngIf="pestanaActual === 'FORMAS_EJECUCION'">
-
+          <table class="table">
+            <tr>
+              <td><b>Forma de ejecucion</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+          </table>
         </div>
       </div>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
-      <button type="button" class="btn btn-primary" *ngIf="!this.cliente.eliminado" (click)="descargarContratoPrestacion()">Descargar contrato</button>
+      <button type="button" class="btn btn-primary" *ngIf="!this.cliente.eliminado && (this.cliente?.rutaArchivoContrato !== null)" (click)="descargarContratoPrestacion()">Descargar contrato</button>
       <button type="button" class="btn btn-primary" *ngIf="!this.cliente.eliminado" (click)="mostrarModalEditarCliente()">Modificar</button>
       <button type="button" class="btn btn-danger" *ngIf="!this.cliente.eliminado" (click)="mostrarModalEliminarCliente(this.cliente.uuid)">Eliminar</button>
     </div>
@@ -1111,6 +1155,7 @@
                   <div class="form-row" style="margin-top: 20px;">
                     <div class="col-sm-12">
                       <button (click)="agregarDomicilio(nuevoClienteDomicilioForm)" class="btn btn-info">Agregar domicilio</button>
+                      <button class="btn btn-outline-primary" (click)="ubicarDomicilio(nuevoClienteDomicilioForm)">Ubicar en el mapa</button>
                     </div>
                   </div>
                 </form>
@@ -1130,7 +1175,7 @@
                         <td>{{d.calleCatalogo?.nombre + " " + d.numeroExterior + " " + d.numeroInterior}}</td>
                         <td>{{d.coloniaCatalogo?.nombre}}</td>
                         <td>{{d.localidadCatalogo?.nombre}}</td>
-                        <td>{{d.tipoInfraestructura.descripcion}}</td>
+                        <td>{{d.tipoInfraestructura?.descripcion}}</td>
                         <td>
                           <fa-icon [icon]="faPencilAlt" title="Editar domicilio" (click)="modificarDomicilio(i)"></fa-icon>
                           <fa-icon [icon]="faTrash" title="Eliminar domicilio" (click)="mostrarQuitarClienteDomicilioModal(i)"></fa-icon>
@@ -1146,7 +1191,7 @@
                     <button (click)="previous()" class="btn btn-primary">Anterior:
                       Info. Cliente
                     </button>
-                    <button (click)="next('MODALIDADES', undefined)" class="btn btn-primary">Siguiente: Modalidades
+                    <button (click)="next('ELEMENTOS', undefined)" class="btn btn-primary">Siguiente: Elementos asignados
                     </button>
                   </div>
                 </div>
@@ -1225,7 +1270,7 @@
                       Domicilios
                     </button>
                     <button (click)="next('MODALIDADES', undefined)" class="btn btn-primary">Siguiente:
-                      Formas de ejecucion
+                      Modalidades
                     </button>
                   </div>
                 </div>
@@ -1234,14 +1279,72 @@
               <div id="test-l-4" class="content">
                 <div class="row">
                   <div class="col-sm-12">
-
+                    <table class="table">
+                      <tr>
+                        <td><b>Modalidad</b></td>
+                        <td><b>Submodalidad</b></td>
+                        <td><b>Acciones</b></td>
+                      </tr>
+                      <tr *ngFor="let m of cliente.modalidades; let i = index">
+                        <td>{{m.modalidad?.modalidad?.nombre}}</td>
+                        <td>
+                          <span *ngIf="m.modalidad?.submodalidad !== null">{{m.modalidad?.submodalidad.nombre}}</span>
+                          <span *ngIf="m.modalidad?.submodalidad === null">NA</span>
+                        </td>
+                        <td>
+                          <fa-icon [icon]="faPencilAlt" title="Modificar domicilio del cliente" (click)="mostrarEditarModalidadCliente(i)" style="cursor:pointer;"></fa-icon>
+                          <fa-icon [icon]="faTrash" title="Eliminar domicilio del cliente" (click)="mostrarModalEliminarModalidadCliente(m?.uuid)" style="cursor:pointer;"></fa-icon>
+                        </td>
+                      </tr>
+                      <tr *ngIf="showModalidadForm">
+                        <td colspan="3">
+                          <form [formGroup]="nuevaModalidadForm">
+                            <div class="row">
+                              <div class="col-sm-6">
+                                <label>
+                                  <b>Modalidad * </b>
+                                </label>
+                                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown"
+                                   aria-expanded="false" style="width: 100%;">
+                                  {{modalidad === undefined ? 'Ninguno' : (modalidad?.modalidad.nombre).substr(0, 90)}}
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton"
+                                     style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                                  <form class="px-4 py-3" autocomplete="off">
+                                    <label for="modalidadSearchQuery"><b>Buscar por nombre</b></label>
+                                    <input type="text" class="form-control" id="modalidadSearchQuery" placeholder="Ej. dsadasdas"
+                                           [(ngModel)]="modalidadQuery"
+                                           [ngModelOptions]="{standalone: true}">
+                                  </form>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item" *ngFor="let m of empresaModalidades"
+                                     (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                                    {{m.modalidad.nombre}} <br/>
+                                    <span style="font-size: 14px; color: #999; padding-left: 10px;">{{m?.submodalidad?.nombre}}</span>
+                                  </a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item" *ngIf="modalidad !== undefined" (click)="quitarModalidad()">Quitar</a>
+                                </div>
+                              </div>
+                            </div>
+                          </form>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="3">
+                          <button class="btn btn-sm btn-primary" (click)="mostrarNuevaModalidadForm()" *ngIf="!this.cliente.eliminado && !showModalidadForm">Agregar modalidad</button>
+                          <button class="btn btn-sm btn-primary" (click)="guardarModalidad(nuevaModalidadForm)" *ngIf="showModalidadForm">Guardar asignacion</button>
+                          <button class="btn btn-sm btn-danger" (click)="mostrarNuevaModalidadForm()" *ngIf="showModalidadForm">Cancelar</button>
+                        </td>
+                      </tr>
+                    </table>
                   </div>
                 </div>
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
                     <button (click)="previous()" class="btn btn-primary">Anterior:
-                      Modalidades
+                      Elementos asignados
                     </button>
                     <button (click)="next('RESUMEN', undefined)" class="btn btn-primary">Siguiente:
                       Resumen
@@ -1326,11 +1429,50 @@
                     </table>
                   </div>
                 </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Elementos asignados</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Elemento</b></td>
+                        <td><b>Domicilio asignado</b></td>
+                      </tr>
+                      <tr *ngFor="let c of cliente?.asignaciones; let i = index">
+                        <td>
+                          {{c?.personal?.rfc}} - {{c?.personal?.apellidoPaterno}} {{c?.personal?.apellidoMaterno}} {{c?.personal?.nombres}}
+                        </td>
+                        <td>
+                          {{c?.domicilio?.domicilio1}} {{c?.domicilio?.numeroExterior}} {{c?.domicilio?.numeroInterior}}. Colonia: {{c?.domicilio?.domicilio2}}<br>
+                          {{c?.domicilio?.domicilio3}}, {{c?.domicilio?.estado}}<br>
+                          C.P. {{c?.domicilio?.codigoPostal}}
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Modalidades</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Modalidad</b></td>
+                        <td><b>Submodalidad</b></td>
+                      </tr>
+                      <tr *ngFor="let m of cliente.modalidades; let i = index">
+                        <td>{{m.modalidad?.modalidad?.nombre}}</td>
+                        <td>
+                          <span *ngIf="m.modalidad?.submodalidad !== null">{{m.modalidad?.submodalidad.nombre}}</span>
+                          <span *ngIf="m.modalidad?.submodalidad === null">NA</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
                     <button class="btn btn-primary" (click)="previous()">
-                      Anterior: Formas de ejecucion
+                      Anterior: Modalidades
                     </button>
                     <button class="btn btn-primary" (click)="finalizar()">
                       Terminar
@@ -1380,7 +1522,7 @@
             <label for="documentoFundatorioBaja">
               <b>Documento fundatorio</b>
             </label>
-            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" accept="application/pdf" (change)="onFileChange($event)">
           </div>
         </div>
         <div class="row">
@@ -1522,6 +1664,31 @@
           </agm-map>
           <div>Latitud: {{this.domicilio?.latitud}}</div>
           <div>Longitud: {{this.domicilio?.longitud}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #ubicarDomicilioModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="ubicarDomicilioModal">Ubicando domicilio del cliente </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.close()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <agm-map [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()" [zoom]="16">
+            <agm-marker [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()">
+              <agm-info-window>Aqui se encuentra el domicilio</agm-info-window>
+            </agm-marker>
+          </agm-map>
+          <div>Latitud: {{this.geocodeResult?.geometry.location.lat()}}</div>
+          <div>Longitud: {{this.geocodeResult?.geometry.location.lng()}}</div>
         </div>
       </div>
     </div>

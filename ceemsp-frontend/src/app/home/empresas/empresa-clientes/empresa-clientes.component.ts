@@ -18,7 +18,7 @@ import Municipio from "../../../_models/Municipio";
 import Calle from "../../../_models/Calle";
 import Colonia from "../../../_models/Colonia";
 import Localidad from "../../../_models/Localidad";
-import {faPencilAlt, faTrash, faMapPin} from "@fortawesome/free-solid-svg-icons";
+import {faMapPin, faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {
   BotonEmpresaClientesComponent
 } from "../../../_components/botones/boton-empresa-clientes/boton-empresa-clientes.component";
@@ -27,7 +27,6 @@ import Persona from "../../../_models/Persona";
 import ClienteAsignacionPersonal from "../../../_models/ClienteAsignacionPersonal";
 import EmpresaModalidad from "../../../_models/EmpresaModalidad";
 import ClienteModalidad from "../../../_models/ClienteModalidad";
-import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
 import {AgmGeocoder} from "@agm/core";
 import GeocoderResult = google.maps.GeocoderResult;
 
@@ -85,6 +84,8 @@ export class EmpresaClientesComponent implements OnInit {
   showAsignacionForm: boolean = false;
   showModalidadForm: boolean = false;
 
+  modificandoDomicilio: boolean = false;
+
   stepper: Stepper;
 
   private gridApi;
@@ -127,6 +128,8 @@ export class EmpresaClientesComponent implements OnInit {
 
   asignacion: ClienteAsignacionPersonal;
 
+  clienteModalidad: ClienteModalidad;
+
   tiposInfraestructura: TipoInfraestructura[] = [];
   tipoInfraestructura: TipoInfraestructura = undefined;
   personal: Persona[] = [];
@@ -151,11 +154,16 @@ export class EmpresaClientesComponent implements OnInit {
 
   editandoDomicilio: boolean = false;
   editandoAsignacionCliente: boolean = false;
+  editandoModalidad: boolean = false;
 
   clienteGuardado: boolean = false;
   domiciliosGuardados: boolean = false;
+  elementosGuardados: boolean = false;
 
   temporaryIndex: number;
+
+  modalidad: EmpresaModalidad;
+  modalidadQuery: string;
 
   @ViewChild('visualizarContratoModal') visualizarContratoModal;
   @ViewChild('clienteDetallesModal') clienteDetallesModal;
@@ -166,6 +174,7 @@ export class EmpresaClientesComponent implements OnInit {
   @ViewChild('eliminarDomicilioAsignacionModal') eliminarDomicilioAsignacionModal;
   @ViewChild('eliminarDomicilioModalidadModal') eliminarDomicilioModalidadModal;
   @ViewChild('mostrarUbicacionModal') mostrarUbicacionModal;
+  @ViewChild('ubicarDomicilioModal') ubicarDomicilioModal;
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
@@ -725,32 +734,21 @@ export class EmpresaClientesComponent implements OnInit {
           return;
         }
 
-        this.toastService.showGenericToast(
-          "Espere un momento",
-          "Estamos guardando los domicilios",
-          ToastType.INFO
-        );
-
-        this.empresaService.guardarDomicilioCliente(this.uuid, this.cliente.uuid, this.domicilios).subscribe((data) => {
-          this.toastService.showGenericToast(
-            "Listo",
-            "Se han guardado los domicilios con exito",
-            ToastType.SUCCESS
-          );
-          this.domiciliosGuardados = true;
-          this.desactivarCamposDireccion();
-          this.cliente.domicilios = this.domicilios;
-          this.stepper.next();
-        }, (error) => {
-          this.toastService.showGenericToast(
-            "Ocurrio un problema",
-            `No se han podido descargar los domicilios del cliente. Motivo: ${error}`,
-            ToastType.ERROR
-          );
-        });
+        this.domiciliosGuardados = true;
+        this.desactivarCamposDireccion();
+        this.cliente.domicilios = this.domicilios;
+        this.stepper.next();
         break;
       case "MODALIDADES":
-        this.stepper.next()
+        if(this.elementosGuardados) {
+          this.stepper.next();
+          return;
+        }
+
+        this.elementosGuardados = true;
+        this.desactivarCamposAsignacionPersonal();
+        this.cliente.domicilios = this.domicilios;
+        this.stepper.next();
         break;
       case "RESUMEN":
         this.stepper.next();
@@ -884,10 +882,10 @@ export class EmpresaClientesComponent implements OnInit {
   }
 
   guardarModalidad(form) {
-    if(!form.valid) {
+    if(this.modalidad === undefined) {
       this.toastService.showGenericToast(
           "Ocurrio un problema",
-          `El formulario no es valido`,
+          `No hay una modalidad seleccionada`,
           ToastType.WARNING
       );
       return;
@@ -899,21 +897,106 @@ export class EmpresaClientesComponent implements OnInit {
         ToastType.INFO
     );
 
-    let clienteModalidad: ClienteModalidad = new ClienteModalidad();
-    clienteModalidad.modalidad = this.empresaModalidades.filter(x => x.uuid === form.value.modalidad)[0]
-
-    this.empresaService.guardarModalidadCliente(this.uuid, this.cliente.uuid, clienteModalidad).subscribe((data: ClienteModalidad) => {
+    let existeModalidad = this.cliente?.modalidades?.filter(x => x.modalidad.uuid === this.modalidad.uuid)[0];
+    if(existeModalidad !== undefined) {
       this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "La modalidad ya se encuentra registrada en este cliente",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let clienteModalidad: ClienteModalidad = new ClienteModalidad();
+    clienteModalidad.modalidad = this.modalidad;
+
+    if(this.editandoModalidad) {
+      this.empresaService.modificarModalidadCliente(this.uuid, this.cliente.uuid, this.clienteModalidad.uuid, clienteModalidad).subscribe((data: ClienteModalidad) => {
+        this.toastService.showGenericToast(
           "Listo",
           `Se ha guardado la modalidad con exito`,
           ToastType.SUCCESS
-      );
-      window.location.reload();
-    }, (error) => {
-      this.toastService.showGenericToast(
+        );
+        this.mostrarNuevaModalidadForm();
+        this.editandoModalidad = false;
+        this.clienteModalidad = undefined;
+        this.modalidad = undefined;
+        this.empresaService.obtenerModalidadesCliente(this.uuid, this.cliente.uuid).subscribe((data: ClienteModalidad[]) => {
+          this.cliente.modalidades = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar las modalidades. Motivo: ${error}`,
+            ToastType.SUCCESS
+          )
+        })
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido modificar la modalidad. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    } else {
+      this.empresaService.guardarModalidadCliente(this.uuid, this.cliente.uuid, clienteModalidad).subscribe((data: ClienteModalidad) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha guardado la modalidad con exito`,
+          ToastType.SUCCESS
+        );
+        this.mostrarNuevaModalidadForm();
+        this.clienteModalidad = undefined;
+        this.modalidad = undefined;
+        this.empresaService.obtenerModalidadesCliente(this.uuid, this.cliente.uuid).subscribe((data: ClienteModalidad[]) => {
+          this.cliente.modalidades = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar las modalidades. Motivo: ${error}`,
+            ToastType.SUCCESS
+          )
+        })
+      }, (error) => {
+        this.toastService.showGenericToast(
           "Ocurrio un problema",
           `No se ha podido guardar la modalidad. Motivo: ${error}`,
           ToastType.ERROR
+        );
+      })
+    }
+  }
+
+  localizarDomicilio(form) {
+    if(!form.valid || this.estado === undefined || this.municipio === undefined || this.localidad === undefined || this.colonia === undefined || this.calle === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Favor de proporcionar mas datos para hacer la busqueda mas precisa",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let clienteDomicilio: ClienteDomicilio = form.value;
+    clienteDomicilio.estadoCatalogo = this.estado;
+    clienteDomicilio.municipioCatalogo = this.municipio;
+    clienteDomicilio.localidadCatalogo = this.localidad;
+    clienteDomicilio.coloniaCatalogo = this.colonia;
+    clienteDomicilio.calleCatalogo = this.calle;
+
+    let query = `${clienteDomicilio?.calleCatalogo?.nombre} ${clienteDomicilio?.numeroExterior} ${clienteDomicilio?.numeroInterior} ${clienteDomicilio?.coloniaCatalogo.nombre} ${clienteDomicilio?.municipioCatalogo?.nombre} ${clienteDomicilio?.estadoCatalogo?.nombre}`
+
+    this.geocodeService.geocode({
+      address: query
+    }).subscribe((data: GeocoderResult[]) => {
+      this.geocodeResult = data[0];
+      this.domicilioUbicado = true;
+      this.modal = this.modalService.open(this.mostrarUbicacionModal, {size: 'xl'})
+    }, (error) => {
+      this.domicilioUbicado = false;
+      this.toastService.showGenericToast(
+        `Ocurrio un problema`,
+        `Ocurrio un problema cuando el domicilio era ubicado en el mapa. Motivo: ${error}`,
+        ToastType.ERROR
       );
     })
   }
@@ -942,7 +1025,7 @@ export class EmpresaClientesComponent implements OnInit {
     }).subscribe((data: GeocoderResult[]) => {
       this.geocodeResult = data[0];
       this.domicilioUbicado = true;
-
+      this.modal = this.modalService.open(this.ubicarDomicilioModal, {size: 'xl'})
     }, (error) => {
       this.domicilioUbicado = false;
       this.toastService.showGenericToast(
@@ -1021,9 +1104,7 @@ export class EmpresaClientesComponent implements OnInit {
         )
       });
     } else {
-      let tempArray: ClienteDomicilio[] = [domicilio];
-
-      this.empresaService.guardarDomicilioCliente(this.uuid, this.cliente.uuid, tempArray).subscribe((data: ClienteDomicilio) => {
+      this.empresaService.guardarDomicilioCliente(this.uuid, this.cliente.uuid, domicilio).subscribe((data: ClienteDomicilio) => {
         this.toastService.showGenericToast(
           "Listo",
           "Se ha guardado el domicilio del cliente con exito",
@@ -1087,6 +1168,11 @@ export class EmpresaClientesComponent implements OnInit {
     domicilio.coloniaCatalogo = this.colonia;
     domicilio.calleCatalogo = this.calle;
 
+    if(this.geocodeResult !== undefined) {
+      formData.latitud = this.geocodeResult.geometry.location.lat().toString()
+      formData.longitud = this.geocodeResult.geometry.location.lng().toString()
+    }
+
     let tipoInfraestructura: TipoInfraestructura = this.tiposInfraestructura.filter(x => x.uuid === form.value.tipoInfraestructura)[0];
 
     if(tipoInfraestructura !== undefined && tipoInfraestructura.nombre === "Otro" && domicilio.tipoInfraestructuraOtro === "") {
@@ -1098,17 +1184,60 @@ export class EmpresaClientesComponent implements OnInit {
       return;
     }
 
-    this.domicilios.push(formData);
-    this.nuevoClienteDomicilioForm.reset();
-    this.nuevoClienteDomicilioForm.patchValue({
-      pais: 'Mexico'
-    })
+    if(this.modificandoDomicilio) {
+      this.empresaService.modificarDomicilioCliente(this.uuid, this.cliente.uuid, formData?.uuid, formData).subscribe((data: ClienteDomicilio) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha modificado el domicilio con exito`,
+          ToastType.SUCCESS
+        );
+        this.modificandoDomicilio = false;
 
-    this.estado = undefined;
-    this.municipio = undefined;
-    this.localidad = undefined;
-    this.colonia = undefined;
-    this.calle = undefined;
+        this.domicilios.push(data);
+        this.nuevoClienteDomicilioForm.reset();
+        this.nuevoClienteDomicilioForm.patchValue({
+          pais: 'Mexico'
+        })
+
+        this.estado = undefined;
+        this.municipio = undefined;
+        this.localidad = undefined;
+        this.colonia = undefined;
+        this.calle = undefined;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar el domicilio del cliente. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    } else {
+      this.empresaService.guardarDomicilioCliente(this.empresa?.uuid, this.cliente?.uuid, formData).subscribe((data: ClienteDomicilio) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          `Se ha guardado el domicilio con exito`,
+          ToastType.SUCCESS
+        );
+
+        this.domicilios.push(data);
+        this.nuevoClienteDomicilioForm.reset();
+        this.nuevoClienteDomicilioForm.patchValue({
+          pais: 'Mexico'
+        })
+
+        this.estado = undefined;
+        this.municipio = undefined;
+        this.localidad = undefined;
+        this.colonia = undefined;
+        this.calle = undefined;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar el domicilio. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
   }
 
   mostrarModalEditarCliente() {
@@ -1167,6 +1296,13 @@ export class EmpresaClientesComponent implements OnInit {
     this.localidad = this.domicilio.localidadCatalogo;
     this.municipio = this.domicilio.municipioCatalogo;
     this.estado = this.domicilio.estadoCatalogo;
+  }
+
+  mostrarEditarModalidadCliente(index) {
+    this.clienteModalidad = this.cliente.modalidades[index];
+    this.modalidad = this.clienteModalidad.modalidad;
+    this.mostrarNuevaModalidadForm();
+    this.editandoModalidad = true;
   }
 
   mostrarModalEliminarCliente(uuid) {
@@ -1423,6 +1559,14 @@ export class EmpresaClientesComponent implements OnInit {
     })
   }
 
+  seleccionarModalidad(uuid) {
+    this.modalidad = this.empresaModalidades.filter(x => x.uuid === uuid)[0];
+  }
+
+  quitarModalidad() {
+    this.modalidad = undefined;
+  }
+
   private desactivarCamposCliente() {
     this.nuevoClienteForm.controls['tipoPersona'].disable();
     this.nuevoClienteForm.controls['rfc'].disable();
@@ -1449,6 +1593,11 @@ export class EmpresaClientesComponent implements OnInit {
     this.nuevoClienteDomicilioForm.controls['tipoInfraestructuraOtro'].disable();
   }
 
+  private desactivarCamposAsignacionPersonal() {
+    this.nuevaAsignacionForm.controls['domicilio'].disable();
+    this.nuevaAsignacionForm.controls['personal'].disable();
+  }
+
   convertStringToNumber(input: string) {
     if (!input) return NaN;
     if (input.trim().length==0) {
@@ -1465,6 +1614,17 @@ export class EmpresaClientesComponent implements OnInit {
     } else {
       return `with ${reason}`;
     }
+  }
+
+  private hacerFalsoUuid(longitud) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < longitud; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() *
+        charactersLength));
+    }
+    return result;
   }
 
 }

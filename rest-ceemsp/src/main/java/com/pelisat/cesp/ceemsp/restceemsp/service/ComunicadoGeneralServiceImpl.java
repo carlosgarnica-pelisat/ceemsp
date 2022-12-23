@@ -48,11 +48,15 @@ public class ComunicadoGeneralServiceImpl implements ComunicadoGeneralService {
         logger.info("Obteniendo los comunicados generales");
         List<ComunicadoGeneral> comunicadosGenerales = new ArrayList<ComunicadoGeneral>();
         if(mes != null && ano != null) {
-            if(StringUtils.isNotBlank(titulo)) {
-                comunicadosGenerales = comunicadoGeneralRepository.getAllByFechaActualizacionAndTitulo(ano, mes, titulo);
+            LocalDate fechaInicio = LocalDate.of(ano, mes, 1);
+            LocalDate fechaFin = fechaInicio.withDayOfMonth(fechaInicio.getMonth().length(false));
+            if(StringUtils.isNotBlank(titulo) && !titulo.equals("null")) {
+                comunicadosGenerales = comunicadoGeneralRepository.getAllByFechaPublicacionAndTitulo(fechaInicio, fechaFin, titulo);
             } else {
-                comunicadosGenerales = comunicadoGeneralRepository.getAllByFechaActualizacion(ano, mes);
+                comunicadosGenerales = comunicadoGeneralRepository.getAllByFechaPublicacionBetweenAndEliminadoFalse(fechaInicio, fechaFin);
             }
+        } else if(StringUtils.isNotBlank(titulo)) {
+            comunicadosGenerales = comunicadoGeneralRepository.getAllByComunicadoGeneral(titulo);
         } else {
             comunicadosGenerales = comunicadoGeneralRepository.getAllByEliminadoFalseOrderByFechaPublicacionDesc();
 

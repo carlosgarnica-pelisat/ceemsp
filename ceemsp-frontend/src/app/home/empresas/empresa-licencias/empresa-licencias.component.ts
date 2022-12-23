@@ -80,7 +80,6 @@ export class EmpresaLicenciasComponent implements OnInit {
   armasEliminadas: Arma[];
   domicilios: EmpresaDomicilio[];
   domiciliosLicenciaColectiva: EmpresaDomicilio[];
-  personal: Persona[] = [];
   status: string = "ACTIVA";
 
   rowDataClicked = {
@@ -93,7 +92,6 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   modalidades: EmpresaModalidad[];
   crearEmpresaLicenciaForm: FormGroup;
-  modificarStatusArmaForm: FormGroup;
   crearDireccionForm: FormGroup;
   crearArmaForm: FormGroup;
   editarArmaForm: FormGroup;
@@ -110,6 +108,8 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   arma: Arma;
   editandoArma: boolean;
+
+  mostrandoEliminados: boolean = false;
 
   model = {
     editorData: '<p>Escribe con detalle el relato de los hechos. Toma en cuenta que al finalizar se creara una incidencia de manera automatica y el arma quedara EN CUSTODIA.</p>'
@@ -150,12 +150,6 @@ export class EmpresaLicenciasComponent implements OnInit {
       archivo: ['', Validators.required]
     });
 
-    this.modificarStatusArmaForm = this.formBuilder.group({
-      status: ['', Validators.required],
-      motivo: [''],
-      personalAsignado: ['']
-    });
-
     this.crearDireccionForm = this.formBuilder.group({
       direccion: ['', Validators.required]
     })
@@ -167,7 +161,6 @@ export class EmpresaLicenciasComponent implements OnInit {
       calibre: ['', [Validators.required, Validators.maxLength(10)]],
       bunker: ['', Validators.required],
       status: ['', Validators.required],
-      personal: [''],
       serie: ['', [Validators.maxLength(30)]],
       matricula: ['', [Validators.required, Validators.maxLength(30)]]
     });
@@ -179,7 +172,6 @@ export class EmpresaLicenciasComponent implements OnInit {
       calibre: ['', [Validators.required, Validators.maxLength(10)]],
       bunker: ['', Validators.required],
       status: ['', Validators.required],
-      personal: [''],
       serie: ['', [Validators.maxLength(30)]],
       matricula: ['', [Validators.required, Validators.maxLength(30)]]
     });
@@ -204,16 +196,6 @@ export class EmpresaLicenciasComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se han podido descargar las licencias colectivas. Motivo: ${error}`,
-        ToastType.ERROR
-      )
-    });
-
-    this.empresaService.obtenerPersonal(this.uuid).subscribe((data: Persona[]) => {
-      this.personal = data;
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `no se han podido descargar las licencias colectivas. Motivo: ${error}`,
         ToastType.ERROR
       )
     });
@@ -637,7 +619,6 @@ export class EmpresaLicenciasComponent implements OnInit {
     let formValue = form.value;
     let licencia: EmpresaLicenciaColectiva = new EmpresaLicenciaColectiva();
 
-    console.log(this.modalidades.filter(x => x.uuid === this.modalidad.uuid)[0]);
     licencia.numeroOficio = formValue.numeroOficio;
     licencia.modalidad = this.modalidades.filter(x => x.uuid === this.modalidad.uuid)[0].modalidad;
     licencia.submodalidad = this.modalidades.filter(x => x.uuid === this.modalidad.uuid)[0].submodalidad;
@@ -709,6 +690,14 @@ export class EmpresaLicenciasComponent implements OnInit {
     })
   }
 
+  mostrarEliminados() {
+    this.mostrandoEliminados = true;
+  }
+
+  ocultarEliminados() {
+    this.mostrandoEliminados = false;
+  }
+
   exportGridData(format) {
     switch(format) {
       case "CSV":
@@ -766,7 +755,6 @@ export class EmpresaLicenciasComponent implements OnInit {
       calibre: this.arma.calibre,
       bunker: this.arma.bunker?.uuid,
       matricula: this.arma.matricula,
-      personal: this.arma.personal?.uuid,
       status: this.arma.status
     });
 
@@ -861,19 +849,9 @@ export class EmpresaLicenciasComponent implements OnInit {
 
     let formData: Arma = form.value;
 
-    if(formData.status === 'ACTIVA' && (form.value.personal === undefined || form.value.personal === null)) {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        "Cuando un arma se configura como ACTIVA, se requiere asignar un personal",
-        ToastType.WARNING
-      );
-      return;
-    }
-
     formData.bunker = this.domiciliosLicenciaColectiva .filter(x => x.uuid === bunkerUuid)[0];
     formData.clase = this.clases.filter(x => x.uuid === form.value.clase)[0];
     formData.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
-    formData.personal = this.personal.filter(x => x.uuid === form.value.personal)[0];
 
     this.empresaService.modificarArma(this.uuid, this.licencia.uuid, this.arma.uuid, formData).subscribe((data) => {
       this.toastService.showGenericToast(
@@ -881,6 +859,7 @@ export class EmpresaLicenciasComponent implements OnInit {
         "Se ha modificado el arma con exito",
         ToastType.SUCCESS
       );
+      this.crearArmaForm.reset();
       this.modal.close();
       this.empresaService.obtenerArmasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
         this.armas = data;
@@ -932,19 +911,9 @@ export class EmpresaLicenciasComponent implements OnInit {
 
     let formData: Arma = form.value;
 
-    if(formData.status === 'ACTIVA' && (form.value.personal === undefined || form.value.personal === null)) {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        "Cuando un arma se configura como ACTIVA, se requiere asignar un personal",
-        ToastType.WARNING
-      );
-      return;
-    }
-
     formData.bunker = this.domicilios.filter(x => x.uuid === form.value.bunker)[0];
     formData.clase = this.clases.filter(x => x.uuid === form.value.clase)[0];
     formData.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
-    formData.personal = this.personal.filter(x => x.uuid === form.value.personal)[0];
 
     this.empresaService.guardarArma(this.uuid, this.licencia.uuid, formData).subscribe((data: Arma) => {
       this.toastService.showGenericToast(
@@ -952,6 +921,7 @@ export class EmpresaLicenciasComponent implements OnInit {
         "Se ha guardado el arma con exito",
         ToastType.SUCCESS
       );
+      this.crearArmaForm.reset();
       this.modal.close();
       this.empresaService.obtenerArmasEliminadasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
         this.armasEliminadas = data;

@@ -667,7 +667,18 @@ export class EmpresaLegalComponent implements OnInit {
         this.empresaService.obtenerEscrituraSocios(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraSocio[]) => {
           this.mostrandoSociosEliminados = false;
           this.escritura.socios = data;
+          this.escrituraSocios = data;
           this.mostrarFormularioNuevoSocio();
+
+          this.empresaService.obtenerEscrituraSociosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraSocio[]) => {
+            this.escrituraSociosEliminados = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se han podido descargar todos los socios. Motivo: ${error}`,
+              ToastType.ERROR
+            )
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -694,7 +705,18 @@ export class EmpresaLegalComponent implements OnInit {
         this.empresaService.obtenerEscrituraSocios(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraSocio[]) => {
           this.mostrandoSociosEliminados = false;
           this.escritura.socios = data;
+          this.escrituraSocios = data;
           this.mostrarFormularioNuevoSocio();
+
+          this.empresaService.obtenerEscrituraSociosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraSocio[]) => {
+            this.escrituraSociosEliminados = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se han podido descargar todos los socios. Motivo: ${error}`,
+              ToastType.ERROR
+            )
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -743,7 +765,7 @@ export class EmpresaLegalComponent implements OnInit {
   }
 
   mostrarConsejosEliminados() {
-    this.mostrandoRepresentantesEliminados = true;
+    this.mostrandoConsejosEliminados = true;
     this.escritura.consejos = this.escrituraConsejosEliminados;
   }
 
@@ -786,8 +808,6 @@ export class EmpresaLegalComponent implements OnInit {
       }
     }
 
-
-
     let fechaInicio = new Date(formValue.fechaInicio);
     let fechaFin = new Date(formValue.fechaFin);
     if(fechaInicio > fechaFin) {
@@ -816,9 +836,21 @@ export class EmpresaLegalComponent implements OnInit {
           ToastType.SUCCESS
         );
         this.modal.close();
-        this.mostrarFormularioNuevoApoderado();
         this.empresaService.obtenerEscriturasApoderados(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraApoderado[]) => {
           this.escritura.apoderados = data;
+          this.escrituraApoderados = data;
+          this.mostrandoApoderadosEliminados = false;
+          this.mostrarFormularioNuevoApoderado();
+
+          this.empresaService.obtenerEscriturasApoderadosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraApoderado[]) => {
+            this.escrituraApoderadosEliminados = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se han podido descargar todos los apoderados. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -826,6 +858,8 @@ export class EmpresaLegalComponent implements OnInit {
             ToastType.ERROR
           );
         })
+
+
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
@@ -841,9 +875,21 @@ export class EmpresaLegalComponent implements OnInit {
           ToastType.SUCCESS
         );
         this.modal.close();
-        this.mostrarFormularioNuevoApoderado();
         this.empresaService.obtenerEscriturasApoderados(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraApoderado[]) => {
           this.escritura.apoderados = data;
+          this.escrituraApoderados = data;
+          this.mostrandoApoderadosEliminados = false;
+          this.mostrarFormularioNuevoApoderado();
+
+          this.empresaService.obtenerEscriturasApoderadosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraApoderado[]) => {
+            this.escrituraApoderadosEliminados = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se han podido descargar todos los apoderados. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -888,16 +934,16 @@ export class EmpresaLegalComponent implements OnInit {
         );
         return;
       }
-    }
 
-    let existeSocioRfc = this.escritura.consejos.filter(x => (x.curp === formValue.curp && x.uuid !== this.consejo?.uuid))
-    if(existeSocioRfc.length > 0) {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        "Ya hay un miembro del consejo registrado con este CURP",
-        ToastType.WARNING
-      );
-      return;
+      let existeSocioRfc = this.escritura.consejos.filter(x => (x.curp === formValue.curp && x.uuid !== this.consejo?.uuid))
+      if(existeSocioRfc.length > 0) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "Ya hay un miembro del consejo registrado con este CURP",
+          ToastType.WARNING
+        );
+        return;
+      }
     }
 
     let existeConsejoPuesto = this.escritura.consejos.filter(x => x.puesto === formValue.puesto && x.uuid !== this.consejo?.uuid)
@@ -921,9 +967,21 @@ export class EmpresaLegalComponent implements OnInit {
           ToastType.SUCCESS
         );
         this.modal.close();
-        this.mostrarFormularioNuevoConsejo();
         this.empresaService.obtenerEscrituraConsejos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraConsejo[]) => {
+          this.mostrandoConsejosEliminados = false;
           this.escritura.consejos = data;
+          this.escrituraConsejos = data;
+          this.mostrarFormularioNuevoConsejo();
+
+          this.empresaService.obtenerEscrituraConsejosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraConsejo[]) => {
+            this.escrituraConsejosEliminados = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se han podido descargar todos los consejos. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -946,9 +1004,21 @@ export class EmpresaLegalComponent implements OnInit {
           ToastType.SUCCESS
         );
         this.modal.close();
-        this.mostrarFormularioNuevoConsejo();
         this.empresaService.obtenerEscrituraConsejos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraConsejo[]) => {
+          this.mostrandoConsejosEliminados = false;
           this.escritura.consejos = data;
+          this.escrituraConsejos = data;
+          this.mostrarFormularioNuevoConsejo();
+
+          this.empresaService.obtenerEscrituraConsejosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraConsejo[]) => {
+            this.escrituraConsejosEliminados = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se han podido descargar todos los consejos. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -994,16 +1064,16 @@ export class EmpresaLegalComponent implements OnInit {
         );
         return;
       }
-    }
 
-    let existeSocioRfc = this.escritura.representantes.filter(x => (x.curp === formValue.curp && x.uuid !== this.representante?.uuid))
-    if(existeSocioRfc.length > 0) {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        "Ya hay un representante registrado con este CURP",
-        ToastType.WARNING
-      );
-      return;
+      let existeSocioRfc = this.escritura.representantes.filter(x => (x.curp === formValue.curp && x.uuid !== this.representante?.uuid))
+      if(existeSocioRfc.length > 0) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "Ya hay un representante registrado con este CURP",
+          ToastType.WARNING
+        );
+        return;
+      }
     }
 
     if(this.editandoRepresentante) {
@@ -1017,9 +1087,22 @@ export class EmpresaLegalComponent implements OnInit {
           ToastType.SUCCESS
         );
         this.modal.close();
-        this.mostrarFormularioNuevoRepresentante();
+
         this.empresaService.obtenerEscrituraRepresentantes(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraRepresentante[]) => {
+          this.mostrandoRepresentantesEliminados = false;
           this.escritura.representantes = data;
+          this.escrituraRepresentantes = data;
+          this.mostrarFormularioNuevoRepresentante();
+
+          this.empresaService.obtenerEscrituraRepresentantesTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraRepresentante[]) => {
+            this.escrituraRepresentantesEliminados = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se han podido descargar todos los representantes. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -1042,9 +1125,21 @@ export class EmpresaLegalComponent implements OnInit {
           ToastType.SUCCESS
         );
         this.modal.close();
-        this.mostrarFormularioNuevoRepresentante();
         this.empresaService.obtenerEscrituraRepresentantes(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraRepresentante[]) => {
+          this.mostrandoRepresentantesEliminados = false;
           this.escritura.representantes = data;
+          this.escrituraRepresentantes = data;
+          this.mostrarFormularioNuevoRepresentante();
+
+          this.empresaService.obtenerEscrituraRepresentantesTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraRepresentante[]) => {
+            this.escrituraRepresentantesEliminados = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se han podido descargar todos los representantes. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -1435,6 +1530,7 @@ export class EmpresaLegalComponent implements OnInit {
         "Se ha eliminado el socio con exito",
         ToastType.SUCCESS
       );
+      this.mostrandoSociosEliminados = false;
 
       this.empresaService.obtenerEscrituraSociosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraSocio[]) => {
         this.escrituraSociosEliminados = data;
@@ -1733,6 +1829,51 @@ export class EmpresaLegalComponent implements OnInit {
       let link = document.createElement('a');
       link.href = window.URL.createObjectURL(data);
       link.download = "documento-fundatorio-" + this.socio?.uuid;
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el documento fundatorio. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  descargarDocumentoFundatorioApoderado() {
+    this.empresaService.descargarDocumentoFundatorioApoderado(this.uuid, this.escritura?.uuid, this.apoderado?.uuid).subscribe((data: Blob) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "documento-fundatorio-" + this.apoderado?.uuid;
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el documento fundatorio. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  descargarDocumentoFundatorioRepresentante() {
+    this.empresaService.descargarDocumentoFundatorioRepresentante(this.uuid, this.escritura?.uuid, this.representante?.uuid).subscribe((data: Blob) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "documento-fundatorio-" + this.representante?.uuid;
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el documento fundatorio. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  descargarDocumentoFundatorioConsejo() {
+    this.empresaService.descargarDocumentoFundatorioConsejo(this.uuid, this.escritura?.uuid, this.consejo?.uuid).subscribe((data: Blob) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "documento-fundatorio-" + this.consejo?.uuid;
       link.click();
     }, (error) => {
       this.toastService.showGenericToast(

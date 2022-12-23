@@ -219,7 +219,7 @@ public class ValidacionServiceImpl implements ValidacionService {
 
         if(StringUtils.isNotBlank(existeArmaDto.getSerie())) {
             logger.info("Buscando el arma con la serie [{}]", existeArmaDto.getSerie());
-            Arma arma = armaRepository.getFirstBySerie(existeArmaDto.getSerie());
+            Arma arma = armaRepository.getFirstBySerieAndEliminadoFalse(existeArmaDto.getSerie());
             if(arma != null) {
                 logger.info("El arma fue encontrada con el numero de serie");
                 existeArmaDto.setExiste(true);
@@ -229,7 +229,7 @@ public class ValidacionServiceImpl implements ValidacionService {
 
         if(StringUtils.isNotBlank(existeArmaDto.getMatricula())) {
             logger.info("Buscando el arma con la Matricula [{}]", existeArmaDto.getMatricula());
-            Arma arma = armaRepository.getFirstByMatricula(existeArmaDto.getMatricula());
+            Arma arma = armaRepository.getFirstByMatriculaAndEliminadoFalse(existeArmaDto.getMatricula());
             if(arma != null) {
                 logger.info("La empresa fue encontrada con el CURP");
                 existeArmaDto.setExiste(true);

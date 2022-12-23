@@ -59,7 +59,7 @@ public class ClienteAsignacionPersonalServiceImpl implements ClienteAsignacionPe
         }
 
         logger.info("Obteniendo las asignaciones de personal con el cliente [{}]", clienteUuid);
-        Cliente cliente = clienteRepository.findByUuidAndEliminadoFalse(clienteUuid);
+        Cliente cliente = clienteRepository.findByUuid(clienteUuid);
 
         if(cliente == null) {
             logger.warn("El cliente no existe en la base de datos");

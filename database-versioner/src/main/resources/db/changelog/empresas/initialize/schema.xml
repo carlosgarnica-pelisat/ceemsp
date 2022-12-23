@@ -11,7 +11,7 @@
             <column name="RAZON_SOCIAL" type="varchar(100)"></column>
             <column name="NOMBRE_COMERCIAL" type="varchar(100)"></column>
             <column name="TIPO_TRAMITE" type="varchar(6)"></column>
-            <column name="REGISTRO" type="varchar(20)"></column>
+            <column name="REGISTRO" type="varchar(30)"></column>
             <column name="TIPO_PERSONA" type="varchar(6)"></column>
             <column name="RFC" type="VARCHAR(13)"></column>
             <column name="CURP" type="VARCHAR(20)"></column>

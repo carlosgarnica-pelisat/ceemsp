@@ -89,7 +89,11 @@ public class CanServiceImpl implements CanService {
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
         List<Can> canes = canRepository.getAllByEmpresaAndEliminadoFalse(empresaDto.getId());
 
-        return canes.stream().map(daoToDtoConverter::convertDaoToDtoCan).collect(Collectors.toList());
+        return canes.stream().map(c -> {
+            CanDto canDto = daoToDtoConverter.convertDaoToDtoCan(c);
+            canDto.setRaza(canRazaService.obtenerPorId(c.getRaza()));
+            return canDto;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -108,6 +112,21 @@ public class CanServiceImpl implements CanService {
     }
 
     @Override
+    public List<CanDto> obtenerCanesEnInstalacionesPorEmpresa(String empresaUuid) {
+        if(StringUtils.isBlank(empresaUuid)) {
+            logger.warn("El uuid de la empresa viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo los canes con estatus en INSTALACIONES para la empresa [{}]", empresaUuid);
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        List<Can> canes = canRepository.getAllByEmpresaAndStatus(empresaDto.getId(), CanStatusEnum.INSTALACIONES);
+
+        return canes.stream().map(daoToDtoConverter::convertDaoToDtoCan).collect(Collectors.toList());
+    }
+
+    @Override
     public CanDto obtenerCanPorUuid(String empresaUuid, String canUuid, boolean soloEntidad) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid)) {
             logger.warn("El uuid de la empresa o del can vienen como nulos o vacios");
@@ -121,9 +140,6 @@ public class CanServiceImpl implements CanService {
         if(!soloEntidad) {
             canDto.setRaza(canRazaService.obtenerPorId(can.getRaza()));
             canDto.setDomicilioAsignado(empresaDomicilioService.obtenerPorId(can.getDomicilioAsignado()));
-            if(can.getElementoAsignado() != null && can.getElementoAsignado() > 0) {
-                canDto.setElementoAsignado(personaService.obtenerPorId(can.getElementoAsignado()));
-            }
 
             if(can.getClienteAsignado() != null && can.getClienteAsignado() > 0) {
                 canDto.setClienteAsignado(clienteService.obtenerClientePorId(can.getClienteAsignado()));
@@ -162,9 +178,6 @@ public class CanServiceImpl implements CanService {
 
         canDto.setRaza(canRazaService.obtenerPorId(can.getRaza()));
         canDto.setDomicilioAsignado(empresaDomicilioService.obtenerPorId(can.getDomicilioAsignado()));
-        if(can.getElementoAsignado() != null && can.getElementoAsignado() > 0) {
-            canDto.setElementoAsignado(personaService.obtenerPorId(can.getElementoAsignado()));
-        }
 
         if(can.getClienteAsignado() != null && can.getClienteAsignado() > 0) {
             canDto.setClienteAsignado(clienteService.obtenerClientePorId(can.getClienteAsignado()));
@@ -196,9 +209,6 @@ public class CanServiceImpl implements CanService {
         can.setEmpresa(empresaDto.getId());
         can.setRaza(canDto.getRaza().getId());
         can.setDomicilioAsignado(canDto.getDomicilioAsignado().getId());
-        if(canDto.getElementoAsignado() != null) {
-            can.setElementoAsignado(canDto.getElementoAsignado().getId());
-        }
 
         if(canDto.getOrigen() != CanOrigenEnum.PROPIO) {
             can.setFechaInicio(LocalDate.parse(canDto.getFechaInicio()));
@@ -207,7 +217,11 @@ public class CanServiceImpl implements CanService {
 
         Can canCreado = canRepository.save(can);
 
-        return daoToDtoConverter.convertDaoToDtoCan(canCreado);
+        CanDto response = daoToDtoConverter.convertDaoToDtoCan(canCreado);
+
+        response.setRaza(canDto.getRaza());
+        response.setDomicilioAsignado(canDto.getDomicilioAsignado());
+        return response;
     }
 
     @Transactional
@@ -242,9 +256,6 @@ public class CanServiceImpl implements CanService {
         can.setOrigen(canDto.getOrigen());
         can.setRazonSocial(canDto.getRazonSocial());
         can.setStatus(canDto.getStatus());
-        if(canDto.getElementoAsignado() != null) {
-            can.setElementoAsignado(canDto.getElementoAsignado().getId());
-        }
         if(StringUtils.isNotBlank(canDto.getFechaInicio())) {
             can.setFechaInicio(LocalDate.parse(canDto.getFechaInicio()));
         }

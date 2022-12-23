@@ -4,6 +4,7 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraRepresentanteDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraSocioDto;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 
 public interface EmpresaEscrituraRepresentanteService {
@@ -13,4 +14,5 @@ public interface EmpresaEscrituraRepresentanteService {
     EmpresaEscrituraRepresentanteDto crearRepresentante(String empresaUuid, String escrituraUuid, String username, EmpresaEscrituraRepresentanteDto empresaEscrituraRepresentanteDto);
     EmpresaEscrituraRepresentanteDto modificarRepresentante(String empresaUuid, String escrituraUuid, String representanteUuid, String username, EmpresaEscrituraRepresentanteDto empresaEscrituraRepresentanteDto);
     EmpresaEscrituraRepresentanteDto eliminarRepresentante(String empresaUuid, String escrituraUuid, String representanteUuid, String username, EmpresaEscrituraRepresentanteDto empresaEscrituraRepresentanteDto, MultipartFile multipartFile);
+    File obtenerDocumentoFundatorioBajaRepresentante(String empresaUuid, String escrituraUuid, String representanteUuid);
 }

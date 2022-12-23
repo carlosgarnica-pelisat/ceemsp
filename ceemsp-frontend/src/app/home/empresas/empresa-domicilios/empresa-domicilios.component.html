@@ -3,7 +3,7 @@
 
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Domicilios</h1>
+    <h1 class="h3 mb-0 text-gray-800">Domicilios <span *ngIf="mostrandoEliminados">(eliminados)</span></h1>
     <div class="btn-group">
       <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearDomicilioModal)">Nueva direccion</button>
       <div class="dropdown">
@@ -63,7 +63,7 @@
 
   <ng-template #mostrarDetallesDomicilioModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="mostrarDetallesDomicilioModal">Detalles del domicilio </h4>
+      <h4 class="modal-title" id="mostrarDetallesDomicilioModal">Detalles del domicilio {{domicilio?.nombre}} <span *ngIf="domicilio?.eliminado">(eliminado)</span> </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -100,6 +100,18 @@
               <td><b>Telefono de contacto (movil):</b></td>
               <td>{{domicilio?.telefonoMovil}}</td>
             </tr>
+            <tr *ngIf="domicilio?.eliminado">
+              <td><b>Motivos de baja:</b></td>
+              <td>{{domicilio?.motivoBaja}}</td>
+            </tr>
+            <tr *ngIf="domicilio?.eliminado">
+              <td><b>Fecha de baja:</b></td>
+              <td>{{domicilio?.fechaBaja}}</td>
+            </tr>
+            <tr *ngIf="domicilio?.eliminado">
+              <td><b>Observaciones de baja:</b></td>
+              <td>{{domicilio?.observacionesBaja}}</td>
+            </tr>
           </table>
         </div>
       </div>
@@ -128,8 +140,8 @@
               </td>
               <td>{{t?.telefono}}</td>
               <td>
-                <fa-icon [icon]="faPencil" (click)="mostrarEditarTelefonoForm(i)"></fa-icon>
-                <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarTelefono(t?.uuid)"></fa-icon>
+                <fa-icon [icon]="faPencil" *ngIf="!domicilio?.eliminado" (click)="mostrarEditarTelefonoForm(i)"></fa-icon>
+                <fa-icon [icon]="faTrash" *ngIf="!domicilio?.eliminado" (click)="mostrarModalEliminarTelefono(t?.uuid)"></fa-icon>
               </td>
             </tr>
             <tr>
@@ -162,9 +174,9 @@
             </tr>
             <tr>
               <td colspan="3">
-                <button class="btn btn-sm btn-primary" *ngIf="!showTelefonoForm" (click)="mostrarAgregarTelefonoForm()">Agregar telefono</button>
-                <button class="btn btn-sm btn-primary" *ngIf="showTelefonoForm" (click)="guardarTelefono(crearTelefonoForm)">Guardar</button>
-                <button class="btn btn-sm btn-danger" *ngIf="showTelefonoForm" (click)="mostrarAgregarTelefonoForm()">Cancelar</button>
+                <button class="btn btn-sm btn-primary" *ngIf="!showTelefonoForm && !domicilio?.eliminado" (click)="mostrarAgregarTelefonoForm()">Agregar telefono</button>
+                <button class="btn btn-sm btn-primary" *ngIf="showTelefonoForm && !domicilio?.eliminado" (click)="guardarTelefono(crearTelefonoForm)">Guardar</button>
+                <button class="btn btn-sm btn-danger" *ngIf="showTelefonoForm && !domicilio?.eliminado" (click)="mostrarAgregarTelefonoForm()">Cancelar</button>
               </td>
             </tr>
           </table>
@@ -172,8 +184,8 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="mostrarModificarDomicilioModal()">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="mostrarEliminarEmpresaModal()">Eliminar</button>
+      <button class="btn btn-primary" *ngIf="!domicilio?.eliminado" (click)="mostrarModificarDomicilioModal()">Modificar</button>
+      <button type="button" class="btn btn-danger" *ngIf="!domicilio?.eliminado" (click)="mostrarEliminarEmpresaModal()">Eliminar</button>
     </div>
   </ng-template>
 

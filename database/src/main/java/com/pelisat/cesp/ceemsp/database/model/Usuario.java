@@ -35,7 +35,7 @@ public class Usuario extends CommonModel {
 
     @Column(name = "ROL")
     @Enumerated(EnumType.STRING)
-    RolTypeEnum rol;
+    private RolTypeEnum rol;
 
     public Usuario() {
         super();

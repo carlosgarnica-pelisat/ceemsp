@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -208,5 +209,28 @@ public class EmpresaEscrituraApoderadoServiceImpl implements EmpresaEscrituraApo
 
         empresaEscrituraApoderadoRepository.save(empresaEscrituraApoderado);
         return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraApoderado(empresaEscrituraApoderado);
+    }
+
+    @Override
+    public File obtenerDocumentoFundatorioBajaApoderado(String empresaUuid, String escrituraUuid, String apoderadoUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(apoderadoUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando el documento fundatorio con uuid [{}]", apoderadoUuid);
+        EmpresaEscrituraApoderado apoderado = empresaEscrituraApoderadoRepository.findByUuid(apoderadoUuid);
+
+        if(apoderado == null) {
+            logger.warn("La fotografia esta eliminada o no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(!apoderado.getEliminado()) {
+            logger.warn("El elemento no se encuentra eliminado");
+            throw new NotFoundResourceException();
+        }
+
+        return new File(apoderado.getDocumentoFundatorioBaja());
     }
 }

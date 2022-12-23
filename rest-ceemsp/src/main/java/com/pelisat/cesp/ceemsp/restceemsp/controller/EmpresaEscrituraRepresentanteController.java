@@ -6,13 +6,20 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraSocioDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaEscrituraRepresentanteService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaEscrituraSocioService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.ExceptionTypeFilter;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 @RestController
@@ -89,5 +96,40 @@ public class EmpresaEscrituraRepresentanteController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return empresaEscrituraRepresentanteService.eliminarRepresentante(empresaUuid, escrituraUuid, representanteUuid, username, new Gson().fromJson(representante, EmpresaEscrituraRepresentanteDto.class), archivo);
+    }
+
+    @GetMapping(value = EMPRESA_REPRESENTANTES_URI + "/{representanteUuid}/documentos/fundatorios", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> obtenerDocumentoFundatorio(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "escrituraUuid") String escrituraUuid,
+            @PathVariable(value = "representanteUuid") String representanteUuid
+    ) throws Exception {
+        File file = empresaEscrituraRepresentanteService.obtenerDocumentoFundatorioBajaRepresentante(empresaUuid, escrituraUuid, representanteUuid);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        MediaType mediaType = null;
+
+        switch(FilenameUtils.getExtension(file.getName())) {
+            case "pdf":
+                mediaType = MediaType.APPLICATION_PDF;
+                break;
+            case "jpg":
+                mediaType = MediaType.IMAGE_JPEG;
+                break;
+            case "jpeg":
+                mediaType = MediaType.IMAGE_JPEG;
+                break;
+            case "gif":
+                mediaType = MediaType.IMAGE_GIF;
+                break;
+            case "png":
+                mediaType = MediaType.IMAGE_PNG;
+                break;
+        }
+
+        responseHeaders.setContentType(mediaType);
+        responseHeaders.setContentLength(file.length());
+        responseHeaders.setContentDispositionFormData("attachment", file.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+        return new ResponseEntity<>(isr, responseHeaders, HttpStatus.OK);
     }
 }

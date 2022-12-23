@@ -173,7 +173,11 @@ public class EmpresaServiceImpl implements EmpresaService {
                     if(m.getSubmodalidad() != null) {
                         empresaModalidad.setSubmodalidad(m.getSubmodalidad().getId());
                     }
-
+                    if(empresaCreada.getTipoTramite() == TipoTramiteEnum.EAFJAL) {
+                        empresaModalidad.setNumeroRegistroFederal(empresaCreada.getRegistroFederal());
+                        empresaModalidad.setFechaInicio(empresaCreada.getFechaInicio());
+                        empresaModalidad.setFechaFin(empresaCreada.getFechaFin());
+                    }
 
                     return empresaModalidad;
                 }).collect(Collectors.toList());

@@ -24,6 +24,8 @@ export class EmpresaAcuerdosComponent implements OnInit {
   private gridApi;
   private gridColumnApi;
 
+  VALOR_UMA_PESOS: number = 96.22;
+
   uuid: string;
   empresa: Empresa;
   rowDataClicked = {
@@ -42,6 +44,32 @@ export class EmpresaAcuerdosComponent implements OnInit {
   nuevoAcuerdoForm: FormGroup;
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'Tipo', sortable: true, filter: true, valueGetter: function (params) {
+        switch (params.data.tipo) {
+          case 'AUTORIZACION_ESTATAL':
+            return 'Autorizacion Estatal';
+          case 'AUTORIZACION_PROVISIONAL':
+            return 'Autorizacion Provisional';
+          case 'REGISTRO_FEDERAL':
+            return 'Registro Federal';
+          case 'REGISTRO_SERVICIOS_PROPIOS':
+            return 'Registro de Servicios Propios';
+          case 'REFRENDO':
+            return 'Refrendo';
+          case 'REVOCACION':
+            return 'Revocacion';
+          case 'PERDIDA_EFICACIA':
+            return 'Perdida de eficacia';
+          case 'SUSPENSION':
+            return 'Suspension';
+          case 'CLAUSURA':
+            return 'Clausura';
+          case 'MULTA':
+            return 'Multa';
+          case 'AMONESTACION':
+            return 'Amonestacion'
+        }
+      }},
     {headerName: 'Fecha', field: 'fecha', sortable: true, filter: true },
     {headerName: 'Observaciones', field: 'observaciones', sortable: true, filter: true},
     {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
@@ -55,6 +83,8 @@ export class EmpresaAcuerdosComponent implements OnInit {
   rowData = [];
   acuerdo: Acuerdo;
   tipoAcuerdo: string;
+
+  multaPesos: number = 0;
 
   @ViewChild('verDetallesAcuerdoModal') verDetallesAcuerdoModal;
   @ViewChild('crearAcuerdoModal') crearAcuerdoModal;
@@ -95,8 +125,14 @@ export class EmpresaAcuerdosComponent implements OnInit {
     this.nuevoAcuerdoForm = this.formBuilder.group({
       tipo: ['', Validators.required],
       fecha: ['', Validators.required],
-      observaciones: ['']
+      observaciones: [''],
+      fechaInicio: [''],
+      fechaFin: [''],
+      multaUmas: [''],
+      multaPesos: ['']
     });
+
+    this.nuevoAcuerdoForm.controls['multaPesos'].disable()
 
     this.motivosEliminacionForm = this.formBuilder.group({
       motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
@@ -108,6 +144,18 @@ export class EmpresaAcuerdosComponent implements OnInit {
 
   cambiarTipoAcuerdo(tipoAcuerdo) {
     this.tipoAcuerdo = tipoAcuerdo.value;
+
+    if(this.tipoAcuerdo === 'AUTORIZACION_ESTATAL' || this.tipoAcuerdo === 'AUTORIZACION_PROVISIONAL' || this.tipoAcuerdo === 'REGISTRO_FEDERAL' || this.tipoAcuerdo === 'REGISTRO_SERVICIOS_PROPIOS') {
+      this.nuevoAcuerdoForm.controls['fechaInicio'].setValidators([Validators.required])
+      this.nuevoAcuerdoForm.controls['fechaInicio'].updateValueAndValidity();
+      this.nuevoAcuerdoForm.controls['fechaFin'].setValidators([Validators.required])
+      this.nuevoAcuerdoForm.controls['fechaFin'].updateValueAndValidity();
+    } else if(this.tipoAcuerdo === 'MULTA') {
+      this.nuevoAcuerdoForm.controls['multaUmas'].setValidators([Validators.required])
+      this.nuevoAcuerdoForm.controls['multaUmas'].updateValueAndValidity();
+      this.nuevoAcuerdoForm.controls['multaPesos'].setValidators([Validators.required])
+      this.nuevoAcuerdoForm.controls['multaPesos'].updateValueAndValidity();
+    }
   }
 
   verDetalles(rowData) {
@@ -130,8 +178,14 @@ export class EmpresaAcuerdosComponent implements OnInit {
       this.nuevoAcuerdoForm.patchValue({
         fecha: this.acuerdo.fecha,
         observaciones: this.acuerdo.observaciones,
-        tipo: this.acuerdo.tipo
+        tipo: this.acuerdo.tipo,
+        fechaInicio: this.acuerdo.fechaInicio,
+        fechaFin: this.acuerdo.fechaFin,
+        multaUmas: this.acuerdo.multaUmas,
+        multaPesos: this.acuerdo.multaPesos
       })
+
+      this.tipoAcuerdo = data.tipo;
 
       this.modal = this.modalService.open(this.modificarAcuerdoModal, {'size': 'xl'})
     }, (error) => {
@@ -181,6 +235,24 @@ export class EmpresaAcuerdosComponent implements OnInit {
     })
   }
 
+  calcularUmasAPesos(event) {
+    let umas = event.value;
+    if(umas < 100 || umas > 500) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `La cantidad de umas deben de ser entre 100 y 500`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.nuevoAcuerdoForm.patchValue({
+      multaPesos: (+umas) * (+this.VALOR_UMA_PESOS)
+    })
+
+    this.multaPesos = (+umas) * (+this.VALOR_UMA_PESOS)
+  }
+
   onFileChange(event) {
     this.tempFile = event.target.files[0]
   }
@@ -211,6 +283,8 @@ export class EmpresaAcuerdosComponent implements OnInit {
     );
 
     let formValue: Acuerdo = form.value;
+    formValue.multaPesos = this.multaPesos
+    formValue.multaUmas = (formValue.tipo === 'MULTA') ? formValue.multaUmas : 0;
 
     let formData: FormData = new FormData();
     formData.append('archivo', this.tempFile, this.tempFile.name);
@@ -249,6 +323,7 @@ export class EmpresaAcuerdosComponent implements OnInit {
     );
 
     let formValue: Acuerdo = form.value;
+    formValue.multaPesos = this.multaPesos
 
     let formData: FormData = new FormData();
     if(this.tempFile !== undefined) {
@@ -303,8 +378,14 @@ export class EmpresaAcuerdosComponent implements OnInit {
     this.nuevoAcuerdoForm.patchValue({
       fecha: this.acuerdo.fecha,
       observaciones: this.acuerdo.observaciones,
-      tipo: this.acuerdo.tipo
+      tipo: this.acuerdo.tipo,
+      fechaInicio: this.acuerdo.fechaInicio,
+      fechaFin: this.acuerdo.fechaFin,
+      multaUmas: this.acuerdo.multaUmas,
+      multaPesos: this.acuerdo.multaPesos
     })
+
+    this.tipoAcuerdo = this.acuerdo.tipo
 
     this.modal = this.modalService.open(this.modificarAcuerdoModal, {'size': 'xl'})
   }

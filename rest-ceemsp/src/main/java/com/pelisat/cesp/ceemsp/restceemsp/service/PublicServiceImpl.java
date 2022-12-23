@@ -117,7 +117,7 @@ public class PublicServiceImpl implements PublicService {
         if(visita == null) {
             response.setNumeroSiguiente("001");
         } else {
-            String currentNumber = visita.getNumeroOrden().split("/")[2];
+            String currentNumber = visita.getNumeroOrden().split("/")[3];
             int nextNumber = Integer.parseInt(currentNumber);
             nextNumber = nextNumber+1;
             String nextNumberString = Integer.toString(nextNumber);

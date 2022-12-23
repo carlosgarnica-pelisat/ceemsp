@@ -135,7 +135,7 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
 
         logger.info("Obteniendo el domicilio con uuid [{}]", domicilioUuid);
 
-        EmpresaDomicilio empresaDomicilio = empresaDomicilioRepository.findByUuidAndEliminadoFalse(domicilioUuid);
+        EmpresaDomicilio empresaDomicilio = empresaDomicilioRepository.findByUuid(domicilioUuid);
         if(empresaDomicilio == null) {
             logger.warn("El domiciio de la empresa no existe en la bsase de datos");
             throw new NotFoundResourceException();

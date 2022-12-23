@@ -52,6 +52,8 @@ export class EmpresaUniformesComponent implements OnInit {
 
   pestanaActual: string = "DETALLES";
 
+  imagenPrincipal: any;
+
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
@@ -297,10 +299,22 @@ export class EmpresaUniformesComponent implements OnInit {
     }
   }
 
+  convertirFotoPrincipal(imagen: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.imagenPrincipal = reader.result;
+    });
+
+    if(imagen) {
+      reader.readAsDataURL(imagen);
+    }
+  }
+
+
   descargarFotografiaUniforme(uuid) {
     this.empresaService.descargarFotografiaUniformeElemento(this.uuid, this.uniforme.uuid, uuid).subscribe((data: Blob) => {
       this.convertirImagen(data);
-      this.modalService.open(this.mostrarElementoModal);
+      this.modalService.open(this.mostrarElementoModal, {size: 'lg'});
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -548,19 +562,6 @@ export class EmpresaUniformesComponent implements OnInit {
     }
   }
 
-  mostrarFotoUniforme() {
-    this.empresaService.descargarFotografiaUniforme(this.uuid, this.uniforme?.uuid).subscribe((data: Blob) => {
-      this.modal = this.modalService.open(this.mostrarUniformeCompletoModal, {size: 'xl', backdrop: 'static'})
-      this.convertirFotoUniforme(data);
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se ha podido descargar la fotografia. Motivo: ${error}`,
-        ToastType.ERROR
-      );
-    })
-  }
-
   actualizarAltas(event) {
     let altas = event.value;
     if(altas < 0) {
@@ -601,6 +602,15 @@ export class EmpresaUniformesComponent implements OnInit {
 
     this.empresaService.obtenerUniformePorUuid(this.uuid, data.uuid).subscribe((data: EmpresaUniforme) => {
       this.uniforme = data;
+      this.empresaService.descargarFotografiaUniforme(this.uuid, this.uniforme?.uuid).subscribe((data: Blob) => {
+        this.convertirFotoPrincipal(data);
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la fotografia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",

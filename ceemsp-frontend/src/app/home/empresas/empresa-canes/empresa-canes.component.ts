@@ -118,6 +118,9 @@ export class EmpresaCanesComponent implements OnInit {
   certificadoGuardado: boolean = false;
   vacunacionGuardada: boolean = false;
   entrenamientoGuardado: boolean = false;
+  fotografiaGuardada: boolean = false;
+
+  imagenPrincipal: any;
 
   tipoAdiestramiento: TipoEntrenamiento;
   @ViewChild('verDetallesCanModal') verDetallesCanModal;
@@ -274,16 +277,6 @@ export class EmpresaCanesComponent implements OnInit {
       )
     });
 
-    this.empresaService.obtenerPersonal(this.uuid).subscribe((data: Persona[]) => {
-      this.personal = data;
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se ha podido descargar el personal. Motivo: ${error}`,
-        ToastType.ERROR
-      );
-    })
-
   }
 
   onGridReady(params) {
@@ -428,6 +421,21 @@ export class EmpresaCanesComponent implements OnInit {
       this.can = data;
       this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', scrollable: true});
 
+      if(this.can?.fotografias.length > 0) {
+        let canFoto = this.can?.fotografias[0];
+        this.empresaService.descargarCanFotografia(this?.uuid, this?.can?.uuid, canFoto.uuid).subscribe((data: Blob) => {
+          this.convertirImagenPrincipal(data);
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se ha podido descargar la fotografia. Motivo: ${error}`,
+            ToastType.ERROR
+          )
+        })
+      } else {
+        this.imagenPrincipal = undefined;
+      }
+
       // Obteniendo elementos eliminados y tal
       this.empresaService.obtenerCanCartillasVacunacionTodos(this.uuid, this.can.uuid).subscribe((data: CanCartillaVacunacion[]) => {
         this.canVacunacionesTodos = data;
@@ -505,7 +513,6 @@ export class EmpresaCanesComponent implements OnInit {
     let can: Can = form.value;
     can.raza = this.razas.filter(x => x.uuid === form.value.raza)[0];
     can.domicilioAsignado = this.domicilios.filter(x => x.uuid === form.value.domicilioAsignado)[0];
-    can.elementoAsignado = this.personal.filter(x => x.uuid === form.value.elementoAsignado)[0];
 
     this.empresaService.modificarCan(this.uuid, this.can.uuid, can).subscribe((data: Can) => {
       this.toastService.showGenericToast(
@@ -729,6 +736,16 @@ export class EmpresaCanesComponent implements OnInit {
         this.mostrarEntrenamientoForm();
         this.empresaService.descargarCanAdiestramientos(this.uuid, this.can.uuid).subscribe((data: CanAdiestramiento[]) => {
           this.can.adiestramientos = data;
+          this.canEntrenamientos = data;
+          this.empresaService.obtenerCanAdiestramientosTodos(this.uuid, this.can.uuid).subscribe((data: CanAdiestramiento[]) => {
+            this.canEntrenamientosTodos = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se pudieron descargar todos los adiestramientos. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -753,6 +770,16 @@ export class EmpresaCanesComponent implements OnInit {
         this.mostrarEntrenamientoForm();
         this.empresaService.descargarCanAdiestramientos(this.uuid, this.can.uuid).subscribe((data: CanAdiestramiento[]) => {
           this.can.adiestramientos = data;
+          this.canEntrenamientos = data;
+          this.empresaService.obtenerCanAdiestramientosTodos(this.uuid, this.can.uuid).subscribe((data: CanAdiestramiento[]) => {
+            this.canEntrenamientosTodos = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se pudieron descargar todos los adiestramientos. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -805,6 +832,16 @@ export class EmpresaCanesComponent implements OnInit {
         this.mostrarCertificadoSaludForm();
         this.empresaService.descargarCanConstanciasSalud(this.uuid, this.can.uuid).subscribe((data: CanConstanciaSalud[]) => {
           this.can.constanciasSalud = data;
+          this.canCertificadosSalud = data;
+          this.empresaService.obtenerCanConstanciasSaludTodos(this.uuid, this.can.uuid).subscribe((data: CanConstanciaSalud[]) => {
+            this.canCertificadosSalud = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se han podido descargar todas las constancias de salud. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -829,6 +866,16 @@ export class EmpresaCanesComponent implements OnInit {
         this.mostrarCertificadoSaludForm();
         this.empresaService.descargarCanConstanciasSalud(this.uuid, this.can.uuid).subscribe((data: CanConstanciaSalud[]) => {
           this.can.constanciasSalud = data;
+          this.canCertificadosSalud = data;
+          this.empresaService.obtenerCanConstanciasSaludTodos(this.uuid, this.can.uuid).subscribe((data: CanConstanciaSalud[]) => {
+            this.canCertificadosSaludTodos = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se han podido descargar todas las cartillas de vacunacion. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -884,6 +931,16 @@ export class EmpresaCanesComponent implements OnInit {
         this.mostrarVacunacionForm();
         this.empresaService.obtenerCanCartillasVacunacion(this.uuid, this.can.uuid).subscribe((data: CanCartillaVacunacion[]) => {
           this.can.cartillasVacunacion = data;
+          this.canVacunaciones = data;
+          this.empresaService.obtenerCanCartillasVacunacionTodos(this.uuid, this.can.uuid).subscribe((data: CanCartillaVacunacion[]) => {
+            this.canVacunacionesTodos = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se han podido descargar todas las cartillas de vacunacion. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -908,6 +965,16 @@ export class EmpresaCanesComponent implements OnInit {
         this.mostrarVacunacionForm();
         this.empresaService.obtenerCanCartillasVacunacion(this.uuid, this.can.uuid).subscribe((data: CanCartillaVacunacion[]) => {
           this.can.cartillasVacunacion = data;
+          this.canVacunaciones = data;
+          this.empresaService.obtenerCanCartillasVacunacionTodos(this.uuid, this.can.uuid).subscribe((data: CanCartillaVacunacion[]) => {
+            this.canVacunacionesTodos = data;
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se han podido descargar todas las cartillas de vacunacion. Motivo: ${error}`,
+              ToastType.ERROR
+            );
+          })
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
@@ -995,7 +1062,6 @@ export class EmpresaCanesComponent implements OnInit {
           formValue.domicilioAsignado = this.domicilios.filter(x => x.uuid === form.value.domicilioAsignado)[0];
           formValue.clienteDomicilio = null;
           formValue.clienteAsignado = null;
-          formValue.elementoAsignado = this.personal.filter(x => x.uuid === form.value.elementoAsignado)[0];
           formValue.fechaInicio = form.controls["fechaInicio"].value.toLocaleString();
           formValue.fechaFin = form.controls["fechaFin"].value.toLocaleString();
           formValue.fechaIngreso = form.controls["fechaIngreso"].value.toLocaleString();
@@ -1110,77 +1176,86 @@ export class EmpresaCanesComponent implements OnInit {
         }
         break;
       case "FOTOGRAFIA":
-        if(!form.valid) {
-          this.toastService.showGenericToast(
-            "Ocurrio un problema",
-            "El formulario no es valido. Favor de corregir los errores",
-            ToastType.WARNING
-          );
-          return;
-        }
-
-        this.toastService.showGenericToast(
-          "Espere un momento",
-          "Estamos guardando el entrenamiento",
-          ToastType.INFO
-        );
-
-        let formData: CanAdiestramiento = form.value;
-        formData.canTipoAdiestramiento = this.tipoAdiestramiento;
-
-        this.empresaService.guardarCanAdiestramiento(this.uuid, this.can.uuid, formData).subscribe((data: CanAdiestramiento) => {
-          this.toastService.showGenericToast(
-            "Listo",
-            "Se ha guardado el adiestramiento en el can con exito",
-            ToastType.SUCCESS
-          );
-          this.entrenamientoGuardado = true;
-          this.entrenamiento = formData;
-          this.desactivarCamposEntrenamiento();
+        if(this.entrenamientoGuardado) {
           this.stepper.next();
-        }, (error) => {
+        } else {
+          if(!form.valid) {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              "El formulario no es valido. Favor de corregir los errores",
+              ToastType.WARNING
+            );
+            return;
+          }
+
           this.toastService.showGenericToast(
-            "Ocurrio un problema",
-            `No se pudo guardar el adiestramiento del can. Motivo: ${error}`,
-            ToastType.ERROR
-          )
-        })
+            "Espere un momento",
+            "Estamos guardando el entrenamiento",
+            ToastType.INFO
+          );
+
+          let formData: CanAdiestramiento = form.value;
+          formData.canTipoAdiestramiento = this.tipoAdiestramiento;
+
+          this.empresaService.guardarCanAdiestramiento(this.uuid, this.can.uuid, formData).subscribe((data: CanAdiestramiento) => {
+            this.toastService.showGenericToast(
+              "Listo",
+              "Se ha guardado el adiestramiento en el can con exito",
+              ToastType.SUCCESS
+            );
+            this.entrenamientoGuardado = true;
+            this.entrenamiento = formData;
+            this.desactivarCamposEntrenamiento();
+            this.stepper.next();
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se pudo guardar el adiestramiento del can. Motivo: ${error}`,
+              ToastType.ERROR
+            )
+          })
+        }
         break;
       case "RESUMEN":
-        if(!form.valid) {
+        if(this.fotografiaGuardada) {
+          this.stepper.next()
+        } else {
+          if(!form.valid) {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              "El formulario no es valido. Favor de corregir los errores",
+              ToastType.WARNING
+            );
+            return;
+          }
+
           this.toastService.showGenericToast(
-            "Ocurrio un problema",
-            "El formulario no es valido. Favor de corregir los errores",
-            ToastType.WARNING
+            "Espere un momento",
+            "Estamos guardando la fotografia del can",
+            ToastType.INFO
           );
-          return;
+
+          let fotografiaForm = form.value;
+          let fotografiaFormData = new FormData();
+          fotografiaFormData.append('fotografia', this.tempFile, this.tempFile.name);
+          fotografiaFormData.append('metadataArchivo', JSON.stringify(fotografiaForm));
+
+          this.empresaService.guardarCanFotografia(this.uuid, this.can.uuid, fotografiaFormData).subscribe((data) => {
+            this.toastService.showGenericToast(
+              "Listo",
+              "Se ha guardado la fotografia con exito",
+              ToastType.SUCCESS
+            );
+            this.fotografiaGuardada = true;
+            this.stepper.next();
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se ha podido guardar la fotografia. Motivo: ${error}`,
+              ToastType.ERROR
+            )
+          })
         }
-
-        this.toastService.showGenericToast(
-          "Espere un momento",
-          "Estamos guardando la fotografia del can",
-          ToastType.INFO
-        );
-
-        let fotografiaForm = form.value;
-        let fotografiaFormData = new FormData();
-        fotografiaFormData.append('fotografia', this.tempFile, this.tempFile.name);
-        fotografiaFormData.append('metadataArchivo', JSON.stringify(fotografiaForm));
-
-        this.empresaService.guardarCanFotografia(this.uuid, this.can.uuid, fotografiaFormData).subscribe((data) => {
-          this.toastService.showGenericToast(
-            "Listo",
-            "Se ha guardado la fotografia con exito",
-            ToastType.SUCCESS
-          );
-          this.stepper.next();
-        }, (error) => {
-          this.toastService.showGenericToast(
-            "Ocurrio un problema",
-            `No se ha podido guardar la fotografia. Motivo: ${error}`,
-            ToastType.ERROR
-          )
-        })
         break;
     }
   }
@@ -1421,6 +1496,16 @@ export class EmpresaCanesComponent implements OnInit {
       this.modal.close();
       this.empresaService.obtenerCanCartillasVacunacion(this.uuid, this.can.uuid).subscribe((data: CanCartillaVacunacion[]) => {
         this.can.cartillasVacunacion = data;
+        this.canVacunaciones = data;
+        this.empresaService.obtenerCanCartillasVacunacionTodos(this.uuid, this.can.uuid).subscribe((data: CanCartillaVacunacion[]) => {
+          this.canVacunacionesTodos = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar todas las cartillas de vacunacion. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
@@ -1462,6 +1547,16 @@ export class EmpresaCanesComponent implements OnInit {
       this.modal.close();
       this.empresaService.descargarCanConstanciasSalud(this.uuid, this.can.uuid).subscribe((data: CanConstanciaSalud[]) => {
         this.can.constanciasSalud = data;
+        this.canCertificadosSalud = data;
+        this.empresaService.obtenerCanConstanciasSaludTodos(this.uuid, this.can.uuid).subscribe((data: CanConstanciaSalud[]) => {
+          this.canCertificadosSaludTodos = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar todos los certificados. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
@@ -1503,6 +1598,16 @@ export class EmpresaCanesComponent implements OnInit {
       this.modal.close();
       this.empresaService.descargarCanAdiestramientos(this.uuid, this.can.uuid).subscribe((data: CanAdiestramiento[]) => {
         this.can.adiestramientos = data;
+        this.canEntrenamientos = data;
+        this.empresaService.obtenerCanAdiestramientosTodos(this.uuid, this.can.uuid).subscribe((data: CanAdiestramiento[]) => {
+          this.canEntrenamientosTodos = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se pudieron descargar todos los adiestramientos. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
@@ -1651,6 +1756,17 @@ export class EmpresaCanesComponent implements OnInit {
         ToastType.ERROR
       )
     })
+  }
+
+  convertirImagenPrincipal(imagen: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.imagenPrincipal = reader.result
+    });
+
+    if(imagen) {
+      reader.readAsDataURL(imagen)
+    }
   }
 
   private getDismissReason(reason: any): string {

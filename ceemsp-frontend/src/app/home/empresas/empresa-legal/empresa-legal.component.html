@@ -552,7 +552,7 @@
         </div>
 
         <div class="col-sm-12" *ngIf="pestanaActual === 'SOCIOS'">
-          <p-table [value]="escritura?.socios">
+          <p-table [value]="escritura?.socios" [autoLayout]="true" [resizableColumns]="true">
             <ng-template pTemplate="caption">
               Lista de socios de la escritura
             </ng-template>
@@ -594,7 +594,7 @@
         </div>
 
         <div class="col-sm-12" *ngIf="pestanaActual === 'APODERADOS'">
-          <p-table [value]="escritura?.apoderados">
+          <p-table [value]="escritura?.apoderados" [autoLayout]="true" [resizableColumns]="true">
             <ng-template pTemplate="caption">
               Lista de apoderados de la escritura
             </ng-template>
@@ -639,7 +639,7 @@
         </div>
 
         <div class="col-sm-12" *ngIf="pestanaActual === 'REPRESENTANTES'">
-          <p-table [value]="escritura?.representantes">
+          <p-table [value]="escritura?.representantes" [autoLayout]="true" [resizableColumns]="true">
             <ng-template pTemplate="caption">
               Lista de representantes de la escritura
             </ng-template>
@@ -680,7 +680,7 @@
         </div>
 
         <div class="col-sm-12" *ngIf="pestanaActual === 'CONSEJOS'">
-          <p-table [value]="escritura?.consejos">
+          <p-table [value]="escritura?.consejos" [autoLayout]="true" [resizableColumns]="true">
             <ng-template pTemplate="caption">
               Lista de miembros del consejo de la escritura
             </ng-template>
@@ -720,26 +720,6 @@
               Hay en total {{escritura.consejos?.length}} miembros del consejo creado
             </ng-template>
           </p-table>
-          <!--table class="table">
-
-
-            <tr *ngIf="showConsejoForm">
-              <td colspan="7">
-                <div class="row">
-                  <div class="col-sm-12">
-
-                  </div>
-                </div>
-                <hr>
-                <div class="row">
-                  <div class="col-sm-12">
-                    <button class="btn btn-primary btn-sm" (click)="guardarConsejo(nuevoConsejoAdministracionForm)">Guardar</button>
-                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevoConsejo()">Cancelar</button>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </table-->
         </div>
 
       </div>
@@ -1195,7 +1175,7 @@
             <label for="documentoFundatorioBajaSocio">
               <b>Documento fundatorio</b>
             </label>
-            <input id="documentoFundatorioBajaSocio" accept="application/pdf,image/*" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+            <input id="documentoFundatorioBajaSocio" accept="application/pdf" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
           </div>
         </div>
         <div class="row">
@@ -1254,7 +1234,7 @@
             <label for="documentoFundatorioBaja">
               <b>Documento fundatorio</b>
             </label>
-            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+            <input id="documentoFundatorioBaja" accept="application/pdf" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
           </div>
         </div>
         <div class="row">
@@ -1313,7 +1293,7 @@
             <label for="documentoFundatorioBajaRepresentante">
               <b>Documento fundatorio</b>
             </label>
-            <input id="documentoFundatorioBajaRepresentante" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+            <input id="documentoFundatorioBajaRepresentante" accept="application/pdf" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
           </div>
         </div>
         <div class="row">
@@ -1372,7 +1352,7 @@
             <label for="documentoFundatorioBajaConsejo">
               <b>Documento fundatorio</b>
             </label>
-            <input id="documentoFundatorioBajaConsejo" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+            <input id="documentoFundatorioBajaConsejo" accept="application/pdf" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
           </div>
         </div>
         <div class="row">
@@ -1476,6 +1456,7 @@
       </div>
     </div>
     <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="descargarDocumentoFundatorioApoderado()">Descargar fundatorio</button>
       <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
@@ -1508,6 +1489,7 @@
       </div>
     </div>
     <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="descargarDocumentoFundatorioRepresentante()">Descargar fundatorio</button>
       <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
@@ -1540,6 +1522,7 @@
       </div>
     </div>
     <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="descargarDocumentoFundatorioConsejo()">Descargar fundatorio</button>
       <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>

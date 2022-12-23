@@ -33,7 +33,6 @@ public class CanDto {
     private String razonSocial;
     private String fechaInicio;
     private String fechaFin;
-    private PersonaDto elementoAsignado;
     private ClienteDto clienteAsignado;
     private ClienteDomicilioDto clienteDomicilio;
     private String motivos;

@@ -147,5 +147,17 @@ public class Personal extends CommonModel {
 
     @Column(name = "RUTA_VOLANTE_CUIP")
     private String rutaVolanteCuip;
+
+    @Column(name = "ARMA_CORTA")
+    private Integer armaCorta;
+
+    @Column(name = "ARMA_LARGA")
+    private Integer armaLarga;
+
+    @Column(name = "CAN")
+    private Integer can;
+
+    @Column(name = "VEHICULO")
+    private Integer vehiculo;
 }
 

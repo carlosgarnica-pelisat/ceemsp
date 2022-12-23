@@ -9,4 +9,5 @@ public interface EmpresaEscrituraRepresentanteRepository extends JpaRepository<E
     List<EmpresaEscrituraRepresentante> findAllByEscrituraAndEliminadoFalse(int escritura);
     List<EmpresaEscrituraRepresentante> findAllByEscritura(int escritura);
     EmpresaEscrituraRepresentante findByUuidAndEliminadoFalse(String uuid);
+    EmpresaEscrituraRepresentante findByUuid(String uuid);
 }

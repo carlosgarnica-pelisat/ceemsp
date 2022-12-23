@@ -38,6 +38,7 @@ public class IncidenciaArchivoController {
         File file = incidenciaArchivoService.descargarArchivoIncidencia(empresaUuid, incidenciaUuid, incidenciaArchivoUuid);
         HttpHeaders responseHeaders = new HttpHeaders();
 
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
         responseHeaders.setContentLength(file.length());
         responseHeaders.setContentDispositionFormData("attachment", file.getName());
         InputStreamResource isr = new InputStreamResource(new FileInputStream(file));

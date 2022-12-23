@@ -3,9 +3,9 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaLicenciaColectivaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaLicenciaColectiva;
+import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.ArmaRepository;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaLicenciaColectivaDomicilioRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaLicenciaColectivaRepository;
 import com.pelisat.cesp.ceemsp.database.type.ArmaTipoEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -42,6 +43,7 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
     private final ArchivosService archivosService;
     private final Logger logger = LoggerFactory.getLogger(EmpresaLicenciaColectivaService.class);
     private final ArmaRepository armaRepository;
+    private final EmpresaLicenciaColectivaDomicilioRepository empresaLicenciaColectivaDomicilioRepository;
 
     @Autowired
     public EmpresaLicenciaColectivaServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
@@ -49,7 +51,7 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
                                                UsuarioService usuarioService, DaoHelper<CommonModel> daoHelper,
                                                EmpresaService empresaService, ModalidadService modalidadService,
                                                SubmodalidadService submodalidadService, ArchivosService archivosService,
-                                               ArmaRepository armaRepository) {
+                                               ArmaRepository armaRepository, EmpresaLicenciaColectivaDomicilioRepository empresaLicenciaColectivaDomicilioRepository) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.empresaLicenciaColectivaRepository = empresaLicenciaColectivaRepository;
@@ -60,6 +62,7 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
         this.submodalidadService = submodalidadService;
         this.archivosService = archivosService;
         this.armaRepository = armaRepository;
+        this.empresaLicenciaColectivaDomicilioRepository = empresaLicenciaColectivaDomicilioRepository;
     }
 
     @Override
@@ -73,6 +76,27 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
 
         List<EmpresaLicenciaColectiva> empresaLicenciasColectivas = empresaLicenciaColectivaRepository
                 .findAllByEmpresaAndEliminadoFalse(empresaDto.getId());
+
+        return empresaLicenciasColectivas.stream().map(elc -> {
+            EmpresaLicenciaColectivaDto elcd = daoToDtoConverter.convertDaoToDtoEmpresaLicenciaColectiva(elc);
+            elcd.setModalidad(modalidadService.obtenerModalidadPorId(elc.getModalidad()));
+            elcd.setCantidadArmasCortas(armaRepository.countAllByTipoAndLicenciaColectivaAndEliminadoFalse(ArmaTipoEnum.CORTA, elc.getId()));
+            elcd.setCantidadArmasLargas(armaRepository.countAllByTipoAndLicenciaColectivaAndEliminadoFalse(ArmaTipoEnum.LARGA, elc.getId()));
+            return elcd;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EmpresaLicenciaColectivaDto> obtenerLicenciasColectivasEliminadasPorEmpresa(String empresaUuid) {
+        if(StringUtils.isBlank(empresaUuid)) {
+            logger.warn("El uuid de la empresa viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+
+        List<EmpresaLicenciaColectiva> empresaLicenciasColectivas = empresaLicenciaColectivaRepository
+                .findAllByEmpresaAndEliminadoTrue(empresaDto.getId());
 
         return empresaLicenciasColectivas.stream().map(elc -> {
             EmpresaLicenciaColectivaDto elcd = daoToDtoConverter.convertDaoToDtoEmpresaLicenciaColectiva(elc);
@@ -211,6 +235,7 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
         return empresaLicenciaColectivaDto;
     }
 
+    @Transactional
     @Override
     public EmpresaLicenciaColectivaDto eliminarLicenciaColectiva(String empresaUuid, String licenciaUuid, String username, EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(licenciaUuid) || StringUtils.isBlank(username) || empresaLicenciaColectivaDto == null) {
@@ -245,6 +270,21 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
             }
         }
         empresaLicenciaColectivaRepository.save(licenciaColectiva);
+
+        List<Arma> armas = armaRepository.getAllByLicenciaColectivaAndEliminadoFalse(licenciaColectiva.getId());
+
+        armas.forEach(arma -> {
+            arma.setEliminado(true);
+            armaRepository.save(arma);
+        });
+
+        List<EmpresaLicenciaColectivaDomicilio> domicilios = empresaLicenciaColectivaDomicilioRepository.findAllByLicenciaColectivaAndEliminadoFalse(licenciaColectiva.getEmpresa());
+
+        domicilios.forEach(domicilio -> {
+            domicilio.setEliminado(true);
+            empresaLicenciaColectivaDomicilioRepository.save(domicilio);
+        });
+
         return daoToDtoConverter.convertDaoToDtoEmpresaLicenciaColectiva(licenciaColectiva);
     }
 }

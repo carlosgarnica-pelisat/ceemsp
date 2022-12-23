@@ -447,7 +447,7 @@ export class VisitasComponent implements OnInit {
       responsable: this.visita.responsable.uuid,
       tipoVisita: this.visita.tipoVisita,
       numeroRegistro: this.visita.numeroRegistro,
-      numeroOrden: registroPiezas[2],
+      numeroOrden: registroPiezas[3],
       fechaVisita: this.visita.fechaVisita,
       existeEmpresa: this.visita.existeEmpresa,
       nombreComercial: this.visita.nombreComercial,
@@ -684,7 +684,12 @@ export class VisitasComponent implements OnInit {
     }
     formValue.empresa = this.empresa;
     formValue.responsable = this.usuario;
-    formValue.numeroOrden = `CESP/EXT/${formValue.numeroOrden}/${this.anio}`
+    if(this.tipoVisita === 'ORDINARIA') {
+      formValue.numeroOrden = `CESP/DSSP/ORD/${formValue.numeroOrden}/${this.anio}`
+    } else if(this.tipoVisita === 'EXTRAORDINARIA') {
+      formValue.numeroOrden = `CESP/DSSP/EXT/${formValue.numeroOrden}/${this.anio}`
+    }
+
     formValue.estadoCatalogo = this.estado;
     formValue.municipioCatalogo = this.municipio;
     formValue.localidadCatalogo = this.localidad;
@@ -740,7 +745,16 @@ export class VisitasComponent implements OnInit {
         "Se ha guardado el requerimiento",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.visitaService.obtenerVisitaPorUuid(this.visita.uuid).subscribe((data: Visita) => {
+        this.visita = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener la visita. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -775,7 +789,11 @@ export class VisitasComponent implements OnInit {
     }
     formValue.empresa = this.empresa;
     formValue.responsable = this.usuario;
-    formValue.numeroOrden = `CESP/EXT/${formValue.numeroOrden}/${this.anio}`
+    if(this.tipoVisita === 'ORDINARIA') {
+      formValue.numeroOrden = `CESP/DSSP/ORD/${formValue.numeroOrden}/${this.anio}`
+    } else if(this.tipoVisita === 'EXTRAORDINARIA') {
+      formValue.numeroOrden = `CESP/DSSP/EXT/${formValue.numeroOrden}/${this.anio}`
+    }
     formValue.estadoCatalogo = this.estado;
     formValue.municipioCatalogo = this.municipio;
     formValue.localidadCatalogo = this.localidad;

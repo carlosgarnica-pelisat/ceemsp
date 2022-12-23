@@ -12,4 +12,6 @@ public interface EmpresaPersonalService {
     PersonaDto modificarInformacionPuesto(PersonaDto personaDto, String username, String personaUuid);
     PersonaDto modificarPersona(String personaUuid, String username, PersonaDto personaDto);
     PersonaDto eliminarPersona(String personaUuid, String username);
+
+
 }

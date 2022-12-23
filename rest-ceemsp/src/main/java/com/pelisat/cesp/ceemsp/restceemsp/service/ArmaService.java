@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface ArmaService {
     List<ArmaDto> obtenerArmasPorEmpresaUuid(String uuid);
+    List<ArmaDto> obtenerArmasCortasPorEmpresaUuid(String uuid);
+    List<ArmaDto> obtenerArmasLargasPorEmpresaUuid(String uuid);
     List<ArmaDto> obtenerArmasPorLicenciaColectivaUuid(String empresaUuid, String licenciaColectivaUuid);
     List<ArmaDto> obtenerTodasArmasPorLicenciaColectivaUuid(String empresaUuid, String licenciaColectivaUuid);
     ArmaDto obtenerArmaPorUuid(String uuid, String armaUuid);

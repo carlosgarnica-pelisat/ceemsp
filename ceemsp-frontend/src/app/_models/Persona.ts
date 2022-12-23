@@ -11,6 +11,9 @@ import Municipio from "./Municipio";
 import Localidad from "./Localidad";
 import Colonia from "./Colonia";
 import Calle from "./Calle";
+import Can from "./Can";
+import Arma from "./Arma";
+import Vehiculo from "./Vehiculo";
 
 export default class Persona implements Deserializable {
   id: string;
@@ -65,6 +68,11 @@ export default class Persona implements Deserializable {
 
   fotografias: PersonaFotografiaMetadata[];
   certificaciones: PersonaCertificacion[];
+
+  can: Can;
+  armaCorta: Arma;
+  armaLarga: Arma;
+  vehiculo: Vehiculo;
 
   deserialize(input: any): this {
     Object.assign(this, input);

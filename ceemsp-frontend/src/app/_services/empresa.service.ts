@@ -33,6 +33,9 @@ import ClienteAsignacionPersonal from "../_models/ClienteAsignacionPersonal";
 import ClienteModalidad from "../_models/ClienteModalidad";
 import IncidenciaComentario from "../_models/IncidenciaComentario";
 import EmpresaDomicilioTelefono from "../_models/EmpresaDomicilioTelefono";
+import PersonalArma from "../_models/PersonalArma";
+import PersonalVehiculo from "../_models/PersonalVehiculo";
+import PersonalCan from "../_models/PersonalCan";
 
 @Injectable({
   providedIn: 'root'
@@ -227,6 +230,27 @@ export class EmpresaService {
       responseType: 'blob' as 'json'
     };
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/socios/${socioUuid}/documentos/fundatorios`, httpOptions)
+  }
+
+  descargarDocumentoFundatorioApoderado(empresaUuid: string, escrituraUuid: string, apoderadoUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/apoderados/${apoderadoUuid}/documentos/fundatorios`, httpOptions)
+  }
+
+  descargarDocumentoFundatorioRepresentante(empresaUuid: string, escrituraUuid: string, representanteUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/representantes/${representanteUuid}/documentos/fundatorios`, httpOptions)
+  }
+
+  descargarDocumentoFundatorioConsejo(empresaUuid: string, escrituraUuid: string, consejoUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/empresas/${empresaUuid}/escrituras/${escrituraUuid}/consejos/${consejoUuid}/documentos/fundatorios`, httpOptions)
   }
 
   // Escrituras representantes
@@ -453,7 +477,7 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/domicilios`)
   }
 
-  guardarDomicilioCliente(uuidEmpresa: string, uuidCliente: string, clienteDomicilio: ClienteDomicilio[]) {
+  guardarDomicilioCliente(uuidEmpresa: string, uuidCliente: string, clienteDomicilio: ClienteDomicilio) {
     return this.http.post(`${this.uri}/empresas/${uuidEmpresa}/clientes/${uuidCliente}/domicilios`, clienteDomicilio)
   }
 
@@ -539,6 +563,38 @@ export class EmpresaService {
     return this.http.get(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/volante`, httpOptions);
   }
 
+  asignarCanPersona(uuid: string, personaUuid: string, personaCan: PersonalCan) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/canes`, personaCan)
+  }
+
+  desasignarCanPersona(uuid: string, personaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/canes`)
+  }
+
+  asignarVehiculoPersona(uuid: string, personaUuid: string, personaVehiculo: PersonalVehiculo) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/vehiculos`, personaVehiculo)
+  }
+
+  desasignarVehiculoPersona(uuid: string, personaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/vehiculos`)
+  }
+
+  asignarArmaCortaPersona(uuid: string, personaUuid: string, personaArma: PersonalArma) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/armas/cortas`, personaArma)
+  }
+
+  desasignarArmaCortaPersona(uuid: string, personaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/armas/cortas`)
+  }
+
+  asignarArmaLargaPersona(uuid: string, personaUuid: string, personaArma: PersonalArma) {
+    return this.http.put(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/armas/largas`, personaArma)
+  }
+
+  desasignarArmaLargaPersona(uuid: string, personaUuid: string) {
+    return this.http.delete(`${this.uri}/empresas/${uuid}/personas/${personaUuid}/armas/largas`)
+  }
+
   // Personal certificaciones
   obtenerCertificacionesPersonalPorUuid(empresaUuid: string, personaUuid: string) {
     return this.http.get(`${this.uri}/empresas/${empresaUuid}/personas/${personaUuid}/certificaciones`)
@@ -592,6 +648,10 @@ export class EmpresaService {
   // Canes
   obtenerCanes(uuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/canes`);
+  }
+
+  obtenerCanesInstalaciones(uuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/canes/instalaciones`);
   }
 
   obtenerCanesEliminados(uuid: string) {
@@ -728,6 +788,14 @@ export class EmpresaService {
   // Armas
   obtenerArmas(uuid: string) {
     return this.http.get(`${this.uri}/empresas/${uuid}/armas`);
+  }
+
+  obtenerArmasLargas(uuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/armas/largas`)
+  }
+
+  obtenerArmasCortas(uuid: string) {
+    return this.http.get(`${this.uri}/empresas/${uuid}/armas/cortas`);
   }
 
   obtenerArmasPorLicenciaColectivaUuid(uuid: string, licenciaColectivaUuid: string) {

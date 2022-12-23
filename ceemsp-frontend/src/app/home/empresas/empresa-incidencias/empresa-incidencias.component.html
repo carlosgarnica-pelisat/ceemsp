@@ -593,7 +593,7 @@
                   </td>
                 </tr>
                 <tr *ngIf="mostrarAgregarVehiculoForm">
-                  <td colspan="4">
+                  <td colspan="5">
                     <form [formGroup]="crearVehiculoIncidenciaForm">
                       <div class="row">
                         <div class="col-sm-6">
@@ -609,13 +609,13 @@
                   </td>
                 </tr>
                 <tr *ngIf="mostrarAgregarVehiculoForm">
-                  <td colspan="4">
+                  <td colspan="5">
                     <button class="btn btn-sm btn-primary" (click)="agregarVehiculo(crearVehiculoIncidenciaForm)">Guardar</button>
                     <button class="btn btn-sm btn-danger" (click)="conmutarAgregarVehiculoForm()">Cancelar</button>
                   </td>
                 </tr>
                 <tr *ngIf="!mostrarAgregarVehiculoForm">
-                  <td colspan="4">
+                  <td colspan="5">
                     <button class="btn btn-sm btn-primary" (click)="conmutarAgregarVehiculoForm()">Agregar vehiculo</button>
                   </td>
                 </tr>
@@ -705,7 +705,7 @@
       <div class="row">
         <div class="col-sm-12">
           <b>Comentario *</b>
-          <ckeditor [(ngModel)]="editorData"></ckeditor>
+          <ckeditor editorUrl="http://www.pelisat.com.mx/cdn/ckeditor/ckeditor.js" [(ngModel)]="editorData"></ckeditor>
         </div>
       </div>
     </div>

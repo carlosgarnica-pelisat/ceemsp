@@ -15,7 +15,6 @@
           <a class="dropdown-item" (click)="mostrarModalModalidades(mostrarModalidadesModal)" style="cursor: pointer;">Ver modalidades</a>
           <a class="dropdown-item" (click)="mostrarModalFormasEjecucion(mostrarFormasEjecucionModal)" style="cursor: pointer;">Ver formas de ejecucion</a>
           <a class="dropdown-item" (click)="mostrarModalCambioInicioSesion(crearUsuarioModal)" style="cursor: pointer;">Cambiar datos de inicio de sesion</a> <!-- TODO: CAMBIAR EL MODAL -->
-          <a class="dropdown-item" (click)="mostrarModalCambiarStatus(editarStatusModal)" style="cursor: pointer;">Cambiar status / Eliminar</a>
         </div>
       </div>
     </div>
@@ -359,7 +358,12 @@
                     *ngIf="empresaUsuarioForm.controls['password'].invalid && (empresaUsuarioForm.controls['password'].dirty || empresaUsuarioForm.controls['password'].touched)">
                       </span>
                 </label>
-                <input class="form-control" id="password" type="password" formControlName="password" placeholder="De 8 a 15 caracteres.">
+                <div class="input-group">
+                  <input class="form-control" id="password" [type]="mostrarContrasena ? 'text' : 'password'" formControlName="password" placeholder="De 8 a 15 caracteres.">
+                  <div class="input-group-append">
+                    <span class="input-group-text" style="cursor: pointer;" (click)="conmutarMostrarContrasena()">{{mostrarContrasena ? 'Ocultar' : 'Mostrar'}}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </form>
@@ -368,55 +372,6 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-primary" (click)="guardarUsuario(empresaUsuarioForm)">Guardar cambios</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
-    </div>
-  </ng-template>
-
-  <ng-template #editarStatusModal let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title" id="editarStatusModal">Cambiar status de la empresa</h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-        <span aria-hidden="true">×</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="row">
-        <div class="col-sm-12">
-          <form [formGroup]="empresaCambioStatusForm">
-            <div class="row">
-              <div class="col-sm-6">
-                <label for="status">
-                  <b>Nuevo status *</b>
-                  <span
-                    *ngIf="empresaCambioStatusForm.controls['status'].invalid && (empresaCambioStatusForm.controls['status'].dirty || empresaCambioStatusForm.controls['status'].touched)">
-                      <i *ngIf="empresaCambioStatusForm.controls['status'].errors.required" class="error-text"> - Campo requerido</i>
-                    </span>
-                </label>
-                <select class="form-control" name="status" id="status" formControlName="status">
-                  <option value="ACTIVA">Activa</option>
-                  <option value="PERDIDA_EFICACIA">Perdida de eficacia</option>
-                  <option value="SUSPENDIDA">Suspendida</option>
-                  <option value="REVOCADA">Revocada</option>
-                  <option value="CLAUSURADA">Clausurada</option>
-                </select>
-              </div>
-              <div class="col-sm-6">
-                <label for="status">
-                  <b>Observaciones *</b>
-                  <span
-                    *ngIf="empresaCambioStatusForm.controls['observaciones'].invalid && (empresaCambioStatusForm.controls['observaciones'].dirty || empresaCambioStatusForm.controls['observaciones'].touched)">
-                      <i *ngIf="empresaCambioStatusForm.controls['observaciones'].errors.required" class="error-text"> - Campo requerido</i>
-                    </span>
-                </label>
-                <textarea name="observaciones" id="observaciones" class="form-control" formControlName="observaciones"></textarea>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-primary" (click)="cambiarStatusEmpresa(empresaCambioStatusForm)">Guardar cambios</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
@@ -531,7 +486,10 @@
                 </label>
                 <div class="input-group">
                   <div class="input-group-prepend">
-                    <span class="input-group-text">CESP/{{empresa?.tipoTramite}}/</span>
+                    <span class="input-group-text" *ngIf="tipoTramite === 'SPSMD'">CESP/SPSMD/</span>
+                    <span class="input-group-text" *ngIf="tipoTramite === 'EAFJAL'">CESP/EAFJAL/</span>
+                    <span class="input-group-text" *ngIf="tipoTramite === 'RESPRO'">CESP/RESPRO/</span>
+                    <span class="input-group-text" *ngIf="tipoTramite === 'AP'">CESP/AP/SPSMD/</span>
                   </div>
                   <input class="form-control" id="registro" type="tel" formControlName="registro" (focusout)="verificarRegistro($event.target)" appNumberMask>
                   <div class="input-group-append">
@@ -603,7 +561,7 @@
                             </span>
                           </label>
                           <select id="formaEjecucion" class="form-control" formControlName="formaEjecucion">
-                            <option value="ARMAS">Con portacion de armas de fuego</option>
+                            <option value="ARMAS" *ngIf="empresa?.tipoTramite === 'EAFJAL'">Con portacion de armas de fuego</option>
                             <option value="CANES">Con el auxilio de canes</option>
                             <option value="INSTRUMENTOS">Con portacion de instrumentos de apoyo para control</option>
                             <option value="TECNOLOGIA">Con apoyo de tecnologia</option>
@@ -616,7 +574,7 @@
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button class="btn btn-sm btn-success" (click)="agregarFormaEjecucion(empresaFormaEjecucionForm)">Guardar cambios</button>
+                    <button class="btn btn-sm btn-primary" (click)="agregarFormaEjecucion(empresaFormaEjecucionForm)">Guardar cambios</button>
                     <button class="btn btn-sm btn-danger" (click)="mostrarFormularioFormaEjecucion()">Cancelar</button>
                   </div>
                 </div>
@@ -645,57 +603,82 @@
             <tr>
               <td><b>Modalidad</b></td>
               <td><b>Submodalidad</b></td>
-              <td><b>Fecha Inicio</b></td>
-              <td><b>Fecha Fin</b></td>
+              <td *ngIf="empresa?.tipoTramite === 'EAFJAL'"><b>No. de Registro Federal</b></td>
+              <td *ngIf="empresa?.tipoTramite === 'EAFJAL'"><b>Fecha de Inicio</b></td>
+              <td *ngIf="empresa?.tipoTramite === 'EAFJAL'"><b>Fecha de Fin</b></td>
               <td><b>Acciones</b></td>
             </tr>
             <tr *ngFor="let m of empresaModalidades">
               <td>{{m.modalidad?.nombre}}</td>
               <td>
                 <span *ngIf="m.submodalidad !== null">{{m.submodalidad?.nombre}}</span>
-                <span *ngIf="m.submodalidad === null"></span>
+                <span *ngIf="m.submodalidad === null">NA</span>
               </td>
-              <td>
-                <span *ngIf="m.fechaInicio !== null">{{m.fechaInicio}}</span>
-                <span *ngIf="m.fechaInicio === null"></span>
+              <td *ngIf="empresa?.tipoTramite === 'EAFJAL'">
+                <span>{{m.numeroRegistroFederal}}</span>
               </td>
-              <td>
-                <span *ngIf="m.fechaFin !== null">{{m.fechaFin}}</span>
-                <span *ngIf="m.fechaFin === null"></span>
+              <td *ngIf="empresa?.tipoTramite === 'EAFJAL'">
+                <span>{{m.fechaInicio}}</span>
+              </td>
+              <td *ngIf="empresa?.tipoTramite === 'EAFJAL'">
+                <span>{{m.fechaFin}}</span>
               </td>
               <td>
                 <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarEliminarModalidadModal(m?.uuid)"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="!formularioModalidad">
-              <td colspan="5">
+              <td colspan="6">
                 <button class="btn-primary btn-sm" (click)="mostrarFormularioModalidad()">Agregar modalidad</button>
               </td>
             </tr>
             <tr *ngIf="formularioModalidad">
-              <td colspan="5">
+              <td colspan="6">
                 <div class="row">
                   <div class="col-sm-12">
                     <form [formGroup]="empresaModalidadForm" style="margin-top: 10px;">
                       <div class="form-row">
                         <div class="col-sm-3">
-                          <label for="modalidad">
-                            <b>Modalidad *</b>
-                            <span *ngIf="empresaModalidadForm.controls['modalidad'].invalid && (empresaModalidadForm.controls['modalidad'].dirty || empresaModalidadForm.controls['modalidad'].touched)">
-                              <i *ngIf="empresaModalidadForm.controls['modalidad'].errors.required" class="error-text"> - Campo requerido</i>
-                            </span>
+                          <label>
+                            <b>Modalidad * </b>
                           </label>
-                          <select id="modalidad" class="form-control" formControlName="modalidad" (change)="seleccionarModalidad($event.target)">
-                            <option *ngFor="let m of modalidades" value="{{m?.uuid}}">{{m?.nombre}}</option>
-                          </select>
+                          <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                            {{modalidad === undefined ? 'Ninguno' : (modalidad?.nombre).substr(0, 30)}}
+                          </a>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                            <form class="px-4 py-3" autocomplete="off">
+                              <label for="modalidadSearchQuery"><b>Buscar por nombre</b></label>
+                              <input type="text" class="form-control" id="modalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="modalidadQuery"
+                                     [ngModelOptions]="{standalone: true}">
+                            </form>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" *ngFor="let m of modalidades | buscarNombre: {nombre: modalidadQuery}" (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                              {{m.nombre}}
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" *ngIf="modalidad !== undefined" (click)="quitarModalidad()">Quitar</a>
+                          </div>
                         </div>
                         <div class="col-sm-3" *ngIf="modalidad?.tieneSubmodalidades">
-                          <label for="submodalidad">
+                          <label>
                             <b>Submodalidad</b>
                           </label>
-                          <select id="submodalidad" class="form-control" formControlName="submodalidad">
-                            <option *ngFor="let s of modalidad?.submodalidades" value="{{s?.uuid}}">{{s?.nombre}}</option>
-                          </select>
+                          <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                            {{submodalidad === undefined ? 'Ninguno' : (submodalidad?.nombre).substr(0, 30)}}
+                          </a>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                            <form class="px-4 py-3" autocomplete="off">
+                              <label for="submodalidadSearchQuery"><b>Buscar por nombre</b></label>
+                              <input type="text" class="form-control" id="submodalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="submodalidadQuery"
+                                     [ngModelOptions]="{standalone: true}">
+                            </form>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" *ngFor="let s of modalidad.submodalidades | buscarNombre: {nombre: submodalidadQuery}" (click)="seleccionarSubmodalidad(s?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                              {{s.nombre}}
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" *ngIf="submodalidad !== undefined" (click)="quitarSubmodalidad()">Quitar</a>
+                          </div>
                         </div>
                         <div class="col-sm-3" *ngIf="modalidad?.tipo === 'EAFJAL'">
                           <label for="numeroRegistroFederal">

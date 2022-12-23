@@ -99,9 +99,6 @@ public class EmpresaCanServiceImpl implements EmpresaCanService {
         if(!soloEntidad) {
             canDto.setRaza(catalogoService.obtenerCanRazaPorId(can.getRaza()));
             canDto.setDomicilioAsignado(empresaDomicilioService.obtenerPorId(can.getDomicilioAsignado()));
-            if(can.getElementoAsignado() != null && can.getElementoAsignado() > 0) {
-                canDto.setElementoAsignado(empresaPersonalService.obtenerPorId(can.getElementoAsignado()));
-            }
 
             if(can.getClienteAsignado() != null && can.getClienteAsignado() > 0) {
                 canDto.setClienteAsignado(empresaClienteService.obtenerClientePorId(can.getClienteAsignado()));

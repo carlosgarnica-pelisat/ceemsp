@@ -13,10 +13,16 @@ export default class Cliente implements Deserializable {
   razonSocial: string;
   canes: boolean;
   armas: boolean;
+  rutaArchivoContrato: string;
   fechaInicio: string;
   fechaFin: string;
   fechaCreacion: string;
   eliminado: boolean;
+
+  motivoBaja: string;
+  observacionesBaja: string;
+  documentoFundatorioBaja: string;
+  fechaBaja: string;
 
   numeroSucursales: number;
   numeroElementosAsignados: number;

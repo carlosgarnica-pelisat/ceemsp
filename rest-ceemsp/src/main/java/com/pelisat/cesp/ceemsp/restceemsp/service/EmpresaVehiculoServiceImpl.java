@@ -10,9 +10,7 @@ import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoSubmarcaRepository;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
-import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
-import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
-import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.*;
 import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
@@ -28,6 +26,7 @@ import javax.transaction.Transactional;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -156,9 +155,6 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
             vehiculoDto.setDomicilio(empresaDomicilioService.obtenerPorId(vehiculo.getDomicilio()));
             vehiculoDto.setColores(vehiculoColorService.obtenerTodosPorVehiculoUuid(vehiculoUuid, empresaUuid));
             vehiculoDto.setFotografias(vehiculoFotografiaService.mostrarVehiculoFotografias(empresaUuid, vehiculo.getUuid()));
-            if (vehiculo.getPersonalAsignado() != null) {
-                vehiculoDto.setPersonalAsignado(personaService.obtenerPorId(vehiculo.getPersonalAsignado()));
-            }
         }
 
         return vehiculoDto;
@@ -207,9 +203,6 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         }
         vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
         vehiculoDto.setDomicilio(empresaDomicilioService.obtenerPorId(vehiculo.getDomicilio()));
-        if (vehiculo.getPersonalAsignado() != null && vehiculo.getPersonalAsignado() > 0) {
-            vehiculoDto.setPersonalAsignado(personaService.obtenerPorId(vehiculo.getPersonalAsignado()));
-        }
 
         return vehiculoDto;
     }
@@ -224,6 +217,19 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
 
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+
+        logger.info("Verificando si el vehiculo ha sido verificado previamente");
+        Vehiculo vehiculoPorPlacas = vehiculoRepository.getByPlacasAndEliminadoFalse(vehiculoDto.getPlacas());
+        if(vehiculoPorPlacas != null) {
+            logger.warn("Este vehiculo ya se encuentra registrado con este numero de placas");
+            throw new VehicleAlreadyRegisteredByPlatesException();
+        }
+
+        Vehiculo vehiculoPorSerie = vehiculoRepository.getBySerieAndEliminadoFalse(vehiculoDto.getSerie());
+        if(vehiculoPorSerie != null) {
+            logger.warn("Este vehiculo ya se encuentra registrado con este numero de serie");
+            throw new VehicleAlreadyRegisteredBySerialException();
+        }
 
         Vehiculo vehiculo = dtoToDaoConverter.convertDtoToDaoVehiculo(vehiculoDto);
         vehiculo.setEmpresa(empresaDto.getId());
@@ -243,9 +249,6 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         }
         if(StringUtils.isNotBlank(vehiculoDto.getFechaBlindaje())) {
             vehiculo.setFechaBlindaje(LocalDate.parse(vehiculoDto.getFechaBlindaje()));
-        }
-        if(vehiculoDto.getPersonalAsignado() != null) {
-            vehiculo.setPersonalAsignado(vehiculoDto.getPersonalAsignado().getId());
         }
 
         if(constanciaBlindaje != null) {
@@ -284,6 +287,23 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
             throw new NotFoundResourceException();
         }
 
+        if(!Objects.equals(vehiculo.getPlacas(), vehiculoDto.getPlacas())) {
+            logger.info("Verificando si el vehiculo ha sido verificado previamente");
+            Vehiculo vehiculoPorPlacas = vehiculoRepository.getByPlacasAndEliminadoFalse(vehiculoDto.getPlacas());
+            if(vehiculoPorPlacas != null) {
+                logger.warn("Este vehiculo ya se encuentra registrado con este numero de placas");
+                throw new VehicleAlreadyRegisteredByPlatesException();
+            }
+        }
+
+        if(!Objects.equals(vehiculo.getSerie(), vehiculoDto.getSerie())) {
+            Vehiculo vehiculoPorSerie = vehiculoRepository.getBySerieAndEliminadoFalse(vehiculoDto.getSerie());
+            if(vehiculoPorSerie != null) {
+                logger.warn("Este vehiculo ya se encuentra registrado con este numero de serie");
+                throw new VehicleAlreadyRegisteredBySerialException();
+            }
+        }
+
         if(empresaDto.getId() != vehiculo.getEmpresa()) {
             logger.warn("El vehiculo no pertenece a esa empresa");
             throw new MissingRelationshipException();
@@ -301,9 +321,6 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         }
         if(StringUtils.isNotBlank(vehiculoDto.getFechaFin())) {
             vehiculo.setFechaFin(LocalDate.parse(vehiculoDto.getFechaFin()));
-        }
-        if(vehiculoDto.getPersonalAsignado() != null) {
-            vehiculo.setPersonalAsignado(vehiculoDto.getPersonalAsignado().getId());
         }
 
         vehiculo.setBlindado(vehiculoDto.isBlindado());
@@ -367,6 +384,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
 
         vehiculo.setMotivoBaja(vehiculoDto.getMotivoBaja());
         vehiculo.setObservacionesBaja(vehiculoDto.getObservacionesBaja());
+        vehiculo.setFechaBaja(LocalDate.parse(vehiculoDto.getFechaBaja()));
         vehiculo.setEliminado(true);
 
         if(multipartFile != null) {

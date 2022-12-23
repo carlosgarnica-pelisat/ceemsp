@@ -32,4 +32,5 @@ public class ClienteDto {
     private String motivoBaja;
     private String observacionesBaja;
     private String documentoFundatorioBaja;
+    private String fechaBaja;
 }

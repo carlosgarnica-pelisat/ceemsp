@@ -34,6 +34,8 @@ export default class Vehiculo implements Deserializable {
   fechaFin: string;
   personalAsignado: Persona;
   eliminado: boolean;
+  fechaCreacion: string;
+  fechaActualizacion: string;
 
   motivoBaja: string;
   observacionesBaja: string;

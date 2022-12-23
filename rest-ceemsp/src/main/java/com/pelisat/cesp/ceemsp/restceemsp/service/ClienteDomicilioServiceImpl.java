@@ -96,7 +96,7 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
     }
 
     @Override
-    public List<ClienteDomicilioDto> crearDomicilio(String username, String empresaUuid, String clienteUuid, List<ClienteDomicilioDto> clienteDomicilioDto) {
+    public ClienteDomicilioDto crearDomicilio(String username, String empresaUuid, String clienteUuid, ClienteDomicilioDto clienteDomicilioDto) {
         if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(clienteUuid) || clienteDomicilioDto == null) {
             logger.warn("Hay alguno de los parametros que no es valido");
             throw new InvalidDataException();
@@ -109,28 +109,33 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
             throw new NotFoundResourceException();
         }
 
-        List<ClienteDomicilio> clienteDomicilios = clienteDomicilioDto.stream().map(m -> {
-            ClienteDomicilio c = dtoToDaoConverter.convertDtoToDaoClienteDomicilio(m);
-            daoHelper.fulfillAuditorFields(true, c, usuario.getId());
-            c.setCliente(cliente.getId());
-            c.setTipoInfraestructura(m.getTipoInfraestructura().getId());
-            c.setEstadoCatalogo(m.getEstadoCatalogo().getId());
-            c.setMunicipioCatalogo(m.getMunicipioCatalogo().getId());
-            c.setLocalidadCatalogo(m.getLocalidadCatalogo().getId());
-            c.setColoniaCatalogo(m.getColoniaCatalogo().getId());
-            c.setCalleCatalogo(m.getCalleCatalogo().getId());
 
-            c.setDomicilio1(m.getCalleCatalogo().getNombre());
-            c.setDomicilio2(m.getColoniaCatalogo().getNombre());
-            c.setLocalidad(m.getLocalidadCatalogo().getNombre());
-            c.setDomicilio3(m.getMunicipioCatalogo().getNombre());
-            c.setEstado(m.getEstadoCatalogo().getNombre());
+        ClienteDomicilio c = dtoToDaoConverter.convertDtoToDaoClienteDomicilio(clienteDomicilioDto);
+        daoHelper.fulfillAuditorFields(true, c, usuario.getId());
+        c.setCliente(cliente.getId());
+        c.setTipoInfraestructura(clienteDomicilioDto.getTipoInfraestructura().getId());
+        c.setEstadoCatalogo(clienteDomicilioDto.getEstadoCatalogo().getId());
+        c.setMunicipioCatalogo(clienteDomicilioDto.getMunicipioCatalogo().getId());
+        c.setLocalidadCatalogo(clienteDomicilioDto.getLocalidadCatalogo().getId());
+        c.setColoniaCatalogo(clienteDomicilioDto.getColoniaCatalogo().getId());
+        c.setCalleCatalogo(clienteDomicilioDto.getCalleCatalogo().getId());
 
-            return c;
-        }).collect(Collectors.toList());
-        List<ClienteDomicilio> clienteDomicilioCreado = clienteDomicilioRepository.saveAll(clienteDomicilios);
+        c.setDomicilio1(clienteDomicilioDto.getCalleCatalogo().getNombre());
+        c.setDomicilio2(clienteDomicilioDto.getColoniaCatalogo().getNombre());
+        c.setLocalidad(clienteDomicilioDto.getLocalidadCatalogo().getNombre());
+        c.setDomicilio3(clienteDomicilioDto.getMunicipioCatalogo().getNombre());
+        c.setEstado(clienteDomicilioDto.getEstadoCatalogo().getNombre());
 
-        return clienteDomicilioCreado.stream().map(daoToDtoConverter::convertDaoToDtoClienteDomicilio).collect(Collectors.toList());
+        ClienteDomicilio clienteDomicilioCreado = clienteDomicilioRepository.save(c);
+
+        ClienteDomicilioDto dto = daoToDtoConverter.convertDaoToDtoClienteDomicilio(clienteDomicilioCreado);
+        dto.setCalleCatalogo(calleService.obtenerCallePorId(clienteDomicilioCreado.getCalleCatalogo()));
+        dto.setColoniaCatalogo(coloniaService.obtenerColoniaPorId(clienteDomicilioCreado.getColoniaCatalogo()));
+        dto.setLocalidadCatalogo(localidadService.obtenerLocalidadPorId(clienteDomicilioCreado.getLocalidadCatalogo()));
+        dto.setMunicipioCatalogo(municipioService.obtenerMunicipioPorId(clienteDomicilioCreado.getMunicipioCatalogo()));
+        dto.setEstadoCatalogo(estadoService.obtenerPorId(clienteDomicilioCreado.getEstadoCatalogo()));
+        dto.setTipoInfraestructura(clienteDomicilioDto.getTipoInfraestructura());
+        return dto;
     }
 
     @Override

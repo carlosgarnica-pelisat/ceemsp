@@ -96,6 +96,9 @@ public class Vehiculo extends CommonModel {
     @Column(name = "PERSONAL_ASIGNADO")
     private Integer personalAsignado;
 
+    @Column(name = "FECHA_BAJA")
+    private LocalDate fechaBaja;
+
     public Vehiculo() {
         super();
     }

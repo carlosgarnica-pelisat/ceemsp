@@ -6,6 +6,7 @@ import {ToastService} from "../../../../_services/toast.service";
 import {ToastType} from "../../../../_enums/ToastType";
 import {SanitizeHtmlPipe} from "../../../../_pipes/sanitize-html.pipe";
 import ComunicadoGeneral from "../../../../_models/ComunicadoGeneral";
+import {Router} from "@angular/router";
 
 
 @Component({
@@ -24,7 +25,7 @@ export class ComunicadoGeneralNuevoComponent implements OnInit {
   fechaDeHoy = new Date().toISOString().split('T')[0];
 
   constructor(private formBuilder: FormBuilder, private comunicadosGeneralesService: ComunicadosGeneralesService,
-              private toastService: ToastService, private sanitizeHtmlPipe: SanitizeHtmlPipe) { }
+              private toastService: ToastService, private sanitizeHtmlPipe: SanitizeHtmlPipe, private router: Router,) { }
 
   ngOnInit(): void {
     this.nuevoComunicadoForm = this.formBuilder.group({
@@ -67,7 +68,7 @@ export class ComunicadoGeneralNuevoComponent implements OnInit {
         "Se ha guardado el comunicado con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.router.navigate(['/home/comunicados/generales']);
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",

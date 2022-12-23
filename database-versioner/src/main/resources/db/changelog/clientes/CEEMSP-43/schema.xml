@@ -8,6 +8,7 @@
         <addColumn tableName="clientes">
             <column name="MOTIVO_BAJA" type="VARCHAR(60)"></column>
             <column name="OBSERVACIONES_BAJA" type="TEXT"></column>
+            <column name="FECHA_BAJA" type="DATETIME"></column>
             <column name="DOCUMENTO_FUNDATORIO_BAJA" type="VARCHAR(255)"></column>
         </addColumn>
     </changeSet>

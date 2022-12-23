@@ -26,5 +26,17 @@
             <column name="ACTUALIZADO_POR" value="1"></column>
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
+
+        <insert tableName="vehiculos_usos">
+            <column name="ID" value="3"></column>
+            <column name="UUID" value="xQu0yJZC8SDH"></column>
+            <column name="NOMBRE" value="Escolta"></column>
+            <column name="DESCRIPCION" value="Escolta"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
     </changeSet>
 </databaseChangeLog>

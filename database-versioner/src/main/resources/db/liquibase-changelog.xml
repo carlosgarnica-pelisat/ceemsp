@@ -102,4 +102,8 @@
     <include file="changelog/clientes-formas-ejecucion/master.xml" relativeToChangelogFile="true"></include>
 
     <include file="changelog/empresas-domicilios-telefonos/master.xml" relativeToChangelogFile="true"></include>
+
+    <include file="changelog/personal-armas/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/personal-canes/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/personal-vehiculos/master.xml" relativeToChangelogFile="true"></include>
 </databaseChangeLog>

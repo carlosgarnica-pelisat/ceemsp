@@ -190,6 +190,26 @@
                 <span *ngSwitchCase="'NIVEL_7'">Nivel 7</span>
               </td>
             </tr>
+            <tr>
+              <td><b>Fecha de Creacion:</b></td>
+              <td>{{vehiculo.fechaCreacion}}</td>
+            </tr>
+            <tr>
+              <td><b>Ultima actualizacion:</b></td>
+              <td>{{vehiculo.fechaActualizacion}}</td>
+            </tr>
+            <tr *ngIf="vehiculo.eliminado">
+              <td><b>Motivo de baja:</b></td>
+              <td>{{vehiculo.motivoBaja}}</td>
+            </tr>
+            <tr *ngIf="vehiculo.eliminado">
+              <td><b>Fecha de baja:</b></td>
+              <td>{{vehiculo.fechaBaja}}</td>
+            </tr>
+            <tr *ngIf="vehiculo.eliminado">
+              <td><b>Detalles de la baja:</b></td>
+              <td>{{vehiculo.observacionesBaja}}</td>
+            </tr>
           </table>
         </div>
       </div>
@@ -345,7 +365,7 @@
       </div>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
-      <button class="btn btn-primary" (click)="mostrarModalVerConstanciaBlindaje()" *ngIf="!vehiculo?.eliminado && (vehiculo?.constanciaBlindaje !== null || vehiculo?.constanciaBlindaje !== undefined)">Ver certificado</button>
+      <button class="btn btn-primary" (click)="mostrarModalVerConstanciaBlindaje()" *ngIf="!vehiculo?.eliminado && (vehiculo?.constanciaBlindaje !== null)">Ver constancia de blindaje</button>
       <button class="btn btn-primary" (click)="mostrarModalModificarVehiculo()" *ngIf="!vehiculo?.eliminado">Modificar</button>
       <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarVehiculo()" *ngIf="!vehiculo?.eliminado">Eliminar</button>
     </div>
@@ -641,17 +661,6 @@
               <b>Fecha de fin</b>
             </label>
             <input id="fechaFinEditar" type="date" class="form-control" formControlName="fechaFin" #fechaFin>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="col-sm-6">
-            <label for="personalAsignadoEditar">
-              <b>Personal asignado</b>
-            </label>
-            <select id="personalAsignadoEditar" class="form-control" formControlName="personalAsignado">
-              <option value="PROPIO">Propio</option>
-            </select>
           </div>
         </div>
       </form>
@@ -963,16 +972,6 @@
                         <b>Fecha de fin</b>
                       </label>
                       <input id="fechaFin" type="date" class="form-control" formControlName="fechaFin" #fechaFin>
-                    </div>
-                  </div>
-                  <div class="form-row">
-                    <div class="col-sm-6">
-                      <label for="personalAsignado">
-                        <b>Personal asignado</b>
-                      </label>
-                      <select id="personalAsignado" class="form-control" formControlName="personalAsignado">
-                        <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
-                      </select>
                     </div>
                   </div>
                 </form>
@@ -1310,7 +1309,7 @@
             <label for="documentoFundatorioBaja">
               <b>Documento fundatorio</b>
             </label>
-            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" accept="application/pdf" (change)="onFileChange($event)">
           </div>
         </div>
         <div class="row">

@@ -18,6 +18,7 @@ import * as sha256 from "js-sha256";
 import ExisteUsuario from "../../../_models/ExisteUsuario";
 import {ValidacionService} from "../../../_services/validacion.service";
 import Visita from "../../../_models/Visita";
+import Submodalidad from "../../../_models/Submodalidad";
 
 @Component({
   selector: 'app-empresa-detalles',
@@ -25,6 +26,8 @@ import Visita from "../../../_models/Visita";
   styleUrls: ['./empresa-detalles.component.css']
 })
 export class EmpresaDetallesComponent implements OnInit {
+
+  mostrarContrasena: boolean = false;
 
   faPencil = faPencilAlt;
   faTrash = faTrash;
@@ -52,12 +55,16 @@ export class EmpresaDetallesComponent implements OnInit {
   modalidades: Modalidad[];
   visitas: Visita[] = [];
   modalidad: Modalidad;
+  submodalidad: Submodalidad;
 
   formularioModalidad: boolean = false;
   formularioFormasEjecucion: boolean = false;
 
   uuidModalidadTemporal: string;
   uuidFormaEjecucionTemporal: string;
+
+  modalidadQuery: string = '';
+  submodalidadQuery: string = '';
 
   existeUsuario: ExisteUsuario;
 
@@ -74,8 +81,13 @@ export class EmpresaDetallesComponent implements OnInit {
 
     this.empresaService.obtenerPorUuid(this.uuid).subscribe((data: Empresa) => {
       this.empresa = data;
-      this.year = this.empresa?.registro.split('/')[3];
-      this.tipoTramite =this.empresa?.registro.split('/')[1];
+      if(this.empresa?.tipoTramite === 'AP') {
+        this.year = this.empresa?.registro.split('/')[4];
+      } else {
+        this.year = this.empresa?.registro.split('/')[3];
+      }
+
+      this.tipoTramite = this.empresa?.tipoTramite;
 
       this.empresaService.obtenerDomicilios(this.empresa.uuid).subscribe((data: EmpresaDomicilio[]) => {
         this.domicilios = data;
@@ -139,8 +151,6 @@ export class EmpresaDetallesComponent implements OnInit {
     });
 
     this.empresaModalidadForm = this.formBuilder.group({
-      modalidad: ['', Validators.required],
-      submodalidad: [''],
       numeroRegistroFederal: ['', Validators.maxLength(30)],
       fechaInicio: [''],
       fechaFin: ['']
@@ -181,16 +191,6 @@ export class EmpresaDetallesComponent implements OnInit {
     })
   }
 
-  mostrarModalCambiarStatus(modal) {
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
-
-    this.modal.result.then((result) => {
-      this.closeResult = `Closed with ${result}`;
-    }, (error) => {
-      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
-    })
-  }
-
   cambiarTipoPersona(event) {
     this.tipoPersona = event.value;
   }
@@ -219,23 +219,40 @@ export class EmpresaDetallesComponent implements OnInit {
 
   }
 
-  seleccionarModalidad(event) {
-    this.modalidad = this.modalidades.filter(m => m.uuid === event.value)[0];
-    let existeModalidad = this.empresaModalidades.filter(m => m.modalidad.uuid === event.value)[0];
-    if(existeModalidad !== undefined) {
+  seleccionarSubmodalidad(uuid) {
+    let existeSubmodalidad = this.empresaModalidades.filter(m => m.submodalidad?.uuid === uuid)[0];
+    if(existeSubmodalidad !== undefined) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        "Esta modalidad ya se encuentra registrada en la empresa. Favor de seleccionar otra",
+        "Esta submodalidad ya esta registrada en esta empresa",
         ToastType.WARNING
       );
       this.modalidad = undefined;
       return;
     }
+    this.submodalidad = this.modalidad.submodalidades?.filter(s => s.uuid === uuid)[0];
+  }
 
+  seleccionarModalidad(event) {
+    let existeModalidad = this.empresaModalidades.filter(m => m.modalidad.uuid === event)[0];
+
+    if(existeModalidad !== undefined) {
+      let modalidad = this.modalidades.filter(m => m.uuid === event)[0];
+      if(modalidad.submodalidades.length < 1) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "Esta modalidad ya se encuentra registrada en la empresa. Favor de seleccionar otra",
+          ToastType.WARNING
+        );
+        this.modalidad = undefined;
+        return;
+      }
+    }
+
+    this.modalidad = this.modalidades.filter(m => m.uuid === event)[0];
     if(this.modalidad.submodalidades.length > 0) {
       this.modalidad.tieneSubmodalidades = true;
     } else {
-      this.modalidad.tieneSubmodalidades = false;
       this.empresaModalidadForm.patchValue({
         submodalidad: undefined
       });
@@ -354,6 +371,13 @@ export class EmpresaDetallesComponent implements OnInit {
   }
 
   mostrarEditarEmpresaModal(modal) {
+    let numero: string;
+    if(this.tipoTramite === 'AP') {
+      numero = this.empresa?.registro.split('/')[3]
+    } else {
+      numero =  this.empresa?.registro.split('/')[2]
+    }
+
     this.empresaCreacionForm.patchValue({
       tipoPersona: this.empresa.tipoPersona,
       nombreComercial: this.empresa.nombreComercial,
@@ -364,7 +388,7 @@ export class EmpresaDetallesComponent implements OnInit {
       correoElectronico: this.empresa.correoElectronico,
       telefono: this.empresa.telefono,
       observaciones: this.empresa.observaciones,
-      registro: this.empresa?.registro.split('/')[2]
+      registro: numero
     })
 
     this.tipoPersona = this.empresa.tipoPersona;
@@ -423,11 +447,20 @@ export class EmpresaDetallesComponent implements OnInit {
     }
 
     formData.modalidad = this.modalidad;
+
     if(this.modalidad.tieneSubmodalidades) {
-      formData.submodalidad = this.modalidad.submodalidades.filter((x => x.uuid === formData.submodalidad))[0];
+      if(this.submodalidad === undefined) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `Favor de seleccionar una submodalidad`,
+          ToastType.WARNING
+        );
+        return;
+      }
+
+      formData.submodalidad = this.submodalidad;
     }
 
-    let empresaModalidad: EmpresaModalidad = formData;
     this.empresaService.guardarModalidad(this.uuid, formData).subscribe((data: EmpresaModalidad) => {
       this.toastService.showGenericToast(
         "Listo",
@@ -435,6 +468,9 @@ export class EmpresaDetallesComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.ocultarFormularioModalidad();
+      this.empresaModalidadForm.reset();
+      this.modalidad = undefined;
+      this.submodalidad = undefined;
       this.empresaService.obtenerModalidades(this.empresa.uuid).subscribe((data: EmpresaModalidad[]) => {
         this.empresaModalidades = data;
       }, (error) => {
@@ -514,15 +550,25 @@ export class EmpresaDetallesComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.mostrarFormularioFormaEjecucion();
-      this.empresaService.obtenerFormasEjecucion(this.empresa.uuid).subscribe((data: EmpresaFormaEjecucion[]) => {
-        this.empresaFormasEjecucion = data;
+      this.empresaService.obtenerPorUuid(this?.uuid).subscribe((data: Empresa) => {
+        this.empresa = data;
+        this.empresaService.obtenerFormasEjecucion(this.empresa.uuid).subscribe((data: EmpresaFormaEjecucion[]) => {
+          this.empresaFormasEjecucion = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar las formas de ejecucion. Motivo: ${error}`,
+            ToastType.ERROR
+          )
+        })
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
-          `No se han podido descargar las formas de ejecucion. Motivo: ${error}`,
+          `No se ha podido descargar la empresa. Motivo: ${error}`,
           ToastType.ERROR
-        )
+        );
       })
+
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -549,7 +595,11 @@ export class EmpresaDetallesComponent implements OnInit {
     );
 
     let formValue: Empresa = form.value;
-    formValue.registro = `CESP/${this.tipoTramite}/${formValue.registro}/${this.year}`;
+    if(this.tipoTramite === 'AP') {
+      formValue.registro = `CESP/AP/SPSMD/${formValue.registro}/${this.year}`;
+    } else {
+      formValue.registro = `CESP/${this.tipoTramite}/${formValue.registro}/${this.year}`;
+    }
 
     this.empresaService.modificarEmpresa(this.empresa.uuid, formValue).subscribe((data: Empresa) => {
       this.toastService.showGenericToast(
@@ -581,15 +631,25 @@ export class EmpresaDetallesComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.modal.close();
-      this.empresaService.obtenerFormasEjecucion(this.uuid).subscribe((data: EmpresaFormaEjecucion[]) => {
-        this.empresaFormasEjecucion = data;
+      this.empresaService.obtenerPorUuid(this.uuid).subscribe((data: Empresa) => {
+        this.empresa = data;
+        this.empresaService.obtenerFormasEjecucion(this.uuid).subscribe((data: EmpresaFormaEjecucion[]) => {
+          this.empresaFormasEjecucion = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido obtener las formas de ejecucion. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
-          `No se han podido obtener las formas de ejecucion. Motivo: ${error}`,
+          `No se ha podido descargar la informacion de la empresa. Motivo: ${error}`,
           ToastType.ERROR
         );
       })
+
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -631,10 +691,22 @@ export class EmpresaDetallesComponent implements OnInit {
     })
   }
 
+  conmutarMostrarContrasena() {
+    this.mostrarContrasena = !this.mostrarContrasena;
+  }
+
   autogenerarContrasena() {
     this.empresaUsuarioForm.patchValue({
       password: this.hacerFalsoUuid(12)
     })
+  }
+
+  quitarModalidad() {
+
+  }
+
+  quitarSubmodalidad() {
+
   }
 
   private hacerFalsoUuid(longitud) {

@@ -121,7 +121,10 @@ public class AcuerdoServiceImpl implements AcuerdoService {
         acuerdo.setEmpresa(empresaDto.getId());
         acuerdo.setTipo(acuerdoDto.getTipo());
 
-        if(acuerdo.getTipo() == AcuerdoTipoEnum.PERDIDA_EFICACIA) {
+        if(acuerdo.getTipo() == AcuerdoTipoEnum.AUTORIZACION_ESTATAL || acuerdo.getTipo() == AcuerdoTipoEnum.AUTORIZACION_PROVISIONAL || acuerdo.getTipo() == AcuerdoTipoEnum.REGISTRO_FEDERAL || acuerdo.getTipo() == AcuerdoTipoEnum.REGISTRO_SERVICIOS_PROPIOS || acuerdo.getTipo() == AcuerdoTipoEnum.REFRENDO) {
+            acuerdo.setFechaInicio(LocalDate.parse(acuerdoDto.getFechaInicio()));
+            acuerdo.setFechaFin(LocalDate.parse(acuerdoDto.getFechaFin()));
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.PERDIDA_EFICACIA) {
             empresaDto.setStatus(EmpresaStatusEnum.PERDIDA_EFICACIA);
             empresaDto.setObservaciones(acuerdo.getObservaciones());
             empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
@@ -138,9 +141,8 @@ public class AcuerdoServiceImpl implements AcuerdoService {
             empresaDto.setObservaciones(acuerdo.getObservaciones());
             empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
         } else if(acuerdo.getTipo() == AcuerdoTipoEnum.MULTA) {
-            // Agregar codigo para manejar multas
-        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.REFRENDO) {
-            // Crear tabla para refrendar
+            acuerdo.setMultaUmas(acuerdoDto.getMultaUmas());
+            acuerdo.setMultaPesos(acuerdoDto.getMultaPesos());
         }
 
         String ruta = "";
@@ -171,11 +173,36 @@ public class AcuerdoServiceImpl implements AcuerdoService {
             throw new NotFoundResourceException();
         }
 
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(uuid);
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
         daoHelper.fulfillAuditorFields(false, acuerdo, usuarioDto.getId());
 
         acuerdo.setFecha(LocalDate.parse(acuerdoDto.getFecha()));
         acuerdo.setObservaciones(acuerdoDto.getObservaciones());
+
+        if(acuerdo.getTipo() == AcuerdoTipoEnum.AUTORIZACION_ESTATAL || acuerdo.getTipo() == AcuerdoTipoEnum.AUTORIZACION_PROVISIONAL || acuerdo.getTipo() == AcuerdoTipoEnum.REGISTRO_FEDERAL || acuerdo.getTipo() == AcuerdoTipoEnum.REGISTRO_SERVICIOS_PROPIOS || acuerdo.getTipo() == AcuerdoTipoEnum.REFRENDO) {
+            acuerdo.setFechaInicio(LocalDate.parse(acuerdoDto.getFechaInicio()));
+            acuerdo.setFechaFin(LocalDate.parse(acuerdoDto.getFechaFin()));
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.PERDIDA_EFICACIA) {
+            empresaDto.setStatus(EmpresaStatusEnum.PERDIDA_EFICACIA);
+            empresaDto.setObservaciones(acuerdo.getObservaciones());
+            empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.CLAUSURA) {
+            empresaDto.setStatus(EmpresaStatusEnum.CLAUSURADA);
+            empresaDto.setObservaciones(acuerdo.getObservaciones());
+            empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.SUSPENSION) {
+            empresaDto.setStatus(EmpresaStatusEnum.SUSPENDIDA);
+            empresaDto.setObservaciones(acuerdo.getObservaciones());
+            empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.REV0CACION) {
+            empresaDto.setStatus(EmpresaStatusEnum.REVOCADA);
+            empresaDto.setObservaciones(acuerdo.getObservaciones());
+            empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.MULTA) {
+            acuerdo.setMultaUmas(acuerdoDto.getMultaUmas());
+            acuerdo.setMultaPesos(acuerdoDto.getMultaPesos());
+        }
 
         if(multipartFile != null) {
             logger.info("Se subio con un archivo. Eliminando y modificando");

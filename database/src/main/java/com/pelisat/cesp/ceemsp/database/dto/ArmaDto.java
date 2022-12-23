@@ -19,7 +19,6 @@ public class ArmaDto {
     private ArmaStatusEnum status;
     private String serie;
     private String matricula;
-    private PersonaDto personal;
     private Boolean eliminado;
     private IncidenciaDto incidencia;
     private String motivoBaja;

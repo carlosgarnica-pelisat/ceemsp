@@ -51,6 +51,11 @@ public class PersonaDto {
     private boolean eliminado;
     private String fechaCreacion;
 
+    private CanDto can;
+    private VehiculoDto vehiculo;
+    private ArmaDto armaCorta;
+    private ArmaDto armaLarga;
+
     private String motivoBaja;
     private String observacionesBaja;
     private String documentoFundatorioBaja;

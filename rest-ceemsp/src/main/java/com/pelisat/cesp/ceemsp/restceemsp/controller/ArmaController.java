@@ -35,6 +35,20 @@ public class ArmaController {
         return armaService.obtenerArmasPorEmpresaUuid(empresaUuid);
     }
 
+    @GetMapping(value = "/empresas/{empresaUuid}/armas/cortas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ArmaDto> obtenerArmasCortas(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) {
+        return armaService.obtenerArmasCortasPorEmpresaUuid(empresaUuid);
+    }
+
+    @GetMapping(value = "/empresas/{empresaUuid}/armas/largas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ArmaDto> obtenerArmasLargas(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) {
+        return armaService.obtenerArmasLargasPorEmpresaUuid(empresaUuid);
+    }
+
     @GetMapping(value = EMPRESA_ARMAS_URI, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ArmaDto> obtenerArmas(
             @PathVariable(value = "empresaUuid") String empresaUuid,

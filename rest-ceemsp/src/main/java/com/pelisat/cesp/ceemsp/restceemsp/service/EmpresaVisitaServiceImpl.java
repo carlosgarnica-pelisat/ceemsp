@@ -40,7 +40,6 @@ public class EmpresaVisitaServiceImpl implements EmpresaVisitaService {
         logger.info("Obteniendo las visitas con el uuid [{}]", uuid);
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(uuid);
         List<Visita> visitas = visitaRepository.getAllByEmpresaAndEliminadoFalse(empresaDto.getId());
-        List<VisitaDto> response = visitas.stream().map(daoToDtoConverter::convertDaoToDtoVisita).collect(Collectors.toList());
-        return response;
+        return visitas.stream().map(daoToDtoConverter::convertDaoToDtoVisita).collect(Collectors.toList());
     }
 }

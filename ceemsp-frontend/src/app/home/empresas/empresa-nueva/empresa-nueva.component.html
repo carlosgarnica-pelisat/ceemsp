@@ -279,12 +279,12 @@
             <hr>
             <form [formGroup]="empresaModalidadForm" style="margin-top: 10px;">
               <div class="form-row">
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                   <label>
                     <b>Modalidad * </b>
                   </label>
                   <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                    {{modalidad === undefined ? 'Ninguno' : (modalidad?.nombre).substr(0, 60)}}
+                    {{modalidad === undefined ? 'Ninguno' : (modalidad?.nombre).substr(0, 50)}}
                   </a>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
                     <form class="px-4 py-3" autocomplete="off">
@@ -300,13 +300,26 @@
                     <a class="dropdown-item" *ngIf="modalidad !== undefined" (click)="quitarModalidad()">Quitar</a>
                   </div>
                 </div>
-                <div class="col-sm-2" *ngIf="modalidad?.tieneSubmodalidades">
-                  <label for="submodalidad">
+                <div class="col-sm-3" *ngIf="modalidad?.tieneSubmodalidades">
+                  <label>
                     <b>Submodalidad</b>
                   </label>
-                  <select id="submodalidad" class="form-control" formControlName="submodalidad" (change)="seleccionarSubmodalidad($event.target)">
-                    <option *ngFor="let s of modalidad?.submodalidades" value="{{s?.uuid}}">{{s?.nombre}}</option>
-                  </select>
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{submodalidad === undefined ? 'Ninguno' : (submodalidad?.nombre).substr(0, 50)}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                    <form class="px-4 py-3" autocomplete="off">
+                      <label for="submodalidadSearchQuery"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="submodalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="submodalidadQuery"
+                             [ngModelOptions]="{standalone: true}">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let s of modalidad.submodalidades | buscarNombre: {nombre: submodalidadQuery}" (click)="seleccionarSubmodalidad(s?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                      {{s.nombre}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="submodalidad !== undefined" (click)="quitarSubmodalidad()">Quitar</a>
+                  </div>
                 </div>
                 <div class="col-sm-2" *ngIf="modalidad?.tipo === 'EAFJAL'">
                   <label for="numeroRegistroFederal">
@@ -371,7 +384,7 @@
             </div>
           </div>
 
-          <!-- STEP 2 - Psychologist information -->
+
           <div id="test-l-2" class="content">
 
             <form [formGroup]="empresaDomiciliosForm" autocomplete="off">
@@ -643,7 +656,6 @@
             </div>
           </div>
 
-          <!-- STEP 3 - SUMMARY -->
           <div id="test-l-3" class="content">
             <form [formGroup]="nuevaEscrituraForm">
               <div class="row">
@@ -892,7 +904,7 @@
                             </span>
                   </label>
                   <select id="formaEjecucion" class="form-control" formControlName="formaEjecucion">
-                    <option value="ARMAS">Con portación de armas de fuego</option>
+                    <option value="ARMAS" *ngIf="tipoTranite === 'EAFJAL'">Con portación de armas de fuego</option>
                     <option value="CANES">Con el auxilio de canes</option>
                     <option value="INSTRUMENTOS">Con portación de instrumentos de apoyo para control</option>
                     <option value="TECNOLOGIA">Con apoyo de tecnología</option>
@@ -968,6 +980,20 @@
                         <b>Archivo del acuerdo (en pdf) *</b>
                       </label>
                       <input id="documentoAcuerdo" class="form-control" type="file" accept="application/pdf" (change)="onFileChange($event)">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <label for="fechaInicio">
+                        <b>Fecha de inicio *</b>
+                      </label>
+                      <input class="form-control" id="fechaInicio" type="date" formControlName="fechaInicio" placeholder="Fecha de inicio">
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="fechaFin">
+                        <b>Fecha de fin *</b>
+                      </label>
+                      <input class="form-control" id="fechaFin" type="date" formControlName="fechaFin" placeholder="Fecha de fin">
                     </div>
                   </div>
                   <div class="row">
@@ -1157,6 +1183,39 @@
                     <td>{{e?.tipoFedatario}}</td>
                     <td>{{e?.numero}}</td>
                     <td>{{e?.nombreFedatario}}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <h4>Acuerdo</h4>
+                <table class="table">
+                  <tr>
+                    <td><b>Tipo de acuerdo:</b></td>
+                    <td [ngSwitch]="acuerdo?.tipo">
+                      <span *ngSwitchCase="'AUTORIZACION_ESTATAL'">Autorizacion Estatal</span>
+                      <span *ngSwitchCase="'AUTORIZACION_PROVISIONAL'">Autorizacion Provisional</span>
+                      <span *ngSwitchCase="'REGISTRO_FEDERAL'">Registro Federal</span>
+                      <span *ngSwitchCase="'REGISTRO_SERVICIOS_PROPIOS'">Registro de Servicios Propios</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Fecha del acuerdo:</b></td>
+                    <td>{{acuerdo?.fecha}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Fecha de inicio:</b></td>
+                    <td>{{acuerdo?.fechaInicio}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Fecha de fin:</b></td>
+                    <td>{{acuerdo?.fechaFin}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Observaciones:</b></td>
+                    <td>{{acuerdo?.observaciones}}</td>
                   </tr>
                 </table>
               </div>

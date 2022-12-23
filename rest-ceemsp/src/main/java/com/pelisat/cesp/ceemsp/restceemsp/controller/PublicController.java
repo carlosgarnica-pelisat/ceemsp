@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -44,10 +45,18 @@ public class PublicController {
     @GetMapping(value = "/public/comunicados", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ComunicadoGeneralDto> obtenerComunicados(
             @RequestParam(value = "titulo", required = false) String titulo,
-            @RequestParam(value = "mes", required = false) Integer mes,
-            @RequestParam(value = "ano", required = false) Integer ano
+            @RequestParam(value = "mes", required = false) String mes,
+            @RequestParam(value = "ano", required = false) String ano
     ) {
-        return comunicadoGeneralService.obtenerComunicadosGenerales(titulo, mes, ano);
+        Integer mesInteger = null;
+        Integer anoInteger = null;
+        if(!Objects.equals(mes, "null")) {
+            mesInteger = Integer.parseInt(mes);
+        }
+        if(!Objects.equals(ano, "null")) {
+            anoInteger = Integer.parseInt(ano);
+        }
+        return comunicadoGeneralService.obtenerComunicadosGenerales(titulo, mesInteger, anoInteger);
     }
 
     @GetMapping(value = "/public/comunicados/ultimo", produces = MediaType.APPLICATION_JSON_VALUE)

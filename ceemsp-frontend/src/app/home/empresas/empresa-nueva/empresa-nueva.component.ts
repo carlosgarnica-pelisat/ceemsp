@@ -37,6 +37,7 @@ import ExisteUsuario from "../../../_models/ExisteUsuario";
 import Acuerdo from "../../../_models/Acuerdo";
 import {AgmGeocoder} from "@agm/core";
 import EmpresaDomicilioTelefono from "../../../_models/EmpresaDomicilioTelefono";
+import Submodalidad from "../../../_models/Submodalidad";
 import GeocoderResult = google.maps.GeocoderResult;
 
 @Component({
@@ -79,6 +80,7 @@ export class EmpresaNuevaComponent implements OnInit {
   domicilioTelefono: EmpresaDomicilioTelefono;
 
   modalidad: Modalidad;
+  submodalidad: Submodalidad;
   modalidades: Modalidad[] = [];
   empresaModalidades: EmpresaModalidad[] = [];
 
@@ -151,6 +153,7 @@ export class EmpresaNuevaComponent implements OnInit {
   coloniaQuery: string = '';
   calleQuery: string = '';
   modalidadQuery: string = '';
+  submodalidadQuery: string = '';
 
   rfcVerificationResponse = undefined;
   curpValida: boolean = false;
@@ -183,6 +186,8 @@ export class EmpresaNuevaComponent implements OnInit {
 
   showTelefonoForm: boolean = false;
   editandoTelefono: boolean = false;
+
+  acuerdo: Acuerdo;
 
   @ViewChild('visualizarEscrituraModal') visualizarEscrituraModal;
   @ViewChild('visualizarMapaModal') visualizarMapaModal;
@@ -272,7 +277,7 @@ export class EmpresaNuevaComponent implements OnInit {
     this.nuevoSocioForm = this.formBuilder.group({
       nombres: ['', [Validators.required, Validators.maxLength(60)]],
       apellidos: ['', [Validators.required, Validators.maxLength(60)]],
-      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.maxLength(60)]],
       sexo: ['', Validators.required],
       porcentajeAcciones: ['', [Validators.required, Validators.min(1), Validators.max(100)]],
       curp: ['', [Validators.minLength(18), Validators.maxLength(18)]]
@@ -281,7 +286,7 @@ export class EmpresaNuevaComponent implements OnInit {
     this.nuevoApoderadoForm = this.formBuilder.group({
       nombres: ['', [Validators.required, Validators.maxLength(60)]],
       apellidos: ['', [Validators.required, Validators.maxLength(60)]],
-      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.maxLength(60)]],
       sexo: ['', Validators.required],
       fechaInicio: ['', Validators.required],
       fechaFin: ['', Validators.required],
@@ -291,7 +296,7 @@ export class EmpresaNuevaComponent implements OnInit {
     this.nuevoRepresentanteForm = this.formBuilder.group({
       nombres: ['', [Validators.required, Validators.maxLength(60)]],
       apellidos: ['', [Validators.required, Validators.maxLength(60)]],
-      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.maxLength(60)]],
       sexo: ['', Validators.required],
       curp: ['', [Validators.minLength(18), Validators.maxLength(18)]]
     })
@@ -312,6 +317,8 @@ export class EmpresaNuevaComponent implements OnInit {
     this.nuevoAcuerdoForm = this.formBuilder.group({
       tipo: ['', Validators.required],
       fecha: ['', Validators.required],
+      fechaInicio: ['', Validators.required],
+      fechaFin: ['', Validators.required],
       observaciones: ['']
     });
 
@@ -427,6 +434,10 @@ export class EmpresaNuevaComponent implements OnInit {
   }
 
   quitarModalidad() {
+
+  }
+
+  quitarSubmodalidad() {
 
   }
 
@@ -1474,6 +1485,7 @@ export class EmpresaNuevaComponent implements OnInit {
           formData.append('acuerdo', JSON.stringify(formValue));
 
           this.empresaService.guardarAcuerdo(this.empresa?.uuid, formData).subscribe((data: Acuerdo) => {
+            this.acuerdo = data;
             this.toastService.showGenericToast(
               "Listo",
               `Se ha guardado el acuerdo con exito`,
@@ -1661,6 +1673,7 @@ export class EmpresaNuevaComponent implements OnInit {
   cambiarTipoTramite(event) {
     this.tipoTranite = event.value
     this.modalidad = undefined;
+    this.submodalidad = undefined;
     this.empresaModalidades = [];
     this.publicService.obtenerSiguienteNumero({tipo: this.tipoTranite}).subscribe((data: ProximoRegistro) => {
       this.empresaCreacionForm.patchValue({
@@ -1687,6 +1700,22 @@ export class EmpresaNuevaComponent implements OnInit {
         ToastType.ERROR
       )
     })
+
+    if(this.tipoTranite === 'EAFJAL') {
+      this.empresaModalidadForm.controls['numeroRegistroFederal'].setValidators([Validators.required])
+      this.empresaModalidadForm.controls['numeroRegistroFederal'].updateValueAndValidity();
+      this.empresaModalidadForm.controls['fechaInicio'].setValidators([Validators.required])
+      this.empresaModalidadForm.controls['fechaInicio'].updateValueAndValidity();
+      this.empresaModalidadForm.controls['fechaFin'].setValidators([Validators.required])
+      this.empresaModalidadForm.controls['fechaFin'].updateValueAndValidity();
+    } else {
+      this.empresaModalidadForm.controls['numeroRegistroFederal'].setValidators([])
+      this.empresaModalidadForm.controls['numeroRegistroFederal'].updateValueAndValidity();
+      this.empresaModalidadForm.controls['fechaInicio'].setValidators([])
+      this.empresaModalidadForm.controls['fechaInicio'].updateValueAndValidity();
+      this.empresaModalidadForm.controls['fechaFin'].setValidators([])
+      this.empresaModalidadForm.controls['fechaFin'].updateValueAndValidity();
+    }
   }
 
   cambiarTipoPersona(event) {
@@ -2075,7 +2104,16 @@ export class EmpresaNuevaComponent implements OnInit {
 
     empresaModalidad.modalidad = this.modalidad;
     if(this.modalidad.tieneSubmodalidades) {
-      empresaModalidad.submodalidad = this.modalidad.submodalidades.filter((x => x.uuid === formData.submodalidad))[0];
+      if(this.submodalidad === undefined) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `Favor de seleccionar una submodalidad`,
+          ToastType.WARNING
+        );
+        return;
+      }
+
+      empresaModalidad.submodalidad = this.submodalidad;
     }
 
     empresaModalidad.fechaInicio = formData.fechaInicio;
@@ -2085,6 +2123,16 @@ export class EmpresaNuevaComponent implements OnInit {
     this.empresaModalidades.push(empresaModalidad);
     form.reset();
     this.modalidad = undefined;
+    this.submodalidad = undefined;
+
+    if(this.tipoTranite === 'EAFJAL') {
+      this.empresaModalidadForm.patchValue({
+        fechaInicio: this.empresaCreacionForm.controls['fechaInicio'].value,
+        fechaFin: this.empresaCreacionForm.controls['fechaFin'].value,
+        numeroRegistroFederal: this.empresaCreacionForm.controls['registroFederal'].value
+      })
+      console.log(this.empresaModalidadForm.value);
+    }
   }
 
   onFileChange(event) {
@@ -2133,8 +2181,8 @@ export class EmpresaNuevaComponent implements OnInit {
     }
   }
 
-  seleccionarSubmodalidad(event) {
-    let existeSubmodalidad = this.empresaModalidades.filter(m => m.submodalidad?.uuid === event.value)[0];
+  seleccionarSubmodalidad(uuid) {
+    let existeSubmodalidad = this.empresaModalidades.filter(m => m.submodalidad?.uuid === uuid)[0];
     if(existeSubmodalidad !== undefined) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -2144,6 +2192,7 @@ export class EmpresaNuevaComponent implements OnInit {
       this.modalidad = undefined;
       return;
     }
+    this.submodalidad = this.modalidad.submodalidades?.filter(s => s.uuid === uuid)[0];
   }
 
   redireccionarEmpresas() {
