@@ -3,6 +3,8 @@ package com.pelisat.cesp.ceemsp.restempresas.service;
 import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.*;
+import com.pelisat.cesp.ceemsp.database.type.FormaEjecucionEnum;
+import com.pelisat.cesp.ceemsp.database.type.VehiculoTipoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
@@ -43,6 +45,9 @@ public class CatalogoServiceImpl implements CatalogoService {
     private final DaoToDtoConverter daoToDtoConverter;
     private final SubmodalidadRepository submodalidadRepository;
     private final VehiculoTipoRepository vehiculoTipoRepository;
+    private final EquipoRepository equipoRepository;
+    private final UsuarioService usuarioService;
+    private final EmpresaFormaEjecucionRepository empresaFormaEjecucionRepository;
 
     @Autowired
     public CatalogoServiceImpl(CanRazaRepository canRazaRepository, CanTipoAdiestramientoRepository canTipoAdiestramientoRepository,
@@ -53,7 +58,8 @@ public class CatalogoServiceImpl implements CatalogoService {
                                VehiculoSubmarcaRepository vehiculoSubmarcaRepository, DaoToDtoConverter daoToDtoConverter,
                                VehiculoUsoRepository vehiculoUsoRepository, UniformeRepository uniformeRepository, CalleRepository calleRepository,
                                ColoniaRepository coloniaRepository, LocalidadRepository localidadRepository, MunicipioRepository municipioRepository,
-                               EstadoRepository estadoRepository, SubmodalidadRepository submodalidadRepository, VehiculoTipoRepository vehiculoTipoRepository) {
+                               EstadoRepository estadoRepository, SubmodalidadRepository submodalidadRepository, VehiculoTipoRepository vehiculoTipoRepository,
+                               EquipoRepository equipoRepository, UsuarioService usuarioService, EmpresaFormaEjecucionRepository empresaFormaEjecucionRepository) {
         this.canRazaRepository = canRazaRepository;
         this.canTipoAdiestramientoRepository = canTipoAdiestramientoRepository;
         this.armaClaseRepository = armaClaseRepository;
@@ -76,6 +82,9 @@ public class CatalogoServiceImpl implements CatalogoService {
         this.estadoRepository = estadoRepository;
         this.submodalidadRepository = submodalidadRepository;
         this.vehiculoTipoRepository = vehiculoTipoRepository;
+        this.equipoRepository = equipoRepository;
+        this.usuarioService = usuarioService;
+        this.empresaFormaEjecucionRepository = empresaFormaEjecucionRepository;
     }
 
     @Override
@@ -153,7 +162,21 @@ public class CatalogoServiceImpl implements CatalogoService {
 
     @Override
     public List<PersonalPuestoDeTrabajoDto> obtenerPuestosDeTrabajo() {
-        return null;
+        List<PersonalPuesto> puestosTrabajo = personalPuestoRepository.getAllByEliminadoFalse();
+        return puestosTrabajo.stream()
+                .map(p -> {
+                    PersonalPuestoDeTrabajoDto personalPuestoDeTrabajoDto = daoToDtoConverter.convertDaoToDtoPersonalPuestoDeTrabajo(p);
+                    personalPuestoDeTrabajoDto.setSubpuestos(obtenerSubpuestosPorPuesto(p.getId()));
+                    return personalPuestoDeTrabajoDto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<PersonalSubpuestoDeTrabajoDto> obtenerSubpuestosPorPuesto(int idPuesto) {
+        List<PersonalSubpuesto> subpuestos = personalSubpuestoRepository.getAllByPuestoAndEliminadoFalse(idPuesto);
+        return subpuestos.stream()
+                .map(daoToDtoConverter::convertDaoToDtoPersonalSubpuestoDeTrabajo)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -182,6 +205,41 @@ public class CatalogoServiceImpl implements CatalogoService {
     }
 
     @Override
+    public List<EquipoDto> obtenerEquipos() {
+        List<Equipo> equipos = equipoRepository.findAllByEliminadoFalse();
+        return equipos.stream().map(daoToDtoConverter::convertDaoToDtoEquipo).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EquipoDto> obtenerEquiposCalificables(String username) {
+        if(StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        List<EmpresaFormaEjecucion> empresaFormasEjecucion = empresaFormaEjecucionRepository.getAllByEmpresaAndEliminadoFalse(usuarioDto.getEmpresa().getId());
+        List<Equipo> equipos = equipoRepository.findAllByFormaEjecucionAndEliminadoFalse(FormaEjecucionEnum.NA);
+
+        empresaFormasEjecucion.forEach(efe -> {
+            equipos.addAll(equipoRepository.findAllByFormaEjecucionAndEliminadoFalse(efe.getFormaEjecucion()));
+        });
+
+        empresaFormasEjecucion.forEach(efe -> {
+            equipos.addAll(equipoRepository.findAllByFormaEjecucionAndEliminadoFalse(efe.getFormaEjecucion()));
+        });
+
+        return equipos.stream().map(daoToDtoConverter::convertDaoToDtoEquipo).collect(Collectors.toList());
+    }
+
+    @Override
+    public EquipoDto obtenerEquipoPorId(int id) {
+        Equipo equipo = equipoRepository.getById(id);
+        return daoToDtoConverter.convertDaoToDtoEquipo(equipo);
+    }
+
+    @Override
     public List<VehiculoUsoDto> obtenerUsosVehiculos() {
         logger.info("Consultando todos los usos de vehiculos guardadas en la base de datos");
         List<VehiculoUso> vehiculoUsos = vehiculoUsoRepository.getAllByEliminadoFalse();
@@ -207,10 +265,38 @@ public class CatalogoServiceImpl implements CatalogoService {
     }
 
     @Override
+    public List<VehiculoMarcaDto> obtenerMarcasVehiculosTipo(VehiculoTipoEnum vehiculoTipo) {
+        logger.info("Consultando las marcas por el tipo [{}]", vehiculoTipo);
+        List<VehiculoMarca> vehiculoMarcas = vehiculoMarcaRepository.getAllByTipoAndEliminadoFalse(vehiculoTipo);
+        return vehiculoMarcas.stream()
+                .map(daoToDtoConverter::convertDaoToDtoVehiculoMarca)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public VehiculoMarcaDto obtenerMarcaVehiculoPorId(int id) {
         logger.info("Consultando el uniforme con el id [{}]", id);
         VehiculoMarca vehiculoMarca = vehiculoMarcaRepository.getById(id);
         return daoToDtoConverter.convertDaoToDtoVehiculoMarca(vehiculoMarca);
+    }
+
+    @Override
+    public VehiculoMarcaDto obtenerMarcaVehiculoPorUuid(String uuid) {
+        if(StringUtils.isBlank(uuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+        VehiculoMarca vehiculoMarca = vehiculoMarcaRepository.getByUuidAndEliminadoFalse(uuid);
+        List<VehiculoSubmarca> vehiculoSubmarcas = vehiculoSubmarcaRepository.getAllByMarcaAndEliminadoFalse(vehiculoMarca.getId());
+
+        VehiculoMarcaDto vehiculoMarcaDto = daoToDtoConverter.convertDaoToDtoVehiculoMarca(vehiculoMarca);
+
+        vehiculoMarcaDto.setSubmarcas(
+                vehiculoSubmarcas.stream().map(daoToDtoConverter::convertDaoToDtoVehiculoSubmarca)
+                        .collect(Collectors.toList())
+        );
+
+        return vehiculoMarcaDto;
     }
 
     @Override
@@ -489,17 +575,69 @@ public class CatalogoServiceImpl implements CatalogoService {
 
     @Override
     public PersonalNacionalidadDto obtenerNacionalidadPorId(Integer id) {
-        return null;
+        if(id == null || id < 1) {
+            logger.warn("El id viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+        logger.info("Descargando la nacionalidad con el id [{}]", id);
+        PersonalNacionalidad personalNacionalidad = personalNacionalidadRepository.getOne(id);
+
+        if(personalNacionalidad == null) {
+            logger.warn("La marca del vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return daoToDtoConverter.convertDaoToDtoPersonalNacionalidad(personalNacionalidad);
     }
 
     @Override
     public PersonalPuestoDeTrabajoDto obtenerPuestoPorId(Integer id) {
-        return null;
+        if(id == null || id < 1) {
+            logger.warn("El id viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+        logger.info("Descargando el puesto de trabajo con el id [{}]", id);
+        PersonalPuesto personalPuesto = personalPuestoRepository.getOne(id);
+
+        if(personalPuesto == null) {
+            logger.warn("La marca del vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return daoToDtoConverter.convertDaoToDtoPersonalPuestoDeTrabajo(personalPuesto);
     }
 
     @Override
     public PersonalSubpuestoDeTrabajoDto obtenerSubpuestoPorId(Integer id) {
-        return null;
+        if(id == null || id < 1) {
+            logger.warn("El id viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+        logger.info("Descargando el subpuesto de trabajo con el id [{}]", id);
+        PersonalSubpuesto personalSubpuesto = personalSubpuestoRepository.getOne(id);
+
+        if(personalSubpuesto == null) {
+            logger.warn("El subpuesto no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return daoToDtoConverter.convertDaoToDtoPersonalSubpuestoDeTrabajo(personalSubpuesto);
+    }
+
+    @Override
+    public List<PersonalSubpuestoDeTrabajoDto> obtenerSubpuestosPorUuid(String uuid) {
+        if(StringUtils.isBlank(uuid)) {
+            logger.warn("El uuid viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo los subpuestos de trabajo");
+        PersonalPuesto puestoDeTrabajo = personalPuestoRepository.getByUuidAndEliminadoFalse(uuid);
+
+        return personalSubpuestoRepository.getAllByPuestoAndEliminadoFalse(puestoDeTrabajo.getId())
+                .stream()
+                .map(daoToDtoConverter::convertDaoToDtoPersonalSubpuestoDeTrabajo)
+                .collect(Collectors.toList());
     }
 
     @Override

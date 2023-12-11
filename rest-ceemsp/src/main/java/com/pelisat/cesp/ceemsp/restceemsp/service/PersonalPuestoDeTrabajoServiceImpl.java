@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -98,6 +99,7 @@ public class PersonalPuestoDeTrabajoServiceImpl implements PersonalPuestoDeTraba
     }
 
     @Override
+    @Transactional
     public PersonalPuestoDeTrabajoDto crearNuevo(PersonalPuestoDeTrabajoDto personalPuestoDeTrabajoDto, String username) {
         if(personalPuestoDeTrabajoDto == null || StringUtils.isBlank(username)) {
             logger.warn("El usuario o el puesto de trabajo vienen como nulos o vacios");
@@ -115,6 +117,7 @@ public class PersonalPuestoDeTrabajoServiceImpl implements PersonalPuestoDeTraba
     }
 
     @Override
+    @Transactional
     public PersonalPuestoDeTrabajoDto modificar(String uuid, String username, PersonalPuestoDeTrabajoDto personalPuestoDeTrabajoDto) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || personalPuestoDeTrabajoDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
@@ -143,6 +146,7 @@ public class PersonalPuestoDeTrabajoServiceImpl implements PersonalPuestoDeTraba
     }
 
     @Override
+    @Transactional
     public PersonalPuestoDeTrabajoDto eliminar(String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

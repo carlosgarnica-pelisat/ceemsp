@@ -7,11 +7,17 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaDomicilioService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 @RestController
@@ -48,6 +54,22 @@ public class EmpresaDomicilioController {
             @PathVariable(value = "domicilioUuid") String domicilioUuid
     ) {
         return empresaDomicilioService.obtenerPorUuid(empresaUuid, domicilioUuid);
+    }
+
+    @GetMapping(value = EMPRESA_DOMICILIOS_URI + "/{domicilioUuid}/documentos/fundatorios")
+    public ResponseEntity<InputStreamResource> descargarDocumentoFundatorio(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "domicilioUuid") String domicilioUuid
+    ) throws Exception {
+        File file = empresaDomicilioService.descargarDocumentoFundatorio(empresaUuid, domicilioUuid);
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentLength(file.length());
+        responseHeaders.setContentDispositionFormData("attachment", file.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+        return new ResponseEntity<>(isr, responseHeaders, HttpStatus.OK);
     }
 
     @PostMapping(value = EMPRESA_DOMICILIOS_URI, consumes = MediaType.APPLICATION_JSON_VALUE)

@@ -6,9 +6,7 @@ import {faEye, faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
 @Component({
   selector: 'app-boton-empresas',
   template: `
-    <fa-icon [icon]="faEye" size="fa-lg" style="cursor: pointer;" (click)="evaluateCallback($event, this.VER_DETALLES)"></fa-icon>
-    <fa-icon [icon]="faPencil" size="fa-lg" style="cursor: pointer;" (click)="evaluateCallback($event, this.EDITAR)"></fa-icon>
-    <fa-icon [icon]="faTrash" size="fa-lg" style="cursor: pointer;" (click)="evaluateCallback($event, this.CAMBIAR_STATUS)"></fa-icon>
+    <fa-icon [icon]="faPencil" size="fa-lg" style="cursor: pointer;" (click)="evaluateCallback($event, this.VER_DETALLES)"></fa-icon>
   `
 })
 export class BotonEmpresasComponent implements ICellRendererAngularComp {
@@ -17,9 +15,6 @@ export class BotonEmpresasComponent implements ICellRendererAngularComp {
   label: string;
 
   faPencil = faPencilAlt;
-  faTrash = faTrash;
-  faEye = faEye;
-
   VER_DETALLES: string = "VER_DETALLES";
   EDITAR: string = "EDITAR";
   CAMBIAR_STATUS: string = "CAMBIAR_STATUS";

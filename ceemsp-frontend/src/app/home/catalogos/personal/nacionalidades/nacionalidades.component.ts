@@ -8,6 +8,9 @@ import {ToastType} from "../../../../_enums/ToastType";
 import PersonalNacionalidad from "../../../../_models/PersonalNacionalidad";
 import VehiculoUso from "../../../../_models/VehiculoUso";
 import Uniforme from "../../../../_models/Uniforme";
+import {AuthenticationService} from "../../../../_services/authentication.service";
+import {Router} from "@angular/router";
+import Usuario from "../../../../_models/Usuario";
 
 @Component({
   selector: 'app-nacionalidades',
@@ -19,7 +22,7 @@ export class NacionalidadesComponent implements OnInit {
   private gridColumnApi;
 
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
     {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
   ];
@@ -36,15 +39,23 @@ export class NacionalidadesComponent implements OnInit {
   };
 
   crearNacionalidadForm: FormGroup;
+  usuarioActual: Usuario;
 
   @ViewChild("mostrarNacionalidadModal") mostrarNacionalidadModal;
   @ViewChild("editarNacionalidadModal") editarNacionalidadModal;
   @ViewChild("eliminarNacionalidadModal") eliminarNacionalidadModal;
 
-  constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
-              private personalService: PersonalService, private toastService: ToastService) { }
+  constructor(private modalService: NgbModal, private formBuilder: FormBuilder, private authenticationService: AuthenticationService,
+              private personalService: PersonalService, private toastService: ToastService, private router: Router) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
+
+    if(this.usuarioActual.rol !== 'CEEMSP_SUPERUSER') {
+      this.router.navigate(['/home']);
+    }
+
     this.personalService.obtenerNacionalidades().subscribe((data: PersonalNacionalidad[]) => {
       this.rowData = data;
     }, (error) => {

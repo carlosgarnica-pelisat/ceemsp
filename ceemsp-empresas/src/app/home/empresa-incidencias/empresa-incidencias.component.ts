@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, NgZone, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ActivatedRoute} from "@angular/router";
@@ -11,7 +11,7 @@ import {EmpresaService} from "../../_services/empresa.service";
 import Cliente from "../../_models/Cliente";
 import {ToastType} from "../../_enums/ToastType";
 
-import {faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faTrash, faDownload} from "@fortawesome/free-solid-svg-icons";
 import Incidencia from "../../_models/Incidencia";
 import {EmpresaPersonalService} from "../../_services/empresa-personal.service";
 import {EmpresaClientesService} from "../../_services/empresa-clientes.service";
@@ -20,6 +20,15 @@ import {EmpresaCanesService} from "../../_services/empresa-canes.service";
 import {EmpresaVehiculosService} from "../../_services/empresa-vehiculos.service";
 import IncidenciaComentario from "../../_models/IncidenciaComentario";
 import {EmpresaIncidenciasService} from "../../_services/empresa-incidencias.service";
+import Usuario from "../../_models/Usuario";
+import {UsuariosService} from "../../_services/usuarios.service";
+import ClienteDomicilio from "../../_models/ClienteDomicilio";
+import {AgmGeocoder, MapsAPILoader} from "@agm/core";
+import GeocoderResult = google.maps.GeocoderResult;
+import {BotonEmpresaCanesComponent} from "../../_components/botones/boton-empresa-canes/boton-empresa-canes.component";
+import {
+  BotonEmpresaIncidenciasComponent
+} from "../../_components/botones/boton-empresa-incidencias/boton-empresa-incidencias.component";
 
 @Component({
   selector: 'app-empresa-incidencias',
@@ -32,12 +41,18 @@ export class EmpresaIncidenciasComponent implements OnInit {
   private gridColumnApi;
 
   faTrash = faTrash;
+  faDownload = faDownload;
 
   columnDefs = [
-    {headerName: 'Numero', field: 'numero', sortable: true, filter: true },
-    {headerName: 'Asignado', field: 'asignado === null ? Sin asignar : asignado.nombre', sortable: true, filter: true },
-    {headerName: 'Fecha', field: 'fechaIncidencia', sortable: true, filter: true },
-    {headerName: 'Status', field: 'status', sortable: true, filter: true}
+    {headerName: 'Numero', field: 'numero', sortable: true, filter: true, resizable: true },
+    {headerName: 'Asignado', sortable: true, filter: true, resizable: true, valueGetter: function (params) {if(params.data.asignado === null) { return 'Sin asignar' } return params.data.asignado?.nombres + " " + params.data.asignado?.apellidos} },
+    {headerName: 'Fecha de incidencia', field: 'fechaIncidencia', sortable: true, filter: true, resizable: true },
+    {headerName: 'Fecha de captura', field: 'fechaCreacion', sortable: true, filter: true, resizable: true },
+    {headerName: 'Status', field: 'status', sortable: true, filter: true, resizable: true },
+    {headerName: 'Opciones', cellRenderer: 'buttonRenderer',resizable: true, cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this)
+      }}
   ];
   rowData = [];
 
@@ -86,30 +101,70 @@ export class EmpresaIncidenciasComponent implements OnInit {
   editorData: string = "<p>Favor de escribir con detalle el relato de la incidencia</p>"
 
   incidencia: Incidencia;
-
+  geocodeResult;
+  usuarioActual: Usuario;
   tempUuid: string;
+  fechaHoyDate = new Date()
+  fechaDeHoy = new Date(this.fechaHoyDate.getFullYear(), this.fechaHoyDate.getMonth(), this.fechaHoyDate.getDate()).toISOString().split('T')[0];
+  fechaTresDiasAntes = new Date(this.fechaHoyDate.getFullYear(), this.fechaHoyDate.getMonth(), this.fechaHoyDate.getDate() - 3).toISOString().split('T')[0];
+  clienteDomicilio: ClienteDomicilio;
+  clienteDomicilios: ClienteDomicilio[] = [];
+  ubicacionCliente: boolean = false;
+  latitude: number;
+  longitude: number;
+  zoom: number;
+  tempIndex: number;
+  private geoCoder;
+  address: string;
 
+  @ViewChild('busquedaDireccion', {static: true}) searchElementRef;
   @ViewChild('responderIncidenciaModal') responderIncidenciaModal;
-
+  @ViewChild('mostrarIncidenciaDetallesModal') mostrarIncidenciaDetallesModal;
   @ViewChild('eliminarIncidenciaPersonaModal') eliminarIncidenciaPersonaModal;
   @ViewChild('eliminarIncidenciaArmaModal') eliminarIncidenciaArmaModal;
   @ViewChild('eliminarIncidenciaCanModal') eliminarIncidenciaCanModal;
   @ViewChild('eliminarIncidenciaVehiculoModal') eliminarIncidenciaVehiculoModal;
   @ViewChild('eliminarIncidenciaArchivoModal') eliminarIncidenciaArchivoModal;
+  @ViewChild('mostrarUbica cionModal') mostrarUbicacionModal;
+  @ViewChild('mostrarUbicacionClienteModal') mostrarUbicacionClienteModal;
+  @ViewChild('seleccionarUbicacionModal') seleccionarUbicacionModal;
+  @ViewChild('quitarIncidenciaPersonaModal') quitarIncidenciaPersonaModal;
+  @ViewChild('quitarIncidenciaArmaModal') quitarIncidenciaArmaModal;
+  @ViewChild('quitarIncidenciaCanModal') quitarIncidenciaCanModal;
+  @ViewChild('quitarIncidenciaVehiculoModal') quitarIncidenciaVehiculoModal;
+
+
 
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
               private toastService: ToastService, private modalService: NgbModal,
               private empresaPersonalService: EmpresaPersonalService, private empresaClientesService: EmpresaClientesService,
               private empresaArmaService: EmpresaArmasService, private empresaCanesService: EmpresaCanesService,
-              private empresaVehiculoService: EmpresaVehiculosService, private empresaIncidenciaService: EmpresaIncidenciasService) { }
+              private empresaVehiculoService: EmpresaVehiculosService, private empresaIncidenciaService: EmpresaIncidenciasService,
+              private usuarioService: UsuariosService, private geocodeService: AgmGeocoder,
+              private mapsApiLoader: MapsAPILoader, private ngZone: NgZone,) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      buttonRenderer: BotonEmpresaIncidenciasComponent
+    }
+
+    this.usuarioService.obtenerUsuarioActual().subscribe((data: Usuario) => {
+      this.usuarioActual = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido obtener el usuario actual. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
     this.uuid = this.route.snapshot.paramMap.get("uuid");
 
     this.crearIncidenciaForm = this.formBuilder.group({
       'fechaIncidencia': ['', Validators.required],
       'clienteInvolucrado': ['', Validators.required],
-      'cliente': ['']
+      'cliente': [''],
+      'clienteDomicilio': ['']
     });
 
     this.crearPersonalIncidenciaForm = this.formBuilder.group({
@@ -117,7 +172,8 @@ export class EmpresaIncidenciasComponent implements OnInit {
     });
 
     this.crearArmaIncidenciaForm = this.formBuilder.group({
-      'armaInvolucrada': ['', Validators.required]
+      'armaInvolucrada': ['', Validators.required],
+      'status': ['', Validators.required]
     });
 
     this.crearVehiculoIncidenciaForm = this.formBuilder.group({
@@ -129,7 +185,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
     });
 
     this.responderIncidenciaForm = this.formBuilder.group({
-      'status': ['', Validators.required]
+      'status': ['']
     })
 
     this.crearArchivoIncidenciaForm = this.formBuilder.group({
@@ -195,6 +251,22 @@ export class EmpresaIncidenciasComponent implements OnInit {
         ToastType.ERROR
       );
     });
+
+    this.route.queryParams.subscribe((qp) => {
+      if(qp.uuid !== undefined) {
+        this.mostrarModalDetalles(qp)
+      }
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Alguno de los parametros no es valido`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  verDetalles(rowData) {
+    this.mostrarModalDetalles(rowData.rowData)
   }
 
   agregarArchivo(form) {
@@ -213,7 +285,33 @@ export class EmpresaIncidenciasComponent implements OnInit {
       ToastType.INFO
     );
 
+    let formData = new FormData();
+    formData.append('archivo', this.tempFile, this.tempFile.name);
 
+    this.empresaIncidenciaService.agregarArchivoIncidencia(this.incidencia.uuid, formData).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha guardado la incidencia con exito`,
+        ToastType.SUCCESS
+      );
+      this.tempFile = undefined;
+      this.conmutarAgregarArchivoForm();
+      this.empresaIncidenciaService.obtenerIncidenciaPorUuid(this.incidencia.uuid).subscribe((data: Incidencia) => {
+        this.incidencia = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la incidencia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        `Ocurrio un problema`,
+        `No se ha podido descargar el archivo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   agregarComentario(form) {
@@ -237,9 +335,20 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     let comentario = new IncidenciaComentario();
     comentario.comentario = this.editorData;
+    formValue.status = "ACCION_PENDIENTE"
 
     formValue.comentarios.push(comentario);
-    this.empresaIncidenciaService.agregarComentario(this.incidencia.uuid, formValue).subscribe((data: Incidencia) => {
+
+    let formData = new FormData();
+    formData.append('comentario', JSON.stringify(formValue));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+    this.empresaIncidenciaService.agregarComentario(this.incidencia.uuid, formData).subscribe((data: Incidencia) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha agregado el comentario con exito",
@@ -281,6 +390,21 @@ export class EmpresaIncidenciasComponent implements OnInit {
     this.tempUuid = uuid;
 
     this.modal = this.modalService.open(this.eliminarIncidenciaArmaModal, {size: "lg"})
+  }
+
+  descargarArchivo(uuid) {
+    this.empresaIncidenciaService.descargarArchivoIncidencia(this.incidencia.uuid, uuid).subscribe((data) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "incidencia" + this.incidencia.uuid;
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        `Ocurrio un problema`,
+        `No se ha podido descargar el archivo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   mostrarModalEliminarCan(uuid) {
@@ -333,12 +457,12 @@ export class EmpresaIncidenciasComponent implements OnInit {
     this.mostrarAgregarArchivoForm = !this.mostrarAgregarArchivoForm;
   }
 
-  mostrarModalDetalles(rowData, modal) {
+  mostrarModalDetalles(rowData) {
     let uuid = rowData.uuid;
     this.empresaIncidenciaService.obtenerIncidenciaPorUuid(uuid).subscribe((data: Incidencia) => {
       this.incidencia = data;
 
-      this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+      this.modal = this.modalService.open(this.mostrarIncidenciaDetallesModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
       this.modal.result.then((result) => {
         this.closeResult = `Closed with ${result}`;
@@ -366,7 +490,23 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     let formValue = form.value;
 
-    this.armasInvolucradas.push(this.armas.filter(x => x.uuid === formValue.armaInvolucrada)[0]);
+    let existeArma = this.armasInvolucradas.filter(x => x.uuid === formValue.armaInvolucrada)
+
+    if(existeArma.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra esta arma en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let arma: Arma = this.armas.filter(x => x.uuid === formValue.armaInvolucrada)[0];
+    console.log(formValue);
+    arma.status = formValue.status;
+
+    this.armasInvolucradas.push(arma);
+    form.reset();
     this.conmutarAgregarArmaForm();
   }
 
@@ -382,24 +522,20 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     let formValue = form.value;
 
+    let existeCan = this.canesInvolucrados.filter(x => x.uuid === formValue.canInvolucrado)
+
+    if(existeCan.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra este can en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.canesInvolucrados.push(this.canes.filter(x => x.uuid === formValue.canInvolucrado)[0]);
+    form.reset();
     this.conmutarAgregarCanForm();
-  }
-
-  quitarPersonaIncidencia(index) {
-    this.personalInvolucrado.splice(index, 1);
-  }
-
-  quitarArmaIncidencia(index) {
-    this.armasInvolucradas.splice(index, 1);
-  }
-
-  quitarCanIncidencia(index) {
-    this.canesInvolucrados.splice(index, 1);
-  }
-
-  quitarVehiculoIncidencia(index) {
-    this.vehiculosInvolucrados.splice(index, 1);
   }
 
   cambiarIncidenciaActualTab(tab) {
@@ -408,7 +544,20 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
   seleccionarCliente(event) {
     let uuid = event.value;
-    this.cliente = this.clientes.filter(x => x.uuid === uuid)[0];
+    this.cliente = this.clientes.filter(x => x.uuid === uuid)[0]
+    this.empresaClientesService.obtenerClienteDomicilios(this.cliente?.uuid).subscribe((data: ClienteDomicilio[]) => {
+      this.clienteDomicilios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los domicilios del cliente. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  revelarUbicacion() {
+    this.modal = this.modalService.open(this.mostrarUbicacionModal, {size: "xl", backdrop: "static"})
   }
 
   agregarPersonaIncidencia(form) {
@@ -458,6 +607,15 @@ export class EmpresaIncidenciasComponent implements OnInit {
     })
   }
 
+  cerrarModalIncidencia(modal) {
+    this.incidencia = undefined;
+    this.canesInvolucrados = [];
+    this.armasInvolucradas = [];
+    this.personalInvolucrado = [];
+    this.vehiculosInvolucrados = [];
+    modal.close();
+  }
+
   agregarArmaIncidencia(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
@@ -487,7 +645,8 @@ export class EmpresaIncidenciasComponent implements OnInit {
       ToastType.INFO
     );
 
-    let arma = this.armas.filter(x => x.uuid === formValue.armaInvolucrada)[0]
+    let arma: Arma = this.armas.filter(x => x.uuid === formValue.armaInvolucrada)[0]
+    arma.status = formValue.status;
 
     this.empresaIncidenciaService.agregarArmaIncidencia(this.incidencia.uuid, arma).subscribe((data: Arma) => {
       this.toastService.showGenericToast(
@@ -495,7 +654,26 @@ export class EmpresaIncidenciasComponent implements OnInit {
         "Se guardo el arma a la incidencia con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.conmutarAgregarArmaForm();
+      form.reset();
+      this.empresaArmaService.obtenerArmas().subscribe((data: Arma[]) => {
+        this.armas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido obtener las armas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+      this.empresaIncidenciaService.obtenerIncidenciaPorUuid(this.incidencia.uuid).subscribe((data: Incidencia) => {
+        this.incidencia = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la incidencia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -611,12 +789,23 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     let formValue = form.value;
 
+    let existePersona = this.personalInvolucrado.filter(x => x.uuid === formValue.personaInvolucrada)
+
+    if(existePersona.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra esta persona en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    form.reset();
     this.personalInvolucrado.push(this.personales.filter(x => x.uuid === formValue.personaInvolucrada)[0]);
     this.conmutarAgregarPersonalForm();
   }
 
   agregarVehiculo(form) {
-    console.log(form.value);
     if(!form.valid) {
       this.toastService.showGenericToast(
         'Ocurrio un problema',
@@ -628,6 +817,18 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     let formValue = form.value;
 
+    let existeVehiculo = this.vehiculosInvolucrados.filter(x => x.uuid === formValue.vehiculoInvolucrado)
+
+    if(existeVehiculo.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra este vehiculo en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    form.reset();
     this.vehiculosInvolucrados.push(this.vehiculos.filter(x => x.uuid === formValue.vehiculoInvolucrado)[0]);
     this.conmutarAgregarVehiculoForm();
   }
@@ -641,6 +842,42 @@ export class EmpresaIncidenciasComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `Hay campos requeridos que no han sido rellenados`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    if(this.editorData.length < 30) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Favor de describir de manera detallada la relatoria de hechos.`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    if(this.personalInvolucrado.length < 1) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Para registrar la incidencia es necesario involucrar a, por lo menos, una persona`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    if(this.tempFile === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Favor de subir un archivo o documento fundatorio`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    if(this.longitude === undefined || this.latitude === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Favor de seleccionar una ubicacion para continuar con la creacion de la incidencia`,
         ToastType.WARNING
       );
       return;
@@ -664,6 +901,15 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     formValue.comentarios.push(comentario);
     formValue.cliente = this.cliente;
+    formValue.clienteDomicilio = this.clienteDomicilio;
+
+    if(this.longitude !== undefined) {
+      formValue.longitud = this.longitude.toString()
+    }
+
+    if(this.latitude !== undefined) {
+      formValue.latitud = this.latitude.toString()
+    }
 
     let formData = new FormData();
     formData.append('incidencia', JSON.stringify(formValue));
@@ -818,8 +1064,159 @@ export class EmpresaIncidenciasComponent implements OnInit {
     })
   }
 
+  convertStringToNumber(input: string) {
+    if (!input) return NaN;
+    if (input.trim().length==0) {
+      return NaN;
+    }
+    return Number(input);
+  }
+
   confirmarEliminarArchivo() {
 
+  }
+
+  seleccionarClienteDomicilio(event) {
+    let uuid = event.value;
+    this.clienteDomicilio = this.clienteDomicilios.filter(x => x.uuid === uuid)[0];
+
+    let query = `${this.clienteDomicilio?.calleCatalogo?.nombre} ${this.clienteDomicilio?.numeroExterior} ${this.clienteDomicilio?.numeroInterior} ${this.clienteDomicilio?.coloniaCatalogo.nombre} ${this.clienteDomicilio?.municipioCatalogo?.nombre} ${this.clienteDomicilio?.estadoCatalogo?.nombre}`
+
+    this.geocodeService.geocode({
+      address: query
+    }).subscribe((data: GeocoderResult[]) => {
+      this.geocodeResult = data[0];
+      this.latitude = this.geocodeResult.geometry.location.lat();
+      this.longitude = this.geocodeResult.geometry.location.lng();
+      this.ubicacionCliente = true;
+    }, (error) => {
+      this.ubicacionCliente = false;
+      this.toastService.showGenericToast(
+        `Ocurrio un problema`,
+        `Ocurrio un problema cuando el domicilio era ubicado en el mapa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  private setCurrentLocation() {
+    if('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.latitude = position.coords.latitude;
+        this.longitude = position.coords.longitude;
+        this.zoom = 8;
+        this.getAddress(this.latitude, this.longitude)
+      }, () => {
+        this.latitude = 20.6681644;
+        this.longitude = -103.3482356;
+        this.zoom = 8;
+        this.getAddress(this.latitude, this.longitude);
+      })
+    }
+  }
+
+  mostrarModalSeleccionarUbicacion() {
+    this.modal = this.modalService.open(this.seleccionarUbicacionModal, {size: 'xl', backdrop: 'static'})
+
+    this.mapsApiLoader.load().then(() => {
+      this.setCurrentLocation();
+      this.geoCoder = new google.maps.Geocoder()
+      let autocomplete = new google.maps.places.Autocomplete(this.searchElementRef.nativeElement)
+      autocomplete.addListener("place_changed", () => {
+        this.ngZone.run(() => {
+          let place: google.maps.places.PlaceResult = autocomplete.getPlace();
+
+          if(place.geometry === undefined || place.geometry === null) {
+            return;
+          }
+
+          this.latitude = place.geometry.location.lat();
+          this.longitude = place.geometry.location.lng();
+          this.zoom = 12
+        });
+      })
+    })
+  }
+
+  quitarUbicacion() {
+    this.latitude = undefined;
+    this.longitude = undefined;
+    this.modal.close();
+  }
+
+  markerDragEnd($event: google.maps.MouseEvent) {
+    this.latitude = $event.latLng.lat();
+    this.longitude = $event.latLng.lng();
+    this.getAddress(this.latitude, this.longitude)
+  }
+
+  getAddress(latitude, longitude) {
+    this.geoCoder.geocode({
+      'location': {
+        lat: latitude,
+        lng: longitude
+      }
+    }, (results, status) => {
+      console.log(status);
+      if(status === 'OK') {
+        if(results[0]) {
+          this.zoom = 12;
+          this.address = results[0].formatted_address;
+        } else {
+          window.alert("No se encontraron resultados");
+        }
+      } else {
+        window.alert("El geolocalizador ha fallado.")
+      }
+    });
+  }
+
+  mostrarModalQuitarPersonaIncidencia(index) {
+    this.tempIndex = index;
+    this.modal = this.modalService.open(this.quitarIncidenciaPersonaModal, {size: "lg"})
+  }
+
+  mostrarModalQuitarArmaIncidencia(index) {
+    this.tempIndex = index;
+    this.modal = this.modalService.open(this.quitarIncidenciaArmaModal, {size: "lg"})
+  }
+
+  mostrarModalQuitarCanIncidencia(index) {
+    this.tempIndex = index;
+    this.modal = this.modalService.open(this.quitarIncidenciaCanModal, {size: "lg"})
+  }
+
+  mostrarModalQuitarVehiculoIncidencia(index) {
+    this.tempIndex = index;
+    this.modal = this.modalService.open(this.quitarIncidenciaVehiculoModal, {size: "lg"})
+  }
+
+  quitarPersonaIncidencia() {
+    this.personalInvolucrado.splice(this.tempIndex, 1);
+    this.modal.close();
+  }
+
+  quitarArmaIncidencia() {
+    this.armasInvolucradas.splice(this.tempIndex, 1);
+    this.modal.close();
+  }
+
+  quitarCanIncidencia() {
+    this.canesInvolucrados.splice(this.tempIndex, 1);
+    this.modal.close();
+  }
+
+  quitarVehiculoIncidencia() {
+    this.vehiculosInvolucrados.splice(this.tempIndex, 1);
+    this.modal.close();
+  }
+
+  desactivarFecha() {
+    return false;
+  }
+
+  mostrarModalVerUbicacion() {
+    this.modal = this.modalService.open(this.mostrarUbicacionClienteModal, {size: 'xl', backdrop: 'static'})
   }
 
   private getDismissReason(reason: any): string {

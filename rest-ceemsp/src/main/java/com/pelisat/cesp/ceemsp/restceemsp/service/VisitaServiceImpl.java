@@ -1,10 +1,8 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.dto.VehiculoUsoDto;
 import com.pelisat.cesp.ceemsp.database.dto.VisitaDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.VehiculoTipo;
 import com.pelisat.cesp.ceemsp.database.model.Visita;
 import com.pelisat.cesp.ceemsp.database.repository.VisitaRepository;
 import com.pelisat.cesp.ceemsp.database.type.TipoVisitaEnum;
@@ -18,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -154,12 +152,30 @@ public class VisitaServiceImpl implements VisitaService {
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
 
         Visita visita = dtoToDaoConverter.convertDtoToDaoVisita(visitaDto);
-        if(visitaDto.getTipoVisita() == TipoVisitaEnum.ORDINARIA || (visitaDto.getTipoVisita() == TipoVisitaEnum.EXTRAORDINARIA && visitaDto.isExisteEmpresa())) {
+        if(visitaDto.getTipoVisita() == TipoVisitaEnum.ORDINARIA || (visitaDto.getTipoVisita() == TipoVisitaEnum.INICIAL && visitaDto.isExisteEmpresa()) ||
+                (visitaDto.getTipoVisita() == TipoVisitaEnum.EXTRAORDINARIA && visitaDto.isExisteEmpresa()) || (visitaDto.getTipoVisita() == TipoVisitaEnum.IMPACTO && visitaDto.isExisteEmpresa())) {
             visita.setEmpresa(visitaDto.getEmpresa().getId());
-        }
+            visita.setEmpresaDomicilio(visitaDto.getEmpresaDomicilio().getId());
 
-        if(visitaDto.getTipoVisita() == TipoVisitaEnum.EXTRAORDINARIA && !visitaDto.isExisteEmpresa()) {
+            visita.setCalleCatalogo(visitaDto.getEmpresaDomicilio().getCalleCatalogo().getId());
+            visita.setNumeroExterior(visitaDto.getEmpresaDomicilio().getNumeroExterior());
+            visita.setNumeroInterior(visitaDto.getEmpresaDomicilio().getNumeroInterior());
+            visita.setColoniaCatalogo(visitaDto.getEmpresaDomicilio().getColoniaCatalogo().getId());
+            visita.setLocalidadCatalogo(visitaDto.getEmpresaDomicilio().getLocalidadCatalogo().getId());
+            visita.setMunicipioCatalogo(visitaDto.getEmpresaDomicilio().getMunicipioCatalogo().getId());
+            visita.setEstadoCatalogo(visitaDto.getEmpresaDomicilio().getEstadoCatalogo().getId());
+
+            visita.setDomicilio1(visitaDto.getEmpresaDomicilio().getCalleCatalogo().getNombre());
+            visita.setDomicilio2(visitaDto.getEmpresaDomicilio().getColoniaCatalogo().getNombre());
+            visita.setLocalidad(visitaDto.getEmpresaDomicilio().getLocalidadCatalogo().getNombre());
+            visita.setDomicilio3(visitaDto.getEmpresaDomicilio().getMunicipioCatalogo().getNombre());
+            visita.setEstado(visitaDto.getEmpresaDomicilio().getEstadoCatalogo().getNombre());
+            visita.setCodigoPostal(visitaDto.getEmpresaDomicilio().getCodigoPostal());
+        } else if((visitaDto.getTipoVisita() == TipoVisitaEnum.EXTRAORDINARIA && !visitaDto.isExisteEmpresa()) || (visitaDto.getTipoVisita() == TipoVisitaEnum.IMPACTO && !visitaDto.isExisteEmpresa()
+                || (visitaDto.getTipoVisita() == TipoVisitaEnum.INICIAL && !visitaDto.isExisteEmpresa()))) {
             visita.setCalleCatalogo(visitaDto.getCalleCatalogo().getId());
+            visita.setNumeroExterior(visitaDto.getNumeroExterior());
+            visita.setNumeroInterior(visitaDto.getNumeroInterior());
             visita.setColoniaCatalogo(visitaDto.getColoniaCatalogo().getId());
             visita.setLocalidadCatalogo(visitaDto.getLocalidadCatalogo().getId());
             visita.setMunicipioCatalogo(visitaDto.getMunicipioCatalogo().getId());
@@ -170,6 +186,7 @@ public class VisitaServiceImpl implements VisitaService {
             visita.setLocalidad(visitaDto.getLocalidadCatalogo().getNombre());
             visita.setDomicilio3(visitaDto.getMunicipioCatalogo().getNombre());
             visita.setEstado(visitaDto.getEstadoCatalogo().getNombre());
+            visita.setCodigoPostal(visitaDto.getCodigoPostal());
         }
 
         visita.setResponsable(visitaDto.getResponsable().getId());
@@ -201,10 +218,26 @@ public class VisitaServiceImpl implements VisitaService {
 
         if(visitaDto.getTipoVisita() == TipoVisitaEnum.ORDINARIA || (visitaDto.getTipoVisita() == TipoVisitaEnum.EXTRAORDINARIA && visitaDto.isExisteEmpresa())) {
             visita.setEmpresa(visitaDto.getEmpresa().getId());
-        }
+            visita.setEmpresaDomicilio(visitaDto.getEmpresaDomicilio().getId());
 
-        if(visitaDto.getTipoVisita() == TipoVisitaEnum.EXTRAORDINARIA && !visitaDto.isExisteEmpresa()) {
+            visita.setCalleCatalogo(visitaDto.getEmpresaDomicilio().getCalleCatalogo().getId());
+            visita.setNumeroExterior(visitaDto.getEmpresaDomicilio().getNumeroExterior());
+            visita.setNumeroInterior(visitaDto.getEmpresaDomicilio().getNumeroInterior());
+            visita.setColoniaCatalogo(visitaDto.getEmpresaDomicilio().getColoniaCatalogo().getId());
+            visita.setLocalidadCatalogo(visitaDto.getEmpresaDomicilio().getLocalidadCatalogo().getId());
+            visita.setMunicipioCatalogo(visitaDto.getEmpresaDomicilio().getMunicipioCatalogo().getId());
+            visita.setEstadoCatalogo(visitaDto.getEmpresaDomicilio().getEstadoCatalogo().getId());
+
+            visita.setDomicilio1(visitaDto.getEmpresaDomicilio().getCalleCatalogo().getNombre());
+            visita.setDomicilio2(visitaDto.getEmpresaDomicilio().getColoniaCatalogo().getNombre());
+            visita.setLocalidad(visitaDto.getEmpresaDomicilio().getLocalidadCatalogo().getNombre());
+            visita.setDomicilio3(visitaDto.getEmpresaDomicilio().getMunicipioCatalogo().getNombre());
+            visita.setEstado(visitaDto.getEmpresaDomicilio().getEstadoCatalogo().getNombre());
+            visita.setCodigoPostal(visitaDto.getEmpresaDomicilio().getCodigoPostal());
+        } else if(visitaDto.getTipoVisita() == TipoVisitaEnum.EXTRAORDINARIA && !visitaDto.isExisteEmpresa()) {
             visita.setCalleCatalogo(visitaDto.getCalleCatalogo().getId());
+            visita.setNumeroExterior(visitaDto.getNumeroExterior());
+            visita.setNumeroInterior(visitaDto.getNumeroInterior());
             visita.setColoniaCatalogo(visitaDto.getColoniaCatalogo().getId());
             visita.setLocalidadCatalogo(visitaDto.getLocalidadCatalogo().getId());
             visita.setMunicipioCatalogo(visitaDto.getMunicipioCatalogo().getId());
@@ -215,9 +248,6 @@ public class VisitaServiceImpl implements VisitaService {
             visita.setLocalidad(visitaDto.getLocalidadCatalogo().getNombre());
             visita.setDomicilio3(visitaDto.getMunicipioCatalogo().getNombre());
             visita.setEstado(visitaDto.getEstadoCatalogo().getNombre());
-
-            visita.setNumeroExterior(visitaDto.getNumeroExterior());
-            visita.setNumeroInterior(visitaDto.getNumeroInterior());
         }
         visita.setNombreComercial(visitaDto.getNombreComercial());
         visita.setRazonSocial(visitaDto.getRazonSocial());

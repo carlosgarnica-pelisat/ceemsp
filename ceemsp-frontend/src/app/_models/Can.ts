@@ -8,6 +8,7 @@ import CanCartillaVacunacion from "./CanCartillaVacunacion";
 import CanConstanciaSalud from "./CanConstanciaSalud";
 import CanAdiestramiento from "./CanAdiestramiento";
 import CanFotografia from "./CanFotografia";
+import Empresa from "./Empresa";
 
 export default class  Can implements Deserializable {
   id: number;
@@ -15,6 +16,7 @@ export default class  Can implements Deserializable {
   nombre: string;
   genero: string;
   raza: CanRaza;
+  razaOtro: string;
   domicilioAsignado: EmpresaDomicilio;
   fechaIngreso: string;
   edad: number;
@@ -33,16 +35,24 @@ export default class  Can implements Deserializable {
   motivos: string;
   eliminado: boolean;
   fechaCreacion: string;
+  fechaActualizacion: string;
+  fotografiaCapturada: boolean;
+  adiestramientoCapturado: boolean;
+  vacunacionCapturada: boolean;
+  constanciaCapturada: boolean;
 
   motivoBaja: string;
   observacionesBaja: string;
   documentoFundatorioBaja: string;
   fechaBaja: string;
+  eliminadoIncidencia: boolean;
+  fechaCreacionIncidencia: string;
 
   cartillasVacunacion: CanCartillaVacunacion[];
   constanciasSalud: CanConstanciaSalud[];
   adiestramientos: CanAdiestramiento[];
   fotografias: CanFotografia[];
+  empresa: Empresa;
 
   deserialize(input: any): this {
     Object.assign(this, input);

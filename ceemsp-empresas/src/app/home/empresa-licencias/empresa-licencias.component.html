@@ -5,7 +5,6 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Licencias colectivas</h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearLicencia)">Nueva licencia colectiva</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button" id="mostrarColumnasDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Mostrar / Ocultar columnas
@@ -19,7 +18,9 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar licencias como Excel (csv)</a>
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar como CSV</a>
+          <a class="dropdown-item" (click)="generarReporteExcelLicencias()">Descargar como Excel</a>
+          <a class="dropdown-item" (click)="generarReporteExcelArmas()">Descargar armas como Excel</a>
         </div>
       </div>
     </div>
@@ -43,7 +44,7 @@
 
   <ng-template #mostrarLicenciaDetallesModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="mostrarLicenciaDetallesModal">Ver detalles de la licencia </h4>
+      <h4 class="modal-title" id="mostrarLicenciaDetallesModal">Detalles de la licencia {{licencia?.numeroOficio}}. Modalidad: {{licencia?.modalidad?.nombre}}</h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -93,239 +94,94 @@
         <div class="col-sm-12" *ngIf="pestanaActual === 'DIRECCIONES'">
           <table class="table">
             <tr>
-              <td><b>ID</b></td>
               <td><b>Nombre</b></td>
               <td><b>Dirección</b></td>
               <td><b>Estado</b></td>
               <td><b>C.P.</b></td>
-              <td><b>Acciones</b></td>
             </tr>
             <tr *ngFor="let d of domiciliosLicenciaColectiva">
-              <td>{{d?.uuid}}</td>
               <td>{{d?.nombre}}</td>
               <td>{{d?.domicilio1 + " " + d.numeroExterior + " " + d.numeroInterior}}</td>
               <td>{{d?.estado}}</td>
               <td>{{d?.codigoPostal}}</td>
-              <td>
-                <fa-icon [icon]="faTrash" title="Eliminar domicilio de la licencia colectiva" (click)="mostrarModalEliminarDomicilio(d?.uuid)"></fa-icon>
-              </td>
-            </tr>
-            <tr *ngIf="showDireccionForm">
-              <td colspan="6">
-                <div class="row">
-                  <div class="col-sm-12">
-                    <form [formGroup]="crearDireccionForm">
-                      <div class="form-row">
-                        <div class="col-sm-6">
-                          <label for="direccion">
-                            <b>Dirección *</b>
-                          </label>
-                          <select id="direccion" class="form-control" formControlName="direccion">
-                            <option *ngFor="let d of domicilios" value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1 + " " + d.numeroExterior + " " + d.numeroInterior}}</option>
-                          </select>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-                <hr>
-                <div class="row">
-                  <div class="col-sm-12">
-                    <button class="btn btn-primary btn-sm" (click)="guardarDireccion(crearDireccionForm)">Guardar</button>
-                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevaDireccion()">Cancelar</button>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="!showDireccionForm">
-              <td colspan="6">
-                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaDireccion()">Agregar dirección</button>
-              </td>
             </tr>
           </table>
         </div>
         <div class="col-sm-12" *ngIf="pestanaActual === 'ARMAS'">
-          <table class="table">
-            <tr>
-              <td><b>N. Serie</b></td>
-              <td><b>Matricula</b></td>
-              <td><b>Marca</b></td>
-              <td><b>Tipo</b></td>
-              <td><b>Clase</b></td>
-              <td><b>Calibre</b></td>
-              <td><b>Bunker</b></td>
-              <td><b>Status</b></td>
-              <td><b>Acciones</b></td>
-            </tr>
-            <tr *ngFor="let a of armas; let i = index">
-              <td>{{a?.serie}}</td>
-              <td>{{a?.matricula}}</td>
-              <td>{{a?.marca?.nombre}}</td>
-              <td>{{a?.tipo}}</td>
-              <td>{{a?.clase?.nombre}}</td>
-              <td>{{a?.calibre}}</td>
-              <td>{{a?.bunker?.domicilio1}}</td>
-              <td>{{a?.status + " - " + (a?.status === 'ACTIVA' ? a?.personal?.apellidoPaterno + " " + a?.personal?.apellidoMaterno + " " + a?.personal?.nombres : "")}}</td>
-              <td>
-                <fa-icon [icon]="faHandPaper" title="Marcar como en custodia" (click)="mostrarCambioStatusForm(a?.uuid)" style="cursor: pointer;" *ngIf="a?.status !== 'CUSTODIA'"></fa-icon>
-                <fa-icon [icon]="faPencil" title="Modificar arma" (click)="mostrarModificarArmaForm(i)" style="cursor: pointer;" *ngIf="a?.status !== 'CUSTODIA'"></fa-icon>
-                <fa-icon [icon]="faTrash" title="Eliminar arma" (click)="mostrarModalEliminarArma(a?.uuid)" style="cursor: pointer;"></fa-icon>
-              </td>
-            </tr>
-            <tr *ngIf="showArmaForm">
-              <td colspan="9">
-                <form [formGroup]="crearArmaForm">
-                  <div class="form-row">
-                    <div class="col-sm-3">
-                      <label for="bunker">
-                        <b>Domicilio de resguardo *</b>
-                        <span *ngIf="crearArmaForm.controls['bunker'].invalid && (crearArmaForm.controls['bunker'].dirty || crearArmaForm.controls['bunker'].touched)" class="text-danger"> - Requerido</span>
-                      </label>
-                      <select id="bunker" class="form-control" formControlName="bunker">
-                        <option *ngFor="let d of domiciliosLicenciaColectiva" value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1}}</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="serie">
-                        <b>Numero de serie *</b>
-                        <span
-                          *ngIf="crearArmaForm.controls['serie'].invalid && (crearArmaForm.controls['serie'].dirty || crearArmaForm.controls['serie'].touched)">
-                          <i *ngIf="crearArmaForm.controls['serie'].errors.required" class="text-danger"> - Campo requerido</i>
-                          <i *ngIf="crearArmaForm.controls['serie'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                        </span>
-                      </label>
-                      <input type="text" class="form-control" id="serie" formControlName="serie" placeholder="Ejemplo: ABC123456"/>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="matricula">
-                        <b>Matricula *</b>
-                        <span
-                          *ngIf="crearArmaForm.controls['matricula'].invalid && (crearArmaForm.controls['matricula'].dirty || crearArmaForm.controls['matricula'].touched)">
-                          <i *ngIf="crearArmaForm.controls['matricula'].errors.required" class="text-danger"> - Campo requerido</i>
-                          <i *ngIf="crearArmaForm.controls['matricula'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                        </span>
-                      </label>
-                      <input type="text" class="form-control" id="matricula" formControlName="matricula" placeholder="Ejemplo: ABC123456"/>
-                    </div>
-                  </div>
+          <p-table #armasTable [value]="armas" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['matricula','marca.nombre','serie','tipo','clase.nombre','calibre','status']">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Armas de la licencia colectiva</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="armasTable.filterGlobal($event.target.value, 'contains')" placeholder="Buscar arma" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="matricula"><b>Matricula <p-sortIcon field="matricula"></p-sortIcon></b></th>
+                <th pSortableColumn="marca.nombre"><b>Marca <p-sortIcon field="marca?.nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="serie"><b>Modelo <p-sortIcon field="serie"></p-sortIcon></b></th>
+                <th pSortableColumn="tipo"><b>Tipo <p-sortIcon field="tipo"></p-sortIcon></b></th>
+                <th pSortableColumn="clase.nombre"><b>Clase <p-sortIcon field="clase?.nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="calibre"><b>Calibre <p-sortIcon field="calibre"></p-sortIcon></b></th>
+                <th pSortableColumn="status"><b>Status <p-sortIcon field="status"></p-sortIcon></b></th>
+                <th><b>Bunker </b></th>
+                <th><b>Personal asignado </b></th>
+                <th><b>Opciones</b></th>
+              </tr>
+            </ng-template>
 
-                  <div class="form-row">
-                    <div class="col-sm-3">
-                      <label for="marca">
-                        <b>Marca *</b>
-                        <span *ngIf="crearArmaForm.controls['marca'].invalid && (crearArmaForm.controls['marca'].dirty || crearArmaForm.controls['marca'].touched)" class="text-danger"> - Requerido</span>
-                      </label>
-                      <select id="marca" class="form-control" formControlName="marca">
-                        <option *ngFor="let m of marcas" value="{{m.uuid}}">{{m.nombre}}</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="clase">
-                        <b>Clase *</b>
-                        <span *ngIf="crearArmaForm.controls['clase'].invalid && (crearArmaForm.controls['clase'].dirty || crearArmaForm.controls['clase'].touched)" class="text-danger"> - Requerido</span>
-                      </label>
-                      <select id="clase" class="form-control" formControlName="clase">
-                        <option *ngFor="let c of clases" value="{{c.uuid}}">{{c.nombre}}</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="tipo">
-                        <b>Tipo *</b>
-                        <span *ngIf="crearArmaForm.controls['tipo'].invalid && (crearArmaForm.controls['tipo'].dirty || crearArmaForm.controls['tipo'].touched)" class="text-danger"> - Requerido</span>
-                      </label>
-                      <select id="tipo" class="form-control" formControlName="tipo">
-                        <option value="CORTA">Corta</option>
-                        <option value="LARGA">Larga</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="calibre">
-                        <b>Calibre *</b>
-                        <span
-                          *ngIf="crearArmaForm.controls['calibre'].invalid && (crearArmaForm.controls['calibre'].dirty || crearArmaForm.controls['calibre'].touched)">
-                          <i *ngIf="crearArmaForm.controls['calibre'].errors.required" class="text-danger"> - Campo requerido</i>
-                          <i *ngIf="crearArmaForm.controls['calibre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                        </span>
-                      </label>
-                      <input type="text" class="form-control" id="calibre" formControlName="calibre" placeholder="Ejemplo: .38 Super, .22"/>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-sm-3">
-                      <label for="status">
-                        <b>Status *</b>
-                        <span
-                          *ngIf="crearArmaForm.controls['status'].invalid && (crearArmaForm.controls['status'].dirty || crearArmaForm.controls['status'].touched)">
-                          <i *ngIf="crearArmaForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
-                        </span>
-                      </label>
-                      <select class="form-control" formControlName="status" id="status" (change)="seleccionarStatus($event.target)">
-                        <option value="ACTIVA">Activa</option>
-                        <option value="DEPOSITO">Deposito</option>
-                      </select>
-                    </div>
-                    <div class="col-sm-3" *ngIf="status === 'ACTIVA'">
-                      <label for="personal">
-                        <b>Personal a asignar *</b>
-                      </label>
-                      <select class="form-control" id="personal" formControlName="personal">
-                        <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.nombres + " " + p?.apellidoPaterno + " " + p?.apellidoMaterno}}</option>
-                      </select>
-                    </div>
-                  </div>
-                </form>
-                <hr>
-                <div class="row">
-                  <div class="col-sm-12">
-                    <button (click)="crearArma(crearArmaForm)" class="btn btn-sm btn-primary">Guardar arma
-                    </button>
-                    <button (click)="mostrarFormularioArma()" class="btn btn-sm btn-danger">Cancelar
-                    </button>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="!showArmaForm && !mostrarModificarStatusArma">
-              <td colspan="9">
-                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaArma()">Agregar arma</button>
-              </td>
-            </tr>
-            <tr *ngIf="mostrarModificarStatusArma">
-              <td colspan="9">
-                <form formGroup="modificarStatusArmaForm">
-                  <div class="form-row">
-                    <div class="col-sm-4">
-                      <label for="documentoFundatorio">
-                        <b>Documento fundatorio</b>
-                      </label>
-                      <input id="documentoFundatorio" type="file" class="form-control" (change)="onFileChange($event)">
-                    </div>
-                  </div>
-                </form>
-                <div class="form-row">
-                  <div class="col-sm-12">
-                    <label>
-                      <b>Relato de hechos *</b>
-                    </label>
-                    <ckeditor [(ngModel)]="model.editorData"></ckeditor>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="mostrarModificarStatusArma">
-              <td colspan="9">
-                <button class="btn btn-sm btn-primary" (click)="custodiaArma()">Guardar cambios</button>
-                <button class="btn btn-sm btn-danger" (click)="mostrarCambioStatusForm(undefined)">Cancelar</button>
-              </td>
-            </tr>
-          </table>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7">No hay armas creadas en la licencia hasta ahora. <a class="fakelink" (click)="mostrarFormularioNuevaArma()">Da clic aqui para crear uno</a></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-arma>
+              <tr>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.matricula}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.marca?.nombre}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.serie}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.tipo}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.clase?.nombre}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.calibre}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.status}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">
+                  {{arma?.bunker?.domicilio1}} {{arma?.bunker?.numeroExterior}} {{arma?.bunker?.numeroInterior}}.
+                  Colonia: {{arma?.bunker?.domicilio2}}<br>
+                  {{arma?.bunker?.domicilio3}}, {{arma?.bunker?.estado}}, {{arma?.bunker?.pais}}<br>
+                  C.P. {{arma?.bunker?.codigoPostal}}
+                </td>
+                <td>
+                  <span *ngIf="arma?.status === 'ASIGNADA' || arma?.status === 'ACTIVA'">
+                    {{arma?.personalAsignado?.nombres}} {{arma?.personalAsignado?.apellidoPaterno}} {{arma?.personalAsignado?.apellidoMaterno}}
+                  </span>
+                  <span *ngIf="arma?.status !== 'ASIGNADA' && arma?.status !== 'ACTIVA'">
+                    Sin personal asignado
+                  </span>
+                </td>
+                <td>
+                  <fa-icon [icon]="faPencil" title="Modificar arma" (click)="mostrarModificarArmaForm(arma?.uuid)"
+                           style="cursor: pointer;" *ngIf="arma?.status !== 'CUSTODIA' && !arma?.eliminado"></fa-icon>
+                  <fa-icon [icon]="faTrash" title="Eliminar arma" (click)="mostrarModalEliminarArma(arma?.uuid)"
+                           style="cursor: pointer;" *ngIf="!arma?.eliminado"></fa-icon>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              Hay en total {{armas?.length}} armas
+            </ng-template>
+          </p-table>
         </div>
       </div>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
       <button class="btn btn-primary" (click)="descargarLicencia(licencia.uuid, mostrarLicenciaPdfModal)">Descargar licencia</button>
-      <button class="btn btn-primary" (click)="mostrarModificarLicenciaModal()">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="mostrarEliminarLicenciaModal()">Eliminar</button>
+    </div>
+    <div class="modal-footer" *ngIf="pestanaActual === 'ARMAS'">
+      <button class="btn btn-primary" (click)="mostrarFormularioNuevaArma()">Agregar arma</button>
     </div>
   </ng-template>
 
@@ -346,167 +202,128 @@
         </div>
       </div>
     </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-info" (click)="descargarAcuerdoPdf()">Descargar</button>
+    </div>
   </ng-template>
 
-  <ng-template #modificarLicenciaModal let-modal>
+  <ng-template #agregarArmaModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="modificarLicenciaModal">Modificando licencia </h4>
+      <h4 class="modal-title" id="agregarArmaModal">Agregar arma </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
     </div>
     <div class="modal-body">
-      <div class="row">
-        <div class="col-sm-12">
-          <form [formGroup]="crearEmpresaLicenciaForm">
-            <div class="form-row">
-              <div class="col-sm-4">
-                <label for="numeroOficioEditar">
-                  <b>Número de oficio *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['numeroOficio'].invalid && (crearEmpresaLicenciaForm.controls['numeroOficio'].dirty || crearEmpresaLicenciaForm.controls['numeroOficio'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="numeroOficioEditar" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroOficio" #numeroOficio>
-              </div>
-              <div class="col-sm-4">
-                <label for="fechaInicioEditar">
-                  <b>Fecha de Inicio *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaInicio'].invalid && (crearEmpresaLicenciaForm.controls['fechaInicio'].dirty || crearEmpresaLicenciaForm.controls['fechaInicio'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="fechaInicioEditar" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaInicio" #fechaInicio>
-              </div>
-              <div class="col-sm-4">
-                <label for="fechaFinEditar">
-                  <b>Fecha de fin *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaFin'].invalid && (crearEmpresaLicenciaForm.controls['fechaFin'].dirty || crearEmpresaLicenciaForm.controls['fechaFin'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="fechaFinEditar" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaFin" #fechaFin>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="col-sm-8">
-                <label for="modalidadEditar">
-                  <b>Modalidad / Submodalidad *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['modalidad'].invalid && (crearEmpresaLicenciaForm.controls['modalidad'].dirty || crearEmpresaLicenciaForm.controls['modalidad'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <select id="modalidadEditar" class="form-control" formControlName="modalidad">
-                  <option *ngFor="let m of modalidades" value="{{m?.modalidad?.uuid}}">{{m?.modalidad?.nombre + ((m?.submodalidad !== null) ? " / " + m?.submodalidad?.nombre : "")}}</option>
-                </select>
-              </div>
-              <div class="col-sm-4">
-                <label for="archivoEditar">
-                  <b>Archivo (en pdf)</b>
-                </label>
-                <input id="archivoEditar" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
-              </div>
-            </div>
-          </form>
+      <form [formGroup]="crearArmaForm">
+        <div class="form-row">
+          <div class="col-sm-6">
+            <label for="bunker">
+              <b>Domicilio de resguardo *</b>
+              <span
+                *ngIf="crearArmaForm.controls['bunker'].invalid && (crearArmaForm.controls['bunker'].dirty || crearArmaForm.controls['bunker'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="bunker" class="form-control" formControlName="bunker">
+              <option *ngFor="let d of domiciliosLicenciaColectiva"
+                      value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1 + " " + d?.numeroExterior}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="serie">
+              <b>Modelo</b>
+              <a><i *ngIf="existeArma?.existe && existeArma?.serie !== null" class="text-danger"> - El arma ya
+                existe con este modelo</i></a>
+              <span
+                *ngIf="crearArmaForm.controls['serie'].invalid && (crearArmaForm.controls['serie'].dirty || crearArmaForm.controls['serie'].touched)">
+                <i *ngIf="crearArmaForm.controls['serie'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input type="text" class="form-control" id="serie" formControlName="serie"
+                   placeholder="Ejemplo: ABC123456" />
+          </div>
+          <div class="col-sm-3">
+            <label for="matricula">
+              <b>Matricula *</b>
+              <a><i *ngIf="existeArma?.existe && existeArma?.matricula !== null" class="text-danger"> - El
+                arma ya existe con esta matricula</i></a>
+              <span
+                *ngIf="crearArmaForm.controls['matricula'].invalid && (crearArmaForm.controls['matricula'].dirty || crearArmaForm.controls['matricula'].touched)">
+                <i *ngIf="crearArmaForm.controls['matricula'].errors.required" class="text-danger"> - Campo requerido</i>
+                <i *ngIf="crearArmaForm.controls['matricula'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input type="text" class="form-control" id="matricula" formControlName="matricula"
+                   placeholder="Ejemplo: ABC123456" (focusout)="consultarArmaMatricula($event.target)"/>
+          </div>
         </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" (click)="modificarLicencia(crearEmpresaLicenciaForm)">Guardar</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
-    </div>
-  </ng-template>
 
-  <ng-template #crearLicencia let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title" id="modal-survey-response">Nueva licencia </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-        <span aria-hidden="true">×</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="row">
-        <div class="col-sm-12">
-          <form [formGroup]="crearEmpresaLicenciaForm">
-            <div class="form-row">
-              <div class="col-sm-4">
-                <label for="numeroOficio">
-                  <b>Número de oficio *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['numeroOficio'].invalid && (crearEmpresaLicenciaForm.controls['numeroOficio'].dirty || crearEmpresaLicenciaForm.controls['numeroOficio'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="numeroOficio" type="text" class="form-control" placeholder="Ej. 01830" formControlName="numeroOficio" #numeroOficio>
-              </div>
-              <div class="col-sm-4">
-                <label for="fechaInicio">
-                  <b>Fecha de Inicio *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaInicio'].invalid && (crearEmpresaLicenciaForm.controls['fechaInicio'].dirty || crearEmpresaLicenciaForm.controls['fechaInicio'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="fechaInicio" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaInicio" #fechaInicio>
-              </div>
-              <div class="col-sm-4">
-                <label for="fechaFin">
-                  <b>Fecha de fin *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['fechaFin'].invalid && (crearEmpresaLicenciaForm.controls['fechaFin'].dirty || crearEmpresaLicenciaForm.controls['fechaFin'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <input id="fechaFin" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaFin" #fechaFin>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="col-sm-8">
-                <label for="modalidad">
-                  <b>Modalidad / Submodalidad *</b>
-                  <span *ngIf="crearEmpresaLicenciaForm.controls['modalidad'].invalid && (crearEmpresaLicenciaForm.controls['modalidad'].dirty || crearEmpresaLicenciaForm.controls['modalidad'].touched)" class="text-danger"> - Requerido</span>
-                </label>
-                <select id="modalidad" class="form-control" formControlName="modalidad">
-                  <option *ngFor="let m of modalidades" value="{{m?.modalidad?.uuid}}">{{(m?.modalidad?.nombre + ((m?.submodalidad !== null) ? " / " + m?.submodalidad?.nombre : "")).substr(0, 150)}}</option>
-                </select>
-              </div>
-              <div class="col-sm-4">
-                <label for="archivo">
-                  <b>Archivo (en pdf)</b>
-                </label>
-                <input id="archivo" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
-              </div>
-            </div>
-          </form>
+        <div class="form-row">
+          <div class="col-sm-3">
+            <label for="marca">
+              <b>Marca *</b>
+              <span
+                *ngIf="crearArmaForm.controls['marca'].invalid && (crearArmaForm.controls['marca'].dirty || crearArmaForm.controls['marca'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="marca" class="form-control" formControlName="marca">
+              <option *ngFor="let m of marcas" value="{{m.uuid}}">{{m.nombre}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="clase">
+              <b>Clase *</b>
+              <span
+                *ngIf="crearArmaForm.controls['clase'].invalid && (crearArmaForm.controls['clase'].dirty || crearArmaForm.controls['clase'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="clase" class="form-control" formControlName="clase">
+              <option *ngFor="let c of clases" value="{{c.uuid}}">{{c.nombre}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="tipo">
+              <b>Tipo *</b>
+              <span
+                *ngIf="crearArmaForm.controls['tipo'].invalid && (crearArmaForm.controls['tipo'].dirty || crearArmaForm.controls['tipo'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="tipo" class="form-control" formControlName="tipo">
+              <option value="CORTA">Corta</option>
+              <option value="LARGA">Larga</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="calibre">
+              <b>Calibre *</b>
+              <span
+                *ngIf="crearArmaForm.controls['calibre'].invalid && (crearArmaForm.controls['calibre'].dirty || crearArmaForm.controls['calibre'].touched)">
+                <i *ngIf="crearArmaForm.controls['calibre'].errors.required" class="text-danger"> - Campo requerido</i>
+                <i *ngIf="crearArmaForm.controls['calibre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input type="text" class="form-control" id="calibre" formControlName="calibre" placeholder="Ejemplo: .38 Super, .22"/>
+          </div>
         </div>
-      </div>
+        <div class="row">
+          <div class="col-sm-3">
+            <label for="status">
+              <b>Status *</b>
+              <span
+                *ngIf="crearArmaForm.controls['status'].invalid && (crearArmaForm.controls['status'].dirty || crearArmaForm.controls['status'].touched)">
+                <i *ngIf="crearArmaForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
+              </span>
+            </label>
+            <select class="form-control" formControlName="status" id="status">
+              <option value="DEPOSITO">Deposito</option>
+            </select>
+          </div>
+        </div>
+      </form>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="guardarLicencia(crearEmpresaLicenciaForm)">Guardar</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
-    </div>
-  </ng-template>
-
-  <ng-template #eliminarEmpresaLicenciaModal let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title" id="eliminarEscrituraLicenciaModal">Eliminando la licencia colectiva </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-        <span aria-hidden="true">×</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="row">
-        <div class="col-sm-12">
-          <p>Estas a punto de eliminar la licencia colectiva. Toma en cuenta que los domicilios vinculados y las armas se eliminaran tambien. ¿Deseas continuar?</p>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarLicencia()">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
-    </div>
-  </ng-template>
-
-  <ng-template #eliminarEmpresaLicenciaDireccionModal let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title" id="eliminarEmpresaLicenciaDireccionModal">Eliminando la direccion </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-        <span aria-hidden="true">×</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="row">
-        <div class="col-sm-12">
-          <p>Estas a punto de eliminar la direccion de la licencia colectiva. Esta operacion no se puede deshacer. ¿Deseas continuar?</p>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarLicenciaDomicilio()">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button (click)="crearArma(crearArmaForm)" class="btn btn-primary">Guardar arma</button>
+      <button (click)="cerrarModalCrearArma()" class="btn btn-danger">Cancelar</button>
     </div>
   </ng-template>
 
@@ -518,15 +335,185 @@
       </button>
     </div>
     <div class="modal-body">
+      <form [formGroup]="motivosEliminacionArmaForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBajaArma">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionArmaForm.controls['motivoBaja'].invalid && (motivosEliminacionArmaForm.controls['motivoBaja'].dirty || motivosEliminacionArmaForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionArmaForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionArmaForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <select id="motivoBajaArma" class="form-control" formControlName="motivoBaja">
+              <option value="ROBO">Robo</option>
+              <option value="ASEGURAMIENTO">Aseguramiento</option>
+              <option value="INSERVIBLE">Inservible</option>
+              <option value="CAMBIO_ADSCRIPCION">Cambio de adscripción</option>
+              <option value="CAMBIO_MODALIDAD">Cambio de modalidad</option>
+            </select>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBajaArma">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionArmaForm.controls['fechaBaja'].invalid && (motivosEliminacionArmaForm.controls['fechaBaja'].dirty || motivosEliminacionArmaForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionArmaForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBajaArma" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy"
+                   #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBajaArma">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBajaArma" accept="application/pdf" class="form-control" formControlName="file" type="file"
+                   (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBajaArma">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesBajaArma" type="text" class="form-control"
+                      placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja"
+                      #descripcion></textarea>
+          </div>
+        </div>
+      </form>
       <div class="row">
         <div class="col-sm-12">
-          <p>Estas a punto de eliminar el arma de la licencia colectiva. Esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estas a punto de eliminar el arma de la licencia colectiva. Esta operacion no se puede deshacer. ¿Deseas
+            continuar?</p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarLicenciaArma()">Si, eliminar</button>
+      <button class="btn btn-danger" (click)="confirmarEliminarLicenciaArma(motivosEliminacionArmaForm)">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #editarArmaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="editarArmaModal">Editar arma </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="editarArmaForm">
+        <div class="form-row">
+          <div class="col-sm-6">
+            <label for="bunker">
+              <b>Domicilio de resguardo *</b>
+              <span
+                *ngIf="editarArmaForm.controls['bunker'].invalid && (editarArmaForm.controls['bunker'].dirty || editarArmaForm.controls['bunker'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="bunkerEditar" class="form-control" formControlName="bunker">
+              <option *ngFor="let d of domiciliosLicenciaColectiva"
+                      value="{{d.uuid}}">{{d.nombre + " - " + d.domicilio1}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="serieEditar">
+              <b>Modelo</b>
+              <a><i *ngIf="existeArma?.existe && existeArma?.serie !== null" class="text-danger"> - El arma ya
+                existe con este modelo</i></a>
+              <span
+                *ngIf="editarArmaForm.controls['serie'].invalid && (editarArmaForm.controls['serie'].dirty || editarArmaForm.controls['serie'].touched)">
+                <i *ngIf="editarArmaForm.controls['serie'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input type="text" class="form-control" id="serieEditar" formControlName="serie"
+                   placeholder="Ejemplo: ABC123456" />
+          </div>
+          <div class="col-sm-3">
+            <label for="matriculaEditar">
+              <b>Matricula *</b>
+              <a><i *ngIf="existeArma?.existe && existeArma?.matricula !== null" class="text-danger"> - El
+                arma ya existe con esta matricula</i></a>
+              <span
+                *ngIf="editarArmaForm.controls['matricula'].invalid && (editarArmaForm.controls['matricula'].dirty || editarArmaForm.controls['matricula'].touched)">
+                <i *ngIf="editarArmaForm.controls['matricula'].errors.required" class="text-danger"> - Campo requerido</i>
+                <i *ngIf="editarArmaForm.controls['matricula'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input type="text" class="form-control" id="matriculaEditar" formControlName="matricula"
+                   placeholder="Ejemplo: ABC123456" (focusout)="consultarArmaMatricula($event.target)"/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-sm-3">
+            <label for="marcaEditar">
+              <b>Marca *</b>
+              <span
+                *ngIf="editarArmaForm.controls['marca'].invalid && (editarArmaForm.controls['marca'].dirty || editarArmaForm.controls['marca'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="marcaEditar" class="form-control" formControlName="marca">
+              <option *ngFor="let m of marcas" value="{{m.uuid}}">{{m.nombre}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="claseEditar">
+              <b>Clase *</b>
+              <span
+                *ngIf="editarArmaForm.controls['clase'].invalid && (editarArmaForm.controls['clase'].dirty || editarArmaForm.controls['clase'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="claseEditar" class="form-control" formControlName="clase">
+              <option *ngFor="let c of clases" value="{{c.uuid}}">{{c.nombre}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="tipoEditar">
+              <b>Tipo *</b>
+              <span
+                *ngIf="editarArmaForm.controls['tipo'].invalid && (editarArmaForm.controls['tipo'].dirty || editarArmaForm.controls['tipo'].touched)"
+                class="text-danger"> - Requerido</span>
+            </label>
+            <select id="tipoEditar" class="form-control" formControlName="tipo">
+              <option value="CORTA">Corta</option>
+              <option value="LARGA">Larga</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label for="calibreEditar">
+              <b>Calibre *</b>
+              <span
+                *ngIf="editarArmaForm.controls['calibre'].invalid && (editarArmaForm.controls['calibre'].dirty || editarArmaForm.controls['calibre'].touched)">
+                <i *ngIf="editarArmaForm.controls['calibre'].errors.required" class="text-danger"> - Campo requerido</i>
+                <i *ngIf="editarArmaForm.controls['calibre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+              </span>
+            </label>
+            <input type="text" class="form-control" id="calibreEditar" formControlName="calibre" placeholder="Ejemplo: .38 Super, .22"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-3">
+            <label for="statusEditar">
+              <b>Status *</b>
+              <span
+                *ngIf="editarArmaForm.controls['status'].invalid && (editarArmaForm.controls['status'].dirty || editarArmaForm.controls['status'].touched)">
+                <i *ngIf="editarArmaForm.controls['status'].errors.required" class="text-danger"> - Campo requerido</i>
+              </span>
+            </label>
+            <select class="form-control" formControlName="status" id="statusEditar">
+              <option value="DEPOSITO">Deposito</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button (click)="crearArma(editarArmaForm)" class="btn btn-primary">Guardar arma</button>
+      <button (click)="cerrarModalCrearArma()" class="btn btn-danger">Cancelar</button>
     </div>
   </ng-template>
 </div>

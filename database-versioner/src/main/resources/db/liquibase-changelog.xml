@@ -106,4 +106,18 @@
     <include file="changelog/personal-armas/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/personal-canes/master.xml" relativeToChangelogFile="true"></include>
     <include file="changelog/personal-vehiculos/master.xml" relativeToChangelogFile="true"></include>
+
+    <include file="changelog/armas-domicilios/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/vehiculos-domicilios/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/canes-domicilios/master.xml" relativeToChangelogFile="true"></include>
+
+    <include file="changelog/notificaciones/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/acuses/master.xml" relativeToChangelogFile="true"></include>
+
+    <include file="changelog/empresa-reportes-mensuales/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/notificaciones-argos/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/notificaciones-empresas/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/ventanas/master.xml" relativeToChangelogFile="true"></include>
+
+    <include file="changelog/reportes-argos/master.xml" relativeToChangelogFile="true"></include>
 </databaseChangeLog>

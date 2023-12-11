@@ -1,0 +1,91 @@
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Detalles de empresa</h1>
+    <div class="btn-group">
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12" style="background: white">
+      <div class="row">
+        <div class="col-sm-3">
+          <div class="row">
+            <div class="col-sm-12">
+              <img [src]="logo" style="width: 100%;">
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-9">
+          <table class="table">
+            <tr>
+              <td><b>Registro</b></td>
+              <td>{{usuarioActual?.empresa?.registro}}</td>
+            </tr>
+            <tr>
+              <td><b>Nombre comercial</b></td>
+              <td>{{usuarioActual?.empresa?.nombreComercial}}</td>
+            </tr>
+            <tr>
+              <td><b>Razón social</b></td>
+              <td>{{usuarioActual?.empresa?.razonSocial}}</td>
+            </tr>
+            <tr>
+              <td><b>RFC</b></td>
+              <td>{{usuarioActual?.empresa?.rfc}}</td>
+            </tr>
+            <tr>
+              <td><b>Tipo de persona</b></td>
+              <td>{{usuarioActual?.empresa?.tipoPersona}}</td>
+            </tr>
+            <tr>
+              <td><b>Tipo de trámite</b></td>
+              <td>{{usuarioActual?.empresa?.tipoTramite}}</td>
+            </tr>
+
+            <tr *ngIf="usuarioActual?.empresa?.tipoPersona === 'FISICA'">
+              <td><b>CURP</b></td>
+              <td>{{usuarioActual?.empresa?.curp}}</td>
+            </tr>
+            <tr *ngIf="usuarioActual?.empresa?.tipoPersona === 'FISICA'">
+              <td><b>Sexo</b></td>
+              <td>{{usuarioActual?.empresa?.sexo}}</td>
+            </tr>
+            <tr>
+              <td><b>Correo electrónico: </b></td>
+              <td>{{usuarioActual?.empresa?.correoElectronico}}</td>
+            </tr>
+            <tr>
+              <td><b>Teléfono: </b></td>
+              <td>{{usuarioActual?.empresa?.telefono}}</td>
+            </tr>
+            <tr *ngIf="usuarioActual?.empresa?.tipoTramite === 'EAFJAL'">
+              <td><b>Número de Registro Federal: </b></td>
+              <td>{{usuarioActual?.empresa?.registroFederal}}</td>
+            </tr>
+            <tr *ngIf="usuarioActual?.empresa?.tipoTramite === 'EAFJAL'">
+              <td><b>Fecha de inicio: </b></td>
+              <td>{{usuarioActual?.empresa?.fechaInicio}}</td>
+            </tr>
+            <tr *ngIf="usuarioActual?.empresa?.tipoTramite === 'EAFJAL'">
+              <td><b>Fecha de fin: </b></td>
+              <td>{{usuarioActual?.empresa?.fechaFin}}</td>
+            </tr>
+            <tr>
+              <td><b>Status</b></td>
+              <td [ngSwitch]="usuarioActual?.empresa?.status">
+                <span *ngSwitchCase="'ACTIVA'">Activa</span>
+                <span *ngSwitchCase="'SUSPENDIDA'">Suspendida</span>
+                <span *ngSwitchCase="'REVOCADA'">Revocada</span>
+                <span *ngSwitchCase="'CLAUSURADA'">Clausurada</span>
+                <span *ngSwitchCase="'PERDIDA_EFICACIA'">Perdida de eficacia</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

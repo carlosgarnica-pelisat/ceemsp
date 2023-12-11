@@ -5,10 +5,13 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.Acuerdo;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
+import com.pelisat.cesp.ceemsp.database.model.Empresa;
 import com.pelisat.cesp.ceemsp.database.repository.AcuerdoRepository;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
 import com.pelisat.cesp.ceemsp.database.type.AcuerdoTipoEnum;
 import com.pelisat.cesp.ceemsp.database.type.EmpresaStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
+import com.pelisat.cesp.ceemsp.database.type.TipoTramiteEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
@@ -20,9 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -37,13 +40,14 @@ public class AcuerdoServiceImpl implements AcuerdoService {
     private final UsuarioService usuarioService;
     private final DaoHelper<CommonModel> daoHelper;
     private final EmpresaService empresaService;
+    private final EmpresaRepository empresaRepository;
     private final ArchivosService archivosService;
     private Logger logger = LoggerFactory.getLogger(AcuerdoService.class);
 
     @Autowired
     public AcuerdoServiceImpl(AcuerdoRepository acuerdoRepository, DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                               UsuarioService usuarioService, DaoHelper<CommonModel> daoHelper, EmpresaService empresaService,
-                              ArchivosService archivosService) {
+                              ArchivosService archivosService, EmpresaRepository empresaRepository) {
         this.acuerdoRepository = acuerdoRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
@@ -51,6 +55,7 @@ public class AcuerdoServiceImpl implements AcuerdoService {
         this.daoHelper = daoHelper;
         this.empresaService = empresaService;
         this.archivosService = archivosService;
+        this.empresaRepository = empresaRepository;
     }
 
     @Override
@@ -124,6 +129,16 @@ public class AcuerdoServiceImpl implements AcuerdoService {
         if(acuerdo.getTipo() == AcuerdoTipoEnum.AUTORIZACION_ESTATAL || acuerdo.getTipo() == AcuerdoTipoEnum.AUTORIZACION_PROVISIONAL || acuerdo.getTipo() == AcuerdoTipoEnum.REGISTRO_FEDERAL || acuerdo.getTipo() == AcuerdoTipoEnum.REGISTRO_SERVICIOS_PROPIOS || acuerdo.getTipo() == AcuerdoTipoEnum.REFRENDO) {
             acuerdo.setFechaInicio(LocalDate.parse(acuerdoDto.getFechaInicio()));
             acuerdo.setFechaFin(LocalDate.parse(acuerdoDto.getFechaFin()));
+
+            if(acuerdo.getTipo() == AcuerdoTipoEnum.AUTORIZACION_ESTATAL && empresaDto.getTipoTramite() == TipoTramiteEnum.AP) {
+                logger.info("Se esta cambiando el tipo de tramite de autorizacion provisional a autorizacion estatal");
+                empresaService.cambiarTipoTramiteEmpresa(empresaDto, TipoTramiteEnum.AP, TipoTramiteEnum.SPSMD, username);
+            }
+
+            if(acuerdo.getTipo() == AcuerdoTipoEnum.REFRENDO) {
+                logger.info("La empresa esta actualizando su refrendo. Se actualizaran sus fechas");
+                empresaService.cambiarVigenciaEmpresa(empresaDto, acuerdo.getFechaInicio(), acuerdo.getFechaFin(), username);
+            }
         } else if(acuerdo.getTipo() == AcuerdoTipoEnum.PERDIDA_EFICACIA) {
             empresaDto.setStatus(EmpresaStatusEnum.PERDIDA_EFICACIA);
             empresaDto.setObservaciones(acuerdo.getObservaciones());
@@ -143,6 +158,10 @@ public class AcuerdoServiceImpl implements AcuerdoService {
         } else if(acuerdo.getTipo() == AcuerdoTipoEnum.MULTA) {
             acuerdo.setMultaUmas(acuerdoDto.getMultaUmas());
             acuerdo.setMultaPesos(acuerdoDto.getMultaPesos());
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.MANDATO_JUDICIAL) {
+            empresaDto.setStatus(EmpresaStatusEnum.ACTIVA);
+            empresaDto.setObservaciones(acuerdo.getObservaciones());
+            empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
         }
 
         String ruta = "";
@@ -150,6 +169,14 @@ public class AcuerdoServiceImpl implements AcuerdoService {
             ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.EMPRESA_ACUERDO, uuid);
             acuerdo.setRutaArchivo(ruta);
             Acuerdo acuerdoCreado = acuerdoRepository.save(acuerdo);
+            Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(uuid);
+
+            if(!empresa.isAcuerdosCapturados()) {
+                empresa.setAcuerdosCapturados(true);
+                daoHelper.fulfillAuditorFields(false, empresa, usuarioDto.getId());
+                empresaRepository.save(empresa);
+            }
+
             return daoToDtoConverter.convertDaoToDtoAcuerdo(acuerdoCreado);
         } catch (IOException ioException) {
             logger.warn(ioException.getMessage());
@@ -159,6 +186,7 @@ public class AcuerdoServiceImpl implements AcuerdoService {
     }
 
     @Override
+    @Transactional
     public AcuerdoDto modificarAcuerdo(String uuid, String acuerdoUuid, AcuerdoDto acuerdoDto, String username, MultipartFile multipartFile) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(acuerdoUuid) || acuerdoDto == null || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros vienen como nulos o invalidos");
@@ -177,6 +205,7 @@ public class AcuerdoServiceImpl implements AcuerdoService {
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
         daoHelper.fulfillAuditorFields(false, acuerdo, usuarioDto.getId());
 
+        acuerdo.setTipo(acuerdoDto.getTipo());
         acuerdo.setFecha(LocalDate.parse(acuerdoDto.getFecha()));
         acuerdo.setObservaciones(acuerdoDto.getObservaciones());
 
@@ -222,6 +251,7 @@ public class AcuerdoServiceImpl implements AcuerdoService {
     }
 
     @Override
+    @Transactional
     public AcuerdoDto eliminarAcuerdo(String uuid, String acuerdoUuid, String username, AcuerdoDto acuerdoDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(acuerdoUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulos o vacios");

@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface EmpresaCanService {
     List<CanDto> obtenerCanesPorEmpresa(String username);
+    List<CanDto> obtenerCanesEnInstalacionesPorEmpresa(String username);
     CanDto obtenerCanPorUuid(String canUuid, boolean soloEntidad);
     CanDto obtenerCanPorId(int id);
     CanDto guardarCan(String username, CanDto canDto);

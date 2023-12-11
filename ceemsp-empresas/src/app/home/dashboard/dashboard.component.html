@@ -10,37 +10,51 @@
 
   <!-- Content Row -->
   <div class="row">
-
-    <!-- Earnings (Monthly) Card Example -->
     <div class="col-xl-3 col-md-6 mb-4">
       <div class="card border-left-primary shadow h-100 py-2">
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                Cumplidos</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">7</div>
+                Incid. abiertas o pendientes</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.incidenciasAbiertas + dashboardData?.incidenciasPendientes}}</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-calendar fa-2x text-gray-300"></i>
+              <fa-icon [icon]="faTicketAlt" size="2x" class="text-gray-300"></fa-icon>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Earnings (Monthly) Card Example -->
     <div class="col-xl-3 col-md-6 mb-4">
-      <div class="card border-left-success shadow h-100 py-2">
+      <div class="card border-left-primary shadow h-100 py-2">
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                En proceso</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">5</div>
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                Incidencias contestadas</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.incidenciasContestadas}}</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+              <fa-icon [icon]="faTicketAlt" size="2x" class="text-gray-300"></fa-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                Incidencias improcedentes</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.incidenciasImprocedentes}}</div>
+            </div>
+            <div class="col-auto">
+              <fa-icon [icon]="faCalendar" size="2x" class="text-gray-300"></fa-icon>
             </div>
           </div>
         </div>
@@ -53,23 +67,12 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Realizadas
-              </div>
-              <div class="row no-gutters align-items-center">
-                <div class="col-auto">
-                  <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">72/90</div>
-                </div>
-                <div class="col">
-                  <div class="progress progress-sm mr-2">
-                    <div class="progress-bar bg-info" role="progressbar"
-                         style="width: 85%" aria-valuenow="50" aria-valuemin="0"
-                         aria-valuemax="100"></div>
-                  </div>
-                </div>
-              </div>
+              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                Incidencias procedentes</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.incidenciasProcedentes}}</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+              <fa-icon [icon]="faCalendar" size="2x" class="text-gray-300"></fa-icon>
             </div>
           </div>
         </div>
@@ -78,16 +81,86 @@
 
     <!-- Pending Requests Card Example -->
     <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                Acuerdos totales</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.acuerdosTotales}}</div>
+            </div>
+            <div class="col-auto">
+              <fa-icon [icon]="faHandshake" size="2x" class="text-gray-300"></fa-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
       <div class="card border-left-warning shadow h-100 py-2">
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                Pendientes</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                Estado de fuerza actual</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.personalActivo}}</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-comments fa-2x text-gray-300"></i>
+              <fa-icon [icon]="faUsers" size="2x" class="text-gray-300"></fa-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                Clientes proximos a vencer</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.clientesProximosAVencer}}</div>
+            </div>
+            <div class="col-auto">
+              <fa-icon [icon]="faUsers" size="2x" class="text-gray-300"></fa-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4"  *ngIf="this.usuarioActual?.empresa?.tipoTramite === 'EAFJAL'">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1" *ngIf="dashboardData?.diasRestantesLicenciaFederal >= 0">
+                Venc. lic. federal en: </div>
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1" *ngIf="dashboardData?.diasRestantesLicenciaFederal < 0">
+                Lic. federal vencida hace: </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{(dashboardData?.diasRestantesLicenciaFederal < 0) ? dashboardData?.diasRestantesLicenciaFederal * -1 : dashboardData?.diasRestantesLicenciaFederal}} dias</div>
+            </div>
+            <div class="col-auto">
+              <fa-icon [icon]="faUsers" size="2x" class="text-gray-300"></fa-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4" *ngIf="this.usuarioActual?.empresa?.tieneArmas && this.usuarioActual?.empresa?.tipoTramite === 'EAFJAL'">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                Lic. colectivas proximas a vencer</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.licenciasColectivasProximasAVencer}}</div>
+            </div>
+            <div class="col-auto">
+              <fa-icon [icon]="faUsers" size="2x" class="text-gray-300"></fa-icon>
             </div>
           </div>
         </div>
@@ -105,7 +178,7 @@
 
         <div
           class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">Realizadas</h6>
+          <h6 class="m-0 font-weight-bold text-primary">Proximas visitas del organismo</h6>
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -136,7 +209,7 @@
 
         <div
           class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">Revenue Sources</h6>
+          <h6 class="m-0 font-weight-bold text-primary">Estatus del personal</h6>
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -170,7 +243,7 @@
         </div>
       </div>
     </div>
-  </div-->
+  </div>
 
   <!-- Content Row -->
   <!--div class="row">

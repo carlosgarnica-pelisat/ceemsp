@@ -59,33 +59,4 @@ public class EmpresaLegalController {
         InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
         return new ResponseEntity<>(isr, responseHeaders, HttpStatus.OK);
     }
-
-    @PostMapping(value = EMPRESA_ESCRITURA_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public EmpresaEscrituraDto crearEscritura(
-            HttpServletRequest request,
-            @RequestParam("archivo") MultipartFile archivo,
-            @RequestParam("escritura") String escritura
-    ) throws Exception {
-        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return empresaEscrituraService.guardarEscritura(new Gson().fromJson(escritura, EmpresaEscrituraDto.class), username, archivo);
-    }
-
-    @PutMapping(value = EMPRESA_ESCRITURA_URI + "/{escrituraUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public EmpresaEscrituraDto modificarEscritura(
-            @PathVariable(value = "escrituraUuid") String escrituraUuid,
-            HttpServletRequest request,
-            @RequestBody EmpresaEscrituraDto empresaEscrituraDto
-    ) throws Exception {
-        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return empresaEscrituraService.modificarEscritura(escrituraUuid, empresaEscrituraDto, username);
-    }
-
-    @DeleteMapping(value = EMPRESA_ESCRITURA_URI + "/{escrituraUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public EmpresaEscrituraDto eliminarEscritura(
-            @PathVariable(value = "escrituraUuid") String escrituraUuid,
-            HttpServletRequest request
-    ) throws Exception {
-        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return empresaEscrituraService.eliminarEscritura(escrituraUuid, username);
-    }
 }

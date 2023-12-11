@@ -8,9 +8,10 @@ import java.util.List;
 
 public interface EmpresaClienteService {
     List<ClienteDto> obtenerClientesPorEmpresa(String empresaUuid);
+    File obtenerContrato(String clienteUuid);
     ClienteDto obtenerClientePorId(Integer id);
-    ClienteDto obtenerClientePorUuid(String escrituraUuid, boolean soloEntidad);
+    ClienteDto obtenerClientePorUuid(String username, String clienteUuid, boolean soloEntidad);
     ClienteDto crearCliente(String username, ClienteDto clienteDto, MultipartFile archivo);
     ClienteDto modificarCliente(String clienteUuid, String username, ClienteDto clienteDto);
-    ClienteDto eliminarCliente(String clienteUuid, String username);
+    ClienteDto eliminarCliente(String clienteUuid, String username, ClienteDto clienteDto, MultipartFile multipartFile);
 }

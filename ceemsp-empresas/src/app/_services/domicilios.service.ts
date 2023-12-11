@@ -21,21 +21,6 @@ export class DomiciliosService {
     return this.http.get(`${this.uri}/domicilios/${domicilioUuid}`)
   }
 
-  guardarDomicilio(empresaDomicilio: EmpresaDomicilio) {
-    return this.http.post(`${this.uri}/domicilios`, empresaDomicilio)
-  }
-
-  modificarDomicilio(domicilioUuid: string, empresaDomicilio: EmpresaDomicilio) {
-    return this.http.put(`${this.uri}/domicilios/${domicilioUuid}`, empresaDomicilio);
-  }
-
-  eliminarDomicilio(domicilioUuid: string, formData: FormData) {
-    return this.http.put(
-      `${this.uri}/domicilios/${domicilioUuid}/borrar`, formData, {
-        headers: {'X-isFile': 'true'}
-      })
-  }
-
   // Telefonos
   obtenerTelefonosDomicilio(domicilioUuid: string) {
     return this.http.get(`${this.uri}/domicilios/${domicilioUuid}/telefonos`)

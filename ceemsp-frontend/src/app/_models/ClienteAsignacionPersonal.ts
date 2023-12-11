@@ -8,6 +8,7 @@ export default class ClienteAsignacionPersonal implements Deserializable {
   uuid: string;
   domicilio: ClienteDomicilio;
   personal: Persona;
+  eliminado: boolean;
 
   deserialize(input: any): this {
     Object.assign(this, input);

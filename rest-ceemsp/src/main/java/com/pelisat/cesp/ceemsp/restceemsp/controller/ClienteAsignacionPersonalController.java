@@ -33,6 +33,14 @@ public class ClienteAsignacionPersonalController {
         return clienteAsignacionPersonalService.obtenerAsignacionesCliente(empresaUuid, clienteUuid);
     }
 
+    @GetMapping(value = CLIENTE_ASIGNACION_PERSONAL_URI + "/todas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ClienteAsignacionPersonalDto> obtenerAsignacionesPorClienteTodas(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "clienteUuid") String clienteUuid
+    ) {
+        return clienteAsignacionPersonalService.obtenerAsignacionesClienteTodo(empresaUuid, clienteUuid);
+    }
+
     @PostMapping(value = CLIENTE_ASIGNACION_PERSONAL_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ClienteAsignacionPersonalDto guardarAsignacion(
             @PathVariable(value = "empresaUuid") String empresaUuid,
@@ -66,5 +74,4 @@ public class ClienteAsignacionPersonalController {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return clienteAsignacionPersonalService.eliminarAsignacion(empresaUuid, clienteUuid, asignacionUuid, username);
     }
-
 }

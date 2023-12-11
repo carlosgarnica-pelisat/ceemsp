@@ -12,6 +12,7 @@ public interface EmpresaLicenciaColectivaService {
     EmpresaLicenciaColectivaDto obtenerLicenciaColectivaPorUuid(String empresaUuid, String licenciaUuid, boolean soloEntidad);
     EmpresaLicenciaColectivaDto guardarLicenciaColectiva(String empresaUuid, String username, EmpresaLicenciaColectivaDto licenciaColectivaDto, MultipartFile multipartFile);
     File descargarLicenciaPdf(String empresaUuid, String licenciaUuid);
+    File descargarDocumentoFundatorio(String empresaUuid, String licenciaUuid);
     EmpresaLicenciaColectivaDto modificarLicenciaColectiva(String empresaUuid, String licenciaUuid, String username, EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto, MultipartFile multipartFile);
     EmpresaLicenciaColectivaDto eliminarLicenciaColectiva(String empresaUuid, String licenciaUuid, String username, EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto, MultipartFile multipartFile);
 }

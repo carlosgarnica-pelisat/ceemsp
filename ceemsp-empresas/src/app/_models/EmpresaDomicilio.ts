@@ -30,6 +30,7 @@ export default class EmpresaDomicilio implements Deserializable {
   localidadCatalogo: Localidad;
   coloniaCatalogo: Colonia;
   calleCatalogo: Calle;
+  eliminado: boolean;
 
   motivoBaja: string;
   observacionesBaja: string;

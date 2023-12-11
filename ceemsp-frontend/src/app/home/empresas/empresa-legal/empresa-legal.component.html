@@ -29,8 +29,12 @@
   <div class="row">
     <div class="col-sm-3">
       <div class="list-group">
-        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action">
-          Detalles
+        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action flex-column align-items-start">
+          <p class="mb-1">
+            <b>Registro: </b>{{empresa?.registro}}<br>
+            <b>Nombre comercial: </b> {{empresa?.nombreComercial}}<br>
+            <b>Razon social: </b> {{empresa?.razonSocial}}<br>
+          </p>
         </a>
         <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
@@ -43,6 +47,8 @@
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
         <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -544,17 +550,29 @@
               <td><b>Descripcion</b></td>
               <td>{{escritura?.descripcion}}</td>
             </tr>
-            <tr>
-              <td><b>Fecha de creacion:</b></td>
+            <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+              <td><b>Fecha de creación:</b></td>
               <td>{{escritura?.fechaCreacion}}</td>
+            </tr>
+            <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+              <td><b>Última actualización:</b></td>
+              <td>{{escritura?.fechaActualizacion}}</td>
             </tr>
           </table>
         </div>
 
         <div class="col-sm-12" *ngIf="pestanaActual === 'SOCIOS'">
-          <p-table [value]="escritura?.socios" [autoLayout]="true" [resizableColumns]="true">
+          <p-table #sociosTable [value]="escritura?.socios" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['nombres','apellidos','apellidoMaterno','curp']"
+          [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
             <ng-template pTemplate="caption">
-              Lista de socios de la escritura
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Socios de la escritura {{escritura?.numeroEscritura}}</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="sociosTable.filterGlobal($event.target.value, 'contains')" placeholder="Buscar socio" />
+                </div>
+              </div>
             </ng-template>
             <ng-template pTemplate="header">
               <tr>
@@ -562,9 +580,9 @@
                 <th pSortableColumn="apellidos"><b>Apellido Paterno <p-sortIcon field="apellidos"></p-sortIcon></b></th>
                 <th pSortableColumn="apellidoMaterno"><b>Apellido Materno <p-sortIcon field="apellidoMaterno"></p-sortIcon></b></th>
                 <th pSortableColumn="curp"><b>CURP <p-sortIcon field="curp"></p-sortIcon></b></th>
-                <th pSortableColumn="sexo"><b>Sexo <p-sortIcon field="sexo"></p-sortIcon></b></th>
+                <th pSortableColumn="sexo"><b>Genero <p-sortIcon field="sexo"></p-sortIcon></b></th>
                 <th pSortableColumn="porcentajeAcciones"><b>Porcentaje <p-sortIcon field="porcentajeAcciones"></p-sortIcon></b></th>
-                <th><b>Acciones</b></th>
+                <th><b>Opciones</b></th>
               </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
@@ -588,15 +606,27 @@
               </tr>
             </ng-template>
             <ng-template pTemplate="summary">
-              Hay en total {{escritura.socios?.length}} socios
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{escritura.socios?.length}} socios</p>
+                </div>
+              </div>
             </ng-template>
           </p-table>
         </div>
 
         <div class="col-sm-12" *ngIf="pestanaActual === 'APODERADOS'">
-          <p-table [value]="escritura?.apoderados" [autoLayout]="true" [resizableColumns]="true">
+          <p-table #apoderadosTable [value]="escritura?.apoderados" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['nombres','apellidos','apellidoMaterno','curp']"
+                   [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
             <ng-template pTemplate="caption">
-              Lista de apoderados de la escritura
+              <div class="row">
+                <div class="col-sm-6">
+                  Lista de apoderados de la escritura
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="apoderadosTable.filterGlobal($event.target.value, 'contains')" placeholder="Buscar apoderado" />
+                </div>
+              </div>
             </ng-template>
             <ng-template pTemplate="header">
               <tr>
@@ -607,12 +637,12 @@
                 <th pSortableColumn="sexo"><b>Sexo <p-sortIcon field="sexo"></p-sortIcon></b></th>
                 <th pSortableColumn="fechaInicio"><b>Fecha de Inicio <p-sortIcon field="fechaInicio"></p-sortIcon></b></th>
                 <th pSortableColumn="fechaFin"><b>F. Fin <p-sortIcon field="fechaFin"></p-sortIcon></b></th>
-                <th><b>Acciones</b></th>
+                <th><b>Opciones</b></th>
               </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="7">No hay apoderados creados en la escritura hasta ahora.</td>
+                <td colspan="7">No hay apoderados creados en la escritura hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarApoderado()">Da clic aqui para crear uno</a></td>
               </tr>
 
             </ng-template>
@@ -633,15 +663,30 @@
               </tr>
             </ng-template>
             <ng-template pTemplate="summary">
-              Hay en total {{escritura.apoderados?.length}} apoderados
+              <div class="row">
+                <div class="col-sm-6">
+                  Hay en total {{escritura.apoderados?.length}} apoderados
+                </div>
+                <div class="col-sm-6">
+                  <button class="btn btn-primary float-right" (click)="clear(apoderadosTable)">Limpiar filtros</button>
+                </div>
+              </div>
             </ng-template>
           </p-table>
         </div>
 
         <div class="col-sm-12" *ngIf="pestanaActual === 'REPRESENTANTES'">
-          <p-table [value]="escritura?.representantes" [autoLayout]="true" [resizableColumns]="true">
+          <p-table #representantesTable [value]="escritura?.representantes" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['nombres','apellidos','apellidoMaterno','curp']"
+                   [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
             <ng-template pTemplate="caption">
-              Lista de representantes de la escritura
+              <div class="row">
+                <div class="col-sm-6">
+                  Lista de representantes de la escritura
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="representantesTable.filterGlobal($event.target.value, 'contains')" placeholder="Buscar representante" />
+                </div>
+              </div>
             </ng-template>
             <ng-template pTemplate="header">
               <tr>
@@ -650,12 +695,12 @@
                 <th pSortableColumn="apellidoMaterno"><b>Apellido Materno <p-sortIcon field="apellidoMaterno"></p-sortIcon></b></th>
                 <th pSortableColumn="curp"><b>CURP <p-sortIcon field="curp"></p-sortIcon></b></th>
                 <th pSortableColumn="sexo"><b>Sexo <p-sortIcon field="sexo"></p-sortIcon></b></th>
-                <th><b>Acciones</b></th>
+                <th><b>Opciones</b></th>
               </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="7">No hay representantes creados en la escritura hasta ahora.</td>
+                <td colspan="6">No hay representantes creados en la escritura hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarRepresentante()">Da clic aqui para crear uno</a></td>
               </tr>
 
             </ng-template>
@@ -680,9 +725,17 @@
         </div>
 
         <div class="col-sm-12" *ngIf="pestanaActual === 'CONSEJOS'">
-          <p-table [value]="escritura?.consejos" [autoLayout]="true" [resizableColumns]="true">
+          <p-table #consejoTable [value]="escritura?.consejos" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['nombres','apellidos','apellidoMaterno','curp']"
+                   [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
             <ng-template pTemplate="caption">
-              Lista de miembros del consejo de la escritura
+              <div class="row">
+                <div class="col-sm-6">
+                  Lista de miembros del consejo de la escritura
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="consejoTable.filterGlobal($event.target.value, 'contains')" placeholder="Buscar miembro del consejo" />
+                </div>
+              </div>
             </ng-template>
             <ng-template pTemplate="header">
               <tr>
@@ -692,12 +745,12 @@
                 <th pSortableColumn="curp"><b>CURP <p-sortIcon field="curp"></p-sortIcon></b></th>
                 <th pSortableColumn="sexo"><b>Sexo <p-sortIcon field="sexo"></p-sortIcon></b></th>
                 <th pSortableColumn="puesto"><b>Puesto <p-sortIcon field="puesto"></p-sortIcon></b></th>
-                <th><b>Acciones</b></th>
+                <th><b>Opciones</b></th>
               </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="7">No hay miembros del consejo creados en la escritura hasta ahora.</td>
+                <td colspan="7">No hay miembros del consejo creados en la escritura hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarConsejo()">Da clic aqui para crear uno</a></td>
               </tr>
 
             </ng-template>
@@ -753,8 +806,11 @@
 
   <ng-template #agregarSocioModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="agregarSocioModal">Agregando un nuevo socio </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <h4 class="modal-title" id="agregarSocioModal">
+        <span *ngIf="editandoSocio">Editando socio</span>
+        <span *ngIf="!editandoSocio">Agregando un nuevo socio</span>
+      </h4>
+      <button type="button" class="close" aria-label="Close" (click)="cerrarModalSocio()">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -799,7 +855,7 @@
             <div class="form-row">
               <div class="col-sm-4">
                 <label for="sexoSocio">
-                  <b>Sexo *</b>
+                  <b>Genero *</b>
                   <span
                     *ngIf="nuevoSocioForm.controls['sexo'].invalid && (nuevoSocioForm.controls['sexo'].dirty || nuevoSocioForm.controls['sexo'].touched)">
                               <i *ngIf="nuevoSocioForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -839,15 +895,18 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-info" (click)="guardarSocio(nuevoSocioForm)">Guardar socio</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+      <button type="button" class="btn btn-primary" (click)="guardarSocio(nuevoSocioForm)">Guardar socio</button>
+      <button type="button" class="btn btn-danger" (click)="cerrarModalSocio()">Cerrar</button>
     </div>
   </ng-template>
 
   <ng-template #agregarApoderadoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="agregarApoderadoModal">Agregando un nuevo apoderado </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <h4 class="modal-title" id="agregarApoderadoModal">
+        <span *ngIf="editandoApoderado">Editando apoderado</span>
+        <span *ngIf="!editandoApoderado">Agregando un nuevo apoderado</span>
+      </h4>
+      <button type="button" class="close" aria-label="Close" (click)="cerrarModalApoderado()">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -892,7 +951,7 @@
             <div class="form-row">
               <div class="col-sm-4">
                 <label for="apoderadoSexo">
-                  <b>Sexo *</b>
+                  <b>Genero *</b>
                   <span
                     *ngIf="nuevoApoderadoForm.controls['sexo'].invalid && (nuevoApoderadoForm.controls['sexo'].dirty || nuevoApoderadoForm.controls['sexo'].touched)">
                               <i *ngIf="nuevoApoderadoForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -905,13 +964,13 @@
               </div>
               <div class="col-sm-4">
                 <label for="apoderadoFechaInicio">
-                  <b>Fecha inicio</b>
+                  <b>Fecha inicio <a class="fakelink" (click)="limpiarFechas()">(Limpiar)</a></b>
                 </label>
                 <input id="apoderadoFechaInicio" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
               </div>
               <div class="col-sm-4">
                 <label for="apoderadoFechaFin">
-                  <b>Fecha fin</b>
+                  <b>Fecha fin <a class="fakelink"  (click)="limpiarFechaFin()">(Limpiar)</a></b>
                 </label>
                 <input id="apoderadoFechaFin" type="date" class="form-control" formControlName="fechaFin" #fechaFin>
               </div>
@@ -934,15 +993,18 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-info" (click)="guardarApoderado(nuevoApoderadoForm)">Guardar apoderado</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+      <button type="button" class="btn btn-primary" (click)="guardarApoderado(nuevoApoderadoForm)">Guardar apoderado</button>
+      <button type="button" class="btn btn-danger" (click)="cerrarModalApoderado()">Cerrar</button>
     </div>
   </ng-template>
 
   <ng-template #agregarRepresentanteModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="agregarRepresentanteModal">Agregando un nuevo representante </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <h4 class="modal-title" id="agregarRepresentanteModal">
+        <span *ngIf="editandoRepresentante">Editando representante</span>
+        <span *ngIf="!editandoRepresentante">Agregando un nuevo representante</span>
+      </h4>
+      <button type="button" class="close" aria-label="Close" (click)="cerrarModalRepresentante()">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -986,7 +1048,7 @@
               </div>
               <div class="col-sm-3">
                 <label for="representanteSexo">
-                  <b>Sexo *</b>
+                  <b>Genero *</b>
                   <span
                     *ngIf="nuevoRepresentanteForm.controls['sexo'].invalid && (nuevoRepresentanteForm.controls['sexo'].dirty || nuevoRepresentanteForm.controls['sexo'].touched)">
                               <i *ngIf="nuevoRepresentanteForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -1017,15 +1079,18 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-info" (click)="guardarRepresentante(nuevoRepresentanteForm)">Guardar representante</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+      <button type="button" class="btn btn-primary" (click)="guardarRepresentante(nuevoRepresentanteForm)">Guardar representante</button>
+      <button type="button" class="btn btn-danger" (click)="cerrarModalRepresentante()">Cerrar</button>
     </div>
   </ng-template>
 
   <ng-template #agregarConsejoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="agregarConsejoModal">Agregando un nuevo consejo </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <h4 class="modal-title" id="agregarConsejoModal">
+        <span *ngIf="editandoConsejo">Editando miembro del consejo</span>
+        <span *ngIf="!editandoConsejo">Agregando un nuevo miembro del consejo</span>
+      </h4>
+      <button type="button" class="close" aria-label="Close" (click)="cerrarModalConsejo()">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -1069,7 +1134,7 @@
               </div>
               <div class="col-sm-3">
                 <label for="consejoSexo">
-                  <b>Sexo *</b>
+                  <b>Genero *</b>
                   <span
                     *ngIf="nuevoConsejoAdministracionForm.controls['sexo'].invalid && (nuevoConsejoAdministracionForm.controls['sexo'].dirty || nuevoConsejoAdministracionForm.controls['sexo'].touched)">
                               <i *ngIf="nuevoConsejoAdministracionForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -1115,8 +1180,8 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-info" (click)="guardarConsejo(nuevoConsejoAdministracionForm)">Guardar miembro del consejo</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+      <button type="button" class="btn btn-primary" (click)="guardarConsejo(nuevoConsejoAdministracionForm)">Guardar miembro del consejo</button>
+      <button type="button" class="btn btn-danger" (click)="cerrarModalConsejo()">Cerrar</button>
     </div>
   </ng-template>
 
@@ -1136,14 +1201,14 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarEscritura()">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 
   <ng-template #eliminarEscrituraSocioModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="eliminarEscrituraSocioModal">Eliminando un socio </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <button type="button" class="close" aria-label="Close" (click)="cerrarModalEliminarSocio()">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -1195,14 +1260,14 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarSocio(motivosEliminacionSocioForm)">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="cerrarModalEliminarSocio()">No, dejarlo como esta</button>
     </div>
   </ng-template>
 
   <ng-template #eliminarEscrituraApoderadoModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="eliminarEscrituraApoderadoModal">Eliminando un apoderado </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <button type="button" class="close" aria-label="Close" (click)="cerrarModalApoderado()">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -1254,14 +1319,14 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarApoderado(motivosEliminacionAopderadoForm)">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="cerrarModalApoderado()">No, dejarlo como esta</button>
     </div>
   </ng-template>
 
   <ng-template #eliminarEscrituraRepresentanteModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="eliminarEscrituraRepresentanteModal">Eliminando un representante </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <button type="button" class="close" aria-label="Close" (click)="cerrarModalRepresentante()">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -1313,14 +1378,14 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarRepresentante(motivosEliminacionRepresentanteForm)">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="cerrarModalRepresentante()">No, dejarlo como esta</button>
     </div>
   </ng-template>
 
   <ng-template #eliminarEscrituraConsejoModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="eliminarEscrituraConsejoModal">Eliminando un consejo </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <button type="button" class="close" aria-label="Close" (click)="cerrarModalConsejo()">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -1372,7 +1437,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarConsejo(motivosEliminacionConsejoForm)">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="cerrarModalConsejo()">No, dejarlo como esta</button>
     </div>
   </ng-template>
 
@@ -1393,11 +1458,14 @@
         </div>
       </div>
     </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="descargarDocumentoEscritura()">Descargar</button>
+    </div>
   </ng-template>
 
   <ng-template #mostrarMotivosEliminacionSocio let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="mostrarMotivosEliminacionSocio">Motivos de eliminacion del socio </h4>
+      <h4 class="modal-title" id="mostrarMotivosEliminacionSocio">Motivos de eliminación del socio </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -1407,11 +1475,11 @@
         <div class="col-sm-12">
           <table class="table">
             <tr>
-              <td><b>Fecha de eliminacion</b></td>
+              <td><b>Fecha de eliminación</b></td>
               <td>{{socio?.fechaBaja}}</td>
             </tr>
             <tr>
-              <td><b>Motivos de eliminacion</b></td>
+              <td><b>Motivos de eliminación</b></td>
               <td>{{socio?.motivoBaja}}</td>
             </tr>
             <tr>
@@ -1423,7 +1491,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-primary" (click)="descargarDocumentoFundatorioSocio()">Descargar fundatorio</button>
+      <button type="button" class="btn btn-primary" (click)="descargarDocumentoFundatorioSocio()" *ngIf="socio?.eliminado && (socio?.documentoFundatorioBaja !== null)">Descargar documento fundatorio</button>
       <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
@@ -1456,7 +1524,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-primary" (click)="descargarDocumentoFundatorioApoderado()">Descargar fundatorio</button>
+      <button type="button" class="btn btn-primary" (click)="descargarDocumentoFundatorioApoderado()" *ngIf="apoderado?.eliminado && (apoderado?.documentoFundatorioBaja !== null)">Descargar fundatorio</button>
       <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
@@ -1489,7 +1557,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-primary" (click)="descargarDocumentoFundatorioRepresentante()">Descargar fundatorio</button>
+      <button type="button" class="btn btn-primary" (click)="descargarDocumentoFundatorioRepresentante()" *ngIf="representante?.eliminado && (representante?.documentoFundatorioBaja !== null)">Descargar fundatorio</button>
       <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
@@ -1522,7 +1590,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-primary" (click)="descargarDocumentoFundatorioConsejo()">Descargar fundatorio</button>
+      <button type="button" class="btn btn-primary" (click)="descargarDocumentoFundatorioConsejo()" *ngIf="consejo?.eliminado && (consejo?.documentoFundatorioBaja !== null)">Descargar fundatorio</button>
       <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>

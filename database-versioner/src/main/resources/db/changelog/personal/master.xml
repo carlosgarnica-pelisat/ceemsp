@@ -11,4 +11,7 @@
     <include file="db/changelog/personal/CEEMSP-65/schema.xml" />
     <include file="db/changelog/personal/CEEMSP-69/schema.xml" />
     <include file="db/changelog/personal/CEEMSP-71/schema.xml" />
+    <include file="db/changelog/personal/CEEMSP-77/schema.xml" />
+    <include file="db/changelog/personal/CEEMSP-78/schema.xml" />
+    <include file="db/changelog/personal/CEEMSP-80/schema.xml" />
 </databaseChangeLog>

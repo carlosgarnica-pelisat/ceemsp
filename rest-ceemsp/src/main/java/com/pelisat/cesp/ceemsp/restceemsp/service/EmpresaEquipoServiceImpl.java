@@ -6,7 +6,6 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaEquipo;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaEquipoMovimiento;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaUniformeElementoMovimiento;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEquipoMovimientoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEquipoRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -19,8 +18,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -126,6 +125,7 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
     }
 
     @Override
+    @Transactional
     public EmpresaEquipoDto modificarEquipo(String empresaUuid, String equipoUuid, String usuario, EmpresaEquipoDto empresaEquipoDto) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(equipoUuid) || StringUtils.isBlank(usuario) || empresaEquipoDto == null) {
             logger.warn("Alguno de los parametros viene como nulos o vacios");
@@ -154,6 +154,7 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
     }
 
     @Override
+    @Transactional
     public EmpresaEquipoDto eliminarEquipo(String empresaUuid, String equipoUuid, String usuario) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(equipoUuid) || StringUtils.isBlank(usuario)) {
             logger.warn("Alguno de los parametros viene como nulos o vacios");

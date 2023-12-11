@@ -21,7 +21,8 @@
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
           <a class="dropdown-item" *ngIf="!mostrandoEliminados" (click)="mostrarEliminados()">Mostrar eliminados</a>
           <a class="dropdown-item" *ngIf="mostrandoEliminados" (click)="ocultarEliminados()">Ocultar eliminados</a>
-          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar licencias como Excel (csv)</a>
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar como CSV</a>
+          <a class="dropdown-item" (click)="generarReporteExcel()">Descargar como Excel</a>
         </div>
       </div>
     </div>
@@ -31,8 +32,12 @@
   <div class="row">
     <div class="col-sm-3">
       <div class="list-group">
-        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action">
-          Detalles
+        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action flex-column align-items-start">
+          <p class="mb-1">
+            <b>Registro: </b>{{empresa?.registro}}<br>
+            <b>Nombre comercial: </b> {{empresa?.nombreComercial}}<br>
+            <b>Razon social: </b> {{empresa?.razonSocial}}<br>
+          </p>
         </a>
         <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
@@ -45,6 +50,8 @@
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
         <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -55,9 +62,14 @@
         [columnDefs]="columnDefs"
         (gridReady)="onGridReady($event)"
         [frameworkComponents]="frameworkComponents"
-        (rowDoubleClicked)="mostrarModalDetalles($event.data, verDetallesCanModal)"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data)"
         #agGrid
       ></ag-grid-angular>
+      <div class="row">
+        <div class="col-sm-12">
+          <i>Hay un total de {{rowData.length}} canes registrados</i>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -100,6 +112,22 @@
                   <div class="row">
                     <div class="col-sm-12">
                       <img [src]="imagenPrincipal" style="width: 100%;">
+                    </div>
+                  </div>
+
+                  <div class="row" *ngIf="!(can?.vacunacionCapturada || can?.constanciaCapturada) || !can?.fotografiaCapturada || !can?.adiestramientoCapturado">
+                    <div class="col-sm-12">
+                      <div class="alert alert-warning">
+                        <h4 class="alert-heading">
+                          Can no finalizado
+                        </h4>
+                        <b>Este can carece de la siguiente información:</b>
+                        <ul>
+                          <li *ngIf="!can?.fotografiaCapturada">Fotografía</li>
+                          <li *ngIf="!(can?.vacunacionCapturada || can?.constanciaCapturada)">Cartilla de vacunación o Constancia de salud</li>
+                          <li *ngIf="!can?.adiestramientoCapturado">Adiestramiento</li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -191,199 +219,145 @@
                       <td><b>Elemento asignado:</b></td>
                       <td>{{can?.elementoAsignado?.nombres + " " + can?.elementoAsignado?.apellidoPaterno + " " + can?.elementoAsignado?.apellidoMaterno}}</td>
                     </tr>
-
+                    <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+                      <td><b>Fecha de creación:</b></td>
+                      <td>{{can?.fechaCreacion}}</td>
+                    </tr>
+                    <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+                      <td><b>Última actualización:</b></td>
+                      <td>{{can?.fechaActualizacion}}</td>
+                    </tr>
                   </table>
                 </div>
               </div>
             </div>
 
             <div class="col-sm-12" *ngIf="pestanaActual === 'VACUNACION'">
-              <table class="table">
-                <tr>
-                  <td><b>Expedido por</b></td>
-                  <td><b>Cédula</b></td>
-                  <td><b>Fecha de expedición</b></td>
-                  <td><b>Acciones</b></td>
-                </tr>
-                <tr *ngFor="let v of can?.cartillasVacunacion; let i = index">
-                  <td [ngStyle]="v?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{v.expedidoPor}}</td>
-                  <td [ngStyle]="v?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{v.cedula}}</td>
-                  <td [ngStyle]="v?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{v.fechaExpedicion}}</td>
-                  <td>
-                    <fa-icon [icon]="faDownload" *ngIf="!v?.eliminado" title="Descargar el certificado de vacunacion" (click)="descargarCertificadoVacunacion(v?.uuid, visualizarCartillaVacunacionModal)"></fa-icon>
-                    <fa-icon [icon]="faPencilAlt" *ngIf="!v?.eliminado" title="Modificar el certificado de vacunacion" (click)="mostrarModalEditarVacunacion(i)"></fa-icon>
-                    <fa-icon [icon]="faTrash" *ngIf="!v?.eliminado" title="Eliminar el certificado de vacunacion" (click)="mostrarModalEliminarCartillaVacunacion(v?.uuid)"></fa-icon>
-                  </td>
-                </tr>
-                <tr *ngIf="showVacunacionForm">
-                  <td colspan="4">
-                    <div class="row">
-                      <div class="col-sm-12">
-                        <form [formGroup]="crearEmpresaCanCartillaVacunacionForm">
-                          <div class="form-row">
-                            <div class="col-sm-3">
-                              <label for="expedidoPorVacunacion">
-                                <b>Expedido por *</b>
-                                <span
-                                  *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].touched)">
-                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].errors.required" class="text-danger"> - Campo requerido</i>
-                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                                </span>
-                              </label>
-                              <input id="expedidoPorVacunacion" type="text" class="form-control" placeholder="Ej. Cesar Millan" formControlName="expedidoPor" #expedidoPor>
-                            </div>
-                            <div class="col-sm-3">
-                              <label for="cedulaVacunacion">
-                                <b>Cédula *</b>
-                                <span
-                                  *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['cedula'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['cedula'].touched)">
-                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].errors.required" class="text-danger"> - Campo requerido</i>
-                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                                </span>
-                              </label>
-                              <input id="cedulaVacunacion" type="text" class="form-control" placeholder="Ej. 156785" formControlName="cedula" #cedula>
-                            </div>
-                            <div class="col-sm-3">
-                              <label for="fechaExpedicionVacunacion">
-                                <b>Fecha de vacunación *</b>
-                                <span *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].touched)" class="text-danger"> - Requerido</span>
-                              </label>
-                              <input id="fechaExpedicionVacunacion" [max]="fechaDeHoy" type="date" class="form-control" formControlName="fechaExpedicion" #fechaExpedicion>
-                            </div>
-                            <div class="col-sm-3">
-                              <label for="archivoVacunacion">
-                                <b>Archivo *</b>
-                                <span
-                                  *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['archivo'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['archivo'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['archivo'].touched)">
-                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
-                                </span>
-                              </label>
-                              <input id="archivoVacunacion" accept="application/pdf" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
-                            </div>
-                          </div>
-                        </form>
-                      </div>
+              <p-table #cartillaVacunacionTable [value]=" can?.cartillasVacunacion" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['expedidoPor','cedula','fechaExpedicion']">
+                <ng-template pTemplate="caption">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      Lista de cartillas de vacunación
                     </div>
-                  </td>
-                </tr>
-              </table>
+                    <div class="col-sm-6">
+                      <input class="form-control" type="text" (input)="cartillaVacunacionTable.filterGlobal($event.target.value, 'contains')" placeholder="Buscar cartilla de vacunación" />
+                    </div>
+                  </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th pSortableColumn="expedidoPor"><b>Expedido por <p-sortIcon field="expedidoPor"></p-sortIcon></b></th>
+                    <th pSortableColumn="cedula"><b>Cédula <p-sortIcon field="cedula"></p-sortIcon></b></th>
+                    <th pSortableColumn="fechaExpedicion"><b>Fecha de expedición <p-sortIcon field="fechaExpedicion"></p-sortIcon></b></th>
+                    <th><b>Opciones</b></th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="4">No hay cartillas de vacunación creadas. <a class="fakelink" (click)="mostrarModalAgregarCartillaVacunacion()">Da clic aqui para crear una</a></td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-cartillaVacunacion>
+                  <tr>
+                    <td [ngStyle]="cartillaVacunacion?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{cartillaVacunacion?.expedidoPor}}</td>
+                    <td [ngStyle]="cartillaVacunacion?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{cartillaVacunacion?.cedula}}</td>
+                    <td [ngStyle]="cartillaVacunacion?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{cartillaVacunacion?.fechaExpedicion}}</td>
+                    <td>
+                      <fa-icon [icon]="faDownload" *ngIf="!can?.eliminado && !cartillaVacunacion?.eliminado" title="Descargar el certificado de vacunacion" (click)="descargarCertificadoVacunacion(cartillaVacunacion.uuid, visualizarCartillaVacunacionModal)"></fa-icon>
+                      <fa-icon [icon]="faPencilAlt" *ngIf="!can?.eliminado && !cartillaVacunacion?.eliminado" title="Modificar el certificado de vacunacion" (click)="mostrarModalEditarVacunacion(cartillaVacunacion.uuid)"></fa-icon>
+                      <fa-icon [icon]="faTrash" *ngIf="!can?.eliminado && !cartillaVacunacion?.eliminado" title="Eliminar el certificado de vacunacion" (click)="mostrarModalEliminarCartillaVacunacion(cartillaVacunacion.uuid)"></fa-icon>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="summary">
+                  Hay en total {{can.cartillasVacunacion?.length}} cartillas de vacunación creadas
+                </ng-template>
+              </p-table>
             </div>
             <div class="col-sm-12" *ngIf="pestanaActual === 'CERTIFICADOS'">
-              <table class="table">
-                <tr>
-                  <td><b>Expedido por</b></td>
-                  <td><b>Cédula</b></td>
-                  <td><b>Fecha de expedición</b></td>
-                  <td><b>Acciones</b></td>
-                </tr>
-                <tr *ngFor="let c of can?.constanciasSalud; let i = index">
-                  <td [ngStyle]="c?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{c.expedidoPor}}</td>
-                  <td [ngStyle]="c?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{c.cedula}}</td>
-                  <td [ngStyle]="c?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{c.fechaExpedicion}}</td>
-                  <td>
-                    <fa-icon [icon]="faDownload" *ngIf="!c?.eliminado" title="Descargar el certificado de salud" (click)="descargarConstanciaSalud(c?.uuid, visualizarCertificadoSaludModal)"></fa-icon>
-                    <fa-icon [icon]="faPencilAlt" *ngIf="!c?.eliminado" title="Modificar el certificado de salud" (click)="mostrarModalEditarCertificado(i)"></fa-icon>
-                    <fa-icon [icon]="faTrash" *ngIf="!c?.eliminado" title="Eliminar el certificado de salud" (click)="mostrarModalEliminarCertificadoSalud(c?.uuid)"></fa-icon>
-                  </td>
-                </tr>
-                <tr *ngIf="showCertificadoForm">
-                  <td colspan="4">
-                    <div class="row">
-                      <div class="col-sm-12">
-                        <form [formGroup]="crearEmpresaCanCertificadoSaludForm">
-                          <div class="form-row">
-                            <div class="col-sm-3">
-                              <label for="expedidoPorCertificado">
-                                <b>Expedido por *</b>
-                                <span *ngIf="crearEmpresaCanCertificadoSaludForm.controls['expedidoPor'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['expedidoPor'].dirty || crearEmpresaCanCertificadoSaludForm.controls['expedidoPor'].touched)" class="text-danger"> - Requerido</span>
-                              </label>
-                              <input id="expedidoPorCertificado" type="text" class="form-control" placeholder="Ej. Cesar Millan" formControlName="expedidoPor" #expedidoPor>
-                            </div>
-                            <div class="col-sm-3">
-                              <label for="cedulaCertificado">
-                                <b>Cédula *</b>
-                                <span *ngIf="crearEmpresaCanCertificadoSaludForm.controls['cedula'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['cedula'].dirty || crearEmpresaCanCertificadoSaludForm.controls['cedula'].touched)" class="text-danger"> - Requerido</span>
-                              </label>
-                              <input id="cedulaCertificado" type="text" class="form-control" placeholder="Ej. 10912315" formControlName="cedula" #cedula>
-                            </div>
-                            <div class="col-sm-3">
-                              <label for="fechaExpedicionCertificado">
-                                <b>Fecha de expedición *</b>
-                                <span *ngIf="crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].dirty || crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].touched)" class="text-danger"> - Requerido</span>
-                              </label>
-                              <input id="fechaExpedicionCertificado" [max]="fechaDeHoy" type="date" class="form-control" formControlName="fechaExpedicion" #fechaExpedicion>
-                            </div>
-                            <div class="col-sm-3">
-                              <label for="archivoCertificado">
-                                <b>Archivo *</b>
-                                <span
-                                  *ngIf="crearEmpresaCanCertificadoSaludForm.controls['archivo'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['archivo'].dirty || crearEmpresaCanCertificadoSaludForm.controls['archivo'].touched)">
-                                  <i *ngIf="crearEmpresaCanCertificadoSaludForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
-                                </span>
-                              </label>
-                              <input id="archivoCertificado" accept="application/pdf" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
-                            </div>
-                          </div>
-                        </form>
-                      </div>
+              <p-table #certificadosTable [value]=" can?.constanciasSalud" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['expedidoPor','cedula','fechaExpedicion']">
+                <ng-template pTemplate="caption">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      Lista de certificados de salud
                     </div>
-                  </td>
-                </tr>
-              </table>
+                    <div class="col-sm-6">
+                      <input class="form-control" type="text" (input)="certificadosTable.filterGlobal($event.target.value, 'contains')" placeholder="Buscar certificado de salud" />
+                    </div>
+                  </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th pSortableColumn="expedidoPor"><b>Expedido por <p-sortIcon field="expedidoPor"></p-sortIcon></b></th>
+                    <th pSortableColumn="cedula"><b>Cédula <p-sortIcon field="cedula"></p-sortIcon></b></th>
+                    <th pSortableColumn="fechaExpedicion"><b>Fecha de expedición <p-sortIcon field="fechaExpedicion"></p-sortIcon></b></th>
+                    <th><b>Opciones</b></th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="4">No hay certificados de salud creados. <a class="fakelink" (click)="mostrarModalAgregarCertificadoSalud()">Da clic aqui para crear una</a></td>
+                  </tr>
+
+                </ng-template>
+                <ng-template pTemplate="body" let-certificadoSalud>
+                  <tr>
+                    <td [ngStyle]="certificadoSalud?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{certificadoSalud?.expedidoPor}}</td>
+                    <td [ngStyle]="certificadoSalud?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{certificadoSalud?.cedula}}</td>
+                    <td [ngStyle]="certificadoSalud?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{certificadoSalud?.fechaExpedicion}}</td>
+                    <td>
+                      <fa-icon [icon]="faDownload" *ngIf="!can?.eliminado && !certificadoSalud?.eliminado" title="Descargar el certificado de salud" (click)="descargarConstanciaSalud(certificadoSalud.uuid, visualizarCertificadoSaludModal)"></fa-icon>
+                      <fa-icon [icon]="faPencilAlt" *ngIf="!can?.eliminado && !certificadoSalud?.eliminado" title="Modificar el certificado de salud" (click)="mostrarModalEditarCertificado(certificadoSalud.uuid)"></fa-icon>
+                      <fa-icon [icon]="faTrash" *ngIf="!can?.eliminado && !certificadoSalud?.eliminado" title="Eliminar el certificado de salud" (click)="mostrarModalEliminarCertificadoSalud(certificadoSalud.uuid)"></fa-icon>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="summary">
+                  Hay en total {{can.constanciasSalud?.length}} constancias de salud creadas
+                </ng-template>
+              </p-table>
             </div>
             <div class="col-sm-12" *ngIf="pestanaActual === 'ENTRENAMIENTO'">
-              <table class="table">
-                <tr>
-                  <td><b>Nombre instructor</b></td>
-                  <td><b>Fecha de constancia</b></td>
-                  <td><b>Tipo de adiestramiento</b></td>
-                  <td><b>Acciones</b></td>
-                </tr>
-                <tr *ngFor="let a of can?.adiestramientos; let i = index">
-                  <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.nombreInstructor}}</td>
-                  <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.fechaConstancia}}</td>
-                  <td [ngStyle]="a?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{a?.canTipoAdiestramiento?.nombre}}</td>
-                  <td>
-                    <fa-icon [icon]="faPencilAlt" *ngIf="!a?.eliminado" title="Modificar adiestramiento" (click)="mostrarModalEditarAdiestramiento(i)"></fa-icon>
-                    <fa-icon [icon]="faTrash" *ngIf="!a?.eliminado" title="Eliminar adiestramiento" (click)="mostrarModalEliminarAdiestramiento(a?.uuid)"></fa-icon>
-                  </td>
-                </tr>
-                <tr *ngIf="showEntrenamientoForm">
-                  <td colspan="4">
-                    <div class="row">
-                      <div class="col-sm-12">
-                        <form [formGroup]="crearEmpresaCanEntrenamientoForm">
-                          <div class="form-row">
-                            <div class="col-sm-4">
-                              <label for="nombreInstructorCrear">
-                                <b>Nombre instructor *</b>
-                                <span *ngIf="crearEmpresaCanEntrenamientoForm.controls['nombreInstructor'].invalid && (crearEmpresaCanEntrenamientoForm.controls['nombreInstructor'].dirty || crearEmpresaCanEntrenamientoForm.controls['nombreInstructor'].touched)" class="text-danger"> - Requerido</span>
-                              </label>
-                              <input id="nombreInstructorCrear" type="text" class="form-control" placeholder="Ej. Cesar Millan" formControlName="nombreInstructor" #nombreInstructor>
-                            </div>
-                            <div class="col-sm-4">
-                              <label for="fechaConstanciaCrear">
-                                <b>Fecha de constancia *</b>
-                                <span *ngIf="crearEmpresaCanEntrenamientoForm.controls['fechaConstancia'].invalid && (crearEmpresaCanEntrenamientoForm.controls['fechaConstancia'].dirty || crearEmpresaCanEntrenamientoForm.controls['fechaConstancia'].touched)" class="text-danger"> - Requerido</span>
-                              </label>
-                              <input id="fechaConstanciaCrear" [max]="fechaDeHoy" type="date" class="form-control" formControlName="fechaConstancia" #fechaConstancia>
-                            </div>
-                            <div class="col-sm-4">
-                              <label for="tipoAdiestramientoCrear">
-                                <b>Tipo de adiestramiento *</b>
-                                <span *ngIf="crearEmpresaCanEntrenamientoForm.controls['tipoAdiestramiento'].invalid && (crearEmpresaCanEntrenamientoForm.controls['tipoAdiestramiento'].dirty || crearEmpresaCanEntrenamientoForm.controls['tipoAdiestramiento'].touched)" class="text-danger"> - Requerido</span>
-                              </label>
-                              <select id="tipoAdiestramientoCrear" class="form-control" formControlName="tipoAdiestramiento" (change)="cambiarTipoAdiestramiento($event.target)">
-                                <option *ngFor="let t of tiposAdiestramiento" value="{{t.uuid}}">{{t.nombre}}</option>
-                              </select>
-                            </div>
-                          </div>
-                        </form>
-                      </div>
+              <p-table #entrenamientoTable [value]=" can?.adiestramientos" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['nombreInstructor','fechaConstancia','canTipoAdiestramiento.nombre']">
+                <ng-template pTemplate="caption">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      Lista de entrenamientos
                     </div>
-                  </td>
-                </tr>
-              </table>
+                    <div class="col-sm-6">
+                      <input class="form-control" type="text" (input)="entrenamientoTable.filterGlobal($event.target.value, 'contains')" placeholder="Buscar entrenamiento" />
+                    </div>
+                  </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th pSortableColumn="nombreInstructor"><b>Nombre instructor <p-sortIcon field="nombreInstructor"></p-sortIcon></b></th>
+                    <th pSortableColumn="fechaConstancia"><b>Fecha de constancia <p-sortIcon field="fechaConstancia"></p-sortIcon></b></th>
+                    <th pSortableColumn="canTipoAdiestramiento.nombre"><b>Tipo de adiestramiento <p-sortIcon field="canTipoAdiestramiento.nombre"></p-sortIcon></b></th>
+                    <th><b>Opciones</b></th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="4">No hay entrenamientos creados. <a class="fakelink" (click)="mostrarModalAgregarEntrenamiento()">Da clic aqui para crear uno</a></td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-entrenamiento>
+                  <tr>
+                    <td [ngStyle]="entrenamiento?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{entrenamiento?.nombreInstructor}}</td>
+                    <td [ngStyle]="entrenamiento?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{entrenamiento?.fechaConstancia}}</td>
+                    <td [ngStyle]="entrenamiento?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{entrenamiento?.canTipoAdiestramiento?.nombre}}</td>
+                    <td>
+                      <fa-icon [icon]="faDownload" *ngIf="!can?.eliminado && !entrenamiento?.eliminado" title="Descargar el certificado de vacunacion" (click)="descargarArchivoAdiestramiento(entrenamiento.uuid, visualizarArchivoAdiestramientoModal)"></fa-icon>
+                      <fa-icon [icon]="faPencilAlt" *ngIf="!can?.eliminado && !entrenamiento?.eliminado" title="Modificar entrenamiento" (click)="mostrarModalEditarAdiestramiento(entrenamiento.uuid)"></fa-icon>
+                      <fa-icon [icon]="faTrash" *ngIf="!can?.eliminado && !entrenamiento?.eliminado" title="Eliminar entrenamiento" (click)="mostrarModalEliminarAdiestramiento(entrenamiento.uuid)"></fa-icon>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="summary">
+                  Hay en total {{can.constanciasSalud?.length}} entrenamientos
+                </ng-template>
+              </p-table>
             </div>
             <div class="col-sm-12" *ngIf="pestanaActual === 'FOTOGRAFIAS'">
               <table class="table">
@@ -397,8 +371,8 @@
                   <td>{{f?.descripcion}}</td>
                   <td>
                     <div class="btn-group">
-                      <fa-icon [icon]="faDownload" title="Descargar la fotografia" (click)="descargarFotografia(f?.uuid)"></fa-icon>
-                      <fa-icon [icon]="faTrash" title="Eliminar la fotografia" (click)="mostrarModalEliminarFotografia(f?.uuid)"></fa-icon>
+                      <fa-icon [icon]="faDownload" *ngIf="!can?.eliminado" title="Descargar la fotografia" (click)="descargarFotografia(f?.uuid)"></fa-icon>
+                      <fa-icon [icon]="faTrash" *ngIf="!can?.eliminado" title="Eliminar la fotografia" (click)="mostrarModalEliminarFotografia(f?.uuid)"></fa-icon>
                     </div>
                   </td>
                 </tr>
@@ -440,34 +414,345 @@
       </div>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
-      <button class="btn btn-primary" (click)="mostrarModalModificarCan()">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarCan()">Eliminar</button>
+      <button class="btn btn-primary" (click)="mostrarModalMovimientosCan()">Mostrar movimientos</button>
+      <button class="btn btn-primary" *ngIf="!can?.eliminado" (click)="mostrarModalModificarCan()">Modificar</button>
+      <button type="button" class="btn btn-danger" *ngIf="!can?.eliminado" (click)="mostrarModalEliminarCan()">Eliminar</button>
+      <button type="button" class="btn btn-primary" *ngIf="can?.eliminado && (can?.documentoFundatorioBaja !== null)" (click)="descargarDocumentoFundatorio()">Descargar documento fundatorio</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'VACUNACION'">
-      <button class="btn btn-primary" (click)="mostrarVacunacionForm()" *ngIf="!showVacunacionForm && !can.eliminado">Agregar nuevo</button>
-      <button class="btn btn-primary" (click)="mostrarVacunacionEliminados()" *ngIf="!mostrandoVacunacionEliminados">Mostrar eliminados</button>
-      <button class="btn btn-primary" (click)="ocultarVacunacionEliminados()" *ngIf="mostrandoVacunacionEliminados">Ocultar eliminados</button>
-      <button class="btn btn-primary" (click)="guardarCartillaVacunacuion(crearEmpresaCanCartillaVacunacionForm)" *ngIf="showVacunacionForm">Guardar</button>
-      <button class="btn btn-danger" (click)="mostrarVacunacionForm()" *ngIf="showVacunacionForm">Cancelar</button>
+      <button class="btn btn-primary" (click)="mostrarModalAgregarCartillaVacunacion()" *ngIf="!can.eliminado">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarVacunacionEliminados()" *ngIf="!can?.eliminado && !mostrandoVacunacionEliminados">Mostrar eliminados</button>
+      <button class="btn btn-primary" (click)="ocultarVacunacionEliminados()" *ngIf="!can?.eliminado && mostrandoVacunacionEliminados">Ocultar eliminados</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'CERTIFICADOS'">
-      <button class="btn btn-primary" (click)="mostrarCertificadoSaludForm()" *ngIf="!showCertificadoForm && !can.eliminado">Agregar nuevo</button>
-      <button class="btn btn-primary" (click)="mostrarCertificadosEliminados()" *ngIf="!mostrandoCertificadosEliminados">Mostrar eliminados</button>
-      <button class="btn btn-primary" (click)="ocultarCertificadosEliminados()" *ngIf="mostrandoCertificadosEliminados">Ocultar eliminados</button>
-      <button class="btn btn-primary" (click)="guardarCertificado(crearEmpresaCanCertificadoSaludForm)" *ngIf="showCertificadoForm">Guardar</button>
-      <button class="btn btn-danger" (click)="mostrarCertificadoSaludForm()" *ngIf="showCertificadoForm">Cancelar</button>
+      <button class="btn btn-primary" (click)="mostrarModalAgregarCertificadoSalud()" *ngIf="!can.eliminado">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarCertificadosEliminados()" *ngIf="!can?.eliminado && !mostrandoCertificadosEliminados">Mostrar eliminados</button>
+      <button class="btn btn-primary" (click)="ocultarCertificadosEliminados()" *ngIf="!can?.eliminado && mostrandoCertificadosEliminados">Ocultar eliminados</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'ENTRENAMIENTO'">
-      <button class="btn btn-primary" (click)="mostrarEntrenamientoForm()" *ngIf="!showEntrenamientoForm && !can.eliminado">Agregar nuevo</button>
-      <button class="btn btn-primary" (click)="mostrarEntrenamientosEliminados()" *ngIf="!mostrandoEntrenamientosEliminados">Mostrar eliminados</button>
-      <button class="btn btn-primary" (click)="ocultarEntrenamientosEliminados()" *ngIf="mostrandoEntrenamientosEliminados">Ocultar eliminados</button>
-      <button class="btn btn-primary" (click)="guardarAdiestramiento(crearEmpresaCanEntrenamientoForm)" *ngIf="showEntrenamientoForm">Guardar</button>
-      <button class="btn btn-danger" (click)="mostrarEntrenamientoForm()" *ngIf="showEntrenamientoForm">Cancelar</button>
+      <button class="btn btn-primary" (click)="mostrarModalAgregarEntrenamiento()" *ngIf="!can.eliminado">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarEntrenamientosEliminados()" *ngIf="!can?.eliminado && !mostrandoEntrenamientosEliminados">Mostrar eliminados</button>
+      <button class="btn btn-primary" (click)="ocultarEntrenamientosEliminados()" *ngIf="!can?.eliminado && mostrandoEntrenamientosEliminados">Ocultar eliminados</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'FOTOGRAFIAS'">
       <button class="btn btn-primary" (click)="mostrarFormularioNuevaFotografia()" *ngIf="!showFotografiaForm && !can.eliminado">Agregar nuevo</button>
       <button class="btn btn-primary" (click)="guardarFotografia(crearCanFotografiaForm)" *ngIf="showFotografiaForm">Guardar</button>
       <button class="btn btn-danger" (click)="mostrarFormularioNuevaFotografia()" *ngIf="showFotografiaForm">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarMovimientosCanModal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarMovimientosArmaModal">Histórico de movimientos del can </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.close()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientos === 'ASIGNACIONES' }"
+                 (click)="cambiarPestanaMovimiento('ASIGNACIONES')">Asignaciones</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientos === 'DIRECCIONES' }"
+                 (click)="cambiarPestanaMovimiento('DIRECCIONES')">Cambios de domicilio</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientos === 'ASIGNACIONES'">
+        <div class="col-sm-12">
+          <p-table #tablaMovimientosAsignaciones [value]="canMovimientos" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['persona.apellidoPaterno','persona.apellidoMaterno','persona.nombres','observaciones']">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Asignaciones de personal</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaMovimientosAsignaciones.filterGlobal($event.target.value, 'contains')" placeholder="Buscar asignacion" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th><b>Persona</b></th>
+                <th><b>Fecha asignacion</b></th>
+                <th><b>Observaciones de asignación</b></th>
+                <th><b>Fecha fin asignacion</b></th>
+                <th><b>Razon de baja de asignacion</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="4">Este can no tiene movimientos registrados</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-movimientoAsignacion>
+              <tr>
+                <td>{{movimientoAsignacion.persona?.apellidoPaterno}} {{movimientoAsignacion.persona?.apellidoMaterno}} {{movimientoAsignacion.persona?.nombres}}</td>
+                <td>{{movimientoAsignacion?.fechaCreacion}}</td>
+                <td>{{movimientoAsignacion?.observaciones}}</td>
+                <td><span *ngIf="movimientoAsignacion?.eliminado">{{movimientoAsignacion?.fechaActualizacion}}</span><span *ngIf="!movimientoAsignacion?.eliminado">Actualmente asignada</span></td>
+                <td><span *ngIf="movimientoAsignacion?.eliminado">{{movimientoAsignacion?.motivoBajaAsignacion}}</span><span *ngIf="!movimientoAsignacion?.eliminado">Actualmente asignada</span></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Se han realizado {{canMovimientos.length}} movimientos</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientos === 'DIRECCIONES'">
+        <div class="col-sm-12">
+          <p-table #tablaMovimientosDomicilio [value]="canMovimientosDomicilios" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['domicilioAnterior.domicilio1','domicilioAnterior.domicilio2','domicilioAnterior.domicilio3','domicilioAnterior.codigoPostal','domicilioActual.domicilio1','domicilioActual.domicilio2','domicilioActual.domicilio3','domicilioActual.codigoPostal']">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Cambios de domicilio</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaMovimientosDomicilio.filterGlobal($event.target.value, 'contains')" placeholder="Buscar asignacion" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th><b>Domicilio anterior</b></th>
+                <th><b>Nuevo domicilio</b></th>
+                <th><b>Fecha de movimiento</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="4">Este can no tiene movimientos registrados</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-movimientoDomicilio>
+              <tr>
+                <td>
+                  {{movimientoDomicilio?.domicilioAnterior?.domicilio1}} {{movimientoDomicilio?.domicilioAnterior?.numeroExterior}} {{movimientoDomicilio?.domicilioAnterior?.numeroInterior}}.
+                  Colonia: {{movimientoDomicilio?.domicilioAnterior?.domicilio2}}<br>
+                  {{movimientoDomicilio?.domicilioAnterior?.domicilio3}}, {{movimientoDomicilio?.domicilioAnterior?.estado}}, {{movimientoDomicilio?.domicilioAnterior?.pais}}<br>
+                  C.P. {{movimientoDomicilio?.domicilioAnterior?.codigoPostal}}
+                </td>
+                <td>
+                  {{movimientoDomicilio?.domicilioActual?.domicilio1}} {{movimientoDomicilio?.domicilioActual?.numeroExterior}} {{movimientoDomicilio?.domicilioActual?.numeroInterior}}.
+                  Colonia: {{movimientoDomicilio?.domicilioActual?.domicilio2}}<br>
+                  {{movimientoDomicilio?.domicilioActual?.domicilio3}}, {{movimientoDomicilio?.domicilioActual?.estado}}, {{movimientoDomicilio?.domicilioActual?.pais}}<br>
+                  C.P. {{movimientoDomicilio?.domicilioActual?.codigoPostal}}
+                </td>
+                <td>{{movimientoDomicilio?.fechaCreacion}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Se han realizado {{canMovimientosDomicilios.length}} movimientos</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="modal.close();">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #crearCartillaVacunacionModal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="crearCartillaVacunacionModal">Agregar cartilla de vacunación </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.close()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearEmpresaCanCartillaVacunacionForm">
+            <div class="form-row">
+              <div class="col-sm-3">
+                <label for="expedidoPorVacunacion">
+                  <b>Expedido por *</b>
+                  <span
+                    *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].touched)">
+                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].errors.required" class="text-danger"> - Campo requerido</i>
+                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['expedidoPor'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                                </span>
+                </label>
+                <input id="expedidoPorVacunacion" type="text" class="form-control" placeholder="Ej. Cesar Millan" formControlName="expedidoPor" #expedidoPor>
+              </div>
+              <div class="col-sm-3">
+                <label for="cedulaVacunacion">
+                  <b>Cédula *</b>
+                  <span
+                    *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['cedula'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['cedula'].touched)">
+                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].errors.required" class="text-danger"> - Campo requerido</i>
+                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['cedula'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                                </span>
+                </label>
+                <input id="cedulaVacunacion" type="text" class="form-control" placeholder="Ej. 156785" formControlName="cedula" #cedula>
+              </div>
+              <div class="col-sm-3">
+                <label for="fechaExpedicionVacunacion">
+                  <b>Fecha de vacunación *</b>
+                  <span *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['fechaExpedicion'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="fechaExpedicionVacunacion" [max]="fechaDeHoy" type="date" class="form-control" formControlName="fechaExpedicion" #fechaExpedicion>
+              </div>
+              <div class="col-sm-3">
+                <label for="archivoVacunacion">
+                  <b>Archivo *</b>
+                  <span
+                    *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['archivo'].invalid && (crearEmpresaCanCartillaVacunacionForm.controls['archivo'].dirty || crearEmpresaCanCartillaVacunacionForm.controls['archivo'].touched)">
+                                  <i *ngIf="crearEmpresaCanCartillaVacunacionForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
+                                </span>
+                </label>
+                <input id="archivoVacunacion" accept="application/pdf" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarCartillaVacunacuion(crearEmpresaCanCartillaVacunacionForm)">Guardar</button>
+      <button class="btn btn-danger" (click)="modal.close()">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #crearCertificadoSaludModal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="crearCertificadoSaludModal">Agregar certificado de salud </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.close()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearEmpresaCanCertificadoSaludForm">
+            <div class="form-row">
+              <div class="col-sm-3">
+                <label for="expedidoPorCertificado">
+                  <b>Expedido por *</b>
+                  <span *ngIf="crearEmpresaCanCertificadoSaludForm.controls['expedidoPor'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['expedidoPor'].dirty || crearEmpresaCanCertificadoSaludForm.controls['expedidoPor'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="expedidoPorCertificado" type="text" class="form-control" placeholder="Ej. Cesar Millan" formControlName="expedidoPor" #expedidoPor>
+              </div>
+              <div class="col-sm-3">
+                <label for="cedulaCertificado">
+                  <b>Cédula *</b>
+                  <span *ngIf="crearEmpresaCanCertificadoSaludForm.controls['cedula'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['cedula'].dirty || crearEmpresaCanCertificadoSaludForm.controls['cedula'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="cedulaCertificado" type="text" class="form-control" placeholder="Ej. 10912315" formControlName="cedula" #cedula>
+              </div>
+              <div class="col-sm-3">
+                <label for="fechaExpedicionCertificado">
+                  <b>Fecha de expedición *</b>
+                  <span *ngIf="crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].dirty || crearEmpresaCanCertificadoSaludForm.controls['fechaExpedicion'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="fechaExpedicionCertificado" [max]="fechaDeHoy" type="date" class="form-control" formControlName="fechaExpedicion" #fechaExpedicion>
+              </div>
+              <div class="col-sm-3">
+                <label for="archivoCertificado">
+                  <b>Archivo *</b>
+                  <span
+                    *ngIf="crearEmpresaCanCertificadoSaludForm.controls['archivo'].invalid && (crearEmpresaCanCertificadoSaludForm.controls['archivo'].dirty || crearEmpresaCanCertificadoSaludForm.controls['archivo'].touched)">
+                                  <i *ngIf="crearEmpresaCanCertificadoSaludForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
+                                </span>
+                </label>
+                <input id="archivoCertificado" accept="application/pdf" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarCertificado(crearEmpresaCanCertificadoSaludForm)">Guardar</button>
+      <button class="btn btn-danger" (click)="modal.close()">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #crearEntrenamientoModal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="crearEntrenamientoModal">Agregar entrenamiento </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.close()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearEmpresaCanEntrenamientoForm">
+            <div class="form-row">
+              <div class="col-sm-3">
+                <label for="nombreInstructorCrear">
+                  <b>Nombre instructor *</b>
+                  <span *ngIf="crearEmpresaCanEntrenamientoForm.controls['nombreInstructor'].invalid && (crearEmpresaCanEntrenamientoForm.controls['nombreInstructor'].dirty || crearEmpresaCanEntrenamientoForm.controls['nombreInstructor'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="nombreInstructorCrear" type="text" class="form-control" placeholder="Ej. Cesar Millan" formControlName="nombreInstructor" #nombreInstructor>
+              </div>
+              <div class="col-sm-3">
+                <label for="fechaConstanciaCrear">
+                  <b>Fecha de constancia *</b>
+                  <span *ngIf="crearEmpresaCanEntrenamientoForm.controls['fechaConstancia'].invalid && (crearEmpresaCanEntrenamientoForm.controls['fechaConstancia'].dirty || crearEmpresaCanEntrenamientoForm.controls['fechaConstancia'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <input id="fechaConstanciaCrear" [max]="fechaDeHoy" type="date" class="form-control" formControlName="fechaConstancia" #fechaConstancia>
+              </div>
+              <div class="col-sm-3">
+                <label for="tipoAdiestramientoCrear">
+                  <b>Tipo de adiestramiento *</b>
+                  <span *ngIf="crearEmpresaCanEntrenamientoForm.controls['tipoAdiestramiento'].invalid && (crearEmpresaCanEntrenamientoForm.controls['tipoAdiestramiento'].dirty || crearEmpresaCanEntrenamientoForm.controls['tipoAdiestramiento'].touched)" class="text-danger"> - Requerido</span>
+                </label>
+                <select id="tipoAdiestramientoCrear" class="form-control" formControlName="tipoAdiestramiento" (change)="cambiarTipoAdiestramiento($event.target)">
+                  <option *ngFor="let t of tiposAdiestramiento" value="{{t.uuid}}">{{t.nombre}}</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <label for="archivoAdiestramientoCrear">
+                  <b>Archivo *</b>
+                  <span
+                    *ngIf="crearEmpresaCanEntrenamientoForm.controls['archivo'].invalid && (crearEmpresaCanEntrenamientoForm.controls['archivo'].dirty || crearEmpresaCanEntrenamientoForm.controls['archivo'].touched)">
+                                  <i *ngIf="crearEmpresaCanEntrenamientoForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
+                                </span>
+                </label>
+                <input id="archivoAdiestramientoCrear" accept="application/pdf" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarAdiestramiento(crearEmpresaCanEntrenamientoForm)">Guardar</button>
+      <button class="btn btn-danger" (click)="modal.close()">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #crearFotografiaModal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="crearFotografiaModal">Agregar fotografía </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.close()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+
+    </div>
+    <div class="modal-footer">
+
     </div>
   </ng-template>
 
@@ -515,7 +800,7 @@
                           <i *ngIf="crearEmpresaCanForm.controls['fechaIngreso'].errors.required" class="text-danger"> - Campo requerido</i>
                         </span>
                 </label>
-                <input id="fechaIngresoModificar" type="date" class="form-control" formControlName="fechaIngreso">
+                <input id="fechaIngresoModificar" type="date" class="form-control" formControlName="fechaIngreso" [disabled]="usuarioActual.rol !== 'CEEMSP_SUPERUSER'">
               </div>
             </div>
 
@@ -1069,7 +1354,7 @@
                     </button>
                   </div>
                   <div class="col-sm-6">
-                    <button (click)="omitirPaso()" class="btn btn-secondary float-right">Omitir e ir al siguiente paso
+                    <button *ngIf="certificadoGuardado" (click)="omitirPaso('VACUNACION')" class="btn btn-secondary float-right">Omitir e ir al siguiente paso
                     </button>
                   </div>
                 </div>
@@ -1178,7 +1463,7 @@
                       </tr>
                       <tr>
                         <td><b>Raza:</b></td>
-                        <td>{{can?.raza?.nombre}}</td>
+                        <td>{{can?.raza?.nombre}} <span *ngIf="can?.raza?.nombre === 'Otro'">{{can?.razaOtro}}</span></td>
                       </tr>
                       <tr>
                         <td><b>Edad:</b></td>
@@ -1355,7 +1640,7 @@
             <label for="documentoFundatorioBaja">
               <b>Documento fundatorio</b>
             </label>
-            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" accept="application/pdf" (change)="onFileChange($event)">
           </div>
         </div>
         <div class="row">
@@ -1482,11 +1767,14 @@
         </div>
       </div>
     </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="descargarDocumentoCartillaVacunacion()">Descargar</button>
+    </div>
   </ng-template>
 
-  <ng-template #visualizarCertificadoSaludModal let-modal>
+  <ng-template #visualizarArchivoAdiestramientoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="visualizarCertificadoSaludModal">Ver adjunto de la constancia de salud </h4>
+      <h4 class="modal-title" id="visualizarArchivoAdiestramientoModal">Ver adjunto del adiestramiento </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -1500,6 +1788,31 @@
                       style="width: 100%; height: 600px"></pdf-viewer>
         </div>
       </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="descargarDocumentoEntrenamiento()">Descargar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarCertificadoSaludModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarCertificadoSaludModal">Ver adjunto del certificado de salud </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <pdf-viewer [src]="pdfActual"
+                      [render-text]="true"
+                      [original-size]="false"
+                      style="width: 100%; height: 600px"></pdf-viewer>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="descargarDocumentoCertificadoSalud()">Descargar</button>
     </div>
   </ng-template>
 

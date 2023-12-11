@@ -3,6 +3,7 @@ package com.pelisat.cesp.ceemsp.database.dto;
 import com.pelisat.cesp.ceemsp.database.dto.metadata.VehiculoFotografiaMetadata;
 import com.pelisat.cesp.ceemsp.database.type.NivelBlindajeEnum;
 import com.pelisat.cesp.ceemsp.database.type.VehiculoOrigenEnum;
+import com.pelisat.cesp.ceemsp.database.type.VehiculoStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,7 +32,6 @@ public class VehiculoDto {
     private String numeroHolograma;
     private String placaMetalica;
     private String empresaBlindaje;
-    private String constanciaBlindaje;
     private NivelBlindajeEnum nivelBlindaje;
     private String razonSocial;
     private String fechaInicio;
@@ -39,6 +39,8 @@ public class VehiculoDto {
     private boolean eliminado;
     private String fechaCreacion;
     private String fechaActualizacion;
+    private VehiculoStatusEnum status;
+    private PersonaDto personalAsignado;
 
     private String motivoBaja;
     private String observacionesBaja;
@@ -47,4 +49,12 @@ public class VehiculoDto {
 
     private List<VehiculoColorDto> colores;
     private List<VehiculoFotografiaMetadata> fotografias;
+
+    private boolean coloresCapturado;
+    private boolean fotografiaCapturada;
+    private boolean constanciaBlindajeCargada;
+    private Boolean eliminadoIncidencia;
+    private String fechaCreacionIncidencia;
+    private String fechaEliminacionIncidencia;
+    private EmpresaDto empresa;
 }

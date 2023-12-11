@@ -1,6 +1,7 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.ComunicadoGeneralDto;
+import com.pelisat.cesp.ceemsp.database.dto.ValidarAcuseDto;
 
 import java.util.List;
 

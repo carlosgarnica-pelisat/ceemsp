@@ -1,6 +1,5 @@
 package com.pelisat.cesp.ceemsp.restempresas.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraRepresentanteDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
@@ -8,8 +7,10 @@ import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaEscrituraRepresentante;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepresentanteRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -18,7 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,18 +35,20 @@ public class EmpresaEscrituraRepresentanteServiceImpl implements EmpresaEscritur
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
     private final DaoHelper<CommonModel> daoHelper;
+    private final ArchivosService archivosService;
     private final Logger logger = LoggerFactory.getLogger(EmpresaEscrituraSocioService.class);
 
     @Autowired
     public EmpresaEscrituraRepresentanteServiceImpl(EmpresaEscrituraRepresentanteRepository empresaEscrituraRepresentanteRepository, EmpresaEscrituraRepository empresaEscrituraRepository,
                                                     UsuarioService usuarioService, DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
-                                                    DaoHelper<CommonModel> daoHelper) {
+                                                    DaoHelper<CommonModel> daoHelper, ArchivosService archivosService) {
         this.empresaEscrituraRepresentanteRepository = empresaEscrituraRepresentanteRepository;
         this.empresaEscrituraRepository = empresaEscrituraRepository;
         this.usuarioService = usuarioService;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
+        this.archivosService = archivosService;
     }
 
     @Override
@@ -67,6 +73,7 @@ public class EmpresaEscrituraRepresentanteServiceImpl implements EmpresaEscritur
     }
 
     @Override
+    @Transactional
     public EmpresaEscrituraRepresentanteDto crearRepresentante(String escrituraUuid, String username, EmpresaEscrituraRepresentanteDto empresaEscrituraRepresentanteDto) {
         if(empresaEscrituraRepresentanteDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(escrituraUuid)) {
             logger.warn("El representante, la empresa o la escritura estan viniendo como nulos o vacios");
@@ -92,6 +99,7 @@ public class EmpresaEscrituraRepresentanteServiceImpl implements EmpresaEscritur
     }
 
     @Override
+    @Transactional
     public EmpresaEscrituraRepresentanteDto modificarRepresentante(String escrituraUuid, String representanteUuid, String username, EmpresaEscrituraRepresentanteDto empresaEscrituraRepresentanteDto) {
         if(StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(representanteUuid) || empresaEscrituraRepresentanteDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
@@ -120,7 +128,8 @@ public class EmpresaEscrituraRepresentanteServiceImpl implements EmpresaEscritur
     }
 
     @Override
-    public EmpresaEscrituraRepresentanteDto eliminarRepresentante(String escrituraUuid, String representanteUuid, String username) {
+    @Transactional
+    public EmpresaEscrituraRepresentanteDto eliminarRepresentante(String escrituraUuid, String representanteUuid, String username, EmpresaEscrituraRepresentanteDto empresaEscrituraRepresentanteDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(representanteUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");
             throw new InvalidDataException();
@@ -136,8 +145,24 @@ public class EmpresaEscrituraRepresentanteServiceImpl implements EmpresaEscritur
             throw new NotFoundResourceException();
         }
 
+        empresaEscrituraRepresentante.setObservacionesBaja(empresaEscrituraRepresentanteDto.getObservacionesBaja());
+        empresaEscrituraRepresentante.setFechaBaja(LocalDate.parse(empresaEscrituraRepresentanteDto.getFechaBaja()));
+        empresaEscrituraRepresentante.setMotivoBaja(empresaEscrituraRepresentanteDto.getMotivoBaja());
         empresaEscrituraRepresentante.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, empresaEscrituraRepresentante, usuario.getId());
+
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Agregando");
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_BAJA_REPRESENTANTE, usuario.getEmpresa().getUuid());
+                empresaEscrituraRepresentante.setDocumentoFundatorioBaja(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+
         empresaEscrituraRepresentanteRepository.save(empresaEscrituraRepresentante);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraRepresentante(empresaEscrituraRepresentante);

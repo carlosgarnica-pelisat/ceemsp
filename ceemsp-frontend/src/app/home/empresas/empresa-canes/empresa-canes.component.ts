@@ -22,6 +22,12 @@ import {
 } from "../../../_components/botones/boton-empresa-canes/boton-empresa-canes.component";
 import Persona from "../../../_models/Persona";
 import Empresa from "../../../_models/Empresa";
+import {formatDate} from "@angular/common";
+import Usuario from "../../../_models/Usuario";
+import {AuthenticationService} from "../../../_services/authentication.service";
+import PersonalCan from "../../../_models/PersonalCan";
+import CanDomicilio from "../../../_models/CanDomicilio";
+import {ReporteEmpresasService} from "../../../_services/reporte-empresas.service";
 
 @Component({
   selector: 'app-empresa-canes',
@@ -56,11 +62,33 @@ export class EmpresaCanesComponent implements OnInit {
   personal: Persona[] = [];
 
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
-    {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Status', field: 'status', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true, resizable: true },
+    {
+      headerName: "Cons.",
+      valueGetter: "node.rowIndex + 1",
+      pinned: "left",
+      width: 70
+    },
+    {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true, pinned: 'left', resizable: true },
+    {headerName: 'Raza', field: 'raza.nombre', sortable: true, filter: true, resizable: true},
+    {headerName: 'Genero', field: 'genero', sortable: true, width: 150, resizable: true
+      , filter: true},
+    {headerName: 'Fecha de ingreso', field: 'fechaIngreso', width: 150, sortable: true, filter: true, resizable: true},
+    {headerName: 'Fecha de creacion', field: 'fechaCreacion', width: 150, sortable: true, filter: true, resizable: true},
+    {headerName: 'Asignacion', sortable: true, filter: true, resizable: true, width: 300, valueGetter: function(params) {
+      if(params.data.status === 'ACTIVO') {
+        return params.data.elementoAsignado?.nombres + " " + params.data.elementoAsignado?.apellidoPaterno + " " + params.data.elementoAsignado?.apellidoMaterno
+      }
+      return "Sin asignar"
+      }},
+    {headerName: 'Status de captura', sortable: true, resizable: true, filter: true, valueGetter: function(params) {
+        if(params.data.fotografiaCapturada && params.data.adiestramientoCapturado && (params.data.vacunacionCapturada || params.data.constanciaCapturada)) {
+          return 'COMPLETA'
+        } else {
+          return 'INCOMPLETA'
+        }
+      }},
+    {headerName: 'Opciones', cellRenderer: 'buttonRenderer', resizable: true, width: 100, pinned: 'right', cellRendererParams: {
         label: 'Ver detalles',
         verDetalles: this.verDetalles.bind(this),
         editar: this.editar.bind(this),
@@ -96,6 +124,8 @@ export class EmpresaCanesComponent implements OnInit {
   canesEliminados: Can[] = [];
 
   pestanaActual: string = "DETALLES";
+  pestanaActualMovimientos: string = "ASIGNACIONES";
+
   can: Can;
   certificadoSalud: CanConstanciaSalud;
   constanciaSalud: CanConstanciaSalud;
@@ -120,7 +150,13 @@ export class EmpresaCanesComponent implements OnInit {
   entrenamientoGuardado: boolean = false;
   fotografiaGuardada: boolean = false;
 
+  canMovimientos: PersonalCan[] = [];
+  canMovimientosDomicilios: CanDomicilio[] = [];
+
   imagenPrincipal: any;
+
+  usuarioActual: Usuario;
+  pdfBlob;
 
   tipoAdiestramiento: TipoEntrenamiento;
   @ViewChild('verDetallesCanModal') verDetallesCanModal;
@@ -131,6 +167,11 @@ export class EmpresaCanesComponent implements OnInit {
   @ViewChild('eliminarCanCertificadoSaludModal') eliminarCanCertificadoSaludModal: any;
   @ViewChild('eliminarCanEntrenamientoModal') eliminarCanEntrenamientoModal: any;
   @ViewChild('eliminarCanFotografiaModal') eliminarCanFotografiaModal: any;
+  @ViewChild('crearCartillaVacunacionModal') crearCartillaVacunacionModal: any;
+  @ViewChild('crearCertificadoSaludModal') crearCertificadoSaludModal: any;
+  @ViewChild('crearEntrenamientoModal') crearEntrenamientoModal: any;
+  @ViewChild('crearFotografiaModal') crearFotografiaModal: any;
+  @ViewChild('mostrarMovimientosCanModal') mostrarMovimientosCanModal: any;
 
   tempUuidCartillaVacunacion: string = "";
   tempUuidCertificadoSalud: string = "";
@@ -150,14 +191,19 @@ export class EmpresaCanesComponent implements OnInit {
   editandoEntrenamiento: boolean = false;
 
   verDetalles(rowData) {
-    this.mostrarModalDetalles(rowData.rowData, this.verDetallesCanModal)
+    this.mostrarModalDetalles(rowData.rowData)
   }
 
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
               private toastService: ToastService, private modalService: NgbModal,
-              private empresaService: EmpresaService, private canesService: CanesService) { }
+              private empresaService: EmpresaService, private canesService: CanesService,
+              private authenticationService: AuthenticationService, private reporteEmpresaService: ReporteEmpresasService) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
+    this.uuid = this.route.snapshot.paramMap.get("uuid");
+
     this.frameworkComponents = {
       buttonRenderer: BotonEmpresaCanesComponent
     }
@@ -211,7 +257,8 @@ export class EmpresaCanesComponent implements OnInit {
     this.crearEmpresaCanEntrenamientoForm = this.formBuilder.group({
       nombreInstructor: ['', [Validators.required, Validators.maxLength(100)]],
       tipoAdiestramiento: ['', Validators.required],
-      fechaConstancia: ['', Validators.required]
+      fechaConstancia: ['', Validators.required],
+      archivo: ['', Validators.required]
     })
 
     this.crearCanFotografiaForm = this.formBuilder.group({
@@ -276,6 +323,18 @@ export class EmpresaCanesComponent implements OnInit {
         ToastType.ERROR
       )
     });
+
+    this.route.queryParams.subscribe((qp) => {
+      if(qp.uuid !== undefined) {
+        this.mostrarModalDetalles(qp)
+      }
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Alguno de los parametros no es valido`,
+        ToastType.ERROR
+      );
+    })
 
   }
 
@@ -342,7 +401,7 @@ export class EmpresaCanesComponent implements OnInit {
       this.origen = this.can.origen;
       this.status = this.can.status;
 
-      this.modal = this.modalService.open(this.modificarCanModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+      this.modal = this.modalService.open(this.modificarCanModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: 'static', keyboard: false});
 
       this.modal.result.then((result) => {
         this.closeResult = `Closed with ${result}`;
@@ -414,12 +473,16 @@ export class EmpresaCanesComponent implements OnInit {
     this.pestanaActual = pestana;
   }
 
-  mostrarModalDetalles(rowData, modal) {
+  cambiarPestanaMovimiento(pestanaMovimiento) {
+    this.pestanaActualMovimientos = pestanaMovimiento;
+  }
+
+  mostrarModalDetalles(rowData) {
     let canUuid = rowData.uuid;
 
     this.empresaService.obtenerCanPorUuid(this.uuid, canUuid).subscribe((data: Can) => {
       this.can = data;
-      this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', scrollable: true});
+      this.modal = this.modalService.open(this.verDetallesCanModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', scrollable: true});
 
       if(this.can?.fotografias.length > 0) {
         let canFoto = this.can?.fotografias[0];
@@ -513,6 +576,7 @@ export class EmpresaCanesComponent implements OnInit {
     let can: Can = form.value;
     can.raza = this.razas.filter(x => x.uuid === form.value.raza)[0];
     can.domicilioAsignado = this.domicilios.filter(x => x.uuid === form.value.domicilioAsignado)[0];
+    can.elementoAsignado = null;
 
     this.empresaService.modificarCan(this.uuid, this.can.uuid, can).subscribe((data: Can) => {
       this.toastService.showGenericToast(
@@ -531,8 +595,10 @@ export class EmpresaCanesComponent implements OnInit {
             ToastType.ERROR
           );
         })
+        this.recargarCanes();
       } else {
-        window.location.reload();
+        this.modal.close();
+        this.recargarCanes();
       }
     }, (error) => {
       this.toastService.showGenericToast(
@@ -626,6 +692,28 @@ export class EmpresaCanesComponent implements OnInit {
 
     this.empresaService.descargarCanConstanciaSalud(this.uuid, this.can.uuid, uuid).subscribe((data: Blob) => {
       this.convertirPdf(data);
+      this.pdfBlob = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la constancia de salud. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  descargarArchivoAdiestramiento(uuid, modal) {
+    this.modal = this.modalService.open(modal, {size: "lg", keyboard: false, backdrop: "static"})
+
+    this.empresaService.descargarCanAdiestramiento(this.uuid, this.can.uuid, uuid).subscribe((data: Blob) => {
+      this.convertirPdf(data);
+      this.pdfBlob = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el entrenamiento. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 
@@ -634,15 +722,11 @@ export class EmpresaCanesComponent implements OnInit {
 
     this.empresaService.descargarCanCartillaVacunacionPdf(this.uuid, this.can.uuid, uuid).subscribe((data: Blob) => {
       this.convertirPdf(data);
-      // TODO: Manejar esta opcion para descargar
-      /*let link = document.createElement('a');
-      link.href = window.URL.createObjectURL(data);
-      link.download = "licencia-colectiva-" + this.licencia.uuid;
-      link.click();*/
+      this.pdfBlob = data;
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        `No se ha podido descargar el PDF. Motivo: ${error}`,
+        `No se ha podido descargar el certificado de vacunacion. Motivo: ${error}`,
         ToastType.ERROR
       );
     })
@@ -726,6 +810,14 @@ export class EmpresaCanesComponent implements OnInit {
     let formData: CanAdiestramiento = form.value;
     formData.canTipoAdiestramiento = this.tipoAdiestramiento;
 
+    let constanciaSaludFormdata = new FormData();
+    if(this.tempFile !== undefined) {
+      constanciaSaludFormdata.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      constanciaSaludFormdata.append('archivo', null)
+    }
+    constanciaSaludFormdata.append('adiestramiento', JSON.stringify(formData));
+
     if(this.editandoEntrenamiento) {
       this.empresaService.modificarCanEntrenamiento(this.uuid, this.can.uuid, this.canEntrenamiento.uuid, formData).subscribe((data: CanAdiestramiento) => {
         this.toastService.showGenericToast(
@@ -734,6 +826,8 @@ export class EmpresaCanesComponent implements OnInit {
           ToastType.SUCCESS
         );
         this.mostrarEntrenamientoForm();
+        this.modal.close();
+        this.recargarCanes();
         this.empresaService.descargarCanAdiestramientos(this.uuid, this.can.uuid).subscribe((data: CanAdiestramiento[]) => {
           this.can.adiestramientos = data;
           this.canEntrenamientos = data;
@@ -761,13 +855,15 @@ export class EmpresaCanesComponent implements OnInit {
         );
       })
     } else {
-      this.empresaService.guardarCanAdiestramiento(this.uuid, this.can.uuid, formData).subscribe((data) => {
+      this.empresaService.guardarCanAdiestramiento(this.uuid, this.can.uuid, constanciaSaludFormdata).subscribe((data) => {
         this.toastService.showGenericToast(
           "Listo",
           "Se ha guardado el adiestramiento en el can con exito",
           ToastType.SUCCESS
         );
         this.mostrarEntrenamientoForm();
+        this.modal.close();
+        this.recargarCanes();
         this.empresaService.descargarCanAdiestramientos(this.uuid, this.can.uuid).subscribe((data: CanAdiestramiento[]) => {
           this.can.adiestramientos = data;
           this.canEntrenamientos = data;
@@ -829,6 +925,8 @@ export class EmpresaCanesComponent implements OnInit {
           "Se ha guardado la constancia de salud en la base de datos",
           ToastType.SUCCESS
         );
+        this.modal.close();
+        this.recargarCanes();
         this.mostrarCertificadoSaludForm();
         this.empresaService.descargarCanConstanciasSalud(this.uuid, this.can.uuid).subscribe((data: CanConstanciaSalud[]) => {
           this.can.constanciasSalud = data;
@@ -863,6 +961,8 @@ export class EmpresaCanesComponent implements OnInit {
           "Se ha guardado la constancia de salud",
           ToastType.SUCCESS
         );
+        this.modal.close();
+        this.recargarCanes();
         this.mostrarCertificadoSaludForm();
         this.empresaService.descargarCanConstanciasSalud(this.uuid, this.can.uuid).subscribe((data: CanConstanciaSalud[]) => {
           this.can.constanciasSalud = data;
@@ -929,6 +1029,8 @@ export class EmpresaCanesComponent implements OnInit {
           ToastType.SUCCESS
         );
         this.mostrarVacunacionForm();
+        this.modal.close();
+        this.recargarCanes();
         this.empresaService.obtenerCanCartillasVacunacion(this.uuid, this.can.uuid).subscribe((data: CanCartillaVacunacion[]) => {
           this.can.cartillasVacunacion = data;
           this.canVacunaciones = data;
@@ -944,7 +1046,7 @@ export class EmpresaCanesComponent implements OnInit {
         }, (error) => {
           this.toastService.showGenericToast(
             "Ocurrio un problema",
-            `No se han podido descargar las cartillas de vacunacion`,
+            `No se han podido descargar las cartillas de vacunacion. Motivo: ${error}`,
             ToastType.ERROR
           );
         })
@@ -963,6 +1065,8 @@ export class EmpresaCanesComponent implements OnInit {
           ToastType.SUCCESS
         );
         this.mostrarVacunacionForm();
+        this.modal.close();
+        this.recargarCanes();
         this.empresaService.obtenerCanCartillasVacunacion(this.uuid, this.can.uuid).subscribe((data: CanCartillaVacunacion[]) => {
           this.can.cartillasVacunacion = data;
           this.canVacunaciones = data;
@@ -1004,7 +1108,7 @@ export class EmpresaCanesComponent implements OnInit {
         filter: true
       };
 
-      this.columnDefs.push(newColumnDef);
+      //this.columnDefs.push(newColumnDef);
       this.gridApi.setColumnDefs(this.columnDefs);
     } else {
       this.columnDefs = this.columnDefs.filter(s => s.field !== field);
@@ -1012,7 +1116,6 @@ export class EmpresaCanesComponent implements OnInit {
   }
 
   next(stepName: string, form) {
-
     switch (stepName) {
       case "CERTIFICADOS":
         if(this.canGuardado) {
@@ -1065,6 +1168,7 @@ export class EmpresaCanesComponent implements OnInit {
           formValue.fechaInicio = form.controls["fechaInicio"].value.toLocaleString();
           formValue.fechaFin = form.controls["fechaFin"].value.toLocaleString();
           formValue.fechaIngreso = form.controls["fechaIngreso"].value.toLocaleString();
+          formValue.elementoAsignado = null;
 
           this.empresaService.guardarCan(this.uuid, formValue).subscribe((data: Can) => {
             this.toastService.showGenericToast(
@@ -1075,6 +1179,7 @@ export class EmpresaCanesComponent implements OnInit {
             this.can = data;
             this.canGuardado = true;
             this.desactivarCamposCan();
+            this.recargarCanes();
             this.stepper.next();
           }, (error) => {
             this.toastService.showGenericToast(
@@ -1120,6 +1225,7 @@ export class EmpresaCanesComponent implements OnInit {
             this.certificadoGuardado = true;
             this.certificadoSalud = constanciaSalud;
             this.desactivarCamposCertificadoSalud();
+            this.recargarCanes();
             this.stepper.next();
           }, (error) => {
             this.toastService.showGenericToast(
@@ -1165,6 +1271,7 @@ export class EmpresaCanesComponent implements OnInit {
             this.desactivarCamposVacunacion();
             this.canCartillaVacunacion = value;
             this.vacunacionGuardada = true;
+            this.recargarCanes();
             this.stepper.next();
           }, (error) => {
             this.toastService.showGenericToast(
@@ -1197,7 +1304,15 @@ export class EmpresaCanesComponent implements OnInit {
           let formData: CanAdiestramiento = form.value;
           formData.canTipoAdiestramiento = this.tipoAdiestramiento;
 
-          this.empresaService.guardarCanAdiestramiento(this.uuid, this.can.uuid, formData).subscribe((data: CanAdiestramiento) => {
+          let constanciaSaludFormdata = new FormData();
+          if(this.tempFile !== undefined) {
+            constanciaSaludFormdata.append('archivo', this.tempFile, this.tempFile.name);
+          } else {
+            constanciaSaludFormdata.append('archivo', null)
+          }
+          constanciaSaludFormdata.append('adiestramiento', JSON.stringify(formData));
+
+          this.empresaService.guardarCanAdiestramiento(this.uuid, this.can.uuid, constanciaSaludFormdata).subscribe((data: CanAdiestramiento) => {
             this.toastService.showGenericToast(
               "Listo",
               "Se ha guardado el adiestramiento en el can con exito",
@@ -1206,6 +1321,7 @@ export class EmpresaCanesComponent implements OnInit {
             this.entrenamientoGuardado = true;
             this.entrenamiento = formData;
             this.desactivarCamposEntrenamiento();
+            this.recargarCanes();
             this.stepper.next();
           }, (error) => {
             this.toastService.showGenericToast(
@@ -1247,6 +1363,7 @@ export class EmpresaCanesComponent implements OnInit {
               ToastType.SUCCESS
             );
             this.fotografiaGuardada = true;
+            this.recargarCanes();
             this.stepper.next();
           }, (error) => {
             this.toastService.showGenericToast(
@@ -1265,28 +1382,12 @@ export class EmpresaCanesComponent implements OnInit {
   }
 
   omitirPaso(paso) {
-    switch(paso) {
-      case "VACUNACION":
-        this.certificadoGuardado = true;
-        this.desactivarCamposCertificadoSalud();
-        break;
-      case "ENTRENAMIENTO":
-
-        break;
-      case "FOTOGRAFIA":
-        this.vacunacionGuardada = true;
-        this.desactivarCamposVacunacion()
-        break;
-      case "RESUMEN":
-        this.entrenamientoGuardado = true;
-        this.desactivarCamposEntrenamiento()
-        break;
-    }
     this.stepper.next()
   }
 
   actualizarPagina() {
-    window.location.reload();
+    this.modal.close();
+    this.recargarCanes();
   }
 
   private desactivarCamposCan() {
@@ -1326,6 +1427,31 @@ export class EmpresaCanesComponent implements OnInit {
     this.crearEmpresaCanEntrenamientoForm.controls['nombreInstructor'].disable();
     this.crearEmpresaCanEntrenamientoForm.controls['tipoAdiestramiento'].disable();
     this.crearEmpresaCanEntrenamientoForm.controls['fechaConstancia'].disable();
+  }
+
+  mostrarModalMovimientosCan() {
+    this.empresaService.obtenerMovimientosCan(this.uuid, this.can?.uuid).subscribe((data: PersonalCan[]) => {
+      this.canMovimientos = data;
+      this.modal = this.modalService.open(this.mostrarMovimientosCanModal, {size: 'xl', backdrop: 'static'})
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los movimientos de asignación del can. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+      this.canMovimientos = [];
+    })
+
+    this.empresaService.obtenerMovimientosCanDirecciones(this.uuid, this.can?.uuid).subscribe((data: CanDomicilio[]) => {
+      this.canMovimientosDomicilios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los movimientos de domicilio del can. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+      this.canMovimientosDomicilios = [];
+    });
   }
 
   mostrarModalModificarCan() {
@@ -1370,9 +1496,10 @@ export class EmpresaCanesComponent implements OnInit {
     })
   }
 
-  mostrarModalEditarVacunacion(index) {
-    this.canCartillaVacunacion = this.can.cartillasVacunacion[index];
+  mostrarModalEditarVacunacion(uuid) {
+    this.canCartillaVacunacion = this.can.cartillasVacunacion.filter(x => x.uuid === uuid)[0];
     this.mostrarVacunacionForm();
+    this.modal = this.modalService.open(this.crearCartillaVacunacionModal, {size: 'xl', backdrop: 'static'})
     this.editandoCartillaVacunacion = true;
     this.crearEmpresaCanCartillaVacunacionForm.patchValue({
       expedidoPor: this.canCartillaVacunacion.expedidoPor,
@@ -1383,9 +1510,10 @@ export class EmpresaCanesComponent implements OnInit {
     this.crearEmpresaCanCartillaVacunacionForm.controls['archivo'].updateValueAndValidity();
   }
 
-  mostrarModalEditarCertificado(index) {
-    this.cancertificadoSalud = this.can.constanciasSalud[index];
+  mostrarModalEditarCertificado(uuid) {
+    this.cancertificadoSalud = this.can.constanciasSalud.filter(x => x.uuid === uuid)[0];
     this.mostrarCertificadoSaludForm();
+    this.modal = this.modalService.open(this.crearCertificadoSaludModal, {size: 'xl', backdrop: 'static'})
     this.editandoCertificadoSalud = true;
     this.crearEmpresaCanCertificadoSaludForm.patchValue({
       expedidoPor: this.cancertificadoSalud.expedidoPor,
@@ -1396,9 +1524,10 @@ export class EmpresaCanesComponent implements OnInit {
     this.crearEmpresaCanCertificadoSaludForm.controls['archivo'].updateValueAndValidity();
   }
 
-  mostrarModalEditarAdiestramiento(index) {
-    this.canEntrenamiento = this.can.adiestramientos[index];
+  mostrarModalEditarAdiestramiento(uuid) {
+    this.canEntrenamiento = this.can.adiestramientos.filter(x => x.uuid === uuid)[0];
     this.mostrarEntrenamientoForm();
+    this.modal = this.modalService.open(this.crearEntrenamientoModal, {size: "xl", backdrop: "static"})
     this.editandoEntrenamiento = true;
     this.crearEmpresaCanEntrenamientoForm.patchValue({
       nombreInstructor: this.canEntrenamiento.nombreInstructor,
@@ -1417,6 +1546,10 @@ export class EmpresaCanesComponent implements OnInit {
       );
       return;
     }
+    this.motivosEliminacionForm.patchValue({
+      fechaBaja: formatDate(new Date(), "yyyy-MM-dd", "en")
+    });
+    this.motivosEliminacionForm.controls['fechaBaja'].disable();
 
     this.modal = this.modalService.open(this.eliminarCanModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
 
@@ -1424,6 +1557,21 @@ export class EmpresaCanesComponent implements OnInit {
       this.closeResult = `Closed with ${result}`;
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  descargarDocumentoFundatorio() {
+    this.empresaService.descargarDocumentoFundatorioCan(this?.uuid, this.can?.uuid).subscribe((data: Blob) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "documento-fundatorio-" + this.can?.uuid;
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el documento fundatorio. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 
@@ -1461,7 +1609,8 @@ export class EmpresaCanesComponent implements OnInit {
         "Se ha eliminado el can con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.recargarCanes();
+      this.modal.close();
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -1494,6 +1643,7 @@ export class EmpresaCanesComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.modal.close();
+      this.recargarCanes();
       this.empresaService.obtenerCanCartillasVacunacion(this.uuid, this.can.uuid).subscribe((data: CanCartillaVacunacion[]) => {
         this.can.cartillasVacunacion = data;
         this.canVacunaciones = data;
@@ -1545,6 +1695,7 @@ export class EmpresaCanesComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.modal.close();
+      this.recargarCanes();
       this.empresaService.descargarCanConstanciasSalud(this.uuid, this.can.uuid).subscribe((data: CanConstanciaSalud[]) => {
         this.can.constanciasSalud = data;
         this.canCertificadosSalud = data;
@@ -1596,6 +1747,7 @@ export class EmpresaCanesComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.modal.close();
+      this.recargarCanes();
       this.empresaService.descargarCanAdiestramientos(this.uuid, this.can.uuid).subscribe((data: CanAdiestramiento[]) => {
         this.can.adiestramientos = data;
         this.canEntrenamientos = data;
@@ -1647,6 +1799,7 @@ export class EmpresaCanesComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.modal.close();
+      this.recargarCanes();
       this.empresaService.listarCanFotografias(this.uuid, this.can.uuid).subscribe((data: CanFotografia[]) => {
         this.can.fotografias = data;
       }, (error) => {
@@ -1749,6 +1902,7 @@ export class EmpresaCanesComponent implements OnInit {
           ToastType.ERROR
         );
       })
+      this.recargarCanes();
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -1769,6 +1923,37 @@ export class EmpresaCanesComponent implements OnInit {
     }
   }
 
+  mostrarModalAgregarCartillaVacunacion() {
+    this.modal = this.modalService.open(this.crearCartillaVacunacionModal, {size: 'xl', backdrop: 'static'})
+  }
+
+  mostrarModalAgregarCertificadoSalud() {
+    this.modal = this.modalService.open(this.crearCertificadoSaludModal, {size: 'xl', backdrop: 'static'});
+  }
+
+  mostrarModalAgregarEntrenamiento() {
+    this.modal = this.modalService.open(this.crearEntrenamientoModal, {size: 'xl', backdrop: 'static'});
+  }
+
+  mostrarModalAgregarFotografia() {
+    this.modal = this.modalService.open(this.crearFotografiaModal, {size: 'xl', backdrop: 'static'})
+  }
+
+  generarReporteExcel() {
+    this.reporteEmpresaService.generarReporteCanes(this.uuid).subscribe((data) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "test.xls";
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el reporte en excel. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
   private getDismissReason(reason: any): string {
     if (reason == ModalDismissReasons.ESC) {
       return `by pressing ESC`;
@@ -1781,6 +1966,50 @@ export class EmpresaCanesComponent implements OnInit {
 
   isColumnListed(field: string ) {
     return this.columnDefs.filter(s => s.field === field)[0] !== undefined;
+  }
+
+  descargarDocumentoCartillaVacunacion() {
+    let link = document.createElement('a');
+    link.href = window.URL.createObjectURL(this.pdfBlob);
+    link.download = "cartilla-vacunacion.pdf";
+    link.click();
+  }
+
+  descargarDocumentoEntrenamiento() {
+    let link = document.createElement('a');
+    link.href = window.URL.createObjectURL(this.pdfBlob);
+    link.download = "entrenamiento.pdf";
+    link.click();
+  }
+
+  descargarDocumentoCertificadoSalud() {
+    let link = document.createElement('a');
+    link.href = window.URL.createObjectURL(this.pdfBlob);
+    link.download = "certificado-salud.pdf";
+    link.click();
+  }
+
+  recargarCanes() {
+    this.empresaService.obtenerCanes(this.uuid).subscribe((data: Can[]) => {
+      this.rowData = data;
+      this.canes = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se descargaron los canes. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
+
+    this.empresaService.obtenerCanesEliminados(this.uuid).subscribe((data: Can[]) => {
+      this.canesEliminados = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se descargaron los canes eliminados. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
 }

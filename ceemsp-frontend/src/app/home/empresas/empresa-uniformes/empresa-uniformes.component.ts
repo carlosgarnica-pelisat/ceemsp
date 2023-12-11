@@ -55,10 +55,10 @@ export class EmpresaUniformesComponent implements OnInit {
   imagenPrincipal: any;
 
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
     {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+    {headerName: 'Opciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
         label: 'Ver detalles',
         verDetalles: this.verDetalles.bind(this),
         editar: this.editar.bind(this),
@@ -199,6 +199,26 @@ export class EmpresaUniformesComponent implements OnInit {
       return;
     }
 
+    if(this.tempFile === undefined && !this.editandoElemento) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Favor de subir un archivo para este elemento`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let existeElemento: EmpresaUniformeElemento = this.uniforme.elementos.filter(x => x.elemento?.uuid === this.elementoUniforme?.uuid && x?.uuid !== this.empresaUniformeElemento?.uuid)[0];
+
+    if(existeElemento !== undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El elemento del uniforme ya se encuentra registrado`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espere un momento",
       `Estamos guardando el elemento del uniforme`,
@@ -217,8 +237,6 @@ export class EmpresaUniformesComponent implements OnInit {
     empresaUniformeElemento.elemento = this.elementoUniforme;
     empresaUniformeElemento.movimientos = [];
 
-    console.log(empresaUniformeElemento);
-
     empresaUniformeElemento.movimientos.push(movimiento);
     let formData: FormData = new FormData();
     formData.append('elemento', JSON.stringify(empresaUniformeElemento));
@@ -235,6 +253,7 @@ export class EmpresaUniformesComponent implements OnInit {
           "Se ha modificado el elemento con exito",
           ToastType.SUCCESS
         );
+        this.tempFile = undefined;
         this.mostrarFormularioUniformeElemento();
         this.empresaService.obtenerUniformePorUuid(this.uuid, this.uniforme.uuid).subscribe((data: EmpresaUniforme) => {
           this.uniforme = data;
@@ -251,6 +270,7 @@ export class EmpresaUniformesComponent implements OnInit {
           `No se ha podido modificar el elemento. ${error}`,
           ToastType.ERROR
         );
+        this.tempFile = undefined;
       });
 
     } else {
@@ -261,6 +281,7 @@ export class EmpresaUniformesComponent implements OnInit {
           "Se ha guardado el elemento con exito",
           ToastType.SUCCESS
         );
+        this.tempFile = undefined;
         this.mostrarFormularioUniformeElemento();
         this.empresaService.obtenerUniformePorUuid(this.uuid, this.uniforme.uuid).subscribe((data: EmpresaUniforme) => {
           this.uniforme = data;
@@ -277,6 +298,7 @@ export class EmpresaUniformesComponent implements OnInit {
           `No se ha podido guardar el elemento. Motivo: ${error}`,
           ToastType.ERROR
         );
+        this.tempFile = undefined;
       })
     }
   }

@@ -2,13 +2,16 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {ActivatedRoute} from "@angular/router";
 import {ToastService} from "../../_services/toast.service";
-import {EmpresaService} from "../../_services/empresa.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ToastType} from "../../_enums/ToastType";
 import {EquipoService} from "../../_services/equipo.service";
 import Equipo from "../../_models/Equipo";
 import EmpresaEquipo from "../../_models/EmpresaEquipo";
 import {EmpresaEquipoService} from "../../_services/empresa-equipo.service";
+import EmpresaEquipoMovimiento from "../../_models/EmpresaEquipoMovimiento";
+import {
+  BotonEmpresaEquiposComponent
+} from "../../_components/botones/boton-empresa-equipos/boton-empresa-equipos.component";
 
 @Component({
   selector: 'app-empresa-equipo',
@@ -16,7 +19,8 @@ import {EmpresaEquipoService} from "../../_services/empresa-equipo.service";
   styleUrls: ['./empresa-equipo.component.css']
 })
 export class EmpresaEquipoComponent implements OnInit {
-
+  actionInProgress: boolean = false;
+  editandoModal: boolean = false;
   uuid: string;
 
   private gridApi;
@@ -27,34 +31,57 @@ export class EmpresaEquipoComponent implements OnInit {
   frameworkComponents: any;
 
   crearEquipoForm: FormGroup;
+  modificarEquipoForm: FormGroup;
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
     {headerName: 'Equipo', field: 'equipo.nombre', sortable: true, filter: true },
-    {headerName: 'Cantidad', field: 'cantidad', sortable: true, filter: true}
+    {headerName: 'Cantidad', field: 'cantidad', sortable: true, filter: true},
+    {headerName: 'Opciones', cellRenderer: 'empresaEquipoButtonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
   ];
 
   equipos: Equipo[];
   empresaEquipo: EmpresaEquipo;
   equipo: Equipo;
 
+  altas: number = 0;
+  bajas: number = 0;
+  cantidadActual: number = 0;
+
   rowData: EmpresaEquipo[] = [];
 
   @ViewChild('eliminarEquipoModal') eliminarEquipoModal;
   @ViewChild('modificarEquipoModal') modificarEquipoModal;
+  @ViewChild('equipoDetallesModal') equipoDetallesModal;
+  @ViewChild('mostrarMovimientosModal') mostrarMovimientosModal;
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaEquipoService: EmpresaEquipoService,
               private formBuilder: FormBuilder, private equipoService: EquipoService) { }
 
   ngOnInit(): void {
-    this.uuid = this.route.snapshot.paramMap.get("uuid");
+    this.frameworkComponents = {
+      empresaEquipoButtonRenderer: BotonEmpresaEquiposComponent
+    }
 
     this.crearEquipoForm = this.formBuilder.group({
       'equipo': ['', Validators.required],
-      'cantidad': ['', Validators.required]
+      'altas': ['', Validators.required],
+      'bajas': ['', Validators.required],
+      'cantidadActual': ['', Validators.required]
     });
 
-    this.equipoService.obtenerEquipos().subscribe((data: Equipo[]) => {
+    this.modificarEquipoForm = this.formBuilder.group({
+      'altas': ['', Validators.required],
+      'bajas': ['', Validators.required],
+      'cantidadActual': ['', Validators.required]
+    })
+
+    this.equipoService.obtenerEquiposEmpresa().subscribe((data: Equipo[]) => {
       this.equipos = data;
     }, (error) => {
       this.toastService.showGenericToast(
@@ -69,9 +96,94 @@ export class EmpresaEquipoComponent implements OnInit {
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        `No se han podido descargar los equipos de la empresa. Motivo: ${error}`,
+        `No se han podido descargar los equipos de las empresas. Motivo: ${error}`,
         ToastType.ERROR
       );
+    })
+  }
+
+  verDetalles(rowData) {
+    this.mostrarModalDetalles(rowData.rowData, this.equipoDetallesModal);
+  }
+
+  editar(rowData) {
+    this.empresaEquipoService.obtenerEquipoPorUuid(rowData.rowData?.uuid).subscribe((data: EmpresaEquipo) => {
+      this.empresaEquipo = data;
+      this.editandoModal = false;
+      this.modal = this.modalService.open(this.modificarEquipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+      this.modificarEquipoForm.patchValue({
+        cantidadActual: this.empresaEquipo.cantidad
+      });
+      this.modificarEquipoForm.controls['cantidadActual'].disable();
+      this.cantidadActual = this.empresaEquipo.cantidad;
+      this.equipo = this.equipos.filter(x => x.uuid === this.empresaEquipo.equipo.uuid)[0];
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido obtener el equipo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  eliminar(rowData) {
+    this.empresaEquipoService.obtenerEquipoPorUuid(rowData.rowData?.uuid).subscribe((data: EmpresaEquipo) => {
+      this.empresaEquipo = data;
+      this.mostrarModalEliminar();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el equipo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  mostrarMovimientos() {
+    this.modal = this.modalService.open(this.mostrarMovimientosModal, {size: 'lg'})
+  }
+
+  actualizarAltas(event) {
+    let altas = event.value;
+    if(altas < 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Las altas no pueden ser menores a 0`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.altas = altas;
+
+    this.crearEquipoForm.patchValue({
+      cantidadActual: (+this.cantidadActual) + (+this.altas - this.bajas)
+    })
+
+    this.modificarEquipoForm.patchValue({
+      cantidadActual: (+this.cantidadActual) + (+this.altas - this.bajas)
+    })
+  }
+
+  actualizarBajas(event) {
+    let bajas = event.value;
+    if(bajas < 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Las bajas no pueden ser menores a 0`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.bajas = bajas;
+
+    this.crearEquipoForm.patchValue({
+      cantidadActual: this.cantidadActual + (this.altas - this.bajas)
+    })
+
+    this.modificarEquipoForm.patchValue({
+      cantidadActual: this.cantidadActual + (this.altas - this.bajas)
     })
   }
 
@@ -82,6 +194,13 @@ export class EmpresaEquipoComponent implements OnInit {
   }
 
   mostrarModalCrear(modal) {
+    this.crearEquipoForm.controls['cantidadActual'].disable();
+    this.crearEquipoForm.controls['bajas'].disable();
+
+    this.crearEquipoForm.patchValue({
+      bajas: 0
+    });
+
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
 
     this.modal.result.then((result) => {
@@ -107,12 +226,15 @@ export class EmpresaEquipoComponent implements OnInit {
   }
 
   mostrarModalModificar() {
-    this.modal = this.modalService.open(this.modificarEquipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
-
-    this.crearEquipoForm.setValue({
-      equipo: this.empresaEquipo.equipo.uuid,
-      cantidad: this.empresaEquipo.cantidad
+    this.editandoModal = true;
+    this.modal = this.modalService.open(this.modificarEquipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+    this.equipo = this.empresaEquipo.equipo;
+    this.modificarEquipoForm.patchValue({
+      cantidadActual: this.empresaEquipo.cantidad
     });
+
+    this.modificarEquipoForm.controls['cantidadActual'].disable();
+    this.cantidadActual = this.empresaEquipo.cantidad;
 
     this.equipo = this.equipos.filter(x => x.uuid === this.empresaEquipo.equipo.uuid)[0];
   }
@@ -128,6 +250,7 @@ export class EmpresaEquipoComponent implements OnInit {
   }
 
   confirmarEliminarEquipo() {
+    this.actionInProgress = true;
     this.toastService.showGenericToast(
       "Espere un momento",
       "Se esta eliminando el equipo",
@@ -135,6 +258,7 @@ export class EmpresaEquipoComponent implements OnInit {
     );
 
     this.empresaEquipoService.eliminarEquipo(this.empresaEquipo.uuid).subscribe((data: EmpresaEquipo) => {
+      this.actionInProgress = false;
       this.toastService.showGenericToast(
         "Listo",
         "Se ha eliminado el equipo con exito",
@@ -142,6 +266,7 @@ export class EmpresaEquipoComponent implements OnInit {
       );
       window.location.reload();
     }, (error) => {
+      this.actionInProgress = false;
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se ha podido eliminar el equipo. Motivo: ${error}`,
@@ -173,16 +298,32 @@ export class EmpresaEquipoComponent implements OnInit {
   }
 
   seleccionarEquipo(event) {
-    this.equipo = this.equipos.filter(x => x.uuid === event.value)[0];
+    let equipo = this.equipos.filter(x => x.uuid === event.value)[0];
+    let existeEquipo = this.rowData.filter(x => equipo.uuid === x.equipo?.uuid);
+
+    if(existeEquipo.length > 0) {
+      this.equipo = undefined;
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Este equipo ya existe registrado. Favor de actualizarlo`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.equipo = equipo;
   }
 
   guardarCambiosEquipo(form) {
+    this.actionInProgress = true;
+
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "Hay campos requeridos que no se han rellenado",
         ToastType.WARNING
       );
+      this.actionInProgress = false;
       return;
     }
 
@@ -195,12 +336,24 @@ export class EmpresaEquipoComponent implements OnInit {
     let value: EmpresaEquipo = form.value;
     value.equipo = this.equipo;
 
+    let movimiento: EmpresaEquipoMovimiento = new EmpresaEquipoMovimiento();
+
+    movimiento.altas = form.controls['altas'].value;
+    movimiento.bajas = form.controls['bajas'].value;
+    movimiento.cantidadActual = form.controls['cantidadActual'].value;
+
+    value.cantidad = movimiento.cantidadActual;
+    value.movimientos = [];
+
+    value.movimientos.push(movimiento);
+
     this.empresaEquipoService.modificarEquipo(this.empresaEquipo.uuid, value).subscribe((data: EmpresaEquipo) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha guardado el equipo con exito",
         ToastType.SUCCESS
       );
+      this.actionInProgress = false;
       window.location.reload();
     }, (error) => {
       this.toastService.showGenericToast(
@@ -208,29 +361,54 @@ export class EmpresaEquipoComponent implements OnInit {
         `No se ha podido modificar el equipo. Motivo: ${error}`,
         ToastType.ERROR
       );
+      this.actionInProgress = false;
     })
   }
 
   guardarEquipo(form) {
+    this.actionInProgress = true;
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         "Hay campos requeridos que no se han rellenado",
         ToastType.WARNING
       );
+      this.actionInProgress = false;
+      return;
+    }
+
+    if(this.equipo === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "No hay equipo seleccionado o es invalido",
+        ToastType.WARNING
+      );
+      this.actionInProgress = false;
       return;
     }
 
     this.toastService.showGenericToast(
       "Espere un momento",
-      `Estamos guardando el uniforme`,
+      `Estamos guardando el equipo`,
       ToastType.INFO
     );
 
     let value: EmpresaEquipo = form.value;
     value.equipo = this.equipo;
 
+    let movimiento: EmpresaEquipoMovimiento = new EmpresaEquipoMovimiento();
+
+    movimiento.altas = form.controls['altas'].value;
+    movimiento.bajas = form.controls['bajas'].value;
+    movimiento.cantidadActual = form.controls['cantidadActual'].value;
+
+    value.cantidad = movimiento.cantidadActual;
+    value.movimientos = [];
+
+    value.movimientos.push(movimiento);
+
     this.empresaEquipoService.guardarEquipo(value).subscribe((data: Equipo) => {
+      this.actionInProgress = false;
       this.toastService.showGenericToast(
         "Listo",
         "Se ha guardado el equipo con exito",
@@ -238,6 +416,7 @@ export class EmpresaEquipoComponent implements OnInit {
       );
       window.location.reload();
     }, (error) => {
+      this.actionInProgress = false;
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se ha podido guardar el equipo. Motivo: ${error}`,

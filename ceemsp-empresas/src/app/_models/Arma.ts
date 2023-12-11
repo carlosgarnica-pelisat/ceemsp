@@ -4,6 +4,8 @@ import ArmaClase from "./ArmaClase";
 import ArmaMarca from "./ArmaMarca";
 import EmpresaDomicilio from "./EmpresaDomicilio";
 import Persona from "./Persona";
+import Incidencia from "./Incidencia";
+import Empresa from "./Empresa";
 
 export default class Arma implements Deserializable {
   id: number;
@@ -18,6 +20,16 @@ export default class Arma implements Deserializable {
   serie: string;
   matricula: string;
   personal: Persona;
+  eliminado: boolean;
+  incidencia: Incidencia;
+  personalAsignado: Persona;
+
+  motivoBaja: string;
+  observacionesBaja: string;
+  documentoFundatorioBaja: string;
+  fechaBaja: string;
+  eliminadoIncidencia: boolean;
+
 
   deserialize(input: any): this {
     Object.assign(this, input);

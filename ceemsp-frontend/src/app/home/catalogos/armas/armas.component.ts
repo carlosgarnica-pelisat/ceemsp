@@ -16,10 +16,10 @@ export class ArmasComponent implements OnInit {
   private gridColumnApi;
 
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
     {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+    {headerName: 'Opciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
         modify: this.modify.bind(this),
         delete: this.delete.bind(this)
       }}

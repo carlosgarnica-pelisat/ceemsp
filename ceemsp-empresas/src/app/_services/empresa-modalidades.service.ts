@@ -15,12 +15,4 @@ export class EmpresaModalidadesService {
   obtenerModalidades() {
     return this.http.get(`${this.uri}/modalidades`)
   }
-
-  guardarModalidad(modalidad: EmpresaModalidad) {
-    return this.http.post(`${this.uri}/modalidades`, modalidad)
-  }
-
-  eliminarModalidad(modalidadUuid: string) {
-    return this.http.delete(`${this.uri}/modalidades/${modalidadUuid}`);
-  }
 }

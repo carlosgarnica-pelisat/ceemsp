@@ -63,4 +63,28 @@ public class Empresa extends CommonModel {
 
     @Column(name = "FECHA_FIN")
     private LocalDate fechaFin;
+
+    @Column(name = "RUTA_LOGO")
+    private String rutaLogo;
+
+    @Column(name = "RUTA_REGISTRO_FEDERAL")
+    private String rutaRegistroFederal;
+
+    @Column(name = "DOMICILIOS_CAPTURADOS")
+    private boolean domiciliosCapturados;
+
+    @Column(name = "ESCRITURAS_CAPTURADAS")
+    private boolean escriturasCapturadas;
+
+    @Column(name = "FORMAS_EJECUCION_CAPTURADAS")
+    private boolean formasEjecucionCapturadas;
+
+    @Column(name = "ACUERDOS_CAPTURADOS")
+    private boolean acuerdosCapturados;
+
+    @Column(name = "VIGENCIA_INICIO")
+    private LocalDate vigenciaInicio;
+
+    @Column(name = "VIGENCIA_FIN")
+    private LocalDate vigenciaFin;
 }

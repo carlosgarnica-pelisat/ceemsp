@@ -372,6 +372,7 @@
                                         <p>Recuerda siempre que ni el CEEMSP ni ningun organismo perteneciente al Consejo Estatal de Seguridad Privada (CESP) te requerira bajo ningun motivo informacion personal o confidencial como contraseñas, codigos, claves o demas informacion afin a traves de correo electronico.</p>
                                         <p>En caso de recibir algun correo en donde te solicite dicha informacion o bien, ejecutar algun software o algun archivo adjunto no identificado, te solicitamos no hacer ninguna accion de este tipo y reportarlo a traves de nuestros canales de comunicacion oficiales.</p>
                                         <p>Tu informacion se encuentra incorporada y protegida conforme a los Lineamientos de Proteccion de Datos Personales y con las diversas disposiciones legales sobre la confidencialidad y proteccion de datos..</p>
+                                        <p style="text-align: center;"><a href="https://transparenciasitgej.jalisco.gob.mx/api/api/banco_archivos/19018/downloadWeb">Aviso de privacidad</a></p>
                                     </td>
                                 </tr>
                             </table>

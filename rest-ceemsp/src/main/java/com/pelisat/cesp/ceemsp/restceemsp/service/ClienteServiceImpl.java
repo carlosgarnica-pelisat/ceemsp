@@ -3,7 +3,6 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.database.model.Cliente;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
 import com.pelisat.cesp.ceemsp.database.repository.ClienteRepository;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -18,9 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,6 +39,7 @@ public class ClienteServiceImpl implements ClienteService {
     private final ClienteAsignacionPersonalService clienteAsignacionPersonalService;
     private final ArchivosService archivosService;
     private final ClienteModalidadService clienteModalidadService;
+    private final ClienteFormaEjecucionService clienteFormaEjecucionService;
 
     private final Logger logger = LoggerFactory.getLogger(ClienteService.class);
 
@@ -48,7 +48,8 @@ public class ClienteServiceImpl implements ClienteService {
                               ClienteRepository clienteRepository, UsuarioService usuarioService,
                               EmpresaService empresaService, DaoHelper<CommonModel> daoHelper,
                               ClienteDomicilioService clienteDomicilioService, ArchivosService archivosService,
-                              ClienteAsignacionPersonalService clienteAsignacionPersonalService, ClienteModalidadService clienteModalidadService) {
+                              ClienteAsignacionPersonalService clienteAsignacionPersonalService, ClienteModalidadService clienteModalidadService,
+                              ClienteFormaEjecucionService clienteFormaEjecucionService) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.clienteRepository = clienteRepository;
@@ -59,6 +60,7 @@ public class ClienteServiceImpl implements ClienteService {
         this.archivosService = archivosService;
         this.clienteAsignacionPersonalService = clienteAsignacionPersonalService;
         this.clienteModalidadService = clienteModalidadService;
+        this.clienteFormaEjecucionService = clienteFormaEjecucionService;
     }
 
 
@@ -138,6 +140,7 @@ public class ClienteServiceImpl implements ClienteService {
             response.setDomicilios(clienteDomicilioService.obtenerDomiciliosPorCliente(response.getId()));
             response.setAsignaciones(clienteAsignacionPersonalService.obtenerAsignacionesCliente(empresaUuid, clienteUuid));
             response.setModalidades(clienteModalidadService.obtenerModalidadesPorCliente(empresaUuid, clienteUuid));
+            response.setFormasEjecucion(clienteFormaEjecucionService.obtenerFormasEjecucionPorClienteUuid(empresaUuid, clienteUuid));
         }
 
         return response;
@@ -162,6 +165,30 @@ public class ClienteServiceImpl implements ClienteService {
         return new File(cliente.getRutaArchivoContrato());
     }
 
+    @Override
+    public File descargarDocumentoFundatorio(String empresaUuid, String clienteUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(clienteUuid)) {
+            logger.warn("El uuid de la empresa o del vehiculo vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando el documento fundatorio para el cliente [{}]", clienteUuid);
+
+        Cliente cliente = clienteRepository.findByUuid(clienteUuid);
+
+        if(cliente == null) {
+            logger.warn("El cliente no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(!cliente.getEliminado()) {
+            logger.warn("El cliente no esta eliminado. Esta funcion no es compatible");
+            throw new NotFoundResourceException();
+        }
+
+        return new File(cliente.getDocumentoFundatorioBaja());
+    }
+
     @Transactional
     @Override
     public ClienteDto crearCliente(String empresaUuid, String username, ClienteDto clienteDto, MultipartFile archivo) {
@@ -177,7 +204,7 @@ public class ClienteServiceImpl implements ClienteService {
         Cliente cliente = dtoToDaoConverter.convertDtoToDaoCliente(clienteDto);
         cliente.setEmpresa(empresaDto.getId());
         cliente.setFechaInicio(LocalDate.parse(clienteDto.getFechaInicio()));
-        if(clienteDto.getFechaFin() != null) {
+        if(StringUtils.isNotBlank(clienteDto.getFechaFin())) {
             cliente.setFechaFin(LocalDate.parse(clienteDto.getFechaFin()));
         }
         daoHelper.fulfillAuditorFields(true, cliente, usuarioDto.getId());
@@ -199,6 +226,7 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
+    @Transactional
     public ClienteDto modificarCliente(String empresaUuid, String clienteUuid, String username, ClienteDto clienteDto) {
         if(StringUtils.isBlank(empresaUuid) || clienteDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(clienteUuid)) {
             logger.warn("El uuid o el cliente a crear vienen como nulos o vacios");
@@ -250,9 +278,17 @@ public class ClienteServiceImpl implements ClienteService {
 
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
 
+        logger.info("Verificando si hay asignaciones");
+        List<ClienteAsignacionPersonalDto> asignacionPersonal = clienteAsignacionPersonalService.obtenerAsignacionesCliente(empresaUuid, clienteUuid);
+        if(!asignacionPersonal.isEmpty()) {
+            asignacionPersonal.forEach(ap -> {
+                clienteAsignacionPersonalService.eliminarAsignacion(empresaUuid, clienteUuid, ap.getUuid(), username);
+            });
+        }
+
         cliente.setMotivoBaja(clienteDto.getMotivoBaja());
         cliente.setObservacionesBaja(clienteDto.getObservacionesBaja());
-        cliente.setFechaBaja(LocalDate.parse(clienteDto.getFechaBaja()));
+        cliente.setFechaBaja(LocalDate.now());
         cliente.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, cliente, usuarioDto.getId());
 

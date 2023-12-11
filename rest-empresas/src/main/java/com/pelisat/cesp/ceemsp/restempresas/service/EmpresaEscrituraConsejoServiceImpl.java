@@ -1,6 +1,5 @@
 package com.pelisat.cesp.ceemsp.restempresas.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraConsejoDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
@@ -8,8 +7,10 @@ import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaEscrituraConsejo;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraConsejoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -18,7 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,18 +36,20 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
     private final UsuarioService usuarioService;
     private final EmpresaEscrituraConsejoRepository empresaEscrituraConsejoRepository;
     private final EmpresaEscrituraRepository empresaEscrituraRepository;
+    private final ArchivosService archivosService;
 
     @Autowired
     public EmpresaEscrituraConsejoServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                                               DaoHelper<CommonModel> daoHelper, UsuarioService usuarioService,
                                               EmpresaEscrituraConsejoRepository empresaEscrituraConsejoRepository,
-                                              EmpresaEscrituraRepository empresaEscrituraRepository) {
+                                              EmpresaEscrituraRepository empresaEscrituraRepository, ArchivosService archivosService) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
         this.usuarioService = usuarioService;
         this.empresaEscrituraConsejoRepository = empresaEscrituraConsejoRepository;
         this.empresaEscrituraRepository = empresaEscrituraRepository;
+        this.archivosService = archivosService;
     }
     @Override
     public List<EmpresaEscrituraConsejoDto> obtenerConsejosPorEscritura(String escrituraUuid) {
@@ -67,6 +73,7 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
     }
 
     @Override
+    @Transactional
     public EmpresaEscrituraConsejoDto crearConsejo(String escrituraUuid, String username, EmpresaEscrituraConsejoDto empresaEscrituraConsejoDto) {
         if(empresaEscrituraConsejoDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(escrituraUuid)) {
             logger.warn("El consejo, la empresa o la escritura estan viniendo como nulos o vacios");
@@ -92,6 +99,7 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
     }
 
     @Override
+    @Transactional
     public EmpresaEscrituraConsejoDto actualizarConsejo(String escrituraUuid, String consejoUuid, String username, EmpresaEscrituraConsejoDto empresaEscrituraConsejoDto) {
         if(StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(consejoUuid) || empresaEscrituraConsejoDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
@@ -121,7 +129,8 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
     }
 
     @Override
-    public EmpresaEscrituraConsejoDto eliminarConsejo(String escrituraUuid, String consejoUuid, String username) {
+    @Transactional
+    public EmpresaEscrituraConsejoDto eliminarConsejo(String escrituraUuid, String consejoUuid, String username, EmpresaEscrituraConsejoDto empresaEscrituraConsejoDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(consejoUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");
             throw new InvalidDataException();
@@ -137,8 +146,24 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
             throw new NotFoundResourceException();
         }
 
+        empresaEscrituraConsejo.setObservacionesBaja(empresaEscrituraConsejoDto.getObservacionesBaja());
+        empresaEscrituraConsejo.setFechaBaja(LocalDate.parse(empresaEscrituraConsejoDto.getFechaBaja()));
+        empresaEscrituraConsejo.setMotivoBaja(empresaEscrituraConsejoDto.getMotivoBaja());
         empresaEscrituraConsejo.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, empresaEscrituraConsejo, usuario.getId());
+
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Agregando");
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_BAJA_CONSEJO, usuario.getEmpresa().getUuid());
+                empresaEscrituraConsejo.setDocumentoFundatorioBaja(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+
         empresaEscrituraConsejoRepository.save(empresaEscrituraConsejo);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEscrituraConsejo(empresaEscrituraConsejo);

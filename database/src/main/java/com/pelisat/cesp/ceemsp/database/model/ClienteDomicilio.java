@@ -51,7 +51,7 @@ public class ClienteDomicilio extends CommonModel {
     @Column(name = "MATRIZ", nullable = false)
     private boolean matriz;
 
-    @Column(name = "CONTACTO", nullable = false)
+    @Column(name = "CONTACTO", nullable = true)
     private String contacto;
 
     @Column(name = "TELEFONO_FIJO", nullable = false)
@@ -84,10 +84,10 @@ public class ClienteDomicilio extends CommonModel {
     @Column(name = "LOCALIDAD_CATALOGO", nullable = false)
     private int localidadCatalogo;
 
-    @Column(name = "APELLIDO_PATERNO_CONTACTO", nullable = false)
+    @Column(name = "APELLIDO_PATERNO_CONTACTO", nullable = true)
     private String apellidoPaternoContacto;
 
-    @Column(name = "APELLIDO_MATERNO_CONTACTO", nullable = false)
+    @Column(name = "APELLIDO_MATERNO_CONTACTO", nullable = true)
     private String apellidoMaternoContacto;
 
     @Column(name = "LATITUD")

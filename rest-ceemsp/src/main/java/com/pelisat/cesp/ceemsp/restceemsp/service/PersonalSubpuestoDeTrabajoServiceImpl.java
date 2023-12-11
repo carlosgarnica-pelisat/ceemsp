@@ -1,6 +1,5 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.PersonalPuestoDeTrabajoDto;
 import com.pelisat.cesp.ceemsp.database.dto.PersonalSubpuestoDeTrabajoDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
@@ -18,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -105,6 +105,7 @@ public class PersonalSubpuestoDeTrabajoServiceImpl implements PersonalSubpuestoD
     }
 
     @Override
+    @Transactional
     public PersonalSubpuestoDeTrabajoDto crearNuevo(PersonalSubpuestoDeTrabajoDto personalSubpuestoDeTrabajoDto, String username, String uuid) {
         if(personalSubpuestoDeTrabajoDto == null || StringUtils.isBlank(username)) {
             logger.warn("El usuario o el subpuesto de trabajo vienen como nulos o vacios");
@@ -129,6 +130,7 @@ public class PersonalSubpuestoDeTrabajoServiceImpl implements PersonalSubpuestoD
     }
 
     @Override
+    @Transactional
     public PersonalSubpuestoDeTrabajoDto modificarPuestoTrabajo(PersonalSubpuestoDeTrabajoDto personalSubpuestoDeTrabajoDto, String username, String uuid, String puestoTrabajoUuid) {
         if(StringUtils.isBlank(username) || StringUtils.isBlank(uuid) || StringUtils.isBlank(puestoTrabajoUuid) || personalSubpuestoDeTrabajoDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
@@ -158,6 +160,7 @@ public class PersonalSubpuestoDeTrabajoServiceImpl implements PersonalSubpuestoD
     }
 
     @Override
+    @Transactional
     public PersonalSubpuestoDeTrabajoDto eliminarPuestoTrabajo(String username, String uuid, String puestoTrabajoUuid) {
         if(StringUtils.isBlank(username) || StringUtils.isBlank(uuid) || StringUtils.isBlank(puestoTrabajoUuid)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

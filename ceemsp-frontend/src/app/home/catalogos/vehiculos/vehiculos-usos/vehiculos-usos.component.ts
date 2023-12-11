@@ -8,6 +8,9 @@ import VehiculoUso from "../../../../_models/VehiculoUso";
 import PersonalNacionalidad from "../../../../_models/PersonalNacionalidad";
 import Uniforme from "../../../../_models/Uniforme";
 import {BotonCatalogosComponent} from "../../../../_components/botones/boton-catalogos/boton-catalogos.component";
+import {AuthenticationService} from "../../../../_services/authentication.service";
+import Usuario from "../../../../_models/Usuario";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-vehiculos-usos',
@@ -20,10 +23,10 @@ export class VehiculosUsosComponent implements OnInit {
   private gridColumnApi;
 
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
     {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+    {headerName: 'Opciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
         label: 'Ver detalles',
         verDetalles: this.verDetalles.bind(this),
         editar: this.editar.bind(this),
@@ -39,6 +42,7 @@ export class VehiculosUsosComponent implements OnInit {
   rowDataClicked = {
     uuid: undefined
   };
+  usuarioActual: Usuario;
 
   crearVehiculoUsoForm: FormGroup;
 
@@ -48,10 +52,17 @@ export class VehiculosUsosComponent implements OnInit {
   @ViewChild("editarUsoVehiculoModal") editarUsoVehiculoModal;
   @ViewChild("eliminarUsoVehiculoModal") eliminarUsoVehiculoModal;
 
-  constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
-              private vehiculoService: VehiculosService, private toastService: ToastService) { }
+  constructor(private modalService: NgbModal, private formBuilder: FormBuilder, private authenticationService: AuthenticationService,
+              private vehiculoService: VehiculosService, private toastService: ToastService, private router: Router) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
+
+    if(this.usuarioActual.rol !== 'CEEMSP_SUPERUSER') {
+      this.router.navigate(['/home']);
+    }
+
     this.frameworkComponents = {
       catalogoButtonRenderer: BotonCatalogosComponent
     }

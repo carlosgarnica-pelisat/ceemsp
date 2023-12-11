@@ -1,6 +1,5 @@
 package com.pelisat.cesp.ceemsp.restempresas.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoColorDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
@@ -18,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,6 +65,7 @@ public class EmpresaVehiculoColorServiceImpl implements EmpresaVehiculoColorServ
     }
 
     @Override
+    @Transactional
     public VehiculoColorDto guardarcolor(String vehiculoUuid, String username, VehiculoColorDto vehiculoColorDto) {
         if(StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(username) || vehiculoColorDto == null) {
             logger.warn("El uuid de la empresa, del vehiculo, el usuario o el color a dar de alta vienen como nulos o vacios");
@@ -80,10 +81,17 @@ public class EmpresaVehiculoColorServiceImpl implements EmpresaVehiculoColorServ
 
         VehiculoColor vehiculoColorCreado = vehiculoColorRepository.save(vehiculoColor);
 
+        if(!vehiculo.isColoresCapturado()) {
+            vehiculo.setColoresCapturado(true);
+            daoHelper.fulfillAuditorFields(false, vehiculo, usuarioDto.getId());
+            vehiculoRepository.save(vehiculo);
+        }
+
         return daoToDtoConverter.convertDaoToDtoVehiculoColor(vehiculoColorCreado);
     }
 
     @Override
+    @Transactional
     public VehiculoColorDto modificarColor(String vehiculoUuid, String colorUuid, String username, VehiculoColorDto vehiculoColorDto) {
         if(StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(username) || vehiculoColorDto == null) {
             logger.warn("El uuid de la empresa, del vehiculo, el usuario o el color a dar de alta vienen como nulos o vacios");
@@ -108,6 +116,7 @@ public class EmpresaVehiculoColorServiceImpl implements EmpresaVehiculoColorServ
     }
 
     @Override
+    @Transactional
     public VehiculoColorDto eliminarColor(String vehiculoUuid, String colorUuid, String username) {
         if(StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(username)) {
             logger.warn("El uuid de la empresa, del vehiculo, el usuario o el color a dar de alta vienen como nulos o vacios");

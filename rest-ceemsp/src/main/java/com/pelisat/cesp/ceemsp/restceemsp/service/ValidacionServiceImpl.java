@@ -3,13 +3,13 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.*;
+import com.pelisat.cesp.ceemsp.database.type.ArmaStatusEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -100,7 +100,16 @@ public class ValidacionServiceImpl implements ValidacionService {
             }
         }
 
-        // TODO: Agregar el RFC a la persona y hacer la busqueda
+        if(StringUtils.isNotBlank(existePersonaDto.getRfc())) {
+            logger.info("Buscando la persona con el RFC[{}]", existePersonaDto.getRfc());
+            Personal personal = personaRepository.getByRfcAndEliminadoFalse(existePersonaDto.getRfc());
+            if(personal != null) {
+                logger.info("Se encontro la persona por medio del RFC");
+                existePersonaDto.setExiste(true);
+                existePersonaDto.setPersona(daoToDtoConverter.convertDaoToDtoPersona(personal));
+            }
+        }
+
         return existePersonaDto;
     }
 
@@ -229,9 +238,19 @@ public class ValidacionServiceImpl implements ValidacionService {
 
         if(StringUtils.isNotBlank(existeArmaDto.getMatricula())) {
             logger.info("Buscando el arma con la Matricula [{}]", existeArmaDto.getMatricula());
-            Arma arma = armaRepository.getFirstByMatriculaAndEliminadoFalse(existeArmaDto.getMatricula());
-            if(arma != null) {
-                logger.info("La empresa fue encontrada con el CURP");
+            Arma arma = armaRepository.getFirstByMatricula(existeArmaDto.getMatricula());
+            if(arma != null && !arma.getEliminado()) {
+                logger.info("El arma se encuentra activa");
+                existeArmaDto.setExiste(true);
+                existeArmaDto.setArma(daoToDtoConverter.convertDaoToDtoArma(arma));
+            }
+            else if(arma != null && arma.getEliminado() && arma.getStatus() == ArmaStatusEnum.CUSTODIA) {
+                logger.info("El arma se encuentra marcada como custodia.");
+                existeArmaDto.setExiste(true);
+                existeArmaDto.setArma(daoToDtoConverter.convertDaoToDtoArma(arma));
+            }
+            else if(arma != null && arma.getEliminado() && (StringUtils.equals(arma.getMotivoBaja(), "ROBO") || StringUtils.equals(arma.getMotivoBaja(), "INSERVIBLE") || StringUtils.equals(arma.getMotivoBaja(), "CUSTODIA") || StringUtils.containsIgnoreCase(arma.getObservacionesBaja(), "incidencia"))) {
+                logger.info("El arma no se encuentra activa pero fue marcada como ROBO, INSERVIBLE O ASEGURAMIENTO");
                 existeArmaDto.setExiste(true);
                 existeArmaDto.setArma(daoToDtoConverter.convertDaoToDtoArma(arma));
             }

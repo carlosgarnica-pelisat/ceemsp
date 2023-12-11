@@ -34,8 +34,9 @@ export class EmpresaIncidenciasService {
     return this.http.put(`${this.uri}/incidencias/${incidenciaUuid}/autoasignar`, {})
   }
 
-  agregarComentario(incidenciaUuid: string, incidencia: Incidencia) {
-    return this.http.post(`${this.uri}/incidencias/${incidenciaUuid}/comentarios`, incidencia);
+  agregarComentario(incidenciaUuid: string, incidencia: FormData) {
+    return this.http.post(`${this.uri}/incidencias/${incidenciaUuid}/comentarios`, incidencia, {
+      headers: {'X-isFile': 'true'}});
   }
 
   agregarPersonaIncidencia(incidenciaUuid: string, personal: Persona) {
@@ -70,7 +71,16 @@ export class EmpresaIncidenciasService {
     return this.http.delete(`${this.uri}/incidencias/${incidenciaUuid}/canes/${incidenciaCanUuid}`)
   }
 
-  eliminarArchivoIncidencia(incidenciaUuid: string, incidenciaArchivoUuid: string) {
-    return this.http.delete(`${this.uri}/incidencias/${incidenciaUuid}/archivos/${incidenciaArchivoUuid}`)
+  descargarArchivoIncidencia(incidenciaUuid: string, incidenciaArchivoUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/incidencias/${incidenciaUuid}/archivos/${incidenciaArchivoUuid}/descargar`, httpOptions)
+  }
+
+  agregarArchivoIncidencia(incidenciaUuid: string, formData: FormData) {
+    return this.http.post(
+      `${this.uri}/incidencias/${incidenciaUuid}/archivos`,
+      formData, {headers: {'X-isFile': 'true'}})
   }
 }

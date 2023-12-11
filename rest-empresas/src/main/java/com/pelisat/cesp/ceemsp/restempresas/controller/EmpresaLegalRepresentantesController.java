@@ -1,11 +1,13 @@
 package com.pelisat.cesp.ceemsp.restempresas.controller;
 
+import com.google.gson.Gson;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraRepresentanteDto;
 import com.pelisat.cesp.ceemsp.restempresas.service.EmpresaEscrituraRepresentanteService;
 import com.pelisat.cesp.ceemsp.restempresas.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -52,13 +54,15 @@ public class EmpresaLegalRepresentantesController {
         return empresaEscrituraRepresentanteService.modificarRepresentante(escrituraUuid, representanteUuid, username, empresaEscrituraRepresentanteDto);
     }
 
-    @DeleteMapping(value = EMPRESA_REPRESENTANTES_URI + "/{representanteUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_REPRESENTANTES_URI + "/{representanteUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public EmpresaEscrituraRepresentanteDto eliminarEscrituraRepresentante(
             @PathVariable(value = "escrituraUuid") String escrituraUuid,
             @PathVariable(value = "representanteUuid") String representanteUuid,
-            HttpServletRequest request
+            HttpServletRequest request,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
+            @RequestParam("representante") String representante
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return empresaEscrituraRepresentanteService.eliminarRepresentante(escrituraUuid, representanteUuid, username);
+        return empresaEscrituraRepresentanteService.eliminarRepresentante(escrituraUuid, representanteUuid, username, new Gson().fromJson(representante, EmpresaEscrituraRepresentanteDto.class), archivo);
     }
 }

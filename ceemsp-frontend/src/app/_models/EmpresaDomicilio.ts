@@ -37,6 +37,9 @@ export default class EmpresaDomicilio implements Deserializable {
   documentoFundatorioBaja: string;
   fechaBaja: string;
 
+  fechaCreacion: string;
+  fechaActualizacion: string;
+
   telefonos: EmpresaDomicilioTelefono[];
 
   deserialize(input: any): this {

@@ -26,4 +26,8 @@ export class PublicService {
   obtenerComunicadoPorUuid(uuid) {
     return this.http.get(`${this.uri}/public/comunicados/${uuid}`);
   }
+
+  buscarComunicados(titulo, mes, ano) {
+    return this.http.get(`${this.uri}/public/comunicados?titulo=${titulo}&mes=${mes}&ano=${ano}`);
+  }
 }

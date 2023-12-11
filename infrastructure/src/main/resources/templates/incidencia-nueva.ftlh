@@ -50,9 +50,9 @@
             display: block;
             Margin: 0 auto !important;
             /* makes it centered */
-            max-width: 580px;
+            max-width: 700px;
             padding: 10px;
-            width: 580px;
+            width: 700px;
         }
 
         /* This should also be a block element, so that it will fill 100% of the .container */
@@ -60,7 +60,7 @@
             box-sizing: border-box;
             display: block;
             Margin: 0 auto;
-            max-width: 580px;
+            max-width: 700px;
             padding: 10px;
         }
 
@@ -249,7 +249,7 @@
         /* -------------------------------------
             RESPONSIVE AND MOBILE FRIENDLY STYLES
         ------------------------------------- */
-        @media only screen and (max-width: 620px) {
+        @media only screen and (max-width: 720px) {
             table[class=body] h1 {
                 font-size: 28px !important;
                 margin-bottom: 10px !important;
@@ -341,7 +341,7 @@
             <div class="content">
 
                 <!-- START CENTERED WHITE CONTAINER -->
-                <span class="preheader">Has recibido una nueva notificacion.</span>
+                <span class="preheader">Aviso de notificación.</span>
                 <table role="presentation" class="main">
 
                     <!-- START MAIN CONTENT AREA -->
@@ -350,30 +350,27 @@
                             <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                                 <tr>
                                     <td>
-                                        <h2>Has recibido una nueva notificacion</h2>
+                                        <h2>Aviso de notificación</h2>
                                         <hr>
-                                        <p>Empresa: {{Nombre de empresa}},</p>
-                                        <p>El motivo de este correo es para comentarte que hay una nueva notificacion dentro de tu cuenta. Para verla es necesario hacer click en el enlace de a continuacion y despues, iniciar sesion con tu usuario y contraseña.</p>
-                                        <p>.</p>
-                                        <p>📬&nbsp; Postdrop also lets you send test emails to yourself. You just need to sign up first so we know you're not a spammer.</p>
-                                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
-                                            <tbody>
-                                            <tr>
-                                                <td align="center">
-                                                    <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                                                        <tbody>
-                                                        <tr>
-                                                            <td> <a href="/signup" target="_blank">Ver notificacion</a> </td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                        <p>Recuerda siempre que ni el CEEMSP ni ningun organismo perteneciente al Consejo Estatal de Seguridad Privada (CESP) te requerira bajo ningun motivo informacion personal o confidencial como contraseñas, codigos, claves o demas informacion afin a traves de correo electronico.</p>
-                                        <p>En caso de recibir algun correo en donde te solicite dicha informacion o bien, ejecutar algun software o algun archivo adjunto no identificado, te solicitamos no hacer ninguna accion de este tipo y reportarlo a traves de nuestros canales de comunicacion oficiales.</p>
-                                        <p>Tu informacion se encuentra incorporada y protegida conforme a los Lineamientos de Proteccion de Datos Personales y con las diversas disposiciones legales sobre la confidencialidad y proteccion de datos..</p>
+                                        <p style="text-align: justify;">El presente se emite para informar que la incidencia generada por el prestador de servicios de seguridad privada en la plataforma electrónica denominada Sistema Integral de Empresas de Seguridad Privada (SIESP), se ha enviado de manera exitosa, en la cual se hace constar la siguiente información</p>
+                                        <br>
+                                        <p style="text-align: justify;">Nombre del prestador de servicios: <br><b>${nombrePrestadorServicio}</b></p>
+                                        <p style="text-align: justify;">Numero de expediente: <br><b>${numeroExpediente}</b></p>
+                                        <p style="text-align: justify;">Estatus de la incidencia: <br><b>ENVIADA</b></p>
+                                        <p style="text-align: justify;">Fecha y hora de generacion: <br><b>${fechaHoraGeneracion}</b></p>
+                                        <p style="text-align: justify;">Cuenta de correo electrónico determinado por el prestador de servicios: <br><b>${correo}</b></p>
+                                        <p style="text-align: justify;">El envio de la incidencia se encuentra sujeta a revisión por parte del personal de la Dirección, mismo que podrá realizar observaciones adicionales a efecto de generar el acuse oficial que ampare el cumplimiento de su obligación.</p>
+                                        <p style="text-align: justify;">Numero de notificacion: <br><b>${numeroNotificacion}</b></p>
+                                        <p style="text-align: justify;">Cadena Original: <br><b>${cadenaOriginal}</b></p>
+                                        <p style="text-align: justify;">Sello: <br><b>${sello}</b></p>
+                                        <hr>
+                                        <p style="text-align: justify;">Recuerda siempre que ni el CEEMSP ni ningun organismo perteneciente al Consejo Estatal de Seguridad Privada (CESP) te requerira bajo ningun motivo informacion personal o confidencial como contraseñas, codigos, claves o demas informacion afin a traves de correo electronico.</p>
+                                        <p style="text-align: justify;">En caso de recibir algun correo en donde te solicite dicha informacion o bien, ejecutar algun software o algun archivo adjunto no identificado, te solicitamos no hacer ninguna accion de este tipo y reportarlo a traves de nuestros canales de comunicacion oficiales.</p>
+                                        <p style="text-align: justify;">Este mensaje y cualquier archivo adjunto al mismo pueden contener información que podría considerarse confidencial y/o reservada, Si ha recibido el mensaje por error, por favor notifique al remitente contestando al correo, y destruyendo el mensaje original y sus anexos, como una medida de seguridad de carácter administrativo, de conformidad a lo establecido en la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados</p>
+                                        <hr>
+                                        <p style="text-align: center;"><b>DIRECCIÓN DE LOS SERVICIOS DE SEGURIDAD PRIVADA DEL SECRETARIADO EJECUTIVO DEL CONSEJO ESTATAL DE SEGURIDAD PÚBLICA DEL ESTADO DE JALISCO</b></p>
+                                        <p style="text-align: center;">Avenida La Paz 875, Segundo Piso. Colonia Mexicaltzingo, C. P. 44180, Guadalajara, Jalisco, Mexico. <br>Tels. (33) 363022776 y (33) 38181480</p>
+                                        <p style="text-align: center;"><a href="https://transparenciasitgej.jalisco.gob.mx/api/api/banco_archivos/19018/downloadWeb">Aviso de privacidad</a></p>
                                     </td>
                                 </tr>
                             </table>

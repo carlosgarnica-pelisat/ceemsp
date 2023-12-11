@@ -5,7 +5,9 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
+import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilioTelefono;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaDomicilioRepository;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaDomicilioTelefonoRepository;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -18,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -36,11 +39,12 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService {
     private final UsuarioService usuarioService;
     private final DaoHelper<CommonModel> daoHelper;
     private final ArchivosService archivosService;
+    private final EmpresaDomicilioTelefonoRepository empresaDomicilioTelefonoRepository;
 
     @Autowired
     public EmpresaDomicilioServiceImpl(EmpresaDomicilioRepository empresaDomicilioRepository, DaoToDtoConverter daoToDtoConverter,
                                        DtoToDaoConverter dtoToDaoConverter, UsuarioService usuarioService, DaoHelper<CommonModel> daoHelper,
-                                       CatalogoService catalogoService, ArchivosService archivosService) {
+                                       CatalogoService catalogoService, ArchivosService archivosService, EmpresaDomicilioTelefonoRepository empresaDomicilioTelefonoRepository) {
         this.empresaDomicilioRepository = empresaDomicilioRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
@@ -48,6 +52,7 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService {
         this.daoHelper = daoHelper;
         this.catalogoService = catalogoService;
         this.archivosService = archivosService;
+        this.empresaDomicilioTelefonoRepository = empresaDomicilioTelefonoRepository;
     }
 
     @Override
@@ -87,6 +92,10 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService {
         empresaDomicilioDto.setEstadoCatalogo(catalogoService.obtenerEstadoPorId(empresaDomicilio.getEstadoCatalogo()));
         empresaDomicilioDto.setMunicipioCatalogo(catalogoService.obtenerMunicipioPorId(empresaDomicilio.getMunicipioCatalogo()));
 
+        List<EmpresaDomicilioTelefono> telefonos = empresaDomicilioTelefonoRepository.findAllByDomicilioAndEliminadoFalse(empresaDomicilio.getId());
+
+        empresaDomicilioDto.setTelefonos(telefonos.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaDomicilioTelefono).collect(Collectors.toList()));
+
         return empresaDomicilioDto;
     }
 
@@ -103,6 +112,7 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService {
     }
 
     @Override
+    @Transactional
     public EmpresaDomicilioDto guardarDomicilio(String empresaUsername, EmpresaDomicilioDto empresaDomicilioDto) {
         if(StringUtils.isBlank(empresaUsername) || empresaDomicilioDto == null) {
             logger.warn("La empresa a crear o el usuario estan viniendo como nulos o vacios");
@@ -143,6 +153,7 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService {
     }
 
     @Override
+    @Transactional
     public EmpresaDomicilioDto modificarEmpresaDomicilio(String domicilioUuid, String username, EmpresaDomicilioDto empresaDomicilioDto) {
         if(StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(username) || empresaDomicilioDto == null) {
             logger.warn("El uuid de la empresa, el domicilio, el usuario o el domicilio a modificar vienen como nulos o vacios");
@@ -180,13 +191,24 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService {
         empresaDomicilio.setEstado(empresaDomicilioDto.getEstadoCatalogo().getNombre());
         empresaDomicilio.setLocalidad(empresaDomicilioDto.getLocalidadCatalogo().getNombre());
 
-        daoHelper.fulfillAuditorFields(false, empresaDomicilio, usuarioDto.getId());
-        empresaDomicilioRepository.save(empresaDomicilio);
+        empresaDomicilio.setLatitud(empresaDomicilioDto.getLatitud());
+        empresaDomicilio.setLongitud(empresaDomicilioDto.getLongitud());
 
-        return daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilio);
+        daoHelper.fulfillAuditorFields(false, empresaDomicilio, usuarioDto.getId());
+        EmpresaDomicilio empresaDomicilioCreado = empresaDomicilioRepository.save(empresaDomicilio);
+
+        EmpresaDomicilioDto response = daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilioCreado);
+        response.setCalleCatalogo(empresaDomicilioDto.getCalleCatalogo());
+        response.setColoniaCatalogo(empresaDomicilioDto.getColoniaCatalogo());
+        response.setLocalidadCatalogo(empresaDomicilioDto.getLocalidadCatalogo());
+        response.setMunicipioCatalogo(empresaDomicilioDto.getMunicipioCatalogo());
+        response.setEstadoCatalogo(empresaDomicilioDto.getEstadoCatalogo());
+
+        return response;
     }
 
     @Override
+    @Transactional
     public EmpresaDomicilioDto eliminarEmpresaDomicilio(String domicilioUuid, String username, EmpresaDomicilioDto empresaDomicilioDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(username)) {
             logger.warn("El uuid de la empresa, el domicilio o el usuario vienen como nulos o vacios");

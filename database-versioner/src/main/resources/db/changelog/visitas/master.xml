@@ -6,4 +6,5 @@
     <include file="db/changelog/visitas/initialize/schema.xml" />
     <include file="db/changelog/visitas/CEEMSP-32/schema.xml" />
     <include file="db/changelog/visitas/CEEMSP-33/schema.xml" />
+    <include file="db/changelog/visitas/CEEMSP-73/schema.xml" />
 </databaseChangeLog>

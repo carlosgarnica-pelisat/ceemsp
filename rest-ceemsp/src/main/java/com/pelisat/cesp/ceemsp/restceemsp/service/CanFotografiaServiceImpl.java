@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -101,6 +102,7 @@ public class CanFotografiaServiceImpl implements CanFotografiaService {
     }
 
     @Override
+    @Transactional
     public void guardarCanFotografia(String uuid, String personalUuid, String username, MultipartFile multipartFile, CanFotografiaMetadata metadata) {
         if (StringUtils.isBlank(uuid) || StringUtils.isBlank(personalUuid) || StringUtils.isBlank(username) || multipartFile == null) {
             logger.warn("El uuid de la empresa, el can o la foto vienen como nulos o vacios");
@@ -126,6 +128,12 @@ public class CanFotografiaServiceImpl implements CanFotografiaService {
             ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.FOTOGRAFIA_CAN, uuid);
             canFotografia.setRuta(ruta);
             canFotografiaRepository.save(canFotografia);
+
+            if(!can.isFotografiaCapturada()) {
+                can.setFotografiaCapturada(true);
+                daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+                canRepository.save(can);
+            }
         } catch (IOException ioException) {
             logger.warn(ioException.getMessage());
             archivosService.eliminarArchivo(ruta);
@@ -134,6 +142,7 @@ public class CanFotografiaServiceImpl implements CanFotografiaService {
     }
 
     @Override
+    @Transactional
     public void eliminarCanFotografia(String uuid, String canUuid, String fotografiaUuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(fotografiaUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

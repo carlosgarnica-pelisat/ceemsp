@@ -7,8 +7,6 @@ import {ICellRendererParams} from "ag-grid-community";
   selector: 'app-boton-empresa-licencias',
   template: `
     <fa-icon [icon]="faEye" size="fa-lg" style="cursor: pointer;" (click)="evaluateCallback($event, this.VER_DETALLES)"></fa-icon>
-    <fa-icon [icon]="faPencil" size="fa-lg" style="cursor: pointer;" (click)="evaluateCallback($event, this.EDITAR)"></fa-icon>
-    <fa-icon [icon]="faTrash" size="fa-lg" style="cursor: pointer;" (click)="evaluateCallback($event, this.ELIMINAR)"></fa-icon>
   `
 })
 export class BotonEmpresaLicenciasComponent implements ICellRendererAngularComp {
@@ -21,8 +19,6 @@ export class BotonEmpresaLicenciasComponent implements ICellRendererAngularComp 
   faEye = faEye;
 
   VER_DETALLES: string = "VER_DETALLES";
-  EDITAR: string = "EDITAR";
-  ELIMINAR: string = "ELIMINAR";
 
   agInit(params: ICellRendererParams): void {
     this.params = params;
@@ -42,12 +38,6 @@ export class BotonEmpresaLicenciasComponent implements ICellRendererAngularComp 
     switch (callbackType) {
       case this.VER_DETALLES:
         this.params.verDetalles(params);
-        break;
-      case this.EDITAR:
-        this.params.editar(params);
-        break;
-      case this.ELIMINAR:
-        this.params.eliminar(params);
         break;
     }
   }

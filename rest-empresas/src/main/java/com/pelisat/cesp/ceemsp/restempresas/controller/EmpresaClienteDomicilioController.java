@@ -31,13 +31,13 @@ public class EmpresaClienteDomicilioController {
     }
 
     @PostMapping(value = CLIENTE_DOMICILIOS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public List<ClienteDomicilioDto> guardarClienteDomicilio(
-            @RequestBody List<ClienteDomicilioDto> clienteDomicilioDtos,
+    public ClienteDomicilioDto guardarClienteDomicilio(
+            @RequestBody ClienteDomicilioDto clienteDomicilioDto,
             HttpServletRequest request,
             @PathVariable(value = "clienteUuid") String clienteUuid
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return empresaClienteDomicilioService.crearDomicilio(username, clienteUuid, clienteDomicilioDtos);
+        return empresaClienteDomicilioService.crearDomicilio(username, clienteUuid, clienteDomicilioDto);
     }
 
     @PutMapping(value = CLIENTE_DOMICILIOS_URI + "/{domicilioUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -49,6 +49,16 @@ public class EmpresaClienteDomicilioController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return empresaClienteDomicilioService.modificarDomicilio(clienteUuid, domicilioUuid, username, clienteDomicilioDto);
+    }
+
+    @PutMapping(value = CLIENTE_DOMICILIOS_URI + "/{domicilioUuid}/matriz", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ClienteDomicilioDto cambiarMatriz(
+            HttpServletRequest request,
+            @PathVariable(value = "clienteUuid") String clienteUuid,
+            @PathVariable(value = "domicilioUuid") String domicilioUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaClienteDomicilioService.cambiarMatriz(clienteUuid, domicilioUuid, username);
     }
 
     @DeleteMapping(value = CLIENTE_DOMICILIOS_URI + "/{domicilioUuid}", produces = MediaType.APPLICATION_JSON_VALUE)

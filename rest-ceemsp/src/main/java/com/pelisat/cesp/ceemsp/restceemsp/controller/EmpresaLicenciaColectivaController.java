@@ -65,6 +65,21 @@ public class EmpresaLicenciaColectivaController {
         return new ResponseEntity<>(isr, httpHeaders, HttpStatus.OK);
     }
 
+    @GetMapping(value = EMPRESA_LICENCIAS_URI + "/{licenciaUuid}/documentos/fundatorios")
+    public ResponseEntity<InputStreamResource> descargarDocumentoFundatorio(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "licenciaUuid") String licenciaUuid
+    ) throws Exception {
+        File file = empresaLicenciaColectivaService.descargarDocumentoFundatorio(empresaUuid, licenciaUuid);
+        HttpHeaders httpHeaders = new HttpHeaders();
+
+        httpHeaders.setContentType(MediaType.APPLICATION_PDF);
+        httpHeaders.setContentLength(file.length());
+        httpHeaders.setContentDispositionFormData("attachment", file.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+        return new ResponseEntity<>(isr, httpHeaders, HttpStatus.OK);
+    }
+
     @PostMapping(value = EMPRESA_LICENCIAS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public EmpresaLicenciaColectivaDto guardarLicenciaColectiva(
             @PathVariable(value = "empresaUuid") String empresaUuid,

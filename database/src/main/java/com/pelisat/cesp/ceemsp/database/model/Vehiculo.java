@@ -2,6 +2,7 @@ package com.pelisat.cesp.ceemsp.database.model;
 
 import com.pelisat.cesp.ceemsp.database.type.NivelBlindajeEnum;
 import com.pelisat.cesp.ceemsp.database.type.VehiculoOrigenEnum;
+import com.pelisat.cesp.ceemsp.database.type.VehiculoStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,9 +28,6 @@ public class Vehiculo extends CommonModel {
 
     @Column(name = "ANIO", nullable = false)
     private String anio;
-
-    @Column(name = "COLOR", nullable = false)
-    private String color;
 
     @Column(name = "ROTULADO")
     private boolean rotulado;
@@ -98,6 +96,16 @@ public class Vehiculo extends CommonModel {
 
     @Column(name = "FECHA_BAJA")
     private LocalDate fechaBaja;
+
+    @Column(name = "STATUS")
+    @Enumerated(EnumType.STRING)
+    private VehiculoStatusEnum status;
+
+    @Column(name = "COLORES_CAPTURADO")
+    private boolean coloresCapturado;
+
+    @Column(name = "FOTOGRAFIA_CAPTURADA")
+    private boolean fotografiaCapturada;
 
     public Vehiculo() {
         super();

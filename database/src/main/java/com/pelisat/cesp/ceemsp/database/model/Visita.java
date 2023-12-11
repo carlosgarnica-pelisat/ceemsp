@@ -94,4 +94,7 @@ public class Visita extends CommonModel {
 
     @Column(name = "LOCALIDAD_CATALOGO", nullable = false)
     private int localidadCatalogo;
+
+    @Column(name = "EMPRESA_DOMICILIO", nullable = false)
+    private Integer empresaDomicilio;
 }

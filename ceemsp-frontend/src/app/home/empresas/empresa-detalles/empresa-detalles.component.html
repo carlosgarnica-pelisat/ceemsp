@@ -13,8 +13,9 @@
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
           <a class="dropdown-item" (click)="mostrarModalModalidades(mostrarModalidadesModal)" style="cursor: pointer;">Ver modalidades</a>
-          <a class="dropdown-item" (click)="mostrarModalFormasEjecucion(mostrarFormasEjecucionModal)" style="cursor: pointer;">Ver formas de ejecucion</a>
-          <a class="dropdown-item" (click)="mostrarModalCambioInicioSesion(crearUsuarioModal)" style="cursor: pointer;">Cambiar datos de inicio de sesion</a> <!-- TODO: CAMBIAR EL MODAL -->
+          <a class="dropdown-item" (click)="mostrarModalFormasEjecucion(mostrarFormasEjecucionModal)" style="cursor: pointer;">Ver formas de ejecución</a>
+          <a class="dropdown-item" (click)="mostrarModalCambioInicioSesion(crearUsuarioModal)" style="cursor: pointer;">Cambiar datos de inicio de sesión</a>
+          <a class="dropdown-item" (click)="mostrarModalDocumentoRegistroFederal()" style="cursor: pointer;" *ngIf="empresa?.tipoTramite === 'EAFJAL'">Descargar documento de registro federal</a>
         </div>
       </div>
     </div>
@@ -24,7 +25,7 @@
     <div class="col-sm-12">
       <div class="row" id="header" style="display: none;">
         <div style="width: 25%; float: left;">
-          <!--img src="https://www.armadurasdejalisco.com/img/Slogo2.jpg" alt="Logo de Armaduras de Jalisco" style="width: 60%;"-->
+          <!--img src="" alt="Logo" style="width: 60%;"-->
         </div>
         <div style="width: 70%; float: left;">
           <p>
@@ -42,7 +43,7 @@
         <hr>
         <table class="table table-borderless">
           <tr>
-            <td *ngIf="empresa?.tipoPersona === 'MORAL'"><b>Razon social</b></td>
+            <td *ngIf="empresa?.tipoPersona === 'MORAL'"><b>Razón social</b></td>
             <td *ngIf="empresa?.tipoPersona === 'FISICA'"><b>Nombre completo</b></td>
             <td>{{empresa?.razonSocial}}</td>
           </tr>
@@ -51,11 +52,11 @@
             <td>{{empresa?.nombreComercial}}</td>
           </tr>
           <tr>
-            <td><b>Fecha de autorizacion / registro:</b></td>
+            <td><b>Fecha de autorización / registro:</b></td>
             <td>{{"Pendiente"}}</td>
           </tr>
           <tr>
-            <td><b>Numero de expediente administrativo</b></td>
+            <td><b>Número de expediente administrativo</b></td>
             <td>{{empresa?.registro}}</td>
           </tr>
           <tr>
@@ -67,7 +68,7 @@
             <td>{{empresa?.curp}}</td>
           </tr>
           <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
-            <td><b>Sexo:</b></td>
+            <td><b>Genero:</b></td>
             <td>{{empresa?.sexo}}</td>
           </tr>
           <tr>
@@ -109,17 +110,17 @@
         <hr>
         <div class="row" *ngFor="let e of escrituras; let i = index">
           <h4>Escritura: {{i + 1}}</h4>
-          <p><b>Numero de escritura:</b> {{e?.numeroEscritura}}</p>
-          <p><b>Institucion de fe:</b> {{e?.tipoFedatario + " numero " + e?.numero + " de la ciudad de " + e?.ciudad}}</p>
+          <p><b>Número de escritura:</b> {{e?.numeroEscritura}}</p>
+          <p><b>Institución de fe:</b> {{e?.tipoFedatario + " numero " + e?.numero + " de la ciudad de " + e?.ciudad}}</p>
           <p><b>Fedatario:</b>{{e?.nombreFedatario}}</p>
-          <p><b>Descripcion:</b>{{e?.descripcion}}</p>
+          <p><b>Descripción:</b>{{e?.descripcion}}</p>
           <div class="row">
             <b>Socios</b>
             <table class="table table-bordered" style="border: 1px solid;">
               <tr>
                 <td><b>Nombre(s)</b></td>
                 <td><b>Apellido(s)</b></td>
-                <td><b>Sexo</b></td>
+                <td><b>Genero</b></td>
                 <td><b>Porcentaje</b></td>
               </tr>
               <tr *ngFor="let s of e?.socios">
@@ -137,9 +138,9 @@
               <tr>
                 <td><b>Nombre(s)</b></td>
                 <td><b>Apellido(s)</b></td>
-                <td><b>Sexo</b></td>
+                <td><b>Genero</b></td>
                 <td><b>F. Inicio</b></td>
-                <td><b>F. Termino</b></td>
+                <td><b>F. Término</b></td>
               </tr>
               <tr *ngFor="let a of e?.apoderados">
                 <td>{{a.nombres}}</td>
@@ -157,7 +158,7 @@
               <tr>
                 <td><b>Nombre(s)</b></td>
                 <td><b>Apellido(s)</b></td>
-                <td><b>Sexo</b></td>
+                <td><b>Genero</b></td>
               </tr>
               <tr *ngFor="let r of e?.representantes">
                 <td>{{r.nombres}}</td>
@@ -173,7 +174,7 @@
               <tr >
                 <td><b>Nombre(s)</b></td>
                 <td><b>Apellido(s)</b></td>
-                <td><b>Sexo</b></td>
+                <td><b>Genero</b></td>
                 <td><b>Puesto</b></td>
               </tr>
               <tr *ngFor="let c of e?.consejos">
@@ -193,20 +194,20 @@
         <div class="row" *ngFor="let d of domicilios;  let i = index">
           <h4>Domicilio: {{i + 1}}</h4>
           <p><b>Nombre del domicilio:</b>{{d.nombre}}</p>
-          <p><b>Direccion:</b>{{d.domicilio1 + " " + d.numeroExterior + ". Colonia: " + d.domicilio2 + ", " + d.domicilio3 + ", " + d.estado + ". Codigo postal: " + d.codigoPostal}}</p>
-          <p><b>Codigo postal:</b>{{d.codigoPostal}}</p>
-          <p><b>Telefono fijo:</b>{{d.telefonoFijo}}</p>
-          <p><b>Telefono movil:</b>{{d.telefonoMovil}}</p>
+          <p><b>Dirección:</b>{{d.domicilio1 + " " + d.numeroExterior + ". Colonia: " + d.domicilio2 + ", " + d.domicilio3 + ", " + d.estado + ". Codigo postal: " + d.codigoPostal}}</p>
+          <p><b>Código postal:</b>{{d.codigoPostal}}</p>
+          <p><b>Teléfono fijo:</b>{{d.telefonoFijo}}</p>
+          <p><b>Teléfono movil:</b>{{d.telefonoMovil}}</p>
         </div>
 
         <h3>Visitas de inspeccion</h3>
         <hr>
         <div class="row" *ngFor="let v of visitas;  let i = index">
           <h4>Visita: {{v?.numeroOrden}}</h4>
-          <p><b>Numero de orden</b> {{v?.numeroOrden}}</p>
+          <p><b>Número de orden</b> {{v?.numeroOrden}}</p>
           <p><b>Fecha</b> {{v?.fechaVisita}}</p>
           <p><b>Tipo</b> {{v?.tipoVisita}}</p>
-          <p><b>Fecha termino</b> {{v?.fechaTermino}}</p>
+          <p><b>Fecha término</b> {{v?.fechaTermino}}</p>
           <p><b>Requerimiento</b> {{v?.requerimiento}}</p>
           <p><b>Detalles del requerimiento</b> {{v?.detallesRequerimiento}}</p>
         </div>
@@ -225,8 +226,12 @@
   <div class="row">
     <div class="col-sm-3">
       <div class="list-group">
-        <a routerLink="/home/empresas/{{empresa?.uuid}}" class="list-group-item list-group-item-action active">
-          Detalles
+        <a routerLink="/home/empresas/{{empresa?.uuid}}" class="list-group-item list-group-item-action active flex-column align-items-start">
+          <p class="mb-1">
+            <b>Registro: </b>{{empresa?.registro}}<br>
+            <b>Nombre comercial: </b> {{empresa?.nombreComercial}}<br>
+            <b>Razon social: </b> {{empresa?.razonSocial}}<br>
+          </p>
         </a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
@@ -239,88 +244,129 @@
         <a routerLink="/home/empresas/{{empresa?.uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
-      <table class="table">
-        <tr>
-          <td><b>Registro</b></td>
-          <td>{{empresa?.registro}}</td>
-        </tr>
-        <tr>
-          <td><b>Nombre comercial</b></td>
-          <td>{{empresa?.nombreComercial}}</td>
-        </tr>
-        <tr>
-          <td><b>Razon social</b></td>
-          <td>{{empresa?.razonSocial}}</td>
-        </tr>
-        <tr>
-          <td><b>RFC</b></td>
-          <td>{{empresa?.rfc}}</td>
-        </tr>
-        <tr>
-          <td><b>Tipo de persona</b></td>
-          <td>{{empresa?.tipoPersona}}</td>
-        </tr>
-        <tr>
-          <td><b>Tipo de tramite</b></td>
-          <td>{{empresa?.tipoTramite}}</td>
-        </tr>
+      <div class="row">
+        <div class="col-sm-3">
+          <div class="row">
+            <div class="col-sm-12">
+              <img [src]="logo" style="width: 100%;">
+            </div>
+          </div>
+          <div class="row" *ngIf="!empresa?.domiciliosCapturados || !empresa?.escriturasCapturadas || !empresa?.acuerdosCapturados || !empresa?.formasEjecucionCapturadas">
+            <div class="col-sm-12">
+              <div class="alert alert-warning">
+                <h4 class="alert-heading">
+                  Empresa no finalizada
+                </h4>
+                <b>Esta empresa carece de la siguiente informacion:</b>
+                <ul>
+                  <li *ngIf="!empresa?.domiciliosCapturados">Domicilio</li>
+                  <li *ngIf="!empresa?.escriturasCapturadas">Escritura</li>
+                  <li *ngIf="!empresa?.formasEjecucionCapturadas">Forma de ejecución</li>
+                  <li *ngIf="!empresa?.acuerdosCapturados">Acuerdo</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-9">
+          <table class="table">
+            <tr>
+              <td><b>Registro</b></td>
+              <td>{{empresa?.registro}}</td>
+            </tr>
+            <tr>
+              <td><b>Nombre comercial</b></td>
+              <td>{{empresa?.nombreComercial}}</td>
+            </tr>
+            <tr>
+              <td><b>Razón social</b></td>
+              <td>{{empresa?.razonSocial}}</td>
+            </tr>
+            <tr>
+              <td><b>RFC</b></td>
+              <td>{{empresa?.rfc}}</td>
+            </tr>
+            <tr>
+              <td><b>Tipo de persona</b></td>
+              <td>{{empresa?.tipoPersona}}</td>
+            </tr>
+            <tr>
+              <td><b>Tipo de trámite</b></td>
+              <td>{{empresa?.tipoTramite}}</td>
+            </tr>
 
-        <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
-          <td><b>CURP</b></td>
-          <td>{{empresa?.curp}}</td>
-        </tr>
-        <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
-          <td><b>Sexo</b></td>
-          <td>{{empresa?.sexo}}</td>
-        </tr>
-        <tr>
-          <td><b>Correo electronico: </b></td>
-          <td>{{empresa?.correoElectronico}}</td>
-        </tr>
-        <tr>
-          <td><b>Telefono: </b></td>
-          <td>{{empresa?.telefono}}</td>
-        </tr>
-        <tr *ngIf="empresa?.tipoTramite === 'EAFJAL'">
-          <td><b>Numero de Registro Federal: </b></td>
-          <td>{{empresa?.registroFederal}}</td>
-        </tr>
-        <tr *ngIf="empresa?.tipoTramite === 'EAFJAL'">
-          <td><b>Fecha de inicio: </b></td>
-          <td>{{empresa?.fechaInicio}}</td>
-        </tr>
-        <tr *ngIf="empresa?.tipoTramite === 'EAFJAL'">
-          <td><b>Fecha de fin: </b></td>
-          <td>{{empresa?.fechaFin}}</td>
-        </tr>
-        <tr>
-          <td><b>Fecha de creacion:</b></td>
-          <td>{{empresa?.fechaCreacion}}</td>
-        </tr>
-        <tr>
-          <td><b>Status</b></td>
-          <td [ngSwitch]="empresa?.status">
-            <span *ngSwitchCase="'ACTIVA'">Activa</span>
-            <span *ngSwitchCase="'SUSPENDIDA'">Suspendida</span>
-            <span *ngSwitchCase="'REVOCADA'">Revocada</span>
-            <span *ngSwitchCase="'CLAUSURADA'">Clausurada</span>
-            <span *ngSwitchCase="'PERDIDA_EFICACIA'">Perdida de eficacia</span>
-          </td>
-        </tr>
-        <tr>
-          <td><b>Observaciones</b></td>
-          <td>{{empresa?.observaciones}}</td>
-        </tr>
-      </table>
+            <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
+              <td><b>CURP</b></td>
+              <td>{{empresa?.curp}}</td>
+            </tr>
+            <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
+              <td><b>Genero</b></td>
+              <td>{{empresa?.sexo}}</td>
+            </tr>
+            <tr>
+              <td><b>Correo electrónico: </b></td>
+              <td>{{empresa?.correoElectronico}}</td>
+            </tr>
+            <tr>
+              <td><b>Teléfono: </b></td>
+              <td>{{empresa?.telefono}}</td>
+            </tr>
+            <tr *ngIf="empresa?.tipoTramite === 'EAFJAL'">
+              <td><b>Número de Registro Federal: </b></td>
+              <td>{{empresa?.registroFederal}}</td>
+            </tr>
+            <tr *ngIf="empresa?.tipoTramite === 'EAFJAL'">
+              <td><b>Fecha de inicio de licencia federal: </b></td>
+              <td>{{empresa?.fechaInicio}}</td>
+            </tr>
+            <tr *ngIf="empresa?.tipoTramite === 'EAFJAL'">
+              <td><b>Fecha de fin de licencia federal: </b></td>
+              <td>{{empresa?.fechaFin}}</td>
+            </tr>
+            <tr>
+              <td><b>Inicio de la vigencia: </b></td>
+              <td>{{empresa?.vigenciaInicio}}</td>
+            </tr>
+            <tr>
+              <td><b>Fin de la vigencia: </b></td>
+              <td>{{empresa?.vigenciaFin}}</td>
+            </tr>
+            <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+              <td><b>Fecha de creación:</b></td>
+              <td>{{empresa?.fechaCreacion}}</td>
+            </tr>
+            <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+              <td><b>Última actualización:</b></td>
+              <td>{{empresa?.fechaActualizacion}}</td>
+            </tr>
+            <tr>
+              <td><b>Status</b></td>
+              <td [ngSwitch]="empresa?.status">
+                <span *ngSwitchCase="'ACTIVA'">Activa</span>
+                <span *ngSwitchCase="'SUSPENDIDA'">Suspendida</span>
+                <span *ngSwitchCase="'REVOCADA'">Revocada</span>
+                <span *ngSwitchCase="'CLAUSURADA'">Clausurada</span>
+                <span *ngSwitchCase="'PERDIDA_EFICACIA'">Perdida de eficacia</span>
+              </td>
+            </tr>
+            <tr>
+              <td><b>Observaciones</b></td>
+              <td>{{empresa?.observaciones}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
   <ng-template #crearUsuarioModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="crearUsuarioModal">Crear o modificar usuario</h4>
+      <h4 class="modal-title" id="crearUsuarioModal">Cambiar datos de inicio de sesión</h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -335,7 +381,7 @@
                   <b>Usuario *</b>
                   <span
                     *ngIf="empresaUsuarioForm.controls['usuario'].invalid && (empresaUsuarioForm.controls['usuario'].dirty || empresaUsuarioForm.controls['usuario'].touched)">
-                        <i *ngIf="empresaUsuarioForm.controls['apellidos'].errors.required" class="error-text"> - Campo requerido</i>
+                        <i *ngIf="empresaUsuarioForm.controls['apellidos'].errors.required" class="text-danger"> - Campo requerido</i>
                       </span>
                 </label>
                 <input class="form-control" id="usuario" type="text" formControlName="usuario" placeholder="Se genera en funcion del registro" disabled>
@@ -345,8 +391,8 @@
                   <b>Correo electronico *</b>
                   <span
                     *ngIf="empresaUsuarioForm.controls['email'].invalid && (empresaUsuarioForm.controls['email'].dirty || empresaUsuarioForm.controls['email'].touched)">
-                        <i *ngIf="empresaUsuarioForm.controls['email'].errors.required" class="error-text"> - Campo requerido</i>
-                        <i *ngIf="empresaUsuarioForm.controls['email'].errors.email" class="error-text"> - No es un email</i>
+                        <i *ngIf="empresaUsuarioForm.controls['email'].errors.required" class="text-danger"> - Campo requerido</i>
+                        <i *ngIf="empresaUsuarioForm.controls['email'].errors.email" class="text-danger"> - No es un email</i>
                       </span>
                 </label>
                 <input class="form-control" id="email" type="email" formControlName="email" (focusout)="consultarEmail($event.target)" placeholder="Ejemplo: hola@hotmail.com">
@@ -367,6 +413,9 @@
               </div>
             </div>
           </form>
+        </div>
+        <div class="col-sm-12">
+          <p>Recuerda que para cambiar el usuario, necesitas actualizar el <b>Numero de Registro Federal</b> de la empresa.</p>
         </div>
       </div>
     </div>
@@ -390,7 +439,7 @@
             <div class="form-row">
               <div class="col-sm-3">
                 <label for="razonSocial">
-                  <b>Razon Social *</b>
+                  <b>Razón Social *</b>
                   <span
                     *ngIf="empresaCreacionForm.controls['razonSocial'].invalid && (empresaCreacionForm.controls['razonSocial'].dirty || empresaCreacionForm.controls['razonSocial'].touched)">
                       <i *ngIf="empresaCreacionForm.controls['razonSocial'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -418,7 +467,7 @@
               </div>
               <div class="col-sm-3" *ngIf="tipoPersona === 'FISICA'">
                 <label for="sexo">
-                  <b>Sexo</b>
+                  <b>Genero</b>
                 </label>
                 <select id="sexo" class="form-control" formControlName="sexo">
                   <option value="MASCULINO">MASCULINO</option>
@@ -466,7 +515,7 @@
               </div>
               <div class="col-sm-3">
                 <label for="telefono">
-                  <b>Telefono *</b>
+                  <b>Teléfono *</b>
                   <span
                     *ngIf="empresaCreacionForm.controls['telefono'].invalid && (empresaCreacionForm.controls['telefono'].dirty || empresaCreacionForm.controls['telefono'].touched)">
                       <i *ngIf="empresaCreacionForm.controls['telefono'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -476,9 +525,39 @@
               </div>
             </div>
             <div class="form-row">
+              <div class="col-sm-3" *ngIf="tipoTramite === 'EAFJAL'">
+                <label for="numeroRegistroFederalEmpresa">
+                  <b>No. de Registro Federal</b>
+                  <span
+                    *ngIf="empresaCreacionForm.controls['registroFederal'].invalid && (empresaCreacionForm.controls['registroFederal'].dirty || empresaCreacionForm.controls['registroFederal'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['registroFederal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                </label>
+                <input class="form-control" id="numeroRegistroFederalEmpresa" type ="text" formControlName="registroFederal" placeholder="Ejemplo. 156861215">
+              </div>
+              <div class="col-sm-3" *ngIf="tipoTramite === 'EAFJAL'">
+                <label for="documentoRegistroFederal">
+                  <b>Doc. Registro Federal (en pdf)</b>
+                </label>
+                <input id="documentoRegistroFederal" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
+              </div>
+              <div class="col-sm-3" *ngIf="tipoTramite === 'EAFJAL'">
+                <label for="fechaInicioEmpresa">
+                  <b>Fecha de Inicio</b>
+                </label>
+                <input class="form-control" id="fechaInicioEmpresa" type="date" formControlName="fechaInicio" placeholder="Fecha inicio">
+              </div>
+              <div class="col-sm-3" *ngIf="tipoTramite === 'EAFJAL'">
+                <label for="fechaFinEmpresa">
+                  <b>Fecha de Fin</b>
+                </label>
+                <input class="form-control" id="fechaFinEmpresa" type="date" formControlName="fechaFin" placeholder="Fecha fin">
+              </div>
+            </div>
+            <div class="form-row">
               <div class="col-sm-6">
-                <label for="telefono">
-                  <b>Registro * <i>(Toma en cuenta que, si actualizas el registro el usuario tambien sera actualizado para coincidir con el numero de registro)</i></b>
+                <label for="registro">
+                  <b>Registro * </b>
                   <span
                     *ngIf="empresaCreacionForm.controls['registro'].invalid && (empresaCreacionForm.controls['registro'].dirty || empresaCreacionForm.controls['registro'].touched)">
                       <i *ngIf="empresaCreacionForm.controls['registro'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -497,13 +576,27 @@
                   </div>
                 </div>
               </div>
+              <div class="col-sm-6">
+                <label for="registro">
+                  <b>Logo </b>
+                </label>
+                <div class="input-group">
+                  <input id="logo" class="form-control" formControlName="archivo" type="file" accept="image/*" (change)="actualizarLogo($event)">
+                </div>
+              </div>
             </div>
             <div class="form-row">
               <div class="col-sm-12">
                 <label for="observaciones">
                   <b>Observaciones *</b>
                 </label>
-                <textarea class="form-control" id="observaciones" formControlName="observaciones" placeholder="Coloca aqui algun comentario de la empresa"></textarea>
+                <textarea class="form-control" id="observaciones" formControlName="observaciones" placeholder="Coloca aquí algun comentario de la empresa"></textarea>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-sm-12">
+                <p>NOTA: Al actualizar el registro, también será actualizado el usuario con el cuál la empresa iniciará sesión para coincidir con el nuevo número de registro)</p>
+                <p *ngIf="tipoTramite === 'EAFJAL'">IMPORTANTE: Al actualizar el <b>Número de Registro Federal</b> o las fechas de <b>Inicio o de Fin</b>, las modalidades serán actualizadas para coincidir con esta información.</p>
               </div>
             </div>
           </form>
@@ -518,7 +611,7 @@
 
   <ng-template #mostrarFormasEjecucionModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="mostrarFormasEjecucionModal">Ver formas de ejecucion </h4>
+      <h4 class="modal-title" id="mostrarFormasEjecucionModal">Ver formas de ejecución </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -526,66 +619,57 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <table class="table">
-            <tr>
-              <td><b>Forma de ejecucion</b></td>
-              <td><b>Acciones</b></td>
-            </tr>
-            <tr *ngFor="let fe of empresaFormasEjecucion">
-              <td [ngSwitch]="fe?.formaEjecucion">
-                <span *ngSwitchCase="'ARMAS'">Con portacion de armas de fuego</span>
-                <span *ngSwitchCase="'CANES'">Con el auxilio de canes</span>
-                <span *ngSwitchCase="'INSTRUMENTOS'">Con portacion de instrumentos de apoyo para control</span>
-                <span *ngSwitchCase="'TECNOLOGIA'">Con apoyo de tecnologia</span>
-              </td>
-              <td>
-                <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarEliminarFormaEjecucionModal(fe?.uuid)"></fa-icon>
-              </td>
-            </tr>
-            <tr *ngIf="!formularioFormasEjecucion">
-              <td colspan="3">
-                <button class="btn-primary btn-sm" (click)="mostrarFormularioFormaEjecucion()">Agregar forma de ejecucion</button>
-              </td>
-            </tr>
-            <tr *ngIf="formularioFormasEjecucion">
-              <td colspan="3">
-                <div class="row">
-                  <div class="col-sm-12">
-                    <form [formGroup]="empresaFormaEjecucionForm" style="margin-top: 10px;">
-                      <div class="form-row">
-                        <div class="col-sm-6">
-                          <label for="formaEjecucion">
-                            <b>Forma de ejecucion *</b>
-                            <span *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].invalid && (empresaFormaEjecucionForm.controls['formaEjecucion'].dirty || empresaFormaEjecucionForm.controls['formaEjecucion'].touched)">
-                              <i *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].errors.required" class="error-text"> - Campo requerido</i>
-                            </span>
-                          </label>
-                          <select id="formaEjecucion" class="form-control" formControlName="formaEjecucion">
-                            <option value="ARMAS" *ngIf="empresa?.tipoTramite === 'EAFJAL'">Con portacion de armas de fuego</option>
-                            <option value="CANES">Con el auxilio de canes</option>
-                            <option value="INSTRUMENTOS">Con portacion de instrumentos de apoyo para control</option>
-                            <option value="TECNOLOGIA">Con apoyo de tecnologia</option>
-                          </select>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
+          <p-table #tablaEmpresaFormasEjecucion [value]="empresaFormasEjecucion" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['formaEjecucion']">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Formas de ejecución de la empresa</h5>
                 </div>
-                <hr>
-                <div class="row">
-                  <div class="col-sm-12">
-                    <button class="btn btn-sm btn-primary" (click)="agregarFormaEjecucion(empresaFormaEjecucionForm)">Guardar cambios</button>
-                    <button class="btn btn-sm btn-danger" (click)="mostrarFormularioFormaEjecucion()">Cancelar</button>
-                  </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaEmpresaFormasEjecucion.filterGlobal($event.target.value, 'contains')" placeholder="Buscar forma de ejecucion" />
                 </div>
-              </td>
-            </tr>
-          </table>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="formaEjecucion"><b>Forma de ejecución <p-sortIcon field="formaEjecucion"></p-sortIcon></b></th>
+                <th><b>Opciones</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="6">No hay formas de ejecución creadas en este momento. <a class="fakelink" (click)="mostrarModalAgregarFormaEjecucion()">Da clic aquí para crear una</a></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-formaEjecucion>
+              <tr>
+                <td [ngSwitch]="formaEjecucion?.formaEjecucion">
+                  <span *ngSwitchCase="'ARMAS'">Con portación de armas de fuego</span>
+                  <span *ngSwitchCase="'NO_ARMAS'">Sin portación de armas de fuego</span>
+                  <span *ngSwitchCase="'CANES'">Con el auxilio de canes</span>
+                  <span *ngSwitchCase="'NO_CANES'">Sin el auxilio de canes</span>
+                  <span *ngSwitchCase="'INSTRUMENTOS'">Con portación de instrumentos de apoyo para control</span>
+                  <span *ngSwitchCase="'TECNOLOGIA'">Con apoyo de tecnología</span>
+                </td>
+                <td>
+                  <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarEliminarFormaEjecucionModal(formaEjecucion?.uuid)"></fa-icon>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{empresaFormasEjecucion.length}} formas de ejecución</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+      <button type="button" class="btn btn-primary" (click)="mostrarModalAgregarFormaEjecucion()">Agregar forma de ejecucion</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
 
@@ -599,128 +683,185 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <table class="table">
-            <tr>
-              <td><b>Modalidad</b></td>
-              <td><b>Submodalidad</b></td>
-              <td *ngIf="empresa?.tipoTramite === 'EAFJAL'"><b>No. de Registro Federal</b></td>
-              <td *ngIf="empresa?.tipoTramite === 'EAFJAL'"><b>Fecha de Inicio</b></td>
-              <td *ngIf="empresa?.tipoTramite === 'EAFJAL'"><b>Fecha de Fin</b></td>
-              <td><b>Acciones</b></td>
-            </tr>
-            <tr *ngFor="let m of empresaModalidades">
-              <td>{{m.modalidad?.nombre}}</td>
-              <td>
-                <span *ngIf="m.submodalidad !== null">{{m.submodalidad?.nombre}}</span>
-                <span *ngIf="m.submodalidad === null">NA</span>
-              </td>
-              <td *ngIf="empresa?.tipoTramite === 'EAFJAL'">
-                <span>{{m.numeroRegistroFederal}}</span>
-              </td>
-              <td *ngIf="empresa?.tipoTramite === 'EAFJAL'">
-                <span>{{m.fechaInicio}}</span>
-              </td>
-              <td *ngIf="empresa?.tipoTramite === 'EAFJAL'">
-                <span>{{m.fechaFin}}</span>
-              </td>
-              <td>
-                <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarEliminarModalidadModal(m?.uuid)"></fa-icon>
-              </td>
-            </tr>
-            <tr *ngIf="!formularioModalidad">
-              <td colspan="6">
-                <button class="btn-primary btn-sm" (click)="mostrarFormularioModalidad()">Agregar modalidad</button>
-              </td>
-            </tr>
-            <tr *ngIf="formularioModalidad">
-              <td colspan="6">
-                <div class="row">
-                  <div class="col-sm-12">
-                    <form [formGroup]="empresaModalidadForm" style="margin-top: 10px;">
-                      <div class="form-row">
-                        <div class="col-sm-3">
-                          <label>
-                            <b>Modalidad * </b>
-                          </label>
-                          <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                            {{modalidad === undefined ? 'Ninguno' : (modalidad?.nombre).substr(0, 30)}}
-                          </a>
-                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
-                            <form class="px-4 py-3" autocomplete="off">
-                              <label for="modalidadSearchQuery"><b>Buscar por nombre</b></label>
-                              <input type="text" class="form-control" id="modalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="modalidadQuery"
-                                     [ngModelOptions]="{standalone: true}">
-                            </form>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" *ngFor="let m of modalidades | buscarNombre: {nombre: modalidadQuery}" (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
-                              {{m.nombre}}
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" *ngIf="modalidad !== undefined" (click)="quitarModalidad()">Quitar</a>
-                          </div>
-                        </div>
-                        <div class="col-sm-3" *ngIf="modalidad?.tieneSubmodalidades">
-                          <label>
-                            <b>Submodalidad</b>
-                          </label>
-                          <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                            {{submodalidad === undefined ? 'Ninguno' : (submodalidad?.nombre).substr(0, 30)}}
-                          </a>
-                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
-                            <form class="px-4 py-3" autocomplete="off">
-                              <label for="submodalidadSearchQuery"><b>Buscar por nombre</b></label>
-                              <input type="text" class="form-control" id="submodalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="submodalidadQuery"
-                                     [ngModelOptions]="{standalone: true}">
-                            </form>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" *ngFor="let s of modalidad.submodalidades | buscarNombre: {nombre: submodalidadQuery}" (click)="seleccionarSubmodalidad(s?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
-                              {{s.nombre}}
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" *ngIf="submodalidad !== undefined" (click)="quitarSubmodalidad()">Quitar</a>
-                          </div>
-                        </div>
-                        <div class="col-sm-3" *ngIf="modalidad?.tipo === 'EAFJAL'">
-                          <label for="numeroRegistroFederal">
-                            <b>No. de Registro Federal</b>
-                            <span
-                              *ngIf="empresaModalidadForm.controls['numeroRegistroFederal'].invalid && (empresaModalidadForm.controls['numeroRegistroFederal'].dirty || empresaModalidadForm.controls['numeroRegistroFederal'].touched)">
-                                <i *ngIf="empresaModalidadForm.controls['numeroRegistroFederal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                              </span>
-                          </label>
-                          <input class="form-control" id="numeroRegistroFederal" type="text" formControlName="numeroRegistroFederal" placeholder="Ejemplo. 156861215">
-                        </div>
-                        <div class="col-sm-3" *ngIf="modalidad?.tipo === 'EAFJAL'">
-                          <label for="fechaInicio">
-                            <b>Fecha de Inicio</b>
-                          </label>
-                          <input class="form-control" id="fechaInicio" type="date" formControlName="fechaInicio" placeholder="Fecha inicio">
-                        </div>
-                        <div class="col-sm-3" *ngIf="modalidad?.tipo === 'EAFJAL'">
-                          <label for="fechaFin">
-                            <b>Fecha de Fin</b>
-                          </label>
-                          <input class="form-control" id="fechaFin" type="date" formControlName="fechaFin" placeholder="Fecha fin">
-                        </div>
-                      </div>
-                    </form>
-                  </div>
+          <p-table #tablaEmpresaModalidades [value]="empresaModalidades" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['modalidad.nombre','submodalidad.nombre','numeroRegistroFederal']">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Modalidades de la empresa</h5>
                 </div>
-                <hr>
-                <div class="row">
-                  <div class="col-sm-12">
-                    <button class="btn btn-sm btn-info" (click)="agregarModalidad(empresaModalidadForm)">Guardar cambios</button>
-                    <button class="btn btn-sm btn-danger" (click)="ocultarFormularioModalidad()">Cancelar</button>
-                  </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaEmpresaModalidades.filterGlobal($event.target.value, 'contains')" placeholder="Buscar modalidad" />
                 </div>
-              </td>
-            </tr>
-          </table>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="modalidad.nombre"><b>Modalidad <p-sortIcon field="modalidad.nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="submodalidad.nombre"><b>Submodalidad <p-sortIcon field="submodalidad.nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="numeroRegistroFederal"><b>Número de Registro Federal <p-sortIcon field="numeroRegistroFederal"></p-sortIcon></b></th>
+                <th pSortableColumn="fechaInicio"><b>Fecha Inicio <p-sortIcon field="fechaInicio"></p-sortIcon></b></th>
+                <th pSortableColumn="fechaFin"><b>Fecha Fin <p-sortIcon field="fechaFin"></p-sortIcon></b></th>
+                <th><b>Opciones</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="6">No hay modalidades creadas en este momento. <a class="fakelink" (click)="mostrarModalAgregarModalidad()">Da clic aquí para crear una</a></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-modalidad>
+              <tr>
+                <td>{{modalidad?.modalidad?.nombre}}</td>
+                <td>{{modalidad?.submodalidad?.nombre}}</td>
+                <td>{{modalidad?.numeroRegistroFederal}}</td>
+                <td>{{modalidad?.fechaInicio}}</td>
+                <td>{{modalidad?.fechaFin}}</td>
+                <td>
+                  <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarEliminarModalidadModal(modalidad?.uuid)" title="Eliminar modalidad"></fa-icon>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{empresaModalidades.length}} modalidades</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+      <button type="button" class="btn btn-primary" (click)="mostrarModalAgregarModalidad()">Agregar modalidad</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #agregarFormaEjecucionModal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="agregarFormaEjecucionModal">Agregar forma de ejecucion </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="empresaFormaEjecucionForm" style="margin-top: 10px;">
+            <div class="form-row">
+              <div class="col-sm-6">
+                <label for="formaEjecucion">
+                  <b>Forma de ejecucion *</b>
+                  <span *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].invalid && (empresaFormaEjecucionForm.controls['formaEjecucion'].dirty || empresaFormaEjecucionForm.controls['formaEjecucion'].touched)">
+                              <i *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
+                </label>
+                <select id="formaEjecucion" class="form-control" formControlName="formaEjecucion">
+                  <option value="" disabled selected></option>
+                  <option value="ARMAS" *ngIf="empresa?.tipoTramite === 'EAFJAL'">Con portación de armas de fuego</option>
+                  <option value="NO_ARMAS">Sin portación de armas de fuego</option>
+                  <option value="CANES">Con el auxilio de canes</option>
+                  <option value="NO_CANES">Sin el auxilio de canes</option>
+                  <option value="INSTRUMENTOS">Con portación de instrumentos de apoyo para control</option>
+                  <option value="TECNOLOGIA">Con apoyo de tecnología</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="agregarFormaEjecucion(empresaFormaEjecucionForm)">Guardar cambios</button>
+      <button class="btn btn-danger" (click)="modal.close()">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #agregarModalidadModal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="agregarModalidadModal">Agregar modalidad </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="empresaModalidadForm" style="margin-top: 10px;">
+            <div class="form-row">
+              <div class="col-sm-3">
+                <label>
+                  <b>Modalidad * </b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{modalidad === undefined ? 'Ninguno' : (modalidad?.nombre).substr(0, 30)}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                  <form class="px-4 py-3" autocomplete="off">
+                    <label for="modalidadSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="modalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="modalidadQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let m of modalidades | buscarNombre: {nombre: modalidadQuery}" (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                    {{m.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="modalidad !== undefined" (click)="quitarModalidad()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-3" *ngIf="modalidad?.tieneSubmodalidades">
+                <label>
+                  <b>Submodalidad</b>
+                </label>
+                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{submodalidad === undefined ? 'Ninguno' : (submodalidad?.nombre).substr(0, 30)}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                  <form class="px-4 py-3" autocomplete="off">
+                    <label for="submodalidadSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="submodalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="submodalidadQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let s of modalidad.submodalidades | buscarNombre: {nombre: submodalidadQuery}" (click)="seleccionarSubmodalidad(s?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                    {{s.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="submodalidad !== undefined" (click)="quitarSubmodalidad()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-3" *ngIf="modalidad?.tipo === 'EAFJAL'">
+                <label for="numeroRegistroFederal">
+                  <b>No. de Registro Federal</b>
+                  <span
+                    *ngIf="empresaModalidadForm.controls['numeroRegistroFederal'].invalid && (empresaModalidadForm.controls['numeroRegistroFederal'].dirty || empresaModalidadForm.controls['numeroRegistroFederal'].touched)">
+                                <i *ngIf="empresaModalidadForm.controls['numeroRegistroFederal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                              </span>
+                </label>
+                <input class="form-control" id="numeroRegistroFederal" type="text" formControlName="numeroRegistroFederal" placeholder="Ejemplo. 156861215">
+              </div>
+              <div class="col-sm-3" *ngIf="modalidad?.tipo === 'EAFJAL'">
+                <label for="fechaInicio">
+                  <b>Fecha de Inicio</b>
+                </label>
+                <input class="form-control" id="fechaInicio" type="date" formControlName="fechaInicio" placeholder="Fecha inicio">
+              </div>
+              <div class="col-sm-3" *ngIf="modalidad?.tipo === 'EAFJAL'">
+                <label for="fechaFin">
+                  <b>Fecha de Fin</b>
+                </label>
+                <input class="form-control" id="fechaFin" type="date" formControlName="fechaFin" placeholder="Fecha fin">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="agregarModalidad(empresaModalidadForm)">Guardar cambios</button>
+      <button class="btn btn-danger" (click)="modal.close()">Cancelar</button>
     </div>
   </ng-template>
 
@@ -734,7 +875,9 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estas a punto de eliminar una modalidad. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+          <p>Estás a punto de eliminar una modalidad y esta operación no podrá deshacerse. <br/>
+            Previo a eliminarla, asegúrate que no esté siendo utilizada en algún otro ente (como personal, clientes, licencias colectivas) para evitar posibles conflictos. <br/>
+            ¿Deseas continuar eliminando <b>permanentemente</b> esta modalidad?
         </div>
       </div>
     </div>
@@ -746,7 +889,7 @@
 
   <ng-template #eliminarFormaEjecucionModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="eliminarFormaEjecucionModal">Eliminando la forma de ejecucion </h4>
+      <h4 class="modal-title" id="eliminarFormaEjecucionModal">Eliminando la forma de ejecución </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -754,13 +897,38 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estas a punto de eliminar una forma de ejecucion. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+          <p>Estás a punto de eliminar una forma de ejecución y esta operación no podrá deshacerse. <br/>
+            Previo a eliminarla, asegúrate que no esté siendo utilizada en algún otro ente (como clientes, licencias colectivas) para evitar posibles conflictos. <br/>
+            ¿Deseas continuar eliminando <b>permanentemente</b> esta forma de ejecución?
+          </p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarFormaEjecucion()">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como está</button>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarDocumentoRegistroFederal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarDocumentoRegistroFederal">Ver documento de registro federal </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <pdf-viewer [src]="pdfActual"
+                      [render-text]="true"
+                      [original-size]="false"
+                      style="width: 100%; height: 600px"></pdf-viewer>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="descargarDocumentoRegistroFederal()">Descargar</button>
     </div>
   </ng-template>
 

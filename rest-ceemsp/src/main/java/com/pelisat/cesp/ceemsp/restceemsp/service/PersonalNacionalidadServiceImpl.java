@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -91,6 +92,7 @@ public class PersonalNacionalidadServiceImpl implements PersonalNacionalidadServ
     }
 
     @Override
+    @Transactional
     public PersonalNacionalidadDto crearNuevo(PersonalNacionalidadDto personalNacionalidadDto, String username) {
         if(personalNacionalidadDto == null || StringUtils.isBlank(username)) {
             logger.warn("El usuario o la nacionalidad vienen como nulos o vacios");
@@ -108,6 +110,7 @@ public class PersonalNacionalidadServiceImpl implements PersonalNacionalidadServ
     }
 
     @Override
+    @Transactional
     public PersonalNacionalidadDto modificarNacionalidad(String uuid, String username, PersonalNacionalidadDto personalNacionalidadDto) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || personalNacionalidadDto == null) {
             logger.warn("Alguno de los campos vienen como nulos o vacios");
@@ -136,6 +139,7 @@ public class PersonalNacionalidadServiceImpl implements PersonalNacionalidadServ
     }
 
     @Override
+    @Transactional
     public PersonalNacionalidadDto eliminarNacionalidad(String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

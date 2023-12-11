@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -32,6 +33,14 @@ public class EmpresaCanController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return canService.obtenerCanesPorEmpresa(username);
+    }
+
+    @GetMapping(value = EMPRESA_CANES_URI + "/instalaciones")
+    public List<CanDto> obtenerCanesEnInstalaciones(
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return canService.obtenerCanesEnInstalacionesPorEmpresa(username);
     }
 
     @GetMapping(value = EMPRESA_CANES_URI + "/{canUuid}")
@@ -60,11 +69,11 @@ public class EmpresaCanController {
         return canService.modificarCan(canUuid, username, canDto);
     }
 
-    @DeleteMapping(value = EMPRESA_CANES_URI + "/{canUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_CANES_URI + "/{canUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CanDto eliminarCan(
             HttpServletRequest request,
             @PathVariable(value = "canUuid") String canUuid,
-            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
             @RequestParam("can") String can
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));

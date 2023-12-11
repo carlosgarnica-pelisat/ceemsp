@@ -795,7 +795,8 @@ public class DtoToDaoConverter {
                 .addMappings(mapper -> mapper.skip(Visita::setMunicipioCatalogo))
                 .addMappings(mapper -> mapper.skip(Visita::setLocalidadCatalogo))
                 .addMappings(mapper -> mapper.skip(Visita::setColoniaCatalogo))
-                .addMappings(mapper -> mapper.skip(Visita::setCalleCatalogo));
+                .addMappings(mapper -> mapper.skip(Visita::setCalleCatalogo))
+                .addMappings(mapper -> mapper.skip(Visita::setEmpresaDomicilio));
 
         Visita visita = modelMapper.map(visitaDto, Visita.class);
 
@@ -880,5 +881,37 @@ public class DtoToDaoConverter {
         }
 
         return buzonInternoDestinatario;
+    }
+
+    public ClienteFormaEjecucion convertDtoToDaoClienteFormaEjecucion(ClienteFormaEjecucionDto clienteFormaEjecucionDto) {
+        if(clienteFormaEjecucionDto == null) {
+            logger.warn("La forma de ejecucion para el cliente viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        ClienteFormaEjecucion clienteFormaEjecucion = modelMapper.map(clienteFormaEjecucionDto, ClienteFormaEjecucion.class);
+
+        if(StringUtils.isBlank(clienteFormaEjecucion.getUuid())) {
+            logger.info("El uuid viene como nulo o vacio. Generando uno nuevo");
+            clienteFormaEjecucion.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return clienteFormaEjecucion;
+    }
+
+    public Ventana convertDtoToDaoVentana(VentanaDto ventanaDto) {
+        if(ventanaDto == null) {
+            logger.warn("La ventana viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        Ventana ventana = modelMapper.map(ventanaDto, Ventana.class);
+
+        if(StringUtils.isBlank(ventana.getUuid())) {
+            logger.info("El uuid viene como nulo o vacio. Generando uno nuevo");
+            ventana.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return ventana;
     }
 }

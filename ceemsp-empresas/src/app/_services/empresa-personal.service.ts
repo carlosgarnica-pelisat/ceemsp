@@ -3,6 +3,9 @@ import Persona from "../_models/Persona";
 import PersonaCertificacion from "../_models/PersonaCertificacion";
 import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
+import PersonalCan from "../_models/PersonalCan";
+import PersonalVehiculo from "../_models/PersonalVehiculo";
+import PersonalArma from "../_models/PersonalArma";
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +20,10 @@ export class EmpresaPersonalService {
     return this.http.get(`${this.uri}/personas`)
   }
 
+  obtenerPersonalSinAsignar() {
+    return this.http.get(`${this.uri}/personas/no-asignados`)
+  }
+
   obtenerPersonalPorUuid(personaUuid: string) {
     return this.http.get(`${this.uri}/personas/${personaUuid}`)
   }
@@ -25,16 +32,20 @@ export class EmpresaPersonalService {
     return this.http.post(`${this.uri}/personas`, persona);
   }
 
-  modificarInformacionTrabajo(personaUuid: string, persona: Persona) {
-    return this.http.put(`${this.uri}/personas/${personaUuid}/puestos`, persona)
+  modificarInformacionTrabajo(personaUuid: string, persona: FormData) {
+    return this.http.put(`${this.uri}/personas/${personaUuid}/puestos`, persona, {
+      headers: {'X-isFile': 'true'}
+    })
   }
 
   modificarPersonal(personaUuid: string, persona: Persona) {
     return this.http.put(`${this.uri}/personas/${personaUuid}`, persona);
   }
 
-  eliminarPersonal(personaUuid: string) {
-    return this.http.delete(`${this.uri}/personas/${personaUuid}`);
+  eliminarPersonal(personaUuid: string, persona: FormData) {
+    return this.http.put(`${this.uri}/personas/${personaUuid}/borrar`, persona, {
+      headers: {'X-isFile': 'true'}
+    });
   }
 
   // Personal certificaciones
@@ -85,5 +96,44 @@ export class EmpresaPersonalService {
 
   eliminarPersonaFotografia(personaUuid: string, fotografiaUuid: string) {
     return this.http.delete(`${this.uri}/personas/${personaUuid}/fotografias/${fotografiaUuid}`)
+  }
+
+  descargarVolanteCuip(personaUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/personas/${personaUuid}/volante`, httpOptions);
+  }
+
+  asignarCanPersona(personaUuid: string, personaCan: PersonalCan) {
+    return this.http.post(`${this.uri}/personas/${personaUuid}/canes`, personaCan)
+  }
+
+  desasignarCanPersona(personaUuid: string, personaCan: PersonalCan) {
+    return this.http.put(`${this.uri}/personas/${personaUuid}/canes`, personaCan)
+  }
+
+  asignarVehiculoPersona(personaUuid: string, personaVehiculo: PersonalVehiculo) {
+    return this.http.post(`${this.uri}/personas/${personaUuid}/vehiculos`, personaVehiculo)
+  }
+
+  desasignarVehiculoPersona(personaUuid: string, personaVehiculo: PersonalVehiculo) {
+    return this.http.put(`${this.uri}/personas/${personaUuid}/vehiculos`, personaVehiculo)
+  }
+
+  asignarArmaCortaPersona(personaUuid: string, personaArma: PersonalArma) {
+    return this.http.post(`${this.uri}/personas/${personaUuid}/armas/cortas`, personaArma)
+  }
+
+  desasignarArmaCortaPersona(personaUuid: string, personaArma: PersonalArma) {
+    return this.http.put(`${this.uri}/personas/${personaUuid}/armas/cortas`, personaArma)
+  }
+
+  asignarArmaLargaPersona(personaUuid: string, personaArma: PersonalArma) {
+    return this.http.post(`${this.uri}/personas/${personaUuid}/armas/largas`, personaArma)
+  }
+
+  desasignarArmaLargaPersona(personaUuid: string, personaArma: PersonalArma) {
+    return this.http.put(`${this.uri}/personas/${personaUuid}/armas/largas`, personaArma)
   }
 }

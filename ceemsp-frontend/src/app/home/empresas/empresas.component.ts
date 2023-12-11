@@ -8,6 +8,7 @@ import {Router} from "@angular/router";
 import {faCheck} from "@fortawesome/free-solid-svg-icons";
 import {BotonEmpresasComponent} from "../../_components/botones/boton-empresas/boton-empresas.component";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {MultilineCellComponent} from "../../_components/cell-renderers/multiline-cell/multiline-cell.component";
 
 @Component({
   selector: 'app-empresas',
@@ -23,15 +24,20 @@ export class EmpresasComponent implements OnInit {
 
   columnDefs =
     [
-      {headerName: 'Nombre comercial', field: 'nombreComercial', sortable: true, filter: true },
-      {headerName: 'Registro', field: 'registro', sortable: true, filter: true },
-      {headerName: 'Razon social', field: 'razonSocial', sortable: true, filter: true},
-      {headerName: 'Tipo persona', field: 'tipoPersona', sortable: true, filter: true},
-      {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+      {headerName: 'Razon social', field: 'razonSocial', sortable: true, filter: true, wrapText: true, resizable: true, autoHeight: true, width: 400, minWidth: 250, maxWidth: 700, pinned: 'left' },
+      {headerName: 'Registro', field: 'registro', sortable: true, filter: true, wrapText: true, autoHeight: true },
+      {headerName: 'Tipo persona', field: 'tipoPersona', sortable: true, filter: true, wrapText: true, autoHeight: true,  width: 100},
+      {headerName: 'Status', field: 'status', sortable: true, filter: true, width: 100},
+      {headerName: 'Estatus de captura', sortable: 'true', filter: true, width: 100, valueGetter: function (params) {
+          if(params.data.domiciliosCapturados && params.data.escriturasCapturadas && params.data.formasEjecucionCapturadas && params.data.acuerdosCapturados) {
+            return 'COMPLETA'
+          } else {
+            return 'INCOMPLETA'
+          }
+      }},
+      {headerName: 'Opciones', cellRenderer: 'buttonRenderer', width: 100, pinned: 'right', cellRendererParams: {
           label: 'Ver detalles',
-          verDetalles: this.verDetalles.bind(this),
-          editar: this.editar.bind(this),
-          cambiarStatus: this.cambiarStatus.bind(this)
+          verDetalles: this.verDetalles.bind(this)
         }}
     ];
   allColumnDefs = Empresa.obtenerTodasLasColumnas();
@@ -50,7 +56,7 @@ export class EmpresasComponent implements OnInit {
   tipoPersona: string;
 
   @ViewChild('editarEmpresaModal') editarEmpresaModal;
-  @ViewChild('editarStatusModal') editarStatusModal;
+  @ViewChild('seleccionarStatusBusquedaModal') seleccionarStatusBusquedaModal;
 
   verDetalles(rowData) {
     this.checkForDetails(rowData.rowData)
@@ -61,10 +67,11 @@ export class EmpresasComponent implements OnInit {
 
   ngOnInit(): void {
     this.frameworkComponents = {
-      buttonRenderer: BotonEmpresasComponent
+      buttonRenderer: BotonEmpresasComponent,
+      multilineRenderer: MultilineCellComponent
     }
 
-    this.empresaService.obtenerEmpresas().subscribe((data: Empresa[]) => {
+    this.empresaService.obtenerEmpresasPorStatus("ACTIVA").subscribe((data: Empresa[]) => {
       this.rowData = data;
     }, (error) => {
       this.toastService.showGenericToast(
@@ -87,8 +94,7 @@ export class EmpresasComponent implements OnInit {
     });
 
     this.empresaCambioStatusForm = this.formBuilder.group({
-      status: ['', Validators.required],
-      observaciones: ['', Validators.required]
+      status: ['', Validators.required]
     });
   }
 
@@ -138,6 +144,10 @@ export class EmpresasComponent implements OnInit {
     this.router.navigate([`/home/empresas/${this.uuid}`]);
   }
 
+  getRowHeight(params) {
+    return 18 * (Math.floor(params.data.name.length / 45) + 1);
+  }
+
   editar(rowData) {
     this.empresaService.obtenerPorUuid(rowData.rowData?.uuid).subscribe((data: Empresa) => {
       this.empresa = data;
@@ -170,19 +180,6 @@ export class EmpresasComponent implements OnInit {
     this.tipoPersona = event.value;
   }
 
-  cambiarStatus(rowData) {
-    this.empresaService.obtenerPorUuid(rowData.rowData?.uuid).subscribe((data: Empresa) => {
-      this.empresa = data;
-      this.modalService.open(this.editarStatusModal,{size: "xl"})
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se ha podido descargar la empresa. Motivo: ${error}`,
-        ToastType.ERROR
-      );
-    })
-  }
-
   isColumnListed(field: string ) {
     return this.columnDefs.filter(s => s.field === field)[0] !== undefined;
   }
@@ -199,11 +196,38 @@ export class EmpresasComponent implements OnInit {
         filter: true
       };
 
-      this.columnDefs.push(newColumnDef);
+      // this.columnDefs.push(newColumnDef);
       this.gridApi.setColumnDefs(this.columnDefs);
     } else {
       this.columnDefs = this.columnDefs.filter(s => s.field !== field);
     }
+  }
+
+  mostrarModalEmpresaEstatus() {
+    this.modal = this.modalService.open(this.seleccionarStatusBusquedaModal, {size: 'lg', backdrop: 'static'})
+  }
+
+  buscarEmpresaPorEstatus(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Favor de seleccionar un status`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let value = form.value;
+    this.empresaService.obtenerEmpresasPorStatus(value.status).subscribe((data: Empresa[]) => {
+      this.rowData = data;
+      this.modal.close();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar las empresas por status. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   exportGridData(format) {
@@ -246,7 +270,7 @@ export class EmpresasComponent implements OnInit {
 
     let formValue: Empresa = form.value;
 
-    this.empresaService.modificarEmpresa(this.empresa.uuid, formValue).subscribe((data: Empresa) => {
+    /*this.empresaService.modificarEmpresa(this.empresa.uuid, formValue).subscribe((data: Empresa) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha actualizado la empresa con exito",
@@ -259,7 +283,7 @@ export class EmpresasComponent implements OnInit {
         `No se ha podido actualizar la empresa. Motivo: ${error}`,
         ToastType.ERROR
       );
-    })
+    })*/
   }
 
   private getDismissReason(reason: any): string {

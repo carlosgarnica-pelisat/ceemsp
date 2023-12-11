@@ -1,12 +1,14 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
+import com.pelisat.cesp.ceemsp.database.model.ActualizarContrasenaDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.Usuario;
 import com.pelisat.cesp.ceemsp.database.repository.UsuarioRepository;
 import com.pelisat.cesp.ceemsp.database.type.RolTypeEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.PasswordMismatchException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -15,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -63,6 +66,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    @Transactional
     public UsuarioDto saveUser(UsuarioDto userDto, String username) {
         if(userDto == null || StringUtils.isBlank(username)) {
             logger.warn("El usuario o el nombre de usuario vienen como nulos o vacios");
@@ -140,6 +144,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    @Transactional
     public UsuarioDto updateUserByUuid(String uuid, UsuarioDto userDto, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || userDto == null) {
             logger.warn("El email esta viniendo como vacio o nulo");
@@ -170,6 +175,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    @Transactional
     public UsuarioDto deleteUser(String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
             logger.warn("El email esta viniendo como vacio o nulo");
@@ -193,4 +199,33 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuarioRepository.save(usuario);
         return daoToDtoConverter.convertDaoToDtoUser(usuario);
     }
+
+    @Override
+    public UsuarioDto actualizarContrasena(String username, ActualizarContrasenaDto actualizarContrasenaDto) {
+        if(StringUtils.isBlank(username) || actualizarContrasenaDto == null) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Se esta actualizando la contrasena para el usuario [{}]", username);
+        Usuario usuario = usuarioRepository.getUsuarioByEmail(username);
+
+        if(usuario == null) {
+            logger.warn("El usuario no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(!StringUtils.equalsIgnoreCase(usuario.getPassword(), actualizarContrasenaDto.getActualPassword())) {
+            logger.warn("La contrasena no coincide con la anterior");
+            throw new PasswordMismatchException();
+        }
+
+        usuario.setPassword(actualizarContrasenaDto.getPassword());
+        daoHelper.fulfillAuditorFields(false, usuario, usuario.getId());
+        Usuario usuarioActualizado = usuarioRepository.save(usuario);
+        usuarioActualizado.setPassword(null);
+        return daoToDtoConverter.convertDaoToDtoUser(usuarioActualizado);
+    }
+
+
 }

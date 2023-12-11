@@ -3,29 +3,23 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.*;
-import com.pelisat.cesp.ceemsp.database.type.ArmaStatusEnum;
-import com.pelisat.cesp.ceemsp.database.type.ArmaTipoEnum;
-import com.pelisat.cesp.ceemsp.database.type.IncidenciaStatusEnum;
-import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
-import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
-import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingMandatoryDocumentException;
-import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.database.type.*;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.*;
 import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
-import freemarker.template.utility.StringUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
+import java.io.File;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,6 +44,9 @@ public class ArmaServiceImpl implements ArmaService {
     private final IncidenciaArmaRepository incidenciaArmaRepository;
     private final IncidenciaComentarioRepository incidenciaComentarioRepository;
     private final IncidenciaArchivoRepository incidenciaArchivoRepository;
+    private final PersonaRepository personaRepository;
+    private final PersonalArmaRepository personalArmaRepository;
+    private final ArmaDomicilioRepository armaDomicilioRepository;
 
     @Autowired
     public ArmaServiceImpl(ArmaRepository armaRepository, DaoToDtoConverter daoToDtoConverter,
@@ -59,7 +56,8 @@ public class ArmaServiceImpl implements ArmaService {
                            ArmaClaseService armaClaseService, EmpresaLicenciaColectivaService empresaLicenciaColectivaService,
                            IncidenciaRepository incidenciaRepository, IncidenciaArmaRepository incidenciaArmaRepository,
                            IncidenciaComentarioRepository incidenciaComentarioRepository, ArchivosService archivosService,
-                           IncidenciaArchivoRepository incidenciaArchivoRepository) {
+                           IncidenciaArchivoRepository incidenciaArchivoRepository, PersonaRepository personaRepository,
+                           PersonalArmaRepository personalArmaRepository, ArmaDomicilioRepository armaDomicilioRepository) {
         this.armaRepository = armaRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
@@ -75,6 +73,9 @@ public class ArmaServiceImpl implements ArmaService {
         this.incidenciaComentarioRepository = incidenciaComentarioRepository;
         this.archivosService = archivosService;
         this.incidenciaArchivoRepository = incidenciaArchivoRepository;
+        this.personaRepository = personaRepository;
+        this.personalArmaRepository = personalArmaRepository;
+        this.armaDomicilioRepository = armaDomicilioRepository;
     }
 
     @Deprecated
@@ -94,6 +95,19 @@ public class ArmaServiceImpl implements ArmaService {
             armaDto.setBunker(empresaDomicilioService.obtenerPorId(arma.getBunker()));
             armaDto.setMarca(armaMarcaService.obtenerPorId(arma.getMarca()));
             armaDto.setClase(armaClaseService.obtenerPorId(arma.getClase()));
+            if(armaDto.getStatus() == ArmaStatusEnum.ASIGNADA || armaDto.getStatus() == ArmaStatusEnum.ACTIVA) {
+                Personal personalAsignado;
+                if(armaDto.getTipo() == ArmaTipoEnum.CORTA) {
+                    personalAsignado = personaRepository.getByArmaCortaAndEliminadoFalse(arma.getId());
+                } else if(armaDto.getTipo() == ArmaTipoEnum.LARGA) {
+                    personalAsignado = personaRepository.getByArmaLargaAndEliminadoFalse(arma.getId());
+                } else {
+                    throw new RuntimeException();
+                }
+                if(personalAsignado != null) {
+                    armaDto.setPersonalAsignado(daoToDtoConverter.convertDaoToDtoPersona(personalAsignado));
+                }
+            }
             return armaDto;
         }).collect(Collectors.toList());
 
@@ -164,6 +178,19 @@ public class ArmaServiceImpl implements ArmaService {
                 Incidencia incidencia = incidenciaRepository.getOne(arma.getIncidencia());
                 armaDto.setIncidencia(daoToDtoConverter.convertDaoToDtoIncidencia(incidencia));
             }
+            if(armaDto.getStatus() == ArmaStatusEnum.ASIGNADA || armaDto.getStatus() == ArmaStatusEnum.ACTIVA) {
+                Personal personalAsignado;
+                if(armaDto.getTipo() == ArmaTipoEnum.CORTA) {
+                    personalAsignado = personaRepository.getByArmaCortaAndEliminadoFalse(arma.getId());
+                } else if(armaDto.getTipo() == ArmaTipoEnum.LARGA) {
+                    personalAsignado = personaRepository.getByArmaLargaAndEliminadoFalse(arma.getId());
+                } else {
+                    throw new RuntimeException();
+                }
+                if(personalAsignado != null) {
+                    armaDto.setPersonalAsignado(daoToDtoConverter.convertDaoToDtoPersona(personalAsignado));
+                }
+            }
             return armaDto;
         }).collect(Collectors.toList());
 
@@ -193,8 +220,54 @@ public class ArmaServiceImpl implements ArmaService {
     }
 
     @Override
+    public List<ArmaDto> obtenerTodasArmasDeposito(String empresaUuid) {
+        if(StringUtils.isBlank(empresaUuid)) {
+            logger.warn("El uuid viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo las armas guardadas para la empresa {}", empresaUuid);
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        List<Arma> armas = armaRepository.getAllByEmpresaAndStatusAndEliminadoFalse(empresaDto.getId(), ArmaStatusEnum.DEPOSITO);
+
+        List<ArmaDto> response = armas.stream().map(arma -> {
+            ArmaDto armaDto = daoToDtoConverter.convertDaoToDtoArma(arma);
+            armaDto.setBunker(empresaDomicilioService.obtenerPorId(arma.getBunker()));
+            armaDto.setMarca(armaMarcaService.obtenerPorId(arma.getMarca()));
+            armaDto.setClase(armaClaseService.obtenerPorId(arma.getClase()));
+            return armaDto;
+        }).collect(Collectors.toList());
+
+        return response;
+    }
+
+    @Override
     public ArmaDto obtenerArmaPorUuid(String uuid, String armaUuid) {
         return null;
+    }
+
+    @Override
+    public File descargarDocumentoFundatorio(String uuid, String armaUuid) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(armaUuid)) {
+            logger.warn("El uuid de la empresa o del vehiculo vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando el documento fundatorio para el arma [{}]", armaUuid);
+
+        Arma arma = armaRepository.getByUuid(armaUuid);
+
+        if(arma == null) {
+            logger.warn("El arma no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(!arma.getEliminado()) {
+            logger.warn("El arma no esta eliminada. Esta funcion no es compatible");
+            throw new NotFoundResourceException();
+        }
+
+        return new File(arma.getDocumentoFundatorioBaja());
     }
 
     @Override
@@ -208,11 +281,6 @@ public class ArmaServiceImpl implements ArmaService {
 
         Arma arma = armaRepository.getOne(armaId);
 
-        if(arma == null) {
-            logger.warn("El arma no existe en la base de datos");
-            throw new NotFoundResourceException();
-        }
-
         ArmaDto armaDto = daoToDtoConverter.convertDaoToDtoArma(arma);
 
         armaDto.setBunker(empresaDomicilioService.obtenerPorId(arma.getBunker()));
@@ -222,11 +290,18 @@ public class ArmaServiceImpl implements ArmaService {
         return armaDto;
     }
 
+    @Transactional
     @Override
     public ArmaDto guardarArma(String uuid, String licenciaColectivaUuid, String username, ArmaDto armaDto) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(licenciaColectivaUuid) || StringUtils.isBlank(username) || armaDto == null) {
             logger.warn("El uuid, el usuario o el arma a registrar vienen como nulas o vacias");
             throw new InvalidDataException();
+        }
+
+        Arma armaPorMatricula = armaRepository.getFirstByMatriculaAndEliminadoFalse(armaDto.getMatricula());
+        if(armaPorMatricula != null) {
+            logger.warn("Esta arma ya se encuentra registrada por esta matricula: [{}]", armaDto.getMatricula());
+            throw new AlreadyExistsPersonByCuipException();
         }
 
         logger.info("Registrando una nueva arma");
@@ -249,6 +324,7 @@ public class ArmaServiceImpl implements ArmaService {
         return daoToDtoConverter.convertDaoToDtoArma(armaCreada);
     }
 
+    @Transactional
     @Override
     public ArmaDto modificarArma(String uuid, String licenciaColectivaUuid, String armaUuid, String username, ArmaDto armaDto) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(licenciaColectivaUuid) || StringUtils.isBlank(armaUuid) || StringUtils.isBlank(username) || armaDto == null) {
@@ -266,6 +342,15 @@ public class ArmaServiceImpl implements ArmaService {
         }
         UsuarioDto usuario = usuarioService.getUserByEmail(username);
 
+        if(arma.getBunker() != armaDto.getBunker().getId()) {
+            ArmaDomicilio armaDomicilio = new ArmaDomicilio();
+            armaDomicilio.setArma(arma.getId());
+            armaDomicilio.setDomicilioActual(armaDto.getBunker().getId());
+            armaDomicilio.setDomicilioAnterior(arma.getBunker());
+            daoHelper.fulfillAuditorFields(true, armaDomicilio, usuario.getId());
+            armaDomicilioRepository.save(armaDomicilio);
+        }
+
         arma.setClase(armaDto.getClase().getId());
         arma.setBunker(armaDto.getBunker().getId());
         arma.setMarca(armaDto.getMarca().getId());
@@ -277,9 +362,11 @@ public class ArmaServiceImpl implements ArmaService {
         daoHelper.fulfillAuditorFields(false, arma, usuario.getId());
 
         armaRepository.save(arma);
+
         return armaDto;
     }
 
+    @Transactional
     @Override
     public ArmaDto eliminarArma(String uuid, String licenciaColectivaUuid, String armaUuid, String username, ArmaDto armaDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(licenciaColectivaUuid) || StringUtils.isBlank(armaUuid) || StringUtils.isBlank(username)) {
@@ -296,9 +383,14 @@ public class ArmaServiceImpl implements ArmaService {
             throw new NotFoundResourceException();
         }
 
+        if(arma.getStatus() == ArmaStatusEnum.ACTIVA || arma.getStatus() == ArmaStatusEnum.ASIGNADA) {
+            logger.warn("El arma se encuentra asignada a algun elemento. Favor de desasignarla antes de eliminarla.");
+            throw new AlreadyActiveException();
+        }
+
         // Validando si el archivo debe de venir en algun status que asi lo requiera
         if(multipartFile == null && (StringUtils.equals("ROBO", armaDto.getMotivoBaja()) || StringUtils.equals("ASEGURAMIENTO", armaDto.getMotivoBaja()))) {
-            logger.warn("El tipo de bntoaja [{}] requiere un documento fundatorio", arma.getMotivoBaja());
+            logger.warn("El tipo de baja [{}] requiere un documento fundatorio", arma.getMotivoBaja());
             throw new MissingMandatoryDocumentException();
         }
 
@@ -314,7 +406,7 @@ public class ArmaServiceImpl implements ArmaService {
             logger.info("Se subio con un archivo. Agregando");
             String rutaArchivoNuevo = "";
             try {
-                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_BAJA_DOMICILIO, armaUuid);
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_BAJA_ARMA, armaUuid);
                 arma.setDocumentoFundatorioBaja(rutaArchivoNuevo);
             } catch(Exception ex) {
                 logger.warn("No se ha podido guardar el archivo. {}", ex);
@@ -395,5 +487,88 @@ public class ArmaServiceImpl implements ArmaService {
         }
 
         return daoToDtoConverter.convertDaoToDtoArma(arma);
+    }
+
+    @Override
+    public List<PersonalArmaDto> obtenerMovimientosArma(String uuid, String licenciaColectivaUuid, String armaUuid) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(licenciaColectivaUuid) || StringUtils.isBlank(armaUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        Arma arma = armaRepository.getByUuid(armaUuid);
+
+        if(arma == null) {
+            logger.warn("El arma no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<PersonalArma> movimientosArma = personalArmaRepository.getAllByArma(arma.getId());
+
+        return movimientosArma.stream().map(movimiento -> {
+            PersonalArmaDto pad = new PersonalArmaDto();
+            Personal personal = personaRepository.getOne(movimiento.getPersonal());
+            pad.setObservaciones(movimiento.getObservaciones());
+            pad.setPersona(daoToDtoConverter.convertDaoToDtoPersona(personal));
+            pad.setFechaCreacion(movimiento.getFechaCreacion().toString());
+            pad.setFechaActualizacion(movimiento.getFechaActualizacion().toString());
+            pad.setEliminado(movimiento.getEliminado());
+            pad.setMotivoBajaAsignacion(movimiento.getMotivoBajaAsignacion());
+            return pad;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ArmaDomicilioDto> obtenerMovimientosDomiciliosArma(String uuid, String licenciaColectivaUuid, String armaUuid) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(licenciaColectivaUuid) || StringUtils.isBlank(armaUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        Arma arma = armaRepository.getByUuid(armaUuid);
+
+        if(arma == null) {
+            logger.warn("El arma no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<ArmaDomicilio> armaDomicilios = armaDomicilioRepository.getAllByArma(arma.getId());
+
+        return armaDomicilios.stream().map(movimiento -> {
+            ArmaDomicilioDto armaDomicilioDto = new ArmaDomicilioDto();
+            armaDomicilioDto.setId(movimiento.getId());
+            armaDomicilioDto.setUuid(movimiento.getUuid());
+            armaDomicilioDto.setDomicilioAnterior(empresaDomicilioService.obtenerPorId(movimiento.getDomicilioAnterior()));
+            armaDomicilioDto.setDomicilioActual(empresaDomicilioService.obtenerPorId(movimiento.getDomicilioActual()));
+            armaDomicilioDto.setFechaCreacion(movimiento.getFechaCreacion().toString());
+            armaDomicilioDto.setFechaActualizacion(movimiento.getFechaActualizacion().toString());
+            return armaDomicilioDto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<IncidenciaDto> obtenerIncidenciasPorArma(String uuid, String armaUuid) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(armaUuid)) {
+            this.logger.warn("Alguno de los parametros es invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo las incidencias en las cuales estuvo involucrada el arma [{}]", armaUuid);
+
+        Arma arma = armaRepository.getByUuid(armaUuid);
+
+        if(arma == null) {
+            logger.warn("El arma no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<IncidenciaArma> incidenciaArmas = incidenciaArmaRepository.getAllByArma(arma.getId());
+
+        return incidenciaArmas.stream()
+                .map(ia -> {
+                    Incidencia incidencia = incidenciaRepository.getOne(ia.getIncidencia());
+                    return daoToDtoConverter.convertDaoToDtoIncidencia(incidencia);
+                })
+                .collect(Collectors.toList());
     }
 }

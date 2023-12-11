@@ -7,5 +7,7 @@ import java.util.List;
 
 public interface ClienteAsignacionPersonalRepository extends JpaRepository<ClienteAsignacionPersonal, Integer> {
     List<ClienteAsignacionPersonal> getAllByClienteAndEliminadoFalse(int cliente);
+    List<ClienteAsignacionPersonal> getAllByCliente(int cliente);
     ClienteAsignacionPersonal getByUuidAndEliminadoFalse(String uuid);
+    ClienteAsignacionPersonal getByPersonalAndEliminadoFalse(int personal);
 }

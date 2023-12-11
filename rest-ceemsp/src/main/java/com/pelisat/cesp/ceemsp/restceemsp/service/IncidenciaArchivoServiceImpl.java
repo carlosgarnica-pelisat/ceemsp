@@ -17,9 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 
 @Service
@@ -63,6 +63,7 @@ public class IncidenciaArchivoServiceImpl implements IncidenciaArchivoService {
     }
 
     @Override
+    @Transactional
     public IncidenciaArchivoMetadata agregarArchivoIncidencia(String empresaUuid, String incidenciaUuid, String username, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(incidenciaUuid) || StringUtils.isBlank(username) || multipartFile == null) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

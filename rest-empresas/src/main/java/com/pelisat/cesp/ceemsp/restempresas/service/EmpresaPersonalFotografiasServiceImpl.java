@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -98,6 +99,7 @@ public class EmpresaPersonalFotografiasServiceImpl implements EmpresaPersonalFot
     }
 
     @Override
+    @Transactional
     public void guardarPersonalFotografia(String personalUuid, String username, MultipartFile multipartFile, PersonalFotografiaMetadata metadata) {
         if (StringUtils.isBlank(personalUuid) || StringUtils.isBlank(username) || multipartFile == null) {
             logger.warn("El uuid de la empresa o la persona o la foto vienen como nulos o vacios");
@@ -123,6 +125,12 @@ public class EmpresaPersonalFotografiasServiceImpl implements EmpresaPersonalFot
             ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.FOTOGRAFIA_PERSONA, usuarioDto.getEmpresa().getUuid());
             personalFotografia.setUbicacionArchivo(ruta);
             personalFotografiaRepository.save(personalFotografia);
+
+            if(!persona.isFotografiaCapturada()) {
+                persona.setFotografiaCapturada(true);
+                daoHelper.fulfillAuditorFields(false, persona, usuarioDto.getId());
+                personaRepository.save(persona);
+            }
         } catch (IOException ioException) {
             logger.warn(ioException.getMessage());
             archivosService.eliminarArchivo(ruta);
@@ -131,6 +139,7 @@ public class EmpresaPersonalFotografiasServiceImpl implements EmpresaPersonalFot
     }
 
     @Override
+    @Transactional
     public PersonalFotografiaMetadata eliminarPersonalFotografia(String personalUuid, String fotografiaUuid, String username) {
         if(StringUtils.isBlank(personalUuid) || StringUtils.isBlank(fotografiaUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
@@ -138,6 +147,15 @@ public class EmpresaPersonalFotografiasServiceImpl implements EmpresaPersonalFot
         }
 
         logger.info("Eliminando la fotografia con uuid [{}]", fotografiaUuid);
+
+        Personal persona = personaRepository.getByUuidAndEliminadoFalse(personalUuid);
+        if(persona == null) {
+            logger.warn("La persona no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<PersonalFotografia> personalFotografias = personalFotografiaRepository.getAllByPersonalAndEliminadoFalse(persona.getId());
+
         PersonalFotografia personalFotografia = personalFotografiaRepository.getByUuidAndEliminadoFalse(fotografiaUuid);
 
         if(personalFotografia == null) {
@@ -150,6 +168,13 @@ public class EmpresaPersonalFotografiasServiceImpl implements EmpresaPersonalFot
         personalFotografia.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, personalFotografia, usuarioDto.getId());
         personalFotografiaRepository.save(personalFotografia);
+
+        if(personalFotografias.size() <= 1) {
+            persona.setFotografiaCapturada(false);
+            daoHelper.fulfillAuditorFields(false, persona, usuarioDto.getId());
+            personaRepository.save(persona);
+        }
+
         PersonalFotografiaMetadata personalFotografiaMetadata = new PersonalFotografiaMetadata();
         String[] tokens = personalFotografia.getUbicacionArchivo().split("[\\\\|/]");
         personalFotografiaMetadata.setId(personalFotografia.getId());

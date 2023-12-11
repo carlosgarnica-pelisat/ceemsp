@@ -1,0 +1,13 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2023-01-20-agregar-columnas-pasos-completados-personal" author="carlos.garnica@pelisat.com.mx">
+        <addColumn tableName="personal">
+            <column name="PUESTO_TRABAJO_CAPTURADO" type="bit"></column>
+            <column name="CURSOS_CAPTURADOS" type="bit"></column>
+            <column name="FOTOGRAFIA_CAPTURADA" type="bit"></column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

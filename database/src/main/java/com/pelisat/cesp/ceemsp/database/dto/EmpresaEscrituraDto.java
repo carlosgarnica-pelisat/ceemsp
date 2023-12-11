@@ -26,9 +26,11 @@ public class EmpresaEscrituraDto {
     private LocalidadDto localidadCatalogo;
     private String nombreArchivo;
     private String fechaCreacion;
+    private String fechaActualizacion;
 
     private List<EmpresaEscrituraSocioDto> socios;
     private List<EmpresaEscrituraApoderadoDto> apoderados;
     private List<EmpresaEscrituraRepresentanteDto> representantes;
     private List<EmpresaEscrituraConsejoDto> consejos;
+    private EmpresaDto empresa;
 }

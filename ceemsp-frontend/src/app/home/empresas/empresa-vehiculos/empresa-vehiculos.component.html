@@ -3,9 +3,9 @@
 
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Vehiculos <span *ngIf="mostrandoEliminados">(eliminados)</span></h1>
+    <h1 class="h3 mb-0 text-gray-800">Vehículos <span *ngIf="mostrandoEliminados">(eliminados)</span></h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearVehiculoModal)">Nuevo vehiculo</button>
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearVehiculoModal)">Nuevo vehículo</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button" id="mostrarColumnasDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Mostrar / Ocultar columnas
@@ -21,7 +21,8 @@
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
           <a class="dropdown-item" *ngIf="!mostrandoEliminados" (click)="mostrarEliminados()">Mostrar eliminados</a>
           <a class="dropdown-item" *ngIf="mostrandoEliminados" (click)="ocultarEliminados()">Ocultar eliminados</a>
-          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar vehiculos como Excel (csv)</a>
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar como CSV</a>
+          <a class="dropdown-item" (click)="generarReporteExcel()">Descargar como Excel</a>
         </div>
       </div>
     </div>
@@ -31,20 +32,26 @@
   <div class="row">
     <div class="col-sm-3">
       <div class="list-group">
-        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action">
-          Detalles
+        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action flex-column align-items-start">
+          <p class="mb-1">
+            <b>Registro: </b>{{empresa?.registro}}<br>
+            <b>Nombre comercial: </b> {{empresa?.nombreComercial}}<br>
+            <b>Razon social: </b> {{empresa?.razonSocial}}<br>
+          </p>
         </a>
         <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
         <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
         <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneArmas">Licencias colectivas / Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneCanes">Canes</a>
-        <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action active">Vehiculos</a>
+        <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action active">Vehículos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
         <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
         <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -55,15 +62,20 @@
         [columnDefs]="columnDefs"
         (gridReady)="onGridReady($event)"
         [frameworkComponents]="frameworkComponents"
-        (rowDoubleClicked)="mostrarModalDetalles($event.data, mostrarDetallesVehiculoModal)"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data)"
         #agGrid
       ></ag-grid-angular>
+      <div class="row">
+        <div class="col-sm-12">
+          <i>Hay un total de {{rowData.length}} vehiculos registrados</i>
+        </div>
+      </div>
     </div>
   </div>
 
   <ng-template #mostrarDetallesVehiculoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="mostrarDetallesVehiculoModal">Ver detalles del vehiculo </h4>
+      <h4 class="modal-title" id="mostrarDetallesVehiculoModal">Ver detalles del vehículo </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -79,14 +91,36 @@
               <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'COLORES' }" (click)="cambiarPestana('COLORES')">Colores</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'FOTOGRAFIAS' }" (click)="cambiarPestana('FOTOGRAFIAS')">Fotografias</a>
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'FOTOGRAFIAS' }" (click)="cambiarPestana('FOTOGRAFIAS')">Fotografías</a>
             </li>
           </ul>
         </div>
       </div>
 
       <div class="row" *ngIf="pestanaActual === 'DETALLES'">
-        <div class="col-sm-12">
+        <div class="col-sm-3">
+          <div class="row">
+            <div class="col-sm-12">
+              <img [src]="imagenPrincipal" style="width: 100%;">
+            </div>
+          </div>
+
+          <div class="row" *ngIf="!vehiculo?.fotografiaCapturada || !vehiculo?.coloresCapturado">
+            <div class="col-sm-12">
+              <div class="alert alert-warning">
+                <h4 class="alert-heading">
+                  Vehículo no finalizado
+                </h4>
+                <b>Este vehículo carece de la siguiente información:</b>
+                <ul>
+                  <li *ngIf="!vehiculo?.fotografiaCapturada">Fotografía</li>
+                  <li *ngIf="!vehiculo?.coloresCapturado">Color</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-9">
           <table class="table">
             <tr>
               <td><b>Tipo</b></td>
@@ -136,7 +170,7 @@
               <td>{{vehiculo?.origen}}</td>
             </tr>
             <tr *ngIf="vehiculo?.origen !== 'PROPIO'">
-              <td><b>Razon social:</b></td>
+              <td><b>Razón social:</b></td>
               <td>{{vehiculo?.razonSocial}}</td>
             </tr>
             <tr *ngIf="vehiculo?.origen !== 'PROPIO'">
@@ -159,19 +193,15 @@
               </td>
             </tr>
             <tr *ngIf="vehiculo?.blindado">
-              <td><b>Serie del blindaje</b></td>
-              <td>{{vehiculo?.serieBlindaje}}</td>
-            </tr>
-            <tr *ngIf="vehiculo?.blindado">
               <td><b>Fecha del blindaje</b></td>
               <td>{{vehiculo?.fechaBlindaje}}</td>
             </tr>
             <tr *ngIf="vehiculo?.blindado">
-              <td><b>Numero del holograma</b></td>
+              <td><b>Número del holograma</b></td>
               <td>{{vehiculo?.numeroHolograma}}</td>
             </tr>
             <tr *ngIf="vehiculo?.blindado">
-              <td><b>Numero de placa metalica</b></td>
+              <td><b>Número de placa metálica</b></td>
               <td>{{vehiculo?.placaMetalica}}</td>
             </tr>
             <tr *ngIf="vehiculo?.blindado">
@@ -191,24 +221,28 @@
               </td>
             </tr>
             <tr>
-              <td><b>Fecha de Creacion:</b></td>
-              <td>{{vehiculo.fechaCreacion}}</td>
+              <td><b>Fecha de Creación:</b></td>
+              <td>{{vehiculo?.fechaCreacion}}</td>
             </tr>
             <tr>
-              <td><b>Ultima actualizacion:</b></td>
-              <td>{{vehiculo.fechaActualizacion}}</td>
+              <td><b>Ultima actualización:</b></td>
+              <td>{{vehiculo?.fechaActualizacion}}</td>
             </tr>
-            <tr *ngIf="vehiculo.eliminado">
+            <tr *ngIf="vehiculo?.status === 'ACTIVO'">
+              <td><b>Personal asignado</b></td>
+              <td>{{vehiculo?.personalAsignado?.nombres + " " + vehiculo?.personalAsignado?.apellidoPaterno + " " + vehiculo?.personalAsignado?.apellidoMaterno}}</td>
+            </tr>
+            <tr *ngIf="vehiculo?.eliminado">
               <td><b>Motivo de baja:</b></td>
-              <td>{{vehiculo.motivoBaja}}</td>
+              <td>{{vehiculo?.motivoBaja}}</td>
             </tr>
-            <tr *ngIf="vehiculo.eliminado">
+            <tr *ngIf="vehiculo?.eliminado">
               <td><b>Fecha de baja:</b></td>
-              <td>{{vehiculo.fechaBaja}}</td>
+              <td>{{vehiculo?.fechaBaja}}</td>
             </tr>
-            <tr *ngIf="vehiculo.eliminado">
+            <tr *ngIf="vehiculo?.eliminado">
               <td><b>Detalles de la baja:</b></td>
-              <td>{{vehiculo.observacionesBaja}}</td>
+              <td>{{vehiculo?.observacionesBaja}}</td>
             </tr>
           </table>
         </div>
@@ -216,158 +250,327 @@
 
       <div class="row" *ngIf="pestanaActual === 'COLORES'">
         <div class="col-sm-12">
-          <table class="table">
-            <tr>
-              <td><b>Color</b></td>
-              <td><b>Descripción</b></td>
-              <td><b>Acciones</b></td>
-            </tr>
-            <tr *ngFor="let c of vehiculo?.colores; let i = index">
-              <td [ngSwitch]="c?.color">
-                <span *ngSwitchCase="'ROJO'">Rojo</span>
-                <span *ngSwitchCase="'VERDE_CLARO'">Verde claro</span>
-                <span *ngSwitchCase="'VERDE_OSCURO'">Verde oscuro</span>
-                <span *ngSwitchCase="'AZUL_CIELO'">Azul cielo</span>
-                <span *ngSwitchCase="'AZUL_MARINO'">Azul marino</span>
-                <span *ngSwitchCase="'NARANJA'">Naranja</span>
-                <span *ngSwitchCase="'AMARILLO'">Amarillo</span>
-                <span *ngSwitchCase="'BLANCO'">Blanco</span>
-                <span *ngSwitchCase="'NEGRO'">Negro</span>
-                <span *ngSwitchCase="'GRIS_CLARO'">Gris claro</span>
-                <span *ngSwitchCase="'GRIS_OSCURO'">Gris oscuro</span>
-                <span *ngSwitchCase="'MORADO'">Morado</span>
-                <span *ngSwitchCase="'ROSA'">Rosa</span>
-              </td>
-              <td>{{c?.descripcion}}</td>
-              <td>
-                <fa-icon [icon]="faPencilAlt" title="Modificar color del vehiculo" (click)="mostrarEditarVehiculoColor(i)"></fa-icon>
-                <fa-icon [icon]="faTrash" title="Eliminar color del vehiculo" (click)="mostrarModalEliminarVehiculoColor(c?.uuid)"></fa-icon>
-              </td>
-            </tr>
-            <tr *ngIf="!showColorForm">
-              <td colspan="3"><button class="btn btn-sm btn-primary" (click)="mostrarFormularioColor()" *ngIf="!vehiculo.eliminado">Agregar nuevo</button></td>
-            </tr>
-            <tr *ngIf="showColorForm">
-              <td colspan="3">
-                <div class="row">
-                  <div class="col-sm-12">
-                    <form [formGroup]="crearColorForm">
-                      <div class="form-row">
-                        <div class="col-sm-6">
-                          <label for="nuevoColor">
-                            <b>Color *</b>
-                            <span *ngIf="crearColorForm.controls['color'].invalid && (crearColorForm.controls['color'].dirty || crearColorForm.controls['color'].touched)" class="text-danger"> - Requerido</span>
-                          </label>
-                          <select id="nuevoColor" class="form-control" formControlName="color">
-                            <option value="ROJO">Rojo</option>
-                            <option value="VERDE_CLARO">Verde claro</option>
-                            <option value="VERDE_OSCURO">Verde oscuro</option>
-                            <option value="AZUL_CIELO">Azul cielo</option>
-                            <option value="AZUL_MARINO">Azul marino</option>
-                            <option value="NARANJA">Naranja</option>
-                            <option value="AMARILLO">Amarillo</option>
-                            <option value="BLANCO">Blanco</option>
-                            <option value="NEGRO">Negro</option>
-                            <option value="GRIS_CLARO">Gris claro</option>
-                            <option value="GRIS_OSCURO">Gris oscuro</option>
-                            <option value="MORADO">Morado</option>
-                            <option value="ROSA">Rosa</option>
-                          </select>
-                        </div>
-                        <div class="col-sm-6">
-                          <label for="descripcionColor">
-                            <b>Descripcion</b>
-                            <span
-                              *ngIf="crearColorForm.controls['descripcion'].invalid && (crearColorForm.controls['descripcion'].dirty || crearColorForm.controls['descripcion'].touched)">
-                                    <i *ngIf="crearColorForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                                  </span>
-                          </label>
-                          <input id="descripcionColor" type="text" class="form-control" placeholder="Ej. Primario, Secundario" formControlName="descripcion" #nombres>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                </div>
 
-                <hr>
-                <div class="row">
-                  <div class="col-sm-12">
-                    <button class="btn btn-primary btn-sm" (click)="guardarColor(crearColorForm)">Guardar</button>
-                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioColor()">Cancelar</button>
-                  </div>
+          <p-table #tablaColoresVehiculo [value]="vehiculo?.colores" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['color','descripcion']">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Colores del vehículo</h5>
                 </div>
-              </td>
-            </tr>
-          </table>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaColoresVehiculo.filterGlobal($event.target.value, 'contains')" placeholder="Buscar color" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="color"><b>Color <p-sortIcon field="color"></p-sortIcon></b></th>
+                <th pSortableColumn="descripcion"><b>Descripcion <p-sortIcon field="descripcion"></p-sortIcon></b></th>
+                <th><b>Opciones</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="6">No hay colores creados hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarColor()">Da clic aquí para crear una</a></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-color>
+              <tr>
+                <td>{{color.color}}</td>
+                <td>{{color.descripcion}}</td>
+                <td>
+                  <fa-icon [icon]="faPencilAlt" title="Modificar color del vehiculo" (click)="mostrarEditarVehiculoColor(color.uuid)"></fa-icon>
+                  <fa-icon [icon]="faTrash" title="Eliminar color del vehiculo" (click)="mostrarModalEliminarVehiculoColor(color.uuid)"></fa-icon>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{vehiculo.colores.length}} colores</p>
+                </div>
+                <div class="col-sm-6">
+                  <button class="btn btn-primary float-right" (click)="clear(tablaColoresVehiculo)">Limpiar filtros</button>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
         </div>
       </div>
 
       <div class="row" *ngIf="pestanaActual === 'FOTOGRAFIAS'">
         <div class="col-sm-12">
-          <table class="table">
-            <tr>
-              <td><b>Archivo</b></td>
-              <td><b>Descripcion</b></td>
-              <td><b>Opciones</b></td>
-            </tr>
-            <tr *ngFor="let f of vehiculo?.fotografias">
-              <td>{{f?.nombreArchivo}}</td>
-              <td>{{f?.descripcion}}</td>
-              <td>
-                <fa-icon [icon]="faDownload" title="Descargar fotografia" (click)="descargarFotografia(f?.uuid)"></fa-icon>
-                <fa-icon [icon]="faTrash" title="Eliminar fotografia" (click)="mostrarModalEliminarFotografia(f?.uuid)"></fa-icon>
-              </td>
-            </tr>
-            <tr *ngIf="showFotografiaForm">
-              <td colspan="3">
-                <div class="row">
-                  <div class="col-sm-12">
-                    <form [formGroup]="crearVehiculoFotografiaForm">
-                      <div class="form-row">
-                        <div class="col-sm-6">
-                          <label for="foto">
-                            <b>Archivo</b>
-                          </label>
-                          <input id="foto" class="form-control" formControlName="file" type="file" accept="image/*" (change)="onFileChange($event)">
-                        </div>
-                        <div class="col-sm-6">
-                          <label for="fotoDescripcion">
-                            <b>Descripcion</b>
-                          </label>
-                          <select id="fotoDescripcion" class="form-control" formControlName="descripcion">
-                            <option value="DERECHA">DERECHA</option>
-                            <option value="IZQUIERDA">IZQUIERDA</option>
-                            <option value="FRONTAL">FRONTAL</option>
-                            <option value="TRASERO">TRASERO</option>
-                            <option value="SUPERIOR">SUPERIOR</option>
-                          </select>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
+
+          <p-table #tablaArchivosVehiculo [value]="vehiculo?.fotografias" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['nombreArchivo','descripcion']">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Fotografias del vehículo</h5>
                 </div>
-                <hr>
-                <div class="row">
-                  <div class="col-sm-12">
-                    <button class="btn btn-primary btn-sm" (click)="guardarFotografia(crearVehiculoFotografiaForm)">Guardar</button>
-                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioNuevaFotografia()">Cancelar</button>
-                  </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaArchivosVehiculo.filterGlobal($event.target.value, 'contains')" placeholder="Buscar archivo" />
                 </div>
-              </td>
-            </tr>
-            <tr *ngIf="!showFotografiaForm">
-              <td colspan="3">
-                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaFotografia()" *ngIf="!vehiculo.eliminado">Agregar fotografia</button>
-              </td>
-            </tr>
-          </table>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="nombreArchivo"><b>Archivo <p-sortIcon field="nombreArchivo"></p-sortIcon></b></th>
+                <th pSortableColumn="descripcion"><b>Descripción <p-sortIcon field="descripcion"></p-sortIcon></b></th>
+                <th><b>Opciones</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="6">No hay fotografías creadas hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarFotografia()">Da clic aquí para crear una</a></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-fotografia>
+              <tr>
+                <td>{{fotografia.nombreArchivo}}</td>
+                <td>{{fotografia.descripcion}}</td>
+                <td>
+                  <fa-icon [icon]="faDownload" title="Descargar fotografia" (click)="descargarFotografia(fotografia?.uuid)"></fa-icon>
+                  <fa-icon [icon]="faTrash" title="Eliminar fotografia" (click)="mostrarModalEliminarFotografia(fotografia?.uuid)"></fa-icon>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{vehiculo.fotografias.length}} fotografías</p>
+                </div>
+                <div class="col-sm-6">
+                  <button class="btn btn-primary float-right" (click)="clear(tablaArchivosVehiculo)">Limpiar filtros</button>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
         </div>
       </div>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
-      <button class="btn btn-primary" (click)="mostrarModalVerConstanciaBlindaje()" *ngIf="!vehiculo?.eliminado && (vehiculo?.constanciaBlindaje !== null)">Ver constancia de blindaje</button>
+      <button class="btn btn-primary" (click)="mostrarModalMovimientosVehiculo()">Mostrar movimientos</button>
+      <button class="btn btn-primary" (click)="descargarDocumentoFundatorio()"  *ngIf="vehiculo?.eliminado && (vehiculo?.documentoFundatorioBaja !== null)">Descargar documento fundatorio</button>
+      <button class="btn btn-primary" (click)="mostrarModalVerConstanciaBlindaje()" *ngIf="!vehiculo?.eliminado && vehiculo?.blindado === true && (vehiculo?.constanciaBlindaje !== null)">Ver constancia de blindaje</button>
       <button class="btn btn-primary" (click)="mostrarModalModificarVehiculo()" *ngIf="!vehiculo?.eliminado">Modificar</button>
       <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarVehiculo()" *ngIf="!vehiculo?.eliminado">Eliminar</button>
+    </div>
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'COLORES'">
+      <button class="btn btn-primary" (click)="mostrarModalAgregarColor()" *ngIf="!vehiculo.eliminado">Agregar nuevo</button>
+    </div>
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'FOTOGRAFIAS'">
+      <button class="btn btn-primary" (click)="mostrarModalAgregarFotografia()" *ngIf="!vehiculo.eliminado">Agregar fotografía</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarMovimientosVehiculoModal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarMovimientosArmaModal">Histórico de movimientos del vehículo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.close()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientos === 'ASIGNACIONES' }"
+                 (click)="cambiarPestanaMovimiento('ASIGNACIONES')">Asignaciones</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientos === 'DIRECCIONES' }"
+                 (click)="cambiarPestanaMovimiento('DIRECCIONES')">Cambios de domicilio</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientos === 'ASIGNACIONES'">
+        <div class="col-sm-12">
+          <p-table #tablaMovimientosAsignaciones [value]="vehiculoMovimientos" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['persona.apellidoPaterno','persona.apellidoMaterno','persona.nombres','observaciones']">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Cambios de domicilio</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaMovimientosAsignaciones.filterGlobal($event.target.value, 'contains')" placeholder="Buscar asignacion" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th><b>Persona</b></th>
+                <th><b>Fecha asignación</b></th>
+                <th><b>Observaciones de asignación</b></th>
+                <th><b>Fecha fin asignación</b></th>
+                <th><b>Razon de baja de asignacion</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="4">Este vehículo no tiene movimientos registrados</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-movimientoAsignacion>
+              <tr>
+                <td>{{movimientoAsignacion.persona?.apellidoPaterno}} {{movimientoAsignacion.persona?.apellidoMaterno}} {{movimientoAsignacion.persona?.nombres}}</td>
+                <td>{{movimientoAsignacion?.fechaCreacion}}</td>
+                <td>{{movimientoAsignacion?.observaciones}}</td>
+                <td><span *ngIf="movimientoAsignacion?.eliminado">{{movimientoAsignacion.fechaActualizacion}}</span><span *ngIf="!movimientoAsignacion?.eliminado">Actualmente asignada</span></td>
+                <td><span *ngIf="movimientoAsignacion?.eliminado">{{movimientoAsignacion.motivoBajaAsignacion}}</span><span *ngIf="!movimientoAsignacion?.eliminado">Actualmente asignada</span><</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Se han realizado {{vehiculoMovimientos.length}} movimientos</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientos === 'DIRECCIONES'">
+        <div class="col-sm-12">
+          <p-table #tablaMovimientosDomicilio [value]="vehiculoMovimientosDomicilio" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['domicilioAnterior.domicilio1','domicilioAnterior.domicilio2','domicilioAnterior.domicilio3','domicilioAnterior.codigoPostal','domicilioActual.domicilio1','domicilioActual.domicilio2','domicilioActual.domicilio3','domicilioActual.codigoPostal']">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Historial de direcciones</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaMovimientosDomicilio.filterGlobal($event.target.value, 'contains')" placeholder="Buscar asignacion" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th><b>Domicilio anterior</b></th>
+                <th><b>Nuevo domicilio</b></th>
+                <th><b>Fecha de movimiento</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="4">Este vehículo no tiene movimientos registrados</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-movimientoDomicilio>
+              <tr>
+                <td>
+                  {{movimientoDomicilio?.domicilioAnterior?.domicilio1}} {{movimientoDomicilio?.domicilioAnterior?.numeroExterior}} {{movimientoDomicilio?.domicilioAnterior?.numeroInterior}}.
+                  Colonia: {{movimientoDomicilio?.domicilioAnterior?.domicilio2}}<br>
+                  {{movimientoDomicilio?.domicilioAnterior?.domicilio3}}, {{movimientoDomicilio?.domicilioAnterior?.estado}}, {{movimientoDomicilio?.domicilioAnterior?.pais}}<br>
+                  C.P. {{movimientoDomicilio?.domicilioAnterior?.codigoPostal}}
+                </td>
+                <td>
+                  {{movimientoDomicilio?.domicilioActual?.domicilio1}} {{movimientoDomicilio?.domicilioActual?.numeroExterior}} {{movimientoDomicilio?.domicilioActual?.numeroInterior}}.
+                  Colonia: {{movimientoDomicilio?.domicilioActual?.domicilio2}}<br>
+                  {{movimientoDomicilio?.domicilioActual?.domicilio3}}, {{movimientoDomicilio?.domicilioActual?.estado}}, {{movimientoDomicilio?.domicilioActual?.pais}}<br>
+                  C.P. {{movimientoDomicilio?.domicilioActual?.codigoPostal}}
+                </td>
+                <td>{{movimientoDomicilio?.fechaCreacion}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Se han realizado {{vehiculoMovimientosDomicilio.length}} movimientos</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="modal.close();">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #agregarColorModal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="agregarColorModal">Crear un nuevo color </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="crearColorForm">
+        <div class="form-row">
+          <div class="col-sm-6">
+            <label for="nuevoColor">
+              <b>Color *</b>
+              <span *ngIf="crearColorForm.controls['color'].invalid && (crearColorForm.controls['color'].dirty || crearColorForm.controls['color'].touched)" class="text-danger"> - Requerido</span>
+            </label>
+            <select id="nuevoColor" class="form-control" formControlName="color">
+              <option value="ROJO">Rojo</option>
+              <option value="VERDE_CLARO">Verde claro</option>
+              <option value="VERDE_OSCURO">Verde oscuro</option>
+              <option value="AZUL_CIELO">Azul cielo</option>
+              <option value="AZUL_MARINO">Azul marino</option>
+              <option value="NARANJA">Naranja</option>
+              <option value="AMARILLO">Amarillo</option>
+              <option value="BLANCO">Blanco</option>
+              <option value="NEGRO">Negro</option>
+              <option value="GRIS_CLARO">Gris claro</option>
+              <option value="GRIS_OSCURO">Gris oscuro</option>
+              <option value="MORADO">Morado</option>
+              <option value="ROSA">Rosa</option>
+            </select>
+          </div>
+          <div class="col-sm-6">
+            <label for="descripcionColor">
+              <b>Descripción</b>
+            </label>
+            <input id="descripcionColor" type="text" class="form-control" placeholder="Ej. Primario, Secundario" formControlName="descripcion" #nombres>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarColor(crearColorForm)">Guardar</button>
+      <button class="btn btn-danger" (click)="modal.close()">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #agregarFotografiaModal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="agregarColorModal">Agregar nueva fotografía </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="crearVehiculoFotografiaForm">
+        <div class="form-row">
+          <div class="col-sm-6">
+            <label for="foto">
+              <b>Archivo</b>
+            </label>
+            <input id="foto" class="form-control" formControlName="file" type="file" accept="image/*" (change)="onFileChange($event)">
+          </div>
+          <div class="col-sm-6">
+            <label for="fotoDescripcion">
+              <b>Descripción</b>
+            </label>
+            <select id="fotoDescripcion" class="form-control" formControlName="descripcion">
+              <option value="DERECHA">DERECHA</option>
+              <option value="IZQUIERDA">IZQUIERDA</option>
+              <option value="FRONTAL">FRONTAL</option>
+              <option value="TRASERO">TRASERO</option>
+              <option value="SUPERIOR">SUPERIOR</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarFotografia(crearVehiculoFotografiaForm)">Guardar</button>
+      <button class="btn btn-danger" (click)="modal.close()">Cancelar</button>
     </div>
   </ng-template>
 
@@ -388,11 +591,14 @@
         </div>
       </div>
     </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="descargarAcuerdoPdf()">Descargar</button>
+    </div>
   </ng-template>
 
   <ng-template #mostrarFotoVehiculoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="mostrarFotoVehiculoModal">Ver fotografia del vehiculo </h4>
+      <h4 class="modal-title" id="mostrarFotoVehiculoModal">Ver fotografia del vehículo </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -408,7 +614,7 @@
 
   <ng-template #modificarVehiculoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="modificarVehiculoModal">Modificar vehiculo </h4>
+      <h4 class="modal-title" id="modificarVehiculoModal">Modificar vehículo </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -418,23 +624,23 @@
         <div class="form-row">
           <div class="col-sm-4">
             <label for="placasEditar">
-              <b>Placas (con guiones) *</b>
+              <b>Placas (solo letras y numeros) *</b>
               <span *ngIf="crearVehiculoForm.controls['placas'].invalid && (crearVehiculoForm.controls['placas'].dirty || crearVehiculoForm.controls['placas'].touched)">
                 <i *ngIf="crearVehiculoForm.controls['placas'].errors.required" class="text-danger"> - Campo requerido</i>
                 <i *ngIf="crearVehiculoForm.controls['placas'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
               </span>
-              <i *ngIf="existeVehiculo?.existe && existeVehiculo?.placas !== null" class="text-danger"> - Ya hay vehiculo con estas placas</i>
+              <i *ngIf="existeVehiculo?.existe && existeVehiculo?.placas !== null" class="text-danger"> - Ya hay un vehiculo con estas placas</i>
             </label>
-            <input id="placasEditar" type="text" class="form-control" placeholder="Ej. JAM-1234" formControlName="placas" (focusout)="consultarPlacasVehiculo($event.target)" #placas>
+            <input id="placasEditar" type="text" class="form-control" placeholder="Ej. JAM1234" formControlName="placas" (focusout)="consultarPlacasVehiculo($event.target)" #placas>
           </div>
           <div class="col-sm-4">
             <label for="serieEditar">
-              <b>Número de serie *</b>
+              <b>Número de serie (solo letras y numeros) *</b>
               <span *ngIf="crearVehiculoForm.controls['serie'].invalid && (crearVehiculoForm.controls['serie'].dirty || crearVehiculoForm.controls['serie'].touched)">
                 <i *ngIf="crearVehiculoForm.controls['serie'].errors.required" class="text-danger"> - Campo requerido</i>
                 <i *ngIf="crearVehiculoForm.controls['serie'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
               </span>
-              <i *ngIf="existeVehiculo?.existe && existeVehiculo?.numeroSerie !== null" class="text-danger"> - Ya hay vehiculo con esta serie</i>
+              <i *ngIf="existeVehiculo?.existe && existeVehiculo?.numeroSerie !== null" class="text-danger"> - Ya hay un vehículo con esta serie</i>
             </label>
             <input id="serieEditar" type="text" class="form-control" placeholder="Ej. VW3NMFU9ABS8BDS" formControlName="serie" (focusout)="consultarSerieVehiculo($event.target)" #serie>
           </div>
@@ -521,23 +727,11 @@
               <b>Año *</b>
               <span *ngIf="crearVehiculoForm.controls['anio'].invalid && (crearVehiculoForm.controls['anio'].dirty || crearVehiculoForm.controls['anio'].touched)">
                 <i *ngIf="crearVehiculoForm.controls['anio'].errors.required" class="text-danger"> - Campo requerido</i>
+                <i *ngIf="crearVehiculoForm.controls['anio'].errors.max" class="text-danger"> - Valor inválido</i>
+                <i *ngIf="crearVehiculoForm.controls['anio'].errors.min" class="text-danger"> - Longitud inválida</i>
               </span>
             </label>
-            <select id="anioEditar" class="form-control" formControlName="anio">
-              <option value="2022">2022</option>
-              <option value="2021">2021</option>
-              <option value="2020">2020</option>
-              <option value="2019">2019</option>
-              <option value="2018">2018</option>
-              <option value="2017">2017</option>
-              <option value="2016">2016</option>
-              <option value="2015">2015</option>
-              <option value="2014">2014</option>
-              <option value="2013">2013</option>
-              <option value="2012">2012</option>
-              <option value="2011">2011</option>
-              <option value="2010">2010</option>
-            </select>
+            <input id="anioEditar" type="text" class="form-control" placeholder="Ej. 2021" formControlName="anio" #anio>
           </div>
 
           <div class="col-sm-3">
@@ -556,25 +750,13 @@
 
         <!-- Blindaje -->
         <div class="form-row" *ngIf="blindado">
-          <div class="col-sm-6">
-            <label for="serieBlindajeEditar">
-              <b>Número de serie del blindaje</b>
-              <span *ngIf="crearVehiculoForm.controls['serieBlindaje'].invalid && (crearVehiculoForm.controls['serieBlindaje'].dirty || crearVehiculoForm.controls['serieBlindaje'].touched)">
-                <i *ngIf="crearVehiculoForm.controls['serieBlindaje'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-              </span>
-            </label>
-            <input id="serieBlindajeEditar" type="text" class="form-control" placeholder="Ej. MAS1231232141" formControlName="serieBlindaje" #serieBlindaje>
-          </div>
-          <div class="col-sm-6">
+          <div class="col-sm-3">
             <label for="fechaBlindajeEditar">
               <b>Fecha del blindaje</b>
             </label>
             <input [max]="fechaDeHoy" id="fechaBlindajeEditar" type="date" class="form-control" formControlName="fechaBlindaje" #fechaBlindaje>
           </div>
-        </div>
-
-        <div class="form-row" *ngIf="blindado">
-          <div class="col-sm-6">
+          <div class="col-sm-3">
             <label for="numeroHologramaEditar">
               <b>Numero del holograma</b>
               <span *ngIf="crearVehiculoForm.controls['numeroHolograma'].invalid && (crearVehiculoForm.controls['numeroHolograma'].dirty || crearVehiculoForm.controls['numeroHolograma'].touched)">
@@ -701,7 +883,7 @@
               <div class="step" data-target="#test-l-3">
                 <button class="step-trigger">
                   <span class="bs-stepper-circle">3</span>
-                  <span class="bs-stepper-label">Fotografias</span>
+                  <span class="bs-stepper-label">Fotografías</span>
                 </button>
               </div>
               <div class="line"></div>
@@ -719,15 +901,15 @@
                   <div class="form-row">
                     <div class="col-sm-4">
                       <label for="placas">
-                        <b>Placas (con guiones) *</b>
+                        <b>Placas (solo letras y numeros) *</b>
                         <span
                           *ngIf="crearVehiculoForm.controls['placas'].invalid && (crearVehiculoForm.controls['placas'].dirty || crearVehiculoForm.controls['placas'].touched)">
                               <i *ngIf="crearVehiculoForm.controls['placas'].errors.required" class="text-danger"> - Campo requerido</i>
                               <i *ngIf="crearVehiculoForm.controls['placas'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                             </span>
-                        <i *ngIf="existeVehiculo?.existe && existeVehiculo?.placas !== null" class="text-danger"> - Ya hay vehiculo con estas placas</i>
+                        <i *ngIf="existeVehiculo?.existe && existeVehiculo?.placas !== null" class="text-danger"> - Ya hay vehículo con estas placas</i>
                       </label>
-                      <input id="placas" type="text" class="form-control" placeholder="Ej. JAM-1234" formControlName="placas" (focusout)="consultarPlacasVehiculo($event.target)" #placas>
+                      <input id="placas" type="text" class="form-control" placeholder="Ej. JAM-234" formControlName="placas" (focusout)="consultarPlacasVehiculo($event.target)" #placas>
                     </div>
                     <div class="col-sm-4">
                       <label for="serie">
@@ -737,7 +919,7 @@
                               <i *ngIf="crearVehiculoForm.controls['serie'].errors.required" class="text-danger"> - Campo requerido</i>
                               <i *ngIf="crearVehiculoForm.controls['serie'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                             </span>
-                        <i *ngIf="existeVehiculo?.existe && existeVehiculo?.numeroSerie !== null" class="text-danger"> - Ya hay vehiculo con esta serie</i>
+                        <i *ngIf="existeVehiculo?.existe && existeVehiculo?.numeroSerie !== null" class="text-danger"> - Ya hay vehículo con esta serie</i>
                       </label>
                       <input id="serie" type="text" class="form-control" placeholder="Ej. VW3NMFU9ABS8BDS" formControlName="serie" (focusout)="consultarSerieVehiculo($event.target)" #serie>
                     </div>
@@ -827,26 +1009,13 @@
                     <div class="col-sm-3">
                       <label for="anio">
                         <b>Año *</b>
-                        <span
-                          *ngIf="crearVehiculoForm.controls['anio'].invalid && (crearVehiculoForm.controls['anio'].dirty || crearVehiculoForm.controls['anio'].touched)">
-                              <i *ngIf="crearVehiculoForm.controls['anio'].errors.required" class="text-danger"> - Campo requerido</i>
-                            </span>
+                        <span *ngIf="crearVehiculoForm.controls['anio'].invalid && (crearVehiculoForm.controls['anio'].dirty || crearVehiculoForm.controls['anio'].touched)">
+                          <i *ngIf="crearVehiculoForm.controls['anio'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearVehiculoForm.controls['anio'].errors.max" class="text-danger"> - Valor inválido</i>
+                          <i *ngIf="crearVehiculoForm.controls['anio'].errors.min" class="text-danger"> - Longitud inválida</i>
+                        </span>
                       </label>
-                      <select id="anio" class="form-control" formControlName="anio">
-                        <option value="2022">2022</option>
-                        <option value="2021">2021</option>
-                        <option value="2020">2020</option>
-                        <option value="2019">2019</option>
-                        <option value="2018">2018</option>
-                        <option value="2017">2017</option>
-                        <option value="2016">2016</option>
-                        <option value="2015">2015</option>
-                        <option value="2014">2014</option>
-                        <option value="2013">2013</option>
-                        <option value="2012">2012</option>
-                        <option value="2011">2011</option>
-                        <option value="2010">2010</option>
-                      </select>
+                      <input id="anio" type="text" class="form-control" placeholder="Ej. 2021" formControlName="anio" #anio>
                     </div>
 
                     <div class="col-sm-3">
@@ -866,25 +1035,13 @@
 
                   <!-- Blindaje -->
                   <div class="form-row" *ngIf="blindado">
-                    <div class="col-sm-6">
-                      <label for="serieBlindaje">
-                        <b>Número de serie del blindaje</b>
-                        <span *ngIf="crearVehiculoForm.controls['serieBlindaje'].invalid && (crearVehiculoForm.controls['serieBlindaje'].dirty || crearVehiculoForm.controls['serieBlindaje'].touched)">
-                        <i *ngIf="crearVehiculoForm.controls['serieBlindaje'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                      </span>
-                      </label>
-                      <input id="serieBlindaje" type="text" class="form-control" placeholder="Ej. MAS1231232141" formControlName="serieBlindaje" #serieBlindaje>
-                    </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-3">
                       <label for="fechaBlindajeEditar">
                         <b>Fecha del blindaje</b>
                       </label>
                       <input [max]="fechaDeHoy" id="fechaBlindaje" type="date" class="form-control" formControlName="fechaBlindaje" #fechaBlindaje>
                     </div>
-                  </div>
-
-                  <div class="form-row" *ngIf="blindado">
-                    <div class="col-sm-6">
+                    <div class="col-sm-3">
                       <label for="numeroHolograma">
                         <b>Numero del holograma</b>
                         <span *ngIf="crearVehiculoForm.controls['numeroHolograma'].invalid && (crearVehiculoForm.controls['numeroHolograma'].dirty || crearVehiculoForm.controls['numeroHolograma'].touched)">
@@ -989,7 +1146,7 @@
                   <tr>
                     <td><b>Color</b></td>
                     <td><b>Descripción</b></td>
-                    <td><b>Acciones</b></td>
+                    <td><b>Opciones</b></td>
                   </tr>
                   <tr *ngFor="let c of coloresTemp; let i = index">
                     <td [ngSwitch]="c?.color">
@@ -1048,11 +1205,7 @@
                               </div>
                               <div class="col-sm-6">
                                 <label for="descripcionColorCrear">
-                                  <b>Descripcion *</b>
-                                  <span
-                                    *ngIf="crearColorForm.controls['descripcion'].invalid && (crearColorForm.controls['descripcion'].dirty || crearColorForm.controls['descripcion'].touched)">
-                                    <i *ngIf="crearColorForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                                  </span>
+                                  <b>Descripcion</b>
                                 </label>
                                 <input id="descripcionColorCrear" type="text" class="form-control" placeholder="Ej. Primario, Secundario" formControlName="descripcion" #nombres>
                               </div>
@@ -1076,7 +1229,7 @@
                   <div class="col-sm-12">
                     <button (click)="previous()" class="btn btn-primary">Anterior: Informacion
                     </button>
-                    <button (click)="next('FOTOGRAFIAS', crearVehiculoForm)" class="btn btn-primary">Siguiente: Fotografias
+                    <button (click)="next('FOTOGRAFIAS', crearVehiculoForm)" class="btn btn-primary">Siguiente: Fotografías
                     </button>
                   </div>
                 </div>
@@ -1137,7 +1290,7 @@
                       </tr>
                       <tr *ngIf="!showFotografiaForm">
                         <td colspan="3">
-                          <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaFotografia()">Agregar fotografia</button>
+                          <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaFotografia()">Agregar fotografía</button>
                         </td>
                       </tr>
                     </table>
@@ -1156,13 +1309,13 @@
               <div id="test-l-4" class="content">
                 <div class="row">
                   <div class="col-sm-12">
-                    <h2>El vehiculo se ha guardado con exito</h2>
-                    <p>A continuacion, veras los detalles. Para finalizar, actualiza la pagina o dale click en el boton terminar</p>
+                    <h2>El vehículo se ha guardado con éxito</h2>
+                    <p>A continuación, verás los detalles. Para finalizar, actualiza la página o dale click en el botón terminar</p>
                   </div>
                 </div>
                 <div class="row">
                   <div class="col-sm-12">
-                    <h4>Info. Vehiculo</h4>
+                    <h4>Info. Vehículo</h4>
                     <table class="table">
                       <tr>
                         <td><b>Tipo</b></td>
@@ -1203,10 +1356,6 @@
                         </td>
                       </tr>
                       <tr *ngIf="vehiculo?.blindado">
-                        <td><b>Serie del blindaje</b></td>
-                        <td>{{vehiculo?.serieBlindaje}}</td>
-                      </tr>
-                      <tr *ngIf="vehiculo?.blindado">
                         <td><b>Fecha del blindaje</b></td>
                         <td>{{vehiculo.fechaBlindaje}}</td>
                       </tr>
@@ -1215,7 +1364,7 @@
                         <td>{{vehiculo.numeroHolograma}}</td>
                       </tr>
                       <tr *ngIf="vehiculo?.blindado">
-                        <td><b>Numero de placa metalica</b></td>
+                        <td><b>Número de placa metalica</b></td>
                         <td>{{vehiculo.placaMetalica}}</td>
                       </tr>
                       <tr *ngIf="vehiculo?.blindado">
@@ -1238,10 +1387,20 @@
                     </table>
                   </div>
                 </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Info. Vehículo</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b></b></td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button (click)="previous()" class="btn btn-primary">Anterior: Fotografias
+                    <button (click)="previous()" class="btn btn-primary">Anterior: Fotografías
                     </button>
                     <button (click)="finalizar()" class="btn btn-primary">Finalizar
                     </button>
@@ -1276,7 +1435,7 @@
 
   <ng-template #eliminarVehiculoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="eliminarVehiculoModal">Eliminando un vehiculo </h4>
+      <h4 class="modal-title" id="eliminarVehiculoModal">Eliminando un vehículo </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -1327,19 +1486,19 @@
       </form>
       <div class="row">
         <div class="col-sm-12">
-          <p><br><b>Estás a punto de eliminar un vehiculo. Toma en cuenta que al eliminarlo, todos las fotografias y colores seran eliminados y esta operación no se puede deshacer. ¿Deseas continuar?</b></p>
+          <p><br><b>Estás a punto de eliminar un vehículo. Toma en cuenta que al eliminarlo, todas las fotografías y colores serán eliminados y esta operación no se puede deshacer. ¿Deseas continuar?</b></p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarVehiculo(motivosEliminacionForm)">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como está</button>
     </div>
   </ng-template>
 
   <ng-template #eliminarVehiculoColorModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="eliminarVehiculoColorModal">Eliminando un color del vehiculo </h4>
+      <h4 class="modal-title" id="eliminarVehiculoColorModal">Eliminando un color del vehículo </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -1347,19 +1506,19 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estás a punto de eliminar el color del vehiculo. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estás a punto de eliminar el color del vehículo. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarVehiculoColor()">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como está</button>
     </div>
   </ng-template>
 
   <ng-template #quitarVehiculoColorModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="quitarVehiculoColorModal">Quitando un color del vehiculo </h4>
+      <h4 class="modal-title" id="quitarVehiculoColorModal">Quitando un color del vehículo </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -1367,19 +1526,19 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estás a punto de quitar el color del vehiculo. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estás a punto de quitar el color del vehículo. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="quitarColor()">Si, quitar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como está</button>
     </div>
   </ng-template>
 
   <ng-template #eliminarVehiculoFotografiaModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="eliminarVehiculoFotografiaModal">Eliminando una fotografia del vehiculo </h4>
+      <h4 class="modal-title" id="eliminarVehiculoFotografiaModal">Eliminando una fotografía del vehiculo </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -1387,13 +1546,13 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estás a punto de eliminar una fotografia del vehiculo. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estás a punto de eliminar una fotografía del vehículo. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarVehiculoFotografia()">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como está</button>
     </div>
   </ng-template>
 </div>

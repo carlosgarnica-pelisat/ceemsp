@@ -8,12 +8,11 @@ import {ToastType} from "../../../_enums/ToastType";
 import Empresa from "../../../_models/Empresa";
 import Acuerdo from "../../../_models/Acuerdo";
 import {
-  BotonEmpresaCanesComponent
-} from "../../../_components/botones/boton-empresa-canes/boton-empresa-canes.component";
-import {
   BotonEmpresaAcuerdosComponent
 } from "../../../_components/botones/boton-empresa-acuerdos/boton-empresa-acuerdos.component";
-import Can from "../../../_models/Can";
+import {AuthenticationService} from "../../../_services/authentication.service";
+import Usuario from "../../../_models/Usuario";
+import {ReporteEmpresasService} from "../../../_services/reporte-empresas.service";
 
 @Component({
   selector: 'app-empresa-acuerdos',
@@ -40,11 +39,12 @@ export class EmpresaAcuerdosComponent implements OnInit {
   fechaDeHoy = new Date().toISOString().split('T')[0];
 
   modal: NgbModalRef;
+  usuarioActual: Usuario;
 
   nuevoAcuerdoForm: FormGroup;
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
-    {headerName: 'Tipo', sortable: true, filter: true, valueGetter: function (params) {
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
+    {headerName: 'Tipo', sortable: true, filter: true,resizable: true, valueGetter: function (params) {
         switch (params.data.tipo) {
           case 'AUTORIZACION_ESTATAL':
             return 'Autorizacion Estatal';
@@ -68,11 +68,15 @@ export class EmpresaAcuerdosComponent implements OnInit {
             return 'Multa';
           case 'AMONESTACION':
             return 'Amonestacion'
+          case 'MANDATO_JUDICIAL':
+            return 'Reactivación por mandato judicial'
         }
       }},
-    {headerName: 'Fecha', field: 'fecha', sortable: true, filter: true },
-    {headerName: 'Observaciones', field: 'observaciones', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+    {headerName: 'Fecha', field: 'fecha', sortable: true, resizable: true, filter: true },
+    {headerName: 'Fecha de inicio', field: 'fechaInicio', sortable: true, resizable: true, filter: true },
+    {headerName: 'Fecha de fin', field: 'fechaFin', sortable: true, resizable: true, filter: true },
+    {headerName: 'Observaciones', field: 'observaciones', sortable: true, resizable: true, filter: true},
+    {headerName: 'Opciones', cellRenderer: 'buttonRenderer', resizable: true, cellRendererParams: {
         label: 'Ver detalles',
         verDetalles: this.verDetalles.bind(this),
         editar: this.editar.bind(this),
@@ -85,6 +89,7 @@ export class EmpresaAcuerdosComponent implements OnInit {
   tipoAcuerdo: string;
 
   multaPesos: number = 0;
+  pdfBlob;
 
   @ViewChild('verDetallesAcuerdoModal') verDetallesAcuerdoModal;
   @ViewChild('crearAcuerdoModal') crearAcuerdoModal;
@@ -93,9 +98,14 @@ export class EmpresaAcuerdosComponent implements OnInit {
   @ViewChild('eliminarAcuerdoModal') eliminarAcuerdoModal;
 
   constructor(private formBuilder: FormBuilder, private empresaService: EmpresaService, private modalService: NgbModal,
-              private toastService: ToastService, private route: ActivatedRoute) { }
+              private toastService: ToastService, private route: ActivatedRoute, private authenticationService: AuthenticationService,
+              private reporteEmpresaService: ReporteEmpresasService) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
+    this.uuid = this.route.snapshot.paramMap.get("uuid");
+
     this.frameworkComponents = {
       buttonRenderer: BotonEmpresaAcuerdosComponent
     }
@@ -258,6 +268,7 @@ export class EmpresaAcuerdosComponent implements OnInit {
   }
 
   guardarAcuerdo(form) {
+    console.log(form.value);
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -283,6 +294,21 @@ export class EmpresaAcuerdosComponent implements OnInit {
     );
 
     let formValue: Acuerdo = form.value;
+
+    // Validando las fechas
+    if(formValue.fechaInicio !== undefined && formValue.fechaFin !== undefined) {
+      let fechaInicio = new Date(formValue.fechaInicio);
+      let fechaFin = new Date(formValue.fechaFin);
+      if(fechaInicio > fechaFin) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "La fecha de inicio es mayor que la del final",
+          ToastType.WARNING
+        )
+        return;
+      }
+    }
+
     formValue.multaPesos = this.multaPesos
     formValue.multaUmas = (formValue.tipo === 'MULTA') ? formValue.multaUmas : 0;
 
@@ -296,11 +322,20 @@ export class EmpresaAcuerdosComponent implements OnInit {
         `Se ha guardado el acuerdo con exito`,
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerAcuerdos(this.uuid).subscribe((data: Acuerdo[]) => {
+        this.rowData = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los acuerdos de la empresa. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        `No se pudo guardar el acuerdo`,
+        `No se pudo guardar el acuerdo. Motivo: ${error}`,
         ToastType.ERROR
       );
     })
@@ -323,6 +358,20 @@ export class EmpresaAcuerdosComponent implements OnInit {
     );
 
     let formValue: Acuerdo = form.value;
+
+    if(formValue.fechaInicio !== undefined && formValue.fechaFin !== undefined) {
+      let fechaInicio = new Date(formValue.fechaInicio);
+      let fechaFin = new Date(formValue.fechaFin);
+      if(fechaInicio > fechaFin) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "La fecha de inicio es mayor que la del final",
+          ToastType.WARNING
+        )
+        return;
+      }
+    }
+
     formValue.multaPesos = this.multaPesos
 
     let formData: FormData = new FormData();
@@ -339,7 +388,16 @@ export class EmpresaAcuerdosComponent implements OnInit {
         `Se ha guardado el acuerdo con exito`,
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerAcuerdos(this.uuid).subscribe((data: Acuerdo[]) => {
+        this.rowData = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los acuerdos de la empresa. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -353,6 +411,7 @@ export class EmpresaAcuerdosComponent implements OnInit {
     this.modal = this.modalService.open(this.visualizarAcuerdoModal, {size: "xl"});
 
     this.empresaService.descargarAcuerdo(this.uuid, this.acuerdo?.uuid).subscribe((data: Blob) => {
+      this.pdfBlob = data;
       this.convertirPdf(data);
     }, (error) => {
       this.toastService.showGenericToast(
@@ -426,7 +485,16 @@ export class EmpresaAcuerdosComponent implements OnInit {
         `Se ha eliminado el acuerdo con exito`,
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerAcuerdos(this.uuid).subscribe((data: Acuerdo[]) => {
+        this.rowData = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los acuerdos de la empresa. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -464,6 +532,26 @@ export class EmpresaAcuerdosComponent implements OnInit {
     }
   }
 
+  descargarAcuerdoPdf() {
+    let link = document.createElement('a');
+    link.href = window.URL.createObjectURL(this.pdfBlob);
+    link.download = "acuerdo.pdf";
+    link.click();
+  }
+  generarReporteExcelAcuerdos() {
+    this.reporteEmpresaService.generarReporteAcuerdos(this.uuid).subscribe((data) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "test.xls";
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el reporte en excel. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
   mostrarModalCrear() {
     this.modal = this.modalService.open(this.crearAcuerdoModal, {size: 'xl'})
   }

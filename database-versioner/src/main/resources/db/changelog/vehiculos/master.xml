@@ -11,4 +11,6 @@
     <include file="db/changelog/vehiculos/CEEMSP-54/schema.xml" />
     <include file="db/changelog/vehiculos/CEEMSP-56/schema.xml" />
     <include file="db/changelog/vehiculos/CEEMSP-72/schema.xml" />
+    <include file="db/changelog/vehiculos/CEEMSP-74/schema.xml" />
+    <include file="db/changelog/vehiculos/CEEMSP-81/schema.xml" />
 </databaseChangeLog>

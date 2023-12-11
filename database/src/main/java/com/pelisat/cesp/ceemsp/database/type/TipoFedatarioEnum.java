@@ -1,5 +1,8 @@
 package com.pelisat.cesp.ceemsp.database.type;
 
+import lombok.Getter;
+
+@Getter
 public enum TipoFedatarioEnum {
     CORREDOR("CORREDOR", "Corredor público"),
     NOTARIO("NOTARIO", "Notario público");

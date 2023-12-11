@@ -1,0 +1,192 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+    <changeSet id="2021-08-24-crear-tabla-usuarios" author="carlos.garnica@pelisat.com.mx">
+        <insert tableName="usuarios">
+            <column name="ID" value="1"></column>
+            <column name="UUID" value="1094L9SBR45R"></column>
+            <column name="USERNAME" value="sudo"></column>
+            <column name="EMAIL" value="sudo@sudo.com"></column>
+            <column name="PASSWORD" value="8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"></column>
+            <column name="NOMBRES" value="SUPERUSUARIO"></column>
+            <column name="APELLIDOS" value="PEREZ"></column>
+            <column name="APELLIDO_MATERNO" value="PEREZ"></column>
+            <column name="ROL" value="CEEMSP_SUPERUSER"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="usuarios">
+            <column name="ID" value="2"></column>
+            <column name="UUID" value="1094L9SBR45S"></column>
+            <column name="USERNAME" value="vbernabe"></column>
+            <column name="EMAIL" value="victor@victor.com"></column>
+            <column name="PASSWORD" value="8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"></column>
+            <column name="NOMBRES" value="VICTOR HUGO"></column>
+            <column name="APELLIDOS" value="BERNABE ESPINOZA"></column>
+            <column name="ROL" value="CEEMSP_SUPERUSER"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="usuarios">
+            <column name="ID" value="3"></column>
+            <column name="UUID" value="1094L9SBR45T"></column>
+            <column name="USERNAME" value="gladysgarcia"></column>
+            <column name="EMAIL" value="gladys.garcia@jalisco.gob.mx"></column>
+            <column name="PASSWORD" value="64789a50459a8a313f6623d70c1e4c255502520fdfd26f23694e63e61f9eeeb7"></column>
+            <column name="NOMBRES" value="GLADYS MARGOT"></column>
+            <column name="APELLIDOS" value="GARCIA"></column>
+            <column name="APELLIDO_MATERNO" value="GODINEZ"></column>
+            <column name="ROL" value="CEEMSP_SUPERUSER"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="usuarios">
+            <column name="ID" value="4"></column>
+            <column name="UUID" value="1094L9SBR45U"></column>
+            <column name="USERNAME" value="edgarlopez"></column>
+            <column name="EMAIL" value="edgarivanlopez05@gmail.com"></column>
+            <column name="PASSWORD" value="32f1407e05b62ec453ecbc25d120d1272575508eb09a5d3d287b4d070fc06295"></column>
+            <column name="NOMBRES" value="EDGAR IVAN"></column>
+            <column name="APELLIDOS" value="LOPEZ"></column>
+            <column name="APELLIDO_MATERNO" value="BARRERA"></column>
+            <column name="ROL" value="CEEMSP_SUPERUSER"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="usuarios">
+            <column name="ID" value="5"></column>
+            <column name="UUID" value="1094L9SBR45V"></column>
+            <column name="USERNAME" value="pablogomez"></column>
+            <column name="EMAIL" value="licpablogomeziap@gmail.com"></column>
+            <column name="PASSWORD" value="343ae837b7e90f23699c4d934d87d0cc558083c0498e35bd6d40da44ff27da82"></column>
+            <column name="NOMBRES" value="PABLO MARCIAL"></column>
+            <column name="APELLIDOS" value="LOPEZ"></column>
+            <column name="APELLIDO_MATERNO" value="AYALA"></column>
+            <column name="ROL" value="CEEMSP_USER"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="usuarios">
+            <column name="ID" value="6"></column>
+            <column name="UUID" value="1094L9SBR45W"></column>
+            <column name="USERNAME" value="marcobarrera"></column>
+            <column name="EMAIL" value="marco.barrera.ang@gmail.com"></column>
+            <column name="PASSWORD" value="9caf4eca1381b06e2571aaf9163f5d0b152d9ad0f17f12984afd3af670115c46"></column>
+            <column name="NOMBRES" value="MARCO ANTONIO"></column>
+            <column name="APELLIDOS" value="BARRERA"></column>
+            <column name="APELLIDO_MATERNO" value="ANGUIANO"></column>
+            <column name="ROL" value="CEEMSP_SUPERUSER"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="usuarios">
+            <column name="ID" value="7"></column>
+            <column name="UUID" value="1094L9SBR45X"></column>
+            <column name="USERNAME" value="elisacamarena"></column>
+            <column name="EMAIL" value="elisa.camarena@jalisco.gob.mx"></column>
+            <column name="PASSWORD" value="847468d0aa932ce85c57e96aba7c6e34e87600ce4f54c961278d86272a7b95c5"></column>
+            <column name="NOMBRES" value="ELISA NATIVIDAD"></column>
+            <column name="APELLIDOS" value="CAMARENA"></column>
+            <column name="APELLIDO_MATERNO" value="VALDIVIA"></column>
+            <column name="ROL" value="CEEMSP_USER"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="usuarios">
+            <column name="ID" value="8"></column>
+            <column name="UUID" value="1094L9SBR45Y"></column>
+            <column name="USERNAME" value="veronicagonzalez"></column>
+            <column name="EMAIL" value="veronica.gonzalez83@yahoo.com.mx"></column>
+            <column name="PASSWORD" value="e0d8647de2fb231ba7570a87454f979e807c298544fed2751e2ef75366f202b5"></column>
+            <column name="NOMBRES" value="VERONICA GABRIELA"></column>
+            <column name="APELLIDOS" value="GONZALEZ"></column>
+            <column name="APELLIDO_MATERNO" value="MARTIN"></column>
+            <column name="ROL" value="CEEMSP_USER"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="usuarios">
+            <column name="ID" value="9"></column>
+            <column name="UUID" value="1094L9SBR45Z"></column>
+            <column name="USERNAME" value="elizabethrodriguez"></column>
+            <column name="EMAIL" value="eli.rod12@outlook.com"></column>
+            <column name="PASSWORD" value="43837f91e239ba9d45a2bc074d64341bd744e4734cfe251ca23e6c9f7526831c"></column>
+            <column name="NOMBRES" value="ELIZABETH ALEJANDRA"></column>
+            <column name="APELLIDOS" value="ANAYA"></column>
+            <column name="APELLIDO_MATERNO" value="DAVALOS"></column>
+            <column name="ROL" value="CEEMSP_USER"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="usuarios">
+            <column name="ID" value="10"></column>
+            <column name="UUID" value="1094L9SBR46A"></column>
+            <column name="USERNAME" value="karlalopez"></column>
+            <column name="EMAIL" value="kaarlilopez260@gmail.com"></column>
+            <column name="PASSWORD" value="69567795e3f83d07301e4dcfc01e409cca7e6f6af4656f49222c8f0ff52bb7d8"></column>
+            <column name="NOMBRES" value="KARLA SARAI"></column>
+            <column name="APELLIDOS" value="LOPEZ"></column>
+            <column name="APELLIDO_MATERNO" value="MARTINEZ"></column>
+            <column name="ROL" value="CEEMSP_USER"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="usuarios">
+            <column name="ID" value="11"></column>
+            <column name="UUID" value="1094L9SBR46B"></column>
+            <column name="USERNAME" value="edgaranaya"></column>
+            <column name="EMAIL" value="edgar.anaya@jalisco.gob.mx"></column>
+            <column name="PASSWORD" value="693c66f7e9d0ec3f4c2a34d852377c5a675bac51b0d6104d8da5cf41bd7c6388"></column>
+            <column name="NOMBRES" value="EDGAR ALLAN"></column>
+            <column name="APELLIDOS" value="ANAYA"></column>
+            <column name="APELLIDO_MATERNO" value="DAVALOS"></column>
+            <column name="ROL" value="CEEMSP_USER"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

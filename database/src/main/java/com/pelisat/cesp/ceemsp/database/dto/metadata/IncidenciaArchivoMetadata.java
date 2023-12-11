@@ -9,4 +9,6 @@ public class IncidenciaArchivoMetadata {
     private int id;
     private String uuid;
     private String nombreArchivo;
+    private String fechaCreacion;
+    private String fechaActualizacion;
 }

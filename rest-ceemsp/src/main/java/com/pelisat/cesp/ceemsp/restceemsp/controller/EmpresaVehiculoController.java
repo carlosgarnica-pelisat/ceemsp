@@ -1,6 +1,8 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
 import com.google.gson.Gson;
+import com.pelisat.cesp.ceemsp.database.dto.PersonalVehiculoDto;
+import com.pelisat.cesp.ceemsp.database.dto.VehiculoDomicilioDto;
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoDto;
 import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaVehiculoService;
@@ -50,6 +52,13 @@ public class EmpresaVehiculoController {
         return empresaVehiculoService.obtenerVehiculosEliminadosPorEmpresa(empresaUuid);
     }
 
+    @GetMapping(value = EMPRESA_VEHICULOS_URI + "/instalaciones")
+    public List<VehiculoDto> obtenerVehiculosInstalacionesPorEmpresa(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) {
+        return empresaVehiculoService.obtenerVehiculosInstalacionesPorEmpresa(empresaUuid);
+    }
+
     @GetMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public VehiculoDto obtenerVehiculoPorUuid(
             @PathVariable(value = "empresaUuid") String empresaUuid,
@@ -58,12 +67,44 @@ public class EmpresaVehiculoController {
         return empresaVehiculoService.obtenerVehiculoPorUuid(empresaUuid, vehiculoUuid, false);
     }
 
+    @GetMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}/movimientos/asignaciones", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<PersonalVehiculoDto> obtenerVehiculoMovimientos(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "vehiculoUuid") String vehiculoUuid
+    ) {
+        return empresaVehiculoService.obtenerMovimientosVehiculoPorUuid(empresaUuid, vehiculoUuid);
+    }
+
+    @GetMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}/movimientos/direcciones", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<VehiculoDomicilioDto> obtenerVehiculoMovimientosDirecciones(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "vehiculoUuid") String vehiculoUuid
+    ) {
+        return empresaVehiculoService.obtenerMovimientosDomiciliosVehiculo(empresaUuid, vehiculoUuid);
+    }
+
     @GetMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}/pdf")
     public ResponseEntity<InputStreamResource> descargarEscrituraPdf(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "vehiculoUuid") String vehiculoUuid
     ) throws Exception {
         File file = empresaVehiculoService.obtenerConstanciaBlindaje(empresaUuid, vehiculoUuid);
+        HttpHeaders responseHeaders = new HttpHeaders();
+
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentLength(file.length());
+        responseHeaders.setContentDispositionFormData("attachment", file.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+        return new ResponseEntity<>(isr, responseHeaders, HttpStatus.OK);
+    }
+
+    @GetMapping(value = EMPRESA_VEHICULOS_URI + "/{vehiculoUuid}/documentos/fundatorios")
+    public ResponseEntity<InputStreamResource> descargarDocumentoFundatorio(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "vehiculoUuid") String vehiculoUuid
+    ) throws Exception {
+        File file = empresaVehiculoService.descargarDocumentoFundatorio(empresaUuid, vehiculoUuid);
+
         HttpHeaders responseHeaders = new HttpHeaders();
 
         responseHeaders.setContentType(MediaType.APPLICATION_PDF);

@@ -1,11 +1,16 @@
 package com.pelisat.cesp.ceemsp.restempresas.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.CanDto;
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.Can;
+import com.pelisat.cesp.ceemsp.database.model.CanDomicilio;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
+import com.pelisat.cesp.ceemsp.database.model.Personal;
+import com.pelisat.cesp.ceemsp.database.repository.CanDomicilioRepository;
 import com.pelisat.cesp.ceemsp.database.repository.CanRepository;
+import com.pelisat.cesp.ceemsp.database.repository.PersonaRepository;
+import com.pelisat.cesp.ceemsp.database.type.CanOrigenEnum;
+import com.pelisat.cesp.ceemsp.database.type.CanStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -18,9 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,6 +48,8 @@ public class EmpresaCanServiceImpl implements EmpresaCanService {
     private final EmpresaCanAdiestramientoService empresaCanAdiestramientoService;
     private final EmpresaPersonalService empresaPersonalService;
     private final EmpresaCanFotografiaService empresaCanFotografiaService;
+    private final CanDomicilioRepository canDomicilioRepository;
+    private final PersonaRepository personaRepository;
 
     @Autowired
     public EmpresaCanServiceImpl(CanRepository canRepository, UsuarioService usuarioService,
@@ -52,7 +59,8 @@ public class EmpresaCanServiceImpl implements EmpresaCanService {
                                  EmpresaPersonalService empresaPersonalService, EmpresaClienteService empresaClienteService,
                                  EmpresaClienteDomicilioService empresaClienteDomicilioService, EmpresaCanCartillaVacunacionService empresaCanCartillaVacunacionService,
                                  EmpresaCanConstanciaSaludService empresaCanConstanciaSaludService, EmpresaCanAdiestramientoService empresaCanAdiestramientoService,
-                                 EmpresaCanFotografiaService empresaCanFotografiaService) {
+                                 EmpresaCanFotografiaService empresaCanFotografiaService, CanDomicilioRepository canDomicilioRepository,
+                                 PersonaRepository personaRepository) {
         this.canRepository = canRepository;
         this.usuarioService = usuarioService;
         this.daoToDtoConverter = daoToDtoConverter;
@@ -68,6 +76,8 @@ public class EmpresaCanServiceImpl implements EmpresaCanService {
         this.empresaCanAdiestramientoService = empresaCanAdiestramientoService;
         this.empresaCanConstanciaSaludService = empresaCanConstanciaSaludService;
         this.empresaCanFotografiaService = empresaCanFotografiaService;
+        this.canDomicilioRepository = canDomicilioRepository;
+        this.personaRepository = personaRepository;
     }
 
     @Override
@@ -82,7 +92,42 @@ public class EmpresaCanServiceImpl implements EmpresaCanService {
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
         List<Can> canes = canRepository.getAllByEmpresaAndEliminadoFalse(usuarioDto.getEmpresa().getId());
 
-        return canes.stream().map(daoToDtoConverter::convertDaoToDtoCan).collect(Collectors.toList());
+        return canes.stream().map(c -> {
+            CanDto canDto = daoToDtoConverter.convertDaoToDtoCan(c);
+            canDto.setRaza(catalogoService.obtenerCanRazaPorId(c.getRaza()));
+            if(canDto.getStatus() == CanStatusEnum.ACTIVO) {
+                Personal personalAsignado = personaRepository.getByCanAndEliminadoFalse(c.getId());
+                if(personalAsignado != null) {
+                    canDto.setElementoAsignado(daoToDtoConverter.convertDaoToDtoPersona(personalAsignado));
+                }
+            }
+            return canDto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CanDto> obtenerCanesEnInstalacionesPorEmpresa(String username) {
+        if(StringUtils.isBlank(username)) {
+            logger.warn("El uuid de la empresa viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo los canes con estatus en INSTALACIONES para la empresa [{}]", username);
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        List<Can> canes = canRepository.getAllByEmpresaAndStatus(usuarioDto.getEmpresa().getId(), CanStatusEnum.INSTALACIONES);
+
+        return canes.stream().map(c -> {
+            CanDto canDto = daoToDtoConverter.convertDaoToDtoCan(c);
+            canDto.setRaza(catalogoService.obtenerCanRazaPorId(c.getRaza()));
+            if(canDto.getStatus() == CanStatusEnum.ACTIVO) {
+                Personal personalAsignado = personaRepository.getByCanAndEliminadoFalse(c.getId());
+                if(personalAsignado != null) {
+                    canDto.setElementoAsignado(daoToDtoConverter.convertDaoToDtoPersona(personalAsignado));
+                }
+            }
+            return canDto;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -112,6 +157,13 @@ public class EmpresaCanServiceImpl implements EmpresaCanService {
             canDto.setAdiestramientos(empresaCanAdiestramientoService.obtenerAdiestramientosPorCanUuid(canUuid));
             canDto.setConstanciasSalud(empresaCanConstanciaSaludService.obtenerConstanciasSaludPorCanUuid(canUuid));
             canDto.setFotografias(empresaCanFotografiaService.mostrarCanFotografias(canUuid));
+
+            if(canDto.getStatus() == CanStatusEnum.ACTIVO) {
+                Personal personalAsignado = personaRepository.getByCanAndEliminadoFalse(can.getId());
+                if(personalAsignado != null) {
+                    canDto.setElementoAsignado(daoToDtoConverter.convertDaoToDtoPersona(personalAsignado));
+                }
+            }
         }
 
         return canDto;
@@ -128,12 +180,18 @@ public class EmpresaCanServiceImpl implements EmpresaCanService {
 
         Can can = canRepository.getOne(id);
 
-        if(can == null || can.getEliminado()) {
-            logger.warn("El can no existe en la base de datos");
-            throw new NotFoundResourceException();
+        CanDto canDto = daoToDtoConverter.convertDaoToDtoCan(can);
+        canDto.setRaza(catalogoService.obtenerCanRazaPorId(can.getRaza()));
+        canDto.setDomicilioAsignado(empresaDomicilioService.obtenerPorId(can.getDomicilioAsignado()));
+        if(can.getClienteAsignado() != null && can.getClienteAsignado() > 0) {
+            canDto.setClienteAsignado(empresaClienteService.obtenerClientePorId(can.getClienteAsignado()));
         }
 
-        return daoToDtoConverter.convertDaoToDtoCan(can);
+        if(can.getDomicilioClienteAsignado() != null && can.getClienteAsignado() > 0) {
+            canDto.setClienteDomicilio(empresaClienteDomicilioService.obtenerPorId(can.getDomicilioClienteAsignado()));
+        }
+
+        return canDto;
     }
 
     @Transactional
@@ -155,9 +213,22 @@ public class EmpresaCanServiceImpl implements EmpresaCanService {
         can.setRaza(canDto.getRaza().getId());
         can.setDomicilioAsignado(canDto.getDomicilioAsignado().getId());
 
+        if(canDto.getOrigen() != CanOrigenEnum.PROPIO) {
+            can.setFechaInicio(LocalDate.parse(canDto.getFechaInicio()));
+            can.setFechaFin(LocalDate.parse(canDto.getFechaFin()));
+        }
+
+        if(StringUtils.equals(canDto.getRaza().getNombre(), "Otro")) {
+            can.setRazaOtro(canDto.getRazaOtro());
+        }
+
         Can canCreado = canRepository.save(can);
 
-        return daoToDtoConverter.convertDaoToDtoCan(canCreado);
+        CanDto response = daoToDtoConverter.convertDaoToDtoCan(canCreado);
+
+        response.setRaza(canDto.getRaza());
+        response.setDomicilioAsignado(canDto.getDomicilioAsignado());
+        return response;
     }
 
     @Transactional
@@ -175,6 +246,15 @@ public class EmpresaCanServiceImpl implements EmpresaCanService {
             throw new NotFoundResourceException();
         }
 
+        if(can.getDomicilioAsignado() != canDto.getDomicilioAsignado().getId()) {
+            CanDomicilio canDomicilio = new CanDomicilio();
+            canDomicilio.setCan(can.getId());
+            canDomicilio.setDomicilioActual(canDto.getDomicilioAsignado().getId());
+            canDomicilio.setDomicilioAnterior(can.getDomicilioAsignado());
+            daoHelper.fulfillAuditorFields(true, canDomicilio, usuarioDto.getId());
+            canDomicilioRepository.save(canDomicilio);
+        }
+
         can.setNombre(canDto.getNombre());
         can.setGenero(canDto.getGenero());
         can.setRaza(canDto.getRaza().getId());
@@ -189,6 +269,19 @@ public class EmpresaCanServiceImpl implements EmpresaCanService {
 
         can.setRaza(canDto.getRaza().getId());
         can.setDomicilioAsignado(canDto.getDomicilioAsignado().getId());
+        can.setOrigen(canDto.getOrigen());
+        can.setRazonSocial(canDto.getRazonSocial());
+        can.setStatus(canDto.getStatus());
+        if(StringUtils.isNotBlank(canDto.getFechaInicio())) {
+            can.setFechaInicio(LocalDate.parse(canDto.getFechaInicio()));
+        }
+        if(StringUtils.isNotBlank(canDto.getFechaFin())) {
+            can.setFechaFin(LocalDate.parse(canDto.getFechaFin()));
+        }
+
+        if(can.getStatus() != CanStatusEnum.ACTIVO) {
+            can.setElementoAsignado(null);
+        }
 
         daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
         canRepository.save(can);
@@ -213,8 +306,9 @@ public class EmpresaCanServiceImpl implements EmpresaCanService {
 
         can.setMotivoBaja(canDto.getMotivoBaja());
         can.setObservacionesBaja(canDto.getObservacionesBaja());
-        can.setFechaBaja(LocalDate.parse(canDto.getFechaBaja()));
+        can.setFechaBaja(LocalDate.now());
         can.setEliminado(true);
+        can.setStatus(CanStatusEnum.BAJA);
         daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
 
         if(multipartFile != null) {

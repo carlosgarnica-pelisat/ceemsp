@@ -10,6 +10,11 @@ export default class EmpresaEscrituraSocio implements Deserializable {
   apellidoMaterno: string;
   curp: string;
 
+  motivoBaja: string;
+  observacionesBaja: string;
+  documentoFundatorioBaja: string;
+  fechaBaja: string;
+
   deserialize(input: any): this {
     Object.assign(this, input);
     return this;

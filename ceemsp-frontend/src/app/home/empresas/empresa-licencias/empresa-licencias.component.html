@@ -3,7 +3,7 @@
 
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Licencias colectivas</h1>
+    <h1 class="h3 mb-0 text-gray-800">Licencias colectivas <span *ngIf="mostrandoEliminados">(eliminadas)</span></h1>
     <div class="btn-group">
       <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
               (click)="mostrarModalCrear(crearLicencia)">Nueva licencia colectiva
@@ -27,7 +27,9 @@
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
           <a class="dropdown-item" *ngIf="!mostrandoEliminados" (click)="mostrarEliminados()">Mostrar eliminados</a>
           <a class="dropdown-item" *ngIf="mostrandoEliminados" (click)="ocultarEliminados()">Ocultar eliminados</a>
-          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar licencias como Excel (csv)</a>
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar licencias como CSV</a>
+          <a class="dropdown-item" (click)="generarReporteExcelLicencias()">Descargar licencias como Excel</a>
+          <a class="dropdown-item" (click)="generarReporteExcelArmas()">Descargar armas como Excel</a>
         </div>
       </div>
     </div>
@@ -37,15 +39,19 @@
   <div class="row">
     <div class="col-sm-3">
       <div class="list-group">
-        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action">
-          Detalles
+        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action flex-column align-items-start">
+          <p class="mb-1">
+            <b>Registro: </b>{{empresa?.registro}}<br>
+            <b>Nombre comercial: </b> {{empresa?.nombreComercial}}<br>
+            <b>Razon social: </b> {{empresa?.razonSocial}}<br>
+          </p>
         </a>
         <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
         <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
-        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action active">Licencias
+        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action active" *ngIf="empresa?.tieneArmas">Licencias
           colectivas / Armas</a>
-        <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action">Canes</a>
+        <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneCanes">Canes</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias"
            class="list-group-item list-group-item-action">Incidencias</a>
@@ -54,6 +60,8 @@
         <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo /
           Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -120,20 +128,38 @@
               <td><b>Submodalidad:</b></td>
               <td>{{licencia?.submodalidad?.nombre}}</td>
             </tr>
+            <tr *ngIf="licencia?.eliminado">
+              <td><b>Motivo de la baja:</b></td>
+              <td>{{licencia?.motivoBaja}}</td>
+            </tr>
+            <tr *ngIf="licencia?.eliminado">
+              <td><b>Fecha de baja:</b></td>
+              <td>{{licencia?.fechaBaja}}</td>
+            </tr>
+            <tr *ngIf="licencia?.eliminado">
+              <td><b>Observaciones de la baja:</b></td>
+              <td>{{licencia?.observacionesBaja}}</td>
+            </tr>
+            <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+              <td><b>Fecha de creación:</b></td>
+              <td>{{licencia?.fechaCreacion}}</td>
+            </tr>
+            <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+              <td><b>Última actualización:</b></td>
+              <td>{{licencia?.fechaActualizacion}}</td>
+            </tr>
           </table>
         </div>
         <div class="col-sm-12" *ngIf="pestanaActual === 'DIRECCIONES'">
           <table class="table">
             <tr>
-              <td><b>ID</b></td>
               <td><b>Nombre</b></td>
               <td><b>Dirección</b></td>
               <td><b>Estado</b></td>
               <td><b>C.P.</b></td>
-              <td><b>Acciones</b></td>
+              <td><b>Opciones</b></td>
             </tr>
             <tr *ngFor="let d of domiciliosLicenciaColectiva">
-              <td>{{d?.uuid}}</td>
               <td>{{d?.nombre}}</td>
               <td>{{d?.domicilio1 + " " + d.numeroExterior + " " + d.numeroInterior}}</td>
               <td>{{d?.estado}}</td>
@@ -174,36 +200,42 @@
             </tr>
             <tr *ngIf="!showDireccionForm">
               <td colspan="6">
-                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaDireccion()">Agregar dirección
-                </button>
-                <button class="btn btn-sm btn-primary" *ngIf="!mostrandoDomiciliosEliminadas"
-                        (click)="mostrarDomiciliosEliminados()">Mostrar eliminados
-                </button>
-                <button class="btn btn-sm btn-primary" *ngIf="mostrandoDomiciliosEliminadas"
-                        (click)="ocultarDomiciliosEliminados()">Ocultar eliminados
-                </button>
+                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaDireccion()" *ngIf="!licencia?.eliminado">Agregar dirección</button>
+                <button class="btn btn-sm btn-primary" *ngIf="!mostrandoDomiciliosEliminadas && !licencia?.eliminado" (click)="mostrarDomiciliosEliminados()">Mostrar eliminados</button>
+                <button class="btn btn-sm btn-primary" *ngIf="mostrandoDomiciliosEliminadas && !licencia?.eliminado" (click)="ocultarDomiciliosEliminados()">Ocultar eliminados</button>
               </td>
             </tr>
           </table>
         </div>
         <div class="col-sm-12" *ngIf="pestanaActual === 'ARMAS'">
-          <p-table [value]="armas" [autoLayout]="true" [resizableColumns]="true">
+          <p-table #armasTable [value]="armas" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['matricula','marca.nombre','serie','tipo','clase.nombre','calibre','status','bunker.domicilio1']"
+                   [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} al {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
             <ng-template pTemplate="caption">
-              Lista de armas en la licencia
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Armas de la licencia colectiva</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="armasTable.filterGlobal($event.target.value, 'contains')" placeholder="Buscar arma" />
+                </div>
+              </div>
             </ng-template>
             <ng-template pTemplate="header">
               <tr>
                 <th pSortableColumn="matricula"><b>Matricula <p-sortIcon field="matricula"></p-sortIcon></b></th>
-                <th pSortableColumn="marca?.nombre"><b>Marca <p-sortIcon field="marca?.nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="marca.nombre"><b>Marca <p-sortIcon field="marca?.nombre"></p-sortIcon></b></th>
                 <th pSortableColumn="serie"><b>Modelo <p-sortIcon field="serie"></p-sortIcon></b></th>
                 <th pSortableColumn="tipo"><b>Tipo <p-sortIcon field="tipo"></p-sortIcon></b></th>
-                <th pSortableColumn="clase?.nombre"><b>Clase <p-sortIcon field="clase?.nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="clase.nombre"><b>Clase <p-sortIcon field="clase?.nombre"></p-sortIcon></b></th>
                 <th pSortableColumn="calibre"><b>Calibre <p-sortIcon field="calibre"></p-sortIcon></b></th>
+                <th pSortableColumn="fechaCreacion"><b>Fecha Creacion <p-sortIcon field="calibre"></p-sortIcon></b></th>
                 <th pSortableColumn="status"><b>Status <p-sortIcon field="status"></p-sortIcon></b></th>
-                <th><b>Bunker </b></th>
-                <th><b>Acciones</b></th>
+                <th pSortableColumn="bunker.domicilio1"><b>Bunker  <p-sortIcon field="status"></p-sortIcon></b></th>
+                <th><b>Personal asignado </b></th>
+                <th><b>Opciones</b></th>
               </tr>
             </ng-template>
+
             <ng-template pTemplate="emptymessage">
               <tr>
                 <td colspan="7">No hay armas creadas en la licencia hasta ahora. <a class="fakelink" (click)="mostrarFormularioNuevaArma()">Da clic aqui para crear uno</a></td>
@@ -217,6 +249,7 @@
                 <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.tipo}}</td>
                 <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.clase?.nombre}}</td>
                 <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.calibre}}</td>
+                <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.fechaCreacion}}</td>
                 <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{arma?.status}}</td>
                 <td [ngStyle]="arma?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">
                   {{arma?.bunker?.domicilio1}} {{arma?.bunker?.numeroExterior}} {{arma?.bunker?.numeroInterior}}.
@@ -225,12 +258,20 @@
                   C.P. {{arma?.bunker?.codigoPostal}}
                 </td>
                 <td>
-                  <fa-icon [icon]="faHandPaper" title="Marcar como en custodia" (click)="mostrarCambioStatusForm(arma?.uuid)"
-                           style="cursor: pointer;" *ngIf="arma?.status !== 'CUSTODIA' && !arma?.eliminado"></fa-icon>
+                  <span *ngIf="arma?.status === 'ASIGNADA' || arma?.status === 'ACTIVA'">
+                    {{arma?.personalAsignado?.nombres}} {{arma?.personalAsignado?.apellidoPaterno}} {{arma?.personalAsignado?.apellidoMaterno}}
+                  </span>
+                  <span *ngIf="arma?.status !== 'ASIGNADA' && arma?.status !== 'ACTIVA'">
+                    Sin personal asignado
+                  </span>
+                </td>
+                <td>
                   <fa-icon [icon]="faPencil" title="Modificar arma" (click)="mostrarModificarArmaForm(arma?.uuid)"
                            style="cursor: pointer;" *ngIf="arma?.status !== 'CUSTODIA' && !arma?.eliminado"></fa-icon>
                   <fa-icon [icon]="faTrash" title="Eliminar arma" (click)="mostrarModalEliminarArma(arma?.uuid)"
-                           style="cursor: pointer;" *ngIf="!arma?.eliminado"></fa-icon>
+                           style="cursor: pointer;" *ngIf="arma?.status !== 'CUSTODIA' && !arma?.eliminado"></fa-icon>
+                  <fa-icon [icon]="faBook" title="Ver movimientos" (click)="mostrarMovimientosArma(arma?.uuid)"
+                           style="cursor: pointer;"></fa-icon>
                   <fa-icon [icon]="faInfoCircle" class="fakelink" (click)="mostrarDetallesEliminacionArma(arma?.uuid)" *ngIf="arma?.eliminado" title="Mostrar motivos de borrado"></fa-icon>
                 </td>
               </tr>
@@ -243,20 +284,205 @@
       </div>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
-      <button class="btn btn-primary" (click)="descargarLicencia(licencia.uuid, mostrarLicenciaPdfModal)">Descargar
+      <button type="button" class="btn btn-primary" *ngIf="licencia?.eliminado && licencia?.documentoFundatorioBaja !== null" (click)="descargarDocumentoFundatorioLicencia()">Descargar fundatorio</button>
+      <button class="btn btn-primary" (click)="descargarLicencia(licencia.uuid, mostrarLicenciaPdfModal)" *ngIf="!licencia?.eliminado">Descargar
         licencia
       </button>
-      <button class="btn btn-primary" (click)="mostrarModificarLicenciaModal()">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="mostrarEliminarLicenciaModal()">Eliminar</button>
+      <button class="btn btn-primary" (click)="mostrarModificarLicenciaModal()" *ngIf="!licencia?.eliminado">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarEliminarLicenciaModal()" *ngIf="!licencia?.eliminado">Eliminar</button>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'ARMAS'">
-      <button class="btn btn-primary" (click)="mostrarFormularioNuevaArma()">Agregar arma</button>
-      <button class="btn btn-primary" *ngIf="!mostrandoArmasEliminadas"
-              (click)="mostrarArmasEliminadas()">Mostrar eliminados
+      <button class="btn btn-primary" (click)="mostrarFormularioNuevaArma()" *ngIf="!licencia?.eliminado">Agregar arma</button>
+      <button class="btn btn-primary" *ngIf="!mostrandoArmasEliminadas && !licencia?.eliminado" (click)="mostrarArmasEliminadas()">Mostrar eliminados</button>
+      <button class="btn btn-primary" *ngIf="mostrandoArmasEliminadas && !licencia?.eliminado" (click)="ocultarArmasEliminadas()">Ocultar eliminados</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarMovimientosArmaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarMovimientosArmaModal">Movimientos del arma </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
       </button>
-      <button class="btn btn-primary" *ngIf="mostrandoArmasEliminadas"
-              (click)="ocultarArmasEliminadas()">Ocultar eliminados
-      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientos === 'ASIGNACIONES' }"
+                 (click)="cambiarPestanaMovimiento('ASIGNACIONES')">Asignaciones</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientos === 'DIRECCIONES' }"
+                 (click)="cambiarPestanaMovimiento('DIRECCIONES')">Cambios de domicilio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientos === 'INCIDENCIAS' }"
+                 (click)="cambiarPestanaMovimiento('INCIDENCIAS')">Incidencias</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientos === 'ASIGNACIONES'">
+        <div class="col-sm-12">
+          <p-table #tablaMovimientosAsignaciones [value]="movimientosArma" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['persona.apellidoPaterno','persona.apellidoMaterno','persona.nombres','observaciones']"
+                   [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Asignaciones de personal</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaMovimientosAsignaciones.filterGlobal($event.target.value, 'contains')" placeholder="Buscar asignacion" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th><b>Persona</b></th>
+                <th><b>Fecha asignacion</b></th>
+                <th><b>Observaciones de asignación</b></th>
+                <th><b>Fecha fin asignacion</b></th>
+                <th><b>Razon de baja de asignación</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="4">Esta arma no tiene movimientos registrados</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-movimientoAsignacion>
+              <tr>
+                <td>{{movimientoAsignacion.persona?.apellidoPaterno}} {{movimientoAsignacion.persona?.apellidoMaterno}} {{movimientoAsignacion.persona?.nombres}}</td>
+                <td>{{movimientoAsignacion?.fechaCreacion}}</td>
+                <td>{{movimientoAsignacion?.observaciones}}</td>
+                <td><span *ngIf="movimientoAsignacion?.eliminado">{{movimientoAsignacion?.fechaActualizacion}}</span><span *ngIf="!movimientoAsignacion?.eliminado">Actualmente asignada</span></td>
+                <td><span *ngIf="movimientoAsignacion?.eliminado">{{movimientoAsignacion?.motivoBajaAsignacion}}</span><span *ngIf="!movimientoAsignacion?.eliminado">Actualmente asignada</span></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Se han realizado {{movimientosArma.length}} movimientos</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientos === 'DIRECCIONES'">
+        <div class="col-sm-12">
+          <p-table #tablaMovimientosDomicilio [value]="movimientosDomicilioArma" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['domicilioAnterior.domicilio1','domicilioAnterior.domicilio2','domicilioAnterior.domicilio3','domicilioAnterior.codigoPostal','domicilioActual.domicilio1','domicilioActual.domicilio2','domicilioActual.domicilio3','domicilioActual.codigoPostal']"
+                   [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Cambios de domicilio</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaMovimientosDomicilio.filterGlobal($event.target.value, 'contains')" placeholder="Buscar asignacion" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th><b>Domicilio anterior</b></th>
+                <th><b>Nuevo domicilio</b></th>
+                <th><b>Fecha de movimiento</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="4">Esta arma no tiene movimientos registrados</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-movimientoDomicilio>
+              <tr>
+                <td>
+                  {{movimientoDomicilio?.domicilioAnterior?.domicilio1}} {{movimientoDomicilio?.domicilioAnterior?.numeroExterior}} {{movimientoDomicilio?.domicilioAnterior?.numeroInterior}}.
+                  Colonia: {{movimientoDomicilio?.domicilioAnterior?.domicilio2}}<br>
+                  {{movimientoDomicilio?.domicilioAnterior?.domicilio3}}, {{movimientoDomicilio?.domicilioAnterior?.estado}}, {{movimientoDomicilio?.domicilioAnterior?.pais}}<br>
+                  C.P. {{movimientoDomicilio?.domicilioAnterior?.codigoPostal}}
+                </td>
+                <td>
+                  {{movimientoDomicilio?.domicilioActual?.domicilio1}} {{movimientoDomicilio?.domicilioActual?.numeroExterior}} {{movimientoDomicilio?.domicilioActual?.numeroInterior}}.
+                  Colonia: {{movimientoDomicilio?.domicilioActual?.domicilio2}}<br>
+                  {{movimientoDomicilio?.domicilioActual?.domicilio3}}, {{movimientoDomicilio?.domicilioActual?.estado}}, {{movimientoDomicilio?.domicilioActual?.pais}}<br>
+                  C.P. {{movimientoDomicilio?.domicilioActual?.codigoPostal}}
+                </td>
+                <td>{{movimientoDomicilio?.fechaCreacion}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Se han realizado {{movimientosDomicilioArma.length}} movimientos</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientos === 'INCIDENCIAS'">
+        <div class="col-sm-12">
+          <p-table #tablaMovimientosIncidencias [value]="incidenciasArma" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="[]"
+                   [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Historico de incidencias</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaMovimientosIncidencias.filterGlobal($event.target.value, 'contains')" placeholder="Buscar asignacion" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th><b>Numero incidencia</b></th>
+                <th><b>Fecha incidencia</b></th>
+                <th><b>Status</b></th>
+                <th><b>Fecha ultimo movimiento</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="4">Esta arma no se involucro en ninguna incidencia aun.</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-movimientoIncidencia>
+              <tr>
+                <td>
+                  {{movimientoIncidencia.numero}}
+                </td>
+                <td>
+                  {{movimientoIncidencia.fechaIncidencia}}
+                </td>
+                <td>
+                  {{movimientoIncidencia.status}}
+                </td>
+                <td>
+                  {{movimientoIncidencia.fechaActualizacion}}
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Esta registrada en {{incidenciasArma.length}} incidencias</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button (click)="modal.close()" class="btn btn-primary">Cerrar</button>
     </div>
   </ng-template>
 
@@ -517,6 +743,9 @@
         </div>
       </div>
     </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="descargarAcuerdoPdf()">Descargar</button>
+    </div>
   </ng-template>
 
   <ng-template #modificarLicenciaModal let-modal>
@@ -567,7 +796,7 @@
                 <label>
                   <b>Modalidad * </b>
                 </label>
-                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown"
+                <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown"
                    aria-expanded="false" style="width: 100%;">
                   {{modalidad === undefined ? 'Ninguno' : (modalidad?.modalidad.nombre).substr(0, 90)}}
                 </a>
@@ -655,7 +884,7 @@
                 <label>
                   <b>Modalidad * </b>
                 </label>
-                <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown"
+                <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown"
                    aria-expanded="false" style="width: 100%;">
                   {{modalidad === undefined ? 'Ninguno' : (modalidad?.modalidad.nombre).substr(0, 90)}}
                 </a>
@@ -732,7 +961,7 @@
             <label for="documentoFundatorioBaja">
               <b>Documento fundatorio</b>
             </label>
-            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file"
+            <input id="documentoFundatorioBaja" accept="application/pdf" class="form-control" formControlName="file" type="file"
                    (change)="onFileChange($event)">
           </div>
         </div>
@@ -750,19 +979,19 @@
       <div class="row">
         <div class="col-sm-12">
           <p>Estas a punto de eliminar la licencia colectiva. Toma en cuenta que los domicilios vinculados y las armas
-            se eliminaran tambien. ¿Deseas continuar?</p>
+            se eliminarán también. ¿Deseas continuar?</p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarLicencia(motivosEliminacionForm)">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como está</button>
     </div>
   </ng-template>
 
   <ng-template #eliminarEmpresaLicenciaDireccionModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="eliminarEmpresaLicenciaDireccionModal">Eliminando la direccion </h4>
+      <h4 class="modal-title" id="eliminarEmpresaLicenciaDireccionModal">Eliminando la dirección </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -770,14 +999,14 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estas a punto de eliminar la direccion de la licencia colectiva. Toma en cuenta que TODAS LAS ARMAS
-            vinculadas a este domicilio se eliminaran y esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estás a punto de eliminar la dirección de la licencia colectiva. Toma en cuenta que TODAS LAS ARMAS
+            vinculadas a este domicilio se eliminarán y esta operación no se puede deshacer. ¿Deseas continuar?</p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarLicenciaDomicilio()">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como está</button>
     </div>
   </ng-template>
 
@@ -804,7 +1033,7 @@
               <option value="ROBO">Robo</option>
               <option value="ASEGURAMIENTO">Aseguramiento</option>
               <option value="INSERVIBLE">Inservible</option>
-              <option value="CAMBIO_ADSCRIPCION">Cambio de adscripcion</option>
+              <option value="CAMBIO_ADSCRIPCION">Cambio de adscripción</option>
               <option value="CAMBIO_MODALIDAD">Cambio de modalidad</option>
             </select>
           </div>
@@ -848,13 +1077,13 @@
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarLicenciaArma(motivosEliminacionArmaForm)">Si, eliminar
       </button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como está</button>
     </div>
   </ng-template>
 
   <ng-template #mostrarMotivosEliminacionArma let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="mostrarMotivosEliminacionArma">Motivos de eliminacion del arma </h4>
+      <h4 class="modal-title" id="mostrarMotivosEliminacionArma">Motivos de eliminación del arma </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -864,11 +1093,11 @@
         <div class="col-sm-12">
           <table class="table">
             <tr>
-              <td><b>Fecha de eliminacion</b></td>
+              <td><b>Fecha de eliminación</b></td>
               <td>{{arma?.fechaBaja}}</td>
             </tr>
             <tr>
-              <td><b>Motivos de eliminacion</b></td>
+              <td><b>Motivos de eliminación</b></td>
               <td>{{arma?.motivoBaja}}</td>
             </tr>
             <tr>
@@ -880,6 +1109,7 @@
       </div>
     </div>
     <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="descargarDocumentoFundatorioArma()"  *ngIf="arma?.eliminado && (arma?.documentoFundatorioBaja !== null)">Descargar documento fundatorio</button>
       <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>

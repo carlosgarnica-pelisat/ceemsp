@@ -1,11 +1,10 @@
 package com.pelisat.cesp.ceemsp.database.model;
 
+import com.pelisat.cesp.ceemsp.database.type.ArmaTipoEnum;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Getter
 @Setter
@@ -18,6 +17,13 @@ public class PersonalArma extends CommonModel {
     @Column(name = "ARMA", nullable = false)
     private int arma;
 
+    @Column(name = "TIPO")
+    @Enumerated(EnumType.STRING)
+    private ArmaTipoEnum tipo;
+
     @Column(name = "OBSERVACIONES")
     private String observaciones;
+
+    @Column(name = "MOTIVO_BAJA_ASIGNACION")
+    private String motivoBajaAsignacion;
 }

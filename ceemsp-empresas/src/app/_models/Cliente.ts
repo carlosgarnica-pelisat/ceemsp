@@ -1,5 +1,8 @@
 import {Deserializable} from "./Deserializable";
 import ClienteDomicilio from "./ClienteDomicilio";
+import ClienteAsignacionPersonal from "./ClienteAsignacionPersonal";
+import ClienteModalidad from "./ClienteModalidad";
+import ClienteFormaEjecucion from "./ClienteFormaEjecucion";
 
 export default class Cliente implements Deserializable {
 
@@ -11,10 +14,30 @@ export default class Cliente implements Deserializable {
   razonSocial: string;
   canes: boolean;
   armas: boolean;
+  rutaArchivoContrato: string;
   fechaInicio: string;
   fechaFin: string;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+  eliminado: boolean;
+
+  motivoBaja: string;
+  observacionesBaja: string;
+  documentoFundatorioBaja: string;
+  fechaBaja: string;
+
+  numeroSucursales: number;
+  numeroElementosAsignados: number;
 
   domicilios: ClienteDomicilio[];
+  asignaciones: ClienteAsignacionPersonal[];
+  modalidades: ClienteModalidad[];
+  formasEjecucion: ClienteFormaEjecucion[];
+
+  domicilioCapturado: boolean;
+  asignacionCapturada: boolean;
+  modalidadCapturada: boolean;
+  formaEjecucionCapturada: boolean;
 
   deserialize(input: any): this {
     Object.assign(this, input);

@@ -12,6 +12,7 @@ public interface ClienteService {
     ClienteDto obtenerClientePorId(Integer id);
     ClienteDto obtenerClientePorUuid(String empresaUuid, String escrituraUuid, boolean soloEntidad);
     File obtenerContrato(String empresaUuid, String clienteUuid);
+    File descargarDocumentoFundatorio(String uuid, String clienteUuid);
     ClienteDto crearCliente(String empresaUuid, String username, ClienteDto clienteDto, MultipartFile archivo);
     ClienteDto modificarCliente(String empresaUuid, String clienteUuid, String username, ClienteDto clienteDto);
     ClienteDto eliminarCliente(String empresaUuid, String clienteUuid, String username, ClienteDto clienteDto, MultipartFile multipartFile);

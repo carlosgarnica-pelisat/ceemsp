@@ -7,5 +7,10 @@ import lombok.Setter;
 @Setter
 public class PersonalCanDto {
     private CanDto can;
+    private PersonaDto persona;
     private String observaciones;
+    private String motivoBajaAsignacion;
+    private String fechaCreacion;
+    private String fechaActualizacion;
+    private boolean eliminado;
 }

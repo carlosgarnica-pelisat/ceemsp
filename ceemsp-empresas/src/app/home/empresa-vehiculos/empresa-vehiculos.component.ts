@@ -3,7 +3,6 @@ import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-boots
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import VehiculoMarca from "../../_models/VehiculoMarca";
 import {ToastService} from "../../_services/toast.service";
-import {EmpresaService} from "../../_services/empresa.service";
 import VehiculoSubmarca from "../../_models/VehiculoSubmarca";
 import {VehiculosService} from "../../_services/vehiculos.service";
 import {ToastType} from "../../_enums/ToastType";
@@ -20,6 +19,11 @@ import {EmpresaVehiculosService} from "../../_services/empresa-vehiculos.service
 import {DomiciliosService} from "../../_services/domicilios.service";
 import {ValidacionService} from "../../_services/validacion.service";
 import VehiculoFotografiaMetadata from "../../_models/VehiculoFotografiaMetadata";
+import {Table} from "primeng/table";
+import {
+  BotonEmpresaVehiculosComponent
+} from "../../_components/botones/boton-empresa-vehiculos/boton-empresa-vehiculos.component";
+import {ReporteoService} from "../../_services/reporteo.service";
 
 @Component({
   selector: 'app-empresa-vehiculos',
@@ -33,11 +37,39 @@ export class EmpresaVehiculosComponent implements OnInit {
   private gridApi;
   private gridColumnApi;
 
-  columnDefs = Vehiculo.obtenerColumnasPorDefault();
+  columnDefs =  [
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true, resizable: true},
+    {
+      headerName: "Cons.",
+      valueGetter: "node.rowIndex + 1",
+      pinned: "left",
+      width: 70
+    },
+    {headerName: 'Tipo', field: 'tipo.nombre', sortable: true, filter: true, resizable: true },
+    {headerName: 'Marca', field: 'marca.nombre', sortable: true, filter: true, resizable: true},
+    {headerName: 'Submarca', field: 'submarca.nombre', sortable: true, filter: true, resizable: true},
+    {headerName: 'Placas', field: 'placas', sortable: true, filter: true, resizable: true},
+    {headerName: 'Serie', field: 'serie', sortable: true, filter: true, resizable: true},
+    {headerName: 'Status de captura', sortable: true, resizable: true, filter: true, valueGetter: function(params) {
+        if(params.data.fotografiaCapturada && params.data.coloresCapturado) {
+          return 'COMPLETA'
+        } else {
+          return 'INCOMPLETA'
+        }
+      }},
+    {headerName: 'Opciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
+  ];
   allColumnDefs = Vehiculo.obtenerTodasLasColumnas();
 
   rowData = [];
   vehiculo: Vehiculo;
+
+  imagenPrincipal: any;
 
   showColorForm: boolean = false;
   showFotografiaForm: boolean = false;
@@ -62,10 +94,14 @@ export class EmpresaVehiculosComponent implements OnInit {
 
   marca: VehiculoMarca;
   marcas: VehiculoMarca[];
+  submarca: VehiculoSubmarca;
   submarcas: VehiculoSubmarca[];
   tipos: VehiculoTipo[];
   domicilios: EmpresaDomicilio[] = [];
+  domicilio: EmpresaDomicilio;
   usos: VehiculoUso[] = [];
+  uso: VehiculoUso;
+  pdfBlob;
 
   blindado: boolean = false;
   origen: string = "";
@@ -94,20 +130,33 @@ export class EmpresaVehiculosComponent implements OnInit {
 
   coloresTemp: VehiculoColor[] = [];
   color: VehiculoColor;
+  tipo: VehiculoTipo;
+  editandoModal: boolean = false;
 
+  year = new Date().getFullYear();
+
+  @ViewChild('mostrarDetallesVehiculoModal') mostrarDetallesVehiculoModal: any;
   @ViewChild('mostrarFotoVehiculoModal') mostrarFotoVehiculoModal: any;
   @ViewChild('eliminarVehiculoColorModal') eliminarVehiculoColorModal: any;
   @ViewChild('eliminarVehiculoFotografiaModal') eliminarVehiculoFotografiaModal: any;
   @ViewChild('eliminarVehiculoModal') eliminarVehiculoModal: any;
   @ViewChild('quitarVehiculoColorModal') quitarVehiculoColorModal: any;
   @ViewChild('modificarVehiculoModal') modificarVehiculoModal: any;
+  @ViewChild('agregarColorModal') agregarColorModal: any;
+  @ViewChild('agregarFotografiaModal') agregarFotografiaModal: any;
+  @ViewChild('visualizarConstanciaBlindajeModal') visualizarConstanciaBlindajeModal: any;
 
   constructor(private modalService: NgbModal, private toastService: ToastService,
               private empresaVehiculoService: EmpresaVehiculosService, private formBuilder: FormBuilder,
               private vehiculosService: VehiculosService, private route: ActivatedRoute,
-              private domicilioService: DomiciliosService, private validacionService: ValidacionService) { }
+              private domicilioService: DomiciliosService, private validacionService: ValidacionService,
+              private reporteoService: ReporteoService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      buttonRenderer: BotonEmpresaVehiculosComponent
+    }
+
     this.uuid = this.route.snapshot.paramMap.get("uuid");
 
     this.crearVehiculoForm = this.formBuilder.group({
@@ -116,7 +165,7 @@ export class EmpresaVehiculosComponent implements OnInit {
       tipo: ['', Validators.required],
       marca: ['', Validators.required],
       submarca: ['', Validators.required],
-      anio: ['', Validators.required],
+      anio: ['', [Validators.required, Validators.min(1900), Validators.max(this.year + 1)]],
       rotulado: ['', Validators.required],
       uso: ['', Validators.required],
       origen: ['', Validators.required],
@@ -136,7 +185,7 @@ export class EmpresaVehiculosComponent implements OnInit {
 
     this.crearColorForm = this.formBuilder.group({
       color: ['', Validators.required],
-      descripcion: ['', [Validators.required, Validators.maxLength(100)]]
+      descripcion: ['', [Validators.maxLength(100)]]
     })
 
     this.crearVehiculoFotografiaForm = this.formBuilder.group({
@@ -202,6 +251,18 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.ERROR
       )
     });
+
+    this.route.queryParams.subscribe((qp) => {
+      if(qp.uuid !== undefined) {
+        this.mostrarModalDetalles(qp)
+      }
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Alguno de los parametros no es valido`,
+        ToastType.ERROR
+      );
+    });
   }
 
   mostrarModalEliminarFotografia(uuid) {
@@ -233,6 +294,10 @@ export class EmpresaVehiculosComponent implements OnInit {
     this.blindado = event.value === "true";
   }
 
+  verDetalles(rowData) {
+    this.mostrarModalDetalles(rowData.rowData)
+  }
+
   seleccionarOrigen(event) {
     this.origen = event.value;
     this.crearVehiculoForm.patchValue({
@@ -253,6 +318,113 @@ export class EmpresaVehiculosComponent implements OnInit {
         `No se ha podido descargar la informacion de la marca. Motivo: ${error}`,
         ToastType.ERROR
       )
+    })
+  }
+
+  seleccionarSubmarca(event) {
+    let submarcaUuid = event.value;
+    this.submarca = this.submarcas.filter(x => x.uuid === submarcaUuid)[0]
+    console.log(this.submarca);
+    console.log(submarcaUuid);
+  }
+
+  seleccionarUso(event) {
+    let usoUuid = event.value;
+    this.uso = this.usos.filter(x => x.uuid === usoUuid)[0]
+  }
+
+  seleccionarDomicilio(event) {
+    let domicilioUuid = event.value;
+    this.domicilio = this.domicilios.filter(x => x.uuid === domicilioUuid)[0];
+  }
+
+  editar(rowData) {
+    if(rowData.rowData?.eliminado) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El elemento ya esta eliminado. No se puede editar`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.empresaVehiculoService.obtenerVehiculoPorUuid(rowData?.rowData?.uuid).subscribe((data: Vehiculo) => {
+      this.vehiculo = data;
+      this.editandoModal = false;
+
+      let marca = this.marcas.filter(x => x.uuid === this.vehiculo.marca.uuid)[0];
+      this.vehiculosService.obtenerVehiculoMarcaPorUuid(marca.uuid).subscribe((data: VehiculoMarca) => {
+        this.marca = data;
+        this.submarcas = data.submarcas;
+
+        this.crearVehiculoForm.patchValue({
+          placas: this.vehiculo.placas,
+          serie: this.vehiculo.serie,
+          tipo: this.vehiculo.tipo.uuid,
+          marca: this.vehiculo.marca.uuid,
+          submarca: this.vehiculo.submarca.uuid,
+          anio: this.vehiculo.anio,
+          rotulado: this.vehiculo.rotulado,
+          uso: this.vehiculo.uso.uuid,
+          origen: this.vehiculo.origen,
+          blindado: this.vehiculo.blindado,
+          serieBlindaje: this.vehiculo.serieBlindaje,
+          fechaBlindaje: this.vehiculo.fechaBlindaje,
+          numeroHolograma: this.vehiculo.numeroHolograma,
+          placaMetalica: this.vehiculo.placaMetalica,
+          empresaBlindaje: this.vehiculo.empresaBlindaje,
+          nivelBlindaje: this.vehiculo.nivelBlindaje,
+          razonSocial: this.vehiculo.razonSocial,
+          fechaInicio: this.vehiculo.fechaInicio,
+          fechaFin: this.vehiculo.fechaFin,
+          domicilio: this.vehiculo.domicilio.uuid
+        });
+
+        this.blindado = this.vehiculo.blindado;
+        this.origen = this.vehiculo.origen;
+
+        this.modal = this.modalService.open(this.modificarVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: "static", keyboard: false});
+
+        this.modal.result.then((result) => {
+          this.closeResult = `Closed with ${result}`;
+        }, (error) => {
+          this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+        });
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la informacion de la marca. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el vehiculo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  eliminar(rowData) {
+    if(rowData.rowData?.eliminado) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El elemento ya esta eliminado. No se puede eliminar`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.empresaVehiculoService.obtenerVehiculoPorUuid(rowData?.rowData?.uuid).subscribe((data: Vehiculo) => {
+      this.vehiculo = data;
+      this.mostrarModalEliminarVehiculo();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el vehiculo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 
@@ -280,12 +452,42 @@ export class EmpresaVehiculosComponent implements OnInit {
     }
   }
 
-  mostrarModalDetalles(rowData, modal) {
+  mostrarModalDetalles(rowData) {
     let vehiculo = rowData.uuid;
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: "modal-basic-title", size: 'xl'});
 
     this.empresaVehiculoService.obtenerVehiculoPorUuid(vehiculo).subscribe((data: Vehiculo) => {
       this.vehiculo = data;
+      if(this.vehiculo?.fotografias.length > 0) {
+        let vehiculoFoto = this.vehiculo?.fotografias.filter(x => x.descripcion === 'FRONTAL')[0];
+        if(vehiculoFoto !== undefined) {
+          this.empresaVehiculoService.descargarVehiculoFotografia(this?.vehiculo?.uuid, vehiculoFoto?.uuid).subscribe((data: Blob) => {
+            this.convertirImagenPrincipal(data);
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se ha podido descargar la fotografia. Motivo: ${error}`,
+              ToastType.ERROR
+            )
+          })
+        } else {
+          vehiculoFoto = this.vehiculo?.fotografias[0];
+          this.empresaVehiculoService.descargarVehiculoFotografia(this?.vehiculo?.uuid, vehiculoFoto?.uuid).subscribe((data: Blob) => {
+            this.convertirImagenPrincipal(data);
+          }, (error) => {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `No se ha podido descargar la fotografia. Motivo: ${error}`,
+              ToastType.ERROR
+            )
+          })
+        }
+
+      } else {
+        this.imagenPrincipal = undefined;
+      }
+
+      this.modal = this.modalService.open(this.mostrarDetallesVehiculoModal, {ariaLabelledBy: "modal-basic-title", size: 'xl'});
+
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -293,6 +495,17 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.ERROR
       )
     })
+  }
+
+  convertirImagenPrincipal(imagen: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.imagenPrincipal = reader.result
+    });
+
+    if(imagen) {
+      reader.readAsDataURL(imagen)
+    }
   }
 
   consultarSerieVehiculo(event) {
@@ -326,17 +539,27 @@ export class EmpresaVehiculosComponent implements OnInit {
   }
 
   mostrarModalModificarVehiculo() {
+    this.editandoModal = true;
     let marca = this.marcas.filter(x => x.uuid === this.vehiculo.marca.uuid)[0];
     this.vehiculosService.obtenerVehiculoMarcaPorUuid(marca.uuid).subscribe((data: VehiculoMarca) => {
       this.marca = data;
+      this.tipo = this.vehiculo.tipo;
+      this.blindado = this.vehiculo?.blindado;
+      this.origen = this.vehiculo?.origen;
       this.submarcas = data.submarcas;
 
-      this.crearVehiculoForm.setValue({
+      if(this.tipo?.nombre === 'MOTOCICLETA' || this.tipo?.nombre === 'CUATRIMOTO') {
+        this.crearVehiculoForm.controls["submarca"].disable();
+      } else {
+        this.crearVehiculoForm.controls["submarca"].enable();
+      }
+
+      this.crearVehiculoForm.patchValue({
         placas: this.vehiculo.placas,
         serie: this.vehiculo.serie,
         tipo: this.vehiculo.tipo.uuid,
         marca: this.vehiculo.marca.uuid,
-        submarca: this.vehiculo.submarca.uuid,
+        submarca: this.vehiculo?.submarca?.uuid,
         anio: this.vehiculo.anio,
         rotulado: this.vehiculo.rotulado,
         uso: this.vehiculo.uso.uuid,
@@ -354,7 +577,7 @@ export class EmpresaVehiculosComponent implements OnInit {
         domicilio: this.vehiculo.domicilio.uuid
       });
 
-      this.modal = this.modalService.open(this.modificarVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+      this.modal = this.modalService.open(this.modificarVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: "static", keyboard: false});
 
       this.modal.result.then((result) => {
         this.closeResult = `Closed with ${result}`;
@@ -368,6 +591,11 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.ERROR
       )
     })
+  }
+
+  cancelarCambiosVehiculo() {
+    this.crearVehiculoForm.reset();
+    this.modal.close();
   }
 
   guardarCambiosVehiculo(form) {
@@ -402,7 +630,14 @@ export class EmpresaVehiculosComponent implements OnInit {
     formValue.domicilio = this.domicilios.filter(x => x.uuid === form.value.domicilio)[0];
 
     if(this.blindado) {
-      console.log("Agregar validaciones para blindaje");
+      if(this.tempFile === undefined && !this.vehiculo?.constanciaBlindajeCargada) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `Un vehiculo blindado necesita una constancia de blindaje`,
+          ToastType.WARNING
+        );
+        return;
+      }
     } else {
       formValue.nivelBlindaje = null
     }
@@ -413,13 +648,34 @@ export class EmpresaVehiculosComponent implements OnInit {
       ToastType.INFO
     );
 
-    this.empresaVehiculoService.modificarVehiculo(this.vehiculo.uuid, formValue).subscribe((data: Vehiculo) => {
+    let vehiculo = new FormData();
+    if(this.tempFile !== undefined) {
+      vehiculo.append('constanciaBlindaje', this.tempFile, this.tempFile.name);
+    } else {
+      vehiculo.append('constanciaBlindaje', null)
+    }
+    vehiculo.append('vehiculo', JSON.stringify(formValue));
+
+    this.empresaVehiculoService.modificarVehiculo(this.vehiculo.uuid, vehiculo).subscribe((data: Vehiculo) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha modificado el vehiculo con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      if(this.editandoModal) {
+        this.modal.close();
+        this.empresaVehiculoService.obtenerVehiculoPorUuid(this.vehiculo.uuid).subscribe((data: Vehiculo) => {
+          this.vehiculo = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se ha podido descargar el vehiculo. Motivo: ${error}`,
+            ToastType.ERROR
+          );
+        })
+      } else {
+        window.location.reload();
+      }
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -445,6 +701,26 @@ export class EmpresaVehiculosComponent implements OnInit {
     });
   }
 
+  descargarMarcasPorTipo(event) {
+    let tipoUuid = event.value;
+    this.tipo = this.tipos.filter(x => x.uuid === tipoUuid)[0];
+
+    if(this.tipo?.nombre === 'MOTOCICLETA' || this.tipo?.nombre === 'CUATRIMOTO' || this.tipo?.nombre === 'AUTOBUS') {
+      this.crearVehiculoForm.controls["submarca"].disable();
+    } else {
+      this.crearVehiculoForm.controls["submarca"].enable();
+    }
+
+    this.vehiculosService.obtenerVehiculosTiposMarca(this.tipo.tipo).subscribe((data: VehiculoMarca[]) => {
+      this.marcas = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las marcas por tipo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
   next(stepName: string, form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
@@ -474,13 +750,22 @@ export class EmpresaVehiculosComponent implements OnInit {
             }
           }
 
-          formValue.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
-          formValue.submarca = this.submarcas.filter(x => x.uuid === form.value.submarca)[0];
-          formValue.tipo = this.tipos.filter(x => x.uuid === form.value.tipo)[0];
-          formValue.uso = this.usos.filter(x => x.uuid === form.value.uso)[0];
+          formValue.marca = this.marca;
+          formValue.submarca = this.submarca;
+          formValue.tipo = this.tipo;
+          formValue.uso = this.uso;
+          formValue.domicilio = this.domicilio;
+          formValue.status = "INSTALACIONES";
 
           if(this.blindado) {
-            console.log("Agregar validaciones para blindaje");
+            if(this.tempFile === undefined && !this.vehiculo?.constanciaBlindajeCargada) {
+              this.toastService.showGenericToast(
+                "Ocurrio un problema",
+                `Un vehiculo blindado necesita una constancia de blindaje`,
+                ToastType.WARNING
+              );
+              return;
+            }
           } else {
             formValue.nivelBlindaje = null
           }
@@ -491,7 +776,15 @@ export class EmpresaVehiculosComponent implements OnInit {
             ToastType.INFO
           );
 
-          this.empresaVehiculoService.guardarVehiculo(formValue).subscribe((data: Vehiculo) => {
+          let vehiculo = new FormData();
+          if(this.tempFile !== undefined) {
+            vehiculo.append('constanciaBlindaje', this.tempFile, this.tempFile.name);
+          } else {
+            vehiculo.append('constanciaBlindaje', null)
+          }
+          vehiculo.append('vehiculo', JSON.stringify(formValue));
+
+          this.empresaVehiculoService.guardarVehiculo(vehiculo).subscribe((data: Vehiculo) => {
             this.toastService.showGenericToast(
               "Listo",
               "Se ha guardado el vehiculo con exito",
@@ -510,9 +803,6 @@ export class EmpresaVehiculosComponent implements OnInit {
         }
         break;
       case "FOTOGRAFIAS":
-
-        break;
-      case "RESUMEN":
         if(this.coloresGuardados) {
           this.stepper.next();
         } else {
@@ -556,6 +846,17 @@ export class EmpresaVehiculosComponent implements OnInit {
           }
         }
         break;
+      case "RESUMEN":
+        if(this.vehiculo?.fotografias?.length < 1) {
+          this.toastService.showGenericToast(
+            `Espera un momento`,
+            `No se ha guardado ninguna fotografia`,
+            ToastType.WARNING
+          );
+          return;
+        }
+        this.stepper.next();
+        break;
     }
   }
 
@@ -578,9 +879,34 @@ export class EmpresaVehiculosComponent implements OnInit {
     })
   }
 
+  mostrarModalAgregarColor() {
+    this.modal = this.modalService.open(this.agregarColorModal, {size: 'lg', backdrop: "static"})
+  }
+
+  mostrarModalAgregarFotografia() {
+    this.modal = this.modalService.open(this.agregarFotografiaModal, {size: 'lg', backdrop: 'static'})
+  }
+
+  clear(table: Table) {
+    table.clear();
+  }
+
+  mostrarModalVerConstanciaBlindaje() {
+    this.modal = this.modalService.open(this.visualizarConstanciaBlindajeModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+    this.pdfActual = undefined;
+    this.empresaVehiculoService.descargarVehiculoConstanciaPdf(this.vehiculo?.uuid).subscribe((data: Blob) => {
+      this.pdfBlob = data;
+      this.convertirPdf(data);
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la constancia de blindaje. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
   confirmarEliminarVehiculo(form) {
-    console.log(form.value);
-    console.log(form.valid);
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -687,7 +1013,7 @@ export class EmpresaVehiculosComponent implements OnInit {
         filter: true
       };
 
-      this.columnDefs.push(newColumnDef);
+      //this.columnDefs.push(newColumnDef);
       this.gridApi.setColumnDefs(this.columnDefs);
     } else {
       this.columnDefs = this.columnDefs.filter(s => s.field !== field);
@@ -807,6 +1133,7 @@ export class EmpresaVehiculosComponent implements OnInit {
           "Se guardo el color del carro con exito",
           ToastType.INFO
         );
+        this.modal.close();
         this.mostrarFormularioColor();
         this.empresaVehiculoService.obtenerVehiculoColores(this.vehiculo.uuid).subscribe((data: VehiculoColor[]) => {
           this.vehiculo.colores = data;
@@ -831,6 +1158,7 @@ export class EmpresaVehiculosComponent implements OnInit {
           "Se ha guardado el color con exito",
           ToastType.SUCCESS
         );
+        this.modal.close();
         this.mostrarFormularioColor();
         this.empresaVehiculoService.obtenerVehiculoColores(this.vehiculo.uuid).subscribe((data: VehiculoColor[]) => {
           this.vehiculo.colores = data;
@@ -879,6 +1207,7 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.mostrarFormularioNuevaFotografia();
+      this.modal.close();
       this.empresaVehiculoService.listarVehiculoFotografias(this.vehiculo.uuid).subscribe((data: VehiculoFotografiaMetadata[]) => {
         this.vehiculo.fotografias = data;
       }, (error) => {
@@ -913,6 +1242,17 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.ERROR
       )
     })
+  }
+
+  convertirPdf(pdf: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.pdfActual = reader.result;
+    });
+
+    if(pdf) {
+      reader.readAsDataURL(pdf);
+    }
   }
 
   convertirImagen(imagen: Blob) {
@@ -956,5 +1296,26 @@ export class EmpresaVehiculosComponent implements OnInit {
     } else {
       return `with ${reason}`;
     }
+  }
+
+  generarReporteExcel() {
+    this.reporteoService.generarReporteVehiculos().subscribe((data) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "test.xls";
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el reporte en excel. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+  descargarAcuerdoPdf() {
+    let link = document.createElement('a');
+    link.href = window.URL.createObjectURL(this.pdfBlob);
+    link.download = "constancia-blindaje.pdf";
+    link.click();
   }
 }

@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -89,6 +90,7 @@ public class CanCartillaVacunacionServiceImpl implements CanCartillaVacunacionSe
     }
 
     @Override
+    @Transactional
     public CanCartillaVacunacionDto guardarCartillaVacunacion(String empresaUuid, String canUuid, String username, CanCartillaVacunacionDto canCartillaVacunacionDto, MultipartFile archivo) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(username) || canCartillaVacunacionDto == null) {
             logger.warn("El uuid de la empresa, el can, el usuario o la cartilla de vacunacion a guardar vienen como nulos o vacios");
@@ -115,6 +117,12 @@ public class CanCartillaVacunacionServiceImpl implements CanCartillaVacunacionSe
             ruta = archivosService.guardarArchivoMultipart(archivo, TipoArchivoEnum.CARTILLA_VACUNACION_CAN, empresaUuid);
             canCartillaVacunacion.setRutaDocumento(ruta);
             CanCartillaVacunacion canCartillaVacunacionCreada = canCartillaVacunacionRepository.save(canCartillaVacunacion);
+
+            if(!can.isVacunacionCapturada()) {
+                can.setVacunacionCapturada(true);
+                daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+                canRepository.save(can);
+            }
 
             return daoToDtoConverter.convertDaoToDtoCanCartillaVacunacion(canCartillaVacunacionCreada);
         } catch(Exception ex) {
@@ -157,6 +165,7 @@ public class CanCartillaVacunacionServiceImpl implements CanCartillaVacunacionSe
     }
 
     @Override
+    @Transactional
     public CanCartillaVacunacionDto modificarCartillaVacunacion(String empresaUuid, String canUuid, String cartillaUuid, String username, CanCartillaVacunacionDto canCartillaVacunacionDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(cartillaUuid) || StringUtils.isBlank(username) || canCartillaVacunacionDto == null) {
             logger.warn("Alguno de los parametros enviados no es valido");
@@ -195,6 +204,7 @@ public class CanCartillaVacunacionServiceImpl implements CanCartillaVacunacionSe
     }
 
     @Override
+    @Transactional
     public CanCartillaVacunacionDto borrarCartillaVacunacion(String empresaUuid, String canUuid, String cartillaUuid, String username) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(cartillaUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros enviados no es valido");

@@ -22,6 +22,27 @@ export class UsuariosComponent implements OnInit {
     {headerName: 'Rol', field: 'rol', sortable: true, filter: true}
   ];
 
+  movimientos = [];
+
+  tipoMovimiento = undefined;
+
+  tiposMovimiento = [
+    {nombre: "Empresas", tipo: "EMPRESAS"},
+    {nombre: "----Modalidades", tipo: "EMPRESAS_MODALIDADES"},
+    {nombre: "----Formas de ejecucion", tipo: "EMPRESAS_FORMAS_EJECUCION"},
+    {nombre: "Acuerdos", tipo: "ACUERDOS"},
+    {nombre: "Domicilios (empresa)", tipo: "DOMICILIOS_EMPRESA"},
+    {nombre: "----Telefonos", tipo: "DOMICILIOS_EMPRESA"},
+    {nombre: "Escrituras", tipo: "ESCRITURAS"},
+    {nombre: "----Socios", tipo: "SOCIOS"},
+    {nombre: "----Apoderados", tipo: "APODERADOS"},
+    {nombre: "----Representantes", tipo: "REPRESENTANTES"},
+    {nombre: "----Consejo", tipo: "CONSEJO"}
+  ];
+
+  tipoMovimientoQuery: string = "";
+
+  pestanaActual = 'DETALLES';
   rowData = [];
 
   private gridApi;
@@ -34,6 +55,7 @@ export class UsuariosComponent implements OnInit {
   usuario: Usuario;
 
   crearUsuarioForm: FormGroup;
+  tipoMovimientoSearchForm: FormGroup;
 
   @ViewChild("crearUsuarioModal") crearUsuarioModal;
   @ViewChild("detallesUsuarioModal") detallesUsuarioModal;
@@ -196,6 +218,22 @@ export class UsuariosComponent implements OnInit {
   }
 
   guardarCambiosUsuario(form) {
+
+  }
+
+  cambiarPestana(pestana) {
+    this.pestanaActual = pestana;
+  }
+
+  seleccionarTipoMovimiento(event) {
+    this.tipoMovimiento = this.tiposMovimiento.filter(x => x.nombre === event.nombre)[0]
+  }
+
+  eliminarTipoMovimiento() {
+
+  }
+
+  buscarMovimientos() {
 
   }
 

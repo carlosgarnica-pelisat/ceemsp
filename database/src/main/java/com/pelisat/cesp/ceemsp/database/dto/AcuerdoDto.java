@@ -24,4 +24,7 @@ public class AcuerdoDto {
     private String observacionesBaja;
     private String documentoFundatorioBaja;
     private String fechaBaja;
+    private EmpresaDto empresa;
+    private String fechaCreacion;
+    private String fechaActualizacion;
 }

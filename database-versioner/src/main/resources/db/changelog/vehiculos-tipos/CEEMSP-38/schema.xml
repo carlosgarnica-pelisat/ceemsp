@@ -153,7 +153,7 @@
             <column name="UUID" value="RkRyML7D1Jag"></column>
             <column name="NOMBRE" value="AUTOBUS"></column>
             <column name="DESCRIPCION" value="Autobus"></column>
-            <column name="TIPO" value="AUTOMOVIL"></column>
+            <column name="TIPO" value="AUTOBUS"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>

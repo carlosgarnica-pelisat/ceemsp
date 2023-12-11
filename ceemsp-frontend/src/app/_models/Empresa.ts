@@ -31,6 +31,15 @@ export default class Empresa implements Deserializable {
   usuario: Usuario;
 
   fechaCreacion: string;
+  fechaActualizacion: string;
+
+  domiciliosCapturados: boolean;
+  escriturasCapturadas: boolean;
+  formasEjecucionCapturadas: boolean;
+  acuerdosCapturados: boolean;
+  eliminado: false;
+  vigenciaInicio: string;
+  vigenciaFin: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);
@@ -56,7 +65,7 @@ export default class Empresa implements Deserializable {
       {headerName: 'Tipo persona', field: 'tipoPersona', sortable: true, filter: true},
       {headerName: 'RFC', field: 'rfc', sortable: true, filter: true},
       {headerName: 'CURP', field: 'curp', sortable: true, filter: true},
-      {headerName: 'Sexo', field: 'sexo', sortable: true, filter: true},
+      {headerName: 'Genero', field: 'sexo', sortable: true, filter: true},
       {headerName: 'Correo electronico', field: 'correoElectronico', sortable: true, filter: true},
       {headerName: 'Telefono', field: 'telefono', sortable: true, filter: true}
     ]

@@ -22,6 +22,10 @@ import {
   BotonEmpresaLegalComponent
 } from "../../../_components/botones/boton-empresa-legal/boton-empresa-legal.component";
 import Empresa from "../../../_models/Empresa";
+import {Table} from "primeng/table";
+import {formatDate} from "@angular/common";
+import Usuario from "../../../_models/Usuario";
+import {AuthenticationService} from "../../../_services/authentication.service";
 
 @Component({
   selector: 'app-empresa-legal',
@@ -91,16 +95,18 @@ export class EmpresaLegalComponent implements OnInit {
   faCheck = faCheck;
   faInfoCircle = faInfoCircle;
 
+  usuarioActual: Usuario;
+
   private gridApi;
   private gridColumnApi;
 
   columnDefs = [
     {headerName: 'No. Instrumento', field: 'numeroEscritura', sortable: true, filter: true },
-    {headerName: 'Fecha', field: 'fechaEscritura', sortable: true, filter: true },
-    {headerName: 'Ciudad', sortable: true, filter: true, valueGetter: function (params) {return params.data.localidadCatalogo.nombre + ", " + params.data.estadoCatalogo.nombre}},
-    {headerName: 'Nombre y Numero del fedatario', sortable: true, filter: true, valueGetter: function(params) {return `${params.data.numero} - ${params.data.nombreFedatario} ${params.data.apellidoPaterno} ${params.data.apellidoMaterno}`}},
-    {headerName: 'Ciudad', field: 'ciudad', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'empresaLegalButtonRenderer', cellRendererParams: {
+    {headerName: 'Fecha', field: 'fechaEscritura', sortable: true, filter: true, resizable: true },
+    {headerName: 'Ciudad', sortable: true, filter: true, resizable: true, valueGetter: function (params) {return params.data.localidadCatalogo.nombre + ", " + params.data.estadoCatalogo.nombre}},
+    {headerName: 'Nombre y Numero del fedatario', sortable: true, filter: true, resizable: true, valueGetter: function(params) {return `${params.data.numero} - ${params.data.nombreFedatario} ${params.data.apellidoPaterno} ${params.data.apellidoMaterno}`}},
+    {headerName: 'Ciudad', field: 'ciudad', sortable: true, filter: true, resizable: true},
+    {headerName: 'Opciones', cellRenderer: 'empresaLegalButtonRenderer', resizable: true, cellRendererParams: {
         label: 'Ver detalles',
         verDetalles: this.verDetalles.bind(this),
         editar: this.editar.bind(this),
@@ -139,6 +145,8 @@ export class EmpresaLegalComponent implements OnInit {
   municipioQuery: string = '';
   localidadQuery: string = '';
 
+  pdfBlob;
+
   @ViewChild('mostrarDetallesEscrituraModal') mostrarDetallesEscrituraModal: any;
   @ViewChild('modificarEscrituraModal') modificarEscrituraModal: any;
 
@@ -161,9 +169,11 @@ export class EmpresaLegalComponent implements OnInit {
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
               private formBuilder: FormBuilder, private estadoService: EstadosService,
-              private validacionService: ValidacionService) { }
+              private validacionService: ValidacionService, private authenticationService: AuthenticationService) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
 
     this.frameworkComponents = {
       empresaLegalButtonRenderer: BotonEmpresaLegalComponent
@@ -339,6 +349,15 @@ export class EmpresaLegalComponent implements OnInit {
     this.mostrarModalDetalles(rowData.rowData, this.mostrarDetallesEscrituraModal)
   }
 
+  limpiarFechas() {
+    this.nuevoApoderadoForm.controls['fechaInicio'].setValue('');
+    this.nuevoApoderadoForm.controls['fechaFin'].setValue('');
+  }
+
+  limpiarFechaFin() {
+    this.nuevoApoderadoForm.controls['fechaFin'].setValue('');
+  }
+
   editar(rowData) {
     this.empresaService.obtenerEscrituraPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaEscritura) => {
       this.escritura = data;
@@ -380,7 +399,7 @@ export class EmpresaLegalComponent implements OnInit {
         );
       });
 
-      this.modal = this.modalService.open(this.modificarEscrituraModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+      this.modal = this.modalService.open(this.modificarEscrituraModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: 'static', keyboard: false});
 
       this.modal.result.then((result) => {
         this.closeResult = `Closed with ${result}`;
@@ -468,7 +487,7 @@ export class EmpresaLegalComponent implements OnInit {
   mostrarEditarSocio(uuid) {
     this.socio = this.escritura.socios.filter(x => x.uuid === uuid)[0];
     this.mostrarFormularioNuevoSocio();
-    this.modal = this.modalService.open(this.agregarSocioModal, {size: 'xl', backdrop: 'static'})
+    this.modal = this.modalService.open(this.agregarSocioModal, {size: 'xl', backdrop: 'static', keyboard: false})
     this.editandoSocio = true;
     this.nuevoSocioForm.patchValue({
       nombres: this.socio.nombres,
@@ -483,7 +502,7 @@ export class EmpresaLegalComponent implements OnInit {
   mostrarEditarApoderado(uuid) {
     this.apoderado = this.escritura.apoderados.filter(x => x.uuid === uuid)[0];
     this.mostrarFormularioNuevoApoderado();
-    this.modal = this.modalService.open(this.agregarApoderadoModal, {size: 'xl', backdrop: 'static'})
+    this.modal = this.modalService.open(this.agregarApoderadoModal, {size: 'xl', backdrop: 'static', keyboard: false})
     this.editandoApoderado = true;
     this.nuevoApoderadoForm.patchValue({
       nombres: this.apoderado.nombres,
@@ -499,7 +518,7 @@ export class EmpresaLegalComponent implements OnInit {
   mostrarEditarRepresentante(uuid) {
     this.representante = this.escritura.representantes.filter(x => x.uuid === uuid)[0];
     this.mostrarFormularioNuevoRepresentante();
-    this.modal = this.modalService.open(this.agregarRepresentanteModal, {size: 'xl', backdrop: 'static'})
+    this.modal = this.modalService.open(this.agregarRepresentanteModal, {size: 'xl', backdrop: 'static', keyboard: false})
     this.editandoRepresentante = true;
     this.nuevoRepresentanteForm.patchValue({
       nombres: this.representante.nombres,
@@ -513,7 +532,7 @@ export class EmpresaLegalComponent implements OnInit {
   mostrarEditarConsejo(uuid) {
     this.consejo = this.escritura.consejos.filter(x => x.uuid === uuid)[0];
     this.mostrarFormularioNuevoConsejo();
-    this.modal = this.modalService.open(this.agregarConsejoModal, {size: 'xl', backdrop: 'static'})
+    this.modal = this.modalService.open(this.agregarConsejoModal, {size: 'xl', backdrop: 'static', keyboard: false})
     this.editandoConsejo = true;
     this.nuevoConsejoAdministracionForm.patchValue({
       nombres: this.consejo.nombres,
@@ -526,7 +545,7 @@ export class EmpresaLegalComponent implements OnInit {
   }
 
   mostrarModalEliminarEscritura() {
-    this.modal = this.modalService.open(this.eliminarEscrituraModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    this.modal = this.modalService.open(this.eliminarEscrituraModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg', keyboard: false, backdrop: 'static'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -538,7 +557,12 @@ export class EmpresaLegalComponent implements OnInit {
 
   mostrarModalEliminarSocio(uuid) {
     this.tempUuidSocio = uuid;
-    this.modal = this.modalService.open(this.eliminarEscrituraSocioModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    this.motivosEliminacionSocioForm.patchValue({
+      fechaBaja: formatDate(new Date(), "yyyy-MM-dd", "en")
+    });
+    this.motivosEliminacionSocioForm.controls['fechaBaja'].disable();
+
+    this.modal = this.modalService.open(this.eliminarEscrituraSocioModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg', keyboard: false, backdrop: 'static'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -549,7 +573,11 @@ export class EmpresaLegalComponent implements OnInit {
 
   mostrarModalEliminarApoderado(uuid) {
     this.tempUuidApoderado = uuid;
-    this.modal = this.modalService.open(this.eliminarEscrituraApoderadoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    this.motivosEliminacionAopderadoForm.patchValue({
+      fechaBaja: formatDate(new Date(), "yyyy-MM-dd", "en")
+    });
+    this.motivosEliminacionAopderadoForm.controls['fechaBaja'].disable();
+    this.modal = this.modalService.open(this.eliminarEscrituraApoderadoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg', keyboard: false, backdrop: 'static'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -560,7 +588,11 @@ export class EmpresaLegalComponent implements OnInit {
 
   mostrarModalEliminarRepresentante(uuid) {
     this.tempUuidRepresentante = uuid;
-    this.modal = this.modalService.open(this.eliminarEscrituraRepresentanteModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    this.motivosEliminacionRepresentanteForm.patchValue({
+      fechaBaja: formatDate(new Date(), "yyyy-MM-dd", "en")
+    });
+    this.motivosEliminacionRepresentanteForm.controls['fechaBaja'].disable();
+    this.modal = this.modalService.open(this.eliminarEscrituraRepresentanteModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg', keyboard: false, backdrop: 'static'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -571,7 +603,11 @@ export class EmpresaLegalComponent implements OnInit {
 
   mostrarModalEliminarConsejo(uuid) {
     this.tempUuidConsejo = uuid;
-    this.modal = this.modalService.open(this.eliminarEscrituraConsejoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    this.motivosEliminacionConsejoForm.patchValue({
+      fechaBaja: formatDate(new Date(), "yyyy-MM-dd", "en")
+    });
+    this.motivosEliminacionConsejoForm.controls['fechaBaja'].disable();
+    this.modal = this.modalService.open(this.eliminarEscrituraConsejoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg', keyboard: false, backdrop: 'static'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -598,6 +634,7 @@ export class EmpresaLegalComponent implements OnInit {
     );
 
     let formValue: EmpresaEscrituraSocio = nuevoSocioform.value;
+
 
     if(formValue.curp !== null && formValue.curp !== "") {
       if(!curp.validar(formValue.curp)) {
@@ -663,12 +700,12 @@ export class EmpresaLegalComponent implements OnInit {
           "Se ha modificado el socio con exito",
           ToastType.SUCCESS
         );
-        this.modal.close();
+        this.cerrarModalSocio()
+        this.mostrarFormularioNuevoSocio();
         this.empresaService.obtenerEscrituraSocios(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraSocio[]) => {
           this.mostrandoSociosEliminados = false;
           this.escritura.socios = data;
           this.escrituraSocios = data;
-          this.mostrarFormularioNuevoSocio();
 
           this.empresaService.obtenerEscrituraSociosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraSocio[]) => {
             this.escrituraSociosEliminados = data;
@@ -701,12 +738,12 @@ export class EmpresaLegalComponent implements OnInit {
           "Se ha registrado el socio con exito",
           ToastType.SUCCESS
         );
-        this.modal.close();
+        this.cerrarModalSocio()
+        this.mostrarFormularioNuevoSocio();
         this.empresaService.obtenerEscrituraSocios(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraSocio[]) => {
           this.mostrandoSociosEliminados = false;
           this.escritura.socios = data;
           this.escrituraSocios = data;
-          this.mostrarFormularioNuevoSocio();
 
           this.empresaService.obtenerEscrituraSociosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraSocio[]) => {
             this.escrituraSociosEliminados = data;
@@ -810,6 +847,7 @@ export class EmpresaLegalComponent implements OnInit {
 
     let fechaInicio = new Date(formValue.fechaInicio);
     let fechaFin = new Date(formValue.fechaFin);
+
     if(fechaInicio > fechaFin) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -835,7 +873,8 @@ export class EmpresaLegalComponent implements OnInit {
           "Se ha modificado el apoderado con exito",
           ToastType.SUCCESS
         );
-        this.modal.close();
+        this.cerrarModalApoderado();
+        this.mostrarFormularioNuevoApoderado();
         this.empresaService.obtenerEscriturasApoderados(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraApoderado[]) => {
           this.escritura.apoderados = data;
           this.escrituraApoderados = data;
@@ -874,7 +913,8 @@ export class EmpresaLegalComponent implements OnInit {
           "Se ha registrado el apoderado con exito",
           ToastType.SUCCESS
         );
-        this.modal.close();
+        this.cerrarModalApoderado();
+        this.mostrarFormularioNuevoApoderado();
         this.empresaService.obtenerEscriturasApoderados(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraApoderado[]) => {
           this.escritura.apoderados = data;
           this.escrituraApoderados = data;
@@ -966,12 +1006,12 @@ export class EmpresaLegalComponent implements OnInit {
           "Se ha modificado el miembro del consejo con exito",
           ToastType.SUCCESS
         );
-        this.modal.close();
+        this.cerrarModalConsejo();
+        this.mostrarFormularioNuevoConsejo();
         this.empresaService.obtenerEscrituraConsejos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraConsejo[]) => {
           this.mostrandoConsejosEliminados = false;
           this.escritura.consejos = data;
           this.escrituraConsejos = data;
-          this.mostrarFormularioNuevoConsejo();
 
           this.empresaService.obtenerEscrituraConsejosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraConsejo[]) => {
             this.escrituraConsejosEliminados = data;
@@ -1003,12 +1043,12 @@ export class EmpresaLegalComponent implements OnInit {
           "Se ha registrado el miembro del consejo con exito",
           ToastType.SUCCESS
         );
-        this.modal.close();
+        this.cerrarModalConsejo();
+        this.mostrarFormularioNuevoConsejo();
         this.empresaService.obtenerEscrituraConsejos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraConsejo[]) => {
           this.mostrandoConsejosEliminados = false;
           this.escritura.consejos = data;
           this.escrituraConsejos = data;
-          this.mostrarFormularioNuevoConsejo();
 
           this.empresaService.obtenerEscrituraConsejosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraConsejo[]) => {
             this.escrituraConsejosEliminados = data;
@@ -1086,7 +1126,8 @@ export class EmpresaLegalComponent implements OnInit {
           "Se ha actualizado el representante con exito",
           ToastType.SUCCESS
         );
-        this.modal.close();
+        this.cerrarModalRepresentante();
+        this.mostrarFormularioNuevoRepresentante();
 
         this.empresaService.obtenerEscrituraRepresentantes(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraRepresentante[]) => {
           this.mostrandoRepresentantesEliminados = false;
@@ -1124,7 +1165,8 @@ export class EmpresaLegalComponent implements OnInit {
           "Se ha registrado el representante con exito",
           ToastType.SUCCESS
         );
-        this.modal.close();
+        this.cerrarModalRepresentante();
+        this.mostrarFormularioNuevoRepresentante();
         this.empresaService.obtenerEscrituraRepresentantes(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraRepresentante[]) => {
           this.mostrandoRepresentantesEliminados = false;
           this.escritura.representantes = data;
@@ -1168,7 +1210,7 @@ export class EmpresaLegalComponent implements OnInit {
   }
 
   mostrarModalCrear(modal) {
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', keyboard: false, backdrop: 'static'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -1197,19 +1239,19 @@ export class EmpresaLegalComponent implements OnInit {
   }
 
   mostrarModalAgregarSocio() {
-    this.modal = this.modalService.open(this.agregarSocioModal, {size: 'xl', backdrop: 'static'})
+    this.modal = this.modalService.open(this.agregarSocioModal, {size: 'xl', backdrop: 'static', keyboard: false})
   }
 
   mostrarModalAgregarApoderado() {
-    this.modal = this.modalService.open(this.agregarApoderadoModal, {size: 'xl', backdrop: 'static'})
+    this.modal = this.modalService.open(this.agregarApoderadoModal, {size: 'xl', backdrop: 'static', keyboard: false})
   }
 
   mostrarModalAgregarRepresentante() {
-    this.modal = this.modalService.open(this.agregarRepresentanteModal, {size: 'xl', backdrop: 'static'})
+    this.modal = this.modalService.open(this.agregarRepresentanteModal, {size: 'xl', backdrop: 'static', keyboard: false})
   }
 
   mostrarModalAgregarConsejo() {
-    this.modal = this.modalService.open(this.agregarConsejoModal, {size: 'xl', backdrop: 'static'})
+    this.modal = this.modalService.open(this.agregarConsejoModal, {size: 'xl', backdrop: 'static', keyboard: false})
   }
 
   mostrarModalDetalles(rowData, modal) {
@@ -1268,7 +1310,7 @@ export class EmpresaLegalComponent implements OnInit {
       )
     })
 
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', scrollable: true});
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', scrollable: true, keyboard: false, backdrop: 'static'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -1298,6 +1340,15 @@ export class EmpresaLegalComponent implements OnInit {
       return;
     }
 
+    if(this.tempFile === undefined || this.tempFile === null) {
+      this.toastService.showGenericToast(
+        `Ocurrio un problema`,
+        'Se requiere un archivo para continuar',
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espere un momento",
       "Estamos guardando la escritura",
@@ -1319,7 +1370,16 @@ export class EmpresaLegalComponent implements OnInit {
         "Se ha guardado la escritura con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerEscrituras(this.uuid).subscribe((data: EmpresaEscritura[]) => {
+        this.rowData = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las escrituras. ${error}`,
+          ToastType.ERROR
+        )
+      });
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -1363,15 +1423,11 @@ export class EmpresaLegalComponent implements OnInit {
   }
 
   mostrarEscritura(modal) {
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg', keyboard: false, backdrop: 'static'})
 
     this.empresaService.descargarEscrituraPdf(this.uuid, this.escritura.uuid).subscribe((data: Blob) => {
+      this.pdfBlob = data;
       this.convertirPdf(data);
-      // TODO: Manejar esta opcion para descargar
-      /*let link = document.createElement('a');
-      link.href = window.URL.createObjectURL(data);
-      link.download = "licencia-colectiva-" + this.licencia.uuid;
-      link.click();*/
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -1421,7 +1477,7 @@ export class EmpresaLegalComponent implements OnInit {
       );
     });
 
-    this.modal = this.modalService.open(this.modificarEscrituraModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+    this.modal = this.modalService.open(this.modificarEscrituraModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', keyboard: false, backdrop: 'static'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -1476,8 +1532,26 @@ export class EmpresaLegalComponent implements OnInit {
             ToastType.ERROR
           );
         })
+        this.empresaService.obtenerEscrituras(this.uuid).subscribe((data: EmpresaEscritura[]) => {
+          this.rowData = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar las escrituras. ${error}`,
+            ToastType.ERROR
+          )
+        });
       } else {
-        window.location.reload();
+        this.modal.close();
+        this.empresaService.obtenerEscrituras(this.uuid).subscribe((data: EmpresaEscritura[]) => {
+          this.rowData = data;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se han podido descargar las escrituras. ${error}`,
+            ToastType.ERROR
+          )
+        });
       }
     }, (error) => {
       this.toastService.showGenericToast(
@@ -1514,6 +1588,7 @@ export class EmpresaLegalComponent implements OnInit {
     );
 
     let formValue: EmpresaEscrituraSocio = form.value;
+    formValue.fechaBaja = formatDate(new Date(), "yyyy-MM-dd", "en")
 
     let formData = new FormData();
     formData.append('socio', JSON.stringify(formValue));
@@ -1531,6 +1606,7 @@ export class EmpresaLegalComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.mostrandoSociosEliminados = false;
+      this.tempFile = undefined;
 
       this.empresaService.obtenerEscrituraSociosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraSocio[]) => {
         this.escrituraSociosEliminados = data;
@@ -1588,6 +1664,7 @@ export class EmpresaLegalComponent implements OnInit {
     );
 
     let formValue: EmpresaEscrituraApoderado = form.value;
+    formValue.fechaBaja = formatDate(new Date(), "yyyy-MM-dd", "en")
 
     let formData = new FormData();
     formData.append('apoderado', JSON.stringify(formValue));
@@ -1605,6 +1682,7 @@ export class EmpresaLegalComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.modal.close();
+      this.tempFile = undefined;
 
       this.empresaService.obtenerEscriturasApoderadosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraApoderado[]) => {
         this.escrituraApoderadosEliminados = data;
@@ -1648,7 +1726,16 @@ export class EmpresaLegalComponent implements OnInit {
         "Se ha eliminado la escritura con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerEscrituras(this.uuid).subscribe((data: EmpresaEscritura[]) => {
+        this.rowData = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las escrituras. ${error}`,
+          ToastType.ERROR
+        )
+      });
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -1684,6 +1771,7 @@ export class EmpresaLegalComponent implements OnInit {
     );
 
     let formValue: EmpresaEscrituraRepresentante = form.value;
+    formValue.fechaBaja = formatDate(new Date(), "yyyy-MM-dd", "en")
 
     let formData = new FormData();
     formData.append('representante', JSON.stringify(formValue));
@@ -1701,6 +1789,7 @@ export class EmpresaLegalComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.modal.close();
+      this.tempFile = undefined;
 
       this.empresaService.obtenerEscrituraRepresentantesTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraRepresentante[]) => {
         this.escrituraRepresentantesEliminados = data;
@@ -1757,6 +1846,7 @@ export class EmpresaLegalComponent implements OnInit {
     );
 
     let formValue: EmpresaEscrituraConsejo = form.value;
+    formValue.fechaBaja = formatDate(new Date(), "yyyy-MM-dd", "en")
 
     let formData = new FormData();
     formData.append('consejo', JSON.stringify(formValue));
@@ -1774,6 +1864,7 @@ export class EmpresaLegalComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.modal.close();
+      this.tempFile = undefined;
 
       this.empresaService.obtenerEscrituraConsejosTodos(this.uuid, this.escritura.uuid).subscribe((data: EmpresaEscrituraConsejo[]) => {
         this.escrituraConsejosEliminados = data;
@@ -1805,22 +1896,22 @@ export class EmpresaLegalComponent implements OnInit {
   }
 
   mostrarDetallesEliminacionSocio(uuid) {
-    this.modal = this.modalService.open(this.mostrarMotivosEliminacionSocio, {size: 'lg', backdrop: 'static'})
+    this.modal = this.modalService.open(this.mostrarMotivosEliminacionSocio, {size: 'lg', backdrop: 'static', keyboard: false})
     this.socio = this.escritura?.socios.filter(x => x.uuid === uuid)[0];
   }
 
   mostrarDetallesEliminacionApoderado(uuid) {
-    this.modal = this.modalService.open(this.mostrarMotivosEliminacionApoderado, {size: 'lg', backdrop: 'static'})
+    this.modal = this.modalService.open(this.mostrarMotivosEliminacionApoderado, {size: 'lg', backdrop: 'static', keyboard: false})
     this.apoderado = this.escritura?.apoderados.filter(x => x.uuid === uuid)[0];
   }
 
   mostrarDetallesEliminacionRepresentante(uuid) {
-    this.modal = this.modalService.open(this.mostrarMotivosEliminacionRepresentante, {size: 'lg', backdrop: 'static'})
+    this.modal = this.modalService.open(this.mostrarMotivosEliminacionRepresentante, {size: 'lg', backdrop: 'static', keyboard: false})
     this.representante = this.escritura?.representantes.filter(x => x.uuid === uuid)[0];
   }
 
   mostrarDetallesEliminacionConsejo(uuid) {
-    this.modal = this.modalService.open(this.mostrarMotivosEliminacionConsejo, {size: 'lg', backdrop: 'static'})
+    this.modal = this.modalService.open(this.mostrarMotivosEliminacionConsejo, {size: 'lg', backdrop: 'static', keyboard: false})
     this.consejo = this.escritura?.consejos.filter(x => x.uuid === uuid)[0];
   }
 
@@ -1882,6 +1973,66 @@ export class EmpresaLegalComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
+
+  clear(table: Table) {
+    table.clear();
+  }
+
+  cerrarModalEscritura() {
+    this.nuevaEscrituraForm.reset();
+    this.modal.close();
+  }
+
+  cerrarModalSocio() {
+    this.nuevoSocioForm.reset();
+    this.modal.close();
+    this.editandoSocio = false;
+  }
+
+  cerrarModalApoderado() {
+    this.nuevoApoderadoForm.reset();
+    this.modal.close();
+    this.editandoApoderado = false;
+  }
+
+  cerrarModalRepresentante() {
+    this.nuevoRepresentanteForm.reset();
+    this.modal.close();
+    this.editandoRepresentante = false;
+  }
+
+  cerrarModalConsejo() {
+    this.nuevoConsejoAdministracionForm.reset();
+    this.modal.close();
+    this.editandoConsejo = false;
+  }
+
+  cerrarModalEliminarSocio() {
+    this.motivosEliminacionSocioForm.reset();
+    this.modal.close();
+  }
+
+  cerrarModalEliminarApoderado() {
+    this.motivosEliminacionAopderadoForm.reset();
+    this.modal.close();
+  }
+
+  cerrarModalEliminarRepresentante() {
+    this.motivosEliminacionRepresentanteForm.reset();
+    this.modal.close();
+  }
+
+  cerrarModalEliminarConsejo() {
+    this.motivosEliminacionConsejoForm.reset();
+    this.modal.close();
+  }
+
+  descargarDocumentoEscritura() {
+    let link = document.createElement('a');
+    link.href = window.URL.createObjectURL(this.pdfBlob);
+    link.download = "escritura.pdf";
+    link.click();
   }
 
   private getDismissReason(reason: any): string {

@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.rmi.NotBoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,6 +77,7 @@ public class VehiculoSubmarcaServiceImpl implements VehiculoSubmarcaService {
     }
 
     @Override
+    @Transactional
     public VehiculoSubmarcaDto crearNuevo(VehiculoSubmarcaDto vehiculoSubmarcaDto, String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || vehiculoSubmarcaDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");
@@ -102,6 +103,7 @@ public class VehiculoSubmarcaServiceImpl implements VehiculoSubmarcaService {
     }
 
     @Override
+    @Transactional
     public VehiculoSubmarcaDto modificar(VehiculoSubmarcaDto vehiculoSubmarcaDto, String uuid, String submarcaUuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || vehiculoSubmarcaDto == null || StringUtils.isBlank(submarcaUuid)) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");
@@ -127,6 +129,7 @@ public class VehiculoSubmarcaServiceImpl implements VehiculoSubmarcaService {
     }
 
     @Override
+    @Transactional
     public VehiculoSubmarcaDto eliminar(String uuid, String submarcaUuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || StringUtils.isBlank(submarcaUuid)) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");

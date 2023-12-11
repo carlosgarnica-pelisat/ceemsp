@@ -17,12 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
 public class PersonalCertificacionServiceImpl implements PersonalCertificacionService {
 
     private final Logger logger = LoggerFactory.getLogger(PersonalCertificacionService.class);
-    private final EmpresaService empresaService;
     private final UsuarioService usuarioService;
     private final PersonalCertificacionRepository personalCertificacionRepository;
     private final PersonaRepository personaRepository;
@@ -40,11 +38,10 @@ public class PersonalCertificacionServiceImpl implements PersonalCertificacionSe
     private final ArchivosService archivosService;
 
     @Autowired
-    public PersonalCertificacionServiceImpl(EmpresaService empresaService, UsuarioService usuarioService,
+    public PersonalCertificacionServiceImpl(UsuarioService usuarioService,
                                             PersonalCertificacionRepository personalCertificacionRepository, DaoToDtoConverter daoToDtoConverter,
                                             DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper,
                                             PersonaRepository personaRepository, ArchivosService archivosService) {
-        this.empresaService = empresaService;
         this.usuarioService = usuarioService;
         this.personalCertificacionRepository = personalCertificacionRepository;
         this.daoToDtoConverter = daoToDtoConverter;
@@ -131,6 +128,12 @@ public class PersonalCertificacionServiceImpl implements PersonalCertificacionSe
             personalCertificacion.setRutaArchivo(ruta);
             PersonalCertificacion certificacionCreada = personalCertificacionRepository.save(personalCertificacion);
 
+            if(!personal.isCursosCapturados()) {
+                personal.setCursosCapturados(true);
+                daoHelper.fulfillAuditorFields(false, personal, usuarioDto.getId());
+                personaRepository.save(personal);
+            }
+
             return daoToDtoConverter.convertDaoToDtoPersonalCertificacion(certificacionCreada);
         } catch(Exception ex) {
             logger.warn(ex.getMessage());
@@ -183,6 +186,7 @@ public class PersonalCertificacionServiceImpl implements PersonalCertificacionSe
     }
 
     @Override
+    @Transactional
     public PersonalCertificacionDto eliminarCertificacion(String empresaUuid, String personaUuid, String certificacionUuid, String username) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(personaUuid) || StringUtils.isBlank(certificacionUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
@@ -191,12 +195,25 @@ public class PersonalCertificacionServiceImpl implements PersonalCertificacionSe
 
         logger.info("Se esta eliminando la certificacion de la persona con el uuid [{}]", certificacionUuid);
 
+        Personal persona = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+        if(persona == null) {
+            logger.warn("La persona no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+        List<PersonalCertificacion> certificaciones = personalCertificacionRepository.getAllByPersonalAndEliminadoFalse(persona.getId());
+
         UsuarioDto usuario = usuarioService.getUserByEmail(username);
         PersonalCertificacion personalCertificacion = personalCertificacionRepository.findByUuidAndEliminadoFalse(certificacionUuid);
 
         if(personalCertificacion == null) {
-            logger.warn("El socio a modificar no existe en la base de datos");
+            logger.warn("La certificacion no existe en la base de datos");
             throw new NotFoundResourceException();
+        }
+
+        if(certificaciones.size() <= 1) {
+            persona.setCursosCapturados(false);
+            daoHelper.fulfillAuditorFields(false, persona, usuario.getId());
+            personaRepository.save(persona);
         }
 
         personalCertificacion.setEliminado(true);

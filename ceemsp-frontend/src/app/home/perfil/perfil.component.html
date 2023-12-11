@@ -1,0 +1,107 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Informacion de usuario</h1>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-3">
+      <div class="list-group">
+        <a routerLink="/home/configuracion" class="list-group-item list-group-item-action active">
+          Nombre del usuario: {{usuarioActual?.nombres}} {{usuarioActual?.apellidos}} {{usuarioActual?.apellidoMaterno}}<br>
+          Rol: {{usuarioActual?.rol === 'CEEMSP_SUPERUSER' ? "Superusuario" : "Usuario CEEMSP"}}
+        </a>
+      </div>
+    </div>
+    <div class="col-sm-9" style="background: white">
+      <table class="table">
+        <tr>
+          <td><b>Nombre completo</b></td>
+          <td>{{usuarioActual?.nombres}} {{usuarioActual?.apellidos}} {{usuarioActual?.apellidoMaterno}}</td>
+        </tr>
+        <tr>
+          <td><b>Rol</b></td>
+          <td>{{usuarioActual?.rol === 'CEEMSP_SUPERUSER' ? "Superusuario" : "Usuario CEEMSP"}}</td>
+        </tr>
+        <tr>
+          <td><b>Correo electronico:</b></td>
+          <td>{{usuarioActual?.email}}</td>
+        </tr>
+        <tr>
+          <td><b>Contrasena:</b></td>
+          <td>********** <a (click)="mostrarModalCambiarContrasena()">(Cambiar)</a></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <ng-template #cambiarContrasenaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="verNotificacionesModal">Cambiar contraseña</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="reiniciarContrasenaForm">
+            <div class="form-row">
+              <div class="col-sm-4">
+                <label for="actualPassword">
+                  <b>Contrasena actual * </b>
+                  <span
+                    *ngIf="reiniciarContrasenaForm.controls['actualPassword'].invalid && (reiniciarContrasenaForm.controls['actualPassword'].dirty || reiniciarContrasenaForm.controls['actualPassword'].touched)">
+                      </span>
+                </label>
+                <div class="input-group">
+                  <input class="form-control" id="actualPassword" [type]="mostrarContrasena ? 'text' : 'password'" formControlName="actualPassword" placeholder="De 8 a 15 caracteres.">
+                  <div class="input-group-append">
+                    <span class="input-group-text" style="cursor: pointer;" (click)="conmutarMostrarContrasena()">{{mostrarContrasena ? 'Ocultar' : 'Mostrar'}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <label for="password">
+                  <b>Contrasena * <a style="color:#0057a0; cursor: pointer;" class="fakelink" (click)="autogenerarContrasena()">(autogenerar)</a></b>
+                  <span
+                    *ngIf="reiniciarContrasenaForm.controls['password'].invalid && (reiniciarContrasenaForm.controls['password'].dirty || reiniciarContrasenaForm.controls['password'].touched)">
+                      </span>
+                </label>
+                <div class="input-group">
+                  <input class="form-control" id="password" [type]="mostrarContrasena ? 'text' : 'password'" formControlName="password" placeholder="De 8 a 15 caracteres.">
+                  <div class="input-group-append">
+                    <span class="input-group-text" style="cursor: pointer;" (click)="conmutarMostrarContrasena()">{{mostrarContrasena ? 'Ocultar' : 'Mostrar'}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <label for="password">
+                  <b>Confirmar contrasena * </b>
+                  <span
+                    *ngIf="reiniciarContrasenaForm.controls['verificarPassword'].invalid && (reiniciarContrasenaForm.controls['verificarPassword'].dirty || reiniciarContrasenaForm.controls['verificarPassword'].touched)">
+                      </span>
+                </label>
+                <div class="input-group">
+                  <input class="form-control" id="verificarPassword" [type]="mostrarContrasena ? 'text' : 'password'" formControlName="verificarPassword" placeholder="De 8 a 15 caracteres.">
+                  <div class="input-group-append">
+                    <span class="input-group-text" style="cursor: pointer;">{{mostrarContrasena ? 'Ocultar' : 'Mostrar'}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <p>Al presionar guardar, aceptas que has guardado la nueva contrasena en un lugar seguro.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="actualizarContrasena(reiniciarContrasenaForm)">Guardar cambios</button>
+      <button class="btn btn-danger" (click)="this.modal.close()">Cancelar</button>
+    </div>
+  </ng-template>
+</div>

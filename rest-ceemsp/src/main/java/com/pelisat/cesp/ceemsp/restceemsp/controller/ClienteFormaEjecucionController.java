@@ -39,7 +39,7 @@ public class ClienteFormaEjecucionController {
             @PathVariable(value = "clienteUuid") String clienteUuid
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return clienteFormaEjecucionService.crearFormaEjecucion(username, empresaUuid, clienteUuid, clienteFormaEjecucionDto);
+        return clienteFormaEjecucionService.crearFormaEjecucion(empresaUuid, clienteUuid, username, clienteFormaEjecucionDto);
     }
 
     @PutMapping(value = CLIENTE_FORMA_EJECUCION_URI + "/{formaEjecucionUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -59,9 +59,9 @@ public class ClienteFormaEjecucionController {
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "clienteUuid") String clienteUuid,
-            @PathVariable(value = "domicilioUuid") String domicilioUuid
+            @PathVariable(value = "formaEjecucionUuid") String formaEjecucionUuid
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return clienteFormaEjecucionService.eliminarFormaEjecucion(empresaUuid, clienteUuid, domicilioUuid, username);
+        return clienteFormaEjecucionService.eliminarFormaEjecucion(empresaUuid, clienteUuid, formaEjecucionUuid, username);
     }
 }

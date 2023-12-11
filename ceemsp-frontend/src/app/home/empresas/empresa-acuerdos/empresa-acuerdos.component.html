@@ -19,7 +19,8 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar acuerdos como Excel (csv)</a>
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar como CSV</a>
+          <a class="dropdown-item" (click)="generarReporteExcelAcuerdos()">Descargar como Excel</a>
         </div>
       </div>
     </div>
@@ -29,8 +30,12 @@
   <div class="row">
     <div class="col-sm-3">
       <div class="list-group">
-        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action">
-          Detalles
+        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action flex-column align-items-start">
+          <p class="mb-1">
+            <b>Registro: </b>{{empresa?.registro}}<br>
+            <b>Nombre comercial: </b> {{empresa?.nombreComercial}}<br>
+            <b>Razon social: </b> {{empresa?.razonSocial}}<br>
+          </p>
         </a>
         <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action active">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
@@ -43,6 +48,8 @@
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
         <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -110,6 +117,14 @@
               <td><b>Observaciones</b></td>
               <td>{{acuerdo.observaciones}}</td>
             </tr>
+            <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+              <td><b>Fecha de creación:</b></td>
+              <td>{{acuerdo?.fechaCreacion}}</td>
+            </tr>
+            <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+              <td><b>Última actualización:</b></td>
+              <td>{{acuerdo?.fechaActualizacion}}</td>
+            </tr>
           </table>
         </div>
       </div>
@@ -136,6 +151,10 @@
               <div class="col-sm-4">
                 <label for="fecha">
                   <b>Tipo de acuerdo *</b>
+                  <span
+                    *ngIf="nuevoAcuerdoForm.controls['tipo'].invalid && (nuevoAcuerdoForm.controls['tipo'].dirty || nuevoAcuerdoForm.controls['tipo'].touched)">
+                    <i *ngIf="nuevoAcuerdoForm.controls['tipo'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
                 </label>
                 <select id="tipoTramite" class="form-control" formControlName="tipo" (change)="cambiarTipoAcuerdo($event.target)">
                   <option value="AUTORIZACION_ESTATAL">Autorizacion estatal</option>
@@ -149,13 +168,18 @@
                   <option value="CLAUSURA">Clausura</option>
                   <option value="MULTA">Multa</option>
                   <option value="AMONESTACION">Amonestacion</option>
+                  <option value="MANDATO_JUDICIAL">Reactivación por mandato judicial</option>
                 </select>
               </div>
               <div class="col-sm-4">
                 <label for="fecha">
                   <b>Fecha del acuerdo *</b>
+                  <span
+                    *ngIf="nuevoAcuerdoForm.controls['fecha'].invalid && (nuevoAcuerdoForm.controls['fecha'].dirty || nuevoAcuerdoForm.controls['fecha'].touched)">
+                    <i *ngIf="nuevoAcuerdoForm.controls['fecha'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
                 </label>
-                <input class="form-control" id="fecha" type="date" formControlName="fecha" placeholder="Fecha del acuerdo">
+                <input class="form-control" id="fecha" type="date" formControlName="fecha" placeholder="Fecha del acuerdo" [max]="fechaDeHoy">
               </div>
               <div class="col-sm-4">
                 <label for="documentoRegistroFederal">
@@ -239,6 +263,10 @@
                 <div class="col-sm-4">
                   <label for="tipoTramiteEditar">
                     <b>Tipo de acuerdo *</b>
+                    <span
+                      *ngIf="nuevoAcuerdoForm.controls['tipo'].invalid && (nuevoAcuerdoForm.controls['tipo'].dirty || nuevoAcuerdoForm.controls['tipo'].touched)">
+                    <i *ngIf="nuevoAcuerdoForm.controls['tipo'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
                   </label>
                   <select id="tipoTramiteEditar" class="form-control" formControlName="tipo" (change)="cambiarTipoAcuerdo($event.target)">
                     <option value="AUTORIZACION_ESTATAL">Autorizacion estatal</option>
@@ -257,6 +285,10 @@
                 <div class="col-sm-4">
                   <label for="fechaEditar">
                     <b>Fecha del acuerdo *</b>
+                    <span
+                      *ngIf="nuevoAcuerdoForm.controls['fecha'].invalid && (nuevoAcuerdoForm.controls['fecha'].dirty || nuevoAcuerdoForm.controls['fecha'].touched)">
+                    <i *ngIf="nuevoAcuerdoForm.controls['fecha'].errors.required" class="text-danger"> - Campo requerido</i>
+                  </span>
                   </label>
                   <input class="form-control" id="fechaEditar" type="date" formControlName="fecha" placeholder="Fecha del acuerdo">
                 </div>
@@ -366,7 +398,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarAcuerdo(motivosEliminacionForm)">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 
@@ -386,6 +418,9 @@
                       style="width: 100%; height: 600px"></pdf-viewer>
         </div>
       </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="descargarAcuerdoPdf()">Descargar</button>
     </div>
   </ng-template>
 

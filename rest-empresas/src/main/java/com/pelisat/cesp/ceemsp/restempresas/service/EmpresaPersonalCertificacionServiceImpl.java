@@ -7,8 +7,10 @@ import com.pelisat.cesp.ceemsp.database.model.Personal;
 import com.pelisat.cesp.ceemsp.database.model.PersonalCertificacion;
 import com.pelisat.cesp.ceemsp.database.repository.PersonaRepository;
 import com.pelisat.cesp.ceemsp.database.repository.PersonalCertificacionRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -17,7 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,12 +38,13 @@ public class EmpresaPersonalCertificacionServiceImpl implements EmpresaPersonalC
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
     private final DaoHelper<CommonModel> daoHelper;
+    private final ArchivosService archivosService;
 
     @Autowired
     public EmpresaPersonalCertificacionServiceImpl(EmpresaService empresaService, UsuarioService usuarioService,
                                             PersonalCertificacionRepository personalCertificacionRepository, DaoToDtoConverter daoToDtoConverter,
                                             DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper,
-                                            PersonaRepository personaRepository) {
+                                            PersonaRepository personaRepository, ArchivosService archivosService) {
         this.empresaService = empresaService;
         this.usuarioService = usuarioService;
         this.personalCertificacionRepository = personalCertificacionRepository;
@@ -46,6 +52,7 @@ public class EmpresaPersonalCertificacionServiceImpl implements EmpresaPersonalC
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
         this.personaRepository = personaRepository;
+        this.archivosService = archivosService;
     }
 
     @Override
@@ -68,7 +75,40 @@ public class EmpresaPersonalCertificacionServiceImpl implements EmpresaPersonalC
     }
 
     @Override
-    public PersonalCertificacionDto guardarCertificacion(String personaUuid, String username, PersonalCertificacionDto personalCertificacionDto) {
+    public File obtenerPdfCertificacion(String personaUuid, String certificaionUuid) {
+        if(StringUtils.isBlank(personaUuid) || StringUtils.isBlank(certificaionUuid)) {
+            logger.warn("Alguno de los parametros vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando la certificacion en PDF con el uuid [{}]", certificaionUuid);
+
+        PersonalCertificacion personalCertificacion = personalCertificacionRepository.findByUuidAndEliminadoFalse(certificaionUuid);
+
+        if(personalCertificacion == null) {
+            logger.warn("El certificado no fue encontrado en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(StringUtils.isBlank(personalCertificacion.getRutaArchivo())) {
+            logger.warn("No hay archivo definido para la certificacion");
+            throw new NotFoundResourceException();
+        }
+
+        File personalCertificacionPdf = new File(personalCertificacion.getRutaArchivo());
+
+        if(!personalCertificacionPdf.exists() &&
+                personalCertificacionPdf.isDirectory()) {
+            logger.warn("El archvo no existe en el sistema de archivos");
+            throw new NotFoundResourceException();
+        }
+
+        return personalCertificacionPdf;
+    }
+
+    @Override
+    @Transactional
+    public PersonalCertificacionDto guardarCertificacion(String personaUuid, String username, PersonalCertificacionDto personalCertificacionDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(personaUuid) || StringUtils.isBlank(username) || personalCertificacionDto == null) {
             logger.warn("El uuid de la persona o la empresa, el usuario o la certificacion vienen como nulos o vacios");
             throw new InvalidDataException();
@@ -85,11 +125,29 @@ public class EmpresaPersonalCertificacionServiceImpl implements EmpresaPersonalC
         personalCertificacion.setFechaInicio(LocalDate.parse(personalCertificacionDto.getFechaInicio()));
         personalCertificacion.setPersonal(personal.getId());
 
-        PersonalCertificacion certificacionCreada = personalCertificacionRepository.save(personalCertificacion);
-        return daoToDtoConverter.convertDaoToDtoPersonalCertificacion(certificacionCreada);
+        String ruta = "";
+
+        try {
+            ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.CERTIFICACION_PERSONAL, usuarioDto.getEmpresa().getUuid());
+            personalCertificacion.setRutaArchivo(ruta);
+            PersonalCertificacion certificacionCreada = personalCertificacionRepository.save(personalCertificacion);
+
+            if(!personal.isCursosCapturados()) {
+                personal.setCursosCapturados(true);
+                daoHelper.fulfillAuditorFields(false, personal, usuarioDto.getId());
+                personaRepository.save(personal);
+            }
+
+            return daoToDtoConverter.convertDaoToDtoPersonalCertificacion(certificacionCreada);
+        } catch(Exception ex) {
+            logger.warn(ex.getMessage());
+            archivosService.eliminarArchivo(ruta);
+            throw new InvalidDataException();
+        }
     }
 
     @Override
+    @Transactional
     public PersonalCertificacionDto modificarCertificacion(String personaUuid, String certificacionUuid, String username, PersonalCertificacionDto personalCertificacionDto) {
         if(StringUtils.isBlank(personaUuid) || StringUtils.isBlank(certificacionUuid) || StringUtils.isBlank(username) || personalCertificacionDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
@@ -119,6 +177,7 @@ public class EmpresaPersonalCertificacionServiceImpl implements EmpresaPersonalC
     }
 
     @Override
+    @Transactional
     public PersonalCertificacionDto eliminarCertificacion(String personaUuid, String certificacionUuid, String username) {
         if(StringUtils.isBlank(personaUuid) || StringUtils.isBlank(certificacionUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
@@ -127,12 +186,25 @@ public class EmpresaPersonalCertificacionServiceImpl implements EmpresaPersonalC
 
         logger.info("Se esta eliminando la certificacion de la persona con el uuid [{}]", certificacionUuid);
 
+        Personal persona = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+        if(persona == null) {
+            logger.warn("La persona no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+        List<PersonalCertificacion> certificaciones = personalCertificacionRepository.getAllByPersonalAndEliminadoFalse(persona.getId());
+
         UsuarioDto usuario = usuarioService.getUserByEmail(username);
         PersonalCertificacion personalCertificacion = personalCertificacionRepository.findByUuidAndEliminadoFalse(certificacionUuid);
 
         if(personalCertificacion == null) {
-            logger.warn("El socio a modificar no existe en la base de datos");
+            logger.warn("La certificacion no existe en la base de datos");
             throw new NotFoundResourceException();
+        }
+
+        if(certificaciones.size() <= 1) {
+            persona.setCursosCapturados(false);
+            daoHelper.fulfillAuditorFields(false, persona, usuario.getId());
+            personaRepository.save(persona);
         }
 
         personalCertificacion.setEliminado(true);

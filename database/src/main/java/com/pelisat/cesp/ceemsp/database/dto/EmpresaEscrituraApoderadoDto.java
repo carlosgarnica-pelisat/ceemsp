@@ -21,4 +21,6 @@ public class EmpresaEscrituraApoderadoDto {
     private String observacionesBaja;
     private String documentoFundatorioBaja;
     private String fechaBaja;
+    private EmpresaDto empresa;
+    private EmpresaEscrituraDto escritura;
 }

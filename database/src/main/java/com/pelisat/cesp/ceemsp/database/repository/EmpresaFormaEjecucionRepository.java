@@ -8,4 +8,5 @@ import java.util.List;
 public interface EmpresaFormaEjecucionRepository extends JpaRepository<EmpresaFormaEjecucion, Integer> {
     List<EmpresaFormaEjecucion> getAllByEmpresaAndEliminadoFalse(int empresa);
     EmpresaFormaEjecucion findByUuidAndEliminadoFalse(String uuid);
+    int countAllByEmpresaAndEliminadoFalse(int empresa);
 }

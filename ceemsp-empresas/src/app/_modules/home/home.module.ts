@@ -11,6 +11,8 @@ import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {JwtInterceptor} from "../../_helpers/jwt.interceptor";
 import {ToastComponent} from "../../_components/toast/toast.component";
 import {NgxPrintModule} from "ngx-print";
+import {GoogleChartsModule} from "angular-google-charts";
+import {TableModule} from "primeng/table";
 
 @NgModule({
   declarations: [
@@ -18,16 +20,18 @@ import {NgxPrintModule} from "ngx-print";
     DashboardComponent,
     ToastComponent
   ],
-  imports: [
-    CommonModule,
-    HomeRoutingModule,
-    NgbModule,
-    ReactiveFormsModule,
-    FormsModule,
-    FontAwesomeModule,
-    NgxPrintModule,
-    AgGridModule.withComponents([])
-  ],
+    imports: [
+        CommonModule,
+        HomeRoutingModule,
+        NgbModule,
+        ReactiveFormsModule,
+        FormsModule,
+        FontAwesomeModule,
+        NgxPrintModule,
+        AgGridModule.withComponents([]),
+        GoogleChartsModule,
+        TableModule
+    ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }

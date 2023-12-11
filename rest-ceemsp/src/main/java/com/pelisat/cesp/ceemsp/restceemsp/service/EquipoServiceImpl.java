@@ -3,7 +3,6 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.EquipoDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.*;
-import com.pelisat.cesp.ceemsp.database.repository.EmpresaEquipoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaFormaEjecucionRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EquipoRepository;
@@ -18,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -113,6 +113,7 @@ public class EquipoServiceImpl implements EquipoService {
     }
 
     @Override
+    @Transactional
     public EquipoDto guardarEquipo(EquipoDto equipoDto, String username) {
         if(equipoDto == null || StringUtils.isBlank(username)) {
             logger.warn("El equipo a crear o el usuario estan viniendo como nulos o vacios");
@@ -131,6 +132,7 @@ public class EquipoServiceImpl implements EquipoService {
     }
 
     @Override
+    @Transactional
     public EquipoDto modificarEquipo(String equipoUuid, String username, EquipoDto equipoDto) {
         if(StringUtils.isBlank(equipoUuid) || StringUtils.isBlank(username) || equipoDto == null) {
             logger.warn("Alguno de los campos vienen como nulos o vacios");
@@ -160,6 +162,7 @@ public class EquipoServiceImpl implements EquipoService {
     }
 
     @Override
+    @Transactional
     public EquipoDto eliminarEquipo(String equipoUuid, String username) {
         if(StringUtils.isBlank(equipoUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

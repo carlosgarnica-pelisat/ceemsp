@@ -21,12 +21,16 @@ public class IncidenciaDto {
     private IncidenciaStatusEnum status;
     private UsuarioDto asignado;
     private String fechaCreacion;
+    private String fechaActualizacion;
+    private boolean eliminado;
 
-    //TODO: Revisar si es mejor crear dtos para las tablas intermedias o dejarlos asi
     private List<CanDto> canesInvolucrados;
     private List<ArmaDto> armasInvolucradas;
     private List<IncidenciaComentarioDto> comentarios;
     private List<PersonaDto> personasInvolucradas;
     private List<VehiculoDto> vehiculosInvolucrados;
     private List<IncidenciaArchivoMetadata> archivos;
+
+    private ClienteDomicilioDto clienteDomicilio;
+    private EmpresaDto empresa;
 }

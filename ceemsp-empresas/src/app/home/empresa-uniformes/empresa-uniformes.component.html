@@ -49,17 +49,26 @@
         <div class="col-sm-12">
           <ul class="nav nav-pills nav-fill">
             <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }"
+                 (click)="cambiarPestana('DETALLES')">Detalles</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'ELEMENTOS' }" (click)="cambiarPestana('ELEMENTOS')">Elementos</a>
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'ELEMENTOS' }"
+                 (click)="cambiarPestana('ELEMENTOS')">Complementos</a>
             </li>
           </ul>
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-sm-12" *ngIf="pestanaActual === 'DETALLES'">
+      <div class="row" *ngIf="pestanaActual === 'DETALLES'">
+        <div class="col-sm-3">
+          <div class="row">
+            <div class="col-sm-12">
+              <img [src]="imagenPrincipal" style="width: 100%;">
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-9">
           <table class="table">
             <tr>
               <td><b>Nombre: </b></td>
@@ -71,20 +80,27 @@
             </tr>
           </table>
         </div>
-
-        <div class="col-sm-12" *ngIf="pestanaActual === 'ELEMENTOS'">
+      </div>
+      <div class="row" *ngIf="pestanaActual === 'ELEMENTOS'">
+        <div class="col-sm-12">
           <table class="table">
             <tr>
-              <td><b>Elemento</b></td>
+              <td><b>Complemento</b></td>
               <td><b>Cantidad</b></td>
-              <td><b>Acciones</b></td>
+              <td><b>Opciones</b></td>
             </tr>
             <tr *ngFor="let e of uniforme?.elementos; let i = index">
               <td>{{e?.elemento?.nombre}}</td>
               <td>{{e?.cantidad}}</td>
               <td>
-                <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarElemento(i)" title="Modificar elemento del uniforme"></fa-icon>
-                <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarElemento(e?.uuid)" title="Eliminar elemento del uniforme"></fa-icon>
+                <fa-icon [icon]="faDownload" class="fakelink" (click)="descargarFotografiaUniformeElemento(e?.uuid)"
+                         title="Descargar fotografia"></fa-icon>
+                <fa-icon [icon]="faBook" class="fakelink" (click)="mostrarMovimientos(i)"
+                         title="Ver movimientos"></fa-icon>
+                <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarElemento(i)"
+                         title="Modificar complemento del uniforme"></fa-icon>
+                <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarElemento(e?.uuid)"
+                         title="Eliminar complemento del uniforme"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="showUniformeElementoForm">
@@ -93,19 +109,44 @@
                   <div class="col-sm-12">
                     <form [formGroup]="crearUniformeElementoForm">
                       <div class="form-row">
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                           <label for="elemento">
-                            <b>Elemento del uniforme *</b>
+                            <b>Complemento del uniforme *</b>
                           </label>
-                          <select id="elemento" class="form-control" formControlName="elemento" (change)="seleccionarElemento($event.target)">
+                          <select id="elemento" class="form-control" formControlName="elemento"
+                                  (change)="seleccionarElemento($event.target)">
                             <option *ngFor="let u of uniformes" value="{{u?.uuid}}">{{u?.nombre}}</option>
                           </select>
                         </div>
-                        <div class="col-sm-6">
-                          <label for="cantidad">
-                            <b>Cantidad *</b>
+                        <div class="col-sm-8">
+                          <label for="archivo">
+                            <b>Foto del complemento *</b>
                           </label>
-                          <input id="cantidad" class="form-control" formControlName="cantidad" type="number" min="0" step="1" placeholder="Ej. Uniforme local">
+                          <input id="archivo" class="form-control" type="file" accept="image/*"
+                                 (change)="onFileChange($event)">
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="col-sm-4">
+                          <label for="altas">
+                            <b>Altas *</b>
+                          </label>
+                          <input id="altas" class="form-control" formControlName="altas" type="number" min="0" step="1"
+                                 placeholder="Pueden ser 0 o mas" (focusout)="actualizarAltas($event.target)">
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="bajas">
+                            <b>Bajas *</b>
+                          </label>
+                          <input id="bajas" class="form-control" formControlName="bajas" type="number" min="0" step="1"
+                                 placeholder="Pueden ser 0 o mas" (focusout)="actualizarBajas($event.target)">
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="cantidadActual">
+                            <b>Cantidad actual *</b>
+                          </label>
+                          <input id="cantidadActual" class="form-control" formControlName="cantidadActual" type="number"
+                                 min="0" step="1" placeholder="Ej. Uniforme local">
                         </div>
                       </div>
                     </form>
@@ -114,8 +155,11 @@
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button class="btn btn-primary btn-sm" (click)="guardarElemento(crearUniformeElementoForm)">Guardar</button>
-                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioUniformeElemento()">Cancelar</button>
+                    <button class="btn btn-primary btn-sm" (click)="guardarElemento(crearUniformeElementoForm)">
+                      Guardar
+                    </button>
+                    <button class="btn btn-danger btn-sm" (click)="mostrarFormularioUniformeElemento()">Cancelar
+                    </button>
                   </div>
                 </div>
               </td>
@@ -125,7 +169,7 @@
                 <div class="row">
                   <div class="col-sm-12">
                     <button class="btn btn-sm btn-primary" (click)="mostrarFormularioUniformeElemento()">
-                      Agregar elemento
+                      Agregar complemento
                     </button>
                   </div>
                 </div>
@@ -153,7 +197,7 @@
         <div class="col-sm-12">
           <form [formGroup]="crearUniformeForm">
             <div class="form-row">
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="nombre">
                   <b>Nombre *</b>
                   <span
@@ -162,9 +206,10 @@
                     <i *ngIf="crearUniformeForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                   </span>
                 </label>
-                <input id="nombre" class="form-control" formControlName="nombre" type="text" placeholder="Ej. Uniforme local">
+                <input id="nombre" class="form-control" formControlName="nombre" type="text"
+                       placeholder="Ej. Uniforme local">
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="descripcion">
                   <b>Descripcion *</b>
                   <span
@@ -173,7 +218,15 @@
                     <i *ngIf="crearUniformeForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                   </span>
                 </label>
-                <input id="descripcion" class="form-control" formControlName="descripcion" type="text" placeholder="Ej. Uniforme local">
+                <input id="descripcion" class="form-control" formControlName="descripcion" type="text"
+                       placeholder="Ej. Uniforme local">
+              </div>
+              <div class="col-sm-4">
+                <label for="fotoUniformeArchivo">
+                  <b>Foto del uniforme completo *</b>
+                </label>
+                <input id="fotoUniformeArchivo" class="form-control" type="file" accept="image/*"
+                       (change)="onFileChange($event)">
               </div>
             </div>
           </form>
@@ -189,7 +242,7 @@
   <ng-template #modificarUniformeModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="modificarUniformeModal">Modificando uniforme </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <button type="button" class="close" aria-label="Close" (click)="cerrarModalEditarUniforme()">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -198,28 +251,101 @@
         <div class="col-sm-12">
           <form [formGroup]="crearUniformeForm">
             <div class="form-row">
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="nombreEditar">
                   <b>Nombre *</b>
+                  <span
+                    *ngIf="crearUniformeForm.controls['nombre'].invalid && (crearUniformeForm.controls['nombre'].dirty || crearUniformeForm.controls['nombre'].touched)">
+                    <i *ngIf="crearUniformeForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearUniformeForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
-                <input id="nombreEditar" class="form-control" formControlName="nombre" type="text" placeholder="Ej. Uniforme local">
+                <input id="nombreEditar" class="form-control" formControlName="nombre" type="text"
+                       placeholder="Ej. Uniforme local">
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="descripcionEditar">
                   <b>Descripcion *</b>
+                  <span
+                    *ngIf="crearUniformeForm.controls['descripcion'].invalid && (crearUniformeForm.controls['descripcion'].dirty || crearUniformeForm.controls['descripcion'].touched)">
+                    <i *ngIf="crearUniformeForm.controls['descripcion'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="crearUniformeForm.controls['descripcion'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
                 </label>
-                <input id="descripcionEditar" class="form-control" formControlName="descripcion" type="text" placeholder="Ej. Uniforme local">
+                <input id="descripcionEditar" class="form-control" formControlName="descripcion" type="text"
+                       placeholder="Ej. Uniforme local">
+              </div>
+              <div class="col-sm-4">
+                <label for="fotoUniformeArchivoEditar">
+                  <b>Foto del uniforme completo</b>
+                </label>
+                <input id="fotoUniformeArchivoEditar" class="form-control" type="file" accept="image/*"
+                       (change)="onFileChange($event)">
               </div>
             </div>
           </form>
         </div>
       </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <i>Nota, al subir una nueva imagen sobreescribira la actual. En caso de no subir nada, la imagen
+            permanecera</i>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="guardarCambiosUniforme(crearUniformeForm)">Guardar</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+      <button type="button" class="btn btn-danger" (click)="cerrarModalEditarUniforme()">Cerrar</button>
     </div>
   </ng-template>
+
+  <ng-template #mostrarElementoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarElementoModal">Ver fotografia del complemento del uniforme </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <img [src]="imagenActual" style="width: 100%;">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="modal.dismiss('Cross click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarMovimientosModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarMovimientosModal">Ver movimientos </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Altas</b></td>
+              <td><b>Bajas</b></td>
+              <td><b>Nueva cantidad</b></td>
+              <td><b>Fecha movimiento</b></td>
+            </tr>
+            <tr *ngFor="let m of empresaUniformeElemento.movimientos">
+              <td>{{m?.altas}}</td>
+              <td>{{m?.bajas}}</td>
+              <td>{{m?.cantidadActual}}</td>
+              <td>{{m?.fechaCreacion}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="modal.dismiss('Cross click')">Cerrar</button>
+    </div>
+  </ng-template>
+
 
   <ng-template #eliminarUniformeModal let-modal>
     <div class="modal-header">
@@ -243,7 +369,7 @@
 
   <ng-template #eliminarUniformeElementoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="eliminarUniformeElementoModal">Eliminando un elemento del uniforme </h4>
+      <h4 class="modal-title" id="eliminarUniformeElementoModal">Eliminando un complemento del uniforme </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -251,7 +377,8 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estás a punto de eliminar un elemento del uniforme. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+          <p>Estás a punto de eliminar un complemento del uniforme. Esta operación no se puede deshacer. ¿Deseas
+            continuar?</p>
         </div>
       </div>
     </div>

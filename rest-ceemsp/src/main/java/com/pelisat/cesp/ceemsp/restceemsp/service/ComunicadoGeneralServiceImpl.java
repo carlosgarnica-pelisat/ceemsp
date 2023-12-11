@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -96,6 +97,7 @@ public class ComunicadoGeneralServiceImpl implements ComunicadoGeneralService {
     }
 
     @Override
+    @Transactional
     public ComunicadoGeneralDto guardarComunicado(String username, ComunicadoGeneralDto comunicadoGeneralDto) {
         if(StringUtils.isBlank(username) || comunicadoGeneralDto == null) {
             logger.warn("El usuario o el comunicado general vienen como nulos o vacios");
@@ -113,6 +115,7 @@ public class ComunicadoGeneralServiceImpl implements ComunicadoGeneralService {
     }
 
     @Override
+    @Transactional
     public ComunicadoGeneralDto modificarComunicado(String uuid, String username, ComunicadoGeneralDto comunicadoGeneralDto) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || comunicadoGeneralDto == null) {
             logger.warn("Alguno de los parametros vienen como nulos o invalidos");
@@ -137,6 +140,7 @@ public class ComunicadoGeneralServiceImpl implements ComunicadoGeneralService {
     }
 
     @Override
+    @Transactional
     public ComunicadoGeneralDto eliminarComunicado(String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros vienen como nulos o invalidos");

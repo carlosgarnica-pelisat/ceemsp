@@ -20,4 +20,7 @@ public class PersonalVehiculo extends CommonModel {
 
     @Column(name = "OBSERVACIONES")
     private String observaciones;
+
+    @Column(name = "MOTIVO_BAJA_ASIGNACION")
+    private String motivoBajaAsignacion;
 }

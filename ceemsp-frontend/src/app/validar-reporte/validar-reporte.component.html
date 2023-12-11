@@ -1,0 +1,67 @@
+<div class="container">
+  <div class="row">
+    <div class="col-sm-6">
+      <img id="logo" src="assets/logo-ajustado.png">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12" *ngIf="informacionEncontrada">
+      <h4>Validacion de datos por informe mensual</h4>
+      <hr>
+      <p>Estimado usuario, se le informa que derivado de la busqueda por sello de informe mensual, se ha encontrado la siguiente informacion del registrante de la misma:</p>
+      <h5>Informacion de la empresa</h5>
+      <table class="table">
+        <tr>
+          <td><b>Numero de registro</b></td>
+          <td>{{validarReporte?.empresa?.registro}}</td>
+        </tr>
+        <tr>
+          <td><b>Nombre comercial</b></td>
+          <td>{{validarReporte?.empresa?.nombreComercial}}</td>
+        </tr>
+        <tr>
+          <td><b>Razon social</b></td>
+          <td>{{validarReporte?.empresa?.razonSocial}}</td>
+        </tr>
+        <tr>
+          <td><b>RFC</b></td>
+          <td>{{validarReporte?.empresa?.rfc}}</td>
+        </tr>
+        <tr>
+          <td><b>Tipo de persona</b></td>
+          <td>{{validarReporte?.empresa?.tipoPersona}}</td>
+        </tr>
+        <tr>
+          <td><b>Fecha de creacion</b></td>
+          <td>{{validarReporte?.fechaCreacion}}</td>
+        </tr>
+        <tr>
+          <td><b>Mes y año</b></td>
+          <td>{{validarReporte?.mesano}}</td>
+        </tr>
+        <tr>
+          <td><b>Numero acuse</b></td>
+          <td>{{validarReporte?.numero}}</td>
+        </tr>
+        <tr>
+          <td><b>Tipo de acto</b></td>
+          <td>INFORME MENSUAL</td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-sm-12" *ngIf="informacionNoEncontrada">
+      <h4>No se encontro la informacion o hay algun error</h4>
+      <hr>
+      <p>Estimado usuario, se le informa que la busqueda realizada por medio de sello de acuse de recibo de la incidencia no ha generado ningun resultado. Favor de:</p>
+      <ul>
+        <li>Verificar que la informacion ingresada o escaneada coincida con el sello del acuse de recibo o del correo</li>
+        <li>Contactar a soporte tecnico en caso de que la informacion sea correcta</li>
+      </ul>
+    </div>
+    <div class="col-sm-12" *ngIf="datosInvalidos">
+      <h4>Informacion no valida</h4>
+      <hr>
+      <p>Estimado usuario, se le informa que la informacion ingresada no es correcta. Favor de verificar la informacion</p>
+    </div>
+  </div>
+</div>

@@ -43,10 +43,10 @@ public class ImportadorTest {
 
     private final Logger logger = LoggerFactory.getLogger(ImportadorTest.class);
 
-    @Ignore
     @Test
+    @Ignore
     public void importarColonias() throws Exception {
-        Scanner sc = new Scanner(new File("colonias.csv"));
+        Scanner sc = new Scanner(new File("colonias-BK.csv"));
         sc.useDelimiter("\n");
 
         while(sc.hasNext()) {

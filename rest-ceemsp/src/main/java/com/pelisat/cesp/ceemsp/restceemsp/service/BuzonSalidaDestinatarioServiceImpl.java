@@ -5,10 +5,14 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.BuzonInterno;
 import com.pelisat.cesp.ceemsp.database.model.BuzonInternoDestinatario;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
+import com.pelisat.cesp.ceemsp.database.model.Empresa;
 import com.pelisat.cesp.ceemsp.database.repository.BuzonInternoDestinatarioRepository;
 import com.pelisat.cesp.ceemsp.database.repository.BuzonInternoRepository;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
+import com.pelisat.cesp.ceemsp.database.type.NotificacionEmailEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.EmailService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -17,6 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class BuzonSalidaDestinatarioServiceImpl implements BuzonSalidaDestinatarioService {
@@ -27,21 +35,26 @@ public class BuzonSalidaDestinatarioServiceImpl implements BuzonSalidaDestinatar
     private final BuzonInternoDestinatarioRepository buzonInternoDestinatarioRepository;
     private final BuzonInternoRepository buzonInternoRepository;
     private final Logger logger = LoggerFactory.getLogger(BuzonSalidaDestinatarioServiceImpl.class);
+    private final EmpresaRepository empresaRepository;
+    private final EmailService emailService;
 
     @Autowired
-    public BuzonSalidaDestinatarioServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
+    public BuzonSalidaDestinatarioServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter, EmailService emailService,
                                           DaoHelper<CommonModel> daoHelper, UsuarioService usuarioService, BuzonInternoDestinatarioRepository buzonInternoDestinatarioRepository,
-                                              BuzonInternoRepository buzonInternoRepository) {
+                                              BuzonInternoRepository buzonInternoRepository, EmpresaRepository empresaRepository) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
         this.usuarioService = usuarioService;
         this.buzonInternoRepository = buzonInternoRepository;
         this.buzonInternoDestinatarioRepository = buzonInternoDestinatarioRepository;
+        this.empresaRepository = empresaRepository;
+        this.emailService = emailService;
     }
 
 
     @Override
+    @Transactional
     public BuzonInternoDestinatarioDto agregarDestinatario(String buzonInternoUuid, String username, BuzonInternoDestinatarioDto buzonInternoDestinatarioDto) {
         if(StringUtils.isBlank(buzonInternoUuid) || StringUtils.isBlank(username) || buzonInternoDestinatarioDto == null) {
             logger.warn("Alguno de los parametros vienen como nulos o vacios");
@@ -62,8 +75,17 @@ public class BuzonSalidaDestinatarioServiceImpl implements BuzonSalidaDestinatar
         buzonInternoDestinatario.setBuzonInterno(buzonInterno.getId());
         daoHelper.fulfillAuditorFields(true, buzonInternoDestinatario, usuarioDto.getId());
 
-        if(buzonInternoDestinatario.getEmpresa() != null) {
+        if(buzonInternoDestinatarioDto.getEmpresa() != null) {
             buzonInternoDestinatario.setEmpresa(buzonInternoDestinatarioDto.getEmpresa().getId());
+
+            try {
+                Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(buzonInternoDestinatarioDto.getEmpresa().getUuid());
+                Map<String, Empresa> mapaCorreo = new HashMap<>();
+                mapaCorreo.put("empresa", empresa);
+                emailService.sendEmail(NotificacionEmailEnum.NOTIFICACION, buzonInternoDestinatarioDto.getEmail(), mapaCorreo);
+            } catch(Exception ex) {
+                logger.warn("El correo no se ha podido enviar. Motivo: {}", ex);
+            }
         }
         if(buzonInternoDestinatario.getUsuario() != null) {
             buzonInternoDestinatario.setUsuario(buzonInternoDestinatarioDto.getUsuario().getId());
@@ -74,6 +96,7 @@ public class BuzonSalidaDestinatarioServiceImpl implements BuzonSalidaDestinatar
     }
 
     @Override
+    @Transactional
     public BuzonInternoDestinatarioDto modificarDestinatario(String buzonInternoUuid, String destinatarioUuid, String username, BuzonInternoDestinatarioDto buzonInternoDestinatarioDto) {
         if(StringUtils.isBlank(buzonInternoUuid) || StringUtils.isBlank(destinatarioUuid) || StringUtils.isBlank(username) || buzonInternoDestinatarioDto == null) {
             logger.warn("Alguno de los parametros es nulo o invalido");
@@ -108,6 +131,7 @@ public class BuzonSalidaDestinatarioServiceImpl implements BuzonSalidaDestinatar
     }
 
     @Override
+    @Transactional
     public BuzonInternoDestinatarioDto eliminarDestinatario(String buzonInternoUuid, String destinatarioUuid, String username) {
         if(StringUtils.isBlank(buzonInternoUuid) || StringUtils.isBlank(destinatarioUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros vienen como nulos o invalidos");

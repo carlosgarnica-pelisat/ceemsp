@@ -1,0 +1,465 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Informes mensuales</h1>
+    <div class="btn-group">
+      <div class="dropdown">
+        <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Opciones
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#">Descargar concentrado como Excel (csv)</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <div class="col-sm-3">
+      <div class="list-group">
+        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action flex-column align-items-start">
+          <p class="mb-1">
+            <b>Registro: </b>{{empresa?.registro}}<br>
+            <b>Nombre comercial: </b> {{empresa?.nombreComercial}}<br>
+            <b>Razon social: </b> {{empresa?.razonSocial}}<br>
+          </p>
+        </a>
+        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
+        <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
+        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
+        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneArmas">Licencias colectivas / Armas</a>
+        <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneCanes">Canes</a>
+        <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
+        <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
+        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
+        <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
+        <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
+        <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action active">Reportes mensuales</a>
+      </div>
+    </div>
+    <div class="col-sm-9" style="background: white">
+      <ag-grid-angular
+        style="height: 80vh; width: 100%;"
+        class="ag-theme-alpine"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (gridReady)="onGridReady($event)"
+        [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data)"
+        #agGrid
+      ></ag-grid-angular>
+    </div>
+  </div>
+
+  <ng-template #mostrarDetallesReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="equipoDetallesModal">Detalles del reporte </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-6">
+          <p><b>
+            DIRECCION DE LOS SERVICIOS DE SEGURIDAD PRIVADA <br>
+            DEL SECRETARIADO EJECUTIVO DEL CONSEJO ESTATAL <br>
+            DE SEGURIDAD PUBLICA DEL ESTADO DE JALISCO:
+          </b></p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+
+          <p>El presente se emite como acuse de recibo del informe mensual digital que corresponde al estado de fuerza presentado por el prestador de servicios de seguridad privada en la plataforma electronica denominada
+            Sistema Integral de Empresas de Seguridad Privada "SIESP", en el cual se hace constar la siguiente informacion:</p>
+          <p>Nombre del prestador de servicios: <br><b>{{empresa?.razonSocial}}</b></p>
+          <p>Numero de expediente: <br><b>{{empresa?.registro}}</b></p>
+          <p>Tipo de actuacion: <br><b>INFORME MENSUAL</b></p>
+          <p>Mes y año: <br><b>{{this.mes + " " + this.ano}}</b></p>
+          <p>Fecha y hora de generacion <br><b>{{reporte?.fechaCreacion}}</b></p>
+          <p>Cuenta de correo electronico determinado por el prestador de servicios <br><b>{{empresa?.correoElectronico}}</b></p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table table-bordered">
+            <tr>
+              <td colspan="8"><p class="text-center"><b>RESUMEN DE MOVIMIENTOS</b></p></td>
+            </tr>
+            <tr>
+              <td colspan="2"><b><a class="fakelink" (click)="mostrarModalMovimientosPersonal()">PERSONAL</a></b></td>
+              <td colspan="2"><b><a class="fakelink" (click)="mostrarModalMovimientosClientes()">CLIENTES</a></b></td>
+              <td colspan="2"><b><a class="fakelink" (click)="mostrarModalMovimientosVehiculos()">VEHICULOS</a></b></td>
+              <td colspan="2"><b><a class="fakelink" (click)="mostrarModalMovimientosEquipo()">EQUIPO</a></b></td>
+            </tr>
+
+            <tr>
+              <td>Activos</td>
+              <td>{{reporte?.personalActivos}}</td>
+              <td>Activos</td>
+              <td>{{reporte?.clientesActivos}}</td>
+              <td>Activos</td>
+              <td>{{reporte?.vehiculosActivos}}</td>
+              <td>Activos</td>
+              <td>{{reporte?.equipoActivos}}</td>
+            </tr>
+
+            <tr>
+              <td>Altas</td>
+              <td>{{reporte?.personalAltas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.clientesAltas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.vehiculosAltas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.equipoAltas}}</td>
+            </tr>
+
+            <tr>
+              <td>Bajas</td>
+              <td>{{reporte?.personalBajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.clientesBajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.vehiculosBajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.equipoBajas}}</td>
+            </tr>
+
+            <tr>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.personalTotal}}</td>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.clientesTotal}}</td>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.vehiculosTotal}}</td>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.equipoTotal}}</td>
+            </tr>
+          </table>
+
+          <table class="table table-bordered">
+            <tr>
+              <td colspan="4"><b class="text-center"><p class="text-center"><b>INCIDENCIAS</b></p></b></td>
+            </tr>
+            <tr>
+              <td>Incidencias abiertas</td>
+              <td>Incidencias procedentes</td>
+              <td>Incidencias improcedentes</td>
+              <td>Incidencias reportadas en el periodo</td>
+            </tr>
+            <tr>
+              <td>{{reporte?.incidenciasReportadas}}</td>
+              <td>{{reporte?.incidenciasProcedentes}}</td>
+              <td>{{reporte?.incidenciasImprocedentes}}</td>
+              <td>{{reporte?.incidenciasTotal}}</td>
+            </tr>
+          </table>
+
+          <table class="table table-bordered" *ngIf="empresa?.tieneArmas">
+            <tr>
+              <td colspan="6"><b class="text-center"><p class="text-center"><b>FORMA DE EJECUCION ARMADA</b></p></b></td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <p class="text-center"><b>I. SEGURIDAD PRIVADA EN LOS BIENES</b></p>
+              </td>
+              <td colspan="2">
+                <p class="text-center"><b>II. SEGURIDAD PRIVADA A PERSONAS</b></p>
+              </td>
+              <td colspan="2">
+                <p class="text-center"><b>III. SEGURIDAD PRIVADA EN EL TRASLADO DE BIENES O VALORES</b></p>
+              </td>
+            </tr>
+            <tr>
+              <td>Activas</td>
+              <td>{{reporte?.armas1Activas}}</td>
+              <td>Activas</td>
+              <td>{{reporte?.armas2Activas}}</td>
+              <td>Activas</td>
+              <td>{{reporte?.armas3Activas}}</td>
+            </tr>
+            <tr>
+              <td>Altas</td>
+              <td>{{reporte?.armas1Altas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.armas2Altas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.armas3Altas}}</td>
+            </tr>
+            <tr>
+              <td>Bajas</td>
+              <td>{{reporte?.armas1Bajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.armas2Bajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.armas3Bajas}}</td>
+            </tr>
+            <tr>
+              <td>TOTAL</td>
+              <td>{{reporte?.armas1Total}}</td>
+              <td>TOTAL</td>
+              <td>{{reporte?.armas2Total}}</td>
+              <td>TOTAL</td>
+              <td>{{reporte?.armas3Total}}</td>
+            </tr>
+          </table>
+
+          <table class="table table-bordered">
+            <tr>
+              <td colspan="5"><b class="text-center"><p class="text-center"><b>FORMA DE EJECUCION CON CANES</b></p></b></td>
+            </tr>
+            <tr>
+              <td>Canes asignados</td>
+              <td>Canes en domicilio</td>
+              <td>Altas</td>
+              <td>Bajas</td>
+              <td>Total</td>
+            </tr>
+            <tr>
+              <td>{{reporte?.canesAsignados}}</td>
+              <td>{{reporte?.canesInstalaciones}}</td>
+              <td>{{reporte?.canesAltas}}</td>
+              <td>{{reporte?.canesBajas}}</td>
+              <td>{{reporte?.canesTotal}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-9">
+          <p>El presente acuse electronico se genera en atencion a lo dispuesto por los articulos 55 fracciones III y IV y 161 del Reglamento de los Servicios de Seguridad Privada del Estado de Jalisco.</p>
+          <p><b>Fecha de envio:</b><br>{{reporte?.fechaCreacion}}</p>
+          <p><b>Cadena original:</b><br>{{reporte?.cadenaOriginal}}</p>
+          <p><b>Sello:</b><br>{{reporte?.sello}}</p>
+        </div>
+        <div class="col-sm-3">
+
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button *ngIf="usuarioActual?.rol === 'CEEMSP_SUPERUSER'" class="btn btn-danger" (click)="mostrarEliminarReporteModal()">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarArmaClaseModal">Eliminando informe mensual </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar el informe mensual. Toma en cuenta que la empresa podra presentar informes siempre y cuando la ventana no este finalizada. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminar()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarPersonalMovimientosReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarPersonalMovimientosReporteModal">Movimientos personal </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosPersonal === 'ALTAS' }" (click)="cambiarPestanaMovimientosPersona('ALTAS')">Altas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosPersonal === 'BAJAS' }" (click)="cambiarPestanaMovimientosPersona('BAJAS')">Bajas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row" *ngIf="pestanaActualMovimientosPersonal === 'ALTAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>A. Paterno</b></td>
+              <td><b>A. Materno</b></td>
+              <td><b>Nombre(s)</b></td>
+              <td><b>CURP</b></td>
+              <td><b>CUIP</b></td>
+            </tr>
+            <tr *ngFor="let p of personalAltas; let i = index">
+              <td>{{i}}</td>
+              <td>{{p?.fechaCreacion}}</td>
+              <td>{{p?.apellidoPaterno}}</td>
+              <td>{{p?.apellidoMaterno}}</td>
+              <td>{{p?.curp}}</td>
+              <td>{{p?.cuip}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosPersonal === 'BAJAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>A. Paterno</b></td>
+              <td><b>A. Materno</b></td>
+              <td><b>Nombre(s)</b></td>
+              <td><b>CURP</b></td>
+              <td><b>CUIP</b></td>
+            </tr>
+            <tr *ngFor="let p of personalBajas; let i = index">
+              <td>{{i}}</td>
+              <td>{{p?.fechaCreacion}}</td>
+              <td>{{p?.apellidoPaterno}}</td>
+              <td>{{p?.apellidoMaterno}}</td>
+              <td>{{p?.curp}}</td>
+              <td>{{p?.cuip}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarClienteMovimientosReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarClienteMovimientosReporteModal">Movimientos clientes </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosClientes === 'ALTAS' }" (click)="cambiarPestanaMovimientosCliente('ALTAS')">Altas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosClientes === 'BAJAS' }" (click)="cambiarPestanaMovimientosCliente('BAJAS')">Bajas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosClientes === 'ALTAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Nombre comercial</b></td>
+              <td><b>Razon social</b></td>
+              <td><b>Fecha movimiento</b></td>
+            </tr>
+            <tr *ngFor="let c of clienteAltas">
+              <td>{{c?.nombreComercial}}</td>
+              <td>{{c?.razonSocial}}</td>
+              <td>{{c?.fechaCreacion}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosClientes === 'BAJAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Nombre comercial</b></td>
+              <td><b>Razon social</b></td>
+              <td><b>Fecha movimiento</b></td>
+            </tr>
+            <tr *ngFor="let c of clienteBajas">
+              <td>{{c?.nombreComercial}}</td>
+              <td>{{c?.razonSocial}}</td>
+              <td>{{c?.fechaCreacion}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarVehiculosMovimientosReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarVehiculosMovimientosReporteModal">Movimientos vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosVehiculos === 'ALTAS' }" (click)="cambiarPestanaMovimientosVehiculos('ALTAS')">Altas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosVehiculos === 'BAJAS' }" (click)="cambiarPestanaMovimientosVehiculos('BAJAS')">Bajas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosVehiculos === 'ALTAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Placas</b></td>
+              <td><b>Marca / Modelo</b></td>
+              <td><b>Fecha movimiento</b></td>
+            </tr>
+            <tr *ngFor="let v of vehiculosAltas">
+              <td>{{v?.placas}}</td>
+              <td>{{v?.marca?.nombre}} {{v?.submarca?.nombre}} {{v?.anio}}</td>
+              <td>{{v?.fechaCreacion}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosVehiculos === 'BAJAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Placas</b></td>
+              <td><b>Marca / Modelo</b></td>
+              <td><b>Fecha movimiento</b></td>
+            </tr>
+            <tr *ngFor="let v of vehiculosAltas">
+              <td>{{v?.placas}}</td>
+              <td>{{v?.marca?.nombre}} {{v?.submarca?.nombre}} {{v?.anio}}</td>
+              <td>{{v?.fechaCreacion}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+</div>

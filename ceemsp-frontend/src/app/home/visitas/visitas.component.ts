@@ -19,9 +19,10 @@ import Calle from "../../_models/Calle";
 import Municipio from "../../_models/Municipio";
 import Colonia from "../../_models/Colonia";
 import Localidad from "../../_models/Localidad";
-import {BotonCatalogosComponent} from "../../_components/botones/boton-catalogos/boton-catalogos.component";
 import {PublicService} from "../../_services/public.service";
 import ProximaVisita from "../../_models/ProximaVisita";
+import EmpresaDomicilio from "../../_models/EmpresaDomicilio";
+import {BotonVisitasComponent} from "../../_components/botones/boton-visitas/boton-visitas.component";
 
 @Component({
   selector: 'app-visitas',
@@ -37,11 +38,14 @@ export class VisitasComponent implements OnInit {
   faDownload = faDownload;
 
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
-    {headerName: 'Tipo', field: 'tipoVisita', sortable: true, filter: true },
-    {headerName: 'Num. Orden', field: 'numeroOrden', sortable: true, filter: true},
-    {headerName: 'Fecha de visita', field: 'fechaVisita', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true,  resizable: true },
+    {headerName: 'Tipo', field: 'tipoVisita', sortable: true, filter: true, resizable: true },
+    {headerName: 'Num. Orden', field: 'numeroOrden', sortable: true, filter: true,  resizable: true},
+    {headerName: 'Nombre empresa', field: 'nombreComercial', sortable: true, filter: true,  pinned: 'left', resizable: true, width: 400, minWidth: 250, maxWidth: 450},
+    {headerName: 'Domicilio', sortable: true, filter: true,  resizable: true, valueGetter: function (params) { return params.data.domicilio1 + " " + params.data.numeroExterior}},
+    {headerName: 'Fecha de visita', field: 'fechaVisita', sortable: true, filter: true, resizable: true, width: 150, minWidth: 150, maxWidth: 200},
+    {headerName: 'Fecha de termino', field: 'fechaTermino', sortable: true, filter: true, resizable: true, width: 150, minWidth: 150, maxWidth: 200},
+    {headerName: 'Opciones',  pinned: 'right', cellRenderer: 'catalogoButtonRenderer', width: 100, cellRendererParams: {
         label: 'Ver detalles',
         verDetalles: this.verDetalles.bind(this),
         editar: this.editar.bind(this),
@@ -49,6 +53,7 @@ export class VisitasComponent implements OnInit {
       }}
   ];
   rowData = [];
+  domicilios: EmpresaDomicilio[] = [];
 
   fechaDeHoy = new Date().toISOString().split('T')[0];
 
@@ -107,6 +112,7 @@ export class VisitasComponent implements OnInit {
   visita: Visita;
   empresa: Empresa;
   usuario: Usuario;
+  empresaQuery: string = '';
 
   obtenerCallesTimeout = undefined;
 
@@ -127,7 +133,7 @@ export class VisitasComponent implements OnInit {
 
   ngOnInit(): void {
     this.frameworkComponents = {
-      catalogoButtonRenderer: BotonCatalogosComponent
+      catalogoButtonRenderer: BotonVisitasComponent
     }
 
     this.crearVisitaForm = this.formBuilder.group({
@@ -143,7 +149,8 @@ export class VisitasComponent implements OnInit {
       numeroExterior: [''],
       numeroInterior: [''],
       codigoPostal: ['', [ Validators.minLength(5), Validators.maxLength(5)]],
-      domicilio4: ['']
+      domicilio4: [''],
+      empresaDomicilio: ['']
     })
 
     this.crearRequerimientoForm = this.formBuilder.group({
@@ -228,7 +235,7 @@ export class VisitasComponent implements OnInit {
   }
 
   verDetalles(rowData) {
-    this.checkForDetails(rowData.rowData);
+    this.mostrarModalDetalles(rowData.rowData);
   }
 
   editar(rowData) {
@@ -324,6 +331,10 @@ export class VisitasComponent implements OnInit {
     this.colonia = undefined;
   }
 
+  eliminarEmpresa() {
+    this.empresa = undefined;
+  }
+
   obtenerCalles(event) {
     if(this.obtenerCallesTimeout !== undefined) {
       clearTimeout(this.obtenerCallesTimeout);
@@ -332,7 +343,6 @@ export class VisitasComponent implements OnInit {
     this.obtenerCallesTimeout = setTimeout(() => {
       if(this.calleQuery === '' || this.calleQuery === undefined) {
         this.calleService.obtenerCallesPorLimite(10).subscribe((response: Calle[]) => {
-          console.log(response);
           this.calles = response;
         }, (error) => {
           this.toastService.showGenericToast(
@@ -373,11 +383,7 @@ export class VisitasComponent implements OnInit {
     this.gridColumnApi = params.gridApi;
   }
 
-  checkForDetails(data) {
-    //this.modal = this.modalService.open(showCustomerDetailsModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
-    this.uuid = data.uuid;
-  }
 
   cambiarPestana(status) {
     if(status == this.pestanaActual) {
@@ -424,7 +430,8 @@ export class VisitasComponent implements OnInit {
   cambiarTipoVisita(event) {
     this.tipoVisita = event.value;
 
-    if(this.tipoVisita === 'EXTRAORDINARIA') {
+    if(this.tipoVisita === 'EXTRAORDINARIA' || this.tipoVisita === 'IMPACTO' || this.tipoVisita === 'INICIAL') {
+
       this.crearVisitaForm.controls['numeroRegistro'].enable();
       this.crearVisitaForm.controls['nombreComercial'].enable();
       this.crearVisitaForm.controls['razonSocial'].enable();
@@ -432,6 +439,23 @@ export class VisitasComponent implements OnInit {
       this.crearVisitaForm.controls['numeroRegistro'].disable();
       this.crearVisitaForm.controls['nombreComercial'].disable();
       this.crearVisitaForm.controls['razonSocial'].disable();
+    }
+
+    if(this.tipoVisita !== 'IMPACTO') {
+      let proximaVisita: ProximaVisita = new ProximaVisita();
+      proximaVisita.tipoVisita = this.tipoVisita;
+
+      this.publicService.obtenerSiguienteVisita(proximaVisita).subscribe((data: ProximaVisita) => {
+        this.crearVisitaForm.patchValue({
+          numeroOrden: data?.numeroSiguiente
+        })
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar el siguiente numero de visita. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }
   }
 
@@ -447,7 +471,7 @@ export class VisitasComponent implements OnInit {
       responsable: this.visita.responsable.uuid,
       tipoVisita: this.visita.tipoVisita,
       numeroRegistro: this.visita.numeroRegistro,
-      numeroOrden: registroPiezas[3],
+      numeroOrden: (this.tipoVisita === 'IMPACTO') ? this.visita.numeroOrden : registroPiezas[3],
       fechaVisita: this.visita.fechaVisita,
       existeEmpresa: this.visita.existeEmpresa,
       nombreComercial: this.visita.nombreComercial,
@@ -455,7 +479,8 @@ export class VisitasComponent implements OnInit {
       numeroExterior: this.visita.numeroExterior,
       numeroInterior: this.visita.numeroInterior,
       codigoPostal: this.visita.codigoPostal,
-      domicilio4: this.visita.domicilio4
+      domicilio4: this.visita.domicilio4,
+      empresaDomicilio: this.visita.empresaDomicilio?.uuid
     })
 
     this.estado = this.visita?.estadoCatalogo;
@@ -466,6 +491,18 @@ export class VisitasComponent implements OnInit {
 
 
     this.modal = this.modalService.open(this.modificarVisitaModal, {size: "xl"})
+
+    if(this.visita.tipoVisita === 'ORDINARIA' || (this.visita.tipoVisita === 'EXTRAORDINARIA' && this.visita.existeEmpresa)) {
+      this.empresaService.obtenerDomicilios(this.empresa?.uuid).subscribe((data: EmpresaDomicilio[]) => {
+        this.domicilios = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los domicilios. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;
@@ -513,18 +550,6 @@ export class VisitasComponent implements OnInit {
   }
 
   mostrarModalNuevaVisita() {
-    this.publicService.obtenerSiguienteVisita().subscribe((data: ProximaVisita) => {
-      this.crearVisitaForm.patchValue({
-        numeroOrden: data?.numeroSiguiente
-      })
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se ha podido descargar el siguiente numero de visita. Motivo: ${error}`,
-        ToastType.ERROR
-      );
-    })
-
     this.modal = this.modalService.open(this.crearVisitaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'})
 
     this.modal.result.then((result) => {
@@ -534,18 +559,49 @@ export class VisitasComponent implements OnInit {
     })
   }
 
+  exportGridData(format) {
+    switch(format) {
+      case "CSV":
+        this.gridApi.exportDataAsCsv();
+        break;
+      case "PDF":
+        this.toastService.showGenericToast(
+          "Bajo desarrollo",
+          "Actualmente estamos desarrollando esta funcionalidad",
+          ToastType.INFO
+        )
+        break;
+      default:
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "No podemos exportar en dicho formato",
+          ToastType.WARNING
+        )
+        break;
+    }
+  }
+
   seleccionarUsuario(event) {
     let uuid = event.value;
     this.usuario = this.usuarios.filter(x => x.uuid === uuid)[0];
   }
 
-  seleccionarEmpresa(event) {
-    let uuid = event.value;
+  seleccionarEmpresa(uuid) {
     this.empresa = this.empresas.filter(x => x.uuid === uuid)[0];
     this.crearVisitaForm.patchValue({
       nombreComercial: this.empresa.nombreComercial,
       razonSocial: this.empresa.razonSocial,
       numeroRegistro: this.empresa.registro
+    })
+
+    this.empresaService.obtenerDomicilios(this.empresa?.uuid).subscribe((data: EmpresaDomicilio[]) => {
+      this.domicilios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los domicilios. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 
@@ -676,18 +732,28 @@ export class VisitasComponent implements OnInit {
       ToastType.INFO
     );
 
+    let value = form.value;
+
     let formValue: Visita = form.value;
-    if(this.tipoVisita === 'ORDINARIA' || (this.tipoVisita === 'EXTRAORDINARIA' && this.existeEmpresa)) {
+    if(this.tipoVisita === 'ORDINARIA' || (this.tipoVisita === 'EXTRAORDINARIA' && this.existeEmpresa) || (this.tipoVisita === 'INICIAL' && this.existeEmpresa) || (this.tipoVisita === 'IMPACTO' && this.existeEmpresa)) {
       formValue.nombreComercial = this.empresa.nombreComercial;
       formValue.razonSocial = this.empresa.razonSocial;
       formValue.numeroRegistro = this.empresa.registro;
+      formValue.empresaDomicilio = this.domicilios.filter(x => x.uuid === value.empresaDomicilio)[0]
+    } else {
+      formValue.empresaDomicilio = null;
     }
+
     formValue.empresa = this.empresa;
     formValue.responsable = this.usuario;
     if(this.tipoVisita === 'ORDINARIA') {
       formValue.numeroOrden = `CESP/DSSP/ORD/${formValue.numeroOrden}/${this.anio}`
     } else if(this.tipoVisita === 'EXTRAORDINARIA') {
       formValue.numeroOrden = `CESP/DSSP/EXT/${formValue.numeroOrden}/${this.anio}`
+    } else if(this.tipoVisita === 'INICIAL') {
+      formValue.numeroOrden = `CESP/DSSP/VICOM/${formValue.numeroOrden}/${this.anio}`
+    } else if(this.tipoVisita === 'IMPACTO') {
+      formValue.numeroOrden = formValue.numeroOrden
     }
 
     formValue.estadoCatalogo = this.estado;
@@ -780,12 +846,16 @@ export class VisitasComponent implements OnInit {
       ToastType.INFO
     );
 
+    let value = form.value;
     let formValue: Visita = form.value;
 
-    if(this.tipoVisita === 'ORDINARIA' || (this.tipoVisita === 'EXTRAORDINARIA' && this.existeEmpresa)) {
+    if(this.tipoVisita === 'ORDINARIA' || (this.tipoVisita === 'EXTRAORDINARIA' && this.existeEmpresa) || (this.tipoVisita === 'INICIAL' && this.existeEmpresa) || (this.tipoVisita === 'IMPACTO' && this.existeEmpresa)) {
       formValue.nombreComercial = this.empresa.nombreComercial;
       formValue.razonSocial = this.empresa.razonSocial;
       formValue.numeroRegistro = this.empresa.registro;
+      formValue.empresaDomicilio = this.domicilios.filter(x => x.uuid === value.empresaDomicilio)[0]
+    } else {
+      formValue.empresaDomicilio = null;
     }
     formValue.empresa = this.empresa;
     formValue.responsable = this.usuario;
@@ -793,6 +863,10 @@ export class VisitasComponent implements OnInit {
       formValue.numeroOrden = `CESP/DSSP/ORD/${formValue.numeroOrden}/${this.anio}`
     } else if(this.tipoVisita === 'EXTRAORDINARIA') {
       formValue.numeroOrden = `CESP/DSSP/EXT/${formValue.numeroOrden}/${this.anio}`
+    } else if(this.tipoVisita === 'INICIAL') {
+      formValue.numeroOrden = `CESP/DSSP/VICOM/${formValue.numeroOrden}/${this.anio}`
+    } else if(this.tipoVisita === 'IMPACTO') {
+      formValue.numeroOrden = formValue.numeroOrden
     }
     formValue.estadoCatalogo = this.estado;
     formValue.municipioCatalogo = this.municipio;

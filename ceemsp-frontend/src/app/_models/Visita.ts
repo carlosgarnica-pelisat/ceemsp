@@ -7,6 +7,7 @@ import Localidad from "./Localidad";
 import Colonia from "./Colonia";
 import Calle from "./Calle";
 import VisitaArchivoMetadata from "./VisitaArchivoMetadata";
+import EmpresaDomicilio from "./EmpresaDomicilio";
 
 export default class Visita implements Deserializable {
   id: number;
@@ -39,6 +40,7 @@ export default class Visita implements Deserializable {
   coloniaCatalogo: Colonia;
   calleCatalogo: Calle;
   existeEmpresa: boolean;
+  empresaDomicilio: EmpresaDomicilio;
 
   archivos: VisitaArchivoMetadata[];
 

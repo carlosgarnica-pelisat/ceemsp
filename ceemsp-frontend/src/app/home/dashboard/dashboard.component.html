@@ -11,15 +11,14 @@
   <!-- Content Row -->
   <div class="row">
 
-    <!-- Earnings (Monthly) Card Example -->
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-md-6 mb-4" (click)="mostrarMisIncidenciasModal()">
       <div class="card border-left-primary shadow h-100 py-2">
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                Mis incidencias abiertas</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.incidenciasAbiertas}}</div>
+                Mis incidencias</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.misIncidencias?.length}}</div>
             </div>
             <div class="col-auto">
               <fa-icon [icon]="faTicketAlt" size="2x" class="text-gray-300"></fa-icon>
@@ -29,15 +28,14 @@
       </div>
     </div>
 
-    <!-- Earnings (Monthly) Card Example -->
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-md-6 mb-4" (click)="mostrarLicenciasFederalesProximasModal()">
       <div class="card border-left-success shadow h-100 py-2">
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                Incidencias abiertas totales</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.incidenciasAbiertas}}</div>
+                Lic. Fed. proximas o vencidas</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.cantidadLicenciasFederalesProximasAVencer}}</div>
             </div>
             <div class="col-auto">
               <fa-icon [icon]="faTicketAlt" size="2x" class="text-gray-300"></fa-icon>
@@ -48,12 +46,15 @@
     </div>
 
     <!-- Earnings (Monthly) Card Example -->
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-md-6 mb-4" (click)="mostrarLicenciasColectivasProximasModal()">
       <div class="card border-left-info shadow h-100 py-2">
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Visitas del mes
+              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                Lic. part. proximas o vencidas</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.cantidadLicenciasParticularesProximasAVencer}}</div>
+              <!--div class="text-xs font-weight-bold text-info text-uppercase mb-1">Visitas del mes
               </div>
               <div class="row no-gutters align-items-center">
                 <div class="col-auto">
@@ -66,7 +67,7 @@
                          aria-valuemax="100"></div>
                   </div>
                 </div>
-              </div>
+              </div-->
             </div>
             <div class="col-auto">
               <fa-icon [icon]="faCalendar" size="2x" class="text-gray-300"></fa-icon>
@@ -77,14 +78,62 @@
     </div>
 
     <!-- Pending Requests Card Example -->
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-md-6 mb-4" (click)="mostrarAcuerdosProximosModal()">
       <div class="card border-left-warning shadow h-100 py-2">
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                Pendientes</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                Acuerdos proximos o vencidos</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.cantidadAcuerdosProximosAVencer}}</div>
+            </div>
+            <div class="col-auto">
+              <fa-icon [icon]="faTicketAlt" size="2x" class="text-gray-300"></fa-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-2 col-md-6 mb-4" (click)="mostrarApoderadosProximosModal()">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                Apoderados proximos o vencidos</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.apoderadosProximosAVencer?.length}}</div>
+              <!--div class="text-xs font-weight-bold text-info text-uppercase mb-1">Visitas del mes
+              </div>
+              <div class="row no-gutters align-items-center">
+                <div class="col-auto">
+                  <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">72/90</div>
+                </div>
+                <div class="col">
+                  <div class="progress progress-sm mr-2">
+                    <div class="progress-bar bg-info" role="progressbar"
+                         style="width: 85%" aria-valuenow="50" aria-valuemin="0"
+                         aria-valuemax="100"></div>
+                  </div>
+                </div>
+              </div-->
+            </div>
+            <div class="col-auto">
+              <fa-icon [icon]="faCalendar" size="2x" class="text-gray-300"></fa-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-2 col-md-6 mb-4" (click)="mostrarIncidenciasAbiertasModal()">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                Incidencias abiertas</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardData?.incidenciasAbiertas?.length}}</div>
             </div>
             <div class="col-auto">
               <fa-icon [icon]="faTicketAlt" size="2x" class="text-gray-300"></fa-icon>
@@ -105,26 +154,35 @@
 
         <div
           class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">Proximas visitas</h6>
+          <h6 class="m-0 font-weight-bold text-primary">
+            <span *ngIf="tablaActual === 'PROXIMAS_VISITAS'">Proximas visitas</span>
+            <span *ngIf="tablaActual === 'PROXIMOS_REQUERIMIENTOS'">Requerimientos proximos a vencer</span>
+            <span *ngIf="tablaActual === 'PROXIMOS_ACUERDOS'">Acuerdos proximos a vencer</span>
+            <span *ngIf="tablaActual === 'PROXIMAS_LICENCIAS'">Licencias federales proximas a vencer</span>
+            <span *ngIf="tablaActual === 'SIN_INFORMES_MENSUALES'">Sin informes mensuales en el mes</span>
+            <span *ngIf="tablaActual === 'CON_INFORMES_MENSUALES'">Con informes mensuales en el mes</span>
+          </h6>
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <fa-icon [icon]="faTicketAlt"></fa-icon>
+              <fa-icon [icon]="faChevronDown"></fa-icon>
             </a>
             <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
                  aria-labelledby="dropdownMenuLink">
-              <div class="dropdown-header">Dropdown Header:</div>
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Something else here</a>
+              <div class="dropdown-header">Visualizar tabla:</div>
+              <a class="dropdown-item" (click)="seleccionarTabla('PROXIMAS_VISITAS')">Proximas visitas</a>
+              <a class="dropdown-item" (click)="seleccionarTabla('PROXIMOS_REQUERIMIENTOS')">Proximos requerimientos</a>
+              <a class="dropdown-item" (click)="seleccionarTabla('PROXIMOS_ACUERDOS')">Proximos acuerdos</a>
+              <a class="dropdown-item" (click)="seleccionarTabla('PROXIMAS_LICENCIAS')">Proximas licencias</a>
+              <a class="dropdown-item" (click)="seleccionarTabla('SIN_INFORMES_MENSUALES')">Sin informes mensuales en el mes</a>
+              <a class="dropdown-item" (click)="seleccionarTabla('CON_INFORMES_MENSUALES')">Con informes mensuales en el mes</a>
             </div>
           </div>
         </div>
 
         <div class="card-body">
           <div class="chart-area">
-            <table class="table">
+            <table class="table my-tbody" *ngIf="tablaActual === 'PROXIMAS_VISITAS'">
               <tr>
                 <td><b>Fecha</b></td>
                 <td><b>Tipo</b></td>
@@ -140,6 +198,79 @@
                 <td>{{v.responsable?.nombres + " " + v.responsable?.apellidos}}</td>
               </tr>
             </table>
+
+            <table class="table my-tbody" *ngIf="tablaActual === 'PROXIMOS_REQUERIMIENTOS'">
+              <tr>
+                <td><b>Nombre comercial</b></td>
+                <td><b>Razon social</b></td>
+                <td><b>Visita de origen</b></td>
+                <td><b>Vencimiento</b></td>
+              </tr>
+              <tr *ngFor="let r of dashboardData?.requerimientosProximosAVencer">
+                <td>{{r.nombreComercial}}</td>
+                <td>{{r.razonSocial}}</td>
+                <td>{{r.numeroOrden}}</td>
+                <td>{{r.fechaTermino}}</td>
+              </tr>
+            </table>
+
+            <table class="table my-tbody" *ngIf="tablaActual === 'PROXIMOS_ACUERDOS'">
+              <tr>
+                <td><b>Tipo acuerdo</b></td>
+                <td><b>Nombre comercial</b></td>
+                <td><b>Razon social</b></td>
+                <td><b>Fecha de termino</b></td>
+              </tr>
+              <tr *ngFor="let a of dashboardData.acuerdosProximosAVencer">
+                <td>{{a.tipo}}</td>
+                <td>{{a.empresa?.nombreComercial}}</td>
+                <td>{{a.empresa?.razonSocial}}</td>
+                <td>{{a.fechaFin}}</td>
+              </tr>
+            </table>
+
+            <table class="table my-tbody" *ngIf="tablaActual === 'PROXIMAS_LICENCIAS'">
+              <tr>
+                <td><b>Registro</b></td>
+                <td><b>Nombre comercial</b></td>
+                <td><b>Razon social</b></td>
+                <td><b>Registro federal</b></td>
+                <td><b>Fecha de termino</b></td>
+              </tr>
+              <tr *ngFor="let l of dashboardData.licenciasFederalesProximasAVencer">
+                <td>{{l.registro}}</td>
+                <td>{{l.nombreComercial}}</td>
+                <td>{{l.razonSocial}}</td>
+                <td>{{l.registroFederal}}</td>
+                <td>{{l.fechaFin}}</td>
+              </tr>
+            </table>
+
+            <table class="table my-tbody" *ngIf="tablaActual === 'SIN_INFORMES_MENSUALES'">
+              <tr>
+                <td><b>Registro</b></td>
+                <td><b>Nombre comercial</b></td>
+                <td><b>Razon social</b></td>
+              </tr>
+              <tr *ngFor="let l of dashboardData.empresasSinInformeMensual">
+                <td>{{l.registro}}</td>
+                <td>{{l.nombreComercial}}</td>
+                <td>{{l.razonSocial}}</td>
+              </tr>
+            </table>
+
+            <table class="table my-tbody" *ngIf="tablaActual === 'CON_INFORMES_MENSUALES'">
+              <tr>
+                <td><b>Registro</b></td>
+                <td><b>Nombre comercial</b></td>
+                <td><b>Razon social</b></td>
+              </tr>
+              <tr *ngFor="let l of dashboardData.empresasConInformeMensual">
+                <td>{{l.registro}}</td>
+                <td>{{l.nombreComercial}}</td>
+                <td>{{l.razonSocial}}</td>
+              </tr>
+            </table>
           </div>
         </div>
       </div>
@@ -151,8 +282,10 @@
 
         <div
           class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">Padron actual</h6>
-          <div class="dropdown no-arrow">
+          <h6 class="m-0 font-weight-bold text-primary">
+            <span>Padron actual</span>
+          </h6>
+          <!--div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <fa-icon [icon]="faTicketAlt"></fa-icon>
@@ -165,7 +298,7 @@
               <div class="dropdown-divider"></div>
               <a class="dropdown-item" href="#">Something else here</a>
             </div>
-          </div>
+          </div-->
         </div>
         <div class="card-body">
           <google-chart #chart
@@ -188,31 +321,31 @@
         </div>
         <div class="card-body">
           <h4 class="small font-weight-bold">Activas <span
-            class="float-right">{{(dashboardData?.empresasActivas / dashboardData?.totalEmpresasRegistradas) * 100}}% ({{dashboardData?.empresasActivas}} / {{dashboardData?.totalEmpresasRegistradas}})</span></h4>
+            class="float-right">{{((dashboardData?.empresasActivas / dashboardData?.totalEmpresasRegistradas) * 100).toFixed(2)}}% ({{dashboardData?.empresasActivas}} / {{dashboardData?.totalEmpresasRegistradas}})</span></h4>
           <div class="progress mb-4">
             <div class="progress-bar bg-success" role="progressbar" [style.width.%]="(dashboardData?.empresasActivas / dashboardData?.totalEmpresasRegistradas) * 100"
                  aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
           <h4 class="small font-weight-bold">Perdida de Eficacia <span
-            class="float-right">{{(dashboardData?.empresasPerdidaEficacia / dashboardData?.totalEmpresasRegistradas) * 100}}% ({{dashboardData?.empresasPerdidaEficacia}} / {{dashboardData?.totalEmpresasRegistradas}})</span></h4>
+            class="float-right">{{((dashboardData?.empresasPerdidaEficacia / dashboardData?.totalEmpresasRegistradas) * 100).toFixed(2)}}% ({{dashboardData?.empresasPerdidaEficacia}} / {{dashboardData?.totalEmpresasRegistradas}})</span></h4>
           <div class="progress mb-4">
             <div class="progress-bar bg-warning" role="progressbar" [style.width.%]="(dashboardData?.empresasPerdidaEficacia / dashboardData?.totalEmpresasRegistradas) * 100"
                  aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
           <h4 class="small font-weight-bold">Revocadas <span
-            class="float-right">{{(dashboardData?.empresasRevocadas / dashboardData?.totalEmpresasRegistradas) * 100}}% ({{dashboardData?.empresasRevocadas}} / {{dashboardData?.totalEmpresasRegistradas}})</span></h4>
+            class="float-right">{{((dashboardData?.empresasRevocadas / dashboardData?.totalEmpresasRegistradas) * 100).toFixed(2)}}% ({{dashboardData?.empresasRevocadas}} / {{dashboardData?.totalEmpresasRegistradas}})</span></h4>
           <div class="progress mb-4">
             <div class="progress-bar" role="progressbar"  [style.width.%]="(dashboardData?.empresasRevocadas / dashboardData?.totalEmpresasRegistradas) * 100"
                  aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
           <h4 class="small font-weight-bold">Suspendidas <span
-            class="float-right">{{(dashboardData?.empresasSuspendidas / dashboardData?.totalEmpresasRegistradas) * 100}}% ({{dashboardData?.empresasSuspendidas}} / {{dashboardData?.totalEmpresasRegistradas}})</span></h4>
+            class="float-right">{{((dashboardData?.empresasSuspendidas / dashboardData?.totalEmpresasRegistradas) * 100).toFixed(2)}}% ({{dashboardData?.empresasSuspendidas}} / {{dashboardData?.totalEmpresasRegistradas}})</span></h4>
           <div class="progress mb-4">
             <div class="progress-bar bg-info" role="progressbar"  [style.width.%]="(dashboardData?.empresasSuspendidas / dashboardData?.totalEmpresasRegistradas) * 100"
                  aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
           <h4 class="small font-weight-bold">Clausuradas <span
-            class="float-right">{{(dashboardData?.empresasClausuradas / dashboardData?.totalEmpresasRegistradas) * 100}}% ({{dashboardData?.empresasClausuradas}} / {{dashboardData?.totalEmpresasRegistradas}})</span></h4>
+            class="float-right">{{((dashboardData?.empresasClausuradas / dashboardData?.totalEmpresasRegistradas) * 100).toFixed(2)}}% ({{dashboardData?.empresasClausuradas}} / {{dashboardData?.totalEmpresasRegistradas}})</span></h4>
           <div class="progress">
             <div class="progress-bar bg-danger" role="progressbar"  [style.width.%]="(dashboardData?.empresasClausuradas / dashboardData?.totalEmpresasRegistradas) * 100"
                  aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
@@ -320,6 +453,193 @@
 
     </div>
   </div>
+
+  <ng-template #visualizarMisIncidenciasModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarMisIncidenciasModal">Mis incidencias </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Numero</b></td>
+              <td><b>Empresa </b></td>
+              <td><b>Ultima actualizacion</b></td>
+            </tr>
+            <tr *ngFor="let a of dashboardData?.misIncidencias">
+              <td>{{a?.numero}}</td>
+              <td>{{a?.empresa?.registro}} - {{a?.empresa?.razonSocial}}</td>
+              <td>{{a?.fechaActualizacion}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarLicenciasFederalesModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarLicenciasFederalesModal">Licencias federales vencidas o proximas a vencer </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Empresa </b></td>
+              <td><b>Fecha fin</b></td>
+              <td><b>Vencida</b></td>
+            </tr>
+            <tr *ngFor="let a of dashboardData?.licenciasFederalesProximasAVencer">
+              <td>{{a?.registro}} - {{a?.razonSocial}}</td>
+              <td>{{a?.fechaFin}}</td>
+              <td>{{fechaVencida(a?.fechaFin)}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarLicenciasParticularesModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarLicenciasParticularesModal">Licencias particulares o proximos a vencer </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Numero de oficio</b></td>
+              <td><b>Empresa </b></td>
+              <td><b>Fecha fin</b></td>
+              <td><b>Vencida</b></td>
+            </tr>
+            <tr *ngFor="let a of dashboardData?.licenciasParticularesProximasAVencer">
+              <td>{{a?.numeroOficio}}</td>
+              <td>{{a?.empresa?.registro}} - {{a?.empresa?.razonSocial}}</td>
+              <td>{{a?.fechaFin}}</td>
+              <td>{{fechaVencida(a?.fechaFin)}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarAcuerdosVencidosModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarAcuerdosVencidosModal">Acuerdos vencidos o proximos a vencer </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Tipo</b></td>
+              <td><b>Empresa </b></td>
+              <td><b>Fecha fin</b></td>
+              <td><b>Vencido</b></td>
+            </tr>
+            <tr *ngFor="let a of dashboardData?.acuerdosProximosAVencer">
+              <td>{{a?.tipo}}</td>
+              <td>{{a?.empresa?.registro}} - {{a?.empresa?.razonSocial}}</td>
+              <td>{{a?.fechaFin}}</td>
+              <td>{{fechaVencida(a?.fechaFin)}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+    </div>
+  </ng-template>
+  <ng-template #visualizarApoderadosVencidosModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarApoderadosVencidosModal">Apoderados vencidos o proximos a vencer </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Escritura</b></td>
+              <td><b>Empresa</b></td>
+              <td><b>Nombre completo</b></td>
+              <td><b>Fecha fin</b></td>
+              <td><b>Vencido</b></td>
+            </tr>
+            <tr *ngFor="let a of dashboardData?.apoderadosProximosAVencer">
+              <td>{{a?.escritura?.numeroEscritura}}</td>
+              <td>{{a?.empresa?.registro}} - {{a?.empresa?.razonSocial}}</td>
+              <td>{{a?.nombres}} {{a?.apellidos}} {{a?.apellidoMaterno}}</td>
+              <td>{{a?.fechaFin}}</td>
+              <td>{{fechaVencida(a?.fechaFin)}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarIncidenciasAbiertasModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarIncidenciasAbiertasModal">Incidencias abiertas </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Numero</b></td>
+              <td><b>Empresa </b></td>
+              <td><b>Ultima actualizacion</b></td>
+            </tr>
+            <tr *ngFor="let a of dashboardData?.incidenciasAbiertas">
+              <td>{{a?.numero}}</td>
+              <td>{{a?.empresa?.registro}} - {{a?.empresa?.razonSocial}}</td>
+              <td>{{a?.fechaActualizacion}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+    </div>
+  </ng-template>
 
 </div>
   <!-- /.container-fluid -->

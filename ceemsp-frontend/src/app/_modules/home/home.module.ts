@@ -15,6 +15,7 @@ import {PdfViewerComponent} from "ng2-pdf-viewer";
 import {platformBrowserDynamic} from "@angular/platform-browser-dynamic";
 import {GoogleChartsModule} from "angular-google-charts";
 import {BotonEmpresasComponent} from "../../_components/botones/boton-empresas/boton-empresas.component";
+import {TableModule} from "primeng/table";
 
 @NgModule({
   declarations: [
@@ -23,17 +24,18 @@ import {BotonEmpresasComponent} from "../../_components/botones/boton-empresas/b
     ToastComponent,
     BotonEmpresasComponent
   ],
-    imports: [
-        CommonModule,
-        HomeRoutingModule,
-        NgbModule,
-        ReactiveFormsModule,
-        FormsModule,
-        FontAwesomeModule,
-        NgxPrintModule,
-        AgGridModule.withComponents([]),
-        GoogleChartsModule
-    ],
+  imports: [
+    CommonModule,
+    HomeRoutingModule,
+    NgbModule,
+    ReactiveFormsModule,
+    FormsModule,
+    FontAwesomeModule,
+    NgxPrintModule,
+    AgGridModule.withComponents([]),
+    GoogleChartsModule,
+    TableModule
+  ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }

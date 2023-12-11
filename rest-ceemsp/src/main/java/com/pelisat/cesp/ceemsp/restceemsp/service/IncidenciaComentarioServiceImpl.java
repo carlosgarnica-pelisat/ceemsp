@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,6 +71,7 @@ public class IncidenciaComentarioServiceImpl implements IncidenciaComentarioServ
     }
 
     @Override
+    @Transactional
     public IncidenciaComentarioDto modificarComentario(String uuid, String incidenciaUuid, String comentarioUuid, String username, IncidenciaComentarioDto comentarioDto) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(incidenciaUuid) || StringUtils.isBlank(comentarioUuid) || StringUtils.isBlank(username) || comentarioDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");
@@ -94,6 +96,7 @@ public class IncidenciaComentarioServiceImpl implements IncidenciaComentarioServ
     }
 
     @Override
+    @Transactional
     public IncidenciaComentarioDto eliminarComentario(String uuid, String incidenciaUuid, String comentarioUuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(incidenciaUuid) || StringUtils.isBlank(comentarioUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");

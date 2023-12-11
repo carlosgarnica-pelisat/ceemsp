@@ -16,6 +16,10 @@ export class EquipoService {
     return this.http.get(`${this.uri}/catalogos/equipos`)
   }
 
+  obtenerEquiposEmpresa() {
+    return this.http.get(`${this.uri}/catalogos/equipos/empresas`);
+  }
+
   obtenerEquipoByUuid(uuid: String) {
     return this.http.get(`${this.uri}/catalogos/equipos/${uuid}`)
   }

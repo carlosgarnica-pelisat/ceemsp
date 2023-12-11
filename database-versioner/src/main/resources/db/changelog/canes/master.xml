@@ -7,4 +7,6 @@
     <include file="db/changelog/canes/CEEMSP-5/schema.xml" />
     <include file="db/changelog/canes/CEEMSP-40/schema.xml" />
     <include file="db/changelog/canes/CEEMSP-45/schema.xml" />
+    <include file="db/changelog/canes/CEEMSP-82/schema.xml" />
+    <include file="db/changelog/canes/CEEMSP-83/schema.xml" />
 </databaseChangeLog>

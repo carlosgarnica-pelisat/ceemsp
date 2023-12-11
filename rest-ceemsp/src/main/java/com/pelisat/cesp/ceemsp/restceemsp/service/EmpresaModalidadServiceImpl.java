@@ -4,8 +4,6 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaModalidadDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaLicenciaColectiva;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaModalidad;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaModalidadRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -20,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -104,6 +103,7 @@ public class EmpresaModalidadServiceImpl implements EmpresaModalidadService {
 
 
     @Override
+    @Transactional
     public EmpresaModalidadDto guardarModalidad(String empresaUuid, String username, EmpresaModalidadDto empresaModalidadDto) {
         if(StringUtils.isBlank(empresaUuid) || empresaModalidadDto == null || StringUtils.isBlank(username)) {
             logger.warn("El uuid o la escritura a crear vienen como nulos o vacios");
@@ -161,6 +161,7 @@ public class EmpresaModalidadServiceImpl implements EmpresaModalidadService {
     }
 
     @Override
+    @Transactional
     public EmpresaModalidadDto eliminarModalidadPorUuid(String empresaUuid, String modalidadUuid, String username) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(modalidadUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros no es valido");

@@ -8,6 +8,6 @@ import java.util.List;
 public interface BuzonInternoDestinatarioRepository extends JpaRepository<BuzonInternoDestinatario, Integer> {
     List<BuzonInternoDestinatario> getAllByBuzonInternoAndEliminadoFalse(int buzonInterno);
     BuzonInternoDestinatario getByUuidAndEliminadoFalse(String uuid);
-    BuzonInternoDestinatario getByIdAndEmpresaAndEliminadoFalse(int id, int empresa);
+    BuzonInternoDestinatario getByBuzonInternoAndEmpresaAndEliminadoFalse(int id, int empresa);
     List<BuzonInternoDestinatario> getAllByEmpresaAndEliminadoFalse(Integer empresa);
 }

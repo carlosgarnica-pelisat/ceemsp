@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,6 +90,7 @@ public class SubmodalidadServiceImpl implements SubmodalidadService{
     }
 
     @Override
+    @Transactional
     public SubmodalidadDto guardarSubmodalidad(String modalidadUuid, String username, SubmodalidadDto submodalidadDto) {
         if(StringUtils.isBlank(modalidadUuid) || StringUtils.isBlank(username) || submodalidadDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");
@@ -114,6 +116,7 @@ public class SubmodalidadServiceImpl implements SubmodalidadService{
     }
 
     @Override
+    @Transactional
     public SubmodalidadDto modificarSubmodalidad(String modalidadUuid, String submodalidadUuid, String username, SubmodalidadDto submodalidadDto) {
         if(StringUtils.isBlank(modalidadUuid) || StringUtils.isBlank(username) || submodalidadDto == null || StringUtils.isBlank(submodalidadUuid)) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");
@@ -141,6 +144,7 @@ public class SubmodalidadServiceImpl implements SubmodalidadService{
     }
 
     @Override
+    @Transactional
     public SubmodalidadDto eliminarSubmodalidad(String modalidadUuid, String submodalidadUuid, String username) {
         if(StringUtils.isBlank(modalidadUuid) || StringUtils.isBlank(submodalidadUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

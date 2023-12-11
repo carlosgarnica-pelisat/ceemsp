@@ -1,6 +1,7 @@
 import {Deserializable} from "./Deserializable";
 import Modalidad from "./Modalidad";
 import Submodalidad from "./Submodalidad";
+import Empresa from "./Empresa";
 
 export default class EmpresaLicenciaColectiva implements Deserializable {
   id: number;
@@ -11,6 +12,7 @@ export default class EmpresaLicenciaColectiva implements Deserializable {
   fechaInicio: string;
   fechaFin: string;
   rutaDocumento: string;
+  eliminado: boolean;
 
   cantidadArmasCortas: number;
   cantidadArmasLargas: number;
@@ -20,6 +22,9 @@ export default class EmpresaLicenciaColectiva implements Deserializable {
   documentoFundatorioBaja: string;
   fechaBaja: string;
 
+  fechaCreacion: string;
+  fechaActualizacion: string;
+  empresa: Empresa;
   deserialize(input: any): this {
     Object.assign(this, input);
     return this;

@@ -9,4 +9,5 @@ public interface IncidenciaPersonaRepository extends JpaRepository<IncidenciaPer
     List<IncidenciaPersona> getAllByIncidenciaAndEliminadoFalse(int incidenciaId);
     IncidenciaPersona getByUuidAndEliminadoFalse(String uuid);
     IncidenciaPersona getByPersonaAndIncidenciaAndEliminadoFalse(int persona, int incidencia);
+    int countByIncidenciaAndEliminadoFalse(int incidencia);
 }

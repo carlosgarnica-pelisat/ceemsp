@@ -1,6 +1,5 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.*;
@@ -18,12 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +34,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
     private final EmpresaEscrituraRepresentanteRepository empresaEscrituraRepresentanteRepository;
     private final EmpresaEscrituraSocioRepository empresaEscrituraSociosRepository;
     private final EmpresaEscrituraConsejoRepository empresaEscrituraConsejoRepository;
-    private final EmpresaService empresaService;
+    private final EmpresaRepository empresaRepository;
     private final UsuarioService usuarioService;
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
@@ -49,7 +47,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
     @Autowired
     public EmpresaEscrituraServiceImpl(
             EmpresaEscrituraRepository empresaEscrituraRepository, EmpresaEscrituraApoderadoRepository empresaEscrituraApoderadoRepository,
-            EmpresaEscrituraRepresentanteRepository empresaEscrituraRepresentanteRepository, EmpresaService empresaService,
+            EmpresaEscrituraRepresentanteRepository empresaEscrituraRepresentanteRepository, EmpresaRepository empresaRepository,
             DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper,
             UsuarioService usuarioService, EmpresaEscrituraSocioRepository empresaEscrituraSociosRepository,
             EmpresaEscrituraConsejoRepository empresaEscrituraConsejoRepository, ArchivosService archivosService,
@@ -59,7 +57,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
         this.empresaEscrituraRepository = empresaEscrituraRepository;
         this.empresaEscrituraRepresentanteRepository = empresaEscrituraRepresentanteRepository;
         this.empresaEscrituraSociosRepository = empresaEscrituraSociosRepository;
-        this.empresaService = empresaService;
+        this.empresaRepository = empresaRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
@@ -78,9 +76,9 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
             throw new InvalidDataException();
         }
 
-        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(empresaUuid);
 
-        List<EmpresaEscritura> empresaEscrituras = empresaEscrituraRepository.findAllByEmpresaAndEliminadoFalse(empresaDto.getId());
+        List<EmpresaEscritura> empresaEscrituras = empresaEscrituraRepository.findAllByEmpresaAndEliminadoFalse(empresa.getId());
         return empresaEscrituras.stream()
                 .map(empresaEscritura -> {
                     EmpresaEscrituraDto empresaEscrituraDto = daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscritura);
@@ -102,8 +100,6 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
                 .collect(Collectors.toList());
     }
 
-
-
     @Override
     public EmpresaEscrituraDto obtenerEscrituraPorUuid(String empresaUuid, String escrituraUuid, boolean soloEntidad) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid)) {
@@ -113,7 +109,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
 
         logger.info("Obteniendo la escritura con el uuid [{}]", escrituraUuid);
 
-        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(empresaUuid);
         EmpresaEscritura empresaEscritura = empresaEscrituraRepository.findByUuidAndEliminadoFalse(escrituraUuid);
 
         if(empresaEscritura == null) {
@@ -121,7 +117,7 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
             throw new NotFoundResourceException();
         }
 
-        if(empresaEscritura.getEmpresa() != empresaDto.getId()) {
+        if(empresaEscritura.getEmpresa() != empresa.getId()) {
             logger.warn("La escritura no pertenece a la empresa");
             throw new MissingRelationshipException();
         }
@@ -158,12 +154,12 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
             throw new InvalidDataException();
         }
 
-        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(empresaUuid);
 
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
 
         EmpresaEscritura empresaEscritura = dtoToDaoConverter.convertDtoToDaoEmpresaEscritura(empresaEscrituraDto);
-        empresaEscritura.setEmpresa(empresaDto.getId());
+        empresaEscritura.setEmpresa(empresa.getId());
         empresaEscritura.setEstadoCatalogo(empresaEscrituraDto.getEstadoCatalogo().getId());
         empresaEscritura.setMunicipioCatalogo(empresaEscrituraDto.getMunicipioCatalogo().getId());
         empresaEscritura.setLocalidadCatalogo(empresaEscrituraDto.getLocalidadCatalogo().getId());
@@ -236,6 +232,12 @@ public class EmpresaEscrituraServiceImpl implements EmpresaEscrituraService {
                         }).collect(Collectors.toList());
 
                 empresaEscrituraConsejoRepository.saveAll(empresaEscrituraConsejos);
+            }
+
+            if(!empresa.isEscriturasCapturadas()) {
+                empresa.setEscriturasCapturadas(true);
+                daoHelper.fulfillAuditorFields(false, empresa, usuarioDto.getId());
+                empresaRepository.save(empresa);
             }
 
             EmpresaEscrituraDto response = daoToDtoConverter.convertDaoToDtoEmpresaEscritura(empresaEscrituraCreada);

@@ -6,6 +6,10 @@ import {ToastService} from "../../../_services/toast.service";
 import {ToastType} from "../../../_enums/ToastType";
 import {EquipoService} from "../../../_services/equipo.service";
 import CanRaza from "../../../_models/CanRaza";
+import TipoInfraestructura from "../../../_models/TipoInfraestructura";
+import {AuthenticationService} from "../../../_services/authentication.service";
+import {Router} from "@angular/router";
+import Usuario from "../../../_models/Usuario";
 
 @Component({
   selector: 'app-equipo',
@@ -18,7 +22,7 @@ export class EquipoComponent implements OnInit {
   private gridColumnApi;
 
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
     {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
   ];
@@ -34,15 +38,23 @@ export class EquipoComponent implements OnInit {
   };
 
   crearEquipoForm: FormGroup;
+  usuarioActual: Usuario;
 
   @ViewChild("mostrarEquipoModal") mostrarEquipoModal;
   @ViewChild("editarEquipoModal") editarEquipoModal;
   @ViewChild("eliminarEquipoModal") eliminarEquipoModal;
 
-  constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
-              private equipoService: EquipoService, private toastService: ToastService) { }
+  constructor(private modalService: NgbModal, private formBuilder: FormBuilder, private authenticationService: AuthenticationService,
+              private equipoService: EquipoService, private toastService: ToastService, private router: Router) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
+
+    if(this.usuarioActual.rol !== 'CEEMSP_SUPERUSER') {
+      this.router.navigate(['/home']);
+    }
+
     this.equipoService.obtenerEquipos().subscribe((data: Equipo[]) => {
       this.rowData = data;
     }, (error) => {
@@ -138,7 +150,7 @@ export class EquipoComponent implements OnInit {
 
     let equipo: Equipo = form.value;
 
-    this.equipoService.modificarEquipo(this.equipo.uuid, equipo).subscribe((data: CanRaza) => {
+    this.equipoService.modificarEquipo(this.equipo.uuid, equipo).subscribe((data: TipoInfraestructura) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha modificado con exito el equipo",

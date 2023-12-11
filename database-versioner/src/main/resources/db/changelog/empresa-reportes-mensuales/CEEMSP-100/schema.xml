@@ -1,0 +1,12 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2023-09-07-agregar-empresa-reportes-agregar-numero-acuse" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <addColumn tableName="empresas_reportes_mensuales">
+            <column name="NUMERO" type="VARCHAR(40)"></column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

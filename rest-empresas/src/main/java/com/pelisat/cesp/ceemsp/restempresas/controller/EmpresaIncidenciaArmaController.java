@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 public class EmpresaIncidenciaArmaController {
     private final JwtUtils jwtUtils;
     private final EmpresaIncidenciaArmaService empresaIncidenciaArmaService;
-    private static final String INCIDENCIA_ARMA_URI = "/empresas/{empresaUuid}/incidencias/{incidenciaUuid}/armas";
+    private static final String INCIDENCIA_ARMA_URI = "/incidencias/{incidenciaUuid}/armas";
 
     @Autowired
     public EmpresaIncidenciaArmaController(
@@ -34,13 +34,14 @@ public class EmpresaIncidenciaArmaController {
         return empresaIncidenciaArmaService.agregarArmaIncidencia(incidenciaUuid, username, armaDto);
     }
 
-    @DeleteMapping(value = INCIDENCIA_ARMA_URI + "/{armaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = INCIDENCIA_ARMA_URI + "/{armaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ArmaDto eliminarIncidenciaArma(
             @PathVariable(value = "incidenciaUuid") String incidenciaUuid,
             @PathVariable(value = "armaUuid") String armaUuid,
+            @RequestBody ArmaDto armaDto,
             HttpServletRequest httpServletRequest
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
-        return empresaIncidenciaArmaService.eliminarArmaIncidencia(incidenciaUuid, armaUuid, username);
+        return empresaIncidenciaArmaService.eliminarArmaIncidencia(incidenciaUuid, armaUuid, username, armaDto);
     }
 }

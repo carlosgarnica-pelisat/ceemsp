@@ -31,7 +31,7 @@ public class ReporteoController {
     @PostMapping(value = "/reporteo/listado-nominal", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> generarReporteListadoNominal(
     ) throws Exception {
-        File resultado = reporteoService.generarReporteListadoNominal();
+        File resultado = reporteoService.generarReporteListadoNominal(null, null);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
@@ -42,7 +42,108 @@ public class ReporteoController {
     @PostMapping(value = "/reporteo/padron", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> generarReportePadron(
     ) throws Exception {
-        File resultado = reporteoService.generarReportePadronEmpresas();
+        File resultado = reporteoService.generarReportePadronEmpresas(null, null);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(resultado));
+        return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/reporteo/intercambio-informacion", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> generarReporteIntercambioInformacion(
+    ) throws Exception {
+        File resultado = reporteoService.generarReporteIntercambioInformacion(null, null);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(resultado));
+        return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/reporteo/acuerdos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> generarReporteAcuerdos() throws Exception {
+        File resultado = reporteoService.generarReporteAcuerdos(null, null);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(resultado));
+        return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/reporteo/personal", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> generarReportePersonal() throws Exception {
+        File resultado = reporteoService.generarReportePersonal(null, null);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(resultado));
+        return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/reporteo/escrituras", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> generarReporteEscrituras() throws Exception {
+        File resultado = reporteoService.generarReporteEscrituras(null, null);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(resultado));
+        return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/reporteo/canes", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> generarReporteCanes() throws Exception {
+        File resultado = reporteoService.generarReporteCanes(null, null);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(resultado));
+        return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/reporteo/vehiculos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> generarReporteVehiculos() throws Exception {
+        File resultado = reporteoService.generarReporteVehiculos(null, null);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(resultado));
+        return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/reporteo/clientes", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> generarReporteClientes() throws Exception {
+        File resultado = reporteoService.generarReporteClientes(null, null);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(resultado));
+        return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/reporteo/armas", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> generarReporteArmas() throws Exception {
+        File resultado = reporteoService.generarReporteArmas(null, null);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(resultado));
+        return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/reporteo/licencias-colectivas", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> generarReporteLicenciasColectivas() throws Exception {
+        File resultado = reporteoService.generarReporteLicenciasColectivas(null, null);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(resultado));
+        return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/reporteo/visitas", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> generarReporteVisitas() throws Exception {
+        File resultado = reporteoService.generarReporteVisitas(null, null);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());

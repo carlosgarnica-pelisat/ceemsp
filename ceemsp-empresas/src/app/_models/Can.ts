@@ -31,6 +31,10 @@ export default class Can implements Deserializable {
   clienteAsignado: Cliente;
   clienteDomicilio: ClienteDomicilio;
   motivos: string;
+  fotografiaCapturada: boolean;
+  adiestramientoCapturado: boolean;
+  vacunacionCapturada: boolean;
+  constanciaCapturada: boolean;
 
   motivoBaja: string;
   observacionesBaja: string;

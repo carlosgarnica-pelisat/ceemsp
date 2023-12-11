@@ -13,7 +13,7 @@
     <div class="col-sm-3">
       <div class="list-group">
         <a routerLink="/home/configuracion" class="list-group-item list-group-item-action">
-          General
+          Notificaciones de correo
         </a>
         <a routerLink="/home/configuracion/usuarios" class="list-group-item list-group-item-action active">Control de usuarios</a>
         <a routerLink="/home/configuracion/acerca" class="list-group-item list-group-item-action">Acerca</a>
@@ -43,6 +43,18 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'MOVIMIENTOS' }" (click)="cambiarPestana('MOVIMIENTOS')">Movimientos</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row" *ngIf="pestanaActual === 'DETALLES'">
+        <div class="col-sm-12">
           <table class="table">
             <tr>
               <td><b>Nombres:</b></td>
@@ -67,8 +79,33 @@
           </table>
         </div>
       </div>
+      <div class="row" *ngIf="pestanaActual === 'MOVIMIENTOS'">
+        <div class="col-sm-6">
+          <div class="dropdown" id="customer">
+            <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+              {{tipoMovimiento === undefined ? 'Ninguno' : tipoMovimiento?.nombre}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+              <form [formGroup]="tipoMovimientoSearchForm" class="px-4 py-3" autocomplete="off">
+                <label for="tipoMovimientoQuery"><b>Buscar por tipo de movimiento</b></label>
+                <input type="text" class="form-control" id="tipoMovimientoQuery" placeholder="Buscar tipo de movimiento" [(ngModel)]="tipoMovimientoQuery"
+                       [ngModelOptions]="{standalone: true}">
+              </form>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" *ngFor="let e of tiposMovimiento | buscarNombre: {nombre: tipoMovimientoQuery}" (click)="seleccionarTipoMovimiento(e)" style="cursor: pointer;">
+                {{e.nombre}}
+              </a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" *ngIf="tipoMovimiento !== undefined" (click)="eliminarTipoMovimiento()">Quitar</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <button class="btn btn-primary" (click)="buscarMovimientos()">Buscar movimientos</button>
+        </div>
+      </div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
       <button class="btn btn-primary" (click)="mostrarModalModificarUsuario()">Modificar</button>
       <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarUsuario()">Eliminar</button>
     </div>

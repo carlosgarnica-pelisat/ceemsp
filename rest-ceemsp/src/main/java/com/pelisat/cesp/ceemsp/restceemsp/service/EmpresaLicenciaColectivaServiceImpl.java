@@ -117,7 +117,7 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
         logger.info("Obteniendo la licencia colectiva con el uuid [{}]", licenciaUuid);
 
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
-        EmpresaLicenciaColectiva licenciaColectiva = empresaLicenciaColectivaRepository.findByUuidAndEliminadoFalse(licenciaUuid);
+        EmpresaLicenciaColectiva licenciaColectiva = empresaLicenciaColectivaRepository.findByUuid(licenciaUuid);
 
         if(licenciaColectiva == null) {
             logger.warn("La licencia colectiva no existe");
@@ -137,6 +137,7 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
     }
 
     @Override
+    @Transactional
     public EmpresaLicenciaColectivaDto guardarLicenciaColectiva(String empresaUuid, String username, EmpresaLicenciaColectivaDto licenciaColectivaDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(username) || licenciaColectivaDto == null) {
             logger.warn("Alguno de los parametros ingresados es invalido");
@@ -189,6 +190,31 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
     }
 
     @Override
+    public File descargarDocumentoFundatorio(String empresaUuid, String licenciaUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(licenciaUuid)) {
+            logger.warn("Los datos vienen como nulos o invalidos");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando el documento fundatorio con uuid [{}]", licenciaUuid);
+
+        EmpresaLicenciaColectiva licenciaColectiva = empresaLicenciaColectivaRepository.findByUuid(licenciaUuid);
+
+        if(licenciaColectiva == null) {
+            logger.warn("La licencia colectiva no existe");
+            throw new NotFoundResourceException();
+        }
+
+        if(!licenciaColectiva.getEliminado()) {
+            logger.warn("La licencia colectiva no esta eliminada");
+            throw new NotFoundResourceException();
+        }
+
+        return new File(licenciaColectiva.getDocumentoFundatorioBaja());
+    }
+
+    @Override
+    @Transactional
     public EmpresaLicenciaColectivaDto modificarLicenciaColectiva(String empresaUuid, String licenciaUuid, String username, EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(licenciaUuid) || StringUtils.isBlank(username) || empresaLicenciaColectivaDto == null) {
             logger.warn("Alguno de los parametros ingresados es invalido");
@@ -254,7 +280,7 @@ public class EmpresaLicenciaColectivaServiceImpl implements EmpresaLicenciaColec
 
         licenciaColectiva.setMotivoBaja(empresaLicenciaColectivaDto.getMotivoBaja());
         licenciaColectiva.setObservacionesBaja(empresaLicenciaColectivaDto.getObservacionesBaja());
-        licenciaColectiva.setFechaBaja(LocalDate.parse(empresaLicenciaColectivaDto.getFechaBaja()));
+        licenciaColectiva.setFechaBaja(LocalDate.now());
         licenciaColectiva.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, licenciaColectiva, usuarioDto.getId());
 

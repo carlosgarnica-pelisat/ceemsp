@@ -17,6 +17,10 @@ export class EmpresaCanesService {
     return this.http.get(`${this.uri}/canes`);
   }
 
+  obtenerCanesInstalaciones() {
+    return this.http.get(`${this.uri}/canes/instalaciones`);
+  }
+
   obtenerCanPorUuid(canUuid: string) {
     return this.http.get(`${this.uri}/canes/${canUuid}`);
   }
@@ -62,16 +66,23 @@ export class EmpresaCanesService {
     return this.http.get(`${this.uri}/canes/${canUuid}/adiestramientos`)
   }
 
-  guardarCanAdiestramiento(canUuid: string, adiestramiento: CanAdiestramiento) {
-    return this.http.post(`${this.uri}/canes/${canUuid}/adiestramientos`, adiestramiento);
+  guardarCanAdiestramiento(canUuid: string, adiestramiento: FormData) {
+    return this.http.post(`${this.uri}/canes/${canUuid}/adiestramientos`, adiestramiento, {headers: {'X-isFile': 'true'}});
   }
 
-  modificarCanEntrenamiento(canUuid: string, entrenamientoUuid: string, adiestramiento: CanAdiestramiento) {
-    return this.http.put(`${this.uri}/canes/${canUuid}/adiestramientos/${entrenamientoUuid}`, adiestramiento);
+  modificarCanEntrenamiento(canUuid: string, entrenamientoUuid: string, adiestramiento: FormData) {
+    return this.http.put(`${this.uri}/canes/${canUuid}/adiestramientos/${entrenamientoUuid}`, adiestramiento, {headers: {'X-isFile': 'true'}});
   }
 
   eliminarCanEntrenamiento(canUuid: string, entrenamientoUuid: string) {
     return this.http.delete(`${this.uri}/canes/${canUuid}/adiestramientos/${entrenamientoUuid}`)
+  }
+
+  descargarCanAdiestramiento(canUuid: string, entrenamientoUuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/canes/${canUuid}/adiestramientos/${entrenamientoUuid}/pdf`, httpOptions)
   }
 
   // Constancias de salud

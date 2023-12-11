@@ -27,6 +27,7 @@
         [columnDefs]="columnDefs"
         (gridReady)="onGridReady($event)"
         [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data)"
         #agGrid
       ></ag-grid-angular>
     </div>
@@ -35,7 +36,7 @@
   <ng-template #mostrarIncidenciaDetallesModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="mostrarIncidenciaDetallesModal">Mostrando incidencia {{incidencia?.numero}} </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <button type="button" class="close" aria-label="Close" (click)="cerrarModalIncidencia(modal)">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -49,8 +50,7 @@
             </tr>
             <tr>
               <td><b>Asignado a:</b></td>
-              <td>{{incidencia?.asignado === null ? 'Sin asignar' : (incidencia?.asignado?.nombres + ' ' + incidencia?.asignado?.apellidos)}} <button class="btn btn-sm btn-primary" (click)="mostrarModalAsignar()">Asignar a</button>
-                <button class="btn btn-sm btn-primary" (click)="autoasignar()">Asignarmelo a mi</button></td>
+              <td>{{incidencia?.asignado === null ? 'Sin asignar' : (incidencia?.asignado?.nombres + ' ' + incidencia?.asignado?.apellidos)}}
             </tr>
             <tr>
               <td><b>Status:</b></td>
@@ -58,9 +58,26 @@
                 <span *ngSwitchCase="'ABIERTA'">Abierta</span>
                 <span *ngSwitchCase="'ASIGNADA'">Asignada</span>
                 <span *ngSwitchCase="'ACCION_PENDIENTE'">Accion pendiente</span>
+                <span *ngSwitchCase="'CONTESTADA'">Contestada</span>
                 <span *ngSwitchCase="'PROCEDENTE'">Procedente</span>
                 <span *ngSwitchCase="'IMPROCEDENTE'">Improcedente</span>
               </td>
+            </tr>
+            <tr *ngIf="incidencia?.cliente !== null">
+              <td><b>Cliente involucrado:</b></td>
+              <td>{{incidencia?.cliente?.nombreComercial}} ({{incidencia?.cliente?.razonSocial}})</td>
+            </tr>
+            <tr *ngIf="incidencia?.clienteDomicilio !== null">
+              <td><b>Direccion del cliente:</b></td>
+              <td>
+                {{incidencia?.clienteDomicilio?.domicilio1}} {{incidencia?.clienteDomicilio?.numeroExterior}} {{incidencia?.clienteDomicilio?.numeroInterior}}. Colonia: {{incidencia?.clienteDomicilio?.domicilio2}}<br>
+                {{incidencia?.clienteDomicilio?.domicilio3}}, {{incidencia?.clienteDomicilio?.estado}}, {{incidencia?.clienteDomicilio?.pais}}<br>
+                C.P. {{incidencia?.clienteDomicilio?.codigoPostal}}
+              </td>
+            </tr>
+            <tr>
+              <td><b>Ubicación</b></td>
+              <td><button class="btn btn-sm btn-primary" (click)="revelarUbicacion()">Ver ubicación</button></td>
             </tr>
           </table>
         </div>
@@ -70,61 +87,87 @@
         <div class="col-sm-12">
           <ul class="nav nav-pills nav-fill">
             <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': incidenciaActualTab === 'COMENTARIOS' }" (click)="cambiarIncidenciaActualTab('COMENTARIOS')">Comentarios</a>
+              <a class="nav-link fakelink" style="cursor: pointer;" [ngClass]="{ 'active': incidenciaActualTab === 'COMENTARIOS' }" (click)="cambiarIncidenciaActualTab('COMENTARIOS')">Comentarios</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': incidenciaActualTab === 'PERSONAL' }" (click)="cambiarIncidenciaActualTab('PERSONAL')">Personal</a>
+              <a class="nav-link fakelink" style="cursor: pointer;" [ngClass]="{ 'active': incidenciaActualTab === 'PERSONAL' }" (click)="cambiarIncidenciaActualTab('PERSONAL')">Personal</a>
+            </li>
+            <li class="nav-item" *ngIf="usuarioActual?.empresa?.tieneArmas">
+              <a class="nav-link fakelink" style="cursor: pointer;" [ngClass]="{ 'active': incidenciaActualTab === 'ARMAS' }" (click)="cambiarIncidenciaActualTab('ARMAS')">Armas</a>
+            </li>
+            <li class="nav-item" *ngIf="usuarioActual?.empresa?.tieneCanes">
+              <a class="nav-link fakelink" style="cursor: pointer;" [ngClass]="{ 'active': incidenciaActualTab === 'CANES' }" (click)="cambiarIncidenciaActualTab('CANES')">Canes</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': incidenciaActualTab === 'ARMAS' }" (click)="cambiarIncidenciaActualTab('ARMAS')">Armas</a>
+              <a class="nav-link fakelink" style="cursor: pointer;" [ngClass]="{ 'active': incidenciaActualTab === 'VEHICULOS' }" (click)="cambiarIncidenciaActualTab('VEHICULOS')">Vehiculos</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': incidenciaActualTab === 'CANES' }" (click)="cambiarIncidenciaActualTab('CANES')">Canes</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': incidenciaActualTab === 'VEHICULOS' }" (click)="cambiarIncidenciaActualTab('VEHICULOS')">Vehiculos</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': incidenciaActualTab === 'ARCHIVOS' }" (click)="cambiarIncidenciaActualTab('ARCHIVOS')">Archivos</a>
+              <a class="nav-link fakelink" style="cursor: pointer;" [ngClass]="{ 'active': incidenciaActualTab === 'ARCHIVOS' }" (click)="cambiarIncidenciaActualTab('ARCHIVOS')">Archivos</a>
             </li>
           </ul>
         </div>
       </div>
       <div class="row" *ngIf="incidenciaActualTab === 'COMENTARIOS'">
         <div class="col-sm-12" style="margin-top: 20px;">
-          <div class="card" *ngFor="let c of incidencia?.comentarios">
+          <div class="card" *ngFor="let c of incidencia?.comentarios; let i = index" style="margin-top: 10px;">
             <div class="card-header">
-              Comentario de: {{c.usuario?.nombres + " " + c.usuario?.apellidos}} a las {{c.fecha}}
+              <span *ngIf="i === 0">Relacion de hechos de incidencia de la empresa: {{usuarioActual?.empresa?.nombreComercial}} reportado a las {{c.fecha}}</span>
+              <span *ngIf="i !== 0">Comentario de: {{c.usuario?.nombres + " " + c.usuario?.apellidos}} a las {{c.fecha}}</span>
             </div>
-            <div class="card-body" [innerHTML]="c?.comentario">
+            <div class="card-body" [innerHTML]="c?.comentario | sanitizeHtml">
             </div>
           </div>
         </div>
       </div>
       <div class="row" *ngIf="incidenciaActualTab === 'PERSONAL'">
         <div class="col-sm-12">
+          <p-table #tablaEmpresaPersonalDetalles [value]="incidencia?.personasInvolucradas" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['apellidoPaterno','apellidoMaterno','nombres']"
+                   [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Personal involucrado</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaEmpresaPersonalDetalles.filterGlobal($event.target.value, 'contains')" placeholder="Buscar" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="apellidoPaterno"><b>Tipo <p-sortIcon field="apellidoPaterno"></p-sortIcon></b></th>
+                <th pSortableColumn="apellidoMaterno"><b>Teléfono <p-sortIcon field="apellidoMaterno"></p-sortIcon></b></th>
+                <th pSortableColumn="nombres"><b>Teléfono <p-sortIcon field="nombres"></p-sortIcon></b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="3">No hay personal involucrado en este momento.</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-personaInvolucrada>
+              <tr>
+                <td>{{personaInvolucrada?.apellidoPaterno}}</td>
+                <td>{{personaInvolucrada?.apellidoMaterno}}</td>
+                <td>{{personaInvolucrada?.nombres}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{incidencia?.personasInvolucradas?.length}} personas involucradas</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
           <table class="table">
-            <tr>
-              <td><b>Apellido Paterno</b></td>
-              <td><b>Apellido Materno</b></td>
-              <td><b>Nombres</b></td>
-              <td><b>Acciones</b></td>
-            </tr>
-            <tr *ngFor="let p of incidencia?.personasInvolucradas">
-              <td>{{p?.apellidoPaterno}}</td>
-              <td>{{p?.apellidoMaterno}}</td>
-              <td>{{p?.nombres}}</td>
-              <td>
-                <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarPersona(p?.uuid)"></fa-icon>
-              </td>
-            </tr>
             <tr *ngIf="!mostrarAgregarPersonalForm">
-              <td colspan="4">
-                <button class="btn btn-sm btn-primary" (click)="conmutarAgregarPersonalForm()">Agregar personal</button>
+              <td colspan="3">
+                <button *ngIf="(incidencia?.status !== 'PROCEDENTE' && incidencia?.status !== 'IMPROCEDENTE')" class="btn btn-sm btn-primary" (click)="conmutarAgregarPersonalForm()">Agregar personal</button>
               </td>
             </tr>
             <tr *ngIf="mostrarAgregarPersonalForm">
-              <td colspan="4">
+              <td colspan="3">
                 <form [formGroup]="crearPersonalIncidenciaForm">
                   <div class="row">
                     <div class="col-sm-6">
@@ -147,24 +190,53 @@
       </div>
       <div class="row" *ngIf="incidenciaActualTab === 'ARMAS'">
         <div class="col-sm-12">
+
+          <p-table #tablaEmpresaPersonalDetalles [value]="incidencia?.armasInvolucradas" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['matricula','marca.nombre','clase.nombre','tipo']"
+                   [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} al {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Armamento involucrado</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaEmpresaPersonalDetalles.filterGlobal($event.target.value, 'contains')" placeholder="Buscar" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="matricula"><b>Matricula <p-sortIcon field="matricula"></p-sortIcon></b></th>
+                <th pSortableColumn="marca?.nombre"><b>Marca <p-sortIcon field="marca?.nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="clase?.nombre"><b>Clase <p-sortIcon field="clase?.nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="tipo"><b>Tipo <p-sortIcon field="nombres"></p-sortIcon></b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="4">No hay armamento involucrado en este momento.</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-armaInvolucrada>
+              <tr>
+                <td [ngStyle]="armaInvolucrada?.eliminadoIncidencia ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{armaInvolucrada?.matricula}}</td>
+                <td [ngStyle]="armaInvolucrada?.eliminadoIncidencia ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{armaInvolucrada?.marca?.nombre}}</td>
+                <td [ngStyle]="armaInvolucrada?.eliminadoIncidencia ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{armaInvolucrada?.clase?.nombre}}</td>
+                <td [ngStyle]="armaInvolucrada?.eliminadoIncidencia ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{armaInvolucrada?.tipo}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{incidencia?.armasInvolucradas?.length}} armas involucradas</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
+
           <table class="table">
-            <tr>
-              <td><b>Marca</b></td>
-              <td><b>Clase</b></td>
-              <td><b>Tipo</b></td>
-              <td><b>Acciones</b></td>
-            </tr>
-            <tr *ngFor="let a of incidencia?.armasInvolucradas">
-              <td>{{a?.marca?.nombre}}</td>
-              <td>{{a?.clase?.nombre}}</td>
-              <td>{{a?.tipo}}</td>
-              <td>
-                <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarArma(a?.uuid)" title="Eliminar arma involucrada"></fa-icon>
-              </td>
-            </tr>
             <tr *ngIf="!mostrarAgregarArmaForm">
               <td colspan="4">
-                <button class="btn btn-sm btn-primary" (click)="conmutarAgregarArmaForm()">Agregar arma</button>
+                <button *ngIf="(incidencia?.status !== 'PROCEDENTE' && incidencia?.status !== 'IMPROCEDENTE')" class="btn btn-sm btn-primary" (click)="conmutarAgregarArmaForm()">Agregar arma</button>
               </td>
             </tr>
             <tr *ngIf="mostrarAgregarArmaForm">
@@ -176,7 +248,16 @@
                         <b>Arma *</b>
                       </label>
                       <select formControlName="armaInvolucrada" id="arma" class="form-control">
-                        <option *ngFor="let a of armas" value="{{a?.uuid}}">{{a?.marca?.nombre}}</option>
+                        <option *ngFor="let a of armas" value="{{a?.uuid}}">{{a?.matricula}} - {{a?.marca?.nombre}}</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-6">
+                      <label for="statusArmaDetalles">
+                        <b>Status *</b>
+                      </label>
+                      <select id="statusArmaDetalles" class="form-control" formControlName="status">
+                        <option value="CUSTODIA">Custodia</option>
+                        <option value="BAJA">Baja</option>
                       </select>
                     </div>
                   </div>
@@ -191,28 +272,53 @@
       </div>
       <div class="row" *ngIf="incidenciaActualTab === 'CANES'">
         <div class="col-sm-12">
+          <p-table #tablaEmpresaPersonalDetalles [value]="incidencia?.canesInvolucrados" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['nombre','raza.nombre','edad']"
+                   [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} al {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Canes involucrados</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaEmpresaPersonalDetalles.filterGlobal($event.target.value, 'contains')" placeholder="Buscar" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="nombre"><b>Nombre <p-sortIcon field="nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="raza?.nombre"><b>Raza <p-sortIcon field="raza?.nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="edad"><b>Edad <p-sortIcon field="edad"></p-sortIcon></b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="3">No hay canes involucrados en este momento.</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-canInvolucrado>
+              <tr>
+                <td>{{canInvolucrado?.nombre}}</td>
+                <td>{{canInvolucrado?.raza?.nombre}}</td>
+                <td>{{canInvolucrado?.edad}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{incidencia?.canesInvolucrados?.length}} canes involucrados</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
           <table class="table">
-            <tr>
-              <td><b>Nombre</b></td>
-              <td><b>Raza</b></td>
-              <td><b>Edad</b></td>
-              <td><b>Acciones</b></td>
-            </tr>
-            <tr *ngFor="let c of incidencia?.canesInvolucrados">
-              <td>{{c?.nombre}}</td>
-              <td>{{c?.raza?.nombre}}</td>
-              <td>{{c?.edad}}</td>
-              <td>
-                <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarCan(c?.uuid)" title="Eliminar can involucrado"></fa-icon>
-              </td>
-            </tr>
             <tr *ngIf="!mostrarAgregarCanForm">
-              <td colspan="4">
-                <button class="btn btn-sm btn-primary" (click)="conmutarAgregarCanForm()">Agregar can</button>
+              <td colspan="3">
+                <button *ngIf="(incidencia?.status !== 'PROCEDENTE' && incidencia?.status !== 'IMPROCEDENTE')" class="btn btn-sm btn-primary" (click)="conmutarAgregarCanForm()">Agregar can</button>
               </td>
             </tr>
             <tr *ngIf="mostrarAgregarCanForm">
-              <td colspan="4">
+              <td colspan="3">
                 <form [formGroup]="crearCanIncidenciaForm">
                   <div class="row">
                     <div class="col-sm-6">
@@ -235,23 +341,52 @@
       </div>
       <div class="row" *ngIf="incidenciaActualTab === 'VEHICULOS'">
         <div class="col-sm-12">
+          <p-table #tablaEmpresaPersonalDetalles [value]="incidencia?.vehiculosInvolucrados" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['serie','marca.nombre','submarca.nombre','anio','placas']"
+                   [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} al {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Vehiculos involucrados</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaEmpresaPersonalDetalles.filterGlobal($event.target.value, 'contains')" placeholder="Buscar" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="serie"><b>Nombre <p-sortIcon field="serie"></p-sortIcon></b></th>
+                <th pSortableColumn="marca?.nombre"><b>Marca <p-sortIcon field="marca?.nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="submarca?.nombre"><b>Modelo <p-sortIcon field="submarca?.nombre"></p-sortIcon></b></th>
+                <th pSortableColumn="anio"><b>Año <p-sortIcon field="anio"></p-sortIcon></b></th>
+                <th pSortableColumn="placas"><b>Placas <p-sortIcon field="placas"></p-sortIcon></b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="5">No hay vehiculos involucrados en este momento. <a *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER' && (incidencia?.status !== 'PROCEDENTE' && incidencia?.status !== 'IMPROCEDENTE')" class="fakelink" (click)="conmutarAgregarVehiculoForm()">Da clic aquí para crear uno</a></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-vehiculoInvolucrado>
+              <tr>
+                <td>{{vehiculoInvolucrado?.serie}}</td>
+                <td>{{vehiculoInvolucrado?.marca?.nombre}}</td>
+                <td>{{vehiculoInvolucrado?.submarca?.nombre}}</td>
+                <td>{{vehiculoInvolucrado?.anio}}</td>
+                <td>{{vehiculoInvolucrado?.placas}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{incidencia?.vehiculosInvolucrados?.length}} vehiculos involucrados</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
+
+
           <table class="table">
-            <tr>
-              <td><b>Serie</b></td>
-              <td><b>Marca</b></td>
-              <td><b>Modelo</b></td>
-              <td><b>Año</b></td>
-              <td><b>Acciones</b></td>
-            </tr>
-            <tr *ngFor="let v of incidencia?.vehiculosInvolucrados">
-              <td>{{v?.serie}}</td>
-              <td>{{v?.marca?.nombre}}</td>
-              <td>{{v?.submarca?.nombre}}</td>
-              <td>{{v?.anio}}</td>
-              <td>
-                <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarVehiculo(v?.uuid)" title="Eliminar vehiculo involucrado"></fa-icon>
-              </td>
-            </tr>
             <tr *ngIf="!mostrarAgregarVehiculoForm">
               <td colspan="5">
                 <button class="btn btn-sm btn-primary" (click)="conmutarAgregarVehiculoForm()">Agregar vehiculo</button>
@@ -266,13 +401,13 @@
                         <b>Vehiculo *</b>
                       </label>
                       <select formControlName="vehiculoInvolucrado" id="vehiculo" class="form-control">
-                        <option *ngFor="let v of vehiculos" value="{{v?.uuid}}">{{v?.placas}}</option>
+                        <option *ngFor="let v of vehiculos" value="{{v?.uuid}}">{{v?.placas}} - {{v.marca.nombre + " " + (v.submarca === null ? '' : v.submarca?.nombre) + " " + v.anio}}</option>
                       </select>
                     </div>
                   </div>
                 </form>
                 <hr>
-                <button class="btn btn-sm btn-primary" (click)="agregarVehiculo(crearVehiculoIncidenciaForm)">Guardar</button>
+                <button class="btn btn-sm btn-primary" (click)="agregarVehiculoIncidencia(crearVehiculoIncidenciaForm)">Guardar</button>
                 <button class="btn btn-sm btn-danger" (click)="conmutarAgregarVehiculoForm()">Cancelar</button>
               </td>
             </tr>
@@ -284,18 +419,19 @@
           <table class="table">
             <tr>
               <td><b>Archivo</b></td>
-              <td><b>Acciones</b></td>
+              <td><b>Opciones</b></td>
             </tr>
-            <tr *ngIf="!mostrarAgregarArchivoForm">
-              <td colspan="2">
-                <button class="btn btn-sm btn-primary" (click)="conmutarAgregarArchivoForm()">Agregar archivo</button>
+            <tr *ngFor="let a of incidencia?.archivos">
+              <td>{{a?.nombreArchivo}}</td>
+              <td>
+                <fa-icon [icon]="faDownload" (click)="descargarArchivo(a?.uuid)" title="Descargar archivo"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="mostrarAgregarArchivoForm">
               <td colspan="2">
                 <form [formGroup]="crearArchivoIncidenciaForm">
                   <label for="archivoIncidencia">
-                    <b>Archivo (en pdf) *</b>
+                    <b>Archivo *</b>
                   </label>
                   <input id="archivoIncidencia" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
                 </form>
@@ -304,10 +440,9 @@
                 <button class="btn btn-sm btn-danger" (click)="conmutarAgregarArchivoForm()">Cancelar</button>
               </td>
             </tr>
-            <tr *ngFor="let a of incidencia?.archivos">
-              <td>{{a?.nombreArchivo}}</td>
-              <td>
-                <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarArchivo(a?.uuid)" title="Eliminar archivo"></fa-icon>
+            <tr *ngIf="!mostrarAgregarArchivoForm">
+              <td colspan="2">
+                <button class="btn btn-sm btn-primary" (click)="conmutarAgregarArchivoForm()" *ngIf="incidencia?.status !== 'PROCEDENTE' && incidencia?.status !== 'IMPROCEDENTE'">Agregar archivo</button>
               </td>
             </tr>
           </table>
@@ -315,8 +450,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-primary" (click)="mostrarModalResponder()">Responder</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+      <button type="button" class="btn btn-primary" (click)="mostrarModalResponder()" *ngIf="incidencia?.status === 'ACCION_PENDIENTE'">Responder</button>
     </div>
   </ng-template>
 
@@ -332,13 +466,13 @@
         <div class="col-sm-12">
           <form [formGroup]="crearIncidenciaForm">
             <div class="form-row">
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <label for="fechaIncidencia">
                   <b>Fecha de incidencia *</b>
                 </label>
-                <input id="fechaIncidencia" type="date" class="form-control" formControlName="fechaIncidencia" #fechaIncidencia>
+                <input [min]="fechaTresDiasAntes" [max]="fechaDeHoy" id="fechaIncidencia" type="date" class="form-control" formControlName="fechaIncidencia" (keydown)="desactivarFecha()" #fechaIncidencia>
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <label for="clienteInvolucrado">
                   <b>Involucra cliente *</b>
                 </label>
@@ -347,13 +481,31 @@
                   <option value="false">No</option>
                 </select>
               </div>
-              <div class="col-sm-4" *ngIf="clienteInvolucrado">
+              <div class="col-sm-3" *ngIf="clienteInvolucrado">
                 <label for="cliente">
                   <b>Cliente *</b>
                 </label>
                 <select id="cliente" class="form-control" formControlName="cliente" (change)="seleccionarCliente($event.target)">
                   <option *ngFor="let c of clientes" value="{{c.uuid}}">{{c.razonSocial}}</option>
                 </select>
+              </div>
+              <div class="col-sm-3" *ngIf="clienteInvolucrado">
+                <label for="clienteDomicilio">
+                  <b>Domicilio</b>
+                </label>
+                <select id="clienteDomicilio" class="form-control" formControlName="clienteDomicilio" (change)="seleccionarClienteDomicilio($event.target)">
+                  <option *ngFor="let cd of clienteDomicilios" value="{{cd?.uuid}}">{{cd?.domicilio1}} {{cd.numeroExterior}} {{cd.numeroInterior}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-sm-4">
+                <label>
+                  <b>Ubicación</b>
+                </label>
+                <br>
+                <button class="btn btn-primary btn-sm" (click)="mostrarModalSeleccionarUbicacion()" *ngIf="!ubicacionCliente">Seleccionar ubicación</button>
+                <button class="btn btn-primary btn-sm" (click)="mostrarModalVerUbicacion()" *ngIf="ubicacionCliente">Ver ubicacion</button>
               </div>
             </div>
           </form>
@@ -362,7 +514,7 @@
               <label>
                 <b>Relato de hechos</b>
               </label>
-              <ckeditor [(ngModel)]="editorData"></ckeditor>
+              <ckeditor editorUrl="https://www.pelisat.com.mx/cdn/ckeditor/ckeditor.js" [(ngModel)]="editorData"></ckeditor>
             </div>
           </div>
           <hr>
@@ -372,10 +524,10 @@
                 <li class="nav-item">
                   <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'PERSONAL' }" (click)="cambiarPestanaInvolucramientos('PERSONAL')">Personal</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" *ngIf="usuarioActual?.empresa?.tieneArmas">
                   <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'ARMAS' }" (click)="cambiarPestanaInvolucramientos('ARMAS')">Armas</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" *ngIf="usuarioActual?.empresa?.tieneCanes">
                   <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualInvolucramiento === 'CANES' }" (click)="cambiarPestanaInvolucramientos('CANES')">Canes</a>
                 </li>
                 <li class="nav-item">
@@ -394,14 +546,19 @@
                   <td><b>Apellido paterno</b></td>
                   <td><b>Apellido materno</b></td>
                   <td><b>Nombres</b></td>
-                  <td><b>Acciones</b></td>
+                  <td><b>Opciones</b></td>
                 </tr>
                 <tr *ngFor="let p of personalInvolucrado; let i = index">
                   <td>{{p?.apellidoPaterno}}</td>
                   <td>{{p?.apellidoMaterno}}</td>
                   <td>{{p?.nombres}}</td>
                   <td>
-                    <fa-icon [icon]="faTrash" title="Eliminar persona de la incidencia" (click)="quitarPersonaIncidencia(i)"></fa-icon>
+                    <fa-icon [icon]="faTrash" title="Eliminar persona de la incidencia" (click)="mostrarModalQuitarPersonaIncidencia(i)"></fa-icon>
+                  </td>
+                </tr>
+                <tr *ngIf="!mostrarAgregarPersonalForm">
+                  <td colspan="4">
+                    <button class="btn btn-sm btn-primary" (click)="conmutarAgregarPersonalForm()">Agregar personal</button>
                   </td>
                 </tr>
                 <tr *ngIf="mostrarAgregarPersonalForm">
@@ -418,7 +575,6 @@
                         </div>
                       </div>
                     </form>
-
                   </td>
                 </tr>
                 <tr *ngIf="mostrarAgregarPersonalForm">
@@ -429,7 +585,7 @@
                 </tr>
                 <tr *ngIf="!mostrarAgregarPersonalForm">
                   <td colspan="4">
-                    <button class="btn btn-sm btn-primary" (click)="conmutarAgregarPersonalForm()">Agregar personal</button>
+                    <button *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'" class="btn btn-sm btn-primary" (click)="conmutarAgregarPersonalForm()">Agregar personal</button>
                   </td>
                 </tr>
               </table>
@@ -440,29 +596,40 @@
             <div class="col-sm-12">
               <table class="table">
                 <tr>
+                  <td><b>Matricula</b></td>
                   <td><b>Marca</b></td>
                   <td><b>Clase</b></td>
                   <td><b>Tipo</b></td>
-                  <td><b>Acciones</b></td>
+                  <td><b>Opciones</b></td>
                 </tr>
                 <tr *ngFor="let a of armasInvolucradas; let i = index">
+                  <td>{{a?.matricula}}</td>
                   <td>{{a?.marca?.nombre}}</td>
                   <td>{{a?.clase?.nombre}}</td>
                   <td>{{a?.tipo}}</td>
                   <td>
-                    <fa-icon [icon]="faTrash" title="Eliminar arma de la incidencia" (click)="quitarArmaIncidencia(i)"></fa-icon>
+                    <fa-icon [icon]="faTrash" title="Eliminar arma de la incidencia" (click)="mostrarModalQuitarArmaIncidencia(i)"></fa-icon>
                   </td>
                 </tr>
                 <tr *ngIf="mostrarAgregarArmaForm">
-                  <td colspan="4">
+                  <td colspan="5">
                     <form [formGroup]="crearArmaIncidenciaForm">
                       <div class="row">
                         <div class="col-sm-6">
-                          <label for="can">
+                          <label for="arma">
                             <b>Arma *</b>
                           </label>
                           <select id="arma" class="form-control" formControlName="armaInvolucrada">
-                            <option *ngFor="let a of armas" value="{{a.uuid}}">{{a.marca?.nombre + " - " + a.tipo}}</option>
+                            <option *ngFor="let a of armas" value="{{a.uuid}}">{{a?.matricula}} - {{a.marca?.nombre}}</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-6">
+                          <label for="arma">
+                            <b>Status *</b>
+                          </label>
+                          <select id="statusArmaCrear" class="form-control" formControlName="status">
+                            <option value="CUSTODIA">Custodia</option>
+                            <option value="BAJA">Baja</option>
                           </select>
                         </div>
                       </div>
@@ -470,13 +637,13 @@
                   </td>
                 </tr>
                 <tr *ngIf="mostrarAgregarArmaForm">
-                  <td colspan="4">
+                  <td colspan="5">
                     <button class="btn btn-sm btn-primary" (click)="agregarArma(crearArmaIncidenciaForm)">Guardar</button>
                     <button class="btn btn-sm btn-danger" (click)="conmutarAgregarArmaForm()">Cancelar</button>
                   </td>
                 </tr>
                 <tr *ngIf="!mostrarAgregarArmaForm">
-                  <td colspan="4">
+                  <td colspan="5">
                     <button class="btn btn-sm btn-primary" (click)="conmutarAgregarArmaForm()">Agregar arma</button>
                   </td>
                 </tr>
@@ -491,14 +658,14 @@
                   <td><b>Nombre</b></td>
                   <td><b>Raza</b></td>
                   <td><b>Edad</b></td>
-                  <td><b>Acciones</b></td>
+                  <td><b>Opciones</b></td>
                 </tr>
                 <tr *ngFor="let c of canesInvolucrados; let i = index">
                   <td>{{c?.nombre}}</td>
                   <td>{{c?.raza?.nombre}}</td>
                   <td>{{c?.edad}}</td>
                   <td>
-                    <fa-icon [icon]="faTrash" title="Eliminar can de la incidencia" (click)="quitarCanIncidencia(i)"></fa-icon>
+                    <fa-icon [icon]="faTrash" title="Eliminar can de la incidencia" (click)="mostrarModalQuitarCanIncidencia(i)"></fa-icon>
                   </td>
                 </tr>
                 <tr *ngIf="mostrarAgregarCanForm">
@@ -540,7 +707,7 @@
                   <td><b>Marca</b></td>
                   <td><b>Submarca</b></td>
                   <td><b>Año</b></td>
-                  <td><b>Acciones</b></td>
+                  <td><b>Opciones</b></td>
                 </tr>
                 <tr *ngFor="let v of vehiculosInvolucrados; let i = index">
                   <td>{{v?.placas}}</td>
@@ -548,11 +715,11 @@
                   <td>{{v?.submarca?.nombre}}</td>
                   <td>{{v?.anio}}</td>
                   <td>
-                    <fa-icon [icon]="faTrash" title="Eliminar vehiculo de la incidencia" (click)="quitarVehiculoIncidencia(i)"></fa-icon>
+                    <fa-icon [icon]="faTrash" title="Eliminar vehiculo de la incidencia" (click)="mostrarModalQuitarVehiculoIncidencia(i)"></fa-icon>
                   </td>
                 </tr>
                 <tr *ngIf="mostrarAgregarVehiculoForm">
-                  <td colspan="4">
+                  <td colspan="5">
                     <form [formGroup]="crearVehiculoIncidenciaForm">
                       <div class="row">
                         <div class="col-sm-6">
@@ -560,7 +727,7 @@
                             <b>Vehiculo *</b>
                           </label>
                           <select id="vehiculo" class="form-control" formControlName="vehiculoInvolucrado">
-                            <option *ngFor="let v of vehiculos" value="{{v.uuid}}">{{v.marca.nombre + " " + v.submarca.nombre + " " + v.anio}}</option>
+                            <option *ngFor="let v of vehiculos" value="{{v.uuid}}">{{v?.placas}} - {{v.marca.nombre + " " + (v.submarca === null ? '' : v.submarca?.nombre) + " " + v.anio}}</option>
                           </select>
                         </div>
                       </div>
@@ -568,13 +735,13 @@
                   </td>
                 </tr>
                 <tr *ngIf="mostrarAgregarVehiculoForm">
-                  <td colspan="4">
+                  <td colspan="5">
                     <button class="btn btn-sm btn-primary" (click)="agregarVehiculo(crearVehiculoIncidenciaForm)">Guardar</button>
                     <button class="btn btn-sm btn-danger" (click)="conmutarAgregarVehiculoForm()">Cancelar</button>
                   </td>
                 </tr>
                 <tr *ngIf="!mostrarAgregarVehiculoForm">
-                  <td colspan="4">
+                  <td colspan="5">
                     <button class="btn btn-sm btn-primary" (click)="conmutarAgregarVehiculoForm()">Agregar vehiculo</button>
                   </td>
                 </tr>
@@ -602,74 +769,29 @@
     </div>
   </ng-template>
 
-  <ng-template #seleccionarAsignadoModal let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title" id="seleccionarAsignadoModal">Asignar a usuario </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-        <span aria-hidden="true">×</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="row">
-        <div class="col-sm-12">
-          <form [formGroup]="cambiarAsignacionTicketForm">
-            <div class="row">
-              <div class="col-sm-6">
-                <label for="asignado">
-                  <b>Asignado *</b>
-                </label>
-                <select id="asignado" class="form-control" formControlName="asignado">
-                  <option *ngFor="let u of usuarios" value="{{u.uuid}}">{{u.nombres + " " + u.apellidos}}</option>
-                </select>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" (click)="confirmarAsignacion(cambiarAsignacionTicketForm)">Asignar</button>
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
-    </div>
-  </ng-template>
-
   <ng-template #responderIncidenciaModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="responderIncidenciaModal">Seleccionar persona a asignar </h4>
+      <h4 class="modal-title" id="eliminarIncidenciaPersonaModal">Respondiendo a la incidencia </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
     </div>
     <div class="modal-body">
-      <div class="row">
-        <div class="col-sm-12">
-          <form [formGroup]="responderIncidenciaForm">
-            <div class="row">
-              <div class="col-sm-6">
-                <label for="status">
-                  <b>Status *</b>
-                </label>
-                <select id="status" class="form-control" formControlName="status">
-                  <option value="ABIERTA">Abierta</option>
-                  <option value="ASIGNADA">Asignada</option>
-                  <option value="ACCION_PENDIENTE">Accion pendiente</option>
-                  <option value="PROCEDENTE">Procedente</option>
-                  <option value="IMPROCEDENTE">Improcedente</option>
-                </select>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
       <div class="row">
         <div class="col-sm-12">
           <b>Comentario *</b>
-          <ckeditor [(ngModel)]="editorData"></ckeditor>
+          <ckeditor editorUrl="https://www.pelisat.com.mx/cdn/ckeditor/ckeditor.js" [(ngModel)]="editorData"></ckeditor>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <b>Archivo (opcional)</b>
+          <input id="archivo" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="agregarComentario(responderIncidenciaForm)">Asignar</button>
+      <button class="btn btn-primary" (click)="agregarComentario(responderIncidenciaForm)">Responder</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
@@ -771,6 +893,164 @@
     <div class="modal-footer">
       <button class="btn btn-danger" (click)="confirmarEliminarArchivo()">Si, eliminar</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarUbicacionClienteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarUbicacionClienteModal">Mostrando ubicación de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.close()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <agm-map [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()" [zoom]="16">
+            <agm-marker [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()"></agm-marker>
+          </agm-map>
+          <div>Latitud: {{this.geocodeResult.geometry.location.lat()}}</div>
+          <div>Longitud: {{this.geocodeResult.geometry.location.lng()}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarUbicacionModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarUbicacionModal">Mostrando ubicación de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.close()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <agm-map [latitude]="convertStringToNumber(this.incidencia?.latitud)" [longitude]="convertStringToNumber(this.incidencia?.longitud)" [zoom]="16">
+            <agm-marker [latitude]="convertStringToNumber(this.incidencia?.latitud)" [longitude]="convertStringToNumber(this.incidencia?.longitud)"></agm-marker>
+          </agm-map>
+          <div>Latitud: {{this.incidencia?.latitud}}</div>
+          <div>Longitud: {{this.incidencia?.longitud}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #seleccionarUbicacionModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="seleccionarUbicacionModal">Seleccionar la ubicación de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="quitarUbicacion()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <!--div class="form-group">
+            <label>Selecciona la ubicacion moviendo el pin o introduce la ubicacion</label>
+            <input type="text" class="form-control" (keydown.enter)="$event.preventDefault()" placeholder="Search Nearest Location" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #busquedaDireccion>
+          </div-->
+          <div class="form-group">
+            <p>Selecciona la ubicación arrastrando y soltando el marcador rojo</p>
+          </div>
+          <agm-map [latitude]="latitude" [longitude]="longitude" [zoom]="zoom">
+            <agm-marker [latitude]="latitude" [longitude]="longitude" [markerDraggable]="true"
+                        (dragEnd)="markerDragEnd($event)"></agm-marker>
+          </agm-map>
+          <div>Latitud: {{latitude}}</div>
+          <div>Longitud: {{longitude}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Seleccionar</button>
+      <button class="btn btn-danger" (click)="quitarUbicacion()">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #quitarIncidenciaPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="quitarIncidenciaPersonaModal">Quitando la persona de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de quitar una persona de la incidencia. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="quitarPersonaIncidencia()">Si, quitar</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como está</button>
+    </div>
+  </ng-template>
+
+  <ng-template #quitarIncidenciaArmaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="quitarIncidenciaArmaModal">Quitando el arma de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de quitar un arma de la incidencia. Esta operacion no se podra deshacer. Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="quitarArmaIncidencia()">Si, quitar</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #quitarIncidenciaCanModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="quitarIncidenciaCanModal">Quitando el can de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de quitar un can de la incidencia. Esta operación no se podrá deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="quitarCanIncidencia()">Si, quitar</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como está</button>
+    </div>
+  </ng-template>
+
+  <ng-template #quitarIncidenciaVehiculoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="quitarIncidenciaVehiculoModal">Quitando el vehiculo de la incidencia </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de quitar un vehículo de la incidencia. Esta operación no se podrá deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="quitarVehiculoIncidencia()">Si, quitar</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como está</button>
     </div>
   </ng-template>
 </div>

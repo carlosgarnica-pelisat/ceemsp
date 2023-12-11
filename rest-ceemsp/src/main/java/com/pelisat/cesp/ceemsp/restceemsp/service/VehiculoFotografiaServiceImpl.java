@@ -1,7 +1,6 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.dto.metadata.PersonalFotografiaMetadata;
 import com.pelisat.cesp.ceemsp.database.dto.metadata.VehiculoFotografiaMetadata;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoFotografiaRepository;
@@ -18,9 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -100,6 +99,7 @@ public class VehiculoFotografiaServiceImpl implements VehiculoFotografiaService 
     }
 
     @Override
+    @Transactional
     public void guardarVehiculoFotografia(String uuid, String personalUuid, String username, MultipartFile multipartFile, VehiculoFotografiaMetadata metadata) {
         if (StringUtils.isBlank(uuid) || StringUtils.isBlank(personalUuid) || StringUtils.isBlank(username) || multipartFile == null) {
             logger.warn("El uuid de la empresa o la persona o la foto vienen como nulos o vacios");
@@ -125,6 +125,12 @@ public class VehiculoFotografiaServiceImpl implements VehiculoFotografiaService 
             ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.FOTOGRAFIA_VEHICULO, uuid);
             vehiculoFotografia.setUbicacionArchivo(ruta);
             vehiculoFotografiaRepository.save(vehiculoFotografia);
+
+            if(!vehiculo.isFotografiaCapturada()) {
+                vehiculo.setFotografiaCapturada(true);
+                daoHelper.fulfillAuditorFields(false, vehiculo, usuarioDto.getId());
+                vehiculoRepository.save(vehiculo);
+            }
         } catch (IOException ioException) {
             logger.warn(ioException.getMessage());
             archivosService.eliminarArchivo(ruta);

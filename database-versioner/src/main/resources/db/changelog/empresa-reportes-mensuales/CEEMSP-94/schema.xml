@@ -1,0 +1,24 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2023-07-24-agregar-empresa-reportes-campos-armas" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <addColumn tableName="empresas_reportes_mensuales">
+            <column name="ARMAS_1_ALTAS" type="INT"></column>
+            <column name="ARMAS_2_ALTAS" type="INT"></column>
+            <column name="ARMAS_3_ALTAS" type="INT"></column>
+            <column name="ARMAS_1_BAJAS" type="INT"></column>
+            <column name="ARMAS_2_BAJAS" type="INT"></column>
+            <column name="ARMAS_3_BAJAS" type="INT"></column>
+            <column name="ARMAS_1_ACTIVAS" type="INT"></column>
+            <column name="ARMAS_2_ACTIVAS" type="INT"></column>
+            <column name="ARMAS_3_ACTIVAS" type="INT"></column>
+            <column name="ARMAS_1_TOTAL" type="INT"></column>
+            <column name="ARMAS_2_TOTAL" type="INT"></column>
+            <column name="ARMAS_3_TOTAL" type="INT"></column>
+            <column name="REPORTA_UNIFORMES" type="bit"></column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

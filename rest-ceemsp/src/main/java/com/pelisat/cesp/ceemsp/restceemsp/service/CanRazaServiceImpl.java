@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -84,6 +85,7 @@ public class CanRazaServiceImpl implements CanRazaService {
     }
 
     @Override
+    @Transactional
     public CanRazaDto crearNuevo(CanRazaDto canRazaDto, String username) {
         if(canRazaDto == null || StringUtils.isBlank(username)) {
             logger.warn("El usuario o la raza a ser creada vienen como nulos o vacios");
@@ -112,6 +114,7 @@ public class CanRazaServiceImpl implements CanRazaService {
     }
 
     @Override
+    @Transactional
     public CanRazaDto modificar(CanRazaDto canRazaDto, String uuid, String username) {
         if(StringUtils.isBlank(uuid) || canRazaDto == null || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
@@ -139,6 +142,7 @@ public class CanRazaServiceImpl implements CanRazaService {
     }
 
     @Override
+    @Transactional
     public CanRazaDto eliminar(String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
             logger.warn("El usuario o el uuid estan viniendo como nulos o vacios");

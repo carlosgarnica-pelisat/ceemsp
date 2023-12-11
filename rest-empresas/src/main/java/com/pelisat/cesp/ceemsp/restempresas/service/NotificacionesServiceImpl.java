@@ -51,12 +51,17 @@ public class NotificacionesServiceImpl implements NotificacionesService {
 
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
         List<BuzonInternoDestinatario> notificacionesEmpresa = buzonInternoDestinatarioRepository.getAllByEmpresaAndEliminadoFalse(usuarioDto.getEmpresa().getId());
-        List<BuzonInterno> notificaciones = notificacionesEmpresa.stream().map(n -> {
-            BuzonInterno buzonInterno = buzonInternoRepository.getByIdAndEliminadoFalse(n.getBuzonInterno());
-            return buzonInterno;
-        }).collect(Collectors.toList());
 
-        return notificaciones.stream().map(daoToDtoConverter::convertDaoToDtoBuzonInterno).collect(Collectors.toList());
+        return notificacionesEmpresa.stream().map(n -> {
+            BuzonInterno buzonInterno = buzonInternoRepository.getByIdAndEliminadoFalse(n.getBuzonInterno());
+            if(buzonInterno == null) {
+                return null;
+            }
+            BuzonInternoDto buzonInternoDto = daoToDtoConverter.convertDaoToDtoBuzonInterno(buzonInterno);
+            buzonInternoDto.setLeido(n.isVisto());
+            return buzonInternoDto;
+        }).filter(x -> x!= null)
+        .collect(Collectors.toList());
     }
 
     @Transactional
@@ -70,7 +75,7 @@ public class NotificacionesServiceImpl implements NotificacionesService {
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
         BuzonInterno buzonInterno = buzonInternoRepository.getByUuidAndEliminadoFalse(uuid);
 
-        BuzonInternoDestinatario buzonInternoDestinatario = buzonInternoDestinatarioRepository.getByIdAndEmpresaAndEliminadoFalse(buzonInterno.getId(), usuarioDto.getEmpresa().getId());
+        BuzonInternoDestinatario buzonInternoDestinatario = buzonInternoDestinatarioRepository.getByBuzonInternoAndEmpresaAndEliminadoFalse(buzonInterno.getId(), usuarioDto.getEmpresa().getId());
 
         if(buzonInternoDestinatario == null) {
             logger.warn("El destinatario para esta notificacion no existe en la base de datos");

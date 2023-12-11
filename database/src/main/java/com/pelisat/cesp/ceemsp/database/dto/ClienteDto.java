@@ -22,9 +22,11 @@ public class ClienteDto {
     private String fechaFin;
     private String rutaArchivoContrato;
     private String fechaCreacion;
+    private String fechaActualizacion;
     private List<ClienteDomicilioDto> domicilios;
     private List<ClienteAsignacionPersonalDto> asignaciones;
     private List<ClienteModalidadDto> modalidades;
+    private List<ClienteFormaEjecucionDto> formasEjecucion;
     private boolean eliminado;
     private int numeroSucursales;
     private int numeroElementosAsignados;
@@ -33,4 +35,10 @@ public class ClienteDto {
     private String observacionesBaja;
     private String documentoFundatorioBaja;
     private String fechaBaja;
+    private EmpresaDto empresa;
+
+    private boolean domicilioCapturado;
+    private boolean asignacionCapturada;
+    private boolean modalidadCapturada;
+    private boolean formaEjecucionCapturada;
 }

@@ -6,7 +6,6 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraApoderadoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
-import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepresentanteRepository;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -19,9 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
@@ -159,12 +158,17 @@ public class EmpresaEscrituraApoderadoServiceImpl implements EmpresaEscrituraApo
         empresaEscrituraApoderado.setApellidos(empresaEscrituraApoderadoDto.getApellidos());
         empresaEscrituraApoderado.setApellidoMaterno(empresaEscrituraApoderadoDto.getApellidoMaterno());
         empresaEscrituraApoderado.setCurp(empresaEscrituraApoderadoDto.getCurp());
+        empresaEscrituraApoderado.setSexo(empresaEscrituraApoderadoDto.getSexo());
         if(StringUtils.isNotBlank(empresaEscrituraApoderadoDto.getFechaInicio())) {
             empresaEscrituraApoderado.setFechaInicio(LocalDate.parse(empresaEscrituraApoderadoDto.getFechaInicio()));
+        } else {
+            empresaEscrituraApoderado.setFechaInicio(null);
         }
 
         if(StringUtils.isNotBlank(empresaEscrituraApoderadoDto.getFechaFin())) {
             empresaEscrituraApoderado.setFechaFin(LocalDate.parse(empresaEscrituraApoderadoDto.getFechaFin()));
+        } else {
+            empresaEscrituraApoderado.setFechaFin(null);
         }
 
         daoHelper.fulfillAuditorFields(false, empresaEscrituraApoderado, usuario.getId());
@@ -173,6 +177,7 @@ public class EmpresaEscrituraApoderadoServiceImpl implements EmpresaEscrituraApo
     }
 
     @Override
+    @Transactional
     public EmpresaEscrituraApoderadoDto eliminarApoderado(String empresaUuid, String escrituraUuid, String apoderadoUuid, String username, EmpresaEscrituraApoderadoDto empresaEscrituraApoderadoDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(apoderadoUuid)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

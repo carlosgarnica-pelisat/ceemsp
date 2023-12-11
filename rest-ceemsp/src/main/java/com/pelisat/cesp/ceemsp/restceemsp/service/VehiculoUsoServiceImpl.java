@@ -3,7 +3,6 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoUsoDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.VehiculoTipo;
 import com.pelisat.cesp.ceemsp.database.model.VehiculoUso;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoUsoRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -16,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -90,6 +90,7 @@ public class VehiculoUsoServiceImpl implements VehiculoUsoService {
     }
 
     @Override
+    @Transactional
     public VehiculoUsoDto crearNuevo(VehiculoUsoDto vehiculoUsoDto, String username) {
         if(vehiculoUsoDto == null || StringUtils.isBlank(username)) {
             logger.warn("El usuario o el uso de vehiculo vienen como nulos o vacios");
@@ -107,6 +108,7 @@ public class VehiculoUsoServiceImpl implements VehiculoUsoService {
     }
 
     @Override
+    @Transactional
     public VehiculoUsoDto modificar(VehiculoUsoDto vehiculoUsoDto, String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || vehiculoUsoDto == null) {
             logger.warn("Alguno de los campos vienen como nulos o vacios");
@@ -135,6 +137,7 @@ public class VehiculoUsoServiceImpl implements VehiculoUsoService {
     }
 
     @Override
+    @Transactional
     public VehiculoUsoDto eliminar(String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

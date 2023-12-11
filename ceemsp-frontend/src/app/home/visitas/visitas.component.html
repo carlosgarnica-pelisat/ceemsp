@@ -11,7 +11,7 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Descargar como Excel (csv)</a>
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar como Excel (csv)</a>
         </div>
       </div>
     </div>
@@ -74,6 +74,14 @@
               <td>{{visita?.razonSocial}}</td>
             </tr>
             <tr>
+              <td><b>Domicilio:</b></td>
+              <td>
+                {{visita?.domicilio1}} {{visita?.numeroExterior}} {{visita?.numeroInterior}}. Colonia: {{visita?.domicilio2}}<br>
+                {{visita?.domicilio3}}, {{visita?.estado}}<br>
+                C.P. {{visita?.codigoPostal}}
+              </td>
+            </tr>
+            <tr>
               <td><b>Fecha de visita</b></td>
               <td>{{visita?.fechaVisita}}</td>
             </tr>
@@ -87,6 +95,10 @@
             <tr *ngIf="visita?.requerimiento">
               <td><b>Texto del requerimiento</b></td>
               <td [innerHTML]="visita?.detallesRequerimiento | sanitizeHtml"></td>
+            </tr>
+            <tr *ngIf="visita?.requerimiento">
+              <td><b>Fecha de vencimiento del requerimiento:</b></td>
+              <td>{{visita?.fechaTermino}}</td>
             </tr>
           </table>
         </div>
@@ -121,7 +133,7 @@
                           <label for="fotoDescripcion">
                             <b>Descripcion</b>
                           </label>
-                          <input id="fotoDescripcion" class="form-control" formControlName="descripcion" type="text" placeholder="Ej. Foto frontal">
+                          <input id="fotoDescripcion" class="form-control" formControlName="descripcion" type="text" placeholder="Agregar descripcion o detalles del documento">
                         </div>
                       </div>
                     </form>
@@ -164,7 +176,7 @@
         <div class="col-sm-12">
           <form [formGroup]="crearVisitaForm">
             <div class="row">
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <label for="tipoVisitaEditar">
                   <b>Tipo de visita *</b>
                   <span
@@ -175,9 +187,11 @@
                 <select id="tipoVisitaEditar" class="form-control" formControlName="tipoVisita" (change)="cambiarTipoVisita($event.target)">
                   <option value="ORDINARIA">Ordinaria</option>
                   <option value="EXTRAORDINARIA">Extraordinaria</option>
+                  <option value="INICIAL">Inicial</option>
+                  <option value="IMPACTO">De impacto</option>
                 </select>
               </div>
-              <div class="col-sm-4" *ngIf="tipoVisita !== undefined && tipoVisita === 'EXTRAORDINARIA'">
+              <div class="col-sm-3" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' || tipoVisita === 'IMPACTO' || tipoVisita === 'INICIAL')">
                 <label for="existeEmpresaEditar">
                   <b>Registrada? *</b>
                   <span
@@ -186,25 +200,46 @@
                     </span>
                 </label>
                 <select id="existeEmpresaEditar" class="form-control" formControlName="existeEmpresa" (change)="cambiarExistenciaEmpresa($event.target)">
-                  <option value="true">SI</option>
-                  <option value="false">NO</option>
+                  <option value="true">Si, con domicilio</option>
+                  <option value="false">Si, sin domicilio</option>
+                  <option value="false">No</option>
                 </select>
               </div>
-              <div class="col-sm-4" *ngIf="tipoVisita !== undefined && (tipoVisita === 'ORDINARIA' || (tipoVisita === 'EXTRAORDINARIA' && existeEmpresa))">
+              <div class="col-sm-3"  *ngIf="tipoVisita !== undefined && (tipoVisita === 'ORDINARIA' || (tipoVisita === 'EXTRAORDINARIA' && existeEmpresa)
+            || (tipoVisita === 'IMPACTO' && existeEmpresa) || (tipoVisita === 'INICIAL' && existeEmpresa))">
                 <label for="empresaEditar">
                   <b>Empresa *</b>
-                  <span
-                    *ngIf="crearVisitaForm.controls['empresa'].invalid && (crearVisitaForm.controls['empresa'].dirty || crearVisitaForm.controls['empresa'].touched)">
-                      <i *ngIf="crearVisitaForm.controls['empresa'].errors.required" class="text-danger"> - Campo requerido</i>
-                    </span>
                 </label>
-                <select id="empresaEditar" class="form-control" formControlName="empresa" (change)="seleccionarEmpresa($event.target)">
-                  <option *ngFor="let e of empresas" value="{{e?.uuid}}">{{e?.nombreComercial + " (" + e?.razonSocial + ")"}}</option>
+                <div class="dropdown" id="empresaEditar">
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{empresa === undefined ? 'Ninguno' : empresa?.razonSocial?.substring(0, 20)}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                    <form class="px-4 py-3">
+                      <label for="estadoSearchQueryEditar"><b>Buscar por razon social</b></label>
+                      <input type="text" class="form-control" id="estadoSearchQueryEditar" placeholder="Ej. Empresa S.A. de C.V." [(ngModel)]="empresaQuery"
+                             [ngModelOptions]="{standalone: true}" autocomplete="off">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let e of empresas | buscarRazonSocial: {razonSocial: empresaQuery}" (click)="seleccionarEmpresa(e.uuid)">
+                      {{e.registro}} - {{e.razonSocial}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="empresa !== undefined" (click)="eliminarEmpresa()">Quitar</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-3" *ngIf="tipoVisita !== undefined && (tipoVisita === 'ORDINARIA' || (tipoVisita === 'EXTRAORDINARIA' && existeEmpresa) || (tipoVisita === 'IMPACTO' && existeEmpresa) || (tipoVisita === 'INICIAL' && existeEmpresa))">
+                <label for="empresaDomicilioEditar">
+                  <b>Domicilio *</b>
+                </label>
+                <select id="empresaDomicilioEditar" class="form-control" formControlName="empresaDomicilio">
+                  <option *ngFor="let d of domicilios" value="{{d?.uuid}}">{{d?.domicilio1 + " " + d?.numeroExterior}}</option>
                 </select>
               </div>
             </div>
             <div class="row">
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <label for="nombreComercialEditar">
                   <b>Nombre comercial *</b>
                   <span
@@ -214,7 +249,7 @@
                 </label>
                 <input class="form-control" id="nombreComercialEditar" type="text" formControlName="nombreComercial">
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-6">
                 <label for="razonSocialEditar">
                   <b>Razon social *</b>
                   <span
@@ -224,7 +259,7 @@
                 </label>
                 <input class="form-control" id="razonSocialEditar" type="text" formControlName="razonSocial">
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <label for="numeroRegistroEditar">
                   <b>Registro</b>
                   <span
@@ -236,9 +271,18 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-sm-4">
-                <label for="numeroOrdenEditar">
-                  <b>Num. orden (autogenerado) *</b>
+              <div class="col-sm-6">
+                <label *ngIf="tipoVisita === ''" for="numeroOrdenEditar">
+                  <b>Num. orden (se genera automaticamente) *</b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['numeroOrden'].invalid && (crearVisitaForm.controls['numeroOrden'].dirty || crearVisitaForm.controls['numeroOrden'].touched)">
+                      <i *ngIf="crearVisitaForm.controls['numeroOrden'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="crearVisitaForm.controls['numeroOrden'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                      <i *ngIf="crearVisitaForm.controls['numeroOrden'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                    </span>
+                </label>
+                <label for="numeroOrdenEditarImpacto" >
+                  <b>Num. orden u oficio *</b>
                   <span
                     *ngIf="crearVisitaForm.controls['numeroOrden'].invalid && (crearVisitaForm.controls['numeroOrden'].dirty || crearVisitaForm.controls['numeroOrden'].touched)">
                       <i *ngIf="crearVisitaForm.controls['numeroOrden'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -250,20 +294,22 @@
                   <div class="input-group-prepend">
                     <span *ngIf="tipoVisita === 'ORDINARIA'" class="input-group-text">CESP/DSSP/ORD/</span>
                     <span *ngIf="tipoVisita === 'EXTRAORDINARIA'" class="input-group-text">CESP/DSSP/EXT/</span>
+                    <span *ngIf="tipoVisita === 'INICIAL'" class="input-group-text">CESP/DSSP/VICOM/</span>
                   </div>
-                  <input class="form-control" id="numeroOrdenEditar" type="tel" formControlName="numeroOrden" placeholder="Se generara automaticamente" appNumberMask>
-                  <div class="input-group-append">
+                  <input *ngIf="tipoVisita !== 'IMPACTO'" class="form-control" id="numeroOrdenEditar" type="tel" formControlName="numeroOrden" placeholder="Se genera automaticamente" appNumberMask>
+                  <input *ngIf="tipoVisita === 'IMPACTO'" class="form-control" id="numeroOrdenEditarImpacto" type="text" formControlName="numeroOrden" placeholder="Introducir numero de oficio">
+                  <div class="input-group-append" *ngIf="tipoVisita !== 'IMPACTO'">
                     <span class="input-group-text">/{{anio}}</span>
                   </div>
                 </div>
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <label for="fechaVisitaEditar">
                   <b>Fecha de visita *</b>
                 </label>
-                <input class="form-control" id="fechaVisitaEditar" type="date" formControlName="fechaVisita" [min]="fechaDeHoy" placeholder="Fecha de la visita">
+                <input class="form-control" id="fechaVisitaEditar" type="date" formControlName="fechaVisita" placeholder="Fecha de la visita">
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <label for="responsableEditar">
                   <b>Asignado / Responsable *</b>
                   <span
@@ -276,7 +322,7 @@
                 </select>
               </div>
             </div>
-            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
+            <div class="row" *ngIf="tipoVisita !== undefined && ((tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa) || (tipoVisita === 'IMPACTO' && !existeEmpresa) || (tipoVisita === 'INICIAL' && !existeEmpresa))">
               <div class="col-sm-3">
                 <label>
                   <b>Estado *</b>
@@ -344,7 +390,7 @@
               </div>
             </div>
 
-            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
+            <div class="row" *ngIf="tipoVisita !== undefined && ((tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa) || (tipoVisita === 'IMPACTO' && !existeEmpresa) || (tipoVisita === 'INICIAL' && !existeEmpresa))">
               <div class="col-sm-6">
                 <label>
                   <b>Colonia *</b>
@@ -389,7 +435,7 @@
               </div>
             </div>
 
-            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
+            <div class="row" *ngIf="tipoVisita !== undefined && ((tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa) || (tipoVisita === 'IMPACTO' && !existeEmpresa) || (tipoVisita === 'INICIAL' && !existeEmpresa))">
               <div class="col-sm-3">
                 <label for="numeroExteriorEditar">
                   <b>N. Ext * </b>
@@ -483,7 +529,7 @@
           <label>
             <b>Detalles del requerimiento *</b>
           </label>
-          <ckeditor editorUrl="http://www.pelisat.com.mx/cdn/ckeditor/ckeditor.js" [(ngModel)]="editorData" debounce="500"></ckeditor>
+          <ckeditor editorUrl="https://www.pelisat.com.mx/cdn/ckeditor/ckeditor.js" [(ngModel)]="editorData" debounce="500"></ckeditor>
         </div>
       </div>
     </div>
@@ -506,7 +552,7 @@
         <div class="col-sm-12">
           <form [formGroup]="crearVisitaForm">
             <div class="row">
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <label for="tipoVisita">
                   <b>Tipo de visita *</b>
                   <span
@@ -517,9 +563,11 @@
                 <select id="tipoVisita" class="form-control" formControlName="tipoVisita" (change)="cambiarTipoVisita($event.target)">
                   <option value="ORDINARIA">Ordinaria</option>
                   <option value="EXTRAORDINARIA">Extraordinaria</option>
+                  <option value="INICIAL">Inicial</option>
+                  <option value="IMPACTO">De impacto</option>
                 </select>
               </div>
-              <div class="col-sm-4" *ngIf="tipoVisita !== undefined && tipoVisita === 'EXTRAORDINARIA'">
+              <div class="col-sm-3" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' || tipoVisita === 'IMPACTO' || tipoVisita === 'INICIAL')">
                 <label for="existeEmpresa">
                   <b>Registrada? *</b>
                   <span
@@ -528,25 +576,46 @@
                     </span>
                 </label>
                 <select id="existeEmpresa" class="form-control" formControlName="existeEmpresa" (change)="cambiarExistenciaEmpresa($event.target)">
-                  <option value="true">SI</option>
-                  <option value="false">NO</option>
+                  <option value="true">Si, con domicilio</option>
+                  <option value="false">Si, sin domicilio</option>
+                  <option value="false">No</option>
                 </select>
               </div>
-              <div class="col-sm-4" *ngIf="tipoVisita !== undefined && (tipoVisita === 'ORDINARIA' || (tipoVisita === 'EXTRAORDINARIA' && existeEmpresa))">
-                <label for="empresa">
+              <div class="col-sm-3" *ngIf="tipoVisita !== undefined && (tipoVisita === 'ORDINARIA' || (tipoVisita === 'EXTRAORDINARIA' && existeEmpresa)
+              || (tipoVisita === 'IMPACTO' && existeEmpresa) || (tipoVisita === 'INICIAL' && existeEmpresa))">
+                <label>
                   <b>Empresa *</b>
-                  <span
-                    *ngIf="crearVisitaForm.controls['empresa'].invalid && (crearVisitaForm.controls['empresa'].dirty || crearVisitaForm.controls['empresa'].touched)">
-                      <i *ngIf="crearVisitaForm.controls['empresa'].errors.required" class="text-danger"> - Campo requerido</i>
-                    </span>
                 </label>
-                <select id="empresa" class="form-control" formControlName="empresa" (change)="seleccionarEmpresa($event.target)">
-                  <option *ngFor="let e of empresas" value="{{e?.uuid}}">{{e?.nombreComercial + " (" + e?.razonSocial + ")"}}</option>
+                <div class="dropdown" id="empresaEditar">
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{empresa === undefined ? 'Ninguno' : empresa?.razonSocial?.substring(0, 20)}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                    <form class="px-4 py-3">
+                      <label for="estadoSearchQuery"><b>Buscar por razon social</b></label>
+                      <input type="text" class="form-control" id="estadoSearchQuery" placeholder="Ej. Empresa S.A. de C.V." [(ngModel)]="empresaQuery"
+                             [ngModelOptions]="{standalone: true}" autocomplete="off">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let e of empresas | buscarRazonSocial: {razonSocial: empresaQuery}" (click)="seleccionarEmpresa(e.uuid)">
+                      {{e.registro}} - {{e.razonSocial}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="empresa !== undefined" (click)="eliminarEmpresa()">Quitar</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-3" *ngIf="tipoVisita !== undefined && (tipoVisita === 'ORDINARIA' || (tipoVisita === 'EXTRAORDINARIA' && existeEmpresa) || (tipoVisita === 'IMPACTO' && existeEmpresa) || (tipoVisita === 'INICIAL' && existeEmpresa))">
+                <label for="empresaDomicilio">
+                  <b>Domicilio *</b>
+                </label>
+                <select id="empresaDomicilio" class="form-control" formControlName="empresaDomicilio">
+                  <option *ngFor="let d of domicilios" value="{{d?.uuid}}">{{d?.domicilio1 + " " + d?.numeroExterior}}</option>
                 </select>
               </div>
             </div>
             <div class="row">
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <label for="nombreComercial">
                   <b>Nombre comercial *</b>
                   <span
@@ -556,7 +625,7 @@
                 </label>
                 <input class="form-control" id="nombreComercial" type="text" formControlName="nombreComercial">
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-6">
                   <label for="razonSocial">
                     <b>Razon social *</b>
                     <span
@@ -566,7 +635,7 @@
                   </label>
                   <input class="form-control" id="razonSocial" type="text" formControlName="razonSocial">
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                   <label for="numeroRegistro">
                     <b>Registro</b>
                     <span
@@ -578,9 +647,18 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-sm-4">
-                <label for="numeroOrden">
+              <div class="col-sm-6">
+                <label *ngIf="tipoVisita === ''" for="numeroOrden">
                   <b>Num. orden (autogenerado) *</b>
+                  <span
+                    *ngIf="crearVisitaForm.controls['numeroOrden'].invalid && (crearVisitaForm.controls['numeroOrden'].dirty || crearVisitaForm.controls['numeroOrden'].touched)">
+                      <i *ngIf="crearVisitaForm.controls['numeroOrden'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="crearVisitaForm.controls['numeroOrden'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                      <i *ngIf="crearVisitaForm.controls['numeroOrden'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                    </span>
+                </label>
+                <label for="numeroOrdenImpacto" >
+                  <b>Num. orden u oficio *</b>
                   <span
                     *ngIf="crearVisitaForm.controls['numeroOrden'].invalid && (crearVisitaForm.controls['numeroOrden'].dirty || crearVisitaForm.controls['numeroOrden'].touched)">
                       <i *ngIf="crearVisitaForm.controls['numeroOrden'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -592,20 +670,22 @@
                   <div class="input-group-prepend">
                     <span *ngIf="tipoVisita === 'ORDINARIA'" class="input-group-text">CESP/DSSP/ORD/</span>
                     <span *ngIf="tipoVisita === 'EXTRAORDINARIA'" class="input-group-text">CESP/DSSP/EXT/</span>
+                    <span *ngIf="tipoVisita === 'INICIAL'" class="input-group-text">CESP/DSSP/VICOM/</span>
                   </div>
-                  <input class="form-control" id="numeroOrden" type="tel" formControlName="numeroOrden" placeholder="Se generara automaticamente" appNumberMask>
-                  <div class="input-group-append">
+                  <input *ngIf="tipoVisita !== 'IMPACTO'" class="form-control" id="numeroOrden" type="tel" formControlName="numeroOrden" placeholder="Se genera automaticamente" appNumberMask>
+                  <input *ngIf="tipoVisita === 'IMPACTO'" class="form-control" id="numeroOrdenImpacto" type="text" formControlName="numeroOrden" placeholder="Introducir numero de oficio">
+                  <div class="input-group-append" *ngIf="tipoVisita !== 'IMPACTO'">
                     <span class="input-group-text">/{{anio}}</span>
                   </div>
                 </div>
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <label for="fechaVisita">
                   <b>Fecha de visita *</b>
                 </label>
-                <input class="form-control" id="fechaVisita" type="date"  [min]="fechaDeHoy" formControlName="fechaVisita" placeholder="Fecha de la visita">
+                <input class="form-control" id="fechaVisita" type="date" formControlName="fechaVisita" placeholder="Fecha de la visita">
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <label for="responsable">
                   <b>Asignado / Responsable *</b>
                   <span
@@ -618,7 +698,7 @@
                 </select>
               </div>
             </div>
-            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
+            <div class="row" *ngIf="tipoVisita !== undefined && ((tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa) || (tipoVisita === 'IMPACTO' && !existeEmpresa) || (tipoVisita === 'INICIAL' && !existeEmpresa))">
               <div class="col-sm-3">
                 <label>
                   <b>Estado *</b>
@@ -686,7 +766,7 @@
               </div>
             </div>
 
-            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
+            <div class="row" *ngIf="tipoVisita !== undefined && ((tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa) || (tipoVisita === 'IMPACTO' && !existeEmpresa) || (tipoVisita === 'INICIAL' && !existeEmpresa))">
               <div class="col-sm-6">
                 <label>
                   <b>Colonia *</b>
@@ -731,7 +811,7 @@
               </div>
             </div>
 
-            <div class="row" *ngIf="tipoVisita !== undefined && (tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa)">
+            <div class="row" *ngIf="tipoVisita !== undefined && ((tipoVisita === 'EXTRAORDINARIA' && !existeEmpresa) || (tipoVisita === 'IMPACTO' && !existeEmpresa) || (tipoVisita === 'INICIAL' && !existeEmpresa))">
               <div class="col-sm-3">
                 <label for="numeroExterior">
                   <b>N. Ext * </b>

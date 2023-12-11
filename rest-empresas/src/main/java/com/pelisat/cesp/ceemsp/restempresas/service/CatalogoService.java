@@ -4,6 +4,7 @@ import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.database.model.ArmaMarca;
 import com.pelisat.cesp.ceemsp.database.model.PersonalNacionalidad;
 import com.pelisat.cesp.ceemsp.database.model.VehiculoTipo;
+import com.pelisat.cesp.ceemsp.database.type.VehiculoTipoEnum;
 
 import java.util.List;
 
@@ -28,11 +29,17 @@ public interface CatalogoService {
     List<UniformeDto> obtenerUniformes();
     UniformeDto obtenerUniformePorId(int id);
 
+    List<EquipoDto> obtenerEquipos();
+    List<EquipoDto> obtenerEquiposCalificables(String username);
+    EquipoDto obtenerEquipoPorId(int id);
+
     List<VehiculoUsoDto> obtenerUsosVehiculos();
     VehiculoUsoDto obtenerUsoVehiculoPorId(int id);
 
     List<VehiculoMarcaDto> obtenerMarcasVehiculos();
+    List<VehiculoMarcaDto> obtenerMarcasVehiculosTipo(VehiculoTipoEnum vehiculoTipo);
     VehiculoMarcaDto obtenerMarcaVehiculoPorId(int id);
+    VehiculoMarcaDto obtenerMarcaVehiculoPorUuid(String uuid);
 
     List<CalleDto> obtenerCalles(Integer limit);
     List<CalleDto> obtenerCallesPorQuery(String query);
@@ -59,6 +66,8 @@ public interface CatalogoService {
     PersonalNacionalidadDto obtenerNacionalidadPorId(Integer id);
     PersonalPuestoDeTrabajoDto obtenerPuestoPorId(Integer id);
     PersonalSubpuestoDeTrabajoDto obtenerSubpuestoPorId(Integer id);
+
+    List<PersonalSubpuestoDeTrabajoDto> obtenerSubpuestosPorUuid(String uuid);
 
     VehiculoMarcaDto obtenerMarcaPorId(Integer id);
     VehiculoSubmarcaDto obtenerSubmarcaPorId(Integer id);

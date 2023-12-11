@@ -40,19 +40,25 @@
     </li>
 
     <li class="nav-item">
+      <a class="nav-link" routerLink="/home/acuerdos">
+        <i class="fas fa-fw fa-chart-area"></i>
+        <span><fa-icon [icon]="faHandshake"></fa-icon> Acuerdos</span></a>
+    </li>
+
+    <!--li class="nav-item">
       <a class="nav-link" routerLink="/home/legal">
         <i class="fas fa-fw fa-chart-area"></i>
         <span><fa-icon [icon]="faFileContract"></fa-icon> Legal</span></a>
-    </li>
+    </li-->
 
-    <li class="nav-item">
+    <li class="nav-item" *ngIf="usuarioActual?.empresa?.tieneArmas">
       <a class="nav-link" routerLink="/home/licencias">
         <i class="fas fa-fw fa-chart-area"></i>
         <span><fa-icon [icon]="faBomb"></fa-icon> Licencias colectivas / Armas</span></a>
     </li>
 
     <!-- Nav Item - Tables -->
-    <li class="nav-item">
+    <li class="nav-item" *ngIf="usuarioActual?.empresa?.tieneCanes">
       <a class="nav-link" routerLink="/home/canes">
         <i class="fas fa-fw fa-table"></i>
         <span><fa-icon [icon]="faDog"></fa-icon> Canes</span></a>
@@ -74,7 +80,7 @@
     <li class="nav-item">
       <a class="nav-link" routerLink="/home/clientes">
         <i class="fas fa-fw fa-table"></i>
-        <span>Clientes</span></a>
+        <span><fa-icon [icon]="faBriefcase"></fa-icon> Clientes</span></a>
     </li>
 
     <li class="nav-item">
@@ -92,22 +98,34 @@
     <li class="nav-item">
       <a class="nav-link" routerLink="/home/uniformes">
         <i class="fas fa-fw fa-table"></i>
-        <span>Uniformes</span></a>
+        <span><fa-icon [icon]="faVestPatches"></fa-icon> Uniformes</span></a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/home/visitas">
+        <i class="fas fa-fw fa-table"></i>
+        <span><fa-icon [icon]="faVestPatches"></fa-icon> Visitas</span></a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/home/reportes-mensuales">
+        <i class="fas fa-fw fa-table"></i>
+        <span><fa-icon [icon]="faVestPatches"></fa-icon> Informes mensuales</span></a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/home/reporteo">
+        <i class="fas fa-fw fa-table"></i>
+        <span><fa-icon [icon]="faVestPatches"></fa-icon> Reporteo</span></a>
     </li>
 
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">
 
     <li class="nav-item">
-      <a class="nav-link" routerLink="/home/configuracion">
+      <a class="nav-link" routerLink="/home/informacion">
         <i class="fas fa-fw fa-table"></i>
-        <span>Info. de Empresa</span></a>
-    </li>
-
-    <li class="nav-item">
-      <a class="nav-link" routerLink="/home/configuracion">
-        <i class="fas fa-fw fa-table"></i>
-        <span>Configuracion</span></a>
+        <span><fa-icon [icon]="faInfoCircle"></fa-icon> Info. de Empresa</span></a>
     </li>
 
     <!-- Sidebar Toggler (Sidebar) -->
@@ -136,15 +154,30 @@
         <form
           class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
           <div class="input-group">
-            <!--input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
-                   aria-label="Search" aria-describedby="basic-addon2">
             <div class="input-group-append">
-              <button class="btn btn-primary" type="button">
-                <i class="fas fa-search fa-sm"></i>
+              <button id="dropdownMenuButton" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Buscar en: {{ (filtroBusqueda === undefined) ? "" : this.filtroBusqueda }}
               </button>
-            </div-->
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" (click)="cambiarFiltroBusqueda('CLIENTES')">Clientes</a>
+                <a class="dropdown-item" (click)="cambiarFiltroBusqueda('PERSONAL')">Personal</a>
+                <a class="dropdown-item" (click)="cambiarFiltroBusqueda('CANES')">Canes</a>
+                <a class="dropdown-item" (click)="cambiarFiltroBusqueda('VEHICULOS')">Vehiculos</a>
+                <a class="dropdown-item" (click)="cambiarFiltroBusqueda('ARMAS')">Armas</a>
+                <a class="dropdown-item" (click)="cambiarFiltroBusqueda('ESCRITURAS')">Escrituras</a>
+                <a class="dropdown-item" (click)="cambiarFiltroBusqueda('INCIDENCIAS')">Incidencias</a>
+              </div>
+            </div>
+            <input type="text" class="form-control bg-light border-0 small" placeholder="Introduzca la palabra a buscar"
+                   aria-label="Search" aria-describedby="basic-addon2" [(ngModel)]="terminoABuscar" [ngModelOptions]="{standalone: true}">
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="button" (click)="realizarBusqueda()">
+                <fa-icon [icon]="faSearch"></fa-icon>
+              </button>
+            </div>
           </div>
         </form>
+
 
         <!-- Topbar Navbar -->
         <ul class="navbar-nav ml-auto">
@@ -173,26 +206,24 @@
             </div>
           </li>
 
-          <!-- Nav Item - Alerts -->
           <li class="nav-item dropdown no-arrow mx-1">
             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <fa-icon class="text-primary" size="lg" [icon]="faBell"></fa-icon>
-              <!-- Counter - Alerts -->
-              <!--span class="badge badge-danger badge-counter">3+</span-->
+              <fa-icon class="text-primary" size="lg" [icon]="faEnvelope"></fa-icon>
+              <span class="badge badge-danger badge-counter" *ngIf="notificacionesSinLeer > 0">{{notificacionesSinLeer}}</span>
             </a>
             <!-- Dropdown - Alerts -->
             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                  aria-labelledby="alertsDropdown">
               <h6 class="dropdown-header">
-                Notificaciones
+                Buzon interno
               </h6>
               <a *ngIf="notificaciones.length === 0" class="dropdown-item d-flex align-items-center" href="#">
                 <div>
                   <span class="font-weight-bold">Actualmente no tienes nuevas notificaciones. Te avisaremos cuando algo nuevo ocurra.</span>
                 </div>
               </a>
-              <a *ngFor="let n of notificaciones; let i = index;" class="dropdown-item d-flex align-items-center"
+              <a *ngFor="let n of notificaciones.slice()?.reverse() | slice:0:5; let i = index;" class="dropdown-item d-flex align-items-center"
                  (click)="leerNotificacion(n?.uuid)">
                 <!--div class="mr-3">
                   <div class="icon-circle bg-primary">
@@ -201,11 +232,47 @@
                 </div-->
                 <div>
                   <div class="small text-gray-500">{{n?.fechaCreacion}}</div>
-                  <span class="font-weight-bold">{{n?.motivo}}</span>
+                  <span class="font-weight-bold"> <span *ngIf="n?.leido">(Visto)</span> {{n?.motivo}}</span>
                 </div>
               </a>
 
-              <a class="dropdown-item text-center small text-gray-500" href="#">Ver todas</a>
+              <a class="dropdown-item text-center small text-gray-500" (click)="mostrarModalTodasNotificaciones()">Ver todas</a>
+            </div>
+          </li>
+
+          <!-- Nav Item - Alerts -->
+          <li class="nav-item dropdown no-arrow mx-1">
+            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <fa-icon class="text-primary" size="lg" [icon]="faBell"></fa-icon>
+              <span class="badge badge-danger badge-counter" *ngIf="notificacionesEmpresaSinLeer > 0">{{notificacionesEmpresaSinLeer}}</span>
+            </a>
+            <!-- Dropdown - Alerts -->
+            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                 aria-labelledby="alertsDropdown">
+              <h6 class="dropdown-header">
+                Notificaciones
+              </h6>
+              <a *ngIf="notificacionesEmpresa?.length === 0" class="dropdown-item d-flex align-items-center" href="#">
+                <div>
+                  <span class="font-weight-bold">Actualmente no tienes nuevas notificaciones. Te avisaremos cuando algo nuevo ocurra.</span>
+                </div>
+              </a>
+              <a *ngFor="let n of notificacionesEmpresa?.slice()?.reverse() | slice:0:5; let i = index;" class="dropdown-item d-flex align-items-center"
+                 (click)="leerNotificacionEmpresa(n?.uuid)">
+                <!--div class="mr-3">
+                  <div class="icon-circle bg-primary">
+                    <i class="fas fa-file-alt text-white"></i>
+                  </div>
+                </div-->
+                <div>
+                  <div class="small text-gray-500">{{n?.fechaCreacion}}</div>
+                  <span class="font-weight-bold"> <span *ngIf="n?.leido">(Visto)</span> {{n?.motivo}}</span><br>
+                  <span>{{n?.descripcion}}</span>
+                </div>
+              </a>
+
+              <a class="dropdown-item text-center small text-gray-500" (click)="mostrarModalTodasNotificacionesEmpresa()">Ver todas</a>
             </div>
           </li>
 
@@ -279,29 +346,26 @@
           <li class="nav-item dropdown no-arrow">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <span class="mr-2 d-none d-lg-inline text-gray-600 small">Juan Carlos Garnica</span>
+              <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{usuarioActual?.empresa?.registro + " - " + usuarioActual?.empresa?.razonSocial}}</span>
               <img class="img-profile rounded-circle"
-                   src="img/undraw_profile.svg">
+                   [src]="(logo !== undefined) ? logo : 'assets/usuario-generico.png'">
             </a>
             <!-- Dropdown - User Information -->
             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                  aria-labelledby="userDropdown">
-              <a class="dropdown-item" href="#">
-                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                Perfil
+              <a class="dropdown-item" routerLink="/home/informacion">
+                <fa-icon [icon]="faUser"></fa-icon> Perfil
               </a>
-              <a class="dropdown-item" href="#">
-                <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                Ajustes
+              <a class="dropdown-item" (click)="mostrarModalCambioContrasena()">
+                <fa-icon [icon]="faArrowAltCircleLeft"></fa-icon> Cambio de contrasena
               </a>
-              <a class="dropdown-item" href="#">
+              <!--a class="dropdown-item" href="#">
                 <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
                 Registro de actividad
-              </a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                Cerrar sesion
+              </a-->
+              <!--div class="dropdown-divider"></div-->
+              <a class="dropdown-item" style="cursor:pointer;" (click)="logout()">
+                <fa-icon [icon]="faDoorClosed"></fa-icon> Cerrar sesión
               </a>
             </div>
           </li>
@@ -334,35 +398,173 @@
         </button>
       </div>
       <div class="modal-body">
-        <small class="text-white" [innerHTML]="notificacion?.mensaje">
+        <small [innerHTML]="textoNotificacion">
         </small>
       </div>
       <div class="modal-footer">
-
+        <button class="btn btn-primary" (click)="modal.close()">Cerrar</button>
       </div>
     </ng-template>
   </div>
 
-  <a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-  </a>
-
-  <!-- Logout Modal-->
-  <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-       aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          <a class="btn btn-primary" href="login.html">Logout</a>
+  <ng-template #verNotificacionesModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="verNotificacionesModal">Ver todos los mensajes</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <a *ngFor="let n of notificaciones.slice()?.reverse(); let i = index;" class="dropdown-item d-flex align-items-center"
+             (click)="leerNotificacion(n?.uuid)">
+            <!--div class="mr-3">
+              <div class="icon-circle bg-primary">
+                <i class="fas fa-file-alt text-white"></i>
+              </div>
+            </div-->
+            <div>
+              <div class="small text-gray-500">{{n?.fechaCreacion}}</div>
+              <span class="font-weight-bold"> <span *ngIf="n?.leido">(Visto)</span> {{n?.motivo}}</span>
+            </div>
+          </a>
         </div>
       </div>
     </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="modal.close()">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #verNotificacionEmpresaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="verNotificacionEmpresaModal">Ver todas las notificaciones</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p-table #notificacionesTable [value]="notificacionesEmpresa" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['motivo','descripcion']"
+                   [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Notificaciones</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="notificacionesTable.filterGlobal($event.target.value, 'contains')" placeholder="Buscar notificacion" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="fechaCreacion"><b>Fecha <p-sortIcon field="fechaCreacion"></p-sortIcon></b></th>
+                <th pSortableColumn="motivo"><b>Motivo <p-sortIcon field="motivo"></p-sortIcon></b></th>
+                <th pSortableColumn="descripcion"><b>Descripcion <p-sortIcon field="descripcion"></p-sortIcon></b></th>
+                <th pSortableColumn="leido"><b>Leido <p-sortIcon field="leido"></p-sortIcon></b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="3">Sin notificaciones, puedes estar tranquilo (por ahora)</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-notificacion>
+              <tr (click)="leerNotificacion(notificacion?.uuid)">
+                <td>{{notificacion?.fechaCreacion}}</td>
+                <td>{{notificacion?.motivo}}</td>
+                <td>{{notificacion?.descripcion}}</td>
+                <td>{{notificacion?.leido}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{notificacionesEmpresa.length}} notificaciones</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="cerrarModalNotificaciones()">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+</div>
+
+<ng-template #cambioContrasenaModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="cambioContrasenaModal">Cambiar contrasena</h4>
+    <button type="button" class="close" aria-label="Close" (click)="cerrarModalCambioContrasena()">
+      <span aria-hidden="true">×</span>
+    </button>
   </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-sm-12">
+        <form [formGroup]="reiniciarContrasenaForm">
+          <div class="form-row">
+            <div class="col-sm-4">
+              <label for="actualPassword">
+                <b>Contrasena actual * </b>
+                <span
+                  *ngIf="reiniciarContrasenaForm.controls['actualPassword'].invalid && (reiniciarContrasenaForm.controls['actualPassword'].dirty || reiniciarContrasenaForm.controls['actualPassword'].touched)">
+                      </span>
+              </label>
+              <div class="input-group">
+                <input class="form-control" id="actualPassword" [type]="mostrarContrasena ? 'text' : 'password'" formControlName="actualPassword" placeholder="De 8 a 15 caracteres.">
+                <div class="input-group-append">
+                  <span class="input-group-text" style="cursor: pointer;" (click)="conmutarMostrarContrasena()">{{mostrarContrasena ? 'Ocultar' : 'Mostrar'}}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <label for="password">
+                <b>Contrasena * <a style="color:#0057a0; cursor: pointer;" class="fakelink" (click)="autogenerarContrasena()">(autogenerar)</a></b>
+                <span
+                  *ngIf="reiniciarContrasenaForm.controls['password'].invalid && (reiniciarContrasenaForm.controls['password'].dirty || reiniciarContrasenaForm.controls['password'].touched)">
+                      </span>
+              </label>
+              <div class="input-group">
+                <input class="form-control" id="password" [type]="mostrarContrasena ? 'text' : 'password'" formControlName="password" placeholder="De 8 a 15 caracteres.">
+                <div class="input-group-append">
+                  <span class="input-group-text" style="cursor: pointer;" (click)="conmutarMostrarContrasena()">{{mostrarContrasena ? 'Ocultar' : 'Mostrar'}}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <label for="password">
+                <b>Confirmar contrasena * </b>
+                <span
+                  *ngIf="reiniciarContrasenaForm.controls['verificarPassword'].invalid && (reiniciarContrasenaForm.controls['verificarPassword'].dirty || reiniciarContrasenaForm.controls['verificarPassword'].touched)">
+                      </span>
+              </label>
+              <div class="input-group">
+                <input class="form-control" id="verificarPassword" [type]="mostrarContrasena ? 'text' : 'password'" formControlName="verificarPassword" placeholder="De 8 a 15 caracteres.">
+                <div class="input-group-append">
+                  <span class="input-group-text" style="cursor: pointer;">{{mostrarContrasena ? 'Ocultar' : 'Mostrar'}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-sm-12">
+        <p>Al presionar guardar, aceptas que has guardado la nueva contrasena en un lugar seguro.</p>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="guardarUsuario(reiniciarContrasenaForm)">Guardar cambios</button>
+    <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+  </div>
+</ng-template>

@@ -62,7 +62,7 @@
             </tr>
             <tr>
               <td><b>Contenido del mensaje:</b></td>
-              <td [innerHTML]="mensaje?.mensaje"></td>
+              <td [innerHTML]="mensaje?.mensaje | sanitizeHtml"></td>
             </tr>
             <tr>
               <td><b>Fecha de creacion del mensaje</b></td>
@@ -80,7 +80,7 @@
               <td><b>Correo</b></td>
               <td><b>Fecha Act.</b></td>
               <td><b>Leido</b></td>
-              <td><b>Acciones</b></td>
+              <td><b>Opciones</b></td>
             </tr>
             <tr *ngFor="let d of mensaje.destinatarios; let i = index">
               <td>{{d?.tipoDestinatario}}</td>
@@ -116,7 +116,6 @@
                                 </span>
                           </label>
                           <select id="tipoDestinatario" class="form-control" formControlName="tipoDestinatario" (change)="cambiarTipoDestinatario($event.target)">
-                            <option value="EMAIL">Correo electronico</option>
                             <option value="USUARIO">Usuario</option>
                             <option value="EMPRESA">Empresa</option>
                           </select>
@@ -169,7 +168,7 @@
                         </div>
                         <div class="col-sm-3">
                           <label for="email">
-                            <b>Correo electronico *</b>
+                            <b>Correo electronico (agregar comas para multiples destinatarios) *</b>
                             <span
                               *ngIf="crearDestinatarioForm.controls['email'].invalid && (crearDestinatarioForm.controls['email'].dirty || crearDestinatarioForm.controls['email'].touched)">
                                     <i *ngIf="crearDestinatarioForm.controls['email'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -231,7 +230,7 @@
               <label>
                 <b>Contenido del mensaje *</b>
               </label>
-              <ckeditor editorUrl="http://www.pelisat.com.mx/cdn/ckeditor/ckeditor.js" [(ngModel)]="editorData"></ckeditor>
+              <ckeditor editorUrl="https://www.pelisat.com.mx/cdn/ckeditor/ckeditor.js" [(ngModel)]="editorData"></ckeditor>
             </div>
           </div>
 
@@ -245,7 +244,7 @@
                   <td><b>Tipo</b></td>
                   <td><b>Destinatario</b></td>
                   <td><b>Correo</b></td>
-                  <td><b>Acciones</b></td>
+                  <td><b>Opciones</b></td>
                 </tr>
                 <tr *ngFor="let d of destinatarios">
                   <td>{{d?.tipoDestinatario}}</td>
@@ -276,7 +275,7 @@
                                 </span>
                               </label>
                               <select id="tipoDestinatario" class="form-control" formControlName="tipoDestinatario" (change)="cambiarTipoDestinatario($event.target)">
-                                <option value="EMAIL">Correo electronico</option>
+                                <!--option value="EMAIL">Correo electronico</option-->
                                 <option value="USUARIO">Usuario</option>
                                 <option value="EMPRESA">Empresa</option>
                               </select>
@@ -329,7 +328,7 @@
                             </div>
                             <div class="col-sm-3">
                               <label for="email">
-                                <b>Correo electronico *</b>
+                                <b>Correo electronico (agregar comas para multiples destinatarios) *</b>
                                 <span
                                   *ngIf="crearDestinatarioForm.controls['email'].invalid && (crearDestinatarioForm.controls['email'].dirty || crearDestinatarioForm.controls['email'].touched)">
                                     <i *ngIf="crearDestinatarioForm.controls['email'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -358,7 +357,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="enviarMensaje(crearMensajeForm)">Enviar mensaje</button>
+      <button class="btn btn-primary" [disabled]="actionInProgress"  (click)="enviarMensaje(crearMensajeForm)">Enviar mensaje</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
@@ -393,7 +392,7 @@
               <label>
                 <b>Contenido del mensaje *</b>
               </label>
-              <ckeditor editorUrl="http://www.pelisat.com.mx/cdn/ckeditor/ckeditor.js" [(ngModel)]="editorData"></ckeditor>
+              <ckeditor editorUrl="https://www.pelisat.com.mx/cdn/ckeditor/ckeditor.js" [(ngModel)]="editorData"></ckeditor>
             </div>
           </div>
         </div>

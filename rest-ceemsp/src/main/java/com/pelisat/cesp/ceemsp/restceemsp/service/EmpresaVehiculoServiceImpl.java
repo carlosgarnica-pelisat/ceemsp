@@ -1,15 +1,10 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
-import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.dto.VehiculoDto;
-import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
-import com.pelisat.cesp.ceemsp.database.model.IncidenciaArchivo;
-import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
-import com.pelisat.cesp.ceemsp.database.repository.VehiculoRepository;
-import com.pelisat.cesp.ceemsp.database.repository.VehiculoSubmarcaRepository;
+import com.pelisat.cesp.ceemsp.database.dto.*;
+import com.pelisat.cesp.ceemsp.database.model.*;
+import com.pelisat.cesp.ceemsp.database.repository.*;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
+import com.pelisat.cesp.ceemsp.database.type.VehiculoStatusEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.*;
 import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
@@ -20,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
@@ -47,7 +42,9 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
     private final VehiculoFotografiaService vehiculoFotografiaService;
     private final ArchivosService archivosService;
     private final EmpresaDomicilioService empresaDomicilioService;
-    private final PersonaService personaService;
+    private final PersonaRepository personaRepository;
+    private final PersonalVehiculoRepository personalVehiculoRepository;
+    private final VehiculoDomicilioRepository vehiculoDomicilioRepository;
 
     @Autowired
     public EmpresaVehiculoServiceImpl(VehiculoRepository vehiculoRepository, UsuarioService usuarioService,
@@ -57,7 +54,8 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
                                       VehiculoUsoService vehiculoUsoService, VehiculoTipoService vehiculoTipoService,
                                       VehiculoColorService vehiculoColorService, VehiculoFotografiaService vehiculoFotografiaService,
                                       ArchivosService archivosService, EmpresaDomicilioService empresaDomicilioService,
-                                      PersonaService personaService) {
+                                      PersonaRepository personaRepository, PersonalVehiculoRepository personalVehiculoRepository,
+                                      VehiculoDomicilioRepository vehiculoDomicilioRepository) {
         this.vehiculoRepository = vehiculoRepository;
         this.usuarioService = usuarioService;
         this.daoToDtoConverter = daoToDtoConverter;
@@ -72,7 +70,9 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         this.vehiculoFotografiaService = vehiculoFotografiaService;
         this.archivosService = archivosService;
         this.empresaDomicilioService = empresaDomicilioService;
-        this.personaService = personaService;
+        this.personaRepository = personaRepository;
+        this.personalVehiculoRepository = personalVehiculoRepository;
+        this.vehiculoDomicilioRepository = vehiculoDomicilioRepository;
     }
 
     @Override
@@ -128,6 +128,29 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
     }
 
     @Override
+    public List<VehiculoDto> obtenerVehiculosInstalacionesPorEmpresa(String empresaUuid) {
+        if(StringUtils.isBlank(empresaUuid)) {
+            logger.warn("El uuid de la empresa viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando todos los vehiculos");
+
+        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        List<Vehiculo> vehiculos = vehiculoRepository.getAllByEmpresaAndStatusAndEliminadoFalse(empresaDto.getId(), VehiculoStatusEnum.INSTALACIONES);
+        return vehiculos.stream().map(vehiculo -> {
+            VehiculoDto vehiculoDto = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
+            vehiculoDto.setMarca(vehiculoMarcaService.obtenerPorId(vehiculo.getMarca()));
+            if(vehiculo.getSubmarca() > 0) {
+                vehiculoDto.setSubmarca(vehiculoSubmarcaService.obtenerPorId(vehiculo.getSubmarca()));
+            }
+            vehiculoDto.setTipo(vehiculoTipoService.obtenerPorId(vehiculo.getTipo()));
+            vehiculoDto.setFotografias(vehiculoFotografiaService.mostrarVehiculoFotografias(empresaUuid, vehiculo.getUuid()));
+            return vehiculoDto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
     public VehiculoDto obtenerVehiculoPorUuid(String empresaUuid, String vehiculoUuid, boolean soloEntidad) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid)) {
             logger.warn("El uuid viene como nulo o vacio");
@@ -155,6 +178,17 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
             vehiculoDto.setDomicilio(empresaDomicilioService.obtenerPorId(vehiculo.getDomicilio()));
             vehiculoDto.setColores(vehiculoColorService.obtenerTodosPorVehiculoUuid(vehiculoUuid, empresaUuid));
             vehiculoDto.setFotografias(vehiculoFotografiaService.mostrarVehiculoFotografias(empresaUuid, vehiculo.getUuid()));
+
+            if(vehiculoDto.getStatus() == VehiculoStatusEnum.ACTIVO) {
+                Personal personalAsignado = personaRepository.getByVehiculoAndEliminadoFalse(vehiculo.getId());
+                if(personalAsignado != null) {
+                    vehiculoDto.setPersonalAsignado(daoToDtoConverter.convertDaoToDtoPersona(personalAsignado));
+                }
+            }
+        }
+
+        if(StringUtils.isNotBlank(vehiculo.getConstanciaBlindaje())) {
+            vehiculoDto.setConstanciaBlindajeCargada(true);
         }
 
         return vehiculoDto;
@@ -180,6 +214,30 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
     }
 
     @Override
+    public File descargarDocumentoFundatorio(String empresaUuid, String vehiculoUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid)) {
+            logger.warn("El uuid de la empresa o del vehiculo vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando el documento fundatorio para el vehiculo [{}]", vehiculoUuid);
+
+        Vehiculo vehiculo = vehiculoRepository.getByUuid(vehiculoUuid);
+
+        if(vehiculo == null) {
+            logger.warn("La escritura no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(!vehiculo.getEliminado()) {
+            logger.warn("El vehiculo no esta eliminado. Esta funcion no es compatible");
+            throw new NotFoundResourceException();
+        }
+
+        return new File(vehiculo.getDocumentoFundatorioBaja());
+    }
+
+    @Override
     public VehiculoDto obtenerVehiculoPorId(String empresaUuid, Integer vehiculoId) {
         if(StringUtils.isBlank(empresaUuid) || vehiculoId == null || vehiculoId < 1) {
             logger.warn("El uuid de la empresa o el id del vehiculo a consultar vienen como nulos o invalidos");
@@ -189,11 +247,6 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
         logger.info("Obteniendo el vehiculo con el id [{}]", vehiculoId);
 
         Vehiculo vehiculo = vehiculoRepository.getOne(vehiculoId);
-
-        if(vehiculo == null) {
-            logger.warn("El vehiculo no existe en la base de datos");
-            throw new NotFoundResourceException();
-        }
 
         VehiculoDto vehiculoDto = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
         vehiculoDto.setUso(vehiculoUsoService.obtenerPorId(vehiculo.getUso()));
@@ -251,9 +304,11 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
             vehiculo.setFechaBlindaje(LocalDate.parse(vehiculoDto.getFechaBlindaje()));
         }
 
+        daoHelper.fulfillAuditorFields(true, vehiculo, usuarioDto.getId());
+
         if(constanciaBlindaje != null) {
             logger.info("Hay archivo");
-            daoHelper.fulfillAuditorFields(true, vehiculo, usuarioDto.getId());
+
             try {
                 String ruta = archivosService.guardarArchivoMultipart(constanciaBlindaje, TipoArchivoEnum.CONSTANCIA_BLINDAJE_VEHICULO, empresaDto.getUuid());
                 vehiculo.setConstanciaBlindaje(ruta);
@@ -309,6 +364,15 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
             throw new MissingRelationshipException();
         }
 
+        if(vehiculo.getDomicilio() != vehiculoDto.getDomicilio().getId()) {
+            VehiculoDomicilio vehiculoDomicilio = new VehiculoDomicilio();
+            vehiculoDomicilio.setVehiculo(vehiculo.getId());
+            vehiculoDomicilio.setDomicilioActual(vehiculoDto.getDomicilio().getId());
+            vehiculoDomicilio.setDomicilioAnterior(vehiculo.getDomicilio());
+            daoHelper.fulfillAuditorFields(true, vehiculo, usuarioDto.getId());
+            vehiculoDomicilioRepository.save(vehiculoDomicilio);
+        }
+
         vehiculo.setPlacas(vehiculoDto.getPlacas());
         vehiculo.setSerie(vehiculoDto.getSerie());
         vehiculo.setRotulado(vehiculoDto.isRotulado());
@@ -362,6 +426,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
     }
 
     @Override
+    @Transactional
     public VehiculoDto eliminarVehiculo(String empresaUuid, String vehiculoUuid, String username, VehiculoDto vehiculoDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(username)) {
             logger.warn("El uuid viene como nulo o vacio");
@@ -384,7 +449,7 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
 
         vehiculo.setMotivoBaja(vehiculoDto.getMotivoBaja());
         vehiculo.setObservacionesBaja(vehiculoDto.getObservacionesBaja());
-        vehiculo.setFechaBaja(LocalDate.parse(vehiculoDto.getFechaBaja()));
+        vehiculo.setFechaBaja(LocalDate.now());
         vehiculo.setEliminado(true);
 
         if(multipartFile != null) {
@@ -403,5 +468,62 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
 
         Vehiculo vehiculoCreado = vehiculoRepository.save(vehiculo);
         return daoToDtoConverter.convertDaoToDtoVehiculo(vehiculoCreado);
+    }
+
+    @Override
+    public List<PersonalVehiculoDto> obtenerMovimientosVehiculoPorUuid(String empresaUuid, String vehiculoUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        Vehiculo vehiculo = vehiculoRepository.getByUuid(vehiculoUuid);
+
+        if(vehiculo == null) {
+            logger.warn("El vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<PersonalVehiculo> movimientosVehiculo = personalVehiculoRepository.getAllByVehiculo(vehiculo.getId());
+
+        return movimientosVehiculo.stream().map(movimiento -> {
+            PersonalVehiculoDto pad = new PersonalVehiculoDto();
+            Personal personal = personaRepository.getOne(movimiento.getPersonal());
+            pad.setObservaciones(movimiento.getObservaciones());
+            pad.setPersona(daoToDtoConverter.convertDaoToDtoPersona(personal));
+            pad.setFechaCreacion(movimiento.getFechaCreacion().toString());
+            pad.setFechaActualizacion(movimiento.getFechaActualizacion().toString());
+            pad.setMotivoBajaAsignacion(movimiento.getMotivoBajaAsignacion());
+            pad.setEliminado(movimiento.getEliminado());
+            return pad;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<VehiculoDomicilioDto> obtenerMovimientosDomiciliosVehiculo(String empresaUuid, String vehiculoUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        Vehiculo vehiculo = vehiculoRepository.getByUuid(vehiculoUuid);
+
+        if(vehiculo == null) {
+            logger.warn("El vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<VehiculoDomicilio> vehiculoDomicilios = vehiculoDomicilioRepository.findAllByVehiculo(vehiculo.getId());
+
+        return vehiculoDomicilios.stream().map(movimiento -> {
+            VehiculoDomicilioDto vehiculoDomicilioDto = new VehiculoDomicilioDto();
+            vehiculoDomicilioDto.setId(movimiento.getId());
+            vehiculoDomicilioDto.setUuid(movimiento.getUuid());
+            vehiculoDomicilioDto.setDomicilioAnterior(empresaDomicilioService.obtenerPorId(movimiento.getDomicilioAnterior()));
+            vehiculoDomicilioDto.setDomicilioActual(empresaDomicilioService.obtenerPorId(movimiento.getDomicilioActual()));
+            vehiculoDomicilioDto.setFechaCreacion(movimiento.getFechaCreacion().toString());
+            vehiculoDomicilioDto.setFechaActualizacion(movimiento.getFechaActualizacion().toString());
+            return vehiculoDomicilioDto;
+        }).collect(Collectors.toList());
     }
 }

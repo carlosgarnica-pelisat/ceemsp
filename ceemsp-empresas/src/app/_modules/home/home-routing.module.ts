@@ -3,9 +3,6 @@ import {HomeComponent} from "../../home/home.component";
 import {NgModule} from "@angular/core";
 import {AuthGuard} from "../../_helpers/auth.guard";
 import {DashboardComponent} from "../../home/dashboard/dashboard.component";
-import {ConfiguracionComponent} from "../../home/configuracion/configuracion.component";
-import {ModalidadesComponent} from "../../home/catalogos/modalidades/modalidades.component";
-import {EmpresaDetallesComponent} from "../../home/empresas/empresa-detalles/empresa-detalles.component";
 import {EmpresaDomiciliosComponent} from "../../home/empresa-domicilios/empresa-domicilios.component";
 import {EmpresaLegalComponent} from "../../home/empresa-legal/empresa-legal.component";
 import {EmpresaLicenciasComponent} from "../../home/empresa-licencias/empresa-licencias.component";
@@ -16,6 +13,14 @@ import {EmpresaPersonalComponent} from "../../home/empresa-personal/empresa-pers
 import {EmpresaClientesComponent} from "../../home/empresa-clientes/empresa-clientes.component";
 import {EmpresaEquipoComponent} from "../../home/empresa-equipo/empresa-equipo.component";
 import {EmpresaUniformesComponent} from "../../home/empresa-uniformes/empresa-uniformes.component";
+import {EmpresaAcuerdosComponent} from "../../home/empresa-acuerdos/empresa-acuerdos.component";
+import {EmpresaInformacionComponent} from "../../home/empresa-informacion/empresa-informacion.component";
+import {EmpresaVisitasComponent} from "../../home/empresa-visitas/empresa-visitas.component";
+import {
+  EmpresaReportesMensualesComponent
+} from "../../home/empresa-reportes-mensuales/empresa-reportes-mensuales.component";
+import {ReporteoComponent} from "../../home/reporteo/reporteo.component";
+import {BusquedaComponent} from "../../home/busqueda/busqueda.component";
 
 
 const routes: Routes = [
@@ -32,6 +37,10 @@ const routes: Routes = [
       {
         path: 'domicilios',
         component: EmpresaDomiciliosComponent
+      },
+      {
+        path: 'acuerdos',
+        component: EmpresaAcuerdosComponent
       },
       {
         path: 'legal',
@@ -69,11 +78,29 @@ const routes: Routes = [
         path: 'uniformes',
         component: EmpresaUniformesComponent
       },
+      {
+        path: 'visitas',
+        component: EmpresaVisitasComponent
+      },
+      {
+        path: 'reportes-mensuales',
+        component: EmpresaReportesMensualesComponent
+      },
+      {
+        path: 'reporteo',
+        component: ReporteoComponent
+      },
+
+      // Busqueda
+      {
+        path: 'busqueda',
+        component: BusquedaComponent
+      },
 
       // Configuracion
       {
-        path: 'configuracion',
-        component: ConfiguracionComponent
+        path: 'informacion',
+        component: EmpresaInformacionComponent
       }
     ]
   }

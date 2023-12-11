@@ -1,12 +1,14 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.ExisteUsuarioDto;
-import com.pelisat.cesp.ceemsp.database.dto.ExisteVehiculoDto;
-import com.pelisat.cesp.ceemsp.database.dto.NextRegisterDto;
-import com.pelisat.cesp.ceemsp.database.dto.ProximaVisitaDto;
+import com.pelisat.cesp.ceemsp.database.dto.*;
 
 public interface PublicService {
     NextRegisterDto findNextRegister(NextRegisterDto nextRegisterDto);
     ExisteVehiculoDto buscarExistenciaVehiculo(ExisteVehiculoDto existeVehiculoDto);
-    ProximaVisitaDto buscarProximaVisita();
+    ProximaVisitaDto buscarProximaVisita(ProximaVisitaDto proximaVisitaDto);
+    String buscarProximoNumeroAcuse();
+    String buscarProximoNumeroNotificacion();
+    String buscarProximoNumeroReporte();
+    ValidarAcuseDto validarAcusePorSello(String sello);
+    ValidarInformeDto validarInformePorSello(String sello);
 }

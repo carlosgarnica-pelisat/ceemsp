@@ -13,4 +13,5 @@ public interface IncidenciaService {
     IncidenciaDto autoasignarIncidencia(String empresaUuid, String incidenciaUuid, String username);
     IncidenciaDto asignarIncidencia(String empresaUuid, String incidenciaUuid, UsuarioDto usuarioDto, String username);
     IncidenciaDto agregarComentario(String empresaUuid, String incidenciaUuid, String username, IncidenciaDto incidenciaDto);
+    IncidenciaDto eliminarIncidencia(String empresaUuid, String incidenciaUuid, String username);
 }

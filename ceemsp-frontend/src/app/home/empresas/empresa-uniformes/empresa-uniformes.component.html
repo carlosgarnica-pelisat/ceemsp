@@ -24,8 +24,12 @@
   <div class="row">
     <div class="col-sm-3">
       <div class="list-group">
-        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action">
-          Detalles
+        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action flex-column align-items-start">
+          <p class="mb-1">
+            <b>Registro: </b>{{empresa?.registro}}<br>
+            <b>Nombre comercial: </b> {{empresa?.nombreComercial}}<br>
+            <b>Razon social: </b> {{empresa?.razonSocial}}<br>
+          </p>
         </a>
         <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
@@ -42,6 +46,8 @@
         <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo /
           Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action active">Uniformes</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -76,7 +82,7 @@
             </li>
             <li class="nav-item">
               <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'ELEMENTOS' }"
-                 (click)="cambiarPestana('ELEMENTOS')">Elementos</a>
+                 (click)="cambiarPestana('ELEMENTOS')">Complementos</a>
             </li>
           </ul>
         </div>
@@ -107,9 +113,9 @@
         <div class="col-sm-12">
           <table class="table">
             <tr>
-              <td><b>Elemento</b></td>
+              <td><b>Complemento</b></td>
               <td><b>Cantidad</b></td>
-              <td><b>Acciones</b></td>
+              <td><b>Opciones</b></td>
             </tr>
             <tr *ngFor="let e of uniforme?.elementos; let i = index">
               <td>{{e?.elemento?.nombre}}</td>
@@ -120,9 +126,9 @@
                 <fa-icon [icon]="faBook" class="fakelink" (click)="mostrarMovimientos(i)"
                          title="Ver movimientos"></fa-icon>
                 <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarElemento(i)"
-                         title="Modificar elemento del uniforme"></fa-icon>
+                         title="Modificar complemento del uniforme"></fa-icon>
                 <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarElemento(e?.uuid)"
-                         title="Eliminar elemento del uniforme"></fa-icon>
+                         title="Eliminar complemento del uniforme"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="showUniformeElementoForm">
@@ -133,7 +139,7 @@
                       <div class="form-row">
                         <div class="col-sm-4">
                           <label for="elemento">
-                            <b>Elemento del uniforme *</b>
+                            <b>Complemento *</b>
                           </label>
                           <select id="elemento" class="form-control" formControlName="elemento"
                                   (change)="seleccionarElemento($event.target)">
@@ -142,7 +148,8 @@
                         </div>
                         <div class="col-sm-8">
                           <label for="archivo">
-                            <b>Foto del elemento *</b>
+                            <b *ngIf="!editandoElemento">Foto del complemento *</b>
+                            <b *ngIf="editandoElemento">Foto del complemento</b>
                           </label>
                           <input id="archivo" class="form-control" type="file" accept="image/*"
                                  (change)="onFileChange($event)">
@@ -191,7 +198,7 @@
                 <div class="row">
                   <div class="col-sm-12">
                     <button class="btn btn-sm btn-primary" (click)="mostrarFormularioUniformeElemento()">
-                      Agregar elemento
+                      Agregar complemento
                     </button>
                   </div>
                 </div>
@@ -323,7 +330,7 @@
 
   <ng-template #mostrarElementoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="mostrarElementoModal">Ver fotografia del elemento del uniforme </h4>
+      <h4 class="modal-title" id="mostrarElementoModal">Ver fotografia del complemento del uniforme </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -391,7 +398,7 @@
 
   <ng-template #eliminarUniformeElementoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="eliminarUniformeElementoModal">Eliminando un elemento del uniforme </h4>
+      <h4 class="modal-title" id="eliminarUniformeElementoModal">Eliminando un complemento del uniforme </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -399,7 +406,7 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <p>Estás a punto de eliminar un elemento del uniforme. Esta operación no se puede deshacer. ¿Deseas
+          <p>Estás a punto de eliminar un complemento del uniforme. Esta operación no se puede deshacer. ¿Deseas
             continuar?</p>
         </div>
       </div>

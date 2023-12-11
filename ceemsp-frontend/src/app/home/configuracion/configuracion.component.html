@@ -3,20 +3,47 @@
 
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Configuracion - General</h1>
+    <h1 class="h3 mb-0 text-gray-800">Configuracion - Notificaciones de correo</h1>
   </div>
 
   <div class="row">
     <div class="col-sm-3">
       <div class="list-group">
         <a routerLink="/home/configuracion" class="list-group-item list-group-item-action active">
-          General
+          Notificaciones de correo
         </a>
         <a routerLink="/home/configuracion/usuarios" class="list-group-item list-group-item-action">Control de usuarios</a>
         <a routerLink="/home/configuracion/acerca" class="list-group-item list-group-item-action">Acerca</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
+      <p></p>
+      <table class="table">
+        <tr>
+          <td>Acuerdos a vencer en los siguientes 15 dias o vencidos</td>
+          <td><button class="btn btn-primary" (click)="generarNotificacionCorreo('ACUERDOS_VENCER_15_DIAS')">Generar</button></td>
+        </tr>
+        <tr>
+          <td>Requerimientos a vencer en los siguientes 15 dias o vencidos</td>
+          <td><button class="btn btn-primary" (click)="generarNotificacionCorreo('REQUERIMIENTOS_VENCER_15_DIAS')">Generar</button></td>
+        </tr>
+        <tr>
+          <td>Licencias federales a vencer en los siguientes 15 dias o vencidos.</td>
+          <td><button class="btn btn-primary" (click)="generarNotificacionCorreo('LICENCIAS_FEDERALES_VENCER_15_DIAS')">Generar</button></td>
+        </tr>
+        <tr>
+          <td>Licencias particulares colectivas a vencer en los siguientes 15 dias o vencidos.</td>
+          <td><button class="btn btn-primary" (click)="generarNotificacionCorreo('LICENCIAS_PARTICULARES_COLECTIVAS_VENCER_15_DIAS')">Generar</button></td>
+        </tr>
+        <tr>
+          <td>Apoderados legales a vencer en los siguientes 15 dias o vencidos.</td>
+          <td><button class="btn btn-primary" (click)="generarNotificacionCorreo('APODERADOS_LEGALES_VENCER_15_DIAS')">Generar</button></td>
+        </tr>
+        <!--tr>
+          <td>Empresas con informes mensuales no presentados en el mes actual.</td>
+          <td><button class="btn btn-primary" (click)="generarNotificacionCorreo('EMPRESAS_INFORMES_MENSUALES_NO_PRESENTADOS')">Generar</button></td>
+        </tr-->
+      </table>
     </div>
   </div>
 </div>

@@ -18,12 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -104,6 +103,7 @@ public class EmpresaEscrituraSocioServiceImpl implements EmpresaEscrituraSocioSe
     }
 
     @Override
+    @Transactional
     public EmpresaEscrituraSocioDto crearSocio(String empresaUuid, String escrituraUuid, String username, EmpresaEscrituraSocioDto empresaEscrituraSocioDto) {
         if(empresaEscrituraSocioDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid)) {
             logger.warn("El socio, la empresa o la escritura estan viniendo como nulos o vacios");
@@ -129,6 +129,7 @@ public class EmpresaEscrituraSocioServiceImpl implements EmpresaEscrituraSocioSe
     }
 
     @Override
+    @Transactional
     public EmpresaEscrituraSocioDto modificarSocio(String empresaUuid, String escrituraUuid, String representanteUuid, String username, EmpresaEscrituraSocioDto empresaEscrituraSocioDto) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(representanteUuid) || empresaEscrituraSocioDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

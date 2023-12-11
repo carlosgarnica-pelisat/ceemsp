@@ -38,5 +38,8 @@ public class EmpresaDomicilioDto {
     private String documentoFundatorioBaja;
     private String fechaBaja;
 
+    private String fechaCreacion;
+    private String fechaActualizacion;
+
     private List<EmpresaDomicilioTelefonoDto> telefonos;
 }

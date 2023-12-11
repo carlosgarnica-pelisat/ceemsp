@@ -2,11 +2,8 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoMarcaDto;
-import com.pelisat.cesp.ceemsp.database.model.ArmaTipo;
 import com.pelisat.cesp.ceemsp.database.model.VehiculoMarca;
 import com.pelisat.cesp.ceemsp.database.model.VehiculoSubmarca;
-import com.pelisat.cesp.ceemsp.database.model.VehiculoTipo;
-import com.pelisat.cesp.ceemsp.database.repository.ArmaTipoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoMarcaRepository;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoSubmarcaRepository;
 import com.pelisat.cesp.ceemsp.database.type.VehiculoTipoEnum;
@@ -19,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -107,6 +105,7 @@ public class VehiculoMarcaServiceImpl implements VehiculoMarcaService {
     }
 
     @Override
+    @Transactional
     public VehiculoMarcaDto crearNuevo(VehiculoMarcaDto vehiculoMarcaDto, String username) {
         if(vehiculoMarcaDto == null || StringUtils.isBlank(username)) {
             logger.warn("La marca de vehiculo  o el usuario estan viniendo como nulos o vacios");
@@ -135,6 +134,7 @@ public class VehiculoMarcaServiceImpl implements VehiculoMarcaService {
     }
 
     @Override
+    @Transactional
     public VehiculoMarcaDto modificar(VehiculoMarcaDto vehiculoMarcaDto, String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || vehiculoMarcaDto == null) {
             logger.warn("Alguno de los campos vienen como nulos o vacios");
@@ -164,6 +164,7 @@ public class VehiculoMarcaServiceImpl implements VehiculoMarcaService {
     }
 
     @Override
+    @Transactional
     public VehiculoMarcaDto eliminar(String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

@@ -5,6 +5,7 @@ export default class VehiculoTipo implements Deserializable {
   uuid: string;
   nombre: string;
   descripcion?: string;
+  tipo: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);

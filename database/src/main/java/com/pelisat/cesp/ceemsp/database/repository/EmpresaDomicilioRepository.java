@@ -10,4 +10,5 @@ public interface EmpresaDomicilioRepository extends JpaRepository<EmpresaDomicil
     List<EmpresaDomicilio> findAllByEmpresaAndEliminadoTrue(int empresa);
     EmpresaDomicilio findByUuidAndEliminadoFalse(String uuid);
     EmpresaDomicilio findByUuid(String uuid);
+    EmpresaDomicilio findFirstByEmpresaAndEliminadoFalse(int empresa);
 }

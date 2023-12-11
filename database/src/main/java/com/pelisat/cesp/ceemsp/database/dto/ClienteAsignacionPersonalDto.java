@@ -10,4 +10,5 @@ public class ClienteAsignacionPersonalDto {
     private String uuid;
     private ClienteDomicilioDto domicilio;
     private PersonaDto personal;
+    private boolean eliminado;
 }

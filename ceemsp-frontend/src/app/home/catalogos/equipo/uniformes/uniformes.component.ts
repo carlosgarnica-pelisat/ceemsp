@@ -7,6 +7,9 @@ import {UniformeService} from "../../../../_services/uniforme.service";
 import Uniforme from "../../../../_models/Uniforme";
 import Equipo from "../../../../_models/Equipo";
 import CanRaza from "../../../../_models/CanRaza";
+import Usuario from "../../../../_models/Usuario";
+import {AuthenticationService} from "../../../../_services/authentication.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-uniformes',
@@ -19,7 +22,7 @@ export class UniformesComponent implements OnInit {
   private gridColumnApi;
 
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
     {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
   ];
@@ -35,15 +38,23 @@ export class UniformesComponent implements OnInit {
   };
 
   crearUniformeForm: FormGroup;
+  usuarioActual: Usuario;
 
   @ViewChild("mostrarUniformeModal") mostrarUniformeModal;
   @ViewChild("editarUniformeModal") editarUniformeModal;
   @ViewChild("eliminarUniformeModal") eliminarUniformeModal;
 
-  constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
-              private uniformeService: UniformeService, private toastService: ToastService) { }
+  constructor(private modalService: NgbModal, private formBuilder: FormBuilder, private authenticationService: AuthenticationService,
+              private uniformeService: UniformeService, private toastService: ToastService, private router: Router) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
+
+    if(this.usuarioActual.rol !== 'CEEMSP_SUPERUSER') {
+      this.router.navigate(['/home']);
+    }
+
     this.uniformeService.obtenerUniformes().subscribe((data: Uniforme[]) => {
       this.rowData = data;
     }, (error) => {

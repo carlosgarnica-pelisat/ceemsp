@@ -25,4 +25,11 @@ public class ArmaDto {
     private String observacionesBaja;
     private String documentoFundatorioBaja;
     private String fechaBaja;
+    private PersonaDto personalAsignado;
+    private String fechaCreacion;
+    private Boolean eliminadoIncidencia;
+    private String fechaCreacionIncidencia;
+    private String fechaEliminacionIncidencia;
+    private String razonBajaIncidencia;
+    private EmpresaDto empresa;
 }

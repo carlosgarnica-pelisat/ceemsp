@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/api/v1")
 public class DashboardController {
@@ -25,7 +27,10 @@ public class DashboardController {
     }
 
     @GetMapping(value = DASHBOARD_URI, produces = MediaType.APPLICATION_JSON_VALUE)
-    public DashboardDto getDashboardData() {
-        return dashboardService.obtenerDatosDashboard();
+    public DashboardDto getDashboardData(
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return dashboardService.obtenerDatosDashboard(username);
     }
 }

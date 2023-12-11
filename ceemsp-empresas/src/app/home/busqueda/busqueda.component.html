@@ -1,0 +1,172 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Resultados de la busqueda</h1>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <p>Se han buscado {{resultadoBusqueda?.filtro}} con el termino de busqueda {{resultadoBusqueda?.palabraABuscar}}</p>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="resultadoBusqueda?.filtro === 'CLIENTES'">
+    <div class="col-sm-12">
+      <table class="table">
+        <tr>
+          <td><b>Tipo de persona</b></td>
+          <td><b>RFC</b></td>
+          <td><b>Nombre comercial</b></td>
+          <td><b>Razon social</b></td>
+          <td><b>Status de Captura</b></td>
+          <td><b>Opciones</b></td>
+        </tr>
+        <tr *ngFor="let r of this.resultadoClientes">
+          <td>{{r?.tipoPersona}}</td>
+          <td>{{r?.rfc}}</td>
+          <td>{{r?.nombreComercial}}</td>
+          <td>{{r?.razonSocial}}</td>
+          <td>{{(r?.domicilioCapturado && r?.modalidadCapturada && r?.formaEjecucionCapturada) ? 'COMPLETO' : 'INCOMPLETO'}}</td>
+          <td><a (click)="verDetalles('CLIENTES', r?.uuid)">Ver detalles</a></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="resultadoBusqueda?.filtro === 'PERSONAL'">
+    <div class="col-sm-12">
+      <table class="table">
+        <tr>
+          <td><b>Apellido paterno</b></td>
+          <td><b>Apellido materno</b></td>
+          <td><b>Nombre(s)</b></td>
+          <td><b>Status de captura</b></td>
+          <td><b>Opciones</b></td>
+        </tr>
+        <tr *ngFor="let r of this.resultadoPersonas">
+          <td>{{r?.apellidoPaterno}}</td>
+          <td>{{r?.apellidoMaterno}}</td>
+          <td>{{r?.nombres}}</td>
+          <td>{{(r?.cursosCapturados && r?.fotografiaCapturada && r?.puestoTrabajoCapturado) ? 'COMPLETO' : 'INCOMPLETO'}}</td>
+          <td><a (click)="verDetalles('PERSONAL', r?.uuid)">Ver detalles</a></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="resultadoBusqueda?.filtro === 'CANES'">
+    <div class="col-sm-12">
+      <table class="table">
+        <tr>
+          <td><b>Nombre</b></td>
+          <td><b>Raza</b></td>
+          <td><b>Genero</b></td>
+          <td><b>Fecha de Ingreso</b></td>
+          <td><b>Status captura</b></td>
+          <td><b>Opciones</b></td>
+        </tr>
+        <tr *ngFor="let r of this.resultadoCanes">
+          <td>{{r?.nombre}}</td>
+          <td>{{r?.raza?.nombre}}</td>
+          <td>{{r?.genero}}</td>
+          <td>{{r?.fechaIngreso}}</td>
+          <td>{{((r?.constanciaCapturada || r?.vacunacionCapturada) && r?.fotografiaCapturada && r?.adiestramientoCapturado) ? 'COMPLETO' : 'INCOMPLETO'}}</td>
+          <td><a (click)="verDetalles('CANES', r?.uuid)">Ver detailles</a></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="resultadoBusqueda?.filtro === 'VEHICULOS'">
+    <div class="col-sm-12">
+      <table class="table">
+        <tr>
+          <td><b>Tipo</b></td>
+          <td><b>Marca</b></td>
+          <td><b>Submarca</b></td>
+          <td><b>Placas</b></td>
+          <td><b>Serie</b></td>
+          <td><b>Status de captura</b></td>
+          <td><b>Opciones</b></td>
+        </tr>
+        <tr *ngFor="let v of this.resultadoVehiculos">
+          <td>{{v?.tipo?.nombre}}</td>
+          <td>{{v?.marca?.nombre}}</td>
+          <td>{{v?.submarca?.nombre}}</td>
+          <td>{{v?.placas}}</td>
+          <td>{{v?.serie}}</td>
+          <td>{{(v?.coloresCapturado && v?.fotografiaCapturada) ? 'COMPLETO' : 'INCOMPLETO'}}</td>
+          <td><a (click)="verDetalles('VEHICULOS', v?.uuid)">Ver detailles</a></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="resultadoBusqueda?.filtro === 'ARMAS'">
+    <div class="col-sm-12">
+      <table class="table">
+        <tr>
+          <td><b>Matricula</b></td>
+          <td><b>Marca</b></td>
+          <td><b>Modelo</b></td>
+          <td><b>Clase</b></td>
+          <td><b>Calibre</b></td>
+        </tr>
+        <tr *ngFor="let a of this.resultadoArmas">
+          <td>{{a?.matricula}}</td>
+          <td>{{a?.marca?.nombre}}</td>
+          <td>{{a?.serie}}</td>
+          <td>{{a?.clase?.nombre}}</td>
+          <td>{{a?.calibre}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="resultadoBusqueda?.filtro === 'ESCRITURAS'">
+    <div class="col-sm-12">
+      <table class="table">
+        <tr>
+          <td><b>No Instrumento</b></td>
+          <td><b>Fecha</b></td>
+          <td><b>Ciudad</b></td>
+          <td><b>Nombre / No Fedatario</b></td>
+          <td><b>Opciones</b></td>
+        </tr>
+        <tr *ngFor="let e of resultadoEscrituras">
+          <td>{{e?.numeroEscritura}}</td>
+          <td>{{e?.fechaEscritura}}</td>
+          <td>{{e?.ciudad}}</td>
+          <td>{{e?.numero + " - " + e?.nombreFedatario + " " + e?.apellidoPaterno + " " + e?.apellidoMaterno}}</td>
+          <td><a (click)="verDetalles('ESCRITURAS', e?.uuid)">Ver detalles</a></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="resultadoBusqueda?.filtro === 'INCIDENCIAS'">
+    <div class="col-sm-12">
+      <table class="table">
+        <tr>
+          <td><b>Numero de incidencia</b></td>
+          <td><b>Asignado</b></td>
+          <td><b>Fecha de incidencia</b></td>
+          <td><b>Status</b></td>
+          <td><b>Acciones</b></td>
+        </tr>
+        <tr *ngFor="let r of this.resultadoIncidencias">
+          <td>{{r?.numero}}</td>
+          <td>{{(r?.asignado !== null ? r?.asignado?.nombres + " " + r?.asignado?.apellidos + " " + r?.asignado?.apellidoMaterno : "Sin asignar")}}</td>
+          <td>{{r?.fechaIncidencia}}</td>
+          <td>{{r?.status}}</td>
+          <td><a (click)="verDetalles('INCIDENCIAS', r?.uuid)">Ver detalles</a></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+
+</div>

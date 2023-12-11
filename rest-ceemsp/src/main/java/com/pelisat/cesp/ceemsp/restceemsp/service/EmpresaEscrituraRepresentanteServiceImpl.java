@@ -6,7 +6,6 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepresentanteRepository;
-import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraSocioRepository;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -19,9 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
@@ -104,6 +103,7 @@ public class EmpresaEscrituraRepresentanteServiceImpl implements EmpresaEscritur
     }
 
     @Override
+    @Transactional
     public EmpresaEscrituraRepresentanteDto crearRepresentante(String empresaUuid, String escrituraUuid, String username, EmpresaEscrituraRepresentanteDto empresaEscrituraRepresentanteDto) {
         if(empresaEscrituraRepresentanteDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid)) {
             logger.warn("El representante, la empresa o la escritura estan viniendo como nulos o vacios");
@@ -129,6 +129,7 @@ public class EmpresaEscrituraRepresentanteServiceImpl implements EmpresaEscritur
     }
 
     @Override
+    @Transactional
     public EmpresaEscrituraRepresentanteDto modificarRepresentante(String empresaUuid, String escrituraUuid, String representanteUuid, String username, EmpresaEscrituraRepresentanteDto empresaEscrituraRepresentanteDto) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(representanteUuid) || empresaEscrituraRepresentanteDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

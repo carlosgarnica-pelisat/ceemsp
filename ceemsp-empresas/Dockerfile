@@ -1,4 +1,5 @@
-FROM node:12.20-alpine AS build
+FROM node:14.20-alpine AS build
+ENV TZ="America/Mexico_City"
 WORKDIR /usr/src/app
 COPY package.json package.json
 RUN npm install @angular/cli -g

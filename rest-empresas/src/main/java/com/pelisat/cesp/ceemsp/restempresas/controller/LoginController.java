@@ -2,7 +2,9 @@ package com.pelisat.cesp.ceemsp.restempresas.controller;
 
 import com.pelisat.cesp.ceemsp.database.dto.CredentialDto;
 import com.pelisat.cesp.ceemsp.database.dto.JwtDto;
+import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.restempresas.service.JwtUserDetailsService;
+import com.pelisat.cesp.ceemsp.restempresas.service.UsuarioService;
 import com.pelisat.cesp.ceemsp.restempresas.utils.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -23,13 +25,15 @@ public class LoginController {
     private final AuthenticationManager authenticationManager;
     private final JwtToken jwtToken;
     private final JwtUserDetailsService jwtUserDetailsService;
+    private final UsuarioService usuarioService;
 
     @Autowired
     public LoginController(AuthenticationManager authenticationManager, JwtToken jwtToken,
-                           JwtUserDetailsService jwtUserDetailsService) {
+                           JwtUserDetailsService jwtUserDetailsService, UsuarioService usuarioService) {
         this.authenticationManager = authenticationManager;
         this.jwtToken = jwtToken;
         this.jwtUserDetailsService = jwtUserDetailsService;
+        this.usuarioService = usuarioService;
     }
 
     @PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -37,7 +41,20 @@ public class LoginController {
         authenticate(credentialDto.getEmail(), credentialDto.getPassword());
         final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(credentialDto.getEmail());
         final String token = jwtToken.generateToken(userDetails);
+        final UsuarioDto usuarioDto = usuarioService.getUserByEmail(credentialDto.getEmail());
+        return ResponseEntity.ok(new JwtDto(token, usuarioDto));
+
+        /*
+                authenticate(credentialDto.getEmail(), credentialDto.getPassword());
+        //final UserDetails userDetails = ;
+        final String token = jwtToken.generateToken(usuarioService.getUserByUsername(credentialDto.getEmail()));
         return ResponseEntity.ok(new JwtDto(token));
+         */
+    }
+
+    @PostMapping(value = "/logout", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> logoutAdmin() throws Exception {
+        return ResponseEntity.ok(null);
     }
 
     private void authenticate(String username, String password) throws Exception {

@@ -22,7 +22,10 @@
               <div class="row justify-content-center my-3 px-3">
                 <button (click)="login()" class="btn-block btn-color" type="submit">Iniciar sesion</button>
               </div>
-              <div class="row justify-content-center my-2"><a href="#"><small class="text-muted">Necesito ayuda</small></a>
+              <div class="row justify-content-center my-2">
+                <a href="assets/formato_restablecimiento_contrasena_siesp.docx" target="_blank">
+                  <small class="text-muted">Si has olvidado tu contraseña, haz clic para descargar el formato de restablecimiento</small>
+                </a>
               </div>
             </form>
           </div>
@@ -58,7 +61,7 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <small [innerHTML]="comunicadoGeneral?.descripcion">
+          <small [innerHTML]="comunicadoGeneral?.descripcion  | sanitizeHtml">
           </small>
         </div>
       </div>
@@ -77,45 +80,51 @@
     </div>
     <div class="modal-body">
       <div class="row">
-        <div class="col-sm-6">
-          <label for="titulo">
-            <b>Titulo</b>
-          </label>
-          <input id="titulo" class="form-control" placeholder="Ejemplo: Vacaciones" type="text">
-        </div>
-        <div class="col-sm-2">
-          <label for="mes">
-            <b>Selecciona mes</b>
-          </label>
-          <select id="mes" class="form-control">
-            <option value="12">Diciembre</option>
-            <option value="11">Noviembre</option>
-            <option value="10">Octubre</option>
-            <option value="09">Septiembre</option>
-            <option value="08">Agosto</option>
-            <option value="07">Julio</option>
-            <option value="06">Junio</option>
-            <option value="05">Mayo</option>
-            <option value="04">Abril</option>
-            <option value="03">Marzo</option>
-            <option value="02">Febrero</option>
-            <option value="01">Enero</option>
-          </select>
-        </div>
-        <div class="col-sm-2">
-          <label for="ano">
-            <b>Selecciona ano</b>
-          </label>
-          <select id="ano" class="form-control">
-            <option value="2022">2022</option>
-            <option value="2021">2021</option>
-            <option value="2020">2020</option>
-            <option value="2019">2019</option>
-          </select>
-        </div>
-        <div class="col-sm-2">
-          <br>
-          <button class="btn btn-primary">Buscar</button>
+        <div class="col-sm-12">
+          <form [formGroup]="buscarComunicadoForm">
+            <div class="form-row">
+              <div class="col-sm-6">
+                <label for="titulo">
+                  <b>Título</b>
+                </label>
+                <input id="titulo" class="form-control" placeholder="Ejemplo: Vacaciones" type="text" formControlName="titulo">
+              </div>
+              <div class="col-sm-2">
+                <label for="mes">
+                  <b>Mes</b>
+                </label>
+                <select id="mes" class="form-control" formControlName="mes">
+                  <option value="12">Diciembre</option>
+                  <option value="11">Noviembre</option>
+                  <option value="10">Octubre</option>
+                  <option value="9">Septiembre</option>
+                  <option value="8">Agosto</option>
+                  <option value="7">Julio</option>
+                  <option value="6">Junio</option>
+                  <option value="5">Mayo</option>
+                  <option value="4">Abril</option>
+                  <option value="3">Marzo</option>
+                  <option value="2">Febrero</option>
+                  <option value="1">Enero</option>
+                </select>
+              </div>
+              <div class="col-sm-2">
+                <label for="ano">
+                  <b>Año</b>
+                </label>
+                <select id="ano" class="form-control" formControlName="ano">
+                  <option value="2023">2023</option>
+                  <option value="2022">2022</option>
+                  <option value="2021">2021</option>
+                  <option value="2020">2020</option>
+                  <option value="2019">2019</option>
+                </select>
+              </div>
+              <div class="col-sm-2">
+                <button class="btn btn-primary" style="margin-top: 32px;" (click)="buscarComunicados(buscarComunicadoForm)" >Buscar</button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
       <hr>
@@ -135,7 +144,7 @@
             <div class="col-sm-12">
               <h4>{{comunicado?.titulo}}</h4>
             </div>
-            <div class="col-sm-12" [innerHTML]="comunicado?.descripcion">
+            <div class="col-sm-12" [innerHTML]="comunicado?.descripcion | sanitizeHtml">
 
             </div>
           </div>

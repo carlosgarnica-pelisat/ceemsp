@@ -64,9 +64,25 @@ import { BotonEmpresaLicenciasComponent } from './_components/botones/boton-empr
 import { BotonEmpresaPersonalComponent } from './_components/botones/boton-empresa-personal/boton-empresa-personal.component';
 import { BotonEmpresaUniformeComponent } from './_components/botones/boton-empresa-uniforme/boton-empresa-uniforme.component';
 import { BotonEmpresaVehiculosComponent } from './_components/botones/boton-empresa-vehiculos/boton-empresa-vehiculos.component';
+import {GoogleChartsModule} from "angular-google-charts";
+import {AgmCoreModule} from "@agm/core";
+import {DataTablesModule} from "angular-datatables";
+import {TableModule} from "primeng/table";
+import { GoogleMapsModule } from "@angular/google-maps";
+import {PhoneMaskDirective} from "./_directives/phone-mask.directive";
+import { EmpresaAcuerdosComponent } from './home/empresa-acuerdos/empresa-acuerdos.component';
+import { ModalidadArmadaPipe } from './_pipes/modalidad-armada.pipe';
+import { EmpresaInformacionComponent } from './home/empresa-informacion/empresa-informacion.component';
+import { EmpresaVisitasComponent } from './home/empresa-visitas/empresa-visitas.component';
+import { EmpresaReportesMensualesComponent } from './home/empresa-reportes-mensuales/empresa-reportes-mensuales.component';
+import { BotonEmpresaVisitasComponent } from './_components/botones/boton-empresa-visitas/boton-empresa-visitas.component';
+import { BotonEmpresaReportesComponent } from './_components/botones/boton-empresa-reportes/boton-empresa-reportes.component';
+import { BusquedaComponent } from './home/busqueda/busqueda.component';
+import { BuscarNombresPipe } from './_pipes/buscar-nombres.pipe';
 
 @NgModule({
   declarations: [
+    PhoneMaskDirective,
     AppComponent,
     LoginComponent,
     EmpresasComponent,
@@ -115,7 +131,16 @@ import { BotonEmpresaVehiculosComponent } from './_components/botones/boton-empr
     BotonEmpresaLicenciasComponent,
     BotonEmpresaPersonalComponent,
     BotonEmpresaUniformeComponent,
-    BotonEmpresaVehiculosComponent
+    BotonEmpresaVehiculosComponent,
+    EmpresaAcuerdosComponent,
+    ModalidadArmadaPipe,
+    EmpresaInformacionComponent,
+    EmpresaVisitasComponent,
+    EmpresaReportesMensualesComponent,
+    BotonEmpresaVisitasComponent,
+    BotonEmpresaReportesComponent,
+    BusquedaComponent,
+    BuscarNombresPipe
   ],
   imports: [
     BrowserModule,
@@ -128,7 +153,15 @@ import { BotonEmpresaVehiculosComponent } from './_components/botones/boton-empr
     AgGridModule,
     CKEditorModule,
     NgxPrintModule,
-    PdfViewerModule
+    PdfViewerModule,
+    GoogleChartsModule,
+    GoogleMapsModule,
+    AgmCoreModule.forRoot({
+      apiKey: 'AIzaSyB7dj4T5sXyKfmMfAjivi4lJnndOV_T5yY',
+      libraries: ['geometry', 'places']
+    }),
+    DataTablesModule,
+    TableModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
@@ -136,7 +169,7 @@ import { BotonEmpresaVehiculosComponent } from './_components/botones/boton-empr
     SanitizeHtmlPipe,
     BuscarNombrePipe
   ],
-  exports: [SanitizeHtmlPipe],
+  exports: [SanitizeHtmlPipe, PhoneMaskDirective],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

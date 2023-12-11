@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -69,6 +70,7 @@ public class ClienteModalidadServiceImpl implements ClienteModalidadService {
     }
 
     @Override
+    @Transactional
     public ClienteModalidadDto guardarModalidadCliente(String uuid, String clienteUuid, String username, ClienteModalidadDto clienteModalidadDto) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(clienteUuid) || StringUtils.isBlank(username) || clienteModalidadDto == null) {
             logger.warn("Alguno de los datos viene como nulo o invalido");
@@ -93,10 +95,17 @@ public class ClienteModalidadServiceImpl implements ClienteModalidadService {
 
         clienteModalidadRepository.save(clienteModalidad);
 
+        if(!cliente.isModalidadCapturada()) {
+            cliente.setModalidadCapturada(true);
+            daoHelper.fulfillAuditorFields(false, cliente, usuario.getId());
+            clienteRepository.save(cliente);
+        }
+
         return clienteModalidadDto;
     }
 
     @Override
+    @Transactional
     public ClienteModalidadDto modificarModalidadCliente(String uuid, String clienteUuid, String modalidadUuid, String username, ClienteModalidadDto clienteModalidadDto) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(clienteUuid) || StringUtils.isBlank(modalidadUuid) || StringUtils.isBlank(username) || clienteModalidadDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
@@ -120,6 +129,7 @@ public class ClienteModalidadServiceImpl implements ClienteModalidadService {
     }
 
     @Override
+    @Transactional
     public ClienteModalidadDto eliminarModalidad(String uuid, String clienteUuid, String modalidadUuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(clienteUuid) || StringUtils.isBlank(modalidadUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");

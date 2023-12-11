@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,10 +35,24 @@ public class ComunicadoGeneralServiceImpl implements ComunicadoGeneralService {
     }
 
     @Override
-    public List<ComunicadoGeneralDto> obtenerComunicadosGenerales() {
+    public List<ComunicadoGeneralDto> obtenerComunicadosGenerales(String titulo, Integer mes, Integer ano) {
         logger.info("Obteniendo los comunicados generales");
-        List<ComunicadoGeneral> comunicadoGenerales = comunicadoGeneralRepository.getAllByEliminadoFalseOrderByFechaPublicacionDesc();
-        return comunicadoGenerales.stream().map(daoToDtoConverter::convertDaoToDtoComunicadoGeneral).collect(Collectors.toList());
+        List<ComunicadoGeneral> comunicadosGenerales = new ArrayList<ComunicadoGeneral>();
+        if(mes != null && ano != null) {
+            LocalDate fechaInicio = LocalDate.of(ano, mes, 1);
+            LocalDate fechaFin = fechaInicio.withDayOfMonth(fechaInicio.getMonth().length(false));
+            if(StringUtils.isNotBlank(titulo) && !titulo.equals("null")) {
+                comunicadosGenerales = comunicadoGeneralRepository.getAllByFechaPublicacionAndTitulo(fechaInicio, fechaFin, titulo);
+            } else {
+                comunicadosGenerales = comunicadoGeneralRepository.getAllByFechaPublicacionBetweenAndEliminadoFalse(fechaInicio, fechaFin);
+            }
+        } else if(StringUtils.isNotBlank(titulo) && !StringUtils.equals("null", titulo)) {
+            comunicadosGenerales = comunicadoGeneralRepository.getAllByComunicadoGeneral(titulo);
+        } else {
+            comunicadosGenerales = comunicadoGeneralRepository.getAllByEliminadoFalseOrderByFechaPublicacionDesc();
+
+        }
+        return comunicadosGenerales.stream().map(daoToDtoConverter::convertDaoToDtoComunicadoGeneral).collect(Collectors.toList());
     }
 
     @Override

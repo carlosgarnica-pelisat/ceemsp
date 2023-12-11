@@ -6,4 +6,8 @@
     <include file="db/changelog/empresas/initialize/schema.xml" />
     <include file="db/changelog/empresas/CEEMSP-10/schema.xml" />
     <include file="db/changelog/empresas/CEEMSP-58/schema.xml" />
+    <include file="db/changelog/empresas/CEEMSP-75/schema.xml" />
+    <include file="db/changelog/empresas/CEEMSP-76/schema.xml" />
+    <include file="db/changelog/empresas/CEEMSP-79/schema.xml" />
+    <include file="db/changelog/empresas/CEEMSP-101/schema.xml" />
 </databaseChangeLog>

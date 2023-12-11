@@ -27,11 +27,19 @@ public class IncidenciaArmaController {
         this.incidenciaArmaService = incidenciaArmaService;
     }
 
-    @GetMapping()
+    @GetMapping(value = INCIDENCIA_ARMA_URI, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ArmaDto> obtenerIncidenciaArmas(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "incidenciaUuid") String incidenciaUuid) {
        return incidenciaArmaService.obtenerArmasIncidencia(empresaUuid, incidenciaUuid);
+    }
+
+    @GetMapping(value = INCIDENCIA_ARMA_URI + "/eliminadas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ArmaDto> obtenerIncidenciaArmasEliminadas(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "incidenciaUuid") String incidenciaUuid
+    ) {
+        return incidenciaArmaService.obtenerArmasEliminadasIncidencia(empresaUuid, incidenciaUuid);
     }
 
     @PostMapping(value = INCIDENCIA_ARMA_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -45,14 +53,15 @@ public class IncidenciaArmaController {
         return incidenciaArmaService.agregarArmaIncidencia(empresaUuid, incidenciaUuid, username, armaDto);
     }
 
-    @DeleteMapping(value = INCIDENCIA_ARMA_URI + "/{armaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = INCIDENCIA_ARMA_URI + "/{armaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ArmaDto eliminarIncidenciaArma(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "incidenciaUuid") String incidenciaUuid,
             @PathVariable(value = "armaUuid") String armaUuid,
+            @RequestBody ArmaDto armaDto,
             HttpServletRequest httpServletRequest
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
-        return incidenciaArmaService.eliminarArmaIncidencia(empresaUuid, incidenciaUuid, armaUuid, username);
+        return incidenciaArmaService.eliminarArmaIncidencia(empresaUuid, incidenciaUuid, armaUuid, username, armaDto);
     }
 }

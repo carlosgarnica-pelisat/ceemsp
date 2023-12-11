@@ -22,11 +22,12 @@ export class BuzonSalidaComponent implements OnInit {
 
   private gridApi;
   private gridColumnApi;
+  private actionInProgress: boolean = false;
 
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
-    {headerName: 'Motivo', field: 'motivo', sortable: true, filter: true },
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
+    {headerName: 'Motivo', field: 'motivo', sortable: true, autoHeight: true, wrapText: true, filter: true },
+    {headerName: 'Opciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
         label: 'Ver detalles',
         verDetalles: this.verDetalles.bind(this),
         editar: this.editar.bind(this),
@@ -91,7 +92,7 @@ export class BuzonSalidaComponent implements OnInit {
 
     this.crearDestinatarioForm = this.formBuilder.group({
       tipoDestinatario: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required]]
     })
 
     this.buzonInternoService.obtenerBuzonInterno().subscribe((data: BuzonSalida[]) => {
@@ -326,12 +327,24 @@ export class BuzonSalidaComponent implements OnInit {
   }
 
   enviarMensaje(mensajeForm) {
+    this.actionInProgress = true;
     if(!mensajeForm.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `Hay campos obligatorios que no se han rellenado. Favor de rellenarlos`,
         ToastType.WARNING
       );
+      this.actionInProgress = false;
+      return;
+    }
+
+    if(this.destinatarios.length < 1) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Necesitas por lo menos un destinatario al cual enviarle el mensaje`,
+        ToastType.WARNING
+      );
+      this.actionInProgress = false;
       return;
     }
 
@@ -341,6 +354,7 @@ export class BuzonSalidaComponent implements OnInit {
         `El contenido del mensaje parece estar vacio`,
         ToastType.WARNING
       );
+      this.actionInProgress = false;
       return;
     }
 
@@ -360,6 +374,7 @@ export class BuzonSalidaComponent implements OnInit {
         `Se ha mandado el mensaje con exito`,
         ToastType.SUCCESS
       );
+      this.actionInProgress = false;
       window.location.reload();
     }, (error) => {
       this.toastService.showGenericToast(
@@ -367,6 +382,7 @@ export class BuzonSalidaComponent implements OnInit {
         `No se ha podido enviar el mensaje. Motivo: ${error}`,
         ToastType.ERROR
       );
+      this.actionInProgress = false;
     })
   }
 

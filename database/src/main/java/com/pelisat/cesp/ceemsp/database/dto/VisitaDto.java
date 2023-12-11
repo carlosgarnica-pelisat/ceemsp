@@ -40,6 +40,7 @@ public class VisitaDto {
     private ColoniaDto coloniaCatalogo;
     private CalleDto calleCatalogo;
     private boolean existeEmpresa;
+    private EmpresaDomicilioDto empresaDomicilio;
 
     List<VisitaArchivoMetadata> archivos;
 }

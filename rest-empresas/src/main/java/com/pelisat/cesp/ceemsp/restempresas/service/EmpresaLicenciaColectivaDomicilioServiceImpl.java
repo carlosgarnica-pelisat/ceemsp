@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,6 +66,7 @@ public class EmpresaLicenciaColectivaDomicilioServiceImpl implements EmpresaLice
     }
 
     @Override
+    @Transactional
     public EmpresaDomicilioDto guardarDomicilioEnLicenciaColectiva(String licenciaColectivaUuid, String username, EmpresaDomicilioDto empresaDomicilioDto) {
         if(StringUtils.isBlank(licenciaColectivaUuid) || StringUtils.isBlank(username) || empresaDomicilioDto == null) {
             logger.warn("El uuid de la empresa, la licencia, el usuario o el domicilio a registrar vienen como nulos o vacios");
@@ -90,6 +92,7 @@ public class EmpresaLicenciaColectivaDomicilioServiceImpl implements EmpresaLice
     }
 
     @Override
+    @Transactional
     public EmpresaDomicilioDto eliminarDomicilioEnLicenciaColectiva(String licenciaColectivaUuid, String domicilioUuid, String username) {
         if(StringUtils.isBlank(licenciaColectivaUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(domicilioUuid)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

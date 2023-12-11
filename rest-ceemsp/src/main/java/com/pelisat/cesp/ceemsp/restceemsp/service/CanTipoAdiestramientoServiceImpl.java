@@ -2,8 +2,6 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.CanTipoAdiestramientoDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.CanAdiestramiento;
-import com.pelisat.cesp.ceemsp.database.model.CanRaza;
 import com.pelisat.cesp.ceemsp.database.model.CanTipoAdiestramiento;
 import com.pelisat.cesp.ceemsp.database.repository.CanTipoAdiestramientoRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -15,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -85,6 +84,7 @@ public class CanTipoAdiestramientoServiceImpl implements CanTipoAdiestramientoSe
     }
 
     @Override
+    @Transactional
     public CanTipoAdiestramientoDto crearNuevo(CanTipoAdiestramientoDto canTipoAdiestramientoDto, String username) {
         if(canTipoAdiestramientoDto == null || StringUtils.isBlank(username)) {
             logger.warn("El tipo de adiestramiento a crear o el usuario estan viniendo como nulos o vacios");
@@ -113,6 +113,7 @@ public class CanTipoAdiestramientoServiceImpl implements CanTipoAdiestramientoSe
     }
 
     @Override
+    @Transactional
     public CanTipoAdiestramientoDto modificar(CanTipoAdiestramientoDto canTipoAdiestramientoDto, String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || canTipoAdiestramientoDto == null) {
             logger.warn("El usuario o el uuid estan viniendo como nulos o vacios");
@@ -141,6 +142,7 @@ public class CanTipoAdiestramientoServiceImpl implements CanTipoAdiestramientoSe
     }
 
     @Override
+    @Transactional
     public CanTipoAdiestramientoDto eliminar(String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
             logger.warn("El usuario o el uuid estan viniendo como nulos o vacios");

@@ -14,7 +14,7 @@ public class ClienteFormaEjecucion extends CommonModel {
     @Column(name = "CLIENTE", nullable = false)
     private int cliente;
 
-    @Column(name = "EMPRESA_MODALIDAD", nullable = false)
+    @Column(name = "FORMA_EJECUCION", nullable = false)
     @Enumerated(EnumType.STRING)
     private FormaEjecucionEnum formaEjecucion;
 }

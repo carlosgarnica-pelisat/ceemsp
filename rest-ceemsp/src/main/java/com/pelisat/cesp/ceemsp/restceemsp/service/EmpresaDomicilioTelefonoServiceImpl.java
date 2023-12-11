@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -82,6 +83,7 @@ public class EmpresaDomicilioTelefonoServiceImpl implements EmpresaDomicilioTele
     }
 
     @Override
+    @Transactional
     public EmpresaDomicilioTelefonoDto guardarTelefono(String empresaUuid, String domicilioUuid, String username, EmpresaDomicilioTelefonoDto empresaDomicilioTelefonoDto) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(username) || empresaDomicilioTelefonoDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");
@@ -106,6 +108,7 @@ public class EmpresaDomicilioTelefonoServiceImpl implements EmpresaDomicilioTele
     }
 
     @Override
+    @Transactional
     public EmpresaDomicilioTelefonoDto modificarTelefono(String empresaUuid, String domicilioUuid, String telefonoUuid, String username, EmpresaDomicilioTelefonoDto empresaDomicilioTelefonoDto) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(telefonoUuid) || StringUtils.isBlank(username) || empresaDomicilioTelefonoDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
@@ -131,13 +134,14 @@ public class EmpresaDomicilioTelefonoServiceImpl implements EmpresaDomicilioTele
     }
 
     @Override
+    @Transactional
     public EmpresaDomicilioTelefonoDto eliminarTelefono(String empresaUuid, String domicilioUuid, String telefonoUuid, String username) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(telefonoUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
             throw new InvalidDataException();
         }
 
-        logger.info("Modificando el telefono con uuid [{}]", telefonoUuid);
+        logger.info("Eliminando el telefono con uuid [{}]", telefonoUuid);
 
         EmpresaDomicilioTelefono empresaDomicilioTelefono = empresaDomicilioTelefonoRepository.findByUuidAndEliminadoFalse(telefonoUuid);
         if(empresaDomicilioTelefono == null) {

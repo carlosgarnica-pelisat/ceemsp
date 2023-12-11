@@ -1,0 +1,175 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Ventanas de informes</h1>
+    <div class="btn-group">
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalNuevaVentana()">Crear nueva</button>
+      <div class="dropdown">
+        <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Opciones
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar como Excel (csv)</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <div class="col-sm-12">
+      <ag-grid-angular
+        style="height: 80vh; width: 100%;"
+        class="ag-theme-alpine"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (gridReady)="onGridReady($event)"
+        [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data)"
+        #agGrid
+      ></ag-grid-angular>
+    </div>
+  </div>
+
+  <ng-template #verDetallesVentanaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarVisitaDetallesModal">Detalles de la ventana </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <table class="table">
+        <tr>
+          <td><b>Nombre</b></td>
+          <td>{{ventana?.nombre}}</td>
+        </tr>
+        <tr>
+          <td><b>Fecha de inicio</b></td>
+          <td>{{ventana?.fechaInicio}}</td>
+        </tr>
+        <tr>
+          <td><b>Fecha de fin</b></td>
+          <td>{{ventana?.fechaFin}}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="mostrarModalModificar()">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarVentana()">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #modificarVentanaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modificarVisitaModal">Modificar visita </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearVentanaForm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="nombre">
+                  <b>Nombre de ventana *</b>
+                  <span
+                    *ngIf="crearVentanaForm.controls['nombre'].invalid && (crearVentanaForm.controls['nombre'].dirty || crearVentanaForm.controls['nombre'].touched)">
+                      <i *ngIf="crearVentanaForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <input class="form-control" id="nombre" type="text" formControlName="nombre">
+              </div>
+              <div class="col-sm-4">
+                <label for="fechaInicio">
+                  <b>Fecha de Inicio *</b>
+                </label>
+                <input class="form-control" id="fechaInicio" type="date" formControlName="fechaInicio" placeholder="Fecha de inicio">
+              </div>
+              <div class="col-sm-4">
+                <label for="fechaFin">
+                  <b>Fecha de Fin *</b>
+                </label>
+                <input class="form-control" id="fechaFin" type="date" formControlName="fechaFin" placeholder="Fecha de fin">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarCambiosVentana(crearVentanaForm)">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #crearVentanaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="crearVisitaModal">Nueva ventana </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearVentanaForm">
+            <div class="row">
+              <div class="col-sm-4">
+                <label for="nombre">
+                  <b>Nombre de ventana *</b>
+                  <span
+                    *ngIf="crearVentanaForm.controls['nombre'].invalid && (crearVentanaForm.controls['nombre'].dirty || crearVentanaForm.controls['nombre'].touched)">
+                      <i *ngIf="crearVentanaForm.controls['nombre'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <input class="form-control" id="nombre" type="text" formControlName="nombre">
+              </div>
+              <div class="col-sm-4">
+                <label for="fechaInicio">
+                  <b>Fecha de Inicio *</b>
+                </label>
+                <input class="form-control" id="fechaInicio" type="date" formControlName="fechaInicio" placeholder="Fecha de inicio">
+              </div>
+              <div class="col-sm-4">
+                <label for="fechaFin">
+                  <b>Fecha de Fin *</b>
+                </label>
+                <input class="form-control" id="fechaFin" type="date" formControlName="fechaFin" placeholder="Fecha de fin">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarVentana(crearVentanaForm)">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarVentanaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarVisitaModal">Eliminando una ventana </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar una ventana. Toma en cuenta que las empresas ya no podran subir reportes y que los reportes subidos durante esta ventana no se veran afectados. ¿Deseas continuar? </p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarVentana()">Si, eliminar</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+</div>

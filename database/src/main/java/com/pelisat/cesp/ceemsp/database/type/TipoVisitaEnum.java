@@ -5,7 +5,9 @@ import lombok.Getter;
 @Getter
 public enum TipoVisitaEnum {
     ORDINARIA("ORDINARIA", "Visita ordinaria", "Visita ordinaria"),
-    EXTRAORDINARIA("EXTRAORDINARIA", "Visita extraordinaria", "Visita extraordinaria");
+    EXTRAORDINARIA("EXTRAORDINARIA", "Visita extraordinaria", "Visita extraordinaria"),
+    INICIAL("INICIAL", "Inicial", "Inicial"),
+    IMPACTO("IMPACTO", "De impacto", "De impacto");
 
     private String codigo;
     private String nombre;

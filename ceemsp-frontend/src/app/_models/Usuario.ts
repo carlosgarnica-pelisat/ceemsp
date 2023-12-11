@@ -9,4 +9,5 @@ export default class Usuario {
   apellidos: string;
   apellidoMaterno: string;
   rol: string;
+  usuario?: Usuario;
 }

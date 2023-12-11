@@ -28,6 +28,8 @@ public enum TipoArchivoEnum {
             "canes/constancias/", "can-constancia"),
     CARTILLA_VACUNACION_CAN("CARTILLA_VACUNACION_CAN", "Cartilla de vacunacion canina", "Muestra el historial de vacunas realizadas en un can",
             "canes/cartillas/", "can-cartilla"),
+    CONSTANCIA_ADIESTRAMIENTO_CAN("CONSTANCIA_ADIESTRAMIENTO_CAN", "Constancia de adiestramiento canino", "Muestra las constancias de adiestramiento realizadas en un can",
+            "canes/constancias-adiestramiento/", "can-constancia-adiestramiento"),
     VISITA_ARCHIVO("VISITA_ARCHIVO", "Visita archivo", "Evidencias de una visita hecha registradas en archivos de cualquier tipo",
             "visitas/", "visita"),
     DOCUMENTO_FUNDATORIO_BAJA_DOMICILIO("DOCUMENTO_FUNDATORIO_BAJA_DOMICILIO", "Documento fundatorio de baja de domicilio", "Documento que verifica o refuerza la razon de baja de un domicilio. No obligatorio",
@@ -60,8 +62,14 @@ public enum TipoArchivoEnum {
             "vehiculos/constancias-blindaje/", "constancia-blindaje"),
     EMPRESA_ACUERDO("EMPRESA_ACUERDO", "Acuerdo","Documento que respalda el acuerdo de registro de una empresa de seguridad privada",
             "acuerdos/", "acuerdo"),
+    EMPRESA_REGISTRO_FEDERAL("EMPRESA_REGISTRO_FEDERAL", "Documento de registro federal", "Documento que avala el registro federal de una empresa de seguridad privada",
+            "registros-federales/", "regsitro-federal"),
     VOLANTE_CUIP("VOLANTE_CUIP", "Volante CUIP", "Documento que consta la solicitud de un CUIP",
-            "personal/volantes-cuip/", "volante-cuip");
+            "personal/volantes-cuip/", "volante-cuip"),
+    LOGO_EMPRESA("LOGO_EMPRESA", "Logo empresa", "Logotipo de la empresa",
+            "empresas/logos/", "empresa-logo"),
+    REPORTE_ARGOS("REPORTE_ARGOS", "Reporte argos", "Reporte asincrono de argos",
+            "reportes/", "reporte-argos");
 
     private String codigo;
     private String nombre;

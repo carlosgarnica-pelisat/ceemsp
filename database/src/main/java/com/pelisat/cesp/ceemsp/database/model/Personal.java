@@ -1,9 +1,6 @@
 package com.pelisat.cesp.ceemsp.database.model;
 
-import com.pelisat.cesp.ceemsp.database.type.CuipStatusEnum;
-import com.pelisat.cesp.ceemsp.database.type.EstadoCivilEnum;
-import com.pelisat.cesp.ceemsp.database.type.SexoEnum;
-import com.pelisat.cesp.ceemsp.database.type.TipoSangreEnum;
+import com.pelisat.cesp.ceemsp.database.type.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -87,13 +84,13 @@ public class Personal extends CommonModel {
     @Column(name = "CORREO_ELECTRONICO", nullable = false)
     private String correoElectronico;
 
-    @Column(name = "PUESTO", nullable = false)
+    @Column(name = "PUESTO")
     private int puesto;
 
-    @Column(name = "SUBPUESTO", nullable = false)
+    @Column(name = "SUBPUESTO")
     private int subpuesto;
 
-    @Column(name = "DETALLES_PUESTO", nullable = false)
+    @Column(name = "DETALLES_PUESTO")
     private String detallesPuesto;
 
     @Column(name = "DOMICILIO_ASIGNADO")
@@ -113,7 +110,7 @@ public class Personal extends CommonModel {
     private LocalDate fechaVolanteCuip;
 
     @Column(name = "MODALIDAD")
-    private int modalidad;
+    private Integer modalidad;
 
     @Column(name = "ESTADO_CATALOGO", nullable = false)
     private int estadoCatalogo;
@@ -159,5 +156,24 @@ public class Personal extends CommonModel {
 
     @Column(name = "VEHICULO")
     private Integer vehiculo;
+
+    @Column(name = "FORMA_EJECUCION")
+    @Enumerated(EnumType.STRING)
+    private FormaEjecucionEnum formaEjecucion;
+
+    @Column(name = "CLIENTE")
+    private Integer cliente;
+
+    @Column(name = "CLIENTE_DOMICILIO")
+    private Integer clienteDomicilio;
+
+    @Column(name = "PUESTO_TRABAJO_CAPTURADO")
+    private boolean puestoTrabajoCapturado;
+
+    @Column(name = "CURSOS_CAPTURADOS")
+    private boolean cursosCapturados;
+
+    @Column(name = "FOTOGRAFIA_CAPTURADA")
+    private boolean fotografiaCapturada;
 }
 

@@ -1,15 +1,18 @@
 package com.pelisat.cesp.ceemsp.restempresas.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaUniformeElementoDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaUniforme;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaUniformeElemento;
+import com.pelisat.cesp.ceemsp.database.model.EmpresaUniformeElementoMovimiento;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaUniformeElementoMovimientoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaUniformeElementoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaUniformeRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -18,8 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
+import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,12 +39,16 @@ public class EmpresaUniformeElementoServiceImpl implements EmpresaUniformeElemen
     private final DaoHelper<CommonModel> daoHelper;
     private final Logger logger = LoggerFactory.getLogger(EmpresaUniformeElementoService.class);
     private final CatalogoService catalogoService;
+    private final ArchivosService archivosService;
+    private final EmpresaUniformeElementoMovimientoRepository empresaUniformeElementoMovimientoRepository;
 
     @Autowired
     public EmpresaUniformeElementoServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                                               EmpresaUniformeElementoRepository empresaUniformeElementoRepository, EmpresaService empresaService,
                                               UsuarioService usuarioService, EmpresaUniformeRepository empresaUniformeRepository,
-                                              DaoHelper<CommonModel> daoHelper, CatalogoService catalogoService) {
+                                              DaoHelper<CommonModel> daoHelper, CatalogoService catalogoService,
+                                              ArchivosService archivosService,
+                                              EmpresaUniformeElementoMovimientoRepository empresaUniformeElementoMovimientoRepository) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.empresaUniformeElementoRepository = empresaUniformeElementoRepository;
@@ -47,6 +56,8 @@ public class EmpresaUniformeElementoServiceImpl implements EmpresaUniformeElemen
         this.empresaUniformeRepository = empresaUniformeRepository;
         this.daoHelper = daoHelper;
         this.catalogoService = catalogoService;
+        this.archivosService = archivosService;
+        this.empresaUniformeElementoMovimientoRepository = empresaUniformeElementoMovimientoRepository;
     }
 
     @Override
@@ -69,15 +80,36 @@ public class EmpresaUniformeElementoServiceImpl implements EmpresaUniformeElemen
                 .map(e -> {
                     EmpresaUniformeElementoDto emued = daoToDtoConverter.convertDaoToDtoEmpresaUniformeElemento(e);
                     emued.setElemento(catalogoService.obtenerUniformePorId(e.getElemento()));
+                    List<EmpresaUniformeElementoMovimiento> movimientos = empresaUniformeElementoMovimientoRepository.getAllByUniformeElementoAndEliminadoFalse(emued.getId());
+                    emued.setMovimientos(movimientos.stream().map(daoToDtoConverter::convertDaoToDtoUniformeElementoMovimiento).collect(Collectors.toList()));
                     return emued;
                 })
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public File obtenerArchivoUniforme(String uniformeUuid, String elementoUuid) {
+        if(StringUtils.isBlank(uniformeUuid) || StringUtils.isBlank(elementoUuid)) {
+            logger.warn("Alguno de los parametros viene como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando la imagen del elemento del uniforme con uuid [{}]", elementoUuid);
+
+        EmpresaUniformeElemento empresaUniformeElemento = empresaUniformeElementoRepository.findByUuidAndEliminadoFalse(elementoUuid);
+
+        if(empresaUniformeElemento == null) {
+            logger.warn("El elemento no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return new File(empresaUniformeElemento.getUbicacionArchivo());
+    }
+
     @Transactional
     @Override
-    public EmpresaUniformeElementoDto guardarUniformeElemento(String uniformeUuid, String username, EmpresaUniformeElementoDto empresaUniformeElementoDto) {
-        if(empresaUniformeElementoDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(uniformeUuid)) {
+    public EmpresaUniformeElementoDto guardarUniformeElemento(String uniformeUuid, String username, EmpresaUniformeElementoDto empresaUniformeElementoDto, MultipartFile multipartFile) {
+        if(empresaUniformeElementoDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(uniformeUuid) || multipartFile == null) {
             logger.warn("El uniforme, la empresa o el usuario estan viniendo como nulos o vacios");
             throw new InvalidDataException();
         }
@@ -96,14 +128,29 @@ public class EmpresaUniformeElementoServiceImpl implements EmpresaUniformeElemen
         empresaUniformeElemento.setUniforme(uniforme.getId());
         empresaUniformeElemento.setElemento(empresaUniformeElementoDto.getElemento().getId());
         daoHelper.fulfillAuditorFields(true, empresaUniformeElemento, usuario.getId());
+
+        String ruta = "";
+        try {
+            ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.FOTO_UNIFORME_ELEMENTO, usuario.getEmpresa().getUuid());
+            empresaUniformeElemento.setUbicacionArchivo(ruta);
+        } catch(Exception ex) {
+            logger.warn(ex.getMessage());
+            archivosService.eliminarArchivo(ruta);
+            throw new InvalidDataException();
+        }
         EmpresaUniformeElemento empresaUniformeelementoCreado = empresaUniformeElementoRepository.save(empresaUniformeElemento);
+
+        EmpresaUniformeElementoMovimiento empresaUniformeElementoMovimiento = dtoToDaoConverter.convertDtoToDaoEmpresaUniformeElementoMovimiento(empresaUniformeElementoDto.getMovimientos().get(0));
+        empresaUniformeElementoMovimiento.setUniformeElemento(empresaUniformeelementoCreado.getId());
+        daoHelper.fulfillAuditorFields(true, empresaUniformeElementoMovimiento, usuario.getId());
+        empresaUniformeElementoMovimientoRepository.save(empresaUniformeElementoMovimiento);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaUniformeElemento(empresaUniformeelementoCreado);
     }
 
     @Transactional
     @Override
-    public EmpresaUniformeElementoDto modificarUniformeElemento(String uniformeUuid, String elementoUuid, String username, EmpresaUniformeElementoDto empresaUniformeElementoDto) {
+    public EmpresaUniformeElementoDto modificarUniformeElemento(String uniformeUuid, String elementoUuid, String username, EmpresaUniformeElementoDto empresaUniformeElementoDto, MultipartFile multipartFile) {
         if(empresaUniformeElementoDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(uniformeUuid) || StringUtils.isBlank(elementoUuid)) {
             logger.warn("Alguno de los parametros vienen como nulos o vacios");
             throw new InvalidDataException();
@@ -122,12 +169,31 @@ public class EmpresaUniformeElementoServiceImpl implements EmpresaUniformeElemen
         empresaUniformeElemento.setElemento(empresaUniformeElementoDto.getElemento().getId());
         empresaUniformeElemento.setCantidad(empresaUniformeElementoDto.getCantidad());
         daoHelper.fulfillAuditorFields(false, empresaUniformeElemento, usuario.getId());
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Eliminando y modificando");
+            archivosService.eliminarArchivo(empresaUniformeElemento.getUbicacionArchivo());
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.FOTO_UNIFORME_ELEMENTO, usuario.getEmpresa().getUuid());
+                empresaUniformeElemento.setUbicacionArchivo(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+
         EmpresaUniformeElemento empresaUniformeelementoCreado = empresaUniformeElementoRepository.save(empresaUniformeElemento);
+
+        EmpresaUniformeElementoMovimiento empresaUniformeElementoMovimiento = dtoToDaoConverter.convertDtoToDaoEmpresaUniformeElementoMovimiento(empresaUniformeElementoDto.getMovimientos().get(0));
+        empresaUniformeElementoMovimiento.setUniformeElemento(empresaUniformeelementoCreado.getId());
+        daoHelper.fulfillAuditorFields(true, empresaUniformeElementoMovimiento, usuario.getId());
+        empresaUniformeElementoMovimientoRepository.save(empresaUniformeElementoMovimiento);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaUniformeElemento(empresaUniformeelementoCreado);
     }
 
     @Override
+    @Transactional
     public EmpresaUniformeElementoDto eliminarUniformeElemento(String uniformeUuid, String elementoUuid, String username) {
         if(StringUtils.isBlank(username) || StringUtils.isBlank(uniformeUuid) || StringUtils.isBlank(elementoUuid)) {
             logger.warn("Alguno de los parametros vienen como nulos o vacios");

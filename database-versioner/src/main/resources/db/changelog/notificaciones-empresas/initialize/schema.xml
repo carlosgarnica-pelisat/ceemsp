@@ -1,0 +1,31 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2023-08-22-crear-tabla-notificaciones-empresas" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="notificaciones_empresas">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="EMPRESA" type="INT"></column>
+            <column name="TIPO" type="VARCHAR(30)"></column>
+            <column name="DESCRIPCION" type="TEXT"></column>
+            <column name="MOTIVO" type="VARCHAR(70)"></column>
+            <column name="LEIDO" type="bit" defaultValue="0"></column>
+            <column name="UBICACION" type="TEXT"></column>
+            <column name="ELIMINADO" type="bit" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="int"></column>
+            <column name="FECHA_ACTUALIZACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="int"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="notificaciones_empresas" columnNames="ID" />
+        <addAutoIncrement tableName="notificaciones_empresas" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="notificaciones_empresas" columnNames="UUID" />
+    </changeSet>
+</databaseChangeLog>

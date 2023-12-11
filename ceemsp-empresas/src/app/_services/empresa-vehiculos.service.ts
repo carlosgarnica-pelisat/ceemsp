@@ -17,16 +17,20 @@ export class EmpresaVehiculosService {
     return this.http.get(`${this.uri}/vehiculos`);
   }
 
+  obtenerVehiculosInstalaciones() {
+    return this.http.get(`${this.uri}/vehiculos/instalaciones`);
+  }
+
   obtenerVehiculoPorUuid(vehiculoUuid: string) {
     return this.http.get(`${this.uri}/vehiculos/${vehiculoUuid}`);
   }
 
-  guardarVehiculo(vehiculo: Vehiculo) {
-    return this.http.post(`${this.uri}/vehiculos`, vehiculo);
+  guardarVehiculo(vehiculo: FormData) {
+    return this.http.post(`${this.uri}/vehiculos`, vehiculo, {headers: {'X-isFile': 'true'}});
   }
 
-  modificarVehiculo(vehiculoUuid: string, vehiculo: Vehiculo) {
-    return this.http.put(`${this.uri}/vehiculos/${vehiculoUuid}`, vehiculo);
+  modificarVehiculo(vehiculoUuid: string, vehiculo: FormData) {
+    return this.http.put(`${this.uri}/vehiculos/${vehiculoUuid}`, vehiculo, {headers: {'X-isFile': 'true'}});
   }
 
   eliminarVehiculo(vehiculoUuid: string, formData: FormData) {
@@ -72,5 +76,12 @@ export class EmpresaVehiculosService {
 
   eliminarVehiculoFotografia(vehiculoUuid: string, fotografiaUuid: string) {
     return this.http.delete(`${this.uri}/vehiculos/${vehiculoUuid}/fotografias/${fotografiaUuid}`);
+  }
+
+  descargarVehiculoConstanciaPdf(uuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.get(`${this.uri}/vehiculos/${uuid}/pdf`, httpOptions);
   }
 }

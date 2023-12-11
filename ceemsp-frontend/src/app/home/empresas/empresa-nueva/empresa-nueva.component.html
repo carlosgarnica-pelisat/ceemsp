@@ -67,6 +67,7 @@
                     </span>
                   </label>
                   <select id="tipoTramite" class="form-control" formControlName="tipoTramite" (change)="cambiarTipoTramite($event.target)">
+                    <option value="" disabled selected></option>
                     <option value="EAFJAL">TRÁMITE FEDERAL (EAFJAL)</option>
                     <option value="SPSMD">TRÁMITE ESTATAL (SPSMD)</option>
                     <option value="RESPRO">SERVICIOS PROPIOS (RESPRO)</option>
@@ -150,7 +151,7 @@
                 </div>
                 <div class="col-sm-2" *ngIf="tipoPersona === 'FISICA'">
                   <label for="sexo">
-                    <b>Sexo</b>
+                    <b>Genero</b>
                   </label>
                   <select id="sexo" class="form-control" formControlName="sexo">
                     <option value="MASCULINO">MASCULINO</option>
@@ -169,9 +170,9 @@
                       <i *ngIf="empresaCreacionForm.controls['rfc'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
                     <a style="cursor: pointer;"><i *ngIf="existeEmpresa?.existe && existeEmpresa?.rfc !== null" class="text-danger" (click)="mostrarModalEmpresaRegistrada(verEmpresaRegistradaModal)"> - La empresa ya existe con este RFC</i></a>
-                    <i *ngIf="rfcVerificationResponse?.errors.length > 0" class="text-danger" (click)="mostrarModalEmpresaRegistrada(verEmpresaRegistradaModal)">
+                    <i *ngIf="rfcVerificationResponse?.errors?.length > 0" class="text-danger" (click)="mostrarModalEmpresaRegistrada(verEmpresaRegistradaModal)">
                       - El RFC no es valido.
-                      <span *ngIf="rfcVerificationResponse?.errors.length > 0 && rfcVerificationResponse.errors[0] === 'INVALID_VERIFICATION_DIGIT'">Digito verificador invalido</span>
+                      <span *ngIf="rfcVerificationResponse?.errors?.length > 0 && rfcVerificationResponse?.errors[0] === 'INVALID_VERIFICATION_DIGIT' && !validacionRfcOmitida">Digito verificador invalido</span>
                     </i>
                   </label>
                   <input class="form-control" id="rfc" type="text" formControlName="rfc" placeholder="Ejemplo. XAXX010101AAA" (focusout)="consultarEmpresaRfc($event.target)" appRfcMask>
@@ -214,7 +215,7 @@
                   <label for="documentoRegistroFederal">
                     <b>Documento de Registro Federal (en pdf)</b>
                   </label>
-                  <input id="documentoRegistroFederal" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
+                  <input id="documentoRegistroFederal" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChangeRegistroFederal($event)">
                 </div>
                 <div class="col-sm-2" *ngIf="tipoTranite === 'EAFJAL'">
                   <label for="fechaInicioEmpresa">
@@ -238,7 +239,7 @@
                     <b>Correo electronico (usuario)*</b>
                     <span
                       *ngIf="empresaUsuarioForm.controls['email'].invalid && (empresaUsuarioForm.controls['email'].dirty || empresaUsuarioForm.controls['email'].touched)">
-                        <i *ngIf="empresaUsuarioForm.controls['email'].errors.required" class="error-text"> - Campo requerido</i>
+                        <i *ngIf="empresaUsuarioForm.controls['email'].errors.required" class="text-danger"> - Campo requerido</i>
                         <i *ngIf="empresaUsuarioForm.controls['email'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                         <i *ngIf="empresaUsuarioForm.controls['email'].errors.email" class="text-danger"> - No es un email</i>
                       </span>
@@ -246,25 +247,14 @@
                   </label>
                   <input class="form-control" id="emailUsuario" type="email" formControlName="email" (focusout)="consultarEmail($event.target)" placeholder="Ejemplo: hola@hotmail.com">
                 </div>
-                <!--div class="col-sm-4">
-                  <label for="username">
-                    <b>Usuario *</b>
-                    <span
-                      *ngIf="empresaUsuarioForm.controls['username'].invalid && (empresaUsuarioForm.controls['username'].dirty || empresaUsuarioForm.controls['username'].touched)">
-                    <i *ngIf="empresaUsuarioForm.controls['username'].errors.required" class="error-text"> - Campo requerido</i>
-                    <i *ngIf="empresaUsuarioForm.controls['username'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                  </span>
-                  </label>
-                  <input class="form-control" id="username" type="text" formControlName="username" placeholder="Se genera en funcion del registro">
-                </div-->
                 <div class="col-sm-4">
                   <label for="password">
                     <b>Contrasena * <a style="color:#0057a0; cursor: pointer;" class="fakelink" (click)="autogenerarContrasena()">(autogenerar)</a></b>
                     <span
                       *ngIf="empresaUsuarioForm.controls['password'].invalid && (empresaUsuarioForm.controls['password'].dirty || empresaUsuarioForm.controls['password'].touched)">
-                        <i *ngIf="empresaUsuarioForm.controls['password'].errors.required" class="error-text"> - Campo requerido</i>
-                        <i *ngIf="empresaUsuarioForm.controls['password'].errors.minlength" class="error-text"> - Longitud invalida</i>
-                        <i *ngIf="empresaUsuarioForm.controls['password'].errors.maxlength" class="error-text"> - Longitud invalida</i>
+                        <i *ngIf="empresaUsuarioForm.controls['password'].errors.required" class="text-danger"> - Campo requerido</i>
+                        <i *ngIf="empresaUsuarioForm.controls['password'].errors.minlength" class="text-danger"> - Longitud invalida</i>
+                        <i *ngIf="empresaUsuarioForm.controls['password'].errors.maxlength" class="text-danger"> - Longitud invalida</i>
                       </span>
                   </label>
                   <div class="input-group">
@@ -272,6 +262,14 @@
                     <div class="input-group-append">
                       <span class="input-group-text" style="cursor: pointer;" (click)="conmutarMostrarContrasena()">{{mostrarContrasena ? 'Ocultar' : 'Mostrar'}}</span>
                     </div>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <label for="logo">
+                    <b>Logo</b>
+                  </label>
+                  <div class="input-group">
+                    <input id="logo" class="form-control" formControlName="archivo" type="file" accept="image/*" (change)="actualizarLogo($event)">
                   </div>
                 </div>
               </div>
@@ -360,7 +358,7 @@
                     <td *ngIf="tipoTranite === 'EAFJAL'"><b>No. de Registro Federal</b></td>
                     <td *ngIf="tipoTranite === 'EAFJAL'"><b>Fecha de Inicio</b></td>
                     <td *ngIf="tipoTranite === 'EAFJAL'"><b>Fecha de Fin</b></td>
-                    <td><b>Acciones</b></td>
+                    <td><b>Opciones</b></td>
                   </tr>
                   <tr *ngFor="let m of empresaModalidades; let i = index;">
                     <td style="max-width: 30%; word-break: break-word;">{{m.modalidad.nombre}}</td>
@@ -375,6 +373,14 @@
                 </table>
               </div>
             </div>
+            <hr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+            <div class="row"  *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+              <div class="col-sm-12">
+                <button class="btn btn-info" *ngIf="!validacionRfcOmitida" (click)="omitirValidacionRfc()">Omitir validacion del RFC</button>
+                <button class="btn btn-info" *ngIf="validacionRfcOmitida" (click)="omitirValidacionRfc()">No omitir validacion del RFC</button>
+              </div>
+            </div>
+            <hr  *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
             <div class="row">
               <div class="col-sm-12">
                 <button (click)="next('DOMICILIOS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
@@ -575,11 +581,7 @@
               <div class="row">
                 <div class="col-sm-3">
                   <label for="telefonoFijo">
-                    <b>Teléfono Fijo *</b>
-                    <span
-                      *ngIf="empresaDomiciliosForm.controls['telefonoFijo'].invalid && (empresaDomiciliosForm.controls['telefonoFijo'].dirty || empresaDomiciliosForm.controls['telefonoFijo'].touched)">
-                      <i *ngIf="empresaDomiciliosForm.controls['telefonoFijo'].errors.required" class="text-danger"> - Campo requerido</i>
-                    </span>
+                    <b>Teléfono Fijo</b>
                   </label>
                   <input id="telefonoFijo" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoFijo" #telefonoFijo appPhoneMask>
                 </div>
@@ -615,7 +617,7 @@
                     <td><b>Referencia</b></td>
                     <td><b>Teléfono fijo</b></td>
                     <td><b>Teléfono movil</b></td>
-                    <td><b>Acciones</b></td>
+                    <td><b>Opciones</b></td>
                   </tr>
                   <tr *ngFor="let d of empresaDomicilios; let i = index">
                     <td>{{d.nombre}}</td>
@@ -685,7 +687,7 @@
                   <label for="archivoEditar">
                     <b>Archivo (en pdf) * <a *ngIf="this.escritura?.nombreArchivo !== null" (click)="mostrarPdfActual()" style="cursor: pointer;">(Mostrar actual)</a></b>
                   </label>
-                  <input id="archivoEditar" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
+                  <input id="archivoEditar" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChangeEscritura($event)">
                 </div>
               </div>
 
@@ -861,7 +863,7 @@
                     <td><b>Tipo de fedatario</b></td>
                     <td><b>Número</b></td>
                     <td><b>Nombre de fedatario</b></td>
-                    <td><b>Acciones</b></td>
+                    <td><b>Opciones</b></td>
                   </tr>
                   <tr *ngFor="let e of empresaEscrituras; let i = index;">
                     <td>{{e?.numeroEscritura}}</td>
@@ -900,12 +902,15 @@
                   <label for="formaEjecucion">
                     <b>Forma de ejecucion *</b>
                     <span *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].invalid && (empresaFormaEjecucionForm.controls['formaEjecucion'].dirty || empresaFormaEjecucionForm.controls['formaEjecucion'].touched)">
-                              <i *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].errors.required" class="error-text"> - Campo requerido</i>
+                              <i *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].errors.required" class="text-danger"> - Campo requerido</i>
                             </span>
                   </label>
                   <select id="formaEjecucion" class="form-control" formControlName="formaEjecucion">
+                    <option value="" disabled selected></option>
                     <option value="ARMAS" *ngIf="tipoTranite === 'EAFJAL'">Con portación de armas de fuego</option>
+                    <option value="NO_ARMAS">Sin portación de armas de fuego</option>
                     <option value="CANES">Con el auxilio de canes</option>
+                    <option value="NO_CANES">Sin el auxilio de canes</option>
                     <option value="INSTRUMENTOS">Con portación de instrumentos de apoyo para control</option>
                     <option value="TECNOLOGIA">Con apoyo de tecnología</option>
                   </select>
@@ -921,12 +926,14 @@
                 <table class="table">
                   <tr>
                     <td><b>Forma de ejecucion</b></td>
-                    <td><b>Acciones</b></td>
+                    <td><b>Opciones</b></td>
                   </tr>
                   <tr *ngFor="let f of empresaFormasEjecucion; let i = index">
                     <td [ngSwitch]="f?.formaEjecucion">
                       <span *ngSwitchCase="'ARMAS'">Con portación de armas de fuego</span>
+                      <span *ngSwitchCase="'NO_ARMAS'">Sin portación de armas de fuego</span>
                       <span *ngSwitchCase="'CANES'">Con el auxilio de canes</span>
+                      <span *ngSwitchCase="'NO_CANES'">Sin el auxilio de canes</span>
                       <span *ngSwitchCase="'INSTRUMENTOS'">Con portación de instrumentos de apoyo para control</span>
                       <span *ngSwitchCase="'TECNOLOGIA'">Con apoyo de tecnología</span>
                     </td>
@@ -970,7 +977,7 @@
                       <label for="fecha">
                         <b>Fecha del acuerdo *</b>
                         <span *ngIf="nuevoAcuerdoForm.controls['fecha'].invalid && (nuevoAcuerdoForm.controls['fecha'].dirty || nuevoAcuerdoForm.controls['fecha'].touched)">
-                              <i *ngIf="nuevoAcuerdoForm.controls['fecha'].errors.required" class="error-text"> - Campo requerido</i>
+                              <i *ngIf="nuevoAcuerdoForm.controls['fecha'].errors.required" class="text-danger"> - Campo requerido</i>
                             </span>
                       </label>
                       <input class="form-control" id="fecha" type="date" formControlName="fecha" placeholder="Fecha del acuerdo">
@@ -979,7 +986,7 @@
                       <label for="documentoAcuerdo">
                         <b>Archivo del acuerdo (en pdf) *</b>
                       </label>
-                      <input id="documentoAcuerdo" class="form-control" type="file" accept="application/pdf" (change)="onFileChange($event)">
+                      <input id="documentoAcuerdo" class="form-control" type="file" accept="application/pdf" (change)="onFileChangeAcuerdo($event)">
                     </div>
                   </div>
                   <div class="row">
@@ -1113,8 +1120,10 @@
                   </tr>
                   <tr *ngFor="let fe of empresaFormasEjecucion">
                     <td [ngSwitch]="fe?.formaEjecucion">
-                      <span *ngSwitchCase="'ARMAS'">Con portacion de armas de fuego</span>
+                      <span *ngSwitchCase="'ARMAS'">Con portación de armas de fuego</span>
+                      <span *ngSwitchCase="'NO_ARMAS'">Sin portación de armas de fuego</span>
                       <span *ngSwitchCase="'CANES'">Con el auxilio de canes</span>
+                      <span *ngSwitchCase="'NO_CANES'">Sin el auxilio de canes</span>
                       <span *ngSwitchCase="'INSTRUMENTOS'">Con portacion de instrumentos de apoyo para control</span>
                       <span *ngSwitchCase="'TECNOLOGIA'">Con apoyo de tecnologia</span>
                     </td>
@@ -1275,7 +1284,7 @@
               <td><b>CURP</b></td>
               <td><b>Sexo</b></td>
               <td><b>% Acciones</b></td>
-              <td><b>Acciones</b></td>
+              <td><b>Opciones</b></td>
             </tr>
             <tr *ngFor="let socio of empresaEscritura?.socios; let i = index">
               <td>{{socio?.nombres}}</td>
@@ -1336,7 +1345,7 @@
                       <div class="row">
                         <div class="col-sm-4">
                           <label for="sexoSocio">
-                            <b>Sexo *</b>
+                            <b>Genero *</b>
                             <span
                               *ngIf="nuevoSocioForm.controls['sexo'].invalid && (nuevoSocioForm.controls['sexo'].dirty || nuevoSocioForm.controls['sexo'].touched)">
                               <i *ngIf="nuevoSocioForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -1460,7 +1469,7 @@
                     <div class="form-row">
                       <div class="col-sm-4">
                         <label for="apoderadoSexo">
-                          <b>Sexo *</b>
+                          <b>Genero *</b>
                           <span
                             *ngIf="nuevoApoderadoForm.controls['sexo'].invalid && (nuevoApoderadoForm.controls['sexo'].dirty || nuevoApoderadoForm.controls['sexo'].touched)">
                               <i *ngIf="nuevoApoderadoForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -1586,7 +1595,7 @@
                       </div>
                       <div class="col-sm-3">
                         <label for="representanteSexo">
-                          <b>Sexo *</b>
+                          <b>Genero *</b>
                           <span
                             *ngIf="nuevoRepresentanteForm.controls['sexo'].invalid && (nuevoRepresentanteForm.controls['sexo'].dirty || nuevoRepresentanteForm.controls['sexo'].touched)">
                               <i *ngIf="nuevoRepresentanteForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -1695,7 +1704,7 @@
                       </div>
                       <div class="col-sm-4">
                         <label for="consejoSexo">
-                          <b>Sexo *</b>
+                          <b>Genero *</b>
                           <span
                             *ngIf="nuevoConsejoAdministracionForm.controls['sexo'].invalid && (nuevoConsejoAdministracionForm.controls['sexo'].dirty || nuevoConsejoAdministracionForm.controls['sexo'].touched)">
                               <i *ngIf="nuevoConsejoAdministracionForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -2230,7 +2239,9 @@
       <div class="row">
         <div class="col-sm-12">
           <agm-map [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()" [zoom]="16">
-            <agm-marker [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()">
+            <agm-marker [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()"
+                        [markerDraggable]="true"
+                        (dragEnd)="markerDragEnd($event)">
               <agm-info-window>Aqui se encuentra el domicilio</agm-info-window>
             </agm-marker>
           </agm-map>

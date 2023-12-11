@@ -7,6 +7,7 @@ import VehiculoFotografiaMetadata from "./VehiculoFotografiaMetadata";
 import VehiculoUso from "./VehiculoUso";
 import EmpresaDomicilio from "./EmpresaDomicilio";
 import Persona from "./Persona";
+import Empresa from "./Empresa";
 
 export default class Vehiculo implements Deserializable {
   id: number;
@@ -36,6 +37,7 @@ export default class Vehiculo implements Deserializable {
   eliminado: boolean;
   fechaCreacion: string;
   fechaActualizacion: string;
+  status: string;
 
   motivoBaja: string;
   observacionesBaja: string;
@@ -45,6 +47,13 @@ export default class Vehiculo implements Deserializable {
   colores: VehiculoColor[];
   fotografias: VehiculoFotografiaMetadata[];
   domicilio: EmpresaDomicilio;
+
+  fotografiaCapturada: boolean;
+  coloresCapturado: boolean;
+  constanciaBlindajeCargada: boolean;
+  eliminadoIncidencia: boolean;
+  fechaCreacionIncidencia: string;
+  empresa: Empresa;
 
   deserialize(input: any): this {
     Object.assign(this, input);

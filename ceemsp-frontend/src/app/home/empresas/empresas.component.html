@@ -19,6 +19,7 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" (click)="mostrarModalEmpresaEstatus()">Mostrar empresas por status</a>
           <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar como Excel (csv)</a>
         </div>
       </div>
@@ -41,9 +42,9 @@
     </div>
   </div>
 
-  <ng-template #editarStatusModal let-modal>
+  <ng-template #seleccionarStatusBusquedaModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="editarStatusModal">Cambiar status de la empresa</h4>
+      <h4 class="modal-title" id="seleccionarStatusBusquedaModal">Buscar empresa por status</h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -52,10 +53,10 @@
       <div class="row">
         <div class="col-sm-12">
           <form [formGroup]="empresaCambioStatusForm">
-            <div class="row">
+            <div class="form-row">
               <div class="col-sm-6">
                 <label for="status">
-                  <b>Nuevo status *</b>
+                  <b>Status de las empresas *</b>
                   <span
                     *ngIf="empresaCambioStatusForm.controls['status'].invalid && (empresaCambioStatusForm.controls['status'].dirty || empresaCambioStatusForm.controls['status'].touched)">
                       <i *ngIf="empresaCambioStatusForm.controls['status'].errors.required" class="error-text"> - Campo requerido</i>
@@ -69,23 +70,13 @@
                   <option value="CLAUSURADA">Clausurada</option>
                 </select>
               </div>
-              <div class="col-sm-6">
-                <label for="status">
-                  <b>Observaciones *</b>
-                  <span
-                    *ngIf="empresaCambioStatusForm.controls['observaciones'].invalid && (empresaCambioStatusForm.controls['observaciones'].dirty || empresaCambioStatusForm.controls['observaciones'].touched)">
-                      <i *ngIf="empresaCambioStatusForm.controls['observaciones'].errors.required" class="error-text"> - Campo requerido</i>
-                    </span>
-                </label>
-                <textarea name="observaciones" id="observaciones" class="form-control" formControlName="observaciones"></textarea>
-              </div>
             </div>
           </form>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-primary" (click)="cambiarStatusEmpresa(empresaCambioStatusForm)">Guardar cambios</button>
+      <button type="button" class="btn btn-primary" (click)="buscarEmpresaPorEstatus(empresaCambioStatusForm)">Buscar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
@@ -132,7 +123,7 @@
               </div>
               <div class="col-sm-3" *ngIf="tipoPersona === 'FISICA'">
                 <label for="sexo">
-                  <b>Sexo</b>
+                  <b>Genero</b>
                 </label>
                 <select id="sexo" class="form-control" formControlName="sexo">
                   <option value="MASCULINO">MASCULINO</option>

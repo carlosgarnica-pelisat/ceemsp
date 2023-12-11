@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.time.format.DateTimeFormatter;
 
 @Component
 public class DaoToDtoConverter {
@@ -534,5 +533,58 @@ public class DaoToDtoConverter {
         }
 
         return modelMapper.map(empresaDomicilioTelefono, EmpresaDomicilioTelefonoDto.class);
+    }
+
+    public ClienteFormaEjecucionDto convertDaoToDtoClienteFormaEjecucion(ClienteFormaEjecucion clienteFormaEjecucion) {
+        if(clienteFormaEjecucion == null) {
+            logger.warn("La forma de ejecucion viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(clienteFormaEjecucion, ClienteFormaEjecucionDto.class);
+    }
+
+    public EmpresaReporteMensualDto convertDaoToDtoEmpresaReporteMensual(EmpresaReporteMensual empresaReporteMensual) {
+        if(empresaReporteMensual == null) {
+            logger.warn("El reporte viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(empresaReporteMensual, EmpresaReporteMensualDto.class);
+    }
+
+    public NotificacionEmpresaDto convertDaoToDtoNotificacionEmpresa(NotificacionEmpresa notificacionEmpresa) {
+        if(notificacionEmpresa == null) {
+            logger.warn("La notificacion viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(notificacionEmpresa, NotificacionEmpresaDto.class);
+    }
+    public NotificacionArgosDto convertDaoToDtoNotificacionArgos(NotificacionArgos notificacionArgos) {
+        if(notificacionArgos == null) {
+            logger.warn("La notificacion viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(notificacionArgos, NotificacionArgosDto.class);
+    }
+
+    public VentanaDto convertDaoToDtoVentana(Ventana ventana) {
+        if(ventana == null) {
+            logger.warn("La ventana viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(ventana, VentanaDto.class);
+    }
+
+    public ReporteArgosDto convertDaoToDtoReporteArgos(ReporteArgos reporteArgos) {
+        if (reporteArgos == null) {
+            logger.warn("El reporte de argos viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        return modelMapper.map(reporteArgos, ReporteArgosDto.class);
     }
 }

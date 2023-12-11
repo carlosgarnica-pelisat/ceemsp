@@ -7,8 +7,6 @@ import {ICellRendererParams} from "ag-grid-community";
   selector: 'app-boton-empresa-incidencias',
   template: `
     <fa-icon [icon]="faEye" size="fa-lg" style="cursor: pointer;" (click)="evaluateCallback($event, this.VER_DETALLES)"></fa-icon>
-    <fa-icon [icon]="faUser" size="fa-lg" style="cursor: pointer;" (click)="evaluateCallback($event, this.CAMBIAR_ASIGNADO)"></fa-icon>
-    <fa-icon [icon]="faSync" size="fa-lg" style="cursor: pointer;" (click)="evaluateCallback($event, this.CAMBIAR_STATUS)"></fa-icon>
   `
 })
 export class BotonEmpresaIncidenciasComponent implements ICellRendererAngularComp {
@@ -43,11 +41,6 @@ export class BotonEmpresaIncidenciasComponent implements ICellRendererAngularCom
       case this.VER_DETALLES:
         this.params.verDetalles(params);
         break;
-      case this.CAMBIAR_ASIGNADO:
-        this.params.cambiarAsignado(params);
-        break;
-      case this.CAMBIAR_STATUS:
-        this.params.cambiarStatus(params);
     }
   }
 }

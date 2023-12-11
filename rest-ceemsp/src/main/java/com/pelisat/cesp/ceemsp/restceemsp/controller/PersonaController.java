@@ -26,7 +26,7 @@ import java.util.List;
 public class PersonaController {
     private final PersonaService personaService;
     private final JwtUtils jwtUtils;
-    private static final String PERSONALIDAD_URI = "/empresas/{empresaUuid}/personas";
+    private static final String PERSONA_URI = "/empresas/{empresaUuid}/personas";
 
     @Autowired
     public PersonaController(PersonaService personaService, JwtUtils jwtUtils) {
@@ -34,21 +34,28 @@ public class PersonaController {
         this.jwtUtils = jwtUtils;
     }
 
-    @GetMapping(value = PERSONALIDAD_URI, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = PERSONA_URI, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<PersonaDto> obtenerNacionalidades(
             @PathVariable(value = "empresaUuid") String empresaUuid
     ) {
         return personaService.obtenerTodos(empresaUuid);
     }
 
-    @GetMapping(value = PERSONALIDAD_URI + "/eliminados", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = PERSONA_URI + "/eliminados", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<PersonaDto> obtenerPersonasEliminados(
             @PathVariable(value = "empresaUuid") String empresaUuid
     ) {
         return personaService.obtenerPersonasEliminadas(empresaUuid);
     }
 
-    @GetMapping(value = PERSONALIDAD_URI + "/{personaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = PERSONA_URI + "/no-asignados", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<PersonaDto> obtenerPersonasNoAsignadas(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) {
+        return personaService.obtenerPersonasNoAsignadas(empresaUuid);
+    }
+
+    @GetMapping(value = PERSONA_URI + "/{personaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public PersonaDto obtenerPersonaPorUuid(
             @PathVariable(value = "personaUuid") String personaUuid,
             @PathVariable(value = "empresaUuid") String empresaUuid
@@ -56,7 +63,23 @@ public class PersonaController {
         return personaService.obtenerPorUuid(empresaUuid, personaUuid);
     }
 
-    @PostMapping(value = PERSONALIDAD_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = PERSONA_URI + "/{personaUuid}/documentos/fundatorios")
+    public ResponseEntity<InputStreamResource> descargarDocumentoFundatorio(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "personaUuid") String personaUuid
+    ) throws Exception {
+        File file = personaService.descargarDocumentoFundatorio(empresaUuid, personaUuid);
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentLength(file.length());
+        responseHeaders.setContentDispositionFormData("attachment", file.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+        return new ResponseEntity<>(isr, responseHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = PERSONA_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public PersonaDto guardarPersona(
             HttpServletRequest request,
             @RequestBody PersonaDto personalDto,
@@ -66,7 +89,7 @@ public class PersonaController {
         return personaService.crearNuevo(personalDto, username, empresaUuid);
     }
 
-    @PutMapping(value = PERSONALIDAD_URI + "/{personaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = PERSONA_URI + "/{personaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public PersonaDto modificarPersona(
             HttpServletRequest request,
             @RequestBody PersonaDto personaDto,
@@ -77,7 +100,7 @@ public class PersonaController {
         return personaService.modificarPersona(empresaUuid, personaUuid, username, personaDto);
     }
 
-    @PutMapping(value = PERSONALIDAD_URI + "/{personaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = PERSONA_URI + "/{personaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public PersonaDto eliminarPersona(
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
@@ -89,7 +112,7 @@ public class PersonaController {
         return personaService.eliminarPersona(empresaUuid, personaUuid, username, new Gson().fromJson(persona, PersonaDto.class), archivo);
     }
 
-    @PutMapping(value = PERSONALIDAD_URI + "/{personaUuid}/puestos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = PERSONA_URI + "/{personaUuid}/puestos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public PersonaDto modificarPuestoTrabajo(
             HttpServletRequest request,
             @RequestParam(value = "archivo", required = false) MultipartFile archivo,
@@ -101,7 +124,7 @@ public class PersonaController {
         return personaService.modificarInformacionPuesto(new Gson().fromJson(persona, PersonaDto.class), username, empresaUuid, personaUuid, archivo);
     }
 
-    @GetMapping(value = PERSONALIDAD_URI + "/{personaUuid}/volante", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = PERSONA_URI + "/{personaUuid}/volante", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> descargarVolanteCuip(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "personaUuid") String personaUuid
@@ -135,7 +158,7 @@ public class PersonaController {
         return new ResponseEntity<>(isr, responseHeaders, HttpStatus.OK);
     }
 
-    @PutMapping(value = PERSONALIDAD_URI + "/{personaUuid}/canes", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = PERSONA_URI + "/{personaUuid}/canes", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void asignarCanAPersona(
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
@@ -146,17 +169,18 @@ public class PersonaController {
         personaService.asignarCanAPersona(empresaUuid, personaUuid, personalCanDto, username);
     }
 
-    @DeleteMapping(value = PERSONALIDAD_URI + "/{personaUuid}/canes", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = PERSONA_URI + "/{personaUuid}/canes", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void desasignarCanAPersona(
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
-            @PathVariable(value = "personaUuid") String personaUuid
+            @PathVariable(value = "personaUuid") String personaUuid,
+            @RequestBody PersonalCanDto personalCanDto
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        personaService.desasignarCanAPersona(empresaUuid, personaUuid, username);
+        personaService.desasignarCanAPersona(empresaUuid, personaUuid, personalCanDto, username);
     }
 
-    @PutMapping(value = PERSONALIDAD_URI + "/{personaUuid}/vehiculos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = PERSONA_URI + "/{personaUuid}/vehiculos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void asignarVehiculoAPersona(
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
@@ -167,17 +191,18 @@ public class PersonaController {
         personaService.asignarVehiculoAPersona(empresaUuid, personaUuid, personalVehiculoDto, username);
     }
 
-    @DeleteMapping(value = PERSONALIDAD_URI + "/{personaUuid}/vehiculos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = PERSONA_URI + "/{personaUuid}/vehiculos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void desasignarVehiculoAPersona(
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
-            @PathVariable(value = "personaUuid") String personaUuid
+            @PathVariable(value = "personaUuid") String personaUuid,
+            @RequestBody PersonalVehiculoDto personalVehiculoDto
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        personaService.desasignarVehiculoAPersona(empresaUuid, personaUuid, username);
+        personaService.desasignarVehiculoAPersona(empresaUuid, personaUuid, personalVehiculoDto, username);
     }
 
-    @PutMapping(value = PERSONALIDAD_URI + "/{personaUuid}/armas/cortas", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = PERSONA_URI + "/{personaUuid}/armas/cortas", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void asignarArmaCortaAPersona(
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
@@ -188,17 +213,18 @@ public class PersonaController {
         personaService.asignarArmaCortaAPersona(empresaUuid, personaUuid, personalArmaDto, username);
     }
 
-    @DeleteMapping(value = PERSONALIDAD_URI + "/{personaUuid}/armas/cortas", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = PERSONA_URI + "/{personaUuid}/armas/cortas", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void desasignarArmaCortaAPersona(
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
-            @PathVariable(value = "personaUuid") String personaUuid
+            @PathVariable(value = "personaUuid") String personaUuid,
+            @RequestBody PersonalArmaDto personalArmaDto
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        personaService.desasignarArmaCortaAPersona(empresaUuid, personaUuid, username);
+        personaService.desasignarArmaCortaAPersona(empresaUuid, personaUuid, personalArmaDto, username);
     }
 
-    @PutMapping(value = PERSONALIDAD_URI + "/{personaUuid}/armas/largas", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = PERSONA_URI + "/{personaUuid}/armas/largas", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void asignarArmaLargaAPersona(
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
@@ -209,13 +235,14 @@ public class PersonaController {
         personaService.asignarArmaLargaAPersona(empresaUuid, personaUuid, personalArmaDto, username);
     }
 
-    @DeleteMapping(value = PERSONALIDAD_URI + "/{personaUuid}/armas/largas", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = PERSONA_URI + "/{personaUuid}/armas/largas", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void desasignarArmaLargaAPersona(
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
-            @PathVariable(value = "personaUuid") String personaUuid
+            @PathVariable(value = "personaUuid") String personaUuid,
+            @RequestBody PersonalArmaDto personalArmaDto
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        personaService.desasignarArmaLargaAPersona(empresaUuid, personaUuid, username);
+        personaService.desasignarArmaLargaAPersona(empresaUuid, personaUuid, personalArmaDto, username);
     }
 }

@@ -11,5 +11,6 @@ public enum AcuerdoTipoEnum {
     SUSPENSION,
     CLAUSURA,
     MULTA,
+    MANDATO_JUDICIAL,
     AMONESTACION;
 }

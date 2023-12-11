@@ -39,6 +39,8 @@ import {AgmGeocoder} from "@agm/core";
 import EmpresaDomicilioTelefono from "../../../_models/EmpresaDomicilioTelefono";
 import Submodalidad from "../../../_models/Submodalidad";
 import GeocoderResult = google.maps.GeocoderResult;
+import Usuario from "../../../_models/Usuario";
+import {AuthenticationService} from "../../../_services/authentication.service";
 
 @Component({
   selector: 'app-empresa-nueva',
@@ -53,6 +55,10 @@ export class EmpresaNuevaComponent implements OnInit {
   fechaDeHoy = new Date().toISOString().split('T')[0];
 
   tempFile;
+  tempFileRegistroFederal;
+  tempFileEscritura;
+  tempFileAcuerdo;
+  tempLogo;
   pdfActual;
 
   mostrarContrasena: boolean = false;
@@ -63,6 +69,7 @@ export class EmpresaNuevaComponent implements OnInit {
   empresaDomiciliosForm: FormGroup;
   nuevaEscrituraForm: FormGroup;
   nuevoAcuerdoForm: FormGroup;
+  private geoCoder;
 
   estados: Estado[] = [];
   municipios: Municipio[] = [];
@@ -147,6 +154,8 @@ export class EmpresaNuevaComponent implements OnInit {
   colonia: Colonia;
   calle: Calle;
 
+  address: string;
+
   estadoQuery: string = '';
   municipioQuery: string = '';
   localidadQuery: string = '';
@@ -188,6 +197,10 @@ export class EmpresaNuevaComponent implements OnInit {
   editandoTelefono: boolean = false;
 
   acuerdo: Acuerdo;
+  latitude: number;
+  longitude: number;
+  usuarioActual: Usuario;
+  validacionRfcOmitida: boolean = false;
 
   @ViewChild('visualizarEscrituraModal') visualizarEscrituraModal;
   @ViewChild('visualizarMapaModal') visualizarMapaModal;
@@ -199,9 +212,12 @@ export class EmpresaNuevaComponent implements OnInit {
               private publicService: PublicService, private validacionService: ValidacionService,
               private modalService: NgbModal, private estadoService: EstadosService,
               private calleService: CalleService, private router: Router,
-              private geocodeService: AgmGeocoder) { }
+              private geocodeService: AgmGeocoder, private authenticationService: AuthenticationService) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
+
     this.empresaCreacionForm = this.formBuilder.group({
       tipoTramite: ['', Validators.required],
       registro: ['', [Validators.required, Validators.maxLength(5), Validators.minLength(3)]],
@@ -215,7 +231,8 @@ export class EmpresaNuevaComponent implements OnInit {
       telefono: ['', [Validators.required]],
       registroFederal: [''],
       fechaInicio: [''],
-      fechaFin: ['']
+      fechaFin: [''],
+      logo: ['']
     });
 
     this.empresaUsuarioForm = this.formBuilder.group({
@@ -251,7 +268,7 @@ export class EmpresaNuevaComponent implements OnInit {
       codigoPostal: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(5)]],
       pais: ['Mexico', [Validators.required, Validators.maxLength(100)]],
       matriz: ['', Validators.required], // TODO: Quitar el si/no y agregar tipo de domicilio como matriz / sucursal
-      telefonoFijo: ['', [Validators.required]],
+      telefonoFijo: [''],
       telefonoMovil: ['']
     });
 
@@ -392,6 +409,10 @@ export class EmpresaNuevaComponent implements OnInit {
     })
   }
 
+  omitirValidacionRfc() {
+    this.validacionRfcOmitida = !this.validacionRfcOmitida;
+  }
+
   convertirPdf(pdf: Blob) {
     let reader = new FileReader();
     reader.addEventListener("load", () => {
@@ -439,6 +460,10 @@ export class EmpresaNuevaComponent implements OnInit {
 
   quitarSubmodalidad() {
 
+  }
+
+  actualizarLogo(event) {
+    this.tempLogo = event.target.files[0]
   }
 
   eliminarSocio(form) {
@@ -807,7 +832,6 @@ export class EmpresaNuevaComponent implements OnInit {
     this.obtenerCallesTimeout = setTimeout(() => {
       if(this.calleQuery === '' || this.calleQuery === undefined) {
         this.calleService.obtenerCallesPorLimite(10).subscribe((response: Calle[]) => {
-          console.log(response);
           this.calles = response;
         }, (error) => {
           this.toastService.showGenericToast(
@@ -1257,6 +1281,7 @@ export class EmpresaNuevaComponent implements OnInit {
     domicilioEmpresa.calleCatalogo = this.calle;
 
     let query = `${domicilioEmpresa?.calleCatalogo?.nombre} ${domicilioEmpresa?.numeroExterior} ${domicilioEmpresa?.numeroInterior} ${domicilioEmpresa?.coloniaCatalogo.nombre} ${domicilioEmpresa?.municipioCatalogo?.nombre} ${domicilioEmpresa?.estadoCatalogo?.nombre}`
+    this.geoCoder = new google.maps.Geocoder()
 
     this.geocodeService.geocode({
       address: query
@@ -1310,6 +1335,19 @@ export class EmpresaNuevaComponent implements OnInit {
 
           let formData = form.value;
 
+          if(this.rfcVerificationResponse === undefined)  {
+            this.rfcVerificationResponse = validateRfc(formData.rfc);
+          }
+
+          if(!this.rfcVerificationResponse.isValid && !this.validacionRfcOmitida) {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `El RFC ingresado no es valido. Motivo: ${this.rfcVerificationResponse.errors}`,
+              ToastType.WARNING
+            );
+            return;
+          }
+
           this.toastService.showGenericToast(
             "Espere un momento",
             "Estamos guardando la empresa en la base de datos",
@@ -1317,6 +1355,7 @@ export class EmpresaNuevaComponent implements OnInit {
           );
 
           let empresa = new Empresa();
+
           empresa.tipoTramite = formData.tipoTramite;
           empresa.rfc = formData.rfc;
           empresa.nombreComercial = formData.nombreComercial;
@@ -1324,6 +1363,15 @@ export class EmpresaNuevaComponent implements OnInit {
           empresa.tipoPersona = formData.tipoPersona;
           empresa.correoElectronico = formData.correoElectronico;
           empresa.telefono = formData.telefono;
+
+          if(empresa.tipoTramite === 'EAFJAL' && this.tempFileRegistroFederal === undefined) {
+            this.toastService.showGenericToast(
+              `Ocurrio un problema`,
+              `Las empresas con tipo de tramite EAFJAL requieren documento de registro federal obligatorio`,
+              ToastType.WARNING
+            );
+            return;
+          }
 
           if(this.tipoTranite === 'AP') {
             empresa.registro = `CESP/AP/SPSMD/${formData.registro}/${this.year}`;
@@ -1344,15 +1392,21 @@ export class EmpresaNuevaComponent implements OnInit {
 
           empresa.modalidades = this.empresaModalidades;
           empresa.usuario = this.empresaUsuarioForm.value;
-          empresa.usuario.password = sha256.sha256(empresa.usuario.password);
+          //empresa.usuario.password = sha256.sha256(empresa.usuario.password);
           empresa.usuario.username = empresa.registro
 
           let formDataEmpresa = new FormData();
 
-          if(this.tempFile !== undefined) {
-            formDataEmpresa.append('archivo', this.tempFile, this.tempFile.name);
+          if(this.tempFileRegistroFederal !== undefined) {
+            formDataEmpresa.append('archivo', this.tempFileRegistroFederal, this.tempFileRegistroFederal.name);
           } else {
             formDataEmpresa.append('archivo', null)
+          }
+
+          if(this.tempLogo !== undefined) {
+            formDataEmpresa.append('logo', this.tempLogo, this.tempLogo.name);
+          } else {
+            formDataEmpresa.append('logo', null);
           }
 
           formDataEmpresa.append('empresa', JSON.stringify(empresa));
@@ -1360,6 +1414,7 @@ export class EmpresaNuevaComponent implements OnInit {
           this.empresaService.guardarEmpresa(formDataEmpresa).subscribe((data: Empresa) => {
             this.empresa = data;
             this.empresaGuardada = true;
+            this.tempFileRegistroFederal = undefined;
             this.desactivarCamposEmpresa();
             this.toastService.showGenericToast(
               "Listo",
@@ -1464,7 +1519,7 @@ export class EmpresaNuevaComponent implements OnInit {
         if(this.acuerdosGuardados) {
           this.stepper.next();
         } else {
-          if(this.tempFile === undefined) {
+          if(this.tempFileAcuerdo === undefined) {
             this.toastService.showGenericToast(
               "Ocurrio un problema",
               `Favor de adjuntar el archivo del acuerdo`,
@@ -1481,7 +1536,7 @@ export class EmpresaNuevaComponent implements OnInit {
           let formValue: Acuerdo = form.value;
 
           let formData: FormData = new FormData();
-          formData.append('archivo', this.tempFile, this.tempFile.name);
+          formData.append('archivo', this.tempFileAcuerdo, this.tempFileAcuerdo.name);
           formData.append('acuerdo', JSON.stringify(formValue));
 
           this.empresaService.guardarAcuerdo(this.empresa?.uuid, formData).subscribe((data: Acuerdo) => {
@@ -1610,7 +1665,6 @@ export class EmpresaNuevaComponent implements OnInit {
 
   mostrarEditarSocioForm(index) {
     this.socio = this.empresaEscritura.socios[index];
-    console.log(this.socio);
     this.empresaEscritura.socios.splice(index, 1);
     this.mostrarFormularioNuevoSocio();
     this.editandoSocio = true;
@@ -1794,6 +1848,15 @@ export class EmpresaNuevaComponent implements OnInit {
       return;
     }
 
+    if(!this.modificandoEscritura && this.tempFileEscritura === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        'Es obligatorio subir un archivo para la escritura',
+        ToastType.WARNING
+      );
+      return;
+    }
+
     let formValue: EmpresaEscritura = form.value;
     formValue.estadoCatalogo = this.estado;
     formValue.municipioCatalogo = this.municipio;
@@ -1815,7 +1878,7 @@ export class EmpresaNuevaComponent implements OnInit {
     formValue.consejos = [];
 
     let formData = new FormData();
-    formData.append('archivo', this.tempFile, this.tempFile.name);
+    formData.append('archivo', this.tempFileEscritura, this.tempFileEscritura.name);
     formData.append('escritura', JSON.stringify(formValue));
 
     if(this.modificandoEscritura) {
@@ -1906,8 +1969,8 @@ export class EmpresaNuevaComponent implements OnInit {
     }
 
     if(this.geocodeResult !== undefined) {
-      formData.latitud = this.geocodeResult.geometry.location.lat().toString()
-      formData.longitud = this.geocodeResult.geometry.location.lng().toString()
+      formData.latitud = this.latitude.toString()
+      formData.longitud = this.longitude.toString()
     }
 
     formData.estadoCatalogo = this.estado;
@@ -2049,7 +2112,7 @@ export class EmpresaNuevaComponent implements OnInit {
     existeEmpresa.rfc = event.value;
 
     this.rfcVerificationResponse = validateRfc(existeEmpresa.rfc);
-    if(!this.rfcVerificationResponse.isValid) {
+    if(!this.rfcVerificationResponse.isValid && !this.validacionRfcOmitida) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `El RFC ingresado no es valido. Motivo: ${this.rfcVerificationResponse.errors}`,
@@ -2131,12 +2194,23 @@ export class EmpresaNuevaComponent implements OnInit {
         fechaFin: this.empresaCreacionForm.controls['fechaFin'].value,
         numeroRegistroFederal: this.empresaCreacionForm.controls['registroFederal'].value
       })
-      console.log(this.empresaModalidadForm.value);
     }
   }
 
   onFileChange(event) {
     this.tempFile = event.target.files[0]
+  }
+
+  onFileChangeRegistroFederal(event) {
+    this.tempFileRegistroFederal = event.target.files[0]
+  }
+
+  onFileChangeEscritura(event) {
+    this.tempFileEscritura = event.target.files[0]
+  }
+
+  onFileChangeAcuerdo(event) {
+    this.tempFileAcuerdo = event.target.files[0];
   }
 
   validarEscritura(event) {
@@ -2343,6 +2417,30 @@ export class EmpresaNuevaComponent implements OnInit {
     })
   }
 
+  markerDragEnd($event: google.maps.MouseEvent) {
+    this.latitude = $event.latLng.lat();
+    this.longitude = $event.latLng.lng();
+    this.getAddress(this.latitude, this.longitude)
+  }
+
+  getAddress(latitude, longitude) {
+    this.geoCoder.geocode({
+      'location': {
+        lat: latitude,
+        lng: longitude
+      }
+    }, (results, status) => {
+      if(status === 'OK') {
+        if(results[0]) {
+          this.address = results[0].formatted_address;
+        } else {
+          window.alert("No se encontraron resultados");
+        }
+      } else {
+        window.alert("El geolocalizador ha fallado.")
+      }
+    });
+  }
   private hacerFalsoUuid(longitud) {
     var result           = '';
     var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -82,6 +83,7 @@ public class ArmaMarcaServiceImpl implements ArmaMarcaService {
     }
 
     @Override
+    @Transactional
     public ArmaMarcaDto crearNuevo(ArmaMarcaDto armaMarcaDto, String username) {
         if(armaMarcaDto == null || StringUtils.isBlank(username)) {
             logger.warn("La marca del arma o el usuario estan viniendo como nulos o vacios");
@@ -110,6 +112,7 @@ public class ArmaMarcaServiceImpl implements ArmaMarcaService {
     }
 
     @Override
+    @Transactional
     public ArmaMarcaDto modificar(ArmaMarcaDto armaMarcaDto, String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || armaMarcaDto == null) {
             logger.warn("Alguno de los campos vienen como nulos o vacios");
@@ -138,6 +141,7 @@ public class ArmaMarcaServiceImpl implements ArmaMarcaService {
     }
 
     @Override
+    @Transactional
     public ArmaMarcaDto eliminar(String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

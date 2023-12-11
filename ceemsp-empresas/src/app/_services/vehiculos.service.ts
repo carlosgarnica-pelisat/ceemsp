@@ -25,12 +25,8 @@ export class VehiculosService {
     return this.http.get(`${this.uri}/catalogos/vehiculos/marcas/${uuid}`)
   }
 
-  guardarVehiculoMarca(vehiculoMarca: VehiculoMarca) {
-    return this.http.post(`${this.uri}/catalogos/vehiculos/marcas`, vehiculoMarca)
-  }
-
-  borrarVehiculoMarcaPorUuid(uuid: String) {
-    return this.http.delete(`${this.uri}/catalogos/vehiculos/marcas/${uuid}`)
+  obtenerVehiculosTiposMarca(tipo: string) {
+    return this.http.get(`${this.uri}/catalogos/vehiculos/marcas/tipos/${tipo}`)
   }
 
   // Operaciones para tipos
@@ -38,16 +34,8 @@ export class VehiculosService {
     return this.http.get(`${this.uri}/catalogos/vehiculos/tipos`)
   }
 
-  obtenerVehiculoTipoPorUuid(uuid: String) {
-    return this.http.get(`${this.uri}/catalogos/vehiculos/tipos/${uuid}`)
-  }
-
   guardarVehiculoTipo(vehiculoTipo: VehiculoTipo) {
     return this.http.post(`${this.uri}/catalogos/vehiculos/tipos`, vehiculoTipo)
-  }
-
-  borrarVehiculoTipoPorUuid(uuid: String) {
-    return this.http.delete(`${this.uri}/catalogos/vehiculos/tipos/${uuid}`)
   }
 
   // Oerapciones para usos

@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum VehiculoTipoEnum {
 
     AUTOMOVIL("AUTOMOVIL", "Automovil", "Automovil"),
-    MOTOCICLETA("MOTOCICLETA", "Motocicleta", "Motocicleta");
+    MOTOCICLETA("MOTOCICLETA", "Motocicleta", "Motocicleta"),
+    AUTOBUS("AUTOBUS", "Autobus", "Autobus");
 
     private String codigo;
     private String nombre;

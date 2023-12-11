@@ -9,4 +9,6 @@ public interface TipoInfraestructuraService {
     TipoInfraestructuraDto obtenerTipoInfraestructuraPorUuid(String uuid);
     TipoInfraestructuraDto obtenerTipoInfraestructuraPorId(Integer id);
     TipoInfraestructuraDto guardarTipoInfraestructura(TipoInfraestructuraDto tipoInfraestructuraDto, String username);
+    TipoInfraestructuraDto modificarTipoInfraestructura(String uuid, TipoInfraestructuraDto tipoInfraestructuraDto, String username);
+    TipoInfraestructuraDto eliminarTipoInfraestructura(String uuid, String username);
 }

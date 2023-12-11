@@ -54,4 +54,16 @@ public class Cliente extends CommonModel {
 
     @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
     private String documentoFundatorioBaja;
+
+    @Column(name = "DOMICILIO_CAPTURADO")
+    private boolean domicilioCapturado;
+
+    @Column(name = "ASIGNACION_CAPTURADA")
+    private boolean asignacionCapturada;
+
+    @Column(name = "MODALIDAD_CAPTURADA")
+    private boolean modalidadCapturada;
+
+    @Column(name = "FORMA_EJECUCION_CAPTURADA")
+    private boolean formaEjecucionCapturada;
 }

@@ -78,6 +78,18 @@ import { BuscarRazonSocialPipe } from './_pipes/buscar-razon-social.pipe';
 import { BuscarNombresPipe } from './_pipes/buscar-nombres.pipe';
 import {DataTablesModule} from "angular-datatables";
 import {TableModule} from "primeng/table";
+import { EmpresaVisitasComponent } from './home/empresas/empresa-visitas/empresa-visitas.component';
+import { ClientesComponent } from './home/catalogos/clientes/clientes.component';
+import { BotonEmpresaVisitasComponent } from './_components/botones/boton-empresa-visitas/boton-empresa-visitas.component';
+import { BotonVisitasComponent } from './_components/botones/boton-visitas/boton-visitas.component';
+import { MultilineCellComponent } from './_components/cell-renderers/multiline-cell/multiline-cell.component';
+import { ValidarAcuseComponent } from './validar-acuse/validar-acuse.component';
+import { EmpresaReportesMensualesComponent } from './home/empresas/empresa-reportes-mensuales/empresa-reportes-mensuales.component';
+import { BusquedaComponent } from './home/busqueda/busqueda.component';
+import { VentanasComponent } from './home/ventanas/ventanas.component';
+import { BotonVentanaComponent } from './_components/botones/boton-ventana/boton-ventana.component';
+import { ValidarReporteComponent } from './validar-reporte/validar-reporte.component';
+import { PerfilComponent } from './home/perfil/perfil.component';
 
 @NgModule({
   declarations: [
@@ -141,7 +153,19 @@ import {TableModule} from "primeng/table";
     ModalidadArmadaPipe,
     BotonBuzonSalidaComponent,
     BuscarRazonSocialPipe,
-    BuscarNombresPipe
+    BuscarNombresPipe,
+    EmpresaVisitasComponent,
+    ClientesComponent,
+    BotonEmpresaVisitasComponent,
+    BotonVisitasComponent,
+    MultilineCellComponent,
+    ValidarAcuseComponent,
+    EmpresaReportesMensualesComponent,
+    BusquedaComponent,
+    VentanasComponent,
+    BotonVentanaComponent,
+    ValidarReporteComponent,
+    PerfilComponent
   ],
     imports: [
         BrowserModule,
@@ -158,7 +182,7 @@ import {TableModule} from "primeng/table";
         GoogleChartsModule,
         GoogleMapsModule,
         AgmCoreModule.forRoot({
-            apiKey: 'AIzaSyDhtDzSjzQt5q9LI8aR7xXNA4QPsUgaEsY',
+            apiKey: 'AIzaSyB7dj4T5sXyKfmMfAjivi4lJnndOV_T5yY',
             libraries: ['geometry', 'places']
         }),
         DataTablesModule,
@@ -169,7 +193,7 @@ import {TableModule} from "primeng/table";
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     SanitizeHtmlPipe
   ],
-  exports: [SanitizeHtmlPipe],
+  exports: [SanitizeHtmlPipe, PhoneMaskDirective, BuscarNombrePipe, BuscarNombresPipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

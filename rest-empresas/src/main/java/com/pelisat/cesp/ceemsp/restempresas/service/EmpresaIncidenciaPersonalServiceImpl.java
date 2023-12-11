@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class EmpresaIncidenciaPersonalServiceImpl implements EmpresaIncidenciaPersonalService {
@@ -44,6 +45,7 @@ public class EmpresaIncidenciaPersonalServiceImpl implements EmpresaIncidenciaPe
     }
 
     @Override
+    @Transactional
     public PersonaDto agregarPersonaIncidencia(String incidenciaUuid, String username, PersonaDto personaDto) {
         if(StringUtils.isBlank(incidenciaUuid) || StringUtils.isBlank(username) || personaDto == null) {
             logger.warn("Alguno de los parametros es nulo o invalido");
@@ -72,6 +74,7 @@ public class EmpresaIncidenciaPersonalServiceImpl implements EmpresaIncidenciaPe
     }
 
     @Override
+    @Transactional
     public PersonaDto eliminarPersonaIncidencia(String incidenciaUuid, String personaIncidenciaUuid, String username) {
         if(StringUtils.isBlank(incidenciaUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(personaIncidenciaUuid)) {
             logger.warn("Alguno de los parametros es nulo o invalido");

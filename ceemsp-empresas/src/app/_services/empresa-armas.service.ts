@@ -15,4 +15,12 @@ export class EmpresaArmasService {
   obtenerArmas() {
     return this.http.get(`${this.uri}/armas`);
   }
+
+  obtenerArmasCortas() {
+    return this.http.get(`${this.uri}/armas/cortas`)
+  }
+
+  obtenerArmasLargas() {
+    return this.http.get(`${this.uri}/armas/largas`)
+  }
 }

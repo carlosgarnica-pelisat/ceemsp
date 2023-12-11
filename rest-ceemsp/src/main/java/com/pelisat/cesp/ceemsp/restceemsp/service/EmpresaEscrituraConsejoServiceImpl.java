@@ -18,9 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
@@ -105,6 +105,7 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
     }
 
     @Override
+    @Transactional
     public EmpresaEscrituraConsejoDto crearConsejo(String empresaUuid, String escrituraUuid, String username, EmpresaEscrituraConsejoDto empresaEscrituraConsejoDto) {
         if(empresaEscrituraConsejoDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid)) {
             logger.warn("El consejo, la empresa o la escritura estan viniendo como nulos o vacios");
@@ -130,6 +131,7 @@ public class EmpresaEscrituraConsejoServiceImpl implements EmpresaEscrituraConse
     }
 
     @Override
+    @Transactional
     public EmpresaEscrituraConsejoDto actualizarConsejo(String empresaUuid, String escrituraUuid, String consejoUuid, String username, EmpresaEscrituraConsejoDto empresaEscrituraConsejoDto) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(escrituraUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(consejoUuid) || empresaEscrituraConsejoDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

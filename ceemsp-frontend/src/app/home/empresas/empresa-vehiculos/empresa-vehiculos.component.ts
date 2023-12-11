@@ -21,8 +21,12 @@ import VehiculoFotografiaMetadata from "../../../_models/VehiculoFotografiaMetad
 import {
   BotonEmpresaVehiculosComponent
 } from "../../../_components/botones/boton-empresa-vehiculos/boton-empresa-vehiculos.component";
-import Persona from "../../../_models/Persona";
 import Empresa from "../../../_models/Empresa";
+import {formatDate} from "@angular/common";
+import {Table} from "primeng/table";
+import PersonalVehiculo from "../../../_models/PersonalVehiculo";
+import VehiculoDomicilio from "../../../_models/VehiculoDomicilio";
+import {ReporteEmpresasService} from "../../../_services/reporte-empresas.service";
 
 @Component({
   selector: 'app-empresa-vehiculos',
@@ -35,18 +39,34 @@ export class EmpresaVehiculosComponent implements OnInit {
 
   private gridApi;
   private gridColumnApi;
+  private numeroSerieValido;
+  private placasValidas;
 
   editandoModal: boolean = false;
   mostrandoEliminados: boolean = false;
 
   columnDefs =  [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true},
-    {headerName: 'Tipo', field: 'tipo.nombre', sortable: true, filter: true },
-    {headerName: 'Marca', field: 'marca.nombre', sortable: true, filter: true},
-    {headerName: 'Submarca', field: 'submarca.nombre', sortable: true, filter: true},
-    {headerName: 'Placas', field: 'placas', sortable: true, filter: true},
-    {headerName: 'Serie', field: 'serie', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true, resizable: true},
+    {
+      headerName: "Cons.",
+      valueGetter: "node.rowIndex + 1",
+      pinned: "left",
+      width: 70
+    },
+    {headerName: 'Tipo', field: 'tipo.nombre', sortable: true, filter: true, resizable: true },
+    {headerName: 'Marca', field: 'marca.nombre', sortable: true, filter: true, resizable: true},
+    {headerName: 'Submarca', field: 'submarca.nombre', sortable: true, filter: true, resizable: true},
+    {headerName: 'Placas', field: 'placas', sortable: true, filter: true, resizable: true},
+    {headerName: 'Serie', field: 'serie', sortable: true, filter: true, resizable: true},
+    {headerName: 'Fecha de creacion', field: 'fechaCreacion', width: 150, sortable: true, filter: true, resizable: true},
+    {headerName: 'Status de captura', sortable: true, resizable: true, filter: true, valueGetter: function(params) {
+        if(params.data.fotografiaCapturada && params.data.coloresCapturado) {
+          return 'COMPLETA'
+        } else {
+          return 'INCOMPLETA'
+        }
+      }},
+    {headerName: 'Opciones', cellRenderer: 'buttonRenderer', resizable: true, cellRendererParams: {
         label: 'Ver detalles',
         verDetalles: this.verDetalles.bind(this),
         editar: this.editar.bind(this),
@@ -70,6 +90,9 @@ export class EmpresaVehiculosComponent implements OnInit {
   coloresGuardados: boolean = false;
 
   pestanaActual: string = "DETALLES";
+  pestanaActualMovimientos: string = "ASIGNACIONES";
+  vehiculoMovimientos: PersonalVehiculo[];
+  vehiculoMovimientosDomicilio: VehiculoDomicilio[] = [];
 
   uuid: string;
   empresa: Empresa;
@@ -91,7 +114,6 @@ export class EmpresaVehiculosComponent implements OnInit {
   tipos: VehiculoTipo[];
   domicilios: EmpresaDomicilio[] = [];
   usos: VehiculoUso[] = [];
-  personal: Persona[];
 
   blindado: boolean = false;
   origen: string = "";
@@ -106,6 +128,7 @@ export class EmpresaVehiculosComponent implements OnInit {
   imagenActual;
   tempFile;
   pdfActual;
+  imagenPrincipal: any;
 
   existeVehiculo: ExisteVehiculo;
 
@@ -115,11 +138,14 @@ export class EmpresaVehiculosComponent implements OnInit {
   colorVehiculo: VehiculoColor;
 
   editandoColor: boolean;
+  year = new Date().getFullYear();
 
   temporaryIndex: number;
+  tieneSubmarcas: boolean;
 
   coloresTemp: VehiculoColor[] = [];
   color: VehiculoColor;
+  pdfBlob;
 
   @ViewChild('mostrarDetallesVehiculoModal') mostrarDetallesVehiculoModal: any;
   @ViewChild('mostrarFotoVehiculoModal') mostrarFotoVehiculoModal: any;
@@ -128,16 +154,19 @@ export class EmpresaVehiculosComponent implements OnInit {
   @ViewChild('eliminarVehiculoModal') eliminarVehiculoModal: any;
   @ViewChild('quitarVehiculoColorModal') quitarVehiculoColorModal: any;
   @ViewChild('modificarVehiculoModal') modificarVehiculoModal: any;
-  @ViewChild('visualizarConstanciaBlindajeModal') visualizarConstanciaBlindajeModal;
+  @ViewChild('visualizarConstanciaBlindajeModal') visualizarConstanciaBlindajeModal: any;
+  @ViewChild('agregarColorModal') agregarColorModal: any;
+  @ViewChild('agregarFotografiaModal') agregarFotografiaModal: any;
+  @ViewChild('mostrarMovimientosVehiculoModal') mostrarMovimientosVehiculoModal: any;
 
   verDetalles(rowData) {
-    this.mostrarModalDetalles(rowData.rowData, this.mostrarDetallesVehiculoModal)
+    this.mostrarModalDetalles(rowData.rowData)
   }
 
   constructor(private modalService: NgbModal, private toastService: ToastService,
               private empresaService: EmpresaService, private formBuilder: FormBuilder,
               private vehiculosService: VehiculosService, private route: ActivatedRoute,
-              private validacionService: ValidacionService) { }
+              private validacionService: ValidacionService, private reporteEmpresaService: ReporteEmpresasService) { }
 
   ngOnInit(): void {
     this.frameworkComponents = {
@@ -162,12 +191,11 @@ export class EmpresaVehiculosComponent implements OnInit {
       tipo: ['', Validators.required],
       marca: ['', Validators.required],
       submarca: [''],
-      anio: ['', Validators.required],
+      anio: ['', [Validators.required, Validators.min(1900), Validators.max(this.year + 1)]],
       rotulado: ['', Validators.required],
       uso: ['', Validators.required],
       origen: ['', Validators.required],
       blindado: ['', Validators.required],
-      serieBlindaje: ['', Validators.maxLength(30)],
       fechaBlindaje: [''],
       numeroHolograma: ['', Validators.maxLength(30)],
       placaMetalica: ['', Validators.maxLength(30)],
@@ -182,7 +210,7 @@ export class EmpresaVehiculosComponent implements OnInit {
 
     this.crearColorForm = this.formBuilder.group({
       color: ['', Validators.required],
-      descripcion: ['', [Validators.required, Validators.maxLength(100)]]
+      descripcion: ['', [Validators.maxLength(100)]]
     })
 
     this.crearVehiculoFotografiaForm = this.formBuilder.group({
@@ -207,16 +235,6 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.ERROR
       )
     });
-
-    this.empresaService.obtenerPersonal(this.uuid).subscribe((data: Persona[]) => {
-      this.personal = data
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se pudieron descargar las personas. Motivo: ${error}`,
-        ToastType.ERROR
-      );
-    })
 
     this.empresaService.obtenerVehiculosEliminados(this.uuid).subscribe((data: Vehiculo[]) => {
       this.vehiculosEliminados = data;
@@ -269,6 +287,18 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.ERROR
       )
     });
+
+    this.route.queryParams.subscribe((qp) => {
+      if(qp.uuid !== undefined) {
+        this.mostrarModalDetalles(qp)
+      }
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Alguno de los parametros no es valido`,
+        ToastType.ERROR
+      );
+    });
   }
 
   mostrarModalEliminarFotografia(uuid) {
@@ -284,6 +314,10 @@ export class EmpresaVehiculosComponent implements OnInit {
 
   cambiarPestana(pestana) {
     this.pestanaActual = pestana;
+  }
+
+  cambiarPestanaMovimiento(pestana) {
+    this.pestanaActualMovimientos = pestana;
   }
 
   onFileChange(event) {
@@ -349,7 +383,6 @@ export class EmpresaVehiculosComponent implements OnInit {
           uso: this.vehiculo.uso.uuid,
           origen: this.vehiculo.origen,
           blindado: this.vehiculo.blindado,
-          serieBlindaje: this.vehiculo.serieBlindaje,
           fechaBlindaje: this.vehiculo.fechaBlindaje,
           numeroHolograma: this.vehiculo.numeroHolograma,
           placaMetalica: this.vehiculo.placaMetalica,
@@ -364,7 +397,7 @@ export class EmpresaVehiculosComponent implements OnInit {
         this.blindado = this.vehiculo.blindado;
         this.origen = this.vehiculo.origen;
 
-        this.modal = this.modalService.open(this.modificarVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: "static"});
+        this.modal = this.modalService.open(this.modificarVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: "static", keyboard: false});
 
         this.modal.result.then((result) => {
           this.closeResult = `Closed with ${result}`;
@@ -423,7 +456,7 @@ export class EmpresaVehiculosComponent implements OnInit {
     let tipoUuid = event.value;
     this.tipo = this.tipos.filter(x => x.uuid === tipoUuid)[0];
 
-    if(this.tipo?.nombre === 'MOTOCICLETA' || this.tipo?.nombre === 'CUATRIMOTO') {
+    if(this.tipo?.nombre === 'MOTOCICLETA' || this.tipo?.nombre === 'CUATRIMOTO' || this.tipo?.nombre === 'AUTOBUS') {
       this.crearVehiculoForm.controls["submarca"].disable();
     } else {
       this.crearVehiculoForm.controls["submarca"].enable();
@@ -446,6 +479,11 @@ export class EmpresaVehiculosComponent implements OnInit {
     this.vehiculosService.obtenerVehiculoMarcaPorUuid(marcaUuid).subscribe((data: VehiculoMarca) => {
       this.marca = data;
       this.submarcas = data.submarcas;
+      if(data?.submarcas.length > 0) {
+        this.tieneSubmarcas = true;
+      } else {
+        this.tieneSubmarcas = false;
+      }
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -479,12 +517,27 @@ export class EmpresaVehiculosComponent implements OnInit {
     }
   }
 
-  mostrarModalDetalles(rowData, modal) {
+  mostrarModalDetalles(rowData) {
     let vehiculo = rowData.uuid;
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: "modal-basic-title", size: 'xl'});
 
     this.empresaService.obtenerVehiculoPorUuid(this.uuid, vehiculo).subscribe((data: Vehiculo) => {
       this.vehiculo = data;
+      if(this.vehiculo?.fotografias.length > 0) {
+        let vehiculoFoto = this.vehiculo?.fotografias[0];
+        this.empresaService.descargarVehiculoFotografia(this?.uuid, this?.vehiculo?.uuid, vehiculoFoto.uuid).subscribe((data: Blob) => {
+          this.convertirImagenPrincipal(data);
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `No se ha podido descargar la fotografia. Motivo: ${error}`,
+            ToastType.ERROR
+          )
+        })
+      } else {
+        this.imagenPrincipal = undefined;
+      }
+
+      this.modal = this.modalService.open(this.mostrarDetallesVehiculoModal, {ariaLabelledBy: "modal-basic-title", size: 'xl', keyboard: false, backdrop: "static"});
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -494,9 +547,31 @@ export class EmpresaVehiculosComponent implements OnInit {
     })
   }
 
+  mostrarModalAgregarColor() {
+    this.modal = this.modalService.open(this.agregarColorModal, {size: 'lg', backdrop: "static"})
+  }
+
+  mostrarModalAgregarFotografia() {
+    this.modal = this.modalService.open(this.agregarFotografiaModal, {size: 'lg', backdrop: 'static'})
+  }
+
   consultarSerieVehiculo(event) {
     let existeVehiculo: ExisteVehiculo = new ExisteVehiculo();
     existeVehiculo.numeroSerie = event.value;
+
+    let numeroSerie = event.value;
+    let cuipRegexSerie = /^\b[(A-H|J-N|P|R-Z|0-9)]{17}\b/g;
+    if(!cuipRegexSerie.test(numeroSerie)) {
+      this.toastService.showGenericToast(
+        "Espera un momento",
+        `El numero de serie no es valido. Favor de revisarlo`,
+        ToastType.WARNING
+      );
+      this.numeroSerieValido = false;
+      return;
+    } else {
+      this.numeroSerieValido = true;
+    }
 
     this.validacionService.validarVehiculo(existeVehiculo).subscribe((data: ExisteVehiculo) => {
       this.existeVehiculo = data;
@@ -510,6 +585,20 @@ export class EmpresaVehiculosComponent implements OnInit {
   }
 
   consultarPlacasVehiculo(event) {
+    let placas = event.value;
+    let cuipRegexSerie = /^\b[(A-Z|0-9)]{5,7}\b/g;
+    if(!cuipRegexSerie.test(placas)) {
+      this.toastService.showGenericToast(
+        "Espera un momento",
+        `Las placas no son validas. Favor de revisarlas`,
+        ToastType.WARNING
+      );
+      this.placasValidas = false;
+      return;
+    } else {
+      this.placasValidas = true;
+    }
+
     let existeVehiculo: ExisteVehiculo = new ExisteVehiculo();
     existeVehiculo.placas = event.value;
 
@@ -545,6 +634,22 @@ export class EmpresaVehiculosComponent implements OnInit {
         this.crearVehiculoForm.controls["submarca"].enable();
       }
 
+      let placas = this.vehiculo.placas;
+      let cuipRegexPlacas = /^\b[(A-Z|0-9)]{5,7}\b/g;
+      if(!cuipRegexPlacas.test(placas)) {
+        this.placasValidas = false;
+      } else {
+        this.placasValidas = true;
+      }
+
+      let numeroSerie = this.vehiculo.serie;
+      let cuipRegexSerie = /^\b[(A-H|J-N|P|R-Z|0-9)]{17}\b/g;
+      if(!cuipRegexSerie.test(numeroSerie)) {
+        this.numeroSerieValido = false;
+      } else {
+        this.numeroSerieValido = true;
+      }
+
       this.crearVehiculoForm.patchValue({
         placas: this.vehiculo.placas,
         serie: this.vehiculo.serie,
@@ -556,7 +661,6 @@ export class EmpresaVehiculosComponent implements OnInit {
         uso: this.vehiculo.uso.uuid,
         origen: this.vehiculo.origen,
         blindado: this.vehiculo.blindado,
-        serieBlindaje: this.vehiculo.serieBlindaje,
         fechaBlindaje: this.vehiculo.fechaBlindaje,
         numeroHolograma: this.vehiculo.numeroHolograma,
         placaMetalica: this.vehiculo.placaMetalica,
@@ -568,7 +672,7 @@ export class EmpresaVehiculosComponent implements OnInit {
         domicilio: this.vehiculo.domicilio.uuid
       });
 
-      this.modal = this.modalService.open(this.modificarVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: "static"});
+      this.modal = this.modalService.open(this.modificarVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: "static", keyboard: false});
 
       this.modal.result.then((result) => {
         this.closeResult = `Closed with ${result}`;
@@ -584,6 +688,17 @@ export class EmpresaVehiculosComponent implements OnInit {
     })
   }
 
+  convertirImagenPrincipal(imagen: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.imagenPrincipal = reader.result
+    });
+
+    if(imagen) {
+      reader.readAsDataURL(imagen)
+    }
+  }
+
   guardarCambiosVehiculo(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
@@ -591,6 +706,15 @@ export class EmpresaVehiculosComponent implements OnInit {
         `El formulario no es valido.`,
         ToastType.WARNING
       );
+      return;
+    }
+
+    if(!this.numeroSerieValido || !this.placasValidas) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El numero de serie o las placas ingresadas no son validas`,
+        ToastType.WARNING
+      )
       return;
     }
 
@@ -615,8 +739,24 @@ export class EmpresaVehiculosComponent implements OnInit {
     formValue.uso = this.usos.filter(x => x.uuid === form.value.uso)[0];
     formValue.domicilio = this.domicilios.filter(x => x.uuid === form.value.domicilio)[0];
 
+    if(this.tieneSubmarcas && formValue.submarca === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hace falta seleccionar una submarca",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     if(this.blindado) {
-      console.log("Agregar validaciones para blindaje");
+      if(this.tempFile === undefined && !this.vehiculo?.constanciaBlindajeCargada) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `Un vehiculo blindado necesita una constancia de blindaje`,
+          ToastType.WARNING
+        );
+        return;
+      }
     } else {
       formValue.nivelBlindaje = null
     }
@@ -671,13 +811,6 @@ export class EmpresaVehiculosComponent implements OnInit {
       linear: true,
       animation: true
     })
-
-
-    this.modal.result.then((result) => {
-      this.closeResult = `Closed with ${result}`;
-    }, (error) => {
-      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
-    });
   }
 
   next(stepName: string, form) {
@@ -694,6 +827,15 @@ export class EmpresaVehiculosComponent implements OnInit {
         if(this.vehiculoGuardado) {
           this.stepper.next();
         } else {
+          if(!this.numeroSerieValido || !this.placasValidas) {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              `El numero de serie o las placas ingresadas no son validas`,
+              ToastType.WARNING
+            )
+            return;
+          }
+
           let formValue: Vehiculo = form.value;
 
           if(formValue.fechaInicio !== undefined && formValue.fechaFin !== undefined) {
@@ -714,9 +856,26 @@ export class EmpresaVehiculosComponent implements OnInit {
           formValue.tipo = this.tipos.filter(x => x.uuid === form.value.tipo)[0];
           formValue.uso = this.usos.filter(x => x.uuid === form.value.uso)[0];
           formValue.domicilio = this.domicilios.filter(x => x.uuid === form.value.domicilio)[0];
+          formValue.status = "INSTALACIONES";
+
+          if(this.tieneSubmarcas && formValue.submarca === undefined) {
+            this.toastService.showGenericToast(
+              "Ocurrio un problema",
+              "Hace falta seleccionar una submarca",
+              ToastType.WARNING
+            );
+            return;
+          }
 
           if(this.blindado) {
-            console.log("Agregar validaciones para blindaje");
+            if(this.tempFile === undefined) {
+              this.toastService.showGenericToast(
+                "Ocurrio un problema",
+                `Un vehiculo blindado necesita una constancia de blindaje`,
+                ToastType.WARNING
+              );
+              return;
+            }
           } else {
             formValue.nivelBlindaje = null
           }
@@ -741,9 +900,10 @@ export class EmpresaVehiculosComponent implements OnInit {
               "Se ha guardado el vehiculo con exito",
               ToastType.SUCCESS
             );
-            console.log(data);
             this.vehiculo = data;
             this.vehiculoGuardado = true;
+            this.desactivarCamposVehiculo();
+            this.recargarVehiculos();
             this.stepper.next();
           }, (error) => {
             this.toastService.showGenericToast(
@@ -805,6 +965,7 @@ export class EmpresaVehiculosComponent implements OnInit {
 
           if(coloresGuardados) {
             this.coloresGuardados = true;
+            this.recargarVehiculos();
             this.stepper.next();
           }
         }
@@ -813,7 +974,8 @@ export class EmpresaVehiculosComponent implements OnInit {
   }
 
   finalizar() {
-    window.location.reload();
+    this.modal.close();
+    this.recargarVehiculos();
   }
 
   mostrarModalEliminar(modal, temporaryIndex) {
@@ -822,6 +984,10 @@ export class EmpresaVehiculosComponent implements OnInit {
   }
 
   mostrarModalEliminarVehiculo() {
+    this.motivosEliminacionForm.patchValue({
+      fechaBaja: formatDate(new Date(), "yyyy-MM-dd", "en")
+    });
+    this.motivosEliminacionForm.controls['fechaBaja'].disable();
     this.modal = this.modalService.open(this.eliminarVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
 
     this.modal.result.then((result) => {
@@ -832,8 +998,7 @@ export class EmpresaVehiculosComponent implements OnInit {
   }
 
   confirmarEliminarVehiculo(form) {
-    console.log(form.value);
-    console.log(form.valid);
+
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -866,7 +1031,8 @@ export class EmpresaVehiculosComponent implements OnInit {
         "Se ha eliminado el vehiculo con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.recargarVehiculos();
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -880,8 +1046,9 @@ export class EmpresaVehiculosComponent implements OnInit {
     this.stepper.previous()
   }
 
-  mostrarEditarVehiculoColor(index) {
-    this.colorVehiculo = this.vehiculo.colores[index];
+  mostrarEditarVehiculoColor(uuid) {
+    this.colorVehiculo = this.vehiculo.colores.filter(x => x.uuid === uuid)[0];
+    this.modal = this.modalService.open(this.agregarColorModal, {size: 'xl', backdrop: 'static'})
     this.mostrarFormularioColor();
     this.editandoColor = true;
     this.crearColorForm.patchValue({
@@ -940,7 +1107,7 @@ export class EmpresaVehiculosComponent implements OnInit {
         filter: true
       };
 
-      this.columnDefs.push(newColumnDef);
+      //this.columnDefs.push(newColumnDef);
       this.gridApi.setColumnDefs(this.columnDefs);
     } else {
       this.columnDefs = this.columnDefs.filter(s => s.field !== field);
@@ -970,6 +1137,7 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.modal.close();
+      this.recargarVehiculos();
       this.empresaService.obtenerVehiculoColores(this.uuid, this.vehiculo.uuid).subscribe((data: VehiculoColor[]) => {
         this.vehiculo.colores = data;
       }, (error) => {
@@ -1011,6 +1179,7 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.modal.close();
+      this.recargarVehiculos();
       this.empresaService.listarVehiculoFotografias(this.uuid, this.vehiculo.uuid).subscribe((data: VehiculoFotografiaMetadata[]) => {
         this.vehiculo.fotografias = data;
       }, (error) => {
@@ -1061,6 +1230,8 @@ export class EmpresaVehiculosComponent implements OnInit {
           ToastType.INFO
         );
         this.mostrarFormularioColor();
+        this.modal.close();
+        this.recargarVehiculos();
         this.empresaService.obtenerVehiculoColores(this.uuid, this.vehiculo.uuid).subscribe((data: VehiculoColor[]) => {
           this.vehiculo.colores = data;
         }, (error) => {
@@ -1085,6 +1256,8 @@ export class EmpresaVehiculosComponent implements OnInit {
           ToastType.SUCCESS
         );
         this.mostrarFormularioColor();
+        this.modal.close();
+        this.recargarVehiculos();
         this.empresaService.obtenerVehiculoColores(this.uuid, this.vehiculo.uuid).subscribe((data: VehiculoColor[]) => {
           this.vehiculo.colores = data;
         }, (error) => {
@@ -1102,6 +1275,10 @@ export class EmpresaVehiculosComponent implements OnInit {
         );
       });
     }
+  }
+
+  clear(table: Table) {
+    table.clear();
   }
 
   guardarFotografia(form) {
@@ -1132,6 +1309,8 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.mostrarFormularioNuevaFotografia();
+      this.modal?.close();
+      this.recargarVehiculos();
       this.empresaService.listarVehiculoFotografias(this.uuid, this.vehiculo.uuid).subscribe((data: VehiculoFotografiaMetadata[]) => {
         this.vehiculo.fotografias = data;
       }, (error) => {
@@ -1179,16 +1358,53 @@ export class EmpresaVehiculosComponent implements OnInit {
     }
   }
 
+  mostrarModalMovimientosVehiculo() {
+    this.modal = this.modalService.open(this.mostrarMovimientosVehiculoModal, {size: 'xl', backdrop: 'static'})
+
+    this.empresaService.obtenerMovimientosPorVehiculoUuid(this.uuid, this.vehiculo?.uuid).subscribe((data: PersonalVehiculo[]) => {
+      this.vehiculoMovimientos = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido obtener los movimientos de asignacion del vehiculo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+      this.vehiculoMovimientos = [];
+    })
+
+    this.empresaService.obtenerMovimientosDomiciliosPorVehiculoUuid(this.uuid, this.vehiculo?.uuid).subscribe((data: VehiculoDomicilio[]) => {
+      this.vehiculoMovimientosDomicilio = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido obtener los movimientos de domicilios del vehiculo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+      this.vehiculoMovimientosDomicilio = [];
+    })
+  }
+
+  descargarDocumentoFundatorio() {
+    this.empresaService.descargarDocumentoFundatorioVehiculo(this?.uuid, this.vehiculo?.uuid).subscribe((data: Blob) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "documento-fundatorio-" + this.vehiculo?.uuid;
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el documento fundatorio. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
   mostrarModalVerConstanciaBlindaje() {
     this.modal = this.modalService.open(this.visualizarConstanciaBlindajeModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
-
+    this.pdfActual = undefined;
     this.empresaService.descargarVehiculoConstanciaPdf(this.uuid, this.vehiculo?.uuid).subscribe((data: Blob) => {
+      this.pdfBlob = data;
       this.convertirPdf(data);
-      // TODO: Manejar esta opcion para descargar
-      /*let link = document.createElement('a');
-      link.href = window.URL.createObjectURL(data);
-      link.download = "licencia-colectiva-" + this.licencia.uuid;
-      link.click();*/
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -1220,6 +1436,50 @@ export class EmpresaVehiculosComponent implements OnInit {
     }
   }
 
+  generarReporteExcel() {
+    this.reporteEmpresaService.generarReporteVehiculos(this.uuid).subscribe((data) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "test.xls";
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el reporte en excel. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  private desactivarCamposVehiculo() {
+    this.crearVehiculoForm.controls['placas'].disable();
+    this.crearVehiculoForm.controls['serie'].disable();
+    this.crearVehiculoForm.controls['tipo'].disable();
+    this.crearVehiculoForm.controls['marca'].disable();
+    this.crearVehiculoForm.controls['submarca'].disable();
+    this.crearVehiculoForm.controls['anio'].disable();
+    this.crearVehiculoForm.controls['rotulado'].disable();
+    this.crearVehiculoForm.controls['uso'].disable();
+    this.crearVehiculoForm.controls['origen'].disable();
+    this.crearVehiculoForm.controls['blindado'].disable();
+    this.crearVehiculoForm.controls['fechaBlindaje'].disable();
+    this.crearVehiculoForm.controls['numeroHolograma'].disable();
+    this.crearVehiculoForm.controls['placaMetalica'].disable();
+    this.crearVehiculoForm.controls['empresaBlindaje'].disable();
+    this.crearVehiculoForm.controls['nivelBlindaje'].disable();
+    this.crearVehiculoForm.controls['razonSocial'].disable();
+    this.crearVehiculoForm.controls['fechaInicio'].disable();
+    this.crearVehiculoForm.controls['fechaFin'].disable();
+    this.crearVehiculoForm.controls['domicilio'].disable();
+  }
+
+  descargarAcuerdoPdf() {
+    let link = document.createElement('a');
+    link.href = window.URL.createObjectURL(this.pdfBlob);
+    link.download = "constancia-blindaje.pdf";
+    link.click();
+  }
+
   private getDismissReason(reason: any): string {
     if (reason == ModalDismissReasons.ESC) {
       return `by pressing ESC`;
@@ -1228,5 +1488,28 @@ export class EmpresaVehiculosComponent implements OnInit {
     } else {
       return `with ${reason}`;
     }
+  }
+
+  recargarVehiculos() {
+    this.empresaService.obtenerVehiculos(this.uuid).subscribe((data: Vehiculo[]) => {
+      this.rowData = data;
+      this.vehiculos = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudieron descargar los vehiculos. ${error}`,
+        ToastType.ERROR
+      )
+    });
+
+    this.empresaService.obtenerVehiculosEliminados(this.uuid).subscribe((data: Vehiculo[]) => {
+      this.vehiculosEliminados = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los vehiculos eliminados. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 }

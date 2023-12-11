@@ -11,9 +11,8 @@ import EmpresaEquipo from "../../../_models/EmpresaEquipo";
 import {
   BotonEmpresaEquiposComponent
 } from "../../../_components/botones/boton-empresa-equipos/boton-empresa-equipos.component";
-import Empresa from "../../../_models/Empresa";
-import EmpresaUniformeElementoMovimiento from "../../../_models/EmpresaUniformeElementoMovimiento";
 import EmpresaEquipoMovimiento from "../../../_models/EmpresaEquipoMovimiento";
+import Empresa from "../../../_models/Empresa";
 
 @Component({
   selector: 'app-empresa-equipo',
@@ -35,10 +34,10 @@ export class EmpresaEquipoComponent implements OnInit {
   crearEquipoForm: FormGroup;
   modificarEquipoForm: FormGroup;
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
     {headerName: 'Equipo', field: 'equipo.nombre', sortable: true, filter: true },
     {headerName: 'Cantidad', field: 'cantidad', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'empresaEquipoButtonRenderer', cellRendererParams: {
+    {headerName: 'Opciones', cellRenderer: 'empresaEquipoButtonRenderer', cellRendererParams: {
         label: 'Ver detalles',
         verDetalles: this.verDetalles.bind(this),
         editar: this.editar.bind(this),
@@ -123,12 +122,13 @@ export class EmpresaEquipoComponent implements OnInit {
     this.empresaService.obtenerEquipoPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaEquipo) => {
       this.empresaEquipo = data;
       this.editandoModal = false;
-      this.modal = this.modalService.open(this.modificarEquipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
-      this.equipo = data.equipo;
-      this.crearEquipoForm.setValue({
-        equipo: this.empresaEquipo.equipo.uuid,
-        cantidad: this.empresaEquipo.cantidad
+      this.modal = this.modalService.open(this.modificarEquipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+      this.modificarEquipoForm.patchValue({
+        cantidadActual: this.empresaEquipo.cantidad
       });
+      this.modificarEquipoForm.controls['cantidadActual'].disable();
+      this.cantidadActual = this.empresaEquipo.cantidad;
+      this.equipo = this.equipos.filter(x => x.uuid === this.empresaEquipo.equipo.uuid)[0];
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",

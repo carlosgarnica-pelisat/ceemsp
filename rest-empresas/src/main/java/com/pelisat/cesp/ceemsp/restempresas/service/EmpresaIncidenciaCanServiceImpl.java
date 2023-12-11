@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class EmpresaIncidenciaCanServiceImpl implements EmpresaIncidenciaCanService {
@@ -44,6 +45,7 @@ public class EmpresaIncidenciaCanServiceImpl implements EmpresaIncidenciaCanServ
 
 
     @Override
+    @Transactional
     public CanDto agregarCanIncidencia(String incidenciaUuid, String username, CanDto canDto) {
         if(StringUtils.isBlank(incidenciaUuid) || StringUtils.isBlank(username) || canDto == null) {
             logger.warn("Alguno de los parametros es nulo o invalido");
@@ -72,6 +74,7 @@ public class EmpresaIncidenciaCanServiceImpl implements EmpresaIncidenciaCanServ
     }
 
     @Override
+    @Transactional
     public CanDto eliminarCanIncidencia(String incidenciaUuid, String canIncidenciaUuid, String username) {
         if(StringUtils.isBlank(incidenciaUuid) || StringUtils.isBlank(username) || StringUtils.isBlank(canIncidenciaUuid)) {
             logger.warn("Alguno de los parametros es nulo o invalido");

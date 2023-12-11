@@ -88,4 +88,14 @@ public class IncidenciaController {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
         return incidenciaService.asignarIncidencia(empresaUuid, incidenciaUuid, usuarioDto, username);
     }
+
+    @DeleteMapping(value = INCIDENCIA_URI + "/{incidenciaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public IncidenciaDto eliminarIncidencia(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "incidenciaUuid") String incidenciaUuid,
+            HttpServletRequest httpServletRequest
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return incidenciaService.eliminarIncidencia(empresaUuid, incidenciaUuid, username);
+    }
 }

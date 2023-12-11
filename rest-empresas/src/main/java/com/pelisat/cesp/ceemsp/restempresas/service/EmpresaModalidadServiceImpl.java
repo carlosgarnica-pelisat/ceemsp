@@ -1,13 +1,11 @@
 package com.pelisat.cesp.ceemsp.restempresas.service;
 
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaModalidadDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaModalidad;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaModalidadRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
-import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
@@ -18,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -72,6 +71,31 @@ public class EmpresaModalidadServiceImpl implements EmpresaModalidadService {
     }
 
     @Override
+    public EmpresaModalidadDto obtenerEmpresaModalidadPorId(int id) {
+        if(id < 1) {
+            logger.warn("El id suministrado es invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo la modalidad de la empresa con el id [{}]", id);
+
+        EmpresaModalidad empresaModalidad = empresaModalidadRepository.getOne(id);
+
+        if(empresaModalidad == null || empresaModalidad.getEliminado()) {
+            logger.warn("La modalidad no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        EmpresaModalidadDto empresaModalidadDto = daoToDtoConverter.convertDaoToDtoEmpresaModalidad(empresaModalidad);
+        empresaModalidadDto.setModalidad(catalogoService.obtenerModalidadPorId(empresaModalidad.getModalidad()));
+        if(empresaModalidad.getSubmodalidad() != null && empresaModalidad.getSubmodalidad() > 0 ){
+            empresaModalidadDto.setSubmodalidad(catalogoService.obtenerSubmodalidadPorId(empresaModalidad.getSubmodalidad()));
+        }
+        return empresaModalidadDto;
+    }
+
+    @Override
+    @Transactional
     public EmpresaModalidadDto guardarModalidad(String username, EmpresaModalidadDto empresaModalidadDto) {
         if(empresaModalidadDto == null || StringUtils.isBlank(username)) {
             logger.warn("El uuid o la escritura a crear vienen como nulos o vacios");
@@ -113,6 +137,7 @@ public class EmpresaModalidadServiceImpl implements EmpresaModalidadService {
     }
 
     @Override
+    @Transactional
     public EmpresaModalidadDto eliminarModalidadPorUuid(String modalidadUuid, String username) {
         if(StringUtils.isBlank(modalidadUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros no es valido");

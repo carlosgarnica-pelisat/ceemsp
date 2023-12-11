@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {environment} from "../../environments/environment";
 import {HttpClient} from "@angular/common/http";
+import ReporteArgos from "../_models/ReporteArgos";
 
 @Injectable({
   providedIn: 'root'
@@ -10,17 +11,23 @@ export class ReporteoService {
 
   constructor(private http: HttpClient) { }
 
-  generarReporteListadoNominal() {
-    const httpOptions = {
-      responseType: 'blob' as 'json'
-    };
-    return this.http.post(`${this.uri}/reporteo/listado-nominal`, {}, httpOptions);
+  obtenerReportesArgos() {
+    return this.http.get(`${this.uri}/reportes`)
   }
 
-  generarReportePadronEmpresas() {
+  programarReporteArgos(reporteArgos: ReporteArgos) {
+    return this.http.post(`${this.uri}/reportes`, reporteArgos)
+  }
+
+  obtenerReporteArgosPorUuid(uuid: string) {
+    return this.http.get(`${this.uri}/reportes/${uuid}`)
+  }
+
+  descargarReporteArgosPorUuid(uuid: string) {
     const httpOptions = {
       responseType: 'blob' as 'json'
     };
-    return this.http.post(`${this.uri}/reporteo/padron`, {}, httpOptions);
+
+    return this.http.get(`${this.uri}/reportes/${uuid}/archivo`, httpOptions)
   }
 }

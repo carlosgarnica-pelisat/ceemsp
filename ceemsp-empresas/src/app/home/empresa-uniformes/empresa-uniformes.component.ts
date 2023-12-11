@@ -8,9 +8,13 @@ import {UniformeService} from "../../_services/uniforme.service";
 import {ToastType} from "../../_enums/ToastType";
 import Uniforme from "../../_models/Uniforme";
 import EmpresaUniforme from "../../_models/EmpresaUniforme";
-import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faPencilAlt, faTrash, faBook, faDownload} from "@fortawesome/free-solid-svg-icons";
 import EmpresaUniformeElemento from "../../_models/EmpresaUniformeElemento";
 import {EmpresaUniformeService} from "../../_services/empresa-uniforme.service";
+import EmpresaUniformeElementoMovimiento from "../../_models/EmpresaUniformeElementoMovimiento";
+import {
+  BotonEmpresaUniformeComponent
+} from "../../_components/botones/boton-empresa-uniforme/boton-empresa-uniforme.component";
 
 @Component({
   selector: 'app-empresa-uniformes',
@@ -23,6 +27,9 @@ export class EmpresaUniformesComponent implements OnInit {
 
   private gridApi;
   private gridColumnApi;
+
+  tempFile;
+  imagenActual;
 
   modal: NgbModalRef;
   closeResult: string;
@@ -38,41 +45,68 @@ export class EmpresaUniformesComponent implements OnInit {
   elementoUniforme: Uniforme;
   editandoElemento: boolean = false;
 
+  altas: number = 0;
+  bajas: number = 0;
+  cantidadActual: number = 0;
+
   pestanaActual: string = "DETALLES";
 
+  imagenPrincipal: any;
+
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true}
+    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
+    {headerName: 'Opciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
   ];
 
   faPencil = faPencilAlt;
   faTrash = faTrash;
+  faDownload = faDownload;
+  faBook = faBook;
+
+  imagenUniforme;
 
   empresaUniformeElemento: EmpresaUniformeElemento;
 
   frameworkComponents: any;
 
+  @ViewChild('mostrarDetallesUniformeModal') mostrarDetallesUniformeModal;
   @ViewChild("modificarUniformeModal") modificarUniformeModal;
   @ViewChild("eliminarUniformeModal") eliminarUniformeModal;
   @ViewChild('eliminarUniformeElementoModal') eliminarUniformeElementoModal;
+  @ViewChild('mostrarElementoModal') mostrarElementoModal;
+  @ViewChild('mostrarMovimientosModal') mostrarMovimientosModal;
+  @ViewChild('mostrarUniformeCompletoModal') mostrarUniformeCompletoModal;
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaUniformeService: EmpresaUniformeService,
               private formBuilder: FormBuilder, private uniformeService: UniformeService) { }
 
   ngOnInit(): void {
-    this.uuid = this.route.snapshot.paramMap.get("uuid");
+    this.frameworkComponents = {
+      buttonRenderer: BotonEmpresaUniformeComponent
+    }
 
+    this.uuid = this.route.snapshot.paramMap.get("uuid");
     this.crearUniformeForm = this.formBuilder.group({
-      'nombre': ['', Validators.required],
-      'descripcion': ['', Validators.required]
+      'nombre': ['', [Validators.required, Validators.minLength(0), Validators.maxLength(100)]],
+      'descripcion': ['', [Validators.required, Validators.minLength(0), Validators.maxLength(300)]]
     });
 
     this.crearUniformeElementoForm = this.formBuilder.group({
       'elemento': ['', Validators.required],
-      'cantidad': ['', Validators.required]
+      'altas': ['', [Validators.required, Validators.min(0), Validators.max(999)]],
+      'bajas': ['', [Validators.required, Validators.min(0), Validators.max(999)]],
+      'cantidadActual': ['', [Validators.required, Validators.min(0), Validators.max(999)]]
     })
+
+    this.crearUniformeElementoForm.controls['cantidadActual'].disable()
 
     this.empresaUniformeService.obtenerUniformes().subscribe((data: EmpresaUniforme[]) => {
       this.rowData = data;
@@ -95,6 +129,40 @@ export class EmpresaUniformesComponent implements OnInit {
     })
   }
 
+  verDetalles(rowData) {
+    this.mostrarModalDetalles(rowData.rowData, this.mostrarDetallesUniformeModal);
+  }
+
+  onFileChange(event) {
+    this.tempFile = event.target.files[0]
+  }
+
+  editar(rowData) {
+    this.empresaUniformeService.obtenerUniformePorUuid(rowData.rowData?.uuid).subscribe((data: EmpresaUniforme) => {
+      this.uniforme = data;
+      this.mostrarModalModificarUniforme();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el uniforme. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  eliminar(rowData) {
+    this.empresaUniformeService.obtenerUniformePorUuid(rowData.rowData?.uuid).subscribe((data: EmpresaUniforme) => {
+      this.uniforme = data;
+      this.mostrarModalEliminarUniforme();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el uniforme. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
   onGridReady(params) {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
@@ -105,11 +173,50 @@ export class EmpresaUniformesComponent implements OnInit {
     this.elementoUniforme = this.uniformes.filter(x => x.uuid === event.value)[0];
   }
 
+  mostrarMovimientos(index) {
+    this.empresaUniformeElemento = this.uniforme.elementos[index];
+    this.modal = this.modalService.open(this.mostrarMovimientosModal, {size: "lg"})
+  }
+
+  descargarFotografiaUniformeElemento(uuid) {
+    this.empresaUniformeService.descargarFotografiaUniformeElemento(this.uniforme.uuid, uuid).subscribe((data: Blob) => {
+      this.convertirImagen(data);
+      this.modalService.open(this.mostrarElementoModal, {size: 'lg'});
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el elemento del uniforme. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  convertirImagen(imagen: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.imagenActual = reader.result;
+    });
+
+    if(imagen) {
+      reader.readAsDataURL(imagen);
+    }
+  }
   guardarElemento(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `Hay campos requeridos sin rellenar`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let existeElemento: EmpresaUniformeElemento = this.uniforme.elementos.filter(x => x.elemento?.uuid === this.elementoUniforme?.uuid && x?.uuid !== this.empresaUniformeElemento?.uuid)[0];
+
+    if(existeElemento !== undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El elemento del uniforme ya se encuentra registrado`,
         ToastType.WARNING
       );
       return;
@@ -121,12 +228,30 @@ export class EmpresaUniformesComponent implements OnInit {
       ToastType.INFO
     );
 
-    let value: EmpresaUniformeElemento = form.value;
-    value.elemento = this.elementoUniforme;
+    let empresaUniformeElemento: EmpresaUniformeElemento = new EmpresaUniformeElemento();
+    let value = form.value;
+    let movimiento: EmpresaUniformeElementoMovimiento = new EmpresaUniformeElementoMovimiento();
+
+    movimiento.altas = value.altas;
+    movimiento.bajas = form.controls['bajas'].value;
+    movimiento.cantidadActual = form.controls['cantidadActual'].value;
+
+    empresaUniformeElemento.cantidad = movimiento.cantidadActual;
+    empresaUniformeElemento.elemento = this.elementoUniforme;
+    empresaUniformeElemento.movimientos = [];
+
+    empresaUniformeElemento.movimientos.push(movimiento);
+    let formData: FormData = new FormData();
+    formData.append('elemento', JSON.stringify(empresaUniformeElemento));
 
     if(this.editandoElemento) {
+      if(this.tempFile !== undefined) {
+        formData.append('archivo', this.tempFile, this.tempFile.name);
+      } else {
+        formData.append('archivo', null);
+      }
 
-      this.empresaUniformeService.modificarUniformeElemento(this.uniforme.uuid, this.empresaUniformeElemento.uuid, value).subscribe((data: EmpresaUniformeElemento) => {
+      this.empresaUniformeService.modificarUniformeElemento(this.uniforme.uuid, this.empresaUniformeElemento.uuid, formData).subscribe((data: EmpresaUniformeElemento) => {
         this.toastService.showGenericToast(
           "Listo",
           "Se ha modificado el elemento con exito",
@@ -150,7 +275,8 @@ export class EmpresaUniformesComponent implements OnInit {
       });
 
     } else {
-      this.empresaUniformeService.guardarUniformeElemento(this.uniforme.uuid, value).subscribe((data: Uniforme) => {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+      this.empresaUniformeService.guardarUniformeElemento(this.uniforme.uuid, formData).subscribe((data: Uniforme) => {
         this.toastService.showGenericToast(
           "Listo",
           "Se ha guardado el elemento con exito",
@@ -186,11 +312,13 @@ export class EmpresaUniformesComponent implements OnInit {
     this.empresaUniformeElemento = this.uniforme.elementos[index];
     this.mostrarFormularioUniformeElemento();
     this.editandoElemento = true;
+    this.crearUniformeElementoForm.controls['bajas'].enable()
     this.crearUniformeElementoForm.patchValue({
       elemento: this.empresaUniformeElemento.elemento.uuid,
-      cantidad: this.empresaUniformeElemento.cantidad
+      cantidadActual: this.empresaUniformeElemento.cantidad
     });
-    this.elementoUniforme = this.uniformes.filter(x => x.uuid === this.empresaUniformeElemento.uuid)[0];
+    this.elementoUniforme = this.uniformes.filter(x => x.uuid === this.empresaUniformeElemento.elemento.uuid)[0];
+    this.cantidadActual = this.empresaUniformeElemento.cantidad;
   }
 
   mostrarModalEliminarElemento(tempUuid) {
@@ -337,15 +465,27 @@ export class EmpresaUniformesComponent implements OnInit {
       return;
     }
 
+    if(this.tempFile === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Favor de subir un archivo`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espere un momento",
       `Estamos guardando el uniforme`,
       ToastType.INFO
     );
 
-    let value: EmpresaUniforme = form.value;
+    let value: Uniforme = form.value;
+    let formData: FormData = new FormData();
+    formData.append('uniforme', JSON.stringify(value));
+    formData.append('archivo', this.tempFile, this.tempFile.name);
 
-    this.empresaUniformeService.guardarUniforme(value).subscribe((data: Uniforme) => {
+    this.empresaUniformeService.guardarUniforme(formData).subscribe((data: Uniforme) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha guardado el uniforme con exito",
@@ -376,6 +516,15 @@ export class EmpresaUniformesComponent implements OnInit {
 
     this.empresaUniformeService.obtenerUniformePorUuid(data.uuid).subscribe((data: EmpresaUniforme) => {
       this.uniforme = data;
+      this.empresaUniformeService.descargarFotografiaUniforme(data.uuid).subscribe((data: Blob) => {
+        this.convertirFotoPrincipal(data);
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la fotografia. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -403,6 +552,17 @@ export class EmpresaUniformesComponent implements OnInit {
     })
   }
 
+  convertirFotoPrincipal(imagen: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.imagenPrincipal = reader.result;
+    });
+
+    if(imagen) {
+      reader.readAsDataURL(imagen);
+    }
+  }
+
   exportGridData(format) {
     switch(format) {
       case "CSV":
@@ -423,6 +583,47 @@ export class EmpresaUniformesComponent implements OnInit {
         )
         break;
     }
+  }
+
+  actualizarAltas(event) {
+    let altas = event.value;
+    if(altas < 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Las altas no pueden ser menores a 0`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.altas = altas;
+
+    this.crearUniformeElementoForm.patchValue({
+      cantidadActual: (+this.cantidadActual) + (+this.altas - this.bajas)
+    })
+  }
+
+  actualizarBajas(event) {
+    let bajas = event.value;
+    if(bajas < 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Las bajas no pueden ser menores a 0`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.bajas = bajas;
+
+    this.crearUniformeElementoForm.patchValue({
+      cantidadActual: this.cantidadActual + (this.altas - this.bajas)
+    })
+  }
+
+  cerrarModalEditarUniforme() {
+    this.crearUniformeForm.reset();
+    this.modal.close();
   }
 
   private getDismissReason(reason: any): string {

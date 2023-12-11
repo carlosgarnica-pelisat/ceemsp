@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -84,7 +85,7 @@ public class VisitaArchivoServiceImpl implements VisitaArchivoService {
             throw new InvalidDataException();
         }
 
-        logger.info("Descargando la fotografia con uuid [{}]", archivoUuid);
+        logger.info("Descargando el archivo de la visita con uuid [{}]", archivoUuid);
         VisitaArchivo visitaArchivo = visitaArchivoRepository.getByUuidAndEliminadoFalse(archivoUuid);
 
         if(visitaArchivo == null) {
@@ -96,6 +97,7 @@ public class VisitaArchivoServiceImpl implements VisitaArchivoService {
     }
 
     @Override
+    @Transactional
     public VisitaArchivoMetadata guardarArchivo(String visitaUuid, String username, MultipartFile archivo, VisitaArchivoMetadata visitaArchivoMetadata) {
         if (StringUtils.isBlank(visitaUuid) || StringUtils.isBlank(username) || archivo == null || visitaArchivoMetadata == null) {
             logger.warn("Alguno de los parametros vienen como nulos o vacios");
@@ -130,6 +132,7 @@ public class VisitaArchivoServiceImpl implements VisitaArchivoService {
     }
 
     @Override
+    @Transactional
     public VisitaArchivoMetadata eliminarArchivo(String visitaUuid, String archivoUuid, String username) {
         if(StringUtils.isBlank(visitaUuid) || StringUtils.isBlank(archivoUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");

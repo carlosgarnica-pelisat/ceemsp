@@ -39,8 +39,8 @@ export class EmpresaLicenciasService {
     return this.http.put(`${this.uri}/licencias/${licenciaColectivaUuid}`, formData, {headers: {'X-isFile': 'true'}})
   }
 
-  eliminarLicenciaColectiva(licenciaColectivaUuid: string) {
-    return this.http.delete(`${this.uri}/licencias/${licenciaColectivaUuid}`)
+  eliminarLicenciaColectiva(licenciaColectivaUuid: string, formData: FormData) {
+    return this.http.put(`${this.uri}/licencias/${licenciaColectivaUuid}/borrar`, formData, {headers: {'X-isFile': 'true'}})
   }
 
 
@@ -74,7 +74,7 @@ export class EmpresaLicenciasService {
     return this.http.post(`${this.uri}/licencias/${licenciaColectivaUuid}/armas`, arma);
   }
 
-  eliminarArma(licenciaColectivaUuid: string, armaUuid: string) {
-    return this.http.delete(`${this.uri}/licencias/${licenciaColectivaUuid}/armas/${armaUuid}`);
+  eliminarArma(licenciaColectivaUuid: string, armaUuid: string, formData: FormData) {
+    return this.http.put(`${this.uri}/licencias/${licenciaColectivaUuid}/armas/${armaUuid}/borrar`, formData, {headers: {'X-isFile': 'true'}});
   }
 }

@@ -3,8 +3,6 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaUniforme;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaUniformeElementoMovimiento;
-import com.pelisat.cesp.ceemsp.database.repository.EmpresaUniformeElementoMovimientoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaUniformeRepository;
 import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -19,9 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -151,6 +149,7 @@ public class EmpresaUniformeServiceImpl implements EmpresaUniformeService {
     }
 
     @Override
+    @Transactional
     public EmpresaUniformeDto modificarUniforme(String empresaUuid, String uniformeUuid, String usuario, EmpresaUniformeDto empresaUniformeDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(usuario) || StringUtils.isBlank(uniformeUuid) || StringUtils.isBlank(empresaUuid) || empresaUniformeDto == null) {
             logger.warn("|Alguno de los parametros viene como nulo o vacio");
@@ -188,6 +187,7 @@ public class EmpresaUniformeServiceImpl implements EmpresaUniformeService {
     }
 
     @Override
+    @Transactional
     public EmpresaUniformeDto eliminarUniforme(String empresaUuid, String uniformeUuid, String usuario) {
         if(StringUtils.isBlank(usuario) || StringUtils.isBlank(uniformeUuid) || StringUtils.isBlank(empresaUuid)) {
             logger.warn("|Alguno de los parametros viene como nulo o vacio");

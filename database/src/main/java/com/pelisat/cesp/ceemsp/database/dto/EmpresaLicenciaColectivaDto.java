@@ -20,4 +20,8 @@ public class EmpresaLicenciaColectivaDto {
     private String fechaBaja;
     private Integer cantidadArmasCortas;
     private Integer cantidadArmasLargas;
+    private String fechaCreacion;
+    private String fechaActualizacion;
+    private boolean eliminado;
+    private EmpresaDto empresa;
 }

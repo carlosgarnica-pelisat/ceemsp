@@ -16,13 +16,11 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/api/v1")
 public class ValidacionController {
     private final ValidacionService validacionService;
-    private final JwtUtils jwtUtils;
     private static final String VALIDACION_URI = "/validaciones";
 
     @Autowired
-    public ValidacionController(ValidacionService validacionService, JwtUtils jwtUtils) {
+    public ValidacionController(ValidacionService validacionService) {
         this.validacionService = validacionService;
-        this.jwtUtils = jwtUtils;
     }
 
     @PostMapping(value = VALIDACION_URI + "/vehiculos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)

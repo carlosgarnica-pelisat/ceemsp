@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -105,6 +106,7 @@ public class EmpresaCanConstanciaSaludServiceImpl implements EmpresaCanConstanci
     }
 
     @Override
+    @Transactional
     public CanConstanciaSaludDto guardarConstanciaSalud(String canUuid, String username, CanConstanciaSaludDto canConstanciaSaludDto, MultipartFile archivo) {
         if(StringUtils.isBlank(canUuid) || StringUtils.isBlank(username) || canConstanciaSaludDto == null) {
             logger.warn("El uuid de la empresa, el can, el usuario o la cartilla de vacunacion vienen como nulos o vacios");
@@ -140,6 +142,7 @@ public class EmpresaCanConstanciaSaludServiceImpl implements EmpresaCanConstanci
     }
 
     @Override
+    @Transactional
     public CanConstanciaSaludDto modificarConstanciaSalud(String canUuid, String constanciaUuid, String username, CanConstanciaSaludDto canConstanciaSaludDto, MultipartFile archivo) {
         if(StringUtils.isBlank(canUuid) || StringUtils.isBlank(constanciaUuid) || StringUtils.isBlank(username) || canConstanciaSaludDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");
@@ -180,6 +183,7 @@ public class EmpresaCanConstanciaSaludServiceImpl implements EmpresaCanConstanci
     }
 
     @Override
+    @Transactional
     public CanConstanciaSaludDto eliminarConstanciaSalud(String canUuid, String constanciaUuid, String username) {
         if(StringUtils.isBlank(canUuid) || StringUtils.isBlank(constanciaUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o invalido");

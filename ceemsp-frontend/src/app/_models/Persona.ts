@@ -14,6 +14,10 @@ import Calle from "./Calle";
 import Can from "./Can";
 import Arma from "./Arma";
 import Vehiculo from "./Vehiculo";
+import EmpresaModalidad from "./EmpresaModalidad";
+import ClienteDomicilio from "./ClienteDomicilio";
+import Cliente from "./Cliente";
+import Empresa from "./Empresa";
 
 export default class Persona implements Deserializable {
   id: string;
@@ -43,6 +47,7 @@ export default class Persona implements Deserializable {
   rfc: string;
   eliminado: boolean;
   fechaCreacion: string;
+  fechaActualizacion: string;
 
   motivoBaja: string;
   observacionesBaja: string;
@@ -57,8 +62,9 @@ export default class Persona implements Deserializable {
   cuip: string;
   numeroVolanteCuip: string;
   fechaVolanteCuip: string;
-  modalidad: Modalidad;
-  rutaVolanteCuip: string;
+  archivoVolanteCuipCargado: boolean;
+  modalidad: EmpresaModalidad;
+  formaEjecucion: string;
 
   estadoCatalogo: Estado;
   municipioCatalogo: Municipio;
@@ -73,6 +79,15 @@ export default class Persona implements Deserializable {
   armaCorta: Arma;
   armaLarga: Arma;
   vehiculo: Vehiculo;
+  cliente: Cliente;
+  clienteDomicilio: ClienteDomicilio;
+
+  puestoTrabajoCapturado: boolean;
+  cursosCapturados: boolean;
+  fotografiaCapturada: boolean;
+  eliminadoIncidencia: boolean;
+  fechaCreacionIncidencia: string;
+  empresa: Empresa;
 
   deserialize(input: any): this {
     Object.assign(this, input);

@@ -4,28 +4,32 @@
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Reporteo</h1>
-    <!--div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">Crear nueva</button>
-      <div class="dropdown">
-        <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Opciones
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Descargar como Excel (csv)</a>
-        </div>
-      </div>
-    </div-->
+    <div class="btn-group">
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalNuevoReporte()">Programar reporte</button>
+    </div>
   </div>
 
   <!-- Content Row -->
   <div class="row">
     <div class="col-sm-12">
-      <table class="table">
+
+      <ag-grid-angular
+        style="height: 80vh; width: 100%;"
+        class="ag-theme-alpine"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (gridReady)="onGridReady($event)"
+        [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data)"
+        #agGrid
+      ></ag-grid-angular>
+
+      <!--table class="table">
         <tr>
           <td><b>Nombre del reporte</b></td>
           <td><b>Formato</b></td>
           <td><b>Descripcion</b></td>
-          <td><b>Acciones</b></td>
+          <td><b>Opciones</b></td>
         </tr>
         <tr>
           <td>Listado nominal (personal tecnico)</td>
@@ -39,7 +43,167 @@
           <td><p>El reporte contiene todo el padron de empresas autorizadas para prestar servicios de seguridad privada a nivel federal</p></td>
           <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReportePadronEmpresas()"></fa-icon></td>
         </tr>
-      </table>
+        <tr>
+          <td>Intercambio de informacion DGSP</td>
+          <td>Excel (XLS)</td>
+          <td><p>El reporte contiene la informacion general del padron.</p></td>
+          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteIntercambioInformacion()"></fa-icon></td>
+        </tr>
+
+        <tr>
+          <td>Acuerdos</td>
+          <td>Excel (XLS)</td>
+          <td><p>El reporte contiene todos los acuerdos de todas las empresas.</p></td>
+          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteAcuerdos()"></fa-icon></td>
+        </tr>
+        <tr>
+          <td>Personal</td>
+          <td>Excel (XLS)</td>
+          <td><p>El reporte contiene todo el personal de todas las empresas.</p></td>
+          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReportePersonal()"></fa-icon></td>
+        </tr>
+        <tr>
+          <td>Escrituras</td>
+          <td>Excel (XLS)</td>
+          <td><p>El reporte contiene todas las escrituras de todas las empresas.</p></td>
+          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteEscrituras()"></fa-icon></td>
+        </tr>
+        <tr>
+          <td>Canes</td>
+          <td>Excel (XLS)</td>
+          <td><p>El reporte contiene todos los canes de todas las empresas.</p></td>
+          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteCanes()"></fa-icon></td>
+        </tr>
+        <tr>
+          <td>Vehiculos</td>
+          <td>Excel (XLS)</td>
+          <td><p>El reporte contiene todos los vehiculos de todas las empresas.</p></td>
+          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteVehiculos()"></fa-icon></td>
+        </tr>
+        <tr>
+          <td>Clientes</td>
+          <td>Excel (XLS)</td>
+          <td><p>El reporte contiene todos los clientes de todas las empresas.</p></td>
+          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteClientes()"></fa-icon></td>
+        </tr>
+        <tr>
+          <td>Armas</td>
+          <td>Excel (XLS)</td>
+          <td><p>El reporte contiene todas las armas de todas las empresas.</p></td>
+          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteArmas()"></fa-icon></td>
+        </tr>
+        <tr>
+          <td>Licencias colectivas</td>
+          <td>Excel (XLS)</td>
+          <td><p>El reporte contiene todas las licencias colectivas de todas las empresas.</p></td>
+          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteLicencias()"></fa-icon></td>
+        </tr>
+        <tr>
+          <td>Visitas</td>
+          <td>Excel (XLS)</td>
+          <td><p>El reporte contiene todas las visitas registradas al dia de hoy.</p></td>
+          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteVisitas()"></fa-icon></td>
+        </tr>
+      </table-->
     </div>
   </div>
+
+  <ng-template #modalReportePorUuid let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modalReportePorUuid">Viendo reporte programado </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Tipo</b></td>
+              <td>{{reporte.tipo}}</td>
+            </tr>
+            <tr>
+              <td><b>Status</b></td>
+              <td>{{reporte.status}}</td>
+            </tr>
+            <tr *ngIf="reporte?.status === 'ERROR'">
+              <td><b>Razon de falla</b></td>
+              <td>{{reporte.razon}}</td>
+            </tr>
+            <tr>
+              <td><b>Fecha de inicio</b></td>
+              <td>{{reporte.fechaCreacion}}</td>
+            </tr>
+            <tr>
+              <td><b>Ultima actualizacion</b></td>
+              <td>{{reporte.fechaActualizacion}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="descargarReporte()" *ngIf="reporte.status === 'COMPLETADO'">Descargar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarModalCrearNuevoReporte let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarFotoPersonaModal">Programar nuevo reporte </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <select id="crearPuesto" formControlName="puesto" class="form-control" (change)="cambiarTipoReporte($event.target)">
+            <option value="LISTADO_NOMINAL">Listado nominal</option>
+            <option value="PADRON_ESTATAL">Padron estatal</option>
+            <option value="INTERCAMBIO_INFORMACION">Intercambio de informacion</option>
+            <option value="ACUERDOS">Acuerdos</option>
+            <option value="PERSONAL">Personal</option>
+            <option value="ESCRITURAS">Escrituras</option>
+            <option value="CANES">Canes</option>
+            <option value="VEHICULOS">Vehiculos</option>
+            <option value="CLIENTES">Clientes</option>
+            <option value="ARMAS">Armas</option>
+            <option value="LICENCIAS_COLECTIVAS">Licencias colectivas</option>
+            <option value="VISITAS">Visitas</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-6">
+          <label for="fechaInicio">
+            <b>Fecha de Inicio *</b>
+          </label>
+          <input class="form-control" id="fechaInicio" type="date" placeholder="Fecha de inicio" [max]="fechaDeHoy">
+        </div>
+        <div class="col-sm-6">
+          <label for="fechaFin">
+            <b>Fecha de Fin *</b>
+          </label>
+          <input class="form-control" id="fechaFin" type="date" placeholder="Fecha de fin" [max]="fechaDeHoy">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12">
+          <p>
+            Nota: Al programar el reporte se pondra en una cola para ser procesado. <br>
+            Los reportes comienzan a ser procesados cada aproximadamente 10 minutos. <br>
+            El tiempo de conclusion del reporte tardara en funcion de la cantidad de informacion a procesar.
+            Le recomendamos verificar el status de su reporte cada 10 minutos para verificar el status de su reporte.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="programarReporte()">Programar</button>
+      <button class="btn btn-danger" (click)="modal.close()">Cancelar</button>
+    </div>
+  </ng-template>
 </div>

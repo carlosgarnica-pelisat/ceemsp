@@ -8,6 +8,9 @@ import ArmaClase from "../../../../_models/ArmaClase";
 import PersonalNacionalidad from "../../../../_models/PersonalNacionalidad";
 import Uniforme from "../../../../_models/Uniforme";
 import {BotonCatalogosComponent} from "../../../../_components/botones/boton-catalogos/boton-catalogos.component";
+import {AuthenticationService} from "../../../../_services/authentication.service";
+import {Router} from "@angular/router";
+import Usuario from "../../../../_models/Usuario";
 
 @Component({
   selector: 'app-armas-clases',
@@ -20,10 +23,10 @@ export class ArmasClasesComponent implements OnInit {
   private gridColumnApi;
 
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
     {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+    {headerName: 'Opciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
         label: 'Ver detalles',
         verDetalles: this.verDetalles.bind(this),
         editar: this.editar.bind(this),
@@ -41,6 +44,7 @@ export class ArmasClasesComponent implements OnInit {
   rowDataClicked = {
     uuid: undefined
   };
+  usuarioActual: Usuario;
 
   crearArmaClaseForm: FormGroup;
 
@@ -48,10 +52,17 @@ export class ArmasClasesComponent implements OnInit {
   @ViewChild("editarArmaClaseModal") editarArmaClaseModal;
   @ViewChild("eliminarArmaClaseModal") eliminarArmaClaseModal;
 
-  constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
-              private armaService: ArmasService, private toastService: ToastService) { }
+  constructor(private modalService: NgbModal, private formBuilder: FormBuilder, private authenticationService: AuthenticationService,
+              private armaService: ArmasService, private toastService: ToastService, private router: Router) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
+
+    if(this.usuarioActual.rol !== 'CEEMSP_SUPERUSER') {
+      this.router.navigate(['/home']);
+    }
+
     this.frameworkComponents = {
       catalogoButtonRenderer: BotonCatalogosComponent
     }

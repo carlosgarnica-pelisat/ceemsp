@@ -1,0 +1,417 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Informes mensuales</h1>
+    <div class="btn-group">
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearReporteModal)">Generar reporte mensual</button>
+      <!--div class="dropdown">
+        <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Opciones
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#">Descargar direcciones como Excel (csv)</a>
+        </div>
+      </div-->
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <div class="col-sm-12" style="background: white">
+      <ag-grid-angular
+        style="height: 80vh; width: 100%;"
+        class="ag-theme-alpine"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (gridReady)="onGridReady($event)"
+        [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data)"
+        #agGrid
+      ></ag-grid-angular>
+    </div>
+  </div>
+
+  <ng-template #mostrarDetallesReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="equipoDetallesModal">Detalles del reporte </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-6">
+          <p><b>
+            DIRECCION DE LOS SERVICIOS DE SEGURIDAD PRIVADA <br>
+            DEL SECRETARIADO EJECUTIVO DEL CONSEJO ESTATAL <br>
+            DE SEGURIDAD PUBLICA DEL ESTADO DE JALISCO:
+          </b></p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+
+          <p>El presente se emite como acuse de recibo del informe mensual digital que corresponde al estado de fuerza presentado por el prestador de servicios de seguridad privada en la plataforma electronica denominada
+            Sistema Integral de Empresas de Seguridad Privada "SIESP", en el cual se hace constar la siguiente informacion:</p>
+          <p>Nombre del prestador de servicios: <br><b>{{usuarioActual?.empresa?.razonSocial}}</b></p>
+          <p>Numero de expediente: <br><b>{{usuarioActual?.empresa?.registro}}</b></p>
+          <p>Tipo de actuacion: <br><b>INFORME MENSUAL</b></p>
+          <p>Mes y año: <br><b>{{this.mes + " " + this.ano}}</b></p>
+          <p>Fecha y hora de generacion <br><b>{{reporte?.fechaCreacion}}</b></p>
+          <p>Numero de acuse <br><b>{{reporte?.numero}}</b></p>
+          <p>Cuenta de correo electronico determinado por el prestador de servicios <br><b>{{usuarioActual?.empresa?.correoElectronico}}</b></p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table table-bordered">
+            <tr>
+              <td colspan="8"><p class="text-center"><b>RESUMEN DE MOVIMIENTOS</b></p></td>
+            </tr>
+            <tr>
+              <td colspan="2"><b>PERSONAL</b></td>
+              <td colspan="2"><b>CLIENTES</b></td>
+              <td colspan="2"><b>VEHICULOS</b></td>
+              <td colspan="2"><b>EQUIPO</b></td>
+            </tr>
+
+            <tr>
+              <td>Activos</td>
+              <td>{{reporte?.personalActivos}}</td>
+              <td>Activos</td>
+              <td>{{reporte?.clientesActivos}}</td>
+              <td>Activos</td>
+              <td>{{reporte?.vehiculosActivos}}</td>
+              <td>Activos</td>
+              <td>{{reporte?.equipoActivos}}</td>
+            </tr>
+
+            <tr>
+              <td>Altas</td>
+              <td>{{reporte?.personalAltas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.clientesAltas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.vehiculosAltas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.equipoAltas}}</td>
+            </tr>
+
+            <tr>
+              <td>Bajas</td>
+              <td>{{reporte?.personalBajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.clientesBajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.vehiculosBajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.equipoBajas}}</td>
+            </tr>
+
+            <tr>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.personalTotal}}</td>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.clientesTotal}}</td>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.vehiculosTotal}}</td>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.equipoTotal}}</td>
+            </tr>
+          </table>
+
+          <table class="table table-bordered">
+            <tr>
+              <td colspan="4"><b class="text-center"><p class="text-center"><b>INCIDENCIAS</b></p></b></td>
+            </tr>
+            <tr>
+              <td>Incidencias abiertas</td>
+              <td>Incidencias procedentes</td>
+              <td>Incidencias improcedentes</td>
+              <td>Incidencias reportadas en el periodo</td>
+            </tr>
+            <tr>
+              <td>{{reporte?.incidenciasReportadas}}</td>
+              <td>{{reporte?.incidenciasProcedentes}}</td>
+              <td>{{reporte?.incidenciasImprocedentes}}</td>
+              <td>{{reporte?.incidenciasTotal}}</td>
+            </tr>
+          </table>
+
+          <table class="table table-bordered" *ngIf="usuarioActual?.empresa?.tieneArmas">
+            <tr>
+              <td colspan="6"><b class="text-center"><p class="text-center"><b>FORMA DE EJECUCION ARMADA</b></p></b></td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <p class="text-center"><b>I. SEGURIDAD PRIVADA EN LOS BIENES</b></p>
+              </td>
+              <td colspan="2">
+                <p class="text-center"><b>II. SEGURIDAD PRIVADA A PERSONAS</b></p>
+              </td>
+              <td colspan="2">
+                <p class="text-center"><b>III. SEGURIDAD PRIVADA EN EL TRASLADO DE BIENES O VALORES</b></p>
+              </td>
+            </tr>
+            <tr>
+              <td>Activas</td>
+              <td>{{reporte?.armas1Activas}}</td>
+              <td>Activas</td>
+              <td>{{reporte?.armas2Activas}}</td>
+              <td>Activas</td>
+              <td>{{reporte?.armas3Activas}}</td>
+            </tr>
+            <tr>
+              <td>Altas</td>
+              <td>{{reporte?.armas1Altas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.armas2Altas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.armas3Altas}}</td>
+            </tr>
+            <tr>
+              <td>Bajas</td>
+              <td>{{reporte?.armas1Bajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.armas2Bajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.armas3Bajas}}</td>
+            </tr>
+            <tr>
+              <td>TOTAL</td>
+              <td>{{reporte?.armas1Total}}</td>
+              <td>TOTAL</td>
+              <td>{{reporte?.armas2Total}}</td>
+              <td>TOTAL</td>
+              <td>{{reporte?.armas3Total}}</td>
+            </tr>
+          </table>
+
+          <table class="table table-bordered">
+            <tr>
+              <td colspan="5"><b class="text-center"><p class="text-center"><b>FORMA DE EJECUCION CON CANES</b></p></b></td>
+            </tr>
+            <tr>
+              <td>Canes asignados</td>
+              <td>Canes en domicilio</td>
+              <td>Altas</td>
+              <td>Bajas</td>
+              <td>Total</td>
+            </tr>
+            <tr>
+              <td>{{reporte?.canesAsignados}}</td>
+              <td>{{reporte?.canesInstalaciones}}</td>
+              <td>{{reporte?.canesAltas}}</td>
+              <td>{{reporte?.canesBajas}}</td>
+              <td>{{reporte?.canesTotal}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-9">
+          <p>El presente acuse electronico se genera en atencion a lo dispuesto por los articulos 55 fracciones III y IV y 161 del Reglamento de los Servicios de Seguridad Privada del Estado de Jalisco.</p>
+          <p><b>Fecha de envio:</b><br>{{reporte?.fechaCreacion}}</p>
+          <p><b>Cadena original:</b><br>{{reporte?.cadenaOriginal}}</p>
+          <p><b>Sello:</b><br>{{reporte?.sello}}</p>
+        </div>
+        <div class="col-sm-3">
+
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #crearReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="crearReporteModal">Precargar reporte </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-6">
+          <p><b>
+            DIRECCION DE LOS SERVICIOS DE SEGURIDAD PRIVADA <br>
+            DEL SECRETARIADO EJECUTIVO DEL CONSEJO ESTATAL <br>
+            DE SEGURIDAD PUBLICA DEL ESTADO DE JALISCO:
+          </b></p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+
+          <p>El presente se emite como acuse de recibo del informe mensual digital que corresponde al estado de fuerza presentado por el prestador de servicios de seguridad privada en la plataforma electronica denominada
+            Sistema Integral de Empresas de Seguridad Privada "SIESP", en el cual se hace constar la siguiente informacion:</p>
+          <p>Nombre del prestador de servicios: <br><b>{{usuarioActual?.empresa?.razonSocial}}</b></p>
+          <p>Numero de expediente: <br><b>{{usuarioActual?.empresa?.registro}}</b></p>
+          <p>Tipo de actuacion: <br><b>INFORME MENSUAL</b></p>
+          <p>Mes y año: <br><b>{{this.mes + " " + this.ano}}</b></p>
+          <p>Fecha y hora de generacion <br><b><i>Se generara despues de guardar el informe</i></b></p>
+          <p>Cuenta de correo electronico determinado por el prestador de servicios <br><b>{{usuarioActual?.empresa?.correoElectronico}}</b></p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table table-bordered">
+            <tr>
+              <td colspan="10"><p class="text-center"><b>RESUMEN DE MOVIMIENTOS</b></p></td>
+            </tr>
+            <tr>
+              <td colspan="2"><b>PERSONAL</b></td>
+              <td colspan="2"><b>CLIENTES</b></td>
+              <td colspan="2"><b>VEHICULOS</b></td>
+              <td colspan="2"><b>EQUIPO</b></td>
+            </tr>
+
+            <tr>
+              <td>Activos</td>
+              <td>{{reporte?.personalActivos}}</td>
+              <td>Activos</td>
+              <td>{{reporte?.clientesActivos}}</td>
+              <td>Activos</td>
+              <td>{{reporte?.vehiculosActivos}}</td>
+              <td>Activos</td>
+              <td>{{reporte?.equipoActivos}}</td>
+            </tr>
+
+            <tr>
+              <td>Altas</td>
+              <td>{{reporte?.personalAltas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.clientesAltas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.vehiculosAltas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.equipoAltas}}</td>
+            </tr>
+
+            <tr>
+              <td>Bajas</td>
+              <td>{{reporte?.personalBajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.clientesBajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.vehiculosBajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.equipoBajas}}</td>
+            </tr>
+
+            <tr>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.personalTotal}}</td>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.clientesTotal}}</td>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.vehiculosTotal}}</td>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.equipoTotal}}</td>
+            </tr>
+          </table>
+
+          <table class="table table-bordered">
+            <tr>
+              <td colspan="4"><b class="text-center"><p class="text-center"><b>INCIDENCIAS</b></p></b></td>
+            </tr>
+            <tr>
+              <td>Incidencias abiertas</td>
+              <td>Incidencias procedentes</td>
+              <td>Incidencias improcedentes</td>
+              <td>Incidencias reportadas en el periodo</td>
+            </tr>
+            <tr>
+              <td>{{reporte?.incidenciasReportadas}}</td>
+              <td>{{reporte?.incidenciasProcedentes}}</td>
+              <td>{{reporte?.incidenciasImprocedentes}}</td>
+              <td>{{reporte?.incidenciasTotal}}</td>
+            </tr>
+          </table>
+
+          <table class="table table-bordered" *ngIf="usuarioActual?.empresa?.tieneArmas">
+            <tr>
+              <td colspan="6"><b class="text-center"><p class="text-center"><b>FORMA DE EJECUCION ARMADA</b></p></b></td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <p class="text-center"><b>I. SEGURIDAD PRIVADA EN LOS BIENES</b></p>
+              </td>
+              <td colspan="2">
+                <p class="text-center"><b>II. SEGURIDAD PRIVADA A PERSONAS</b></p>
+              </td>
+              <td colspan="2">
+                <p class="text-center"><b>III. SEGURIDAD PRIVADA EN EL TRASLADO DE BIENES O VALORES</b></p>
+              </td>
+            </tr>
+            <tr>
+              <td>Activas</td>
+              <td>{{reporte?.armas1Activas}}</td>
+              <td>Activas</td>
+              <td>{{reporte?.armas2Activas}}</td>
+              <td>Activas</td>
+              <td>{{reporte?.armas3Activas}}</td>
+            </tr>
+            <tr>
+              <td>Altas</td>
+              <td>{{reporte?.armas1Altas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.armas2Altas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.armas3Altas}}</td>
+            </tr>
+            <tr>
+              <td>Bajas</td>
+              <td>{{reporte?.armas1Bajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.armas2Bajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.armas3Bajas}}</td>
+            </tr>
+            <tr>
+              <td>TOTAL</td>
+              <td>{{reporte?.armas1Total}}</td>
+              <td>TOTAL</td>
+              <td>{{reporte?.armas2Total}}</td>
+              <td>TOTAL</td>
+              <td>{{reporte?.armas3Total}}</td>
+            </tr>
+          </table>
+
+          <table class="table table-bordered" *ngIf="usuarioActual?.empresa?.tieneCanes">
+            <tr>
+              <td colspan="5"><b class="text-center"><p class="text-center"><b>FORMA DE EJECUCION CON CANES</b></p></b></td>
+            </tr>
+            <tr>
+              <td>Canes asignados</td>
+              <td>Canes en domicilio</td>
+              <td>Altas</td>
+              <td>Bajas</td>
+              <td>Total</td>
+            </tr>
+            <tr>
+              <td>{{reporte?.canesAsignados}}</td>
+              <td>{{reporte?.canesInstalaciones}}</td>
+              <td>{{reporte?.canesAltas}}</td>
+              <td>{{reporte?.canesBajas}}</td>
+              <td>{{reporte?.canesTotal}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <p>NOTA: Este reporte se genera automaticamente y se calcula en funcion de los movimientos realizados en el mes inmediato anterior; por ello este reporte no puede ser modificado.</p>
+          <p>La cadena original y el sello seran generados una vez se guarde el reporte .</p>
+          <p>Para cualquier aclaracion te solicitamos enviar un correo electronico a argos@jalisco.gob.mx</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarReporteMensual()" [disabled]="actionInProgress">Guardar</button>
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+</div>

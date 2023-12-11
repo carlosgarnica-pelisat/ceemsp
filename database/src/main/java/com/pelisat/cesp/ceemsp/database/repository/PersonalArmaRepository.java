@@ -9,4 +9,5 @@ import java.util.List;
 public interface PersonalArmaRepository extends JpaRepository<PersonalArma, Integer> {
     PersonalArma getByPersonalAndArmaAndEliminadoFalse(int personal, int arma);
     List<PersonalArma> getAllByPersonalAndEliminadoFalse(int personal);
+    List<PersonalArma> getAllByArma(int arma);
 }

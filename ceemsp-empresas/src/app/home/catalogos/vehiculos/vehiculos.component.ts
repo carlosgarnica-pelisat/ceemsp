@@ -24,7 +24,7 @@ export class VehiculosComponent implements OnInit {
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
     {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+    {headerName: 'Opciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
         modify: this.modify.bind(this),
         delete: this.delete.bind(this)
       }}
@@ -131,21 +131,6 @@ export class VehiculosComponent implements OnInit {
     let vehiculoMarca: VehiculoMarca = new VehiculoMarca();
     vehiculoMarca.nombre = value.nombre;
     vehiculoMarca.descripcion = value.descripcion;
-
-    this.vehiculoService.guardarVehiculoMarca(vehiculoMarca).subscribe((response) => {
-      this.toastService.showGenericToast(
-        "Listo",
-        "La marca del vehiculo se ha guardado con exito",
-        ToastType.SUCCESS
-      );
-      window.location.reload()
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `La narca del arna no se ha podido guardar. ${error}`,
-        ToastType.ERROR
-      )
-    })
   }
 
   private getDismissReason(reason: any): string {

@@ -25,4 +25,7 @@ public class CanAdiestramiento extends CommonModel {
 
     @Column(name = "FECHA_CONSTANCIA", nullable = false)
     private LocalDate fechaConstancia;
+
+    @Column(name = "ARCHIVO_CONSTANCIA", nullable = false)
+    private String archivoConstancia;
 }

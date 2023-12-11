@@ -19,6 +19,8 @@ import ExisteUsuario from "../../../_models/ExisteUsuario";
 import {ValidacionService} from "../../../_services/validacion.service";
 import Visita from "../../../_models/Visita";
 import Submodalidad from "../../../_models/Submodalidad";
+import {Table} from "primeng/table";
+import {AuthenticationService} from "../../../_services/authentication.service";
 
 @Component({
   selector: 'app-empresa-detalles',
@@ -31,6 +33,8 @@ export class EmpresaDetallesComponent implements OnInit {
 
   faPencil = faPencilAlt;
   faTrash = faTrash;
+
+  logo: any;
 
   empresa: Empresa;
   year: string;
@@ -66,21 +70,43 @@ export class EmpresaDetallesComponent implements OnInit {
   modalidadQuery: string = '';
   submodalidadQuery: string = '';
 
+  tempFile;
+  tempLogo;
+  pdfActual;
+
   existeUsuario: ExisteUsuario;
+  usuarioActual: Usuario;
+  pdfBlob;
 
   @ViewChild('eliminarModalidadModal') eliminarDomicilioModal: any;
   @ViewChild('eliminarFormaEjecucionModal') eliminarFormaEjecucionModal: any;
+  @ViewChild('agregarModalidadModal') agregarModalidadModal: any;
+  @ViewChild('visualizarDocumentoRegistroFederal') visualizarDocumentoRegistroFederal: any;
+  @ViewChild('agregarFormaEjecucionModal') agregarFormaEjecucionModal: any;
 
   constructor(private toastService: ToastService, private empresaService: EmpresaService,
               private route: ActivatedRoute, private modalService: NgbModal,
               private formBuilder: FormBuilder, private modalidadService: ModalidadesService,
-              private validacionService: ValidacionService) { }
+              private validacionService: ValidacionService, private authenticationService: AuthenticationService) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
     this.uuid = this.route.snapshot.paramMap.get("uuid");
 
     this.empresaService.obtenerPorUuid(this.uuid).subscribe((data: Empresa) => {
       this.empresa = data;
+
+      this.empresaService.obtenerEmpresaLogo(this?.uuid).subscribe((data: Blob) => {
+        this.convertirImagenLogo(data);
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar la fotografia. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      })
+
       if(this.empresa?.tipoTramite === 'AP') {
         this.year = this.empresa?.registro.split('/')[4];
       } else {
@@ -166,7 +192,10 @@ export class EmpresaDetallesComponent implements OnInit {
       correoElectronico: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
       telefono: ['', [Validators.required]],
       observaciones: [''],
-      registro: ['', Validators.required]
+      registro: ['', Validators.required],
+      registroFederal: [''],
+      fechaInicio: [''],
+      fechaFin: ['']
     })
 
     this.empresaCambioStatusForm = this.formBuilder.group({
@@ -189,6 +218,10 @@ export class EmpresaDetallesComponent implements OnInit {
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     })
+  }
+
+  mostrarModalAgregarFormaEjecucion() {
+    this.modal = this.modalService.open(this.agregarFormaEjecucionModal, {size: 'xl', backdrop: 'static', keyboard: false})
   }
 
   cambiarTipoPersona(event) {
@@ -217,6 +250,29 @@ export class EmpresaDetallesComponent implements OnInit {
 
   verificarRegistro($event) {
 
+  }
+
+  actualizarLogo(event) {
+    this.tempLogo = event.target.files[0]
+  }
+
+  clear(table: Table) {
+    table.clear();
+  }
+
+  convertirImagenLogo(imagen: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.logo = reader.result
+    });
+
+    if(imagen) {
+      reader.readAsDataURL(imagen)
+    }
+  }
+
+  mostrarModalAgregarModalidad() {
+    this.modal = this.modalService.open(this.agregarModalidadModal, {size: 'xl', backdrop: 'static'})
   }
 
   seleccionarSubmodalidad(uuid) {
@@ -257,6 +313,28 @@ export class EmpresaDetallesComponent implements OnInit {
         submodalidad: undefined
       });
     }
+
+    if(this.modalidad.tipo === 'EAFJAL') {
+      this.empresaModalidadForm.patchValue({
+        numeroRegistroFederal: this.empresa.registroFederal,
+        fechaInicio: this.empresa.fechaInicio,
+        fechaFin: this.empresa.fechaFin
+      })
+
+      this.empresaModalidadForm.controls['numeroRegistroFederal'].disable();
+      this.empresaModalidadForm.controls['fechaInicio'].disable();
+      this.empresaModalidadForm.controls['fechaFin'].disable();
+    } else {
+      this.empresaModalidadForm.patchValue({
+        numeroRegistroFederal: '',
+        fechaInicio: '',
+        fechaFin: ''
+      })
+
+      this.empresaModalidadForm.controls['numeroRegistroFederal'].enable();
+      this.empresaModalidadForm.controls['fechaInicio'].enable();
+      this.empresaModalidadForm.controls['fechaFin'].enable();
+    }
   }
 
   mostrarModalCrearUsuario(modal) {
@@ -281,6 +359,31 @@ export class EmpresaDetallesComponent implements OnInit {
       this.closeResult = `Closed with ${result}`;
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  convertirPdf(pdf: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+      this.pdfActual = reader.result;
+    });
+
+    if(pdf) {
+      reader.readAsDataURL(pdf);
+    }
+  }
+
+  mostrarModalDocumentoRegistroFederal() {
+    this.empresaService.obtenerDocumentoRegistroFederal(this.empresa?.uuid).subscribe((data: Blob) => {
+      this.modal = this.modalService.open(this.visualizarDocumentoRegistroFederal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+      this.pdfBlob = data;
+      this.convertirPdf(data);
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el documento del registro federal. Motivo: ${error}`,
+        ToastType.ERROR
+      )
     })
   }
 
@@ -383,13 +486,34 @@ export class EmpresaDetallesComponent implements OnInit {
       nombreComercial: this.empresa.nombreComercial,
       razonSocial: this.empresa.razonSocial,
       rfc: this.empresa.rfc,
+      registro: numero,
       sexo: this.empresa.sexo,
       curp: this.empresa.curp,
       correoElectronico: this.empresa.correoElectronico,
       telefono: this.empresa.telefono,
       observaciones: this.empresa.observaciones,
-      registro: numero
+      registroFederal: this.empresa.registroFederal,
+      fechaInicio: this.empresa.fechaInicio,
+      fechaFin: this.empresa.fechaFin
     })
+
+    if(this.tipoTramite === 'EAFJAL') {
+      this.empresaCreacionForm.controls['registroFederal'].setValidators([Validators.required])
+      this.empresaCreacionForm.controls['fechaInicio'].setValidators([Validators.required])
+      this.empresaCreacionForm.controls['fechaFin'].setValidators([Validators.required])
+
+      this.empresaCreacionForm.controls['registroFederal'].updateValueAndValidity();
+      this.empresaCreacionForm.controls['fechaInicio'].updateValueAndValidity();
+      this.empresaCreacionForm.controls['fechaFin'].updateValueAndValidity();
+    } else {
+      this.empresaCreacionForm.controls['registroFederal'].setValidators([])
+      this.empresaCreacionForm.controls['fechaInicio'].setValidators([])
+      this.empresaCreacionForm.controls['fechaFin'].setValidators([])
+
+      this.empresaCreacionForm.controls['registroFederal'].updateValueAndValidity();
+      this.empresaCreacionForm.controls['fechaInicio'].updateValueAndValidity();
+      this.empresaCreacionForm.controls['fechaFin'].updateValueAndValidity();
+    }
 
     this.tipoPersona = this.empresa.tipoPersona;
 
@@ -415,15 +539,6 @@ export class EmpresaDetallesComponent implements OnInit {
   }
 
   agregarModalidad(empresaModalidadForm) {
-    if(!empresaModalidadForm.valid) {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        "Hay campos requeridos que no han sido rellenados",
-        ToastType.WARNING
-      );
-      return;
-    }
-
     this.toastService.showGenericToast(
       "Espere un momento",
       "Estamos guardando la modalidad en la empresa",
@@ -467,7 +582,7 @@ export class EmpresaDetallesComponent implements OnInit {
         "Se ha guardado la modalidad en la empresa con exito",
         ToastType.SUCCESS
       );
-      this.ocultarFormularioModalidad();
+      this.modal.close();
       this.empresaModalidadForm.reset();
       this.modalidad = undefined;
       this.submodalidad = undefined;
@@ -550,6 +665,7 @@ export class EmpresaDetallesComponent implements OnInit {
         ToastType.SUCCESS
       );
       this.mostrarFormularioFormaEjecucion();
+      this.modal.close();
       this.empresaService.obtenerPorUuid(this?.uuid).subscribe((data: Empresa) => {
         this.empresa = data;
         this.empresaService.obtenerFormasEjecucion(this.empresa.uuid).subscribe((data: EmpresaFormaEjecucion[]) => {
@@ -595,13 +711,30 @@ export class EmpresaDetallesComponent implements OnInit {
     );
 
     let formValue: Empresa = form.value;
+    console.log(this.tipoTramite);
     if(this.tipoTramite === 'AP') {
       formValue.registro = `CESP/AP/SPSMD/${formValue.registro}/${this.year}`;
     } else {
       formValue.registro = `CESP/${this.tipoTramite}/${formValue.registro}/${this.year}`;
     }
 
-    this.empresaService.modificarEmpresa(this.empresa.uuid, formValue).subscribe((data: Empresa) => {
+    let formDataEmpresa = new FormData();
+
+    if(this.tempFile !== undefined) {
+      formDataEmpresa.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formDataEmpresa.append('archivo', null)
+    }
+
+    if(this.tempLogo !== undefined) {
+      formDataEmpresa.append('logo', this.tempLogo, this.tempLogo.name);
+    } else {
+      formDataEmpresa.append('logo', null);
+    }
+
+    formDataEmpresa.append('empresa', JSON.stringify(formValue));
+
+    this.empresaService.modificarEmpresa(this.empresa.uuid, formDataEmpresa).subscribe((data: Empresa) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha actualizado la empresa con exito",
@@ -707,6 +840,17 @@ export class EmpresaDetallesComponent implements OnInit {
 
   quitarSubmodalidad() {
 
+  }
+
+  onFileChange(event) {
+    this.tempFile = event.target.files[0]
+  }
+
+  descargarDocumentoRegistroFederal() {
+    let link = document.createElement('a');
+    link.href = window.URL.createObjectURL(this.pdfBlob);
+    link.download = "registro-federal.pdf";
+    link.click();
   }
 
   private hacerFalsoUuid(longitud) {

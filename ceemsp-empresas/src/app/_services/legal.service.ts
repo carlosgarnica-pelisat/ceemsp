@@ -58,8 +58,8 @@ export class LegalService {
     return this.http.put(`${this.uri}/escrituras/${escrituraUuid}/socios/${socioUuid}`, escrituraSocio);
   }
 
-  eliminarEscrituraSocio(escrituraUuid: string, socioUuid: string) {
-    return this.http.delete(`${this.uri}/escrituras/${escrituraUuid}/socios/${socioUuid}`);
+  eliminarEscrituraSocio(escrituraUuid: string, socioUuid: string, formData: FormData) {
+    return this.http.put(`${this.uri}/escrituras/${escrituraUuid}/socios/${socioUuid}/borrar`, formData,{headers: {'X-isFile': 'true'}});
   }
 
   // Escrituras representantes
@@ -75,8 +75,8 @@ export class LegalService {
     return this.http.put(`${this.uri}/escrituras/${escrituraUuid}/representantes/${representanteUuid}`, escrituraRepresentante);
   }
 
-  eliminarEscrituraRepresentante(escrituraUuid: string, representanteUuid: string) {
-    return this.http.delete(`${this.uri}/escrituras/${escrituraUuid}/representantes/${representanteUuid}`);
+  eliminarEscrituraRepresentante(escrituraUuid: string, representanteUuid: string, formData: FormData) {
+    return this.http.put(`${this.uri}/escrituras/${escrituraUuid}/representantes/${representanteUuid}/borrar`, formData, {headers: {'X-isFile': 'true'}});
   }
 
   // Escrituras consejos
@@ -92,8 +92,8 @@ export class LegalService {
     return this.http.put(`${this.uri}/escrituras/${escrituraUuid}/consejos/${consejoUuid}`, escrituraConsejo);
   }
 
-  eliminarEscrituraConsejo(escrituraUuid: string, consejoUuid: string) {
-    return this.http.delete(`${this.uri}/escrituras/${escrituraUuid}/consejos/${consejoUuid}`)
+  eliminarEscrituraConsejo(escrituraUuid: string, consejoUuid: string, formData: FormData) {
+    return this.http.put(`${this.uri}/escrituras/${escrituraUuid}/consejos/${consejoUuid}/borrar`, formData, {headers: {'X-isFile': 'true'}})
   }
 
   // Escrituras apoderados
@@ -109,7 +109,7 @@ export class LegalService {
     return this.http.put(`${this.uri}/escrituras/${escrituraUuid}/apoderados/${apoderadoUuid}`, escrituraApoderado );
   }
 
-  eliminarEscrituraApoderado(escrituraUuid: string, apoderadoUuid: string) {
-    return this.http.delete(`${this.uri}/escrituras/${escrituraUuid}/apoderados/${apoderadoUuid}`)
+  eliminarEscrituraApoderado(escrituraUuid: string, apoderadoUuid: string, formData: FormData) {
+    return this.http.put(`${this.uri}/escrituras/${escrituraUuid}/apoderados/${apoderadoUuid}/borrar`, formData, {headers: {'X-isFile': 'true'}})
   }
 }

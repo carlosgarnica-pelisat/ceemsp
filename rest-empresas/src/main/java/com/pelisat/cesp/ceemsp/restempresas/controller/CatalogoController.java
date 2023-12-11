@@ -1,23 +1,29 @@
 package com.pelisat.cesp.ceemsp.restempresas.controller;
 
 import com.pelisat.cesp.ceemsp.database.dto.*;
+import com.pelisat.cesp.ceemsp.database.model.VehiculoTipo;
+import com.pelisat.cesp.ceemsp.database.type.VehiculoTipoEnum;
 import com.pelisat.cesp.ceemsp.restempresas.service.CatalogoService;
+import com.pelisat.cesp.ceemsp.restempresas.utils.JwtUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
 public class CatalogoController {
     private static final String CATALOGO_URI = "/catalogos";
+    private final JwtUtils jwtUtils;
     private final CatalogoService catalogoService;
 
     @Autowired
-    public CatalogoController(CatalogoService catalogoService) {
+    public CatalogoController(CatalogoService catalogoService, JwtUtils jwtUtils) {
         this.catalogoService = catalogoService;
+        this.jwtUtils = jwtUtils;
     }
 
     @GetMapping(value = CATALOGO_URI + "/canes/razas", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -55,9 +61,29 @@ public class CatalogoController {
         return catalogoService.obtenerPuestosDeTrabajo();
     }
 
+    @GetMapping(value = CATALOGO_URI + "/personal/puestos/{uuid}/subpuestos", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<PersonalSubpuestoDeTrabajoDto> obtenerSubpuestosTrabajo(
+            @PathVariable(value = "uuid") String uuid
+    ) {
+        return catalogoService.obtenerSubpuestosPorUuid(uuid);
+    }
+
     @GetMapping(value = CATALOGO_URI + "/tipos-infraestructura", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<TipoInfraestructuraDto> obtenerTiposInfraestructura() {
         return catalogoService.obtenerTiposInfraestructura();
+    }
+
+    @GetMapping(value = CATALOGO_URI + "/equipos", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<EquipoDto> obtenerEquipos() {
+        return catalogoService.obtenerEquipos();
+    }
+
+    @GetMapping(value = CATALOGO_URI + "/equipos/empresas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<EquipoDto> obtenerEquiposCalificablesParaEmpresa(
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return catalogoService.obtenerEquiposCalificables(username);
     }
 
     @GetMapping(value = CATALOGO_URI + "/uniformes", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -73,6 +99,18 @@ public class CatalogoController {
     @GetMapping(value = CATALOGO_URI + "/vehiculos/marcas", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<VehiculoMarcaDto> obtenerMarcasVehiculo() {
         return catalogoService.obtenerMarcasVehiculos();
+    }
+
+    @GetMapping(value = CATALOGO_URI + "/vehiculos/marcas/tipos/{tipo}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<VehiculoMarcaDto> obtenerMarcasVehiculo(
+            @PathVariable(value = "tipo") VehiculoTipoEnum tipo
+    ) {
+        return catalogoService.obtenerMarcasVehiculosTipo(tipo);
+    }
+
+    @GetMapping(value = CATALOGO_URI + "/vehiculos/marcas/{marcaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public VehiculoMarcaDto obtenerMarcaVehiculoPorUuid(@PathVariable(value = "marcaUuid") String marcaUuid) {
+        return catalogoService.obtenerMarcaVehiculoPorUuid(marcaUuid);
     }
 
     @GetMapping(value = CATALOGO_URI + "/vehiculos/tipos", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
   name: 'local',
-  apiUrl: 'http://10.35.12.111:19000/api',
+  apiUrl: 'https://siesp.jalisco.gob.mx:19000/api',
   apiVersion: '/v1'
 };

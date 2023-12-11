@@ -93,4 +93,16 @@ public class Can extends CommonModel {
 
     @Column(name = "FECHA_BAJA")
     private LocalDate fechaBaja;
+
+    @Column(name = "FOTOGRAFIA_CAPTURADA")
+    private boolean fotografiaCapturada;
+
+    @Column(name = "ADIESTRAMIENTO_CAPTURADO")
+    private boolean adiestramientoCapturado;
+
+    @Column(name = "VACUNACION_CAPTURADA")
+    private boolean vacunacionCapturada;
+
+    @Column(name = "CONSTANCIA_CAPTURADA")
+    private boolean constanciaCapturada;
 }

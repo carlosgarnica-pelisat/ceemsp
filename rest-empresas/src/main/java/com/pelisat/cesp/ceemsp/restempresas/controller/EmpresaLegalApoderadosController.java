@@ -1,11 +1,13 @@
 package com.pelisat.cesp.ceemsp.restempresas.controller;
 
+import com.google.gson.Gson;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaEscrituraApoderadoDto;
 import com.pelisat.cesp.ceemsp.restempresas.service.EmpresaEscrituraApoderadoService;
 import com.pelisat.cesp.ceemsp.restempresas.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -52,13 +54,15 @@ public class EmpresaLegalApoderadosController {
         return empresaEscrituraApoderadoService.modificarApoderado(escrituraUuid, apoderadoUuid, username, empresaEscrituraApoderadoDto);
     }
 
-    @DeleteMapping(value = EMPRESA_APODERADOS_URI + "/{apoderadoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_APODERADOS_URI + "/{apoderadoUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public EmpresaEscrituraApoderadoDto eliminarApoderado(
             @PathVariable(value = "escrituraUuid") String escrituraUuid,
             @PathVariable(value = "apoderadoUuid") String apoderadoUuid,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
+            @RequestParam("apoderado") String apoderado,
             HttpServletRequest request
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return empresaEscrituraApoderadoService.eliminarApoderado(escrituraUuid, apoderadoUuid, username);
+        return empresaEscrituraApoderadoService.eliminarApoderado(escrituraUuid, apoderadoUuid, username, new Gson().fromJson(apoderado, EmpresaEscrituraApoderadoDto.class), archivo);
     }
 }

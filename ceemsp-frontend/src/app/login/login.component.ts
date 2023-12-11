@@ -93,8 +93,6 @@ export class LoginComponent implements OnInit {
     // creando las fechas
     let fechaInicio = new Date(parseInt(ano), parseInt(mes) - 1, 1)
     let fechaFin = new Date(parseInt(ano), parseInt(mes), 0);
-    console.log(fechaInicio);
-    console.log(fechaFin);
 
     this.publicService.buscarComunicados(titulo, mes, ano).subscribe((data: ComunicadoGeneral[]) => {
       this.comunicado = undefined;

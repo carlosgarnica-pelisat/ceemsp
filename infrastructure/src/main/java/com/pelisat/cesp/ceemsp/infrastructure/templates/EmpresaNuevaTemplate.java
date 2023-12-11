@@ -18,7 +18,7 @@ public class EmpresaNuevaTemplate {
                 "<body>" +
                 "<div class=\"row\">"+
                 "<div class=\"col-25\">"+
-                "<img src=\"http://pelisat.com.mx/logo-ajustado.png\" style=\"width: 100%;\">"+
+                "<img src=\"https://pelisat.com.mx/logo-ajustado.png\" style=\"width: 100%;\">"+
                 "</div>"+
                 "<div class=\"col-75\">"+
                 "<h2>Creacion de nueva empresa</h2>"+

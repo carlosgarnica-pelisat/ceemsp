@@ -14,4 +14,5 @@ public class BuzonInternoDto {
     private String mensaje;
     private List<BuzonInternoDestinatarioDto> destinatarios;
     private String fechaCreacion;
+    private boolean leido;
 }

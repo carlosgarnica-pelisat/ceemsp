@@ -7,8 +7,10 @@ import com.pelisat.cesp.ceemsp.database.model.CanAdiestramiento;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.repository.CanAdiestramientoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.CanRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -17,7 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,12 +38,13 @@ public class EmpresaCanAdiestramientoServiceImpl implements EmpresaCanAdiestrami
     private final CanAdiestramientoRepository canAdiestramientoRepository;
     private final CanRepository canRepository;
     private final CatalogoService catalogoService;
+    private final ArchivosService archivosService;
 
     @Autowired
     public EmpresaCanAdiestramientoServiceImpl(
             DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper,
             UsuarioService usuarioService, CanAdiestramientoRepository canAdiestramientoRepository, CanRepository canRepository,
-            CatalogoService catalogoService
+            CatalogoService catalogoService, ArchivosService archivosService
     ) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.daoHelper = daoHelper;
@@ -47,6 +53,7 @@ public class EmpresaCanAdiestramientoServiceImpl implements EmpresaCanAdiestrami
         this.canAdiestramientoRepository = canAdiestramientoRepository;
         this.canRepository = canRepository;
         this.catalogoService = catalogoService;
+        this.archivosService = archivosService;
     }
 
     @Override
@@ -72,8 +79,9 @@ public class EmpresaCanAdiestramientoServiceImpl implements EmpresaCanAdiestrami
         }).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
-    public CanAdiestramientoDto guardarCanAdiestramiento(String canUuid, String username, CanAdiestramientoDto canAdiestramientoDto) {
+    public CanAdiestramientoDto guardarCanAdiestramiento(String canUuid, String username, CanAdiestramientoDto canAdiestramientoDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(canUuid) || StringUtils.isBlank(username) || canAdiestramientoDto == null) {
             logger.warn("El uuid de la empresa, el can, el usuario o el adiestramiento a guardar vienen como nulos o vacios");
             throw new InvalidDataException();
@@ -94,13 +102,30 @@ public class EmpresaCanAdiestramientoServiceImpl implements EmpresaCanAdiestrami
         canAdiestramiento.setFechaConstancia(LocalDate.parse(canAdiestramientoDto.getFechaConstancia()));
         daoHelper.fulfillAuditorFields(true, canAdiestramiento, usuarioDto.getId());
 
-        CanAdiestramiento canAdiestramientoCreado = canAdiestramientoRepository.save(canAdiestramiento);
+        String ruta = "";
 
-        return daoToDtoConverter.convertDaoToDtoCanAdiestramiento(canAdiestramientoCreado);
+        try {
+            ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.CONSTANCIA_ADIESTRAMIENTO_CAN, usuarioDto.getEmpresa().getUuid());
+            canAdiestramiento.setArchivoConstancia(ruta);
+            CanAdiestramiento canAdiestramientoCreado = canAdiestramientoRepository.save(canAdiestramiento);
+
+            if(!can.isAdiestramientoCapturado()) {
+                can.setAdiestramientoCapturado(true);
+                daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+                canRepository.save(can);
+            }
+
+            return daoToDtoConverter.convertDaoToDtoCanAdiestramiento(canAdiestramientoCreado);
+        } catch(Exception ex) {
+            logger.warn(ex.getMessage());
+            archivosService.eliminarArchivo(ruta);
+            throw new InvalidDataException();
+        }
     }
 
+    @Transactional
     @Override
-    public CanAdiestramientoDto modificarCanAdiestramiento(String canUuid, String adiestramientoUuid, String username, CanAdiestramientoDto canAdiestramientoDto) {
+    public CanAdiestramientoDto modificarCanAdiestramiento(String canUuid, String adiestramientoUuid, String username, CanAdiestramientoDto canAdiestramientoDto, MultipartFile multipartFile) {
         if(StringUtils.isBlank(canUuid) || StringUtils.isBlank(adiestramientoUuid) || StringUtils.isBlank(username) || canAdiestramientoDto == null) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
             throw new InvalidDataException();
@@ -117,6 +142,19 @@ public class EmpresaCanAdiestramientoServiceImpl implements EmpresaCanAdiestrami
 
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
 
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Eliminando y modificando");
+            archivosService.eliminarArchivo(canAdiestramiento.getArchivoConstancia());
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.CONSTANCIA_ADIESTRAMIENTO_CAN, usuarioDto.getEmpresa().getUuid());
+                canAdiestramiento.setArchivoConstancia(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+
         canAdiestramiento.setFechaConstancia(LocalDate.parse(canAdiestramientoDto.getFechaConstancia()));
         canAdiestramiento.setTipoAdiestramiento(canAdiestramientoDto.getCanTipoAdiestramiento().getId());
         canAdiestramiento.setNombreInstructor(canAdiestramientoDto.getNombreInstructor());
@@ -126,6 +164,7 @@ public class EmpresaCanAdiestramientoServiceImpl implements EmpresaCanAdiestrami
     }
 
     @Override
+    @Transactional
     public CanAdiestramientoDto eliminarCanAdiestramiento(String canUuid, String adiestramientoUuid, String username) {
         if(StringUtils.isBlank(canUuid) || StringUtils.isBlank(adiestramientoUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros viene como nulo o vacio");
@@ -147,5 +186,37 @@ public class EmpresaCanAdiestramientoServiceImpl implements EmpresaCanAdiestrami
         daoHelper.fulfillAuditorFields(false, canAdiestramiento, usuarioDto.getId());
         canAdiestramientoRepository.save(canAdiestramiento);
         return daoToDtoConverter.convertDaoToDtoCanAdiestramiento(canAdiestramiento);
+    }
+
+    @Override
+    public File obtenerAdiestramientoArchivo(String canUuid, String adiestramientoUuid) {
+        if(StringUtils.isBlank(canUuid) || StringUtils.isBlank(adiestramientoUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando el archivo de adiestramiento en PDF con el uuid [{}]", adiestramientoUuid);
+
+        CanAdiestramiento canAdiestramiento = canAdiestramientoRepository.findByUuidAndEliminadoFalse(adiestramientoUuid);
+
+        if(canAdiestramiento == null) {
+            logger.warn("El adiestramiento no fue encontrado en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(StringUtils.isBlank(canAdiestramiento.getArchivoConstancia())) {
+            logger.warn("No hay archivo definido para este adiestramiento");
+            throw new NotFoundResourceException();
+        }
+
+        File cartillaVacunacionPdf = new File(canAdiestramiento.getArchivoConstancia());
+
+        if(!cartillaVacunacionPdf.exists() &&
+                cartillaVacunacionPdf.isDirectory()) {
+            logger.warn("El archvo no existe en el sistema de archivos");
+            throw new NotFoundResourceException();
+        }
+
+        return cartillaVacunacionPdf;
     }
 }

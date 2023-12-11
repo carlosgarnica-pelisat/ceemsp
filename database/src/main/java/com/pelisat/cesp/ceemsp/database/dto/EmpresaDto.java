@@ -33,8 +33,19 @@ public class EmpresaDto {
     private String registroFederal;
     private String fechaInicio;
     private String fechaFin;
+    private String rutaLogo;
+    private String rutaRegistroFederal;
 
     private UsuarioDto usuario;
 
     private String fechaCreacion;
+    private String fechaActualizacion;
+
+    private boolean domiciliosCapturados;
+    private boolean escriturasCapturadas;
+    private boolean formasEjecucionCapturadas;
+    private boolean acuerdosCapturados;
+    private boolean eliminado;
+    private String vigenciaInicio;
+    private String vigenciaFin;
 }

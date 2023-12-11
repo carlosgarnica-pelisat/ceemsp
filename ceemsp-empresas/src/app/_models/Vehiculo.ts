@@ -28,10 +28,15 @@ export default class Vehiculo implements Deserializable {
   placaMetalica: string;
   empresaBlindaje: string;
   nivelBlindaje: string;
+  constanciaBlindaje: string;
   razonSocial: string;
   fechaInicio: string;
   fechaFin: string;
   personalAsignado: Persona;
+  eliminado: boolean;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+  status: string;
 
   motivoBaja: string;
   observacionesBaja: string;
@@ -41,6 +46,10 @@ export default class Vehiculo implements Deserializable {
   colores: VehiculoColor[];
   fotografias: VehiculoFotografiaMetadata[];
   domicilio: EmpresaDomicilio;
+
+  fotografiaCapturada: boolean;
+  coloresCapturado: boolean;
+  constanciaBlindajeCargada: boolean;
 
   deserialize(input: any): this {
     Object.assign(this, input);

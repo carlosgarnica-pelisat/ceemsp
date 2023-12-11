@@ -10,6 +10,7 @@ export default class BuzonSalida implements Deserializable {
   mensaje: string;
   destinatarios: BuzonInternoDestinatario[];
   fechaCreacion: string;
+  leido: boolean;
 
   deserialize(input: any): this {
     Object.assign(this, input);

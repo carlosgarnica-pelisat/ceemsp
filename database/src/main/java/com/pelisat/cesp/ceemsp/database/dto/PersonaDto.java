@@ -1,10 +1,7 @@
 package com.pelisat.cesp.ceemsp.database.dto;
 
 import com.pelisat.cesp.ceemsp.database.dto.metadata.PersonalFotografiaMetadata;
-import com.pelisat.cesp.ceemsp.database.type.CuipStatusEnum;
-import com.pelisat.cesp.ceemsp.database.type.EstadoCivilEnum;
-import com.pelisat.cesp.ceemsp.database.type.SexoEnum;
-import com.pelisat.cesp.ceemsp.database.type.TipoSangreEnum;
+import com.pelisat.cesp.ceemsp.database.type.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -45,16 +42,20 @@ public class PersonaDto {
     private String cuip;
     private String numeroVolanteCuip;
     private String fechaVolanteCuip;
-    private String rutaVolanteCuip;
-    private ModalidadDto modalidad;
+    private boolean archivoVolanteCuipCargado;
+    private EmpresaModalidadDto modalidad;
     private String rfc;
     private boolean eliminado;
     private String fechaCreacion;
+    private String fechaActualizacion;
+    private FormaEjecucionEnum formaEjecucion;
 
     private CanDto can;
     private VehiculoDto vehiculo;
     private ArmaDto armaCorta;
     private ArmaDto armaLarga;
+    private ClienteDto cliente;
+    private ClienteDomicilioDto clienteDomicilio;
 
     private String motivoBaja;
     private String observacionesBaja;
@@ -69,4 +70,13 @@ public class PersonaDto {
 
     private List<PersonalCertificacionDto> certificaciones;
     private List<PersonalFotografiaMetadata> fotografias;
+
+    private boolean puestoTrabajoCapturado;
+    private boolean cursosCapturados;
+    private boolean fotografiaCapturada;
+    private Boolean eliminadoIncidencia;
+    private String fechaCreacionIncidencia;
+    private String fechaEliminacionIncidencia;
+
+    private EmpresaDto empresa;
 }

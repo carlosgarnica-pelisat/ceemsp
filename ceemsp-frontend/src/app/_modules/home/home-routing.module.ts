@@ -40,6 +40,14 @@ import {EmpresaUniformesComponent} from "../../home/empresas/empresa-uniformes/e
 import {UsuariosComponent} from "../../home/configuracion/usuarios/usuarios.component";
 import {AcercaComponent} from "../../home/configuracion/acerca/acerca.component";
 import {EmpresaAcuerdosComponent} from "../../home/empresas/empresa-acuerdos/empresa-acuerdos.component";
+import {EmpresaVisitasComponent} from "../../home/empresas/empresa-visitas/empresa-visitas.component";
+import {ClientesComponent} from "../../home/catalogos/clientes/clientes.component";
+import {
+  EmpresaReportesMensualesComponent
+} from "../../home/empresas/empresa-reportes-mensuales/empresa-reportes-mensuales.component";
+import {BusquedaComponent} from "../../home/busqueda/busqueda.component";
+import {VentanasComponent} from "../../home/ventanas/ventanas.component";
+import {PerfilComponent} from "../../home/perfil/perfil.component";
 
 
 const routes: Routes = [
@@ -113,6 +121,14 @@ const routes: Routes = [
         path: 'empresas/:uuid/uniformes',
         component: EmpresaUniformesComponent
       },
+      {
+        path: 'empresas/:uuid/visitas',
+        component: EmpresaVisitasComponent
+      },
+      {
+        path: 'empresas/:uuid/reportes-mensuales',
+        component: EmpresaReportesMensualesComponent
+      },
 
       // Catalogos
       // Canes
@@ -170,6 +186,14 @@ const routes: Routes = [
         path: 'catalogos/equipo/uniformes',
         component: UniformesComponent
       },
+      {
+        path: 'catalogos/equipo/clientes',
+        component: UniformesComponent
+      },
+      {
+        path: 'catalogos/clientes',
+        component: ClientesComponent
+      },
 
       // Comunicados
       // Generales
@@ -204,6 +228,17 @@ const routes: Routes = [
         path: 'reporteo',
         component: ReporteoComponent
       },
+      // Ventanas
+      {
+        path: 'ventanas',
+        component: VentanasComponent
+      },
+
+      // Busqueda
+      {
+        path: 'busqueda',
+        component: BusquedaComponent
+      },
 
       // Configuracion
       {
@@ -217,6 +252,10 @@ const routes: Routes = [
       {
         path: 'configuracion/acerca',
         component: AcercaComponent
+      },
+      {
+        path: 'perfil',
+        component: PerfilComponent
       }
     ]
   }

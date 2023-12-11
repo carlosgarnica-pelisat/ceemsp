@@ -71,6 +71,21 @@ public class ClienteController {
         return new ResponseEntity<>(isr, responseHeaders, HttpStatus.OK);
     }
 
+    @GetMapping(value = EMPRESA_CLIENTES_URI + "/{clienteUuid}/documentos/fundatorios", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> descargarDocumentoFundatorioCliente(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "clienteUuid") String clienteUuid
+    ) throws Exception {
+        File file = clienteService.descargarDocumentoFundatorio(empresaUuid, clienteUuid);
+        HttpHeaders responseHeaders = new HttpHeaders();
+
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentLength(file.length());
+        responseHeaders.setContentDispositionFormData("attachment", file.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+        return new ResponseEntity<>(isr, responseHeaders, HttpStatus.OK);
+    }
+
     @PostMapping(value = EMPRESA_CLIENTES_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ClienteDto guardarClienteEmpresa(
             @RequestParam(value = "archivo", required = false) MultipartFile archivo,

@@ -4,11 +4,14 @@ import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.restceemsp.service.ComunicadoGeneralService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.PublicService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -31,8 +34,10 @@ public class PublicController {
     }
 
     @PostMapping(value = "/public/visitas/siguiente", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ProximaVisitaDto generarSiguienteVisita() {
-        return publicService.buscarProximaVisita();
+    public ProximaVisitaDto generarSiguienteVisita(
+            @RequestBody ProximaVisitaDto proximaVisitaDto
+    ) {
+        return publicService.buscarProximaVisita(proximaVisitaDto);
     }
 
     @PostMapping(value = "/public/vehiculos/existencias", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -50,10 +55,10 @@ public class PublicController {
     ) {
         Integer mesInteger = null;
         Integer anoInteger = null;
-        if(!Objects.equals(mes, "null")) {
+        if(StringUtils.isNotBlank(mes) && !StringUtils.equals(mes, "null")) {
             mesInteger = Integer.parseInt(mes);
         }
-        if(!Objects.equals(ano, "null")) {
+        if(StringUtils.isNotBlank(ano) && !StringUtils.equals(ano, "null")) {
             anoInteger = Integer.parseInt(ano);
         }
         return comunicadoGeneralService.obtenerComunicadosGenerales(titulo, mesInteger, anoInteger);
@@ -69,5 +74,26 @@ public class PublicController {
             @PathVariable(value = "comunicadoUuid") String comunicadoUuid
     ) {
         return comunicadoGeneralService.obtenerComunicadoPorUuid(comunicadoUuid);
+    }
+
+    @GetMapping(value = "/public/validar/acuse/{sello}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ValidarAcuseDto validarAcusePorSello(
+            @PathVariable(value = "sello") String sello
+    ) {
+        return publicService.validarAcusePorSello(sello);
+    }
+
+    @GetMapping(value = "/public/validar/informe/{sello}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ValidarInformeDto validarInformePorSello(
+            @PathVariable(value = "sello") String sello
+    ) {
+        return publicService.validarInformePorSello(sello);
+    }
+
+    @GetMapping(value = "/public/ping", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, String> ping() {
+        Map<String, String> response = new HashMap<>();
+        response.put("ping", "pong");
+        return response;
     }
 }

@@ -41,6 +41,7 @@
     "curp": "^1.1.0",
     "datatables.net": "^1.11.3",
     "datatables.net-bs4": "^1.11.3",
+    "date-fns": "^2.30.0",
     "email-validator": "^2.0.4",
     "jquery": "^3.6.0",
     "js-sha256": "^0.9.0",
