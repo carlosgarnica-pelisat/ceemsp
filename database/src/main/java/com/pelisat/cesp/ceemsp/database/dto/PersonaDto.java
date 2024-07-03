@@ -5,6 +5,7 @@ import com.pelisat.cesp.ceemsp.database.type.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Getter
@@ -44,6 +45,7 @@ public class PersonaDto {
     private String fechaVolanteCuip;
     private boolean archivoVolanteCuipCargado;
     private EmpresaModalidadDto modalidad;
+    @Size(min = 13, max = 13)
     private String rfc;
     private boolean eliminado;
     private String fechaCreacion;
@@ -57,7 +59,7 @@ public class PersonaDto {
     private ClienteDto cliente;
     private ClienteDomicilioDto clienteDomicilio;
 
-    private String motivoBaja;
+    private PersonalRazonBajaEnum motivoBaja;
     private String observacionesBaja;
     private String documentoFundatorioBaja;
     private String fechaBaja;

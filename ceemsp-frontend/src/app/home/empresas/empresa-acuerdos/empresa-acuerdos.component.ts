@@ -36,7 +36,7 @@ export class EmpresaAcuerdosComponent implements OnInit {
   motivosEliminacionForm: FormGroup;
 
   frameworkComponents: any;
-  fechaDeHoy = new Date().toISOString().split('T')[0];
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
 
   modal: NgbModalRef;
   usuarioActual: Usuario;
@@ -182,6 +182,15 @@ export class EmpresaAcuerdosComponent implements OnInit {
       return;
     }
 
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerAcuerdoPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: Acuerdo) => {
       this.acuerdo = data;
 
@@ -213,6 +222,15 @@ export class EmpresaAcuerdosComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `El elemento ya esta eliminado. No se puede editar`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
         ToastType.WARNING
       );
       return;

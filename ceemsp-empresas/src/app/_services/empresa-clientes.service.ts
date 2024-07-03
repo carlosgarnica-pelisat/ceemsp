@@ -21,6 +21,10 @@ export class EmpresaClientesService {
     return this.http.get(`${this.uri}/clientes`);
   }
 
+  obtenerClientesEliminados() {
+    return this.http.get(`${this.uri}/clientes/eliminados`);
+  }
+
   obtenerClientePorUuid(clienteUuid: string) {
     return this.http.get(`${this.uri}/clientes/${clienteUuid}`)
   }

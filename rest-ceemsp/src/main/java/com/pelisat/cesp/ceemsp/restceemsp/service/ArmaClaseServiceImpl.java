@@ -80,7 +80,7 @@ public class ArmaClaseServiceImpl implements ArmaClaseService {
             throw new InvalidDataException();
         }
 
-        logger.info("Consultando la clase del arma con el id [{}]", id);
+        logger.debug("Consultando la clase del arma con el id [{}]", id);
 
         ArmaClase armaClase = armaClaseRepository.getOne(id);
 

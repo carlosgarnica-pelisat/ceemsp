@@ -23,88 +23,6 @@
         (rowDoubleClicked)="mostrarModalDetalles($event.data)"
         #agGrid
       ></ag-grid-angular>
-
-      <!--table class="table">
-        <tr>
-          <td><b>Nombre del reporte</b></td>
-          <td><b>Formato</b></td>
-          <td><b>Descripcion</b></td>
-          <td><b>Opciones</b></td>
-        </tr>
-        <tr>
-          <td>Listado nominal (personal tecnico)</td>
-          <td>Excel (XLS)</td>
-          <td><p>El reporte contiene toda la informacion del personal del tipo tecnico de todas las empresas, asi como la empresa a la que pertenece</p></td>
-          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteListadoNominal()"></fa-icon></td>
-        </tr>
-        <tr>
-          <td>Padron estatal</td>
-          <td>Excel (XLS)</td>
-          <td><p>El reporte contiene todo el padron de empresas autorizadas para prestar servicios de seguridad privada a nivel federal</p></td>
-          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReportePadronEmpresas()"></fa-icon></td>
-        </tr>
-        <tr>
-          <td>Intercambio de informacion DGSP</td>
-          <td>Excel (XLS)</td>
-          <td><p>El reporte contiene la informacion general del padron.</p></td>
-          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteIntercambioInformacion()"></fa-icon></td>
-        </tr>
-
-        <tr>
-          <td>Acuerdos</td>
-          <td>Excel (XLS)</td>
-          <td><p>El reporte contiene todos los acuerdos de todas las empresas.</p></td>
-          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteAcuerdos()"></fa-icon></td>
-        </tr>
-        <tr>
-          <td>Personal</td>
-          <td>Excel (XLS)</td>
-          <td><p>El reporte contiene todo el personal de todas las empresas.</p></td>
-          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReportePersonal()"></fa-icon></td>
-        </tr>
-        <tr>
-          <td>Escrituras</td>
-          <td>Excel (XLS)</td>
-          <td><p>El reporte contiene todas las escrituras de todas las empresas.</p></td>
-          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteEscrituras()"></fa-icon></td>
-        </tr>
-        <tr>
-          <td>Canes</td>
-          <td>Excel (XLS)</td>
-          <td><p>El reporte contiene todos los canes de todas las empresas.</p></td>
-          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteCanes()"></fa-icon></td>
-        </tr>
-        <tr>
-          <td>Vehiculos</td>
-          <td>Excel (XLS)</td>
-          <td><p>El reporte contiene todos los vehiculos de todas las empresas.</p></td>
-          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteVehiculos()"></fa-icon></td>
-        </tr>
-        <tr>
-          <td>Clientes</td>
-          <td>Excel (XLS)</td>
-          <td><p>El reporte contiene todos los clientes de todas las empresas.</p></td>
-          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteClientes()"></fa-icon></td>
-        </tr>
-        <tr>
-          <td>Armas</td>
-          <td>Excel (XLS)</td>
-          <td><p>El reporte contiene todas las armas de todas las empresas.</p></td>
-          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteArmas()"></fa-icon></td>
-        </tr>
-        <tr>
-          <td>Licencias colectivas</td>
-          <td>Excel (XLS)</td>
-          <td><p>El reporte contiene todas las licencias colectivas de todas las empresas.</p></td>
-          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteLicencias()"></fa-icon></td>
-        </tr>
-        <tr>
-          <td>Visitas</td>
-          <td>Excel (XLS)</td>
-          <td><p>El reporte contiene todas las visitas registradas al dia de hoy.</p></td>
-          <td><fa-icon [icon]="faDownload" title="Descargar reporte" (click)="descargarReporteVisitas()"></fa-icon></td>
-        </tr>
-      </table-->
     </div>
   </div>
 
@@ -145,6 +63,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="descargarReporte()" *ngIf="reporte.status === 'COMPLETADO'">Descargar</button>
+      <button class="btn btn-danger" (click)="mostrarEliminarReporteModal()">Eliminar</button>
     </div>
   </ng-template>
 
@@ -156,44 +75,69 @@
       </button>
     </div>
     <div class="modal-body">
-      <div class="row">
-        <div class="col-sm-12">
-          <select id="crearPuesto" formControlName="puesto" class="form-control" (change)="cambiarTipoReporte($event.target)">
-            <option value="LISTADO_NOMINAL">Listado nominal</option>
-            <option value="PADRON_ESTATAL">Padron estatal</option>
-            <option value="INTERCAMBIO_INFORMACION">Intercambio de informacion</option>
-            <option value="ACUERDOS">Acuerdos</option>
-            <option value="PERSONAL">Personal</option>
-            <option value="ESCRITURAS">Escrituras</option>
-            <option value="CANES">Canes</option>
-            <option value="VEHICULOS">Vehiculos</option>
-            <option value="CLIENTES">Clientes</option>
-            <option value="ARMAS">Armas</option>
-            <option value="LICENCIAS_COLECTIVAS">Licencias colectivas</option>
-            <option value="VISITAS">Visitas</option>
-          </select>
+      <form [formGroup]="reporteForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="tipo">
+              <b>Tipo de reporte *</b>
+              <span
+                *ngIf="reporteForm.controls['tipo'].invalid && (reporteForm.controls['tipo'].dirty || reporteForm.controls['tipo'].touched)">
+                        <i *ngIf="reporteForm.controls['tipo'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+            </label>
+            <select id="tipo" formControlName="tipo" class="form-control" (change)="cambiarTipoReporte($event.target)">
+              <option value="" disabled selected></option>
+              <option *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" value="LISTADO_NOMINAL">Listado nominal</option>
+              <option value="PADRON_ESTATAL">Padron estatal</option>
+              <option *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" value="INTERCAMBIO_INFORMACION">Intercambio de informacion</option>
+              <option *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" value="ACUERDOS">Acuerdos</option>
+              <option value="PERSONAL">Personal</option>
+              <option *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" value="ESCRITURAS">Escrituras</option>
+              <option value="CANES">Canes</option>
+              <option value="VEHICULOS">Vehiculos</option>
+              <option *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" value="CLIENTES">Clientes</option>
+              <option value="ARMAS">Armas</option>
+              <option value="LICENCIAS_COLECTIVAS">Licencias colectivas</option>
+              <option *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" value="VISITAS">Visitas</option>
+            </select>
+          </div>
         </div>
-      </div>
 
-      <div class="row">
-        <div class="col-sm-6">
-          <label for="fechaInicio">
-            <b>Fecha de Inicio *</b>
-          </label>
-          <input class="form-control" id="fechaInicio" type="date" placeholder="Fecha de inicio" [max]="fechaDeHoy">
+        <div class="row" *ngIf="requiereFecha">
+          <div class="col-sm-12">
+            <input id="fechaPersonalizada" formControlName="fechaInicio" type="checkbox" [(ngModel)]="fechaPersonalizada" (change)="cambiarFechaPersonalizada()"><label class="form-check-label" for="fechaPersonalizada"> <b>Fecha personalizada</b></label>
+          </div>
         </div>
-        <div class="col-sm-6">
-          <label for="fechaFin">
-            <b>Fecha de Fin *</b>
-          </label>
-          <input class="form-control" id="fechaFin" type="date" placeholder="Fecha de fin" [max]="fechaDeHoy">
+
+        <div class="row" *ngIf="fechaPersonalizada">
+
+          <div class="col-sm-6">
+            <label for="fechaInicio">
+              <b>Fecha de Inicio *</b>
+              <span
+                *ngIf="reporteForm.controls['fechaInicio'].invalid && (reporteForm.controls['fechaInicio'].dirty || reporteForm.controls['fechaInicio'].touched)">
+                        <i *ngIf="reporteForm.controls['fechaInicio'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+            </label>
+            <input class="form-control" id="fechaInicio" formControlName="fechaInicio" type="date" placeholder="Fecha de inicio" value="01-01-2023" [max]="fechaDeHoy">
+          </div>
+          <div class="col-sm-6">
+            <label for="fechaFin">
+              <b>Fecha de Fin *</b>
+              <span
+                *ngIf="reporteForm.controls['fechaFin'].invalid && (reporteForm.controls['fechaFin'].dirty || reporteForm.controls['fechaFin'].touched)">
+                        <i *ngIf="reporteForm.controls['fechaFin'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+            </label>
+            <input class="form-control" id="fechaFin" formControlName="fechaFin" type="date" placeholder="Fecha de fin" [value]="fechaDeHoy" [max]="fechaDeHoy">
+          </div>
         </div>
-      </div>
+      </form>
 
       <div class="row">
         <div class="col-sm-12">
           <p>
-            Nota: Al programar el reporte se pondra en una cola para ser procesado. <br>
+            Al programar el reporte se pondra en una cola para ser procesado. <br>
             Los reportes comienzan a ser procesados cada aproximadamente 10 minutos. <br>
             El tiempo de conclusion del reporte tardara en funcion de la cantidad de informacion a procesar.
             Le recomendamos verificar el status de su reporte cada 10 minutos para verificar el status de su reporte.
@@ -202,8 +146,29 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="programarReporte()">Programar</button>
+      <button class="btn btn-primary" (click)="programarReporte(reporteForm)">Programar</button>
       <button class="btn btn-danger" (click)="modal.close()">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarReporteModal">Eliminar reporte programado </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar este reporte, toma en cuenta que si el reporte esta sin procesar no generara ningun archivo y, si ya fue generado
+          sera eliminado junto con el archivo. Esta operacion no puede deshacerse, deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="eliminarReporte()">Si, eliminar</button>
+      <button class="btn btn-primary" (click)="this.modal.close()">No, dejarlo como esta</button>
     </div>
   </ng-template>
 </div>

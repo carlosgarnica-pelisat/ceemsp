@@ -17,6 +17,545 @@
     </div>
   </div>
 
+  <div class="row" id="fichaInformativaData">
+    <div class="col-sm-12">
+      <div class="row" id="header" style="display: none;">
+        <div style="width: 25%; float: left;">
+          <!--img src="" alt="Logo" style="width: 60%;"-->
+        </div>
+        <!--div style="width: 50%; float: left;">
+          <img [src]="logo" style="width: 100%;">
+        </div-->
+        <div style="width: 95%; float: left;">
+
+          <p>
+            <b>DIRECCION DE LOS SERVICIOS DE SEGURIDAD PRIVADA</b> <br>
+            <b>DEL SECRETARIADO EJECUTIVO DEL CONSEJO ESTATAL</b> <br>
+            <b>DE SEGURIDAD PUBLICA DEL ESTADO DE JALISCO:</b>
+          </p>
+        </div>
+        <div style="width: 95%; float: left;">
+          <p>El presente se emite como acuse de recibo del informe mensual digital que corresponde al estado de fuerza presentado por el prestador de servicios de seguridad privada en la plataforma electronica denominada
+            Sistema Integral de Empresas de Seguridad Privada "SIESP", en el cual se hace constar la siguiente informacion:</p>
+          <p>Nombre del prestador de servicios: <br><b>{{usuarioActual?.empresa?.razonSocial}}</b></p>
+          <p>Numero de expediente: <br><b>{{usuarioActual?.empresa?.registro}}</b></p>
+          <p>Tipo de actuacion: <br><b>INFORME MENSUAL</b></p>
+          <p>Mes y año: <br><b>{{this.mes + " " + this.ano}}</b></p>
+          <p>Fecha y hora de generacion <br><b>{{reporte?.fechaCreacion}}</b></p>
+          <p>Numero de acuse <br><b>{{reporte?.numero}}</b></p>
+          <p>Cuenta de correo electronico determinado por el prestador de servicios <br><b>{{usuarioActual?.empresa?.correoElectronico}}</b></p>
+        </div>
+        <div style="border: 1px solid #333333;">
+          <h4 style="text-align: center">RESUMEN DE MOVIMIENTOS</h4>
+          <table class="table" style="border: 1px solid #aaaaaa;">
+            <tr>
+              <td colspan="2"><b><a class="fakelink">PERSONAL</a></b></td>
+              <td colspan="2"><b><a class="fakelink">CLIENTES</a></b></td>
+              <td colspan="2"><b><a class="fakelink">VEHICULOS</a></b></td>
+              <td colspan="2"><b><a>EQUIPO</a></b></td>
+            </tr>
+
+            <tr>
+              <td>Activos</td>
+              <td>{{reporte?.personalActivos}}</td>
+              <td>Activos</td>
+              <td>{{reporte?.clientesActivos}}</td>
+              <td>Activos</td>
+              <td>{{reporte?.vehiculosActivos}}</td>
+              <td>Activos</td>
+              <td>{{reporte?.equipoActivos}}</td>
+            </tr>
+
+            <tr>
+              <td>Altas</td>
+              <td>{{reporte?.personalAltas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.clientesAltas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.vehiculosAltas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.equipoAltas}}</td>
+            </tr>
+
+            <tr>
+              <td>Bajas</td>
+              <td>{{reporte?.personalBajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.clientesBajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.vehiculosBajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.equipoBajas}}</td>
+            </tr>
+
+            <tr>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.personalTotal}}</td>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.clientesTotal}}</td>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.vehiculosTotal}}</td>
+              <td><b>TOTAL</b></td>
+              <td>{{reporte?.equipoTotal}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="border: 1px solid #333333; margin-top: 20px;">
+          <h4 style="text-align: center">INCIDENCIAS</h4>
+          <table class="table" style="border: 1px solid #aaaaaa;">
+            <tr>
+              <td style="background: #000; color: #aaa;"><b>Incidencias abiertas</b></td>
+              <td style="background: #000; color: #aaa;"><b>Incidencias procedentes</b></td>
+              <td style="background: #000; color: #aaa;"><b>Incidencias improcedentes</b></td>
+              <td style="background: #000; color: #aaa;"><b>Incidencias reportadas en el periodo</b></td>
+            </tr>
+            <tr>
+              <td>{{reporte?.incidenciasReportadas}}</td>
+              <td>{{reporte?.incidenciasProcedentes}}</td>
+              <td>{{reporte?.incidenciasImprocedentes}}</td>
+              <td>{{reporte?.incidenciasTotal}}</td>
+            </tr>
+          </table>
+        </div>
+        <div style="border: 1px solid #333333; margin-top: 20px;" *ngIf="usuarioActual?.empresa?.tieneArmas">
+          <h4 style="text-align: center">FORMA DE EJECUCION ARMADA</h4>
+          <table class="table table-bordered" style="border: 1px solid #aaaaaa;">
+            <tr>
+              <td colspan="2">
+                <p class="text-center fakelink"><b>I. SEGURIDAD PRIVADA A PERSONAS</b></p>
+              </td>
+              <td colspan="2">
+                <p class="text-center fakelink"><b>II. SEGURIDAD PRIVADA EN LOS BIENES</b></p>
+              </td>
+              <td colspan="2">
+                <p class="text-center fakelink"><b>III. SEGURIDAD PRIVADA EN EL TRASLADO DE BIENES O VALORES</b></p>
+              </td>
+            </tr>
+            <tr>
+              <td>Activas</td>
+              <td>{{reporte?.armas1Activas}}</td>
+              <td>Activas</td>
+              <td>{{reporte?.armas2Activas}}</td>
+              <td>Activas</td>
+              <td>{{reporte?.armas3Activas}}</td>
+            </tr>
+            <tr>
+              <td>Altas</td>
+              <td>{{reporte?.armas1Altas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.armas2Altas}}</td>
+              <td>Altas</td>
+              <td>{{reporte?.armas3Altas}}</td>
+            </tr>
+            <tr>
+              <td>Bajas</td>
+              <td>{{reporte?.armas1Bajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.armas2Bajas}}</td>
+              <td>Bajas</td>
+              <td>{{reporte?.armas3Bajas}}</td>
+            </tr>
+            <tr>
+              <td>TOTAL</td>
+              <td>{{reporte?.armas1Total}}</td>
+              <td>TOTAL</td>
+              <td>{{reporte?.armas2Total}}</td>
+              <td>TOTAL</td>
+              <td>{{reporte?.armas3Total}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="width: 100%; float: left; border: 1px solid #333333; margin-top: 20px;" *ngIf="usuarioActual?.empresa?.tieneCanes">
+          <h4 style="text-align: center">FORMA DE EJECUCION CON CANES</h4>
+          <table class="table table-bordered" style="border: 1px solid #aaaaaa;">
+            <tr>
+              <td>Canes asignados</td>
+              <td>Canes en domicilio</td>
+              <td>Altas</td>
+              <td>Bajas</td>
+              <td>Total</td>
+            </tr>
+            <tr>
+              <td>{{reporte?.canesAsignados}}</td>
+              <td>{{reporte?.canesInstalaciones}}</td>
+              <td>{{reporte?.canesAltas}}</td>
+              <td>{{reporte?.canesBajas}}</td>
+              <td>{{reporte?.canesTotal}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="width: 100%; float: left;">
+          <p>El presente acuse electronico se genera en atencion a lo dispuesto por los articulos 55 fracciones III y IV y 161 del Reglamento de los Servicios de Seguridad Privada del Estado de Jalisco.</p>
+          <p><b>Fecha de envio:</b><br>{{reporte?.fechaCreacion}}</p>
+          <p><b>Cadena original:</b><br>{{reporte?.cadenaOriginal}}</p>
+          <p><b>Sello:</b><br>{{reporte?.sello}}</p>
+        </div>
+
+        <div class="page-break">Favor de revisar en hojas posteriores informacion de transacciones realizadas en este mes</div>
+
+        <div style="border: 1px solid #333333; margin-top: 20px; page-break-after: always; page-break-inside: avoid;">
+          <h4 style="text-align: center">OPERACIONES CON PERSONAL - ALTAS</h4>
+          <p style="text-align: center;" *ngIf="personalAltas.length === 0">La empresa no realizo altas de personal en este mes. </p>
+          <table id="personal-altas-table" class="table table-bordered" style="border: 1px solid #aaaaaa;"  *ngIf="personalAltas.length > 0">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Puesto</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>F. Creacion</b></td>
+              <td><b>A. Paterno</b></td>
+              <td><b>A. Materno</b></td>
+              <td><b>Nombre(s)</b></td>
+              <td><b>CURP</b></td>
+              <td><b>Status CUIP</b></td>
+              <td><b>CUIP / Volante</b></td>
+            </tr>
+            <tr *ngFor="let p of personalAltas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>{{p?.puestoDeTrabajo?.nombre}}</td>
+              <td>Alta</td>
+              <td>{{p?.fechaCreacion}}</td>
+              <td>{{p?.apellidoPaterno}}</td>
+              <td>{{p?.apellidoMaterno}}</td>
+              <td>{{p?.nombres}}</td>
+              <td>{{p?.curp}}</td>
+              <td>{{p?.estatusCuip}}</td>
+              <td>
+                <span *ngIf="p?.estatusCuip === 'EN_TRAMITE'">T - {{p?.numeroVolanteCuip}}</span>
+                <span *ngIf="p?.estatusCuip === 'TRAMITADO'">{{p?.cuip}}</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="border: 1px solid #333333; margin-top: 20px; page-break-after: always; page-break-inside: avoid;">
+          <h4 style="text-align: center">OPERACIONES CON PERSONAL - BAJAS</h4>
+          <p style="text-align: center;" *ngIf="personalBajas.length === 0">La empresa no realizo bajas de personal en este mes. </p>
+          <table id="personal-bajas-table" class="table table-bordered" style="border: 1px solid #aaaaaa;" *ngIf="personalBajas.length > 0">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Puesto</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>F. Creacion</b></td>
+              <td><b>A. Paterno</b></td>
+              <td><b>A. Materno</b></td>
+              <td><b>Nombre(s)</b></td>
+              <td><b>CURP</b></td>
+              <td><b>Status CUIP</b></td>
+              <td><b>CUIP / Volante</b></td>
+            </tr>
+            <tr *ngFor="let p of personalBajas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>{{p?.puestoDeTrabajo?.nombre}}</td>
+              <td>Baja</td>
+              <td>{{p?.fechaCreacion}}</td>
+              <td>{{p?.apellidoPaterno}}</td>
+              <td>{{p?.apellidoMaterno}}</td>
+              <td>{{p?.nombres}}</td>
+              <td>{{p?.curp}}</td>
+              <td>{{p?.estatusCuip}}</td>
+              <td>
+                <span *ngIf="p?.estatusCuip === 'EN_TRAMITE'">T - {{p?.numeroVolanteCuip}}</span>
+                <span *ngIf="p?.estatusCuip === 'TRAMITADO'">{{p?.cuip}}</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="border: 1px solid #333333; margin-top: 20px; page-break-after: always; page-break-inside: avoid;">
+          <h4 style="text-align: center">OPERACIONES CON PERSONAL - ACTIVOS</h4>
+          <p style="text-align: center;" *ngIf="personalActivos.length === 0">La empresa no tiene personal activo en este mes. </p>
+          <table id="personal-activos-table" class="table table-bordered" style="border: 1px solid #aaaaaa;" *ngIf="personalActivos.length > 0">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Puesto</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>F. Creacion</b></td>
+              <td><b>A. Paterno</b></td>
+              <td><b>A. Materno</b></td>
+              <td><b>Nombre(s)</b></td>
+              <td><b>CURP</b></td>
+              <td><b>Status CUIP</b></td>
+              <td><b>CUIP / Volante</b></td>
+            </tr>
+            <tr *ngFor="let p of personalActivos; let i = index">
+              <td>{{i + 1}}</td>
+              <td>{{p?.puestoDeTrabajo?.nombre}}</td>
+              <td>Activo</td>
+              <td>{{p?.fechaCreacion}}</td>
+              <td>{{p?.apellidoPaterno}}</td>
+              <td>{{p?.apellidoMaterno}}</td>
+              <td>{{p?.nombres}}</td>
+              <td>{{p?.curp}}</td>
+              <td>{{p?.estatusCuip}}</td>
+              <td>
+                <span *ngIf="p?.estatusCuip === 'EN_TRAMITE'">T - {{p?.numeroVolanteCuip}}</span>
+                <span *ngIf="p?.estatusCuip === 'TRAMITADO'">{{p?.cuip}}</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="border: 1px solid #333333; margin-top: 20px; page-break-after: always; page-break-inside: avoid;">
+          <h4 style="text-align: center">OPERACIONES CON CLIENTES - ALTAS</h4>
+          <p style="text-align: center;" *ngIf="clienteAltas.length === 0">La empresa no realizo altas de clientes en este mes. </p>
+          <table id="clientes-altas-table" class="table table-bordered" style="border: 1px solid #aaaaaa;" *ngIf="clienteAltas.length > 0">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Razon social</b></td>
+              <td><b>Nombre comercial</b></td>
+              <td><b>RFC</b></td>
+              <td><b>Vigencia</b></td>
+            </tr>
+            <tr *ngFor="let c of clienteAltas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>Alta</td>
+              <td>{{c?.fechaCreacion}}</td>
+              <td>{{c?.razonSocial}}</td>
+              <td>{{c?.nombreComercial}}</td>
+              <td>{{c?.rfc}}</td>
+              <td>De {{c?.fechaInicio}} a {{c?.fechaFin}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="border: 1px solid #333333; margin-top: 20px; page-break-after: always; page-break-inside: avoid;">
+          <h4 style="text-align: center">OPERACIONES CON CLIENTES - BAJAS</h4>
+          <p style="text-align: center;" *ngIf="clienteBajas.length === 0">La empresa no realizo bajas de clientes en este mes. </p>
+          <table  id="clientes-bajas-table" class="table table-bordered" style="border: 1px solid #aaaaaa;" *ngIf="clienteBajas.length > 0">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Razon social</b></td>
+              <td><b>Nombre comercial</b></td>
+              <td><b>RFC</b></td>
+              <td><b>Vigencia</b></td>
+            </tr>
+            <tr *ngFor="let c of clienteBajas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>Baja</td>
+              <td>{{c?.fechaCreacion}}</td>
+              <td>{{c?.razonSocial}}</td>
+              <td>{{c?.nombreComercial}}</td>
+              <td>{{c?.rfc}}</td>
+              <td>De {{c?.fechaInicio}} a {{c?.fechaFin}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="border: 1px solid #333333; margin-top: 20px; page-break-after: always; page-break-inside: avoid;">
+          <h4 style="text-align: center">OPERACIONES CON CLIENTES - ACTIVOS</h4>
+          <p style="text-align: center;" *ngIf="clienteActivos.length === 0">La empresa no tiene clientes activos en el mes. </p>
+          <table id="clientes-activos-table" class="table table-bordered" style="border: 1px solid #aaaaaa;" *ngIf="clienteActivos.length > 0">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Razon social</b></td>
+              <td><b>Nombre comercial</b></td>
+              <td><b>RFC</b></td>
+              <td><b>Vigencia</b></td>
+            </tr>
+            <tr *ngFor="let c of clienteActivos; let i = index">
+              <td>{{i + 1}}</td>
+              <td>Activo</td>
+              <td>{{c?.fechaCreacion}}</td>
+              <td>{{c?.razonSocial}}</td>
+              <td>{{c?.nombreComercial}}</td>
+              <td>{{c?.rfc}}</td>
+              <td>De {{c?.fechaInicio}} a {{c?.fechaFin}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="border: 1px solid #333333; margin-top: 20px; page-break-after: always; page-break-inside: avoid;">
+          <h4 style="text-align: center">OPERACIONES CON VEHICULOS - ALTAS</h4>
+          <p style="text-align: center;" *ngIf="vehiculosAltas.length === 0">La empresa no realizo altas de vehiculos en este mes.  </p>
+          <table id="vehiculos-altas-table" class="table table-bordered" style="border: 1px solid #aaaaaa;" *ngIf="vehiculosAltas.length > 0">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Placas</b></td>
+              <td><b>Tipo</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Submarca</b></td>
+              <td><b>Serie</b></td>
+              <td><b>Año</b></td>
+              <td><b>Blindado</b></td>
+            </tr>
+            <tr *ngFor="let v of vehiculosAltas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>Alta</td>
+              <td>{{v?.fechaCreacion}}</td>
+              <td>{{v?.placas}}</td>
+              <td>{{v?.tipo?.nombre}}</td>
+              <td>{{v?.marca?.nombre}}</td>
+              <td>{{v?.submarca?.nombre}}</td>
+              <td>{{v?.serie}}</td>
+              <td>{{v?.anio}}</td>
+              <td>{{v?.blindado}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="border: 1px solid #333333; margin-top: 20px; page-break-after: always; page-break-inside: avoid;">
+          <h4 style="text-align: center">OPERACIONES CON VEHICULOS - BAJAS</h4>
+          <p style="text-align: center;" *ngIf="vehiculosBajas.length === 0">La empresa no realizo bajas de vehiculos en este mes.  </p>
+          <table id="vehiculos-bajas-table" class="table table-bordered" style="border: 1px solid #aaaaaa;" *ngIf="vehiculosBajas.length > 0">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Placas</b></td>
+              <td><b>Tipo</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Submarca</b></td>
+              <td><b>Serie</b></td>
+              <td><b>Año</b></td>
+              <td><b>Blindado</b></td>
+            </tr>
+            <tr *ngFor="let v of vehiculosBajas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>Baja</td>
+              <td>{{v?.fechaCreacion}}</td>
+              <td>{{v?.placas}}</td>
+              <td>{{v?.tipo?.nombre}}</td>
+              <td>{{v?.marca?.nombre}}</td>
+              <td>{{v?.submarca?.nombre}}</td>
+              <td>{{v?.serie}}</td>
+              <td>{{v?.anio}}</td>
+              <td>{{v?.blindado}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="border: 1px solid #333333; margin-top: 20px; page-break-after: always; page-break-inside: avoid;">
+          <h4 style="text-align: center">OPERACIONES CON VEHICULOS - ACTIVOS</h4>
+          <p style="text-align: center;" *ngIf="vehiculosActivos.length === 0">La empresa no tiene vehiculos activos en este mes.  </p>
+          <table id="vehiculos-activos-table" class="table table-bordered" style="border: 1px solid #aaaaaa;" *ngIf="vehiculosBajas.length > 0">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Placas</b></td>
+              <td><b>Tipo</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Submarca</b></td>
+              <td><b>Serie</b></td>
+              <td><b>Año</b></td>
+              <td><b>Blindado</b></td>
+            </tr>
+            <tr *ngFor="let v of vehiculosActivos; let i = index">
+              <td>{{i + 1}}</td>
+              <td>Activo</td>
+              <td>{{v?.fechaCreacion}}</td>
+              <td>{{v?.placas}}</td>
+              <td>{{v?.tipo?.nombre}}</td>
+              <td>{{v?.marca?.nombre}}</td>
+              <td>{{v?.submarca?.nombre}}</td>
+              <td>{{v?.serie}}</td>
+              <td>{{v?.anio}}</td>
+              <td>{{v?.blindado}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="border: 1px solid #333333; margin-top: 20px; page-break-after: always; page-break-inside: avoid;">
+          <h4 style="text-align: center">OPERACIONES CON CANES - ALTAS</h4>
+          <p style="text-align: center;" *ngIf="canesAltas.length === 0">La empresa no realizo altas de canes en este mes. </p>
+          <table class="table table-bordered" style="border: 1px solid #aaaaaa;" *ngIf="canesAltas.length > 0">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Nombre</b></td>
+              <td><b>Raza</b></td>
+              <td><b>Genero</b></td>
+              <td><b>Edad</b></td>
+              <td><b>Peso</b></td>
+              <td><b>Estatus</b></td>
+            </tr>
+            <tr *ngFor="let a of canesAltas; let i = index;">
+              <td>{{i + 1}}</td>
+              <td>Alta</td>
+              <td>{{a?.fechaCreacion}}</td>
+              <td>{{a?.nombre}}</td>
+              <td>{{a?.raza?.nombre}}</td>
+              <td>{{a?.genero}}</td>
+              <td>{{a?.edad}}</td>
+              <td>{{a?.peso}} kg</td>
+              <td>{{a?.status}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="border: 1px solid #333333; margin-top: 20px; page-break-after: always; page-break-inside: avoid;">
+          <h4 style="text-align: center">OPERACIONES CON CANES - BAJAS</h4>
+          <p style="text-align: center;" *ngIf="canesBajas.length === 0">La empresa no realizo bajas de canes en este mes. </p>
+          <table class="table table-bordered" style="border: 1px solid #aaaaaa;" *ngIf="canesBajas.length > 0">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Nombre</b></td>
+              <td><b>Raza</b></td>
+              <td><b>Genero</b></td>
+              <td><b>Edad</b></td>
+              <td><b>Peso</b></td>
+              <td><b>Estatus</b></td>
+            </tr>
+            <tr *ngFor="let a of canesBajas; let i = index;">
+              <td>{{i + 1}}</td>
+              <td>Baja</td>
+              <td>{{a?.fechaCreacion}}</td>
+              <td>{{a?.nombre}}</td>
+              <td>{{a?.raza?.nombre}}</td>
+              <td>{{a?.genero}}</td>
+              <td>{{a?.edad}}</td>
+              <td>{{a?.peso}} kg</td>
+              <td>{{a?.status}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="border: 1px solid #333333; margin-top: 20px; page-break-after: always; page-break-inside: avoid;">
+          <h4 style="text-align: center">OPERACIONES CON CANES - ACTIVOS</h4>
+          <p style="text-align: center;" *ngIf="canesActivos?.length === 0">La empresa no tiene canes activos en este mes.</p>
+          <table class="table table-bordered"  style="border: 1px solid #aaaaaa;" *ngIf="canesActivos?.length > 0">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Nombre</b></td>
+              <td><b>Raza</b></td>
+              <td><b>Genero</b></td>
+              <td><b>Edad</b></td>
+              <td><b>Peso</b></td>
+              <td><b>Estatus</b></td>
+            </tr>
+            <tr *ngFor="let a of canesActivos; let i = index;">
+              <td>{{i + 1}}</td>
+              <td>Activo</td>
+              <td>{{a?.fechaCreacion}}</td>
+              <td>{{a?.nombre}}</td>
+              <td>{{a?.raza?.nombre}}</td>
+              <td>{{a?.genero}}</td>
+              <td>{{a?.edad}}</td>
+              <td>{{a?.peso}} kg</td>
+              <td>{{a?.status}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Content Row -->
   <div class="row">
     <div class="col-sm-12" style="background: white">
@@ -71,9 +610,9 @@
               <td colspan="8"><p class="text-center"><b>RESUMEN DE MOVIMIENTOS</b></p></td>
             </tr>
             <tr>
-              <td colspan="2"><b>PERSONAL</b></td>
-              <td colspan="2"><b>CLIENTES</b></td>
-              <td colspan="2"><b>VEHICULOS</b></td>
+              <td colspan="2"><b class="fakelink" (click)="mostrarModalMovimientosPersonal()">PERSONAL</b></td>
+              <td colspan="2"><b class="fakelink" (click)="mostrarModalMovimientosClientes()">CLIENTES</b></td>
+              <td colspan="2"><b class="fakelink" (click)="mostrarModalMovimientosVehiculos()">VEHICULOS</b></td>
               <td colspan="2"><b>EQUIPO</b></td>
             </tr>
 
@@ -222,6 +761,9 @@
 
         </div>
       </div>
+    </div>
+    <div class="modal-footer">
+      <button printSectionId="fichaInformativaData" styleSheetFile="assets/pdf.css" printTitle="Informe mensual: {{reporte?.numero}}" ngxPrint class="btn btn-primary">Generar PDF</button>
     </div>
   </ng-template>
 
@@ -412,6 +954,729 @@
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="guardarReporteMensual()" [disabled]="actionInProgress">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarPersonalMovimientosReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarPersonalMovimientosReporteModal">Movimientos personal [{{this.mes + " " + this.ano}}] </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosPersonal === 'ACTIVOS' }" (click)="cambiarPestanaMovimientosPersona('ACTIVOS')">Activos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosPersonal === 'ALTAS' }" (click)="cambiarPestanaMovimientosPersona('ALTAS')">Altas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosPersonal === 'BAJAS' }" (click)="cambiarPestanaMovimientosPersona('BAJAS')">Bajas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row" *ngIf="pestanaActualMovimientosPersonal === 'ACTIVOS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Puesto</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>F. Creacion</b></td>
+              <td><b>A. Paterno</b></td>
+              <td><b>A. Materno</b></td>
+              <td><b>Nombre(s)</b></td>
+              <td><b>CURP</b></td>
+              <td><b>Status CUIP</b></td>
+              <td><b>CUIP / Volante</b></td>
+            </tr>
+            <tr *ngFor="let p of personalActivos; let i = index">
+              <td>{{i + 1}}</td>
+              <td>{{p?.puestoDeTrabajo?.nombre}}</td>
+              <td>Activo</td>
+              <td>{{p?.fechaCreacion}}</td>
+              <td>{{p?.apellidoPaterno}}</td>
+              <td>{{p?.apellidoMaterno}}</td>
+              <td>{{p?.nombres}}</td>
+              <td>{{p?.curp}}</td>
+              <td>{{p?.estatusCuip}}</td>
+              <td>
+                <span *ngIf="p?.estatusCuip === 'EN_TRAMITE'">T - {{p?.numeroVolanteCuip}}</span>
+                <span *ngIf="p?.estatusCuip === 'TRAMITADO'">{{p?.cuip}}</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="row" *ngIf="pestanaActualMovimientosPersonal === 'ALTAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Puesto</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>F. Creacion</b></td>
+              <td><b>A. Paterno</b></td>
+              <td><b>A. Materno</b></td>
+              <td><b>Nombre(s)</b></td>
+              <td><b>CURP</b></td>
+              <td><b>Status CUIP</b></td>
+              <td><b>CUIP / Status</b></td>
+            </tr>
+            <tr *ngFor="let p of personalAltas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>{{p?.puestoDeTrabajo?.nombre}}</td>
+              <td>Alta</td>
+              <td>{{p?.fechaCreacion}}</td>
+              <td>{{p?.apellidoPaterno}}</td>
+              <td>{{p?.apellidoMaterno}}</td>
+              <td>{{p?.nombres}}</td>
+              <td>{{p?.curp}}</td>
+              <td>{{p?.estatusCuip}}</td>
+              <td>
+                <span *ngIf="p?.estatusCuip === 'EN_TRAMITE'">T - {{p?.numeroVolanteCuip}}</span>
+                <span *ngIf="p?.estatusCuip === 'TRAMITADO'">{{p?.cuip}}</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosPersonal === 'BAJAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Puesto</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>F. Creacion</b></td>
+              <td><b>A. Paterno</b></td>
+              <td><b>A. Materno</b></td>
+              <td><b>Nombre(s)</b></td>
+              <td><b>CURP</b></td>
+              <td><b>Status CUIP</b></td>
+              <td><b>CUIP / Status</b></td>
+            </tr>
+            <tr *ngFor="let p of personalBajas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>{{p?.puestoDeTrabajo?.nombre}}</td>
+              <td>Baja</td>
+              <td>{{p?.fechaCreacion}}</td>
+              <td>{{p?.apellidoPaterno}}</td>
+              <td>{{p?.apellidoMaterno}}</td>
+              <td>{{p?.nombres}}</td>
+              <td>{{p?.curp}}</td>
+              <td>{{p?.estatusCuip}}</td>
+              <td>
+                <span *ngIf="p?.estatusCuip === 'EN_TRAMITE'">T - {{p?.numeroVolanteCuip}}</span>
+                <span *ngIf="p?.estatusCuip === 'TRAMITADO'">{{p?.cuip}}</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarClienteMovimientosReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarClienteMovimientosReporteModal">Movimientos clientes [{{this.mes + " " + this.ano}}] </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosClientes === 'ACTIVOS' }" (click)="cambiarPestanaMovimientosCliente('ACTIVOS')">Activos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosClientes === 'ALTAS' }" (click)="cambiarPestanaMovimientosCliente('ALTAS')">Altas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosClientes === 'BAJAS' }" (click)="cambiarPestanaMovimientosCliente('BAJAS')">Bajas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosClientes === 'ACTIVOS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Razon social</b></td>
+              <td><b>Nombre comercial</b></td>
+              <td><b>RFC</b></td>
+              <td><b>Vigencia</b></td>
+            </tr>
+            <tr *ngFor="let c of clienteActivos; let i = index">
+              <td>{{i + 1}}</td>
+              <td>Activo</td>
+              <td>{{c?.fechaCreacion}}</td>
+              <td>{{c?.razonSocial}}</td>
+              <td>{{c?.nombreComercial}}</td>
+              <td>{{c?.rfc}}</td>
+              <td>De {{c?.fechaInicio}} a {{c?.fechaFin}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosClientes === 'ALTAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Razon social</b></td>
+              <td><b>Nombre comercial</b></td>
+              <td><b>RFC</b></td>
+              <td><b>Vigencia</b></td>
+            </tr>
+            <tr *ngFor="let c of clienteAltas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>Alta</td>
+              <td>{{c?.fechaCreacion}}</td>
+              <td>{{c?.razonSocial}}</td>
+              <td>{{c?.nombreComercial}}</td>
+              <td>{{c?.rfc}}</td>
+              <td>De {{c?.fechaInicio}} a {{c?.fechaFin}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosClientes === 'BAJAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Razon social</b></td>
+              <td><b>Nombre comercial</b></td>
+              <td><b>RFC</b></td>
+              <td><b>Vigencia</b></td>
+            </tr>
+            <tr *ngFor="let c of clienteBajas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>Baja</td>
+              <td>{{c?.fechaCreacion}}</td>
+              <td>{{c?.razonSocial}}</td>
+              <td>{{c?.nombreComercial}}</td>
+              <td>{{c?.rfc}}</td>
+              <td>De {{c?.fechaInicio}} a {{c?.fechaFin}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarVehiculosMovimientosReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarVehiculosMovimientosReporteModal">Movimientos vehiculo [{{this.mes + " " + this.ano}}] </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosVehiculos === 'ACTIVOS' }" (click)="cambiarPestanaMovimientosVehiculos('ACTIVOS')">Activos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosVehiculos === 'ALTAS' }" (click)="cambiarPestanaMovimientosVehiculos('ALTAS')">Altas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosVehiculos === 'BAJAS' }" (click)="cambiarPestanaMovimientosVehiculos('BAJAS')">Bajas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosVehiculos === 'ACTIVOS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Placas</b></td>
+              <td><b>Tipo</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Submarca</b></td>
+              <td><b>Serie</b></td>
+              <td><b>Año</b></td>
+              <td><b>Blindado</b></td>
+            </tr>
+            <tr *ngFor="let v of vehiculosActivos; let i = index;">
+              <td>{{i + 1}}</td>
+              <td>Activo</td>
+              <td>{{v?.fechaCreacion}}</td>
+              <td>{{v?.placas}}</td>
+              <td>{{v?.tipo?.nombre}}</td>
+              <td>{{v?.marca?.nombre}}</td>
+              <td>{{v?.submarca?.nombre}}</td>
+              <td>{{v?.serie}}</td>
+              <td>{{v?.anio}}</td>
+              <td>{{v?.blindado}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosVehiculos === 'ALTAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Placas</b></td>
+              <td><b>Tipo</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Submarca</b></td>
+              <td><b>Serie</b></td>
+              <td><b>Año</b></td>
+              <td><b>Blindado</b></td>
+            </tr>
+            <tr *ngFor="let v of vehiculosAltas; let i = index;">
+              <td>{{i + 1}}</td>
+              <td>Alta</td>
+              <td>{{v?.fechaCreacion}}</td>
+              <td>{{v?.placas}}</td>
+              <td>{{v?.tipo?.nombre}}</td>
+              <td>{{v?.marca?.nombre}}</td>
+              <td>{{v?.submarca?.nombre}}</td>
+              <td>{{v?.serie}}</td>
+              <td>{{v?.anio}}</td>
+              <td>{{v?.blindado}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosVehiculos === 'BAJAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Placas</b></td>
+              <td><b>Tipo</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Submarca</b></td>
+              <td><b>Serie</b></td>
+              <td><b>Año</b></td>
+              <td><b>Blindado</b></td>
+            </tr>
+            <tr *ngFor="let v of vehiculosBajas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>Baja</td>
+              <td>{{v?.fechaCreacion}}</td>
+              <td>{{v?.placas}}</td>
+              <td>{{v?.tipo?.nombre}}</td>
+              <td>{{v?.marca?.nombre}}</td>
+              <td>{{v?.submarca?.nombre}}</td>
+              <td>{{v?.serie}}</td>
+              <td>{{v?.anio}}</td>
+              <td>{{v?.blindado}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarArmasModalidad1MovimientosReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarArmasModalidad1MovimientosReporteModal">Movimientos armas modalidad: Seguridad privada en los bienes [{{this.mes + " " + this.ano}}] </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosArmasModalidad1 === 'ALTAS' }" (click)="cambiarPestanaMovimientosArmasModalidad1('ALTAS')">Altas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosArmasModalidad1 === 'BAJAS' }" (click)="cambiarPestanaMovimientosArmasModalidad1('BAJAS')">Bajas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosArmasModalidad1 === 'ALTAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>No. Oficio</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Nombre usuario</b></td>
+              <td><b>Clase</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Calibre</b></td>
+              <td><b>Matricula</b></td>
+            </tr>
+            <tr *ngFor="let a of armasModalidad1Altas; let i = index;">
+              <td>{{i + 1}}</td>
+              <td>{{a?.numeroOficio}}</td>
+              <td>Alta</td>
+              <td>{{a?.fechaCreacion}}</td>
+              <td>{{(a?.status === 'ASIGNADA' || a?.status === 'ACTIVA') ? a?.personalAsignado?.apellidoPaterno + " " + a?.personalAsignado?.apellidoMaterno : "EN DEPOSITO"}}</td>
+              <td>{{a?.clase?.nombre}}</td>
+              <td>{{a?.marca?.nombre}}</td>
+              <td>{{a?.calibre}}</td>
+              <td>{{a?.matricula}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosArmasModalidad1 === 'BAJAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>No. Oficio</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Nombre usuario</b></td>
+              <td><b>Clase</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Calibre</b></td>
+              <td><b>Matricula</b></td>
+            </tr>
+            <tr *ngFor="let a of armasModalidad1Bajas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>{{a?.numeroOficio}}</td>
+              <td>Baja</td>
+              <td>{{a?.fechaCreacion}}</td>
+              <td>{{(a?.status === 'ASIGNADA' || a?.status === 'ACTIVA') ? a?.personalAsignado?.apellidoPaterno + " " + a?.personalAsignado?.apellidoMaterno : "EN DEPOSITO"}}</td>
+              <td>{{a?.clase?.nombre}}</td>
+              <td>{{a?.marca?.nombre}}</td>
+              <td>{{a?.calibre}}</td>
+              <td>{{a?.matricula}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarArmasModalidad2MovimientosReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarArmasModalidad2MovimientosReporteModal">Movimientos armas modalidad: Seguridad privada a personas [{{this.mes + " " + this.ano}}] </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosArmasModalidad2 === 'ALTAS' }" (click)="cambiarPestanaMovimientosArmasModalidad2('ALTAS')">Altas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosArmasModalidad2 === 'BAJAS' }" (click)="cambiarPestanaMovimientosArmasModalidad2('BAJAS')">Bajas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosArmasModalidad2 === 'ALTAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>No. Oficio</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Nombre usuario</b></td>
+              <td><b>Clase</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Calibre</b></td>
+              <td><b>Matricula</b></td>
+            </tr>
+            <tr *ngFor="let a of armasModalidad2Altas; let i = index;">
+              <td>{{i + 1}}</td>
+              <td>{{a?.numeroOficio}}</td>
+              <td>Alta</td>
+              <td>{{a?.fechaCreacion}}</td>
+              <td>{{(a?.status === 'ASIGNADA' || a?.status === 'ACTIVA') ? a?.personalAsignado?.apellidoPaterno + " " + a?.personalAsignado?.apellidoMaterno : "EN DEPOSITO"}}</td>
+              <td>{{a?.clase?.nombre}}</td>
+              <td>{{a?.marca?.nombre}}</td>
+              <td>{{a?.calibre}}</td>
+              <td>{{a?.matricula}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosArmasModalidad2 === 'BAJAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>No. Oficio</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Nombre usuario</b></td>
+              <td><b>Clase</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Calibre</b></td>
+              <td><b>Matricula</b></td>
+            </tr>
+            <tr *ngFor="let a of armasModalidad2Bajas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>{{a?.numeroOficio}}</td>
+              <td>Baja</td>
+              <td>{{a?.fechaCreacion}}</td>
+              <td>{{(a?.status === 'ASIGNADA' || a?.status === 'ACTIVA') ? a?.personalAsignado?.apellidoPaterno + " " + a?.personalAsignado?.apellidoMaterno : "EN DEPOSITO"}}</td>
+              <td>{{a?.clase?.nombre}}</td>
+              <td>{{a?.marca?.nombre}}</td>
+              <td>{{a?.calibre}}</td>
+              <td>{{a?.matricula}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarArmasModalidad3MovimientosReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarArmasModalidad3MovimientosReporteModal">Movimientos armas modalidad: Seguridad privada a traslado bienes y valores [{{this.mes + " " + this.ano}}] </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosArmasModalidad3 === 'ALTAS' }" (click)="cambiarPestanaMovimientosArmasModalidad3('ALTAS')">Altas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosArmasModalidad3 === 'BAJAS' }" (click)="cambiarPestanaMovimientosArmasModalidad3('BAJAS')">Bajas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosArmasModalidad3 === 'ALTAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>No. Oficio</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Nombre usuario</b></td>
+              <td><b>Clase</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Calibre</b></td>
+              <td><b>Matricula</b></td>
+            </tr>
+            <tr *ngFor="let a of armasModalidad3Altas; let i = index;">
+              <td>{{i + 1}}</td>
+              <td>{{a?.numeroOficio}}</td>
+              <td>Alta</td>
+              <td>{{a?.fechaCreacion}}</td>
+              <td>{{(a?.status === 'ASIGNADA' || a?.status === 'ACTIVA') ? a?.personalAsignado?.apellidoPaterno + " " + a?.personalAsignado?.apellidoMaterno : "EN DEPOSITO"}}</td>
+              <td>{{a?.clase?.nombre}}</td>
+              <td>{{a?.marca?.nombre}}</td>
+              <td>{{a?.calibre}}</td>
+              <td>{{a?.matricula}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosArmasModalidad3 === 'BAJAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>No. Oficio</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Nombre usuario</b></td>
+              <td><b>Clase</b></td>
+              <td><b>Marca</b></td>
+              <td><b>Calibre</b></td>
+              <td><b>Matricula</b></td>
+            </tr>
+            <tr *ngFor="let a of canesAltas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>Baja</td>
+              <td>{{a?.fechaCreacion}}</td>
+              <td>{{a?.nombre}}</td>
+              <td>{{a?.raza?.nombre}}</td>
+              <td>{{a?.genero}}</td>
+              <td>{{a?.edad}}</td>
+              <td>{{a?.peso}} kg</td>
+              <td>{{a?.status}} kg</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarCanesMovimientosReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarCanesMovimientosReporteModal">Movimientos canes [{{this.mes + " " + this.ano}}] </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosCanes === 'ACTIVOS' }" (click)="cambiarPestanaMovimientosCanes('ACTIVOS')">Activos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosCanes === 'ALTAS' }" (click)="cambiarPestanaMovimientosCanes('ALTAS')">Altas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActualMovimientosCanes === 'BAJAS' }" (click)="cambiarPestanaMovimientosCanes('BAJAS')">Bajas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosCanes === 'ACTIVOS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Nombre</b></td>
+              <td><b>Raza</b></td>
+              <td><b>Genero</b></td>
+              <td><b>Edad</b></td>
+              <td><b>Peso</b></td>
+              <td><b>Estatus</b></td>
+            </tr>
+            <tr *ngFor="let a of canesActivos; let i = index;">
+              <td>{{i + 1}}</td>
+              <td>Activo</td>
+              <td>{{a?.fechaCreacion}}</td>
+              <td>{{a?.nombre}}</td>
+              <td>{{a?.raza?.nombre}}</td>
+              <td>{{a?.genero}}</td>
+              <td>{{a?.edad}}</td>
+              <td>{{a?.peso}} kg</td>
+              <td>{{a?.status}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosCanes === 'ALTAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Nombre</b></td>
+              <td><b>Raza</b></td>
+              <td><b>Genero</b></td>
+              <td><b>Edad</b></td>
+              <td><b>Peso</b></td>
+              <td><b>Estatus</b></td>
+            </tr>
+            <tr *ngFor="let a of canesAltas; let i = index;">
+              <td>{{i + 1}}</td>
+              <td>Alta</td>
+              <td>{{a?.fechaCreacion}}</td>
+              <td>{{a?.nombre}}</td>
+              <td>{{a?.raza?.nombre}}</td>
+              <td>{{a?.genero}}</td>
+              <td>{{a?.edad}}</td>
+              <td>{{a?.peso}} kg</td>
+              <td>{{a?.status}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="pestanaActualMovimientosCanes === 'BAJAS'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>No.</b></td>
+              <td><b>Tipo Mov.</b></td>
+              <td><b>Fecha creacion</b></td>
+              <td><b>Nombre</b></td>
+              <td><b>Raza</b></td>
+              <td><b>Genero</b></td>
+              <td><b>Edad</b></td>
+              <td><b>Peso</b></td>
+              <td><b>Estatus</b></td>
+            </tr>
+            <tr *ngFor="let a of canesBajas; let i = index">
+              <td>{{i + 1}}</td>
+              <td>Baja</td>
+              <td>{{a?.fechaCreacion}}</td>
+              <td>{{a?.nombre}}</td>
+              <td>{{a?.raza?.nombre}}</td>
+              <td>{{a?.genero}}</td>
+              <td>{{a?.edad}}</td>
+              <td>{{a?.peso}} kg</td>
+              <td>{{a?.status}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
 </div>

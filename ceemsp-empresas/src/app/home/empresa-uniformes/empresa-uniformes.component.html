@@ -93,7 +93,7 @@
               <td>{{e?.elemento?.nombre}}</td>
               <td>{{e?.cantidad}}</td>
               <td>
-                <fa-icon [icon]="faDownload" class="fakelink" (click)="descargarFotografiaUniformeElemento(e?.uuid)"
+                <fa-icon [icon]="faDownload" class="fakelink" *ngIf="e?.tieneArchivo" (click)="descargarFotografiaUniformeElemento(e?.uuid)"
                          title="Descargar fotografia"></fa-icon>
                 <fa-icon [icon]="faBook" class="fakelink" (click)="mostrarMovimientos(i)"
                          title="Ver movimientos"></fa-icon>
@@ -120,7 +120,7 @@
                         </div>
                         <div class="col-sm-8">
                           <label for="archivo">
-                            <b>Foto del complemento *</b>
+                            <b>Foto del complemento</b>
                           </label>
                           <input id="archivo" class="form-control" type="file" accept="image/*"
                                  (change)="onFileChange($event)">

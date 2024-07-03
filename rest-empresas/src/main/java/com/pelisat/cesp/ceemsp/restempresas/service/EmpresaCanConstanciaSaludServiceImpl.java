@@ -192,17 +192,29 @@ public class EmpresaCanConstanciaSaludServiceImpl implements EmpresaCanConstanci
 
         logger.info("Eliminando la constancia de salud con el uuid [{}]", canUuid);
 
+        Can can = canRepository.getByUuidAndEliminadoFalse(canUuid);
+        if(can == null) {
+            logger.warn("El can no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
         CanConstanciaSalud canConstanciaSalud = canConstanciaSaludRepository.findByUuidAndEliminadoFalse(constanciaUuid);
         if(canConstanciaSalud == null) {
             logger.warn("La constancia de salud del can no existe en la base de datos");
             throw new NotFoundResourceException();
         }
-        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
 
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
         canConstanciaSalud.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, canConstanciaSalud, usuarioDto.getId());
-
         canConstanciaSaludRepository.save(canConstanciaSalud);
+
+        List<CanConstanciaSalud> constancias = canConstanciaSaludRepository.findAllByCanAndEliminadoFalse(can.getId());
+        if(constancias.size() == 0) {
+            can.setConstanciaCapturada(false);
+            daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+            canRepository.save(can);
+        }
 
         return daoToDtoConverter.convertDaoToDtoCanConstanciaSalud(canConstanciaSalud);
     }

@@ -2,6 +2,7 @@ package com.pelisat.cesp.ceemsp.restempresas.controller;
 
 import com.google.gson.Gson;
 import com.pelisat.cesp.ceemsp.database.dto.CanDto;
+import com.pelisat.cesp.ceemsp.database.dto.ClienteDto;
 import com.pelisat.cesp.ceemsp.restempresas.service.EmpresaCanService;
 import com.pelisat.cesp.ceemsp.restempresas.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,14 @@ public class EmpresaCanController {
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return canService.obtenerCanesPorEmpresa(username);
+    }
+
+    @GetMapping(value = EMPRESA_CANES_URI + "/eliminados", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<CanDto> obtenerCanesPorUuidEmpresaEliminados(
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return canService.obtenerCanesPorEmpresaEliminados(username);
     }
 
     @GetMapping(value = EMPRESA_CANES_URI + "/instalaciones")

@@ -14,4 +14,20 @@ export class DashboardService {
   obtenerDatosDashboard() {
     return this.http.get(`${this.uri}/dashboard`)
   }
+
+  obtenerResumenMovimientosMes(fechaInicio: string, fechaFin: string) {
+    return this.http.get(`${this.uri}/dashboard/movimientos-mes/${fechaInicio}/${fechaFin}`);
+  }
+
+  obtenerMovimientosEmpresa(fechaInicio: string, fechaFin: string) {
+    return this.http.get(`${this.uri}/dashboard/movimientos-mes/${fechaInicio}/${fechaFin}/empresas`);
+  }
+
+  obtenerEmpresasConInformesMensuales(fechaInicio: string, fechaFin: string) {
+    return this.http.get(`${this.uri}/dashboard/con-movimientos/${fechaInicio}/${fechaFin}/empresas`)
+  }
+
+  obtenerEmpresasSinInformesMensuales(fechaInicio: string, fechaFin: string) {
+    return this.http.get(`${this.uri}/dashboard/sin-movimientos/${fechaInicio}/${fechaFin}/empresas`)
+  }
 }

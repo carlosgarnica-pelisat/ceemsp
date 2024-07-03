@@ -1,9 +1,12 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
+import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.ActualizarContrasenaDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
+import com.pelisat.cesp.ceemsp.database.model.Empresa;
 import com.pelisat.cesp.ceemsp.database.model.Usuario;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
 import com.pelisat.cesp.ceemsp.database.repository.UsuarioRepository;
 import com.pelisat.cesp.ceemsp.database.type.RolTypeEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -31,14 +34,17 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
     private final DaoHelper<CommonModel> daoHelper;
+    private final EmpresaRepository empresaRepository;
 
     @Autowired
     public UsuarioServiceImpl(UsuarioRepository usuarioRepository, DaoToDtoConverter daoToDtoConverter,
-                              DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper) {
+                              DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper,
+                              EmpresaRepository empresaRepository) {
         this.usuarioRepository = usuarioRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
+        this.empresaRepository = empresaRepository;
     }
 
     @Override
@@ -62,6 +68,31 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         return usuarios.stream()
                 .map(user -> daoToDtoConverter.convertDaoToDtoUser(user))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UsuarioDto> obtenerUsuariosNoEmpresas() {
+        logger.info("Obteniendo los usuarios internos");
+        List<Usuario> usuarios = usuarioRepository.findAllByRolInAndEliminadoFalse(Arrays.asList(RolTypeEnum.CEEMSP_USER, RolTypeEnum.CEEMSP_SUPERUSER,
+                RolTypeEnum.CEEMSP_READ_ONLY));
+
+        return usuarios.stream()
+                .map(user -> daoToDtoConverter.convertDaoToDtoUser(user))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UsuarioDto> obtenerUsuariosEmpresas() {
+        logger.info("Obteniendo los usuarios internos");
+        List<Usuario> usuarios = usuarioRepository.findAllByRolInAndEliminadoFalse(Arrays.asList(RolTypeEnum.ENTERPRISE_USER));
+
+        return usuarios.stream()
+                .map(user -> {
+                    UsuarioDto dto = daoToDtoConverter.convertDaoToDtoUser(user);
+                    dto.setEmpresa(daoToDtoConverter.convertDaoToDtoEmpresa(empresaRepository.getOne(user.getEmpresa())));
+                    return dto;
+                } )
                 .collect(Collectors.toList());
     }
 
@@ -99,7 +130,15 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new NotFoundResourceException();
         }
 
-        return daoToDtoConverter.convertDaoToDtoUser(usuario);
+        Empresa empresa = null;
+        UsuarioDto usuarioDto = daoToDtoConverter.convertDaoToDtoUser(usuario);
+
+        if(usuario.getRol() == RolTypeEnum.ENTERPRISE_USER) {
+            empresa = empresaRepository.getOne(usuario.getEmpresa());
+            usuarioDto.setEmpresa(daoToDtoConverter.convertDaoToDtoEmpresa(empresa));
+        }
+
+        return usuarioDto;
     }
 
     @Override
@@ -163,10 +202,14 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         usuario.setNombres(userDto.getNombres());
         usuario.setApellidos(userDto.getApellidos());
+        usuario.setApellidoMaterno(userDto.getApellidoMaterno());
         usuario.setRol(userDto.getRol());
-        usuario.setPassword(userDto.getPassword());
         usuario.setUsername(userDto.getUsername());
         usuario.setEmail(userDto.getEmail());
+
+        if(StringUtils.isNotBlank(userDto.getPassword())) {
+            usuario.setPassword(userDto.getPassword());
+        }
 
         daoHelper.fulfillAuditorFields(false, usuario, usuarioQueModifico.getId());
 

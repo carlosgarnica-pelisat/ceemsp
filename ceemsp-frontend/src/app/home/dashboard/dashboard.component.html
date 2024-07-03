@@ -78,7 +78,7 @@
     </div>
 
     <!-- Pending Requests Card Example -->
-    <div class="col-xl-2 col-md-6 mb-4" (click)="mostrarAcuerdosProximosModal()">
+    <div class="col-xl-2 col-md-6 mb-4" (click)="mostrarAcuerdosProximosModal()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">
       <div class="card border-left-warning shadow h-100 py-2">
         <div class="card-body">
           <div class="row no-gutters align-items-center">
@@ -95,7 +95,7 @@
       </div>
     </div>
 
-    <div class="col-xl-2 col-md-6 mb-4" (click)="mostrarApoderadosProximosModal()">
+    <div class="col-xl-2 col-md-6 mb-4" (click)="mostrarApoderadosProximosModal()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">
       <div class="card border-left-info shadow h-100 py-2">
         <div class="card-body">
           <div class="row no-gutters align-items-center">
@@ -159,8 +159,39 @@
             <span *ngIf="tablaActual === 'PROXIMOS_REQUERIMIENTOS'">Requerimientos proximos a vencer</span>
             <span *ngIf="tablaActual === 'PROXIMOS_ACUERDOS'">Acuerdos proximos a vencer</span>
             <span *ngIf="tablaActual === 'PROXIMAS_LICENCIAS'">Licencias federales proximas a vencer</span>
-            <span *ngIf="tablaActual === 'SIN_INFORMES_MENSUALES'">Sin informes mensuales en el mes</span>
-            <span *ngIf="tablaActual === 'CON_INFORMES_MENSUALES'">Con informes mensuales en el mes</span>
+            <span style="cursor: pointer;" *ngIf="tablaActual === 'SIN_INFORMES_MENSUALES'">
+              Sin informes mensuales, mes
+              <span [ngSwitch]="mesSinInformes">
+                <span *ngSwitchCase="'01'">ENERO</span>
+                <span *ngSwitchCase="'02'">FEBRERO</span>
+                <span *ngSwitchCase="'03'">MARZO</span>
+                <span *ngSwitchCase="'04'">ABRIL</span>
+                <span *ngSwitchCase="'05'">MAYO</span>
+                <span *ngSwitchCase="'06'">JUNIO</span>
+                <span *ngSwitchCase="'07'">JULIO</span>
+                <span *ngSwitchCase="'08'">AGOSTO</span>
+                <span *ngSwitchCase="'09'">SEPTIEMBRE</span>
+                <span *ngSwitchCase="'10'">OCTUBRE</span>
+                <span *ngSwitchCase="'11'">NOVIEMBRE</span>
+                <span *ngSwitchCase="'12'">DICIEMBRE</span>
+              </span> del {{anoSinInformes}} <a (click)="cambiarMesEmpresasSinInformes()">(Cambiar mes)</a> <a (click)="excelEmpresasSinInformes()">(Descargar excel)</a>
+            </span>
+            <span style="cursor: pointer;" *ngIf="tablaActual === 'CON_INFORMES_MENSUALES'">Con informes mensuales, mes
+              <span [ngSwitch]="mesConInformes">
+                <span *ngSwitchCase="'01'">ENERO</span>
+                <span *ngSwitchCase="'02'">FEBRERO</span>
+                <span *ngSwitchCase="'03'">MARZO</span>
+                <span *ngSwitchCase="'04'">ABRIL</span>
+                <span *ngSwitchCase="'05'">MAYO</span>
+                <span *ngSwitchCase="'06'">JUNIO</span>
+                <span *ngSwitchCase="'07'">JULIO</span>
+                <span *ngSwitchCase="'08'">AGOSTO</span>
+                <span *ngSwitchCase="'09'">SEPTIEMBRE</span>
+                <span *ngSwitchCase="'10'">OCTUBRE</span>
+                <span *ngSwitchCase="'11'">NOVIEMBRE</span>
+                <span *ngSwitchCase="'12'">DICIEMBRE</span>
+              </span> del {{anoConInformes}} <a (click)="cambiarMesEmpresasConInformes()">(Cambiar mes)</a> <a (click)="excelEmpresasConInformes()">(Descargar excel)</a>
+            </span>
           </h6>
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
@@ -170,9 +201,9 @@
             <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
                  aria-labelledby="dropdownMenuLink">
               <div class="dropdown-header">Visualizar tabla:</div>
-              <a class="dropdown-item" (click)="seleccionarTabla('PROXIMAS_VISITAS')">Proximas visitas</a>
-              <a class="dropdown-item" (click)="seleccionarTabla('PROXIMOS_REQUERIMIENTOS')">Proximos requerimientos</a>
-              <a class="dropdown-item" (click)="seleccionarTabla('PROXIMOS_ACUERDOS')">Proximos acuerdos</a>
+              <a class="dropdown-item" (click)="seleccionarTabla('PROXIMAS_VISITAS')" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Proximas visitas</a>
+              <a class="dropdown-item" (click)="seleccionarTabla('PROXIMOS_REQUERIMIENTOS')" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Proximos requerimientos</a>
+              <a class="dropdown-item" (click)="seleccionarTabla('PROXIMOS_ACUERDOS')" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Proximos acuerdos</a>
               <a class="dropdown-item" (click)="seleccionarTabla('PROXIMAS_LICENCIAS')">Proximas licencias</a>
               <a class="dropdown-item" (click)="seleccionarTabla('SIN_INFORMES_MENSUALES')">Sin informes mensuales en el mes</a>
               <a class="dropdown-item" (click)="seleccionarTabla('CON_INFORMES_MENSUALES')">Con informes mensuales en el mes</a>
@@ -246,29 +277,59 @@
               </tr>
             </table>
 
-            <table class="table my-tbody" *ngIf="tablaActual === 'SIN_INFORMES_MENSUALES'">
+            <table id="empresas-sin-informes" class="table my-tbody" *ngIf="tablaActual === 'SIN_INFORMES_MENSUALES'">
               <tr>
                 <td><b>Registro</b></td>
                 <td><b>Nombre comercial</b></td>
                 <td><b>Razon social</b></td>
+                <td><b>Mes y ano de presentacion</b></td>
               </tr>
               <tr *ngFor="let l of dashboardData.empresasSinInformeMensual">
                 <td>{{l.registro}}</td>
                 <td>{{l.nombreComercial}}</td>
                 <td>{{l.razonSocial}}</td>
+                <td [ngSwitch]="mesSinInformes">
+                  <span *ngSwitchCase="'01'">ENERO del {{anoSinInformes}}</span>
+                  <span *ngSwitchCase="'02'">FEBRERO del {{anoSinInformes}}</span>
+                  <span *ngSwitchCase="'03'">MARZO del {{anoSinInformes}}</span>
+                  <span *ngSwitchCase="'04'">ABRIL del {{anoSinInformes}}</span>
+                  <span *ngSwitchCase="'05'">MAYO del {{anoSinInformes}}</span>
+                  <span *ngSwitchCase="'06'">JUNIO del {{anoSinInformes}}</span>
+                  <span *ngSwitchCase="'07'">JULIO del {{anoSinInformes}}</span>
+                  <span *ngSwitchCase="'08'">AGOSTO del {{anoSinInformes}}</span>
+                  <span *ngSwitchCase="'09'">SEPTIEMBRE del {{anoSinInformes}}</span>
+                  <span *ngSwitchCase="'10'">OCTUBRE del {{anoSinInformes}}</span>
+                  <span *ngSwitchCase="'11'">NOVIEMBRE del {{anoSinInformes}}</span>
+                  <span *ngSwitchCase="'12'">DICIEMBRE del {{anoSinInformes}}</span>
+                </td>
               </tr>
             </table>
 
-            <table class="table my-tbody" *ngIf="tablaActual === 'CON_INFORMES_MENSUALES'">
+            <table id="empresas-con-informes" class="table my-tbody" *ngIf="tablaActual === 'CON_INFORMES_MENSUALES'">
               <tr>
                 <td><b>Registro</b></td>
                 <td><b>Nombre comercial</b></td>
                 <td><b>Razon social</b></td>
+                <td><b>Mes y año de presentacion</b></td>
               </tr>
               <tr *ngFor="let l of dashboardData.empresasConInformeMensual">
                 <td>{{l.registro}}</td>
                 <td>{{l.nombreComercial}}</td>
                 <td>{{l.razonSocial}}</td>
+                <td [ngSwitch]="mesConInformes">
+                  <span *ngSwitchCase="'01'">ENERO del {{anoConInformes}}</span>
+                  <span *ngSwitchCase="'02'">FEBRERO del {{anoConInformes}}</span>
+                  <span *ngSwitchCase="'03'">MARZO del {{anoConInformes}}</span>
+                  <span *ngSwitchCase="'04'">ABRIL del {{anoConInformes}}</span>
+                  <span *ngSwitchCase="'05'">MAYO del {{anoConInformes}}</span>
+                  <span *ngSwitchCase="'06'">JUNIO del {{anoConInformes}}</span>
+                  <span *ngSwitchCase="'07'">JULIO del {{anoConInformes}}</span>
+                  <span *ngSwitchCase="'08'">AGOSTO del {{anoConInformes}}</span>
+                  <span *ngSwitchCase="'09'">SEPTIEMBRE del {{anoConInformes}}</span>
+                  <span *ngSwitchCase="'10'">OCTUBRE del {{anoConInformes}}</span>
+                  <span *ngSwitchCase="'11'">NOVIEMBRE del {{anoConInformes}}</span>
+                  <span *ngSwitchCase="'12'">DICIEMBRE del {{anoConInformes}}</span>
+                </td>
               </tr>
             </table>
           </div>
@@ -301,9 +362,7 @@
           </div-->
         </div>
         <div class="card-body">
-          <google-chart #chart
-                        [data]="data" [type]="type" [width]="width" [height]="height">
-
+          <google-chart #chart [data]="data" [type]="type" [width]="width" [height]="height">
           </google-chart>
         </div>
       </div>
@@ -444,10 +503,71 @@
 
       <div class="card shadow mb-4">
         <div class="card-header py-3">
-          <h6 class="m-0 font-weight-bold text-primary">Mensajes del sistema</h6>
+          <h6 class="m-0 font-weight-bold text-primary">Movimientos de plataforma <span [ngSwitch]="mesMovimientos">
+                <span *ngSwitchCase="'01'">ENERO</span>
+                <span *ngSwitchCase="'02'">FEBRERO</span>
+                <span *ngSwitchCase="'03'">MARZO</span>
+                <span *ngSwitchCase="'04'">ABRIL</span>
+                <span *ngSwitchCase="'05'">MAYO</span>
+                <span *ngSwitchCase="'06'">JUNIO</span>
+                <span *ngSwitchCase="'07'">JULIO</span>
+                <span *ngSwitchCase="'08'">AGOSTO</span>
+                <span *ngSwitchCase="'09'">SEPTIEMBRE</span>
+                <span *ngSwitchCase="'10'">OCTUBRE</span>
+                <span *ngSwitchCase="'11'">NOVIEMBRE</span>
+                <span *ngSwitchCase="'12'">DICIEMBRE</span>
+              </span> del {{anoMovimientos}}</h6>
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <fa-icon [icon]="faChevronDown"></fa-icon>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                 aria-labelledby="dropdownMenuLink">
+              <div class="dropdown-header">Seleccionar fecha:</div>
+              <a class="dropdown-item" (click)="seleccionarFechaMovimientos()">Seleccionar fecha</a>
+            </div>
+          </div>
         </div>
         <div class="card-body">
-          <p>En este momento no hay mensajes del sistema. Puedes seguir trabajando tranquilo :D</p>
+          <table class="table">
+            <tr>
+              <td><b></b></td>
+              <td><b>Activos</b></td>
+              <td><b>Altas</b></td>
+              <td><b>Bajas</b></td>
+              <td><b>Totales</b></td>
+            </tr>
+            <tr (click)="mostrarMovimientosModal('PERSONAL')">
+              <td><b>Personal</b></td>
+              <td>{{conteoMensual?.personalActivos}}</td>
+              <td>{{conteoMensual?.personalAltas}}</td>
+              <td>{{conteoMensual?.personalBajas}}</td>
+              <td>{{conteoMensual?.personalTotal}}</td>
+            </tr>
+            <tr (click)="mostrarMovimientosModal('CLIENTES')">
+              <td><b>Clientes</b></td>
+              <td>{{conteoMensual?.clientesActivos}}</td>
+              <td>{{conteoMensual?.clientesAltas}}</td>
+              <td>{{conteoMensual?.clientesBajas}}</td>
+              <td>{{conteoMensual?.clientesTotal}}</td>
+            </tr>
+            <tr (click)="mostrarMovimientosModal('VEHICULOS')">
+              <td><b>Vehiculos</b></td>
+              <td>{{conteoMensual?.vehiculosActivos}}</td>
+              <td>{{conteoMensual?.vehiculosAltas}}</td>
+              <td>{{conteoMensual?.vehiculosBajas}}</td>
+              <td>{{conteoMensual?.vehiculosTotal}}</td>
+            </tr>
+            <tr (click)="mostrarMovimientosModal('ARMAMENTO')">
+              <td><b>Armamento</b></td>
+              <td>{{conteoMensual?.armas1Activas + conteoMensual?.armas2Activas + conteoMensual?.armas3Activas}}</td>
+              <td>{{conteoMensual?.armas1Altas + conteoMensual?.armas2Altas + conteoMensual?.armas3Altas}}</td>
+              <td>{{conteoMensual?.armas1Bajas + conteoMensual?.armas2Bajas + conteoMensual?.armas3Bajas}}</td>
+              <td>{{conteoMensual?.armas1Total + conteoMensual?.armas2Total + conteoMensual?.armas3Total}}</td>
+            </tr>
+          </table>
+          <p>Toma en cuenta que la informacion es calculada en funcion de los informes mensuales de las empresas.</p>
         </div>
       </div>
 
@@ -464,23 +584,52 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <table class="table">
-            <tr>
-              <td><b>Numero</b></td>
-              <td><b>Empresa </b></td>
-              <td><b>Ultima actualizacion</b></td>
-            </tr>
-            <tr *ngFor="let a of dashboardData?.misIncidencias">
-              <td>{{a?.numero}}</td>
-              <td>{{a?.empresa?.registro}} - {{a?.empresa?.razonSocial}}</td>
-              <td>{{a?.fechaActualizacion}}</td>
-            </tr>
-          </table>
+          <p-table #misIncidenciasTable [value]="dashboardData?.misIncidencias" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['numero', 'empresa.registro', 'empresa.razonSocial']"
+                   [paginator]="true" [rows]="10" currentPageReportTemplate="Mostrando mis incidencias del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Mis incidencias</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="misIncidenciasTable.filterGlobal($event.target.value, 'contains')" placeholder="Busqueda rapida" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="numero"><b>Numero <p-sortIcon field="numero"></p-sortIcon></b></th>
+                <th pSortableColumn="empresa.registro"><b>Empresa <p-sortIcon field="empresa.registro"></p-sortIcon></b></th>
+                <th pSortableColumn="status"><b>Status <p-sortIcon field="status"></p-sortIcon></b></th>
+                <th pSortableColumn="fechaActualizacion"><b>Fecha Actualizacion <p-sortIcon field="fechaActualizacion"></p-sortIcon></b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7">No tienes incidencias asignadas por ahora. </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-miIncidencia>
+              <tr>
+                <td><a (click)="verIncidencia(miIncidencia?.empresa?.uuid, miIncidencia?.uuid)">{{miIncidencia?.numero}}</a></td>
+                <td>{{miIncidencia?.empresa?.registro}} - {{miIncidencia?.empresa?.razonSocial}}</td>
+                <td>{{miIncidencia?.status}}</td>
+                <td>{{miIncidencia?.fechaActualizacion}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{dashboardData?.misIncidencias?.length}} incidencias</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+      <button class="btn btn-primary" (click)="modal.close()">Cerrar</button>
     </div>
   </ng-template>
 
@@ -494,29 +643,58 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <table class="table">
-            <tr>
-              <td><b>Empresa </b></td>
-              <td><b>Fecha fin</b></td>
-              <td><b>Vencida</b></td>
-            </tr>
-            <tr *ngFor="let a of dashboardData?.licenciasFederalesProximasAVencer">
-              <td>{{a?.registro}} - {{a?.razonSocial}}</td>
-              <td>{{a?.fechaFin}}</td>
-              <td>{{fechaVencida(a?.fechaFin)}}</td>
-            </tr>
-          </table>
+          <p-table #licenciasFederalesProximasTable [value]="dashboardData?.licenciasFederalesProximasAVencer" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['fechaFin', 'registro', 'razonSocial', 'registroFederal']"
+                   [paginator]="true" [rows]="10" currentPageReportTemplate="Mostrando lic. fed. prox. a vencer o vencidas del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Licencias Federales Proximas a Vencer</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="licenciasFederalesProximasTable.filterGlobal($event.target.value, 'contains')" placeholder="Busqueda rapida" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="registroFederal"><b>Reg. Federal <p-sortIcon field="registroFederal"></p-sortIcon></b></th>
+                <th pSortableColumn="registro"><b>Empresa <p-sortIcon field="registro"></p-sortIcon></b></th>
+                <th pSortableColumn="fechaFin"><b>Status <p-sortIcon field="fechaFin"></p-sortIcon></b></th>
+                <th><b>Vencida</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7">No hay licencias federales proximas a vencer por ahora. </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-licenciaProximaVencimiento>
+              <tr>
+                <td>{{licenciaProximaVencimiento?.registroFederal}}</td>
+                <td>{{licenciaProximaVencimiento?.registro}} - {{licenciaProximaVencimiento?.razonSocial}}</td>
+                <td>{{licenciaProximaVencimiento?.fechaFin}}</td>
+                <td>{{fechaVencida(licenciaProximaVencimiento?.fechaFin)}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{dashboardData?.licenciasFederalesProximasAVencer?.length}} licencias</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+      <button class="btn btn-primary" (click)="modal.close()">Cerrar</button>
     </div>
   </ng-template>
 
   <ng-template #visualizarLicenciasParticularesModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="visualizarLicenciasParticularesModal">Licencias particulares o proximos a vencer </h4>
+      <h4 class="modal-title" id="visualizarLicenciasParticularesModal">Licencias particulares vencidas o proximas a vencer </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -524,25 +702,52 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <table class="table">
-            <tr>
-              <td><b>Numero de oficio</b></td>
-              <td><b>Empresa </b></td>
-              <td><b>Fecha fin</b></td>
-              <td><b>Vencida</b></td>
-            </tr>
-            <tr *ngFor="let a of dashboardData?.licenciasParticularesProximasAVencer">
-              <td>{{a?.numeroOficio}}</td>
-              <td>{{a?.empresa?.registro}} - {{a?.empresa?.razonSocial}}</td>
-              <td>{{a?.fechaFin}}</td>
-              <td>{{fechaVencida(a?.fechaFin)}}</td>
-            </tr>
-          </table>
+          <p-table #licenciasParticularesProximasTable [value]="dashboardData?.licenciasParticularesProximasAVencer" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['fechaFin', 'empresa.registro', 'empresa.razonSocial', 'numeroOficio']"
+                   [paginator]="true" [rows]="10" currentPageReportTemplate="Mostrando lic. part. prox. a vencer o vencidas del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Licencias Particulares Proximas a Vencer</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="licenciasParticularesProximasTable.filterGlobal($event.target.value, 'contains')" placeholder="Busqueda rapida" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="numeroOficio"><b>Reg. Federal <p-sortIcon field="numeroOficio"></p-sortIcon></b></th>
+                <th pSortableColumn="empresa.registro"><b>Empresa <p-sortIcon field="empresa.registro"></p-sortIcon></b></th>
+                <th pSortableColumn="fechaFin"><b>Status <p-sortIcon field="fechaFin"></p-sortIcon></b></th>
+                <th><b>Vencida</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7">No hay licencias particulares proximas a vencer por ahora. </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-licenciaProximaVencimiento>
+              <tr>
+                <td>{{licenciaProximaVencimiento?.numeroOficio}}</td>
+                <td>{{licenciaProximaVencimiento?.empresa?.registro}} - {{licenciaProximaVencimiento?.empresa?.razonSocial}}</td>
+                <td>{{licenciaProximaVencimiento?.fechaFin}}</td>
+                <td>{{fechaVencida(licenciaProximaVencimiento?.fechaFin)}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{dashboardData?.licenciasParticularesProximasAVencer?.length}} licencias</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+      <button class="btn btn-primary" (click)="modal.close()">Cerrar</button>
     </div>
   </ng-template>
 
@@ -556,25 +761,52 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <table class="table">
-            <tr>
-              <td><b>Tipo</b></td>
-              <td><b>Empresa </b></td>
-              <td><b>Fecha fin</b></td>
-              <td><b>Vencido</b></td>
-            </tr>
-            <tr *ngFor="let a of dashboardData?.acuerdosProximosAVencer">
-              <td>{{a?.tipo}}</td>
-              <td>{{a?.empresa?.registro}} - {{a?.empresa?.razonSocial}}</td>
-              <td>{{a?.fechaFin}}</td>
-              <td>{{fechaVencida(a?.fechaFin)}}</td>
-            </tr>
-          </table>
+          <p-table #acuerdosProximasTable [value]="dashboardData?.acuerdosProximosAVencer" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['fechaFin', 'empresa.registro', 'empresa.razonSocial', 'tipo']"
+                   [paginator]="true" [rows]="10" currentPageReportTemplate="Mostrando acuerdos prox. a vencer o vencidos del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Acuerdos Proximos a Vencer</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="acuerdosProximasTable.filterGlobal($event.target.value, 'contains')" placeholder="Busqueda rapida" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="tipo"><b>Tipo <p-sortIcon field="tipo"></p-sortIcon></b></th>
+                <th pSortableColumn="empresa.registro"><b>Empresa <p-sortIcon field="empresa.registro"></p-sortIcon></b></th>
+                <th pSortableColumn="fechaFin"><b>Status <p-sortIcon field="fechaFin"></p-sortIcon></b></th>
+                <th><b>Vencida</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7">No hay acuerdos proximos a vencer por ahora. </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-acuerdoProximoVencimiento>
+              <tr>
+                <td>{{acuerdoProximoVencimiento?.tipo}}</td>
+                <td>{{acuerdoProximoVencimiento?.empresa?.registro}} - {{acuerdoProximoVencimiento?.empresa?.razonSocial}}</td>
+                <td>{{acuerdoProximoVencimiento?.fechaFin}}</td>
+                <td>{{fechaVencida(acuerdoProximoVencimiento?.fechaFin)}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{dashboardData?.acuerdosProximosAVencer?.length}} acuerdos</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+      <button class="btn btn-primary" (click)="modal.close()">Cerrar</button>
     </div>
   </ng-template>
   <ng-template #visualizarApoderadosVencidosModal let-modal>
@@ -587,27 +819,54 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <table class="table">
-            <tr>
-              <td><b>Escritura</b></td>
-              <td><b>Empresa</b></td>
-              <td><b>Nombre completo</b></td>
-              <td><b>Fecha fin</b></td>
-              <td><b>Vencido</b></td>
-            </tr>
-            <tr *ngFor="let a of dashboardData?.apoderadosProximosAVencer">
-              <td>{{a?.escritura?.numeroEscritura}}</td>
-              <td>{{a?.empresa?.registro}} - {{a?.empresa?.razonSocial}}</td>
-              <td>{{a?.nombres}} {{a?.apellidos}} {{a?.apellidoMaterno}}</td>
-              <td>{{a?.fechaFin}}</td>
-              <td>{{fechaVencida(a?.fechaFin)}}</td>
-            </tr>
-          </table>
+          <p-table #apoderadosProximasTable [value]="dashboardData?.apoderadosProximosAVencer" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['fechaFin', 'empresa.registro', 'empresa.razonSocial']"
+                   [paginator]="true" [rows]="10" currentPageReportTemplate="Mostrando apoderados prox. a vencer o vencidos del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Apoderados Proximos a Vencer</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="apoderadosProximasTable.filterGlobal($event.target.value, 'contains')" placeholder="Busqueda rapida" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="numeroEscritura"><b>Escritura <p-sortIcon field="numeroEscritura"></p-sortIcon></b></th>
+                <th pSortableColumn="empresa.registro"><b>Empresa <p-sortIcon field="empresa.registro"></p-sortIcon></b></th>
+                <th pSortableColumn="apellidos"><b>Nombre completo <p-sortIcon field="apellidos"></p-sortIcon></b></th>
+                <th pSortableColumn="fechaFin"><b>Fecha fin <p-sortIcon field="fechaFin"></p-sortIcon></b></th>
+                <th><b>Vencida</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7">No hay apoderados proximos a vencer por ahora. </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-apoderadoProximoVencimiento>
+              <tr>
+                <td>{{apoderadoProximoVencimiento?.escritura?.numero}}</td>
+                <td>{{apoderadoProximoVencimiento?.empresa?.registro}} - {{apoderadoProximoVencimiento?.empresa?.razonSocial}}</td>
+                <td>{{apoderadoProximoVencimiento?.apellidos}} {{apoderadoProximoVencimiento?.apellidoMaterno}} {{apoderadoProximoVencimiento?.nombres}} </td>
+                <td>{{apoderadoProximoVencimiento?.fechaFin}}</td>
+                <td>{{fechaVencida(apoderadoProximoVencimiento?.fechaFin)}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{dashboardData?.acuerdosProximosAVencer?.length}} apoderados</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+      <button class="btn btn-primary" (click)="modal.close()">Cerrar</button>
     </div>
   </ng-template>
 
@@ -621,25 +880,305 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
-          <table class="table">
+          <p-table #incidenciasAbiertasTable [value]="dashboardData?.incidenciasAbiertas" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['numero', 'empresa.registro', 'empresa.razonSocial']"
+                   [paginator]="true" [rows]="10" currentPageReportTemplate="Mostrando mis incidencias del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Incidencias abiertas</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="incidenciasAbiertasTable.filterGlobal($event.target.value, 'contains')" placeholder="Busqueda rapida" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="numero"><b>Numero <p-sortIcon field="numero"></p-sortIcon></b></th>
+                <th pSortableColumn="empresa.registro"><b>Empresa <p-sortIcon field="empresa.registro"></p-sortIcon></b></th>
+                <th pSortableColumn="status"><b>Status <p-sortIcon field="status"></p-sortIcon></b></th>
+                <th pSortableColumn="fechaActualizacion"><b>Fecha Actualizacion <p-sortIcon field="fechaActualizacion"></p-sortIcon></b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7">No hay incidencias abiertas por ahora. </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-miIncidencia>
+              <tr>
+                <td><a (click)="verIncidencia(miIncidencia?.empresa?.uuid, miIncidencia?.uuid)">{{miIncidencia?.numero}}</a></td>
+                <td>{{miIncidencia?.empresa?.registro}} - {{miIncidencia?.empresa?.razonSocial}}</td>
+                <td>{{miIncidencia?.status}}</td>
+                <td>{{miIncidencia?.fechaActualizacion}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{dashboardData?.incidenciasAbiertas?.length}} incidencias</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="modal.close()">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #seleccionarFechaMovimientosModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="seleccionarFechaMovimientosModal">Seleccionar fecha para movimientos </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-6">
+          <label for="mesConInformes">
+            <b>Mes</b>
+          </label>
+          <select name="mesConInformes" id="mesConInformes" class="form-control" [(ngModel)]="mesMovimientos">
+            <option value="01">ENERO</option>
+            <option value="02">FEBRERO</option>
+            <option value="03">MARZO</option>
+            <option value="04">ABRIL</option>
+            <option value="05">MAYO</option>
+            <option value="06">JUNIO</option>
+            <option value="07">JULIO</option>
+            <option value="08">AGOSTO</option>
+            <option value="09">SEPTIEMBRE</option>
+            <option value="10">OCTUBRE</option>
+            <option value="11">NOVIEMBRE</option>
+            <option value="12">DICIEMBRE</option>
+          </select>
+        </div>
+        <div class="col-sm-6">
+          <label for="anoConInformes">
+            <b>Ano</b>
+          </label>
+          <select name="anoConInformes" id="anoConInformes" class="form-control" [(ngModel)]="anoMovimientos">
+            <option value="2028">2028</option>
+            <option value="2027">2027</option>
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="confirmarFecha()">Cambiar fecha</button>
+      <button class="btn btn-primary" (click)="modal.close()">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #seleccionarFechaEmpresasConInformesModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="seleccionarFechaEmpresasConInformesModal">Seleccionar fecha para empresas con informes </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-6">
+          <label for="mesConInformes">
+            <b>Mes</b>
+          </label>
+          <select name="mesConInformes" id="mesConInformes" class="form-control" [(ngModel)]="mesConInformes">
+            <option value="01">ENERO</option>
+            <option value="02">FEBRERO</option>
+            <option value="03">MARZO</option>
+            <option value="04">ABRIL</option>
+            <option value="05">MAYO</option>
+            <option value="06">JUNIO</option>
+            <option value="07">JULIO</option>
+            <option value="08">AGOSTO</option>
+            <option value="09">SEPTIEMBRE</option>
+            <option value="10">OCTUBRE</option>
+            <option value="11">NOVIEMBRE</option>
+            <option value="12">DICIEMBRE</option>
+          </select>
+        </div>
+        <div class="col-sm-6">
+          <label for="anoConInformes">
+            <b>Ano</b>
+          </label>
+          <select name="anoConInformes" id="anoConInformes" class="form-control" [(ngModel)]="anoConInformes">
+            <option value="2028">2028</option>
+            <option value="2027">2027</option>
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="confirmarFechaEmpresasConInformes()">Cambiar fecha</button>
+      <button class="btn btn-primary" (click)="modal.close()">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #seleccionarFechaEmpresasSinInformesModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="seleccionarFechaEmpresasSinInformesModal">Seleccionar fecha para empresas sin informes </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-6">
+          <label for="mesSinInformes">
+            <b>Mes</b>
+          </label>
+          <select name="mesSinInformes" id="mesSinInformes" class="form-control" [(ngModel)]="mesSinInformes">
+            <option value="01">ENERO</option>
+            <option value="02">FEBRERO</option>
+            <option value="03">MARZO</option>
+            <option value="04">ABRIL</option>
+            <option value="05">MAYO</option>
+            <option value="06">JUNIO</option>
+            <option value="07">JULIO</option>
+            <option value="08">AGOSTO</option>
+            <option value="09">SEPTIEMBRE</option>
+            <option value="10">OCTUBRE</option>
+            <option value="11">NOVIEMBRE</option>
+            <option value="12">DICIEMBRE</option>
+          </select>
+        </div>
+        <div class="col-sm-6">
+          <label for="anoSinInformes">
+            <b>Ano</b>
+          </label>
+          <select name="anoSinInformes" id="anoSinInformes" class="form-control" [(ngModel)]="anoSinInformes">
+            <option value="2028">2028</option>
+            <option value="2027">2027</option>
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="confirmarFechaEmpresasSinInformes()">Cambiar fecha</button>
+      <button class="btn btn-primary" (click)="modal.close()">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #verMovimientosModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="verMovimientosModal">Viendo movimientos del mes <span [ngSwitch]="mesMovimientos">
+                <span *ngSwitchCase="'01'">ENERO</span>
+                <span *ngSwitchCase="'02'">FEBRERO</span>
+                <span *ngSwitchCase="'03'">MARZO</span>
+                <span *ngSwitchCase="'04'">ABRIL</span>
+                <span *ngSwitchCase="'05'">MAYO</span>
+                <span *ngSwitchCase="'06'">JUNIO</span>
+                <span *ngSwitchCase="'07'">JULIO</span>
+                <span *ngSwitchCase="'08'">AGOSTO</span>
+                <span *ngSwitchCase="'09'">SEPTIEMBRE</span>
+                <span *ngSwitchCase="'10'">OCTUBRE</span>
+                <span *ngSwitchCase="'11'">NOVIEMBRE</span>
+                <span *ngSwitchCase="'12'">DICIEMBRE</span>
+              </span> del {{anoMovimientos}}</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': tabActualMovimientos === 'PERSONAL' }" (click)="cambiarPestana('PERSONAL')">Personal</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': tabActualMovimientos === 'VEHICULOS' }" (click)="cambiarPestana('VEHICULOS')">Vehiculos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': tabActualMovimientos === 'CLIENTES' }" (click)="cambiarPestana('CLIENTES')">Clientes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': tabActualMovimientos === 'ARMAS' }" (click)="cambiarPestana('ARMAS')">Armas</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12" *ngIf="tabActualMovimientos === 'PERSONAL'">
+          <table class="table" id="personal-movimientos">
             <tr>
-              <td><b>Numero</b></td>
-              <td><b>Empresa </b></td>
-              <td><b>Ultima actualizacion</b></td>
+              <td><b>Empresa</b></td>
+              <td><b>Activos</b></td>
+              <td><b>Altas</b></td>
+              <td><b>Bajas</b></td>
+              <td><b>Total</b></td>
             </tr>
-            <tr *ngFor="let a of dashboardData?.incidenciasAbiertas">
-              <td>{{a?.numero}}</td>
-              <td>{{a?.empresa?.registro}} - {{a?.empresa?.razonSocial}}</td>
-              <td>{{a?.fechaActualizacion}}</td>
+            <tr *ngFor="let m of movimientosEmpresa">
+              <td>{{m?.empresa?.registro}} {{m?.empresa?.razonSocial}}</td>
+              <td>{{m?.personalActivos}}</td>
+              <td>{{m?.personalAltas}}</td>
+              <td>{{m?.personalBajas}}</td>
+              <td>{{m?.personalTotal}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="col-sm-12" *ngIf="tabActualMovimientos === 'VEHICULOS'">
+          <table class="table" id="vehiculos-movimientos">
+            <tr>
+              <td><b>Empresa</b></td>
+              <td><b>Activos</b></td>
+              <td><b>Altas</b></td>
+              <td><b>Bajas</b></td>
+              <td><b>Total</b></td>
+            </tr>
+            <tr *ngFor="let m of movimientosEmpresa">
+              <td>{{m?.empresa?.registro}} {{m?.empresa?.razonSocial}}</td>
+              <td>{{m?.vehiculosActivos}}</td>
+              <td>{{m?.vehiculosAltas}}</td>
+              <td>{{m?.vehiculosBajas}}</td>
+              <td>{{m?.vehiculosTotal}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="col-sm-12" *ngIf="tabActualMovimientos === 'CLIENTES'">
+          <table class="table" id="clientes-movimientos">
+            <tr>
+              <td><b>Empresa</b></td>
+              <td><b>Activos</b></td>
+              <td><b>Altas</b></td>
+              <td><b>Bajas</b></td>
+              <td><b>Total</b></td>
+            </tr>
+            <tr *ngFor="let m of movimientosEmpresa">
+              <td>{{m?.empresa?.registro}} {{m?.empresa?.razonSocial}}</td>
+              <td>{{m?.clientesActivos}}</td>
+              <td>{{m?.clientesAltas}}</td>
+              <td>{{m?.clientesBajas}}</td>
+              <td>{{m?.clientesTotal}}</td>
             </tr>
           </table>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="modal.close()">Cerrar</button>
+      <button class="btn btn-primary" (click)="descargarMovimientosEmpresas()">Descargar como excel</button>
+      <button class="btn btn-primary" (click)="modal.close()">Cerrar</button>
     </div>
   </ng-template>
-
 </div>
   <!-- /.container-fluid -->

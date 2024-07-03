@@ -1,3 +1,5 @@
+import Empresa from "./Empresa";
+
 export default class Usuario {
   jwtToken?: string;
   id: number;
@@ -10,4 +12,5 @@ export default class Usuario {
   apellidoMaterno: string;
   rol: string;
   usuario?: Usuario;
+  empresa: Empresa;
 }

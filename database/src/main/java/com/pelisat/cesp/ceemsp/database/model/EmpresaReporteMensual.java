@@ -6,6 +6,8 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import java.util.List;
 
 @Entity
 @Table(name = "EMPRESAS_REPORTES_MENSUALES")
@@ -155,4 +157,7 @@ public class EmpresaReporteMensual extends CommonModel {
 
     @Column(name = "NUMERO")
     private String numero;
+
+    @Transient
+    List<EmpresaReporteMensualMovimiento> movimientos;
 }

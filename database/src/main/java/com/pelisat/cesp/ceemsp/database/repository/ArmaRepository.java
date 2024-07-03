@@ -10,9 +10,11 @@ import java.util.List;
 
 public interface ArmaRepository extends JpaRepository<Arma, Integer> {
     List<Arma> getAllByEmpresaAndEliminadoFalse(int empresa);
+    List<Arma> getAllByEmpresaAndEliminadoTrue(int empresa);
     List<Arma> getAllByEmpresaAndTipoAndStatusAndEliminadoFalse(int empresa, ArmaTipoEnum tipo, ArmaStatusEnum status);
     List<Arma> getAllByEmpresaAndStatusAndEliminadoFalse(int empresa, ArmaStatusEnum armaStatusEnum);
     List<Arma> getAllByLicenciaColectivaAndEliminadoFalse(int licenciaColectiva);
+    List<Arma> getAllByLicenciaColectivaAndEliminadoTrue(int licenciaColectiva);
     List<Arma> getAllByLicenciaColectiva(int licenciaColectiva);
     List<Arma> getAllByBunkerAndEliminadoFalse(int bunkerId);
     Arma getByUuidAndEliminadoFalse(String uuid);
@@ -25,10 +27,18 @@ public interface ArmaRepository extends JpaRepository<Arma, Integer> {
     Integer countByLicenciaColectivaAndFechaActualizacionLessThanAndFechaActualizacionGreaterThanAndEliminadoTrue(int licenciaColectiva, LocalDateTime finMes, LocalDateTime inicioMes);
     Integer countByLicenciaColectivaAndFechaCreacionLessThanAndEliminadoFalse(int licenciaColectiva, LocalDateTime finMes);
 
+    List<Arma> getAllByLicenciaColectivaAndFechaCreacionLessThanAndFechaCreacionGreaterThanAndEliminadoFalse(int licenciaColectiva, LocalDateTime finMes, LocalDateTime inicioMes);
+    List<Arma> getAllByLicenciaColectivaAndFechaActualizacionLessThanAndFechaActualizacionGreaterThanAndEliminadoTrue(int licenciaColectiva, LocalDateTime finMes, LocalDateTime inicioMes);
+    List<Arma> getAllByLicenciaColectivaAndFechaCreacionLessThanAndEliminadoFalse(int licenciaColectiva, LocalDateTime finMes);
+
+    List<Arma> findAllByLicenciaColectivaAndFechaCreacionLessThanAndFechaCreacionGreaterThanAndEliminadoFalse(int licenciaColectiva, LocalDateTime finMes, LocalDateTime inicioMes);
+    List<Arma> findAllByLicenciaColectivaAndFechaActualizacionLessThanAndFechaActualizacionGreaterThanAndEliminadoTrue(int licenciaColectiva, LocalDateTime finMes, LocalDateTime inicioMes);
+
     // Search
     List<Arma> findAllByMatriculaContaining(String matricula);
     List<Arma> findAllByMatriculaContainingAndEmpresa(String matricula, int empresa);
     List<Arma> findAllBySerieContaining(String serie);
     List<Arma> findAllBySerieContainingAndEmpresa(String serie, int empresa);
     List<Arma> findAllByEliminadoFalse();
+    List<Arma> getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 }

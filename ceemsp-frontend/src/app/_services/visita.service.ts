@@ -62,4 +62,12 @@ export class VisitaService {
   eliminarArchivoVisita(uuid: string, archivoUuid: string) {
     return this.http.delete(`${this.uri}/visitas/${uuid}/archivos/${archivoUuid}`)
   }
+
+  generarReporteExcel() {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    }
+
+    return this.http.get(`${this.uri}/visitas/xls`, httpOptions);
+  }
 }

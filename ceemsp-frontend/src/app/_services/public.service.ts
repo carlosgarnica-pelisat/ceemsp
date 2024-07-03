@@ -42,4 +42,8 @@ export class PublicService {
   validarAcuseInformeMensual(informeSello: string) {
     return this.http.get(`${this.uri}/public/validar/informe/${informeSello}`);
   }
+
+  obtenerFechaServidor() {
+    return this.http.get(`${this.uri}/public/date`);
+  }
 }

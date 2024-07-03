@@ -33,6 +33,16 @@ public class UsuarioController {
         return usuarioService.obtenerUsuariosInternos();
     }
 
+    @GetMapping(value = USUARIO_URI + "/no-empresas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<UsuarioDto> obtenerUsuariosNoEmpresas() {
+        return usuarioService.obtenerUsuariosNoEmpresas();
+    }
+
+    @GetMapping(value = USUARIO_URI + "/empresas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<UsuarioDto> obtenerUsuariosEmpresas() {
+        return usuarioService.obtenerUsuariosEmpresas();
+    }
+
     @GetMapping(value = USUARIO_URI + "/perfil", produces = MediaType.APPLICATION_JSON_VALUE)
     public UsuarioDto obtenerPerfil(
             HttpServletRequest httpServletRequest

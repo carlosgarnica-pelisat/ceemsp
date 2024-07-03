@@ -14,5 +14,6 @@ public class EmpresaUniformeElementoDto {
     private UniformeDto elemento;
     private BigDecimal cantidad;
     private String ubicacionArchivo;
+    private boolean tieneArchivo;
     List<EmpresaUniformeElementoMovimientoDto> movimientos;
 }

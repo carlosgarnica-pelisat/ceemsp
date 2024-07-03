@@ -28,6 +28,7 @@ import {ReporteoService} from "../../_services/reporteo.service";
   styleUrls: ['./empresa-canes.component.css']
 })
 export class EmpresaCanesComponent implements OnInit {
+  mostrandoEliminados: boolean = false;
 
   private gridApi;
   private gridColumnApi;
@@ -38,7 +39,8 @@ export class EmpresaCanesComponent implements OnInit {
   faDownload = faDownload;
 
   domicilios: EmpresaDomicilio[] = [];
-  clientes: Cliente[] = [];
+  canes: Can[] = [];
+  canesEliminados: Can[] = [];
   razas: CanRaza[] = [];
   tiposAdiestramiento: TipoEntrenamiento[] = [];
 
@@ -232,6 +234,17 @@ export class EmpresaCanesComponent implements OnInit {
 
     this.empresaCanesService.obtenerCanes().subscribe((data: Can[]) => {
       this.rowData = data;
+      this.canes = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se descargaron los canes. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
+
+    this.empresaCanesService.obtenerCanesEliminados().subscribe((data: Can[]) => {
+      this.canesEliminados = data;
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -367,6 +380,16 @@ export class EmpresaCanesComponent implements OnInit {
 
   cambiarPestana(pestana) {
     this.pestanaActual = pestana;
+  }
+
+  mostrarEliminados() {
+    this.mostrandoEliminados = true;
+    this.rowData = this.canesEliminados;
+  }
+
+  ocultarEliminados() {
+    this.mostrandoEliminados = false;
+    this.rowData = this.canes;
   }
 
   mostrarModalDetalles(rowData) {
@@ -1572,6 +1595,11 @@ export class EmpresaCanesComponent implements OnInit {
     }
   }
 
+  onFilterTextBoxChanged() {
+    this.gridApi.setQuickFilter(
+      (document.getElementById('filter-text-box') as HTMLInputElement).value
+    );
+  }
   guardarFotografia(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
@@ -1633,7 +1661,7 @@ export class EmpresaCanesComponent implements OnInit {
   }
 
   generarReporteExcel() {
-    this.reporteoService.generarReporteCanes().subscribe((data) => {
+    this.reporteoService.generarReporteCanes(this.mostrandoEliminados).subscribe((data) => {
       let link = document.createElement('a');
       link.href = window.URL.createObjectURL(data);
       link.download = "test.xls";

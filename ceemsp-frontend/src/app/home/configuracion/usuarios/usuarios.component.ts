@@ -6,6 +6,7 @@ import Usuario from "../../../_models/Usuario";
 import {ToastType} from "../../../_enums/ToastType";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import * as sha256 from "js-sha256";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-usuarios',
@@ -63,7 +64,7 @@ export class UsuariosComponent implements OnInit {
   @ViewChild("eliminarUsuarioModal") eliminarUsuarioModal;
 
   constructor(private toastService: ToastService, private modalService: NgbModal, private usuarioService: UsuariosService,
-              private formBuilder: FormBuilder) { }
+              private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
     this.crearUsuarioForm = this.formBuilder.group({
@@ -76,7 +77,7 @@ export class UsuariosComponent implements OnInit {
       rol: ['', Validators.required]
     })
 
-    this.usuarioService.obtenerUsuarios().subscribe((data: Usuario[]) => {
+    this.usuarioService.obtenerUsuariosNoEmpresas().subscribe((data: Usuario[]) => {
       this.rowData = data;
     }, (error) => {
       this.toastService.showGenericToast(
@@ -121,6 +122,15 @@ export class UsuariosComponent implements OnInit {
   }
 
   mostrarModalModificarUsuario() {
+    if(this.usuario.rol === "ENTERPRISE_USER") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Para modificar usuarios de empresas, necesitas ir a "Ver informacion de la empresa" > Opciones > Modificar inicio de sesion`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.crearUsuarioForm.patchValue({
       usuario: this.usuario.username,
       email: this.usuario.email,
@@ -138,7 +148,21 @@ export class UsuariosComponent implements OnInit {
     })
   }
 
+  redireccionarVerDetallesEmpresa() {
+    this.modal.close();
+    this.router.navigate([`/home/empresas/${this.usuario?.empresa?.uuid}`]);
+  }
+
   mostrarModalEliminarUsuario() {
+    if(this.usuario.rol === "ENTERPRISE_USER") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Para eliminar usuarios de empresas, necesitas eliminar la empresa creando un acuerdo`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.modal = this.modalService.open(this.eliminarUsuarioModal, {size: 'lg'});
 
     this.modal.result.then((result) => {
@@ -174,11 +198,7 @@ export class UsuariosComponent implements OnInit {
   mostrarModalNuevoUsuario() {
     this.modal = this.modalService.open(this.crearUsuarioModal, {size: 'xl', backdrop: 'static'})
 
-    this.modal.result.then((result) => {
-      this.closeResult = `Closed with ${result}`;
-    }, (error) => {
-      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
-    })
+    //this.crearUsuarioForm.controls["password"].setValidators([Validators.required])
   }
 
   guardarUsuario(form) {
@@ -218,7 +238,43 @@ export class UsuariosComponent implements OnInit {
   }
 
   guardarCambiosUsuario(form) {
+    console.log(form.value)
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Alguno de los parametros es invalido`,
+        ToastType.WARNING
+      );
+      return;
+    }
 
+    this.toastService.showGenericToast(
+      "Espera un momento",
+      `Estamos guardando los cambios del usuario`,
+      ToastType.INFO
+    );
+
+    let usuario: Usuario = form.value;
+
+    if(usuario.password !== undefined) {
+      let tempPassword = usuario.password;
+      usuario.password = sha256.sha256(tempPassword);
+    }
+
+    this.usuarioService.modificarUsuario(this.usuario?.uuid, usuario).subscribe((data: Usuario) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha actualizado el usuario con exito`,
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido actualizar el usuario. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   cambiarPestana(pestana) {

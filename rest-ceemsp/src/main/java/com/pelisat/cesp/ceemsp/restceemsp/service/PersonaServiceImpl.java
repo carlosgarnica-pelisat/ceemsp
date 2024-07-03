@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -60,6 +61,8 @@ public class PersonaServiceImpl implements PersonaService {
 
     private final Logger logger = LoggerFactory.getLogger(PersonaService.class);
     private final PersonalPuestoRepository personalPuestoRepository;
+
+    private final int PUESTO_OPERATIVO = 3;
 
     @Autowired
     public PersonaServiceImpl(DaoHelper<CommonModel> daoHelper, DaoToDtoConverter daoToDtoConverter,
@@ -110,14 +113,22 @@ public class PersonaServiceImpl implements PersonaService {
     }
 
     @Override
-    public List<PersonaDto> obtenerTodos(String empresaUuid) {
+    public List<PersonaDto> obtenerTodos(String empresaUuid, String username) {
         if(StringUtils.isBlank(empresaUuid)) {
             logger.warn("El uuid de la empresa se encuentra nulo o vacio");
             throw new InvalidDataException();
         }
 
         Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(empresaUuid);
-        List<Personal> personal = personaRepository.getAllByEmpresaAndEliminadoFalse(empresa.getId());
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        List<Personal> personal;
+
+        if(usuarioDto.getRol() == RolTypeEnum.CEEMSP_READ_ONLY) {
+            personal = personaRepository.getAllByEmpresaAndPuestoInAndEliminadoFalse(empresa.getId(), Arrays.asList(PUESTO_OPERATIVO, null, 0));
+        } else {
+            personal = personaRepository.getAllByEmpresaAndEliminadoFalse(empresa.getId());
+        }
 
         return personal.stream().map(p -> {
             PersonaDto dto = daoToDtoConverter.convertDaoToDtoPersona(p);
@@ -128,14 +139,23 @@ public class PersonaServiceImpl implements PersonaService {
     }
 
     @Override
-    public List<PersonaDto> obtenerPersonasEliminadas(String empresaUuid) {
+    public List<PersonaDto> obtenerPersonasEliminadas(String empresaUuid, String username) {
         if(StringUtils.isBlank(empresaUuid)) {
             logger.warn("El uuid de la empresa se encuentra nulo o vacio");
             throw new InvalidDataException();
         }
 
         Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(empresaUuid);
-        List<Personal> personal = personaRepository.getAllByEmpresaAndEliminadoTrue(empresa.getId());
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        List<Personal> personal;
+
+        if(usuarioDto.getRol() == RolTypeEnum.CEEMSP_READ_ONLY) {
+            personal = personaRepository.getAllByEmpresaAndPuestoInAndEliminadoTrue(empresa.getId(), Arrays.asList(PUESTO_OPERATIVO, null, 0));
+        } else {
+            personal = personaRepository.getAllByEmpresaAndEliminadoTrue(empresa.getId());
+        }
 
         return personal.stream().map(daoToDtoConverter::convertDaoToDtoPersona).collect(Collectors.toList());
     }
@@ -522,6 +542,31 @@ public class PersonaServiceImpl implements PersonaService {
         if(personal == null) {
             logger.warn("La persona a eliminar la informacion no existe en la base de datos");
             throw new NotFoundResourceException();
+        }
+
+        // Eliminando armas, vehiculos y canes asignados
+        if (personal.getArmaCorta() != null) {
+            PersonalArmaDto personalArmaDto = new PersonalArmaDto();
+            personalArmaDto.setMotivoBajaAsignacion("La persona se ha dado de baja");
+            desasignarArmaCortaAPersona(empresaUuid, personaUuid, personalArmaDto, username);
+        }
+
+        if (personal.getArmaLarga() != null) {
+            PersonalArmaDto personalArmaDto = new PersonalArmaDto();
+            personalArmaDto.setMotivoBajaAsignacion("La persona se ha dado de baja");
+            desasignarArmaLargaAPersona(empresaUuid, personaUuid, personalArmaDto, username);
+        }
+
+        if (personal.getCan() != null) {
+            PersonalCanDto personalCanDto = new PersonalCanDto();
+            personalCanDto.setMotivoBajaAsignacion("La persona se ha dado de baja");
+            desasignarCanAPersona(empresaUuid, personaUuid, personalCanDto, username);
+        }
+
+        if (personal.getVehiculo() != null) {
+            PersonalVehiculoDto personalVehiculoDto = new PersonalVehiculoDto();
+            personalVehiculoDto.setMotivoBajaAsignacion("La persona se ha dado de baja");
+            desasignarVehiculoAPersona(empresaUuid, personaUuid, personalVehiculoDto, username);
         }
 
         daoHelper.fulfillAuditorFields(false, personal, usuarioDto.getId());

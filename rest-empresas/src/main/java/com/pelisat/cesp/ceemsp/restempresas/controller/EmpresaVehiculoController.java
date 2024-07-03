@@ -43,6 +43,14 @@ public class EmpresaVehiculoController {
         return empresaVehiculoService.obtenerVehiculos(username);
     }
 
+    @GetMapping(value = EMPRESA_VEHICULOS_URI + "/eliminados")
+    public List<VehiculoDto> obtenerVehiculosEliminadosPorEmpresa(
+            HttpServletRequest httpServletRequest
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return empresaVehiculoService.obtenerVehiculosEliminadosPorEmpresa(username);
+    }
+
     @GetMapping(value = EMPRESA_VEHICULOS_URI + "/instalaciones")
     public List<VehiculoDto> obtenerVehiculosEnInstalaciones(
             HttpServletRequest request

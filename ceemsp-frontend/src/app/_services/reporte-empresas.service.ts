@@ -10,6 +10,13 @@ export class ReporteEmpresasService {
 
   constructor(private http: HttpClient) { }
 
+  generarReportePadronEmpresas(status: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.post(`${this.uri}/reporteo/padron?status=${status}`, {}, httpOptions);
+  }
+
   generarReporteAcuerdos(uuid: string) {
     const httpOptions = {
       responseType: 'blob' as 'json'
@@ -24,11 +31,11 @@ export class ReporteEmpresasService {
     return this.http.post(`${this.uri}/empresas/${uuid}/reporteo/domicilios`, {}, httpOptions);
   }
 
-  generarReportePersonal(uuid: string) {
+  generarReportePersonal(uuid: string, eliminado: boolean) {
     const httpOptions = {
       responseType: 'blob' as 'json'
     };
-    return this.http.post(`${this.uri}/empresas/${uuid}/reporteo/personal`, {}, httpOptions);
+    return this.http.post(`${this.uri}/empresas/${uuid}/reporteo/personal?eliminados=${eliminado}`, {}, httpOptions);
   }
   generarReporteCanes(uuid: string) {
     const httpOptions = {
@@ -37,11 +44,11 @@ export class ReporteEmpresasService {
     return this.http.post(`${this.uri}/empresas/${uuid}/reporteo/canes`, {}, httpOptions);
   }
 
-  generarReporteVehiculos(uuid: string) {
+  generarReporteVehiculos(uuid: string, eliminado: boolean) {
     const httpOptions = {
       responseType: 'blob' as 'json'
     };
-    return this.http.post(`${this.uri}/empresas/${uuid}/reporteo/vehiculos`, {}, httpOptions);
+    return this.http.post(`${this.uri}/empresas/${uuid}/reporteo/vehiculos?eliminados=${eliminado}`, {}, httpOptions);
   }
 
   generarReporteClientes(uuid: string) {
@@ -56,6 +63,13 @@ export class ReporteEmpresasService {
       responseType: 'blob' as 'json'
     };
     return this.http.post(`${this.uri}/empresas/${uuid}/reporteo/armas`, {}, httpOptions);
+  }
+
+  generarReporteEscrituras(uuid: string) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.post(`${this.uri}/empresas/${uuid}/reporteo/escrituras`, {}, httpOptions);
   }
 
   generarReporteLicenciasColectivas(uuid: string) {

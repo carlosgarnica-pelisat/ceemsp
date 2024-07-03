@@ -16,31 +16,32 @@ export class ReporteoService {
     return this.http.post(`${this.uri}/reporteo/acuerdos`, {}, httpOptions);
   }
 
-  generarReportePersonal() {
+  generarReportePersonal(eliminados: boolean) {
     const httpOptions = {
       responseType: 'blob' as 'json'
     };
-    return this.http.post(`${this.uri}/reporteo/personal`, {}, httpOptions);
-  }
-  generarReporteCanes() {
-    const httpOptions = {
-      responseType: 'blob' as 'json'
-    };
-    return this.http.post(`${this.uri}/reporteo/canes`, {}, httpOptions);
+    return this.http.post(`${this.uri}/reporteo/personal?eliminados=${eliminados}`, {}, httpOptions);
   }
 
-  generarReporteVehiculos() {
+  generarReporteCanes(eliminados: boolean) {
     const httpOptions = {
       responseType: 'blob' as 'json'
     };
-    return this.http.post(`${this.uri}/reporteo/vehiculos`, {}, httpOptions);
+    return this.http.post(`${this.uri}/reporteo/canes?eliminados=${eliminados}`, {}, httpOptions);
   }
 
-  generarReporteClientes() {
+  generarReporteVehiculos(eliminados: boolean) {
     const httpOptions = {
       responseType: 'blob' as 'json'
     };
-    return this.http.post(`${this.uri}/reporteo/clientes`, {}, httpOptions);
+    return this.http.post(`${this.uri}/reporteo/vehiculos?eliminados=${eliminados}`, {}, httpOptions);
+  }
+
+  generarReporteClientes(eliminados: boolean) {
+    const httpOptions = {
+      responseType: 'blob' as 'json'
+    };
+    return this.http.post(`${this.uri}/reporteo/clientes?eliminados=${eliminados}`, {}, httpOptions);
   }
 
   generarReporteArmas() {

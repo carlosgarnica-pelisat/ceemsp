@@ -29,8 +29,11 @@ public class ReporteArgosController {
     }
 
     @GetMapping(value = "/reportes", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<ReporteArgosDto> descargarReportes() {
-        return reporteArgosService.obtenerReportes();
+    public List<ReporteArgosDto> descargarReportes(
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return reporteArgosService.obtenerReportes(username);
     }
 
     @PostMapping(value = "/reportes", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -59,5 +62,14 @@ public class ReporteArgosController {
         httpHeaders.setContentDispositionFormData("attachment",  file.getName());
         InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
         return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/reportes/{reporteUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ReporteArgosDto eliminarReporte(
+            @PathVariable(value = "reporteUuid") String reporteUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return reporteArgosService.eliminarReporte(reporteUuid, username);
     }
 }

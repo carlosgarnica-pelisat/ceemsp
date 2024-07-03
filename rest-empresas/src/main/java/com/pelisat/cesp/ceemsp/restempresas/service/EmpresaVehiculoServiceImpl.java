@@ -91,6 +91,32 @@ public class EmpresaVehiculoServiceImpl implements EmpresaVehiculoService {
     }
 
     @Override
+    public List<VehiculoDto> obtenerVehiculosEliminadosPorEmpresa(String empresaUsername) {
+        if(StringUtils.isBlank(empresaUsername)) {
+            logger.warn("El uuid de la empresa viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando todos los vehiculos");
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(empresaUsername);
+        List<Vehiculo> vehiculos = vehiculoRepository.getAllByEmpresaAndEliminadoTrue(usuarioDto.getEmpresa().getId());
+
+        List<VehiculoDto> response = vehiculos.stream().map(vehiculo -> {
+            VehiculoDto vehiculoDto = daoToDtoConverter.convertDaoToDtoVehiculo(vehiculo);
+            vehiculoDto.setMarca(catalogoService.obtenerMarcaPorId(vehiculo.getMarca()));
+            if(vehiculo.getSubmarca() > 0) {
+                vehiculoDto.setSubmarca(catalogoService.obtenerSubmarcaPorId(vehiculo.getSubmarca()));
+            }
+            vehiculoDto.setTipo(catalogoService.obtenerTipoVehiculoPorId(vehiculo.getTipo()));
+            vehiculoDto.setFotografias(empresaVehiculoFotografiaService.mostrarVehiculoFotografias(vehiculo.getUuid()));
+            return vehiculoDto;
+        }).collect(Collectors.toList());
+
+        return response;
+    }
+
+    @Override
     public List<VehiculoDto> obtenerVehiculosEnInstalacionesPorEmpresa(String username) {
         if(StringUtils.isBlank(username)) {
             logger.warn("El uuid de la empresa viene como nulo o vacio");

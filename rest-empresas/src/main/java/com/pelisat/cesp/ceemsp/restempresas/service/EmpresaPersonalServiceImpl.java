@@ -104,6 +104,24 @@ public class EmpresaPersonalServiceImpl implements EmpresaPersonalService {
     }
 
     @Override
+    public List<PersonaDto> obtenerPersonasEliminadas(String username) {
+        if(StringUtils.isBlank(username)) {
+            logger.warn("El uuid de la empresa se encuentra nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        List<Personal> personal = personaRepository.getAllByEmpresaAndEliminadoTrue(usuarioDto.getEmpresa().getId());
+
+        return personal.stream().map(p -> {
+            PersonaDto dto = daoToDtoConverter.convertDaoToDtoPersona(p);
+            if(p.getPuesto() > 0)
+                dto.setPuestoDeTrabajo(daoToDtoConverter.convertDaoToDtoPersonalPuestoDeTrabajo(personalPuestoRepository.getById(p.getPuesto())));
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
     public List<PersonaDto> obtenerSinAsignar(String username) {
         if(StringUtils.isBlank(username)) {
             logger.warn("El uuid de la empresa se encuentra nulo o vacio");
@@ -125,7 +143,7 @@ public class EmpresaPersonalServiceImpl implements EmpresaPersonalService {
 
         logger.info("Obteniendo a la persona con el uuid [{}]", personaUuid);
 
-        Personal personal = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+        Personal personal = personaRepository.getByUuid(personaUuid);
         if(personal == null) {
             logger.warn("La persona no existe en la base de datos");
             throw new NotFoundResourceException();
@@ -405,7 +423,7 @@ public class EmpresaPersonalServiceImpl implements EmpresaPersonalService {
         personal.setTelefono(personaDto.getTelefono());
         personal.setCorreoElectronico(personaDto.getCorreoElectronico());
         personal.setTipoSangre(personaDto.getTipoSangre());
-
+        personal.setRfc(personaDto.getRfc());
 
         personal.setEstadoCatalogo(personaDto.getEstadoCatalogo().getId());
         personal.setMunicipioCatalogo(personaDto.getMunicipioCatalogo().getId());
@@ -441,6 +459,31 @@ public class EmpresaPersonalServiceImpl implements EmpresaPersonalService {
         if(personal == null) {
             logger.warn("La persona a eliminar la informacion no existe en la base de datos");
             throw new NotFoundResourceException();
+        }
+
+        // Eliminando armas, vehiculos y canes asignados
+        if (personal.getArmaCorta() != null) {
+            PersonalArmaDto personalArmaDto = new PersonalArmaDto();
+            personalArmaDto.setMotivoBajaAsignacion("La persona se ha dado de baja");
+            desasignarArmaCortaAPersona(personaUuid, personalArmaDto, username);
+        }
+
+        if (personal.getArmaLarga() != null) {
+            PersonalArmaDto personalArmaDto = new PersonalArmaDto();
+            personalArmaDto.setMotivoBajaAsignacion("La persona se ha dado de baja");
+            desasignarArmaLargaAPersona(personaUuid, personalArmaDto, username);
+        }
+
+        if (personal.getCan() != null) {
+            PersonalCanDto personalCanDto = new PersonalCanDto();
+            personalCanDto.setMotivoBajaAsignacion("La persona se ha dado de baja");
+            desasignarCanAPersona(personaUuid, personalCanDto, username);
+        }
+
+        if (personal.getVehiculo() != null) {
+            PersonalVehiculoDto personalVehiculoDto = new PersonalVehiculoDto();
+            personalVehiculoDto.setMotivoBajaAsignacion("La persona se ha dado de baja");
+            desasignarVehiculoAPersona(personaUuid, personalVehiculoDto, username);
         }
 
         daoHelper.fulfillAuditorFields(false, personal, usuarioDto.getId());

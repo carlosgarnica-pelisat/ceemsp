@@ -6,7 +6,9 @@ import com.pelisat.cesp.ceemsp.database.repository.*;
 import com.pelisat.cesp.ceemsp.database.type.EmpresaStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.IncidenciaStatusEnum;
 import com.pelisat.cesp.ceemsp.database.type.TipoTramiteEnum;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Year;
 import java.time.YearMonth;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +34,7 @@ public class DashboardServiceImpl implements DashboardService {
     private final EmpresaLicenciaColectivaRepository empresaLicenciaColectivaRepository;
     private final EmpresaEscrituraApoderadoRepository empresaEscrituraApoderadoRepository;
     private final EmpresaEscrituraRepository empresaEscrituraRepository;
+    private final EmpresaService empresaService;
 
     @Autowired
     public DashboardServiceImpl(EmpresaRepository empresaRepository, IncidenciaRepository incidenciaRepository,
@@ -40,7 +43,7 @@ public class DashboardServiceImpl implements DashboardService {
                                 EmpresaReporteMensualRepository empresaReporteMensualRepository,
                                 EmpresaLicenciaColectivaRepository empresaLicenciaColectivaRepository,
                                 EmpresaEscrituraApoderadoRepository empresaEscrituraApoderadoRepository,
-                                EmpresaEscrituraRepository empresaEscrituraRepository) {
+                                EmpresaEscrituraRepository empresaEscrituraRepository, EmpresaService empresaService) {
         this.empresaRepository = empresaRepository;
         this.incidenciaRepository = incidenciaRepository;
         this.visitaRepository = visitaRepository;
@@ -51,6 +54,7 @@ public class DashboardServiceImpl implements DashboardService {
         this.empresaLicenciaColectivaRepository = empresaLicenciaColectivaRepository;
         this.empresaEscrituraApoderadoRepository = empresaEscrituraApoderadoRepository;
         this.empresaEscrituraRepository = empresaEscrituraRepository;
+        this.empresaService = empresaService;
     }
 
     @Override
@@ -60,19 +64,21 @@ public class DashboardServiceImpl implements DashboardService {
         DashboardDto dashboardDto = new DashboardDto();
 
         List<Empresa> empresasTodas = empresaRepository.getAllByEliminadoFalse();
-        List<EmpresaReporteMensual> informesMensualesMes = empresaReporteMensualRepository.findByFechaCreacionGreaterThanAndFechaCreacionLessThan(YearMonth.now().atDay(1).atTime(0, 0, 0), YearMonth.now().atEndOfMonth().atTime(23, 59, 59));
-        List<EmpresaEscrituraApoderado> empresaescrituraApoderadosProximosAVencer = empresaEscrituraApoderadoRepository.getAllByFechaFinLessThanAndFechaFinGreaterThanAndEliminadoFalse(LocalDate.now().plusDays(15), LocalDate.now().minusDays(3650));
+        List<EmpresaReporteMensual> informesMensualesMes = empresaReporteMensualRepository.findByFechaCreacionGreaterThanAndFechaCreacionLessThanAndEliminadoFalse(YearMonth.now().atDay(1).atTime(0, 0, 0), YearMonth.now().atEndOfMonth().atTime(23, 59, 59));
+        List<EmpresaEscrituraApoderado> empresaescrituraApoderadosProximosAVencer = empresaEscrituraApoderadoRepository.getAllByFechaFinLessThanAndFechaFinGreaterThanAndEliminadoFalse(LocalDate.now().plusDays(15), LocalDate.now().minusDays(30));
 
         List<Integer> idsEmpresasConInformesMensuales = informesMensualesMes.stream()
                         .map(EmpresaReporteMensual::getEmpresa)
                         .collect(Collectors.toList());
 
         dashboardDto.setEmpresasConInformeMensual(empresasTodas.stream()
+                .filter(e -> e.getStatus() == EmpresaStatusEnum.ACTIVA)
                 .filter(e -> idsEmpresasConInformesMensuales.contains(e.getId()))
                 .map(daoToDtoConverter::convertDaoToDtoEmpresa)
                 .collect(Collectors.toList()));
 
         dashboardDto.setEmpresasSinInformeMensual(empresasTodas.stream()
+                .filter(e -> e.getStatus() == EmpresaStatusEnum.ACTIVA)
                 .filter(e -> !idsEmpresasConInformesMensuales.contains(e.getId()))
                 .map(daoToDtoConverter::convertDaoToDtoEmpresa)
                 .collect(Collectors.toList()));
@@ -96,9 +102,10 @@ public class DashboardServiceImpl implements DashboardService {
         List<Visita> visitasRequerimientosProximos = visitaRepository.getAllByFechaTerminoLessThanAndFechaTerminoGreaterThanAndEliminadoFalse(LocalDate.now(), LocalDate.now().plusDays(15));
         List<EmpresaLicenciaColectiva> empresasLicenciasColectivasProximas = empresaLicenciaColectivaRepository.getAllByFechaFinLessThanAndFechaFinGreaterThanAndEliminadoFalse(LocalDate.now().plusDays(15), LocalDate.now().minusDays(3650));
         List<Incidencia> misIncidencias = incidenciaRepository.getAllByStatusAndAsignadoAndEliminadoFalse(IncidenciaStatusEnum.ASIGNADA, usuario.getId());
-        List<Incidencia> incidenciasAbiertas = incidenciaRepository.getAllByStatusAndEliminadoFalse(IncidenciaStatusEnum.ABIERTA);
+        List<Incidencia> incidenciasAbiertas = incidenciaRepository.getAllByStatusInAndEliminadoFalse(Arrays.asList(IncidenciaStatusEnum.ABIERTA, IncidenciaStatusEnum.ASIGNADA, IncidenciaStatusEnum.CONTESTADA, IncidenciaStatusEnum.ACCION_PENDIENTE));
 
-        dashboardDto.setAcuerdosProximosAVencer(acuerdosProximos.stream().map(a -> {
+        dashboardDto.setAcuerdosProximosAVencer(acuerdosProximos.stream()
+                .filter(x -> !x.getEliminado()).map(a -> {
             AcuerdoDto acuerdoDto = daoToDtoConverter.convertDaoToDtoAcuerdo(a);
             Empresa empresa = empresaRepository.getOne(a.getEmpresa());
             acuerdoDto.setEmpresa(daoToDtoConverter.convertDaoToDtoEmpresa(empresa));
@@ -126,14 +133,94 @@ public class DashboardServiceImpl implements DashboardService {
             return elc;
         }).collect(Collectors.toList()));
         dashboardDto.setLicenciasFederalesProximasAVencer(licenciasFederalesProximas.stream().map(daoToDtoConverter::convertDaoToDtoEmpresa).collect(Collectors.toList()));
-        dashboardDto.setIncidenciasAbiertas(incidenciasAbiertas.stream().map(daoToDtoConverter::convertDaoToDtoIncidencia).collect(Collectors.toList()));
-        dashboardDto.setMisIncidencias(misIncidencias.stream().map(daoToDtoConverter::convertDaoToDtoIncidencia).collect(Collectors.toList()));
+        dashboardDto.setIncidenciasAbiertas(incidenciasAbiertas.stream().map(i -> {
+            IncidenciaDto incidenciaDto = daoToDtoConverter.convertDaoToDtoIncidencia(i);
+            incidenciaDto.setEmpresa(daoToDtoConverter.convertDaoToDtoEmpresa(empresaRepository.getOne(i.getEmpresa())));
+            return incidenciaDto;
+        }).collect(Collectors.toList()));
+        dashboardDto.setMisIncidencias(misIncidencias.stream().map(i -> {
+            IncidenciaDto incidenciaDto = daoToDtoConverter.convertDaoToDtoIncidencia(i);
+            incidenciaDto.setEmpresa(daoToDtoConverter.convertDaoToDtoEmpresa(empresaRepository.getOne(i.getEmpresa())));
+            return incidenciaDto;
+        }).collect(Collectors.toList()));
 
-        dashboardDto.setCantidadAcuerdosProximosAVencer(acuerdosProximos.size());
+        dashboardDto.setCantidadAcuerdosProximosAVencer(dashboardDto.getAcuerdosProximosAVencer().size());
         dashboardDto.setCantidadLicenciasFederalesProximasAVencer(licenciasFederalesProximas.size());
         dashboardDto.setCantidadRequerimientosProximosAVencer(visitasRequerimientosProximos.size());
         dashboardDto.setCantidadLicenciasParticularesProximasAVencer(empresasLicenciasColectivasProximas.size());
 
         return dashboardDto;
+    }
+
+    @Override
+    public ConteoMensualDto obtenerMovimientosMes(String fechaInicio, String fechaFin) {
+        if(StringUtils.isBlank(fechaInicio) || StringUtils.isBlank(fechaFin)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        List<ConteoMensualDto> conteos = empresaReporteMensualRepository.getSumReportesMensualesByMonthAndYear(LocalDate.parse(fechaInicio).atStartOfDay(), LocalDate.parse(fechaFin).atTime(23, 59, 59));
+
+        if(conteos.isEmpty()) {
+            return null;
+        }
+
+        return conteos.get(0);
+    }
+
+    @Override
+    public List<EmpresaReporteMensualDto> obtenerMovimientosMesEmpresas(String fechaInicio, String fechaFin) {
+        if(StringUtils.isBlank(fechaInicio) || StringUtils.isBlank(fechaFin)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        List<EmpresaReporteMensual> reportesMensualesPorMes = empresaReporteMensualRepository.findByFechaCreacionGreaterThanAndFechaCreacionLessThanAndEliminadoFalse(LocalDate.parse(fechaInicio).atStartOfDay().plusMonths(1), LocalDate.parse(fechaFin).atTime(23, 59, 59).plusMonths(1));
+        return reportesMensualesPorMes.stream()
+                .map(r -> {
+                    EmpresaReporteMensualDto empresaReporteMensualDto = daoToDtoConverter.convertDaoToDtoEmpresaReporteMensual(r);
+                    empresaReporteMensualDto.setEmpresa(empresaService.obtenerPorId(r.getEmpresa()));
+                    return empresaReporteMensualDto;
+                }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EmpresaDto> obtenerEmpresasConMovimientosInformesMensuales(String fechaInicio, String fechaFin) {
+        if(StringUtils.isBlank(fechaInicio) || StringUtils.isBlank(fechaFin)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        List<Empresa> empresasTodas = empresaRepository.getAllByEliminadoFalse();
+        List<EmpresaReporteMensual> informesMensualesMes = empresaReporteMensualRepository.findByFechaCreacionGreaterThanAndFechaCreacionLessThanAndEliminadoFalse(LocalDate.parse(fechaInicio).atStartOfDay(), LocalDate.parse(fechaFin).atTime(23, 59, 59));
+        List<Integer> idsEmpresasConInformesMensuales = informesMensualesMes.stream()
+                .map(EmpresaReporteMensual::getEmpresa)
+                .collect(Collectors.toList());
+
+        return empresasTodas.stream()
+                .filter(e -> e.getStatus() == EmpresaStatusEnum.ACTIVA)
+                .filter(e -> idsEmpresasConInformesMensuales.contains(e.getId()))
+                .map(daoToDtoConverter::convertDaoToDtoEmpresa)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EmpresaDto> obtenerEmpresasSinMovimientosInformesMensuales(String fechaInicio, String fechaFin) {
+        if(StringUtils.isBlank(fechaInicio) || StringUtils.isBlank(fechaFin)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        List<Empresa> empresasTodas = empresaRepository.getAllByEliminadoFalse();
+        List<EmpresaReporteMensual> informesMensualesMes = empresaReporteMensualRepository.findByFechaCreacionGreaterThanAndFechaCreacionLessThanAndEliminadoFalse(LocalDate.parse(fechaInicio).atStartOfDay(), LocalDate.parse(fechaFin).atTime(23, 59, 59));
+        List<Integer> idsEmpresasConInformesMensuales = informesMensualesMes.stream()
+                .map(EmpresaReporteMensual::getEmpresa)
+                .collect(Collectors.toList());
+
+        return empresasTodas.stream()
+                .filter(e -> e.getStatus() == EmpresaStatusEnum.ACTIVA)
+                .filter(e -> !idsEmpresasConInformesMensuales.contains(e.getId()))
+                .map(daoToDtoConverter::convertDaoToDtoEmpresa)
+                .collect(Collectors.toList());
     }
 }

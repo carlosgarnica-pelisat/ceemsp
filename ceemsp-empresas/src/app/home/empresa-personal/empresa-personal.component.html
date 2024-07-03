@@ -3,16 +3,20 @@
 
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Personal</h1>
+    <h1 class="h3 mb-0 text-gray-800">Personal <span *ngIf="mostrandoEliminados">(eliminados)</span></h1>
     <div class="btn-group">
+      <input type="text" id="filter-text-box" placeholder="Busqueda rapida..." (input)="onFilterTextBoxChanged()">
       <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearPersonaModal)">Nueva persona</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" *ngIf="!mostrandoEliminados" (click)="mostrarEliminados()">Mostrar eliminados</a>
+          <a class="dropdown-item" *ngIf="mostrandoEliminados" (click)="ocultarEliminados()">Ocultar eliminados</a>
           <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar como CSV</a>
-          <a class="dropdown-item" (click)="generarReporteExcel()">Descargar como Excel</a>
+          <a class="dropdown-item" *ngIf="!mostrandoEliminados" (click)="generarReporteExcel()">Descargar como Excel</a>
+          <a class="dropdown-item" *ngIf="mostrandoEliminados" (click)="generarReporteExcel()">Descargar como Excel</a>
         </div>
       </div>
     </div>
@@ -211,6 +215,18 @@
                     <span *ngSwitchCase="'O_P'">O+</span>
                     <span *ngSwitchCase="'O_N'">O-</span>
                   </td>
+                </tr>
+                <tr *ngIf="persona?.eliminado">
+                  <td><b>Motivo de la baja</b></td>
+                  <td>{{persona?.motivoBaja}}</td>
+                </tr>
+                <tr *ngIf="persona?.eliminado">
+                  <td><b>Fecha de la baja</b></td>
+                  <td>{{persona?.fechaBaja}}</td>
+                </tr>
+                <tr *ngIf="persona?.eliminado">
+                  <td><b>Observaciones de la baja</b></td>
+                  <td>{{persona?.observacionesBaja}}</td>
                 </tr>
               </table>
             </div>
@@ -577,11 +593,11 @@
       </div>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
-      <button class="btn btn-primary" (click)="mostrarModificarPersonaModal(modificarPersonalModal)">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarPersona()">Eliminar</button>
+      <button *ngIf="!persona?.eliminado" class="btn btn-primary" (click)="mostrarModificarPersonaModal(modificarPersonalModal)">Modificar</button>
+      <button *ngIf="!persona?.eliminado" type="button" class="btn btn-danger" (click)="mostrarModalEliminarPersona()">Eliminar</button>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'PUESTO'">
-      <button class="btn btn-primary" (click)="mostrarFormularioInformacionPuesto()">
+      <button *ngIf="!persona?.eliminado" class="btn btn-primary" (click)="mostrarFormularioInformacionPuesto()">
         Agregar / Modificar info. puesto
       </button>
       <button class="btn btn-primary" *ngIf="persona?.estatusCuip === 'EN_TRAMITE'" (click)="descargarVolanteCuip()">
@@ -589,10 +605,10 @@
       </button>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'CERTIFICACIONES'">
-      <button class="btn btn-primary" (click)="mostrarFormularioNuevoCertificado()">Agregar certificacion</button>
+      <button *ngIf="!persona?.eliminado" class="btn btn-primary" (click)="mostrarFormularioNuevoCertificado()">Agregar certificacion</button>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'FOTOGRAFIAS'">
-      <button class="btn btn-primary" (click)="mostrarFormularioNuevaFotografia()">Agregar fotografia</button>
+      <button *ngIf="!persona?.eliminado" class="btn btn-primary" (click)="mostrarFormularioNuevaFotografia()">Agregar fotografia</button>
     </div>
   </ng-template>
 
@@ -1838,8 +1854,28 @@
                     <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                   </span>
             </label>
-            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja"
-                   formControlName="motivoBaja" #nombre>
+            <select id="motivoBaja" class="form-control" formControlName="motivoBaja">
+              <option value="RENUNCIA_VOLUNTARIA">Renuncia voluntaria</option>
+              <option value="ABANDONO_EMPLEO">Abandono de empleo</option>
+              <option value="ABANDONO_SERVICIO">Abandono del servicio</option>
+              <option value="FALTAS_INJUSTIFICADAS">Faltas injustificadas</option>
+              <option value="PERDIDA_CONFIANZA">Hechos que generan la perdida de la confianza</option>
+              <option value="RESCISION_CONTRATO">Rescision del contrato</option>
+              <option value="RECORTE_PERSONAL">Recorte de personal</option>
+              <option value="TERMINO_CONTRATO">Termino de contrato</option>
+              <option value="EN_PROCESO_JUDICIAL">Por estar en proceso judicial</option>
+              <option value="POSIBLE_COMISION_DELITO">Posible comision de delito</option>
+              <option value="INCAPACIDAD_FISICA">Incapacidad fisica permanente</option>
+              <option value="CESANTIA_EDAD_AVANZADA">Cesantia en edad avanzada</option>
+              <option value="JUBILACION">Jubilacion</option>
+              <option value="MUERTE_NATURAL">Muerte natural</option>
+              <option value="ACCIDENTE">Accidente</option>
+              <option value="LIQUIDACION">Liquidacion</option>
+              <option value="CIERRE_EMPRESA">Cierre de la empresa</option>
+              <option value="DEFUNCION">Defuncion</option>
+              <option value="PENSION">Pension</option>
+              <option value="DOCUMENTACION_APOCRIFA">Presentar documentacion apocrifa</option>
+            </select>
           </div>
           <div class="col-sm-4">
             <label for="fechaBaja">
@@ -1957,14 +1993,25 @@
           <div class="col-sm-12">
             <label for="can">
               <b>Can *</b>
-              <span
-                *ngIf="asignarCanPersonalForm.controls['can'].invalid && (asignarCanPersonalForm.controls['can'].dirty || asignarCanPersonalForm.controls['can'].touched)">
-                      <i *ngIf="asignarCanPersonalForm.controls['can'].errors.required" class="error-text"> - Campo requerido</i>
-                    </span>
             </label>
-            <select id="can" class="form-control" formControlName="can">
-              <option *ngFor="let c of canes" value="{{c?.uuid}}">{{c?.nombre}}</option>
-            </select>
+            <div class="dropdown" id="can">
+              <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                {{can === undefined ? 'Ninguno' : can?.nombre}}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                <form [formGroup]="canSearchForm" class="px-4 py-3" autocomplete="off">
+                  <label for="canSearchQueryNotario"><b>Buscar por nombre</b></label>
+                  <input type="text" class="form-control" id="canSearchQueryNotario" placeholder="Ej. XYZQAB" [(ngModel)]="canQuery"
+                         [ngModelOptions]="{standalone: true}">
+                </form>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngFor="let c of canes | buscarNombrePipe: {nombre: canQuery}" (click)="seleccionarCan(c?.uuid)" style="cursor: pointer;">
+                  {{c?.nombre}}
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngIf="can !== undefined" (click)="eliminarCan()">Quitar</a>
+              </div>
+            </div>
           </div>
           <div class="col-sm-12">
             <label for="observacionesCan">
@@ -1993,14 +2040,24 @@
           <div class="col-sm-12">
             <label for="vehiculo">
               <b>Vehiculo *</b>
-              <span
-                *ngIf="asignarVehiculoPersonalForm.controls['vehiculo'].invalid && (asignarVehiculoPersonalForm.controls['vehiculo'].dirty || asignarVehiculoPersonalForm.controls['vehiculo'].touched)">
-                      <i *ngIf="asignarVehiculoPersonalForm.controls['vehiculo'].errors.required" class="error-text"> - Campo requerido</i>
-                    </span>
             </label>
-            <select id="vehiculo" class="form-control" formControlName="vehiculo">
-              <option *ngFor="let v of vehiculos" value="{{v?.uuid}}">{{v?.placas}} - {{v?.marca?.nombre}} {{(v?.submarca === null) ? '' : v?.submarca?.nombre}}</option>
-            </select>
+            <div class="dropdown" id="vehiculo">
+              <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                {{vehiculo === undefined ? 'Ninguno' : vehiculo?.placas + " - " + vehiculo?.marca?.nombre}}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                <form class="px-4 py-3" autocomplete="off">
+                  <label for="vehiculoPlacaSearchQuery"><b>Buscar por placa</b></label>
+                  <input type="text" class="form-control" id="vehiculoPlacaSearchQuery" placeholder="Ej. XYZQAB" [(ngModel)]="vehiculoQuery" [ngModelOptions]="{standalone: true}">
+                </form>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngFor="let v of vehiculos | buscarPlacas: {placas: vehiculoQuery}" (click)="seleccionarVehiculo(v?.uuid)" style="cursor: pointer;">
+                  {{v?.placas}} - {{v?.marca?.nombre}} {{(v?.submarca === null) ? '' : v?.submarca?.nombre}}
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngIf="vehiculo !== undefined" (click)="eliminarVehiculo()">Quitar</a>
+              </div>
+            </div>
           </div>
         </div>
         <div class="row">
@@ -2030,15 +2087,25 @@
         <div class="row">
           <div class="col-sm-12">
             <label for="armaCorta">
-              <b>Arma *</b>
-              <span
-                *ngIf="asignarArmaCortaForm.controls['arma'].invalid && (asignarArmaCortaForm.controls['arma'].dirty || asignarArmaCortaForm.controls['arma'].touched)">
-                      <i *ngIf="asignarArmaCortaForm.controls['arma'].errors.required" class="error-text"> - Campo requerido</i>
-                    </span>
+              <b>Arma corta *</b>
             </label>
-            <select id="armaCorta" class="form-control" formControlName="arma">
-              <option *ngFor="let a of armasCortas" value="{{a?.uuid}}">{{a?.matricula}} - {{a?.marca?.nombre}} {{a?.calibre}}</option>
-            </select>
+            <div class="dropdown" id="armaCorta">
+              <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                {{armaCorta === undefined ? 'Ninguno' : armaCorta?.matricula + " - " + armaCorta?.marca?.nombre + " " + armaCorta?.calibre}}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                <form class="px-4 py-3" autocomplete="off">
+                  <label for="armaCortaSearchQuery"><b>Buscar por matricula</b></label>
+                  <input type="text" class="form-control" id="armaCortaSearchQuery" placeholder="Ej. XYZQAB" [(ngModel)]="armaCortaQuery" [ngModelOptions]="{standalone: true}">
+                </form>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngFor="let a of armasCortas | buscarMatricula: {matricula: armaCortaQuery}" (click)="seleccionarArmaCorta(a?.uuid)" style="cursor: pointer;">
+                  {{a?.matricula}} - {{a?.marca?.nombre}} {{a?.calibre}}
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngIf="armaCorta !== undefined" (click)="eliminarArmaCorta()">Quitar</a>
+              </div>
+            </div>
           </div>
         </div>
         <div class="row">
@@ -2069,14 +2136,24 @@
           <div class="col-sm-12">
             <label for="armaCorta">
               <b>Arma *</b>
-              <span
-                *ngIf="asignarArmaLargaForm.controls['arma'].invalid && (asignarArmaLargaForm.controls['arma'].dirty || asignarArmaLargaForm.controls['arma'].touched)">
-                      <i *ngIf="asignarArmaLargaForm.controls['arma'].errors.required" class="error-text"> - Campo requerido</i>
-                    </span>
             </label>
-            <select id="armaCorta" class="form-control" formControlName="arma">
-              <option *ngFor="let a of armasLargas" value="{{a?.uuid}}">{{a?.matricula}} - {{a?.marca?.nombre}} {{a?.calibre}}</option>
-            </select>
+            <div class="dropdown" id="armaCorta">
+              <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                {{armaLarga === undefined ? 'Ninguno' : armaLarga?.matricula + " - " + armaLarga?.marca?.nombre + " " + armaLarga?.calibre}}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                <form class="px-4 py-3" autocomplete="off">
+                  <label for="armaLargaSearchQuery"><b>Buscar por matricula</b></label>
+                  <input type="text" class="form-control" id="armaLargaSearchQuery" placeholder="Ej. XYZQAB" [(ngModel)]="armaLargaQuery" [ngModelOptions]="{standalone: true}">
+                </form>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngFor="let a of armasLargas | buscarMatricula: {matricula: armaLargaQuery}" (click)="seleccionarArmaLarga(a?.uuid)" style="cursor: pointer;">
+                  {{a?.matricula}} - {{a?.marca?.nombre}} {{a?.calibre}}
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngIf="armaLarga !== undefined" (click)="eliminarArmaLarga()">Quitar</a>
+              </div>
+            </div>
           </div>
         </div>
         <div class="row">

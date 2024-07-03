@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,10 +44,11 @@ public class ReporteoController {
 
     @PostMapping(value = "/reporteo/personal", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> generarReportePersonal(
-            HttpServletRequest request
+            HttpServletRequest request,
+            @RequestParam(value = "eliminados", required = false) boolean eliminados
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        File resultado = reporteoService.generarReportePersonal(username);
+        File resultado = reporteoService.generarReportePersonal(username, eliminados);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
@@ -69,10 +71,11 @@ public class ReporteoController {
 
     @PostMapping(value = "/reporteo/canes", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> generarReporteCanes(
-            HttpServletRequest request
+            HttpServletRequest request,
+            @RequestParam(value = "eliminados", required = false) boolean eliminados
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        File resultado = reporteoService.generarReporteCanes(username);
+        File resultado = reporteoService.generarReporteCanes(username, eliminados);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
@@ -82,10 +85,11 @@ public class ReporteoController {
 
     @PostMapping(value = "/reporteo/vehiculos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> generarReporteVehiculos(
-            HttpServletRequest request
+            HttpServletRequest request,
+            @RequestParam(value = "eliminados", required = false) boolean eliminados
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        File resultado = reporteoService.generarReporteVehiculos(username);
+        File resultado = reporteoService.generarReporteVehiculos(username, eliminados);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
@@ -95,10 +99,11 @@ public class ReporteoController {
 
     @PostMapping(value = "/reporteo/clientes", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> generarReporteClientes(
-            HttpServletRequest request
+            HttpServletRequest request,
+            @RequestParam(value = "eliminados", required = false) boolean eliminados
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        File resultado = reporteoService.generarReporteClientes(username);
+        File resultado = reporteoService.generarReporteClientes(username, eliminados);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());

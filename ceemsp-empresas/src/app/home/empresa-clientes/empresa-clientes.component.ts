@@ -43,7 +43,6 @@ import {ReporteoService} from "../../_services/reporteo.service";
   styleUrls: ['./empresa-clientes.component.css']
 })
 export class EmpresaClientesComponent implements OnInit {
-
   editandoModal: boolean = false;
 
   uuid: string;
@@ -302,6 +301,17 @@ export class EmpresaClientesComponent implements OnInit {
 
     this.empresaClienteService.obtenerClientes().subscribe((data: Cliente[]) => {
       this.rowData = data;
+      this.clientes = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudieron descargar los clientes. ${error}`,
+        ToastType.ERROR
+      )
+    });
+
+    this.empresaClienteService.obtenerClientesEliminados().subscribe((data: Cliente[]) => {
+      this.clientesEliminados = data;
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -1252,6 +1262,11 @@ export class EmpresaClientesComponent implements OnInit {
     })
   }
 
+  onFilterTextBoxChanged() {
+    this.gridApi.setQuickFilter(
+      (document.getElementById('filter-text-box') as HTMLInputElement).value
+    );
+  }
   guardarDomicilio(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
@@ -1923,7 +1938,7 @@ export class EmpresaClientesComponent implements OnInit {
   }
 
   generarReporteExcel() {
-    this.reporteoService.generarReporteClientes().subscribe((data) => {
+    this.reporteoService.generarReporteClientes(this.mostrandoEliminados).subscribe((data) => {
       let link = document.createElement('a');
       link.href = window.URL.createObjectURL(data);
       link.download = "test.xls";

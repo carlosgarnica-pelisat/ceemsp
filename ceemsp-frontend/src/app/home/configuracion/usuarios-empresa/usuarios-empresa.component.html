@@ -1,0 +1,87 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Configuracion - Usuarios de empresas</h1>
+    <div class="btn-group">
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-3">
+      <div class="list-group">
+        <a routerLink="/home/configuracion" class="list-group-item list-group-item-action">
+          Notificaciones de correo
+        </a>
+        <a routerLink="/home/configuracion/usuarios" class="list-group-item list-group-item-action">Control de usuarios</a>
+        <a routerLink="/home/configuracion/usuarios/empresas" class="list-group-item list-group-item-action active">Usuarios de empresas</a>
+        <a routerLink="/home/configuracion/acerca" class="list-group-item list-group-item-action">Acerca</a>
+      </div>
+    </div>
+    <div class="col-sm-9" style="background: white">
+      <ag-grid-angular
+        style="height: 80vh; width: 100%;"
+        class="ag-theme-alpine"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (gridReady)="onGridReady($event)"
+        [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="checkForDetails($event.data)"
+        #agGrid
+      ></ag-grid-angular>
+    </div>
+  </div>
+
+  <ng-template #detallesUsuarioModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="detallesUsuarioModal">Ver detalles del usuario</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row" *ngIf="pestanaActual === 'DETALLES'">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr *ngIf="usuario?.rol !== 'ENTERPRISE_USER'">
+              <td><b>Nombres:</b></td>
+              <td>{{usuario?.nombres}}</td>
+            </tr>
+            <tr *ngIf="usuario?.rol !== 'ENTERPRISE_USER'">
+              <td><b>Apellidos:</b></td>
+              <td>{{usuario?.apellidos}}</td>
+            </tr>
+            <tr *ngIf="usuario?.rol === 'ENTERPRISE_USER'">
+              <td><b>Razon social:</b></td>
+              <td>{{usuario?.empresa?.registro}}</td>
+            </tr>
+            <tr *ngIf="usuario?.rol === 'ENTERPRISE_USER'">
+              <td><b>Nombre comercial:</b></td>
+              <td>{{usuario?.empresa?.nombreComercial}}</td>
+            </tr>
+            <tr *ngIf="usuario?.rol === 'ENTERPRISE_USER'">
+              <td><b>Razon social:</b></td>
+              <td>{{usuario?.empresa?.razonSocial}}</td>
+            </tr>
+            <tr>
+              <td><b>Rol:</b></td>
+              <td>{{usuario?.rol}}</td>
+            </tr>
+            <tr>
+              <td><b>Correo:</b></td>
+              <td>{{usuario?.email}}</td>
+            </tr>
+            <tr>
+              <td><b>Usuario:</b></td>
+              <td>{{usuario?.username}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
+      <button class="btn btn-primary" *ngIf="usuario?.rol === 'ENTERPRISE_USER'" (click)="redireccionarVerDetallesEmpresa()">Ver informacion de la empresa</button>
+    </div>
+  </ng-template>
+</div>

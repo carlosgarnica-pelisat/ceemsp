@@ -128,6 +128,7 @@ public class VehiculoTipoServiceImpl implements VehiculoTipoService {
 
         vehiculoTipo.setNombre(vehiculoTipoDto.getNombre());
         vehiculoTipo.setDescripcion(vehiculoTipoDto.getDescripcion());
+        vehiculoTipo.setTipo(vehiculoTipoDto.getTipo());
         vehiculoTipo.setFechaActualizacion(LocalDateTime.now());
         vehiculoTipo.setActualizadoPor(usuario.getId());
 

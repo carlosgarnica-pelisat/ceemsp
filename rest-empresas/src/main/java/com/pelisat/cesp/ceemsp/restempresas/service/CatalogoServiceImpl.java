@@ -531,7 +531,7 @@ public class CatalogoServiceImpl implements CatalogoService {
             throw new InvalidDataException();
         }
 
-        logger.info("Obteniendo la marca del arma con el id [{}]", id);
+        logger.debug("Obteniendo la marca del arma con el id [{}]", id);
 
         ArmaMarca armaMarca = armaMarcaRepository.getOne(id);
         return daoToDtoConverter.convertDaoToDtoArmaMarca(armaMarca);
@@ -544,7 +544,7 @@ public class CatalogoServiceImpl implements CatalogoService {
             throw new InvalidDataException();
         }
 
-        logger.info("Consultando la clase del arma con el id [{}]", id);
+        logger.debug("Consultando la clase del arma con el id [{}]", id);
 
         ArmaClase armaClase = armaClaseRepository.getOne(id);
 

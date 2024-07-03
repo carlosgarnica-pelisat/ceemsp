@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -59,6 +61,7 @@ public class ReporteoServiceImpl implements ReporteoService {
     private final EmpresaLicenciaColectivaDomicilioRepository empresaLicenciaColectivaDomicilioRepository;
     private final EmpresaModalidadRepository empresaModalidadRepository;
     private final ClienteModalidadRepository clienteModalidadRepository;
+    private final ListadoNominalViewRepository listadoNominalViewRepository;
 
     @Autowired
     public ReporteoServiceImpl(EmpresaRepository empresaRepository, PersonaRepository personaRepository,
@@ -87,7 +90,8 @@ public class ReporteoServiceImpl implements ReporteoService {
                                VehiculoUsoRepository vehiculoUsoRepository,
                                EmpresaLicenciaColectivaDomicilioRepository empresaLicenciaColectivaDomicilioRepository,
                                EmpresaModalidadRepository empresaModalidadRepository,
-                               ClienteModalidadRepository clienteModalidadRepository) {
+                               ClienteModalidadRepository clienteModalidadRepository,
+                               ListadoNominalViewRepository listadoNominalViewRepository) {
         this.empresaRepository = empresaRepository;
         this.personaRepository = personaRepository;
         this.empresaModalidadService = empresaModalidadService;
@@ -118,8 +122,8 @@ public class ReporteoServiceImpl implements ReporteoService {
         this.empresaLicenciaColectivaDomicilioRepository = empresaLicenciaColectivaDomicilioRepository;
         this.empresaModalidadRepository = empresaModalidadRepository;
         this.clienteModalidadRepository = clienteModalidadRepository;
+        this.listadoNominalViewRepository = listadoNominalViewRepository;
     }
-
 
     @Override
     public File generarReporteListadoNominal(LocalDate fechaInicio, LocalDate fechafin) throws Exception {
@@ -189,11 +193,8 @@ public class ReporteoServiceImpl implements ReporteoService {
 
         // Populando la informacion del reporte
         AtomicInteger consecutivo = new AtomicInteger(2);
-        List<Personal> personal = personaRepository.getAllByEliminadoFalse();
+        List<ListadoNominalView> personal = listadoNominalViewRepository.findAll();
         personal.forEach(p -> {
-            Empresa empresa = empresaRepository.getOne(p.getEmpresa());
-            List<EmpresaModalidadDto> modalidades = empresaModalidadService.obtenerModalidadesEmpresa(empresa.getUuid());
-
             Row eRow = sheet.createRow(consecutivo.get());
             Cell personalConsecutivoCell = eRow.createCell(0);
 
@@ -232,10 +233,10 @@ public class ReporteoServiceImpl implements ReporteoService {
             aPaternoCell.setCellValue(p.getApellidoPaterno());
             aMaternoCell.setCellValue(p.getApellidoMaterno());
             nombresCell.setCellValue(p.getNombres());
-            fechaIngresoPersonaCell.setCellValue(p.getFechaIngreso().toString());
-            razonSocialCell.setCellValue(empresa.getRazonSocial());
-            numeroRegistroCell.setCellValue(empresa.getRazonSocial());
-            modalidadesCell.setCellValue(modalidades.stream().map(m -> m.getModalidad().getNombre()).collect(Collectors.joining(", ")).toUpperCase());
+            fechaIngresoPersonaCell.setCellValue(p.getFechaIngreso());
+            razonSocialCell.setCellValue(p.getRazonSocial());
+            numeroRegistroCell.setCellValue(p.getRegistro());
+            modalidadesCell.setCellValue(StringUtils.isNotBlank(p.getModalidad()) ? p.getModalidad().toUpperCase() : "");
 
             consecutivo.incrementAndGet();
         });
@@ -246,7 +247,7 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
-    public File generarReportePadronEmpresas(LocalDate fechaInicio, LocalDate fechafin) throws Exception {
+    public File generarReportePadronEmpresas(LocalDate fechaInicio, LocalDate fechafin, EmpresaStatusEnum empresaStatusEnum) throws Exception {
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
@@ -331,7 +332,14 @@ public class ReporteoServiceImpl implements ReporteoService {
         numeroRegistroEncabezadoCell.setCellValue("Numero de Registro Federal");
 
         AtomicInteger consecutivo = new AtomicInteger(2);
-        List<Empresa> empresas = empresaRepository.getAllByEliminadoFalse();
+
+        List<Empresa> empresas = null;
+        if(empresaStatusEnum == null) {
+            empresas = empresaRepository.getAllByEliminadoFalse();
+        } else {
+            empresas = empresaRepository.getAllByStatusAndEliminadoFalse(empresaStatusEnum);
+        }
+
         empresas.forEach(e -> {
             List<EmpresaModalidadDto> modalidades = empresaModalidadService.obtenerModalidadesEmpresa(e.getUuid());
             EmpresaDomicilio domicilio = empresaDomicilioRepository.findFirstByEmpresaAndEliminadoFalse(e.getId());
@@ -713,8 +721,20 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
-    public File generarReporteAcuerdos(LocalDate fechaInicio, LocalDate fechafin) throws Exception {
-        List<Acuerdo> acuerdos = acuerdoRepository.getAllByEliminadoFalse().stream().sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa())).collect(Collectors.toList());
+    public File generarReporteAcuerdos(LocalDateTime fechaInicio, LocalDateTime fechafin) throws Exception {
+        List<Acuerdo> acuerdos;
+        if(fechaInicio != null && fechafin != null) {
+            acuerdos = acuerdoRepository.getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(fechaInicio, fechafin)
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa())
+                    .compareTo(o2.getEmpresa())).collect(Collectors.toList());
+        } else {
+            acuerdos = acuerdoRepository.getAllByEliminadoFalse()
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        }
+
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -808,8 +828,19 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
-    public File generarReportePersonal(LocalDate fechaInicio, LocalDate fechafin) throws Exception {
-        List<Personal> personal = personaRepository.getAllByEliminadoFalse().stream().sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa())).collect(Collectors.toList());
+    public File generarReportePersonal(LocalDateTime fechaInicio, LocalDateTime fechafin) throws Exception {
+        List<Personal> personal;
+        if(fechaInicio != null && fechafin != null) {
+            personal = personaRepository.getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(fechaInicio, fechafin)
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        } else {
+            personal = personaRepository.getAllByEliminadoFalse()
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -890,6 +921,8 @@ public class ReporteoServiceImpl implements ReporteoService {
         razonSocialEmpresaEncabezadoCell.setCellStyle(style);
         Cell cuipEncabezadoCell = encabezadoReporteRow.createCell(32);
         cuipEncabezadoCell.setCellStyle(style);
+        Cell domicilioEncabezadoCell = encabezadoReporteRow.createCell(33);
+        domicilioEncabezadoCell.setCellStyle(style);
 
 
         noCell.setCellValue("NO. CONSECUTIVO");
@@ -925,6 +958,7 @@ public class ReporteoServiceImpl implements ReporteoService {
         numeroRegistroEmpresaEncabezadoCell.setCellValue("NUMERO REGISTRO");
         razonSocialEmpresaEncabezadoCell.setCellValue("RAZON SOCIAL");
         cuipEncabezadoCell.setCellValue("CUIP");
+        domicilioEncabezadoCell.setCellValue("DOMICILIO");
 
         AtomicInteger consecutivo = new AtomicInteger(1);
         consecutivo.set(1);
@@ -946,6 +980,7 @@ public class ReporteoServiceImpl implements ReporteoService {
                 EmpresaModalidad empresaModalidad = empresaModalidadRepository.getOne(p.getModalidad());
                 modalidad = modalidadRepository.getOne(empresaModalidad.getModalidad());
             }
+            EmpresaDomicilio domicilio = empresaDomicilioRepository.getOne(p.getDomicilioAsignado());
 
             Row eRow = personalSheet.createRow(consecutivo.get());
             Cell numeroConsecutivoCell = eRow.createCell(0);
@@ -1014,6 +1049,8 @@ public class ReporteoServiceImpl implements ReporteoService {
             razonSocialCell.setCellStyle(style);
             Cell cuipCell = eRow.createCell(32);
             cuipCell.setCellStyle(style);
+            Cell domicilioAsignadoCell = eRow.createCell(33);
+            domicilioAsignadoCell.setCellStyle(style);
 
             numeroConsecutivoCell.setCellValue(consecutivo.get());
             nacionalidadCell.setCellValue(nacionalidad.getNombre());
@@ -1048,6 +1085,7 @@ public class ReporteoServiceImpl implements ReporteoService {
             numeroRegistroCell.setCellValue(empresa.getRegistro());
             razonSocialCell.setCellValue(empresa.getRazonSocial());
             fechaCreacionCell.setCellValue(p.getFechaCreacion().toString());
+            domicilioAsignadoCell.setCellValue(p.getDomicilioAsignado() > 0 ? domicilio.getDomicilio1() + " " + domicilio.getNumeroExterior() + " " + (domicilio.getNumeroInterior() != null ? domicilio.getNumeroInterior() : "") + " " + domicilio.getDomicilio2() : "NA");
 
             consecutivo.incrementAndGet();
         });
@@ -1057,8 +1095,19 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
-    public File generarReporteEscrituras(LocalDate fechaInicio, LocalDate fechafin) throws Exception {
-        List<EmpresaEscritura> escrituras = empresaEscrituraRepository.findAllByEliminadoFalse().stream().sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa())).collect(Collectors.toList());
+    public File generarReporteEscrituras(LocalDateTime fechaInicio, LocalDateTime fechafin) throws Exception {
+        List<EmpresaEscritura> escrituras;
+        if(fechaInicio != null && fechafin != null) {
+            escrituras = empresaEscrituraRepository.getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(fechaInicio, fechafin)
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        } else {
+            escrituras = empresaEscrituraRepository.findAllByEliminadoFalse()
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -1164,8 +1213,19 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
-    public File generarReporteCanes(LocalDate fechaInicio, LocalDate fechafin) throws Exception {
-        List<Can> canes = canRepository.findAllByEliminadoFalse().stream().sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa())).collect(Collectors.toList());
+    public File generarReporteCanes(LocalDateTime fechaInicio, LocalDateTime fechafin) throws Exception {
+        List<Can> canes;
+        if(fechaInicio != null && fechafin != null) {
+            canes = canRepository.getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(fechaInicio, fechafin)
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        } else {
+            canes = canRepository.findAllByEliminadoFalse()
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -1313,8 +1373,19 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
-    public File generarReporteVehiculos(LocalDate fechaInicio, LocalDate fechafin) throws Exception {
-        List<Vehiculo> vehiculos = vehiculoRepository.findAllByEliminadoFalse().stream().sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa())).collect(Collectors.toList());
+    public File generarReporteVehiculos(LocalDateTime fechaInicio, LocalDateTime fechafin) throws Exception {
+        List<Vehiculo> vehiculos;
+        if(fechaInicio != null && fechafin != null) {
+            vehiculos = vehiculoRepository.getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(fechaInicio, fechafin)
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        } else {
+            vehiculos = vehiculoRepository.findAllByEliminadoFalse()
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -1369,6 +1440,8 @@ public class ReporteoServiceImpl implements ReporteoService {
         registroEmpresaEncabezadoCell.setCellStyle(style);
         Cell razonSocialEmpresaEncabezadoCell = encabezadoReporteRow.createCell(19);
         razonSocialEmpresaEncabezadoCell.setCellStyle(style);
+        Cell domicilioAsignadoEncabezadoCell = encabezadoReporteRow.createCell(20);
+        domicilioAsignadoEncabezadoCell.setCellStyle(style);
 
         noCell.setCellValue("NO. CONSECUTIVO");
         tipoVehiculoEncabezadoCell.setCellValue("TIPO VEHICULO");
@@ -1390,6 +1463,7 @@ public class ReporteoServiceImpl implements ReporteoService {
         fechaCreacionEncabezadoCell.setCellValue("FECHA DE CREACION");
         registroEmpresaEncabezadoCell.setCellValue("REGISTRO EMPRESA");
         razonSocialEmpresaEncabezadoCell.setCellValue("RAZON SOCIAL");
+        domicilioAsignadoEncabezadoCell.setCellValue("DOMICILIO");
 
         AtomicInteger consecutivo = new AtomicInteger(1);
         consecutivo.set(1);
@@ -1403,6 +1477,8 @@ public class ReporteoServiceImpl implements ReporteoService {
             if(p.getSubmarca() > 0) {
                 vehiculoSubmarca = vehiculoSubmarcaRepository.getOne(p.getSubmarca());
             }
+
+            EmpresaDomicilio domicilio = empresaDomicilioRepository.getOne(p.getDomicilio());
 
             Row eRow = vehiculoSheet.createRow(consecutivo.get());
             Cell numeroConsecutivoCell = eRow.createCell(0);
@@ -1445,6 +1521,8 @@ public class ReporteoServiceImpl implements ReporteoService {
             registroEmpresaCell.setCellStyle(style);
             Cell razonSocialEmpresaCell = eRow.createCell(19);
             razonSocialEmpresaCell.setCellStyle(style);
+            Cell domicilioAsignadoCell = eRow.createCell(20);
+            domicilioAsignadoCell.setCellStyle(style);
 
             numeroConsecutivoCell.setCellValue(consecutivo.get());
             tipoVehiculoCell.setCellValue(vehiculoTipo.getNombre());
@@ -1466,6 +1544,7 @@ public class ReporteoServiceImpl implements ReporteoService {
             fechaCreacionCell.setCellValue(p.getFechaCreacion().toString());
             registroEmpresaCell.setCellValue(empresa.getRegistro());
             razonSocialEmpresaCell.setCellValue(empresa.getRazonSocial());
+            domicilioAsignadoCell.setCellValue(p.getDomicilio() > 0 ? domicilio.getDomicilio1() + " " + domicilio.getNumeroExterior() + " " + (domicilio.getNumeroInterior() != null ? domicilio.getNumeroInterior() : "") + " " + domicilio.getDomicilio2() : "NA");
 
             consecutivo.incrementAndGet();
         });
@@ -1475,8 +1554,19 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
-    public File generarReporteClientes(LocalDate fechaInicio, LocalDate fechafin) throws Exception {
-        List<Cliente> clientes = clienteRepository.findAllByEliminadoFalse().stream().sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa())).collect(Collectors.toList());
+    public File generarReporteClientes(LocalDateTime fechaInicio, LocalDateTime fechafin) throws Exception {
+        List<Cliente> clientes;
+        if(fechaInicio != null && fechafin != null) {
+            clientes = clienteRepository.getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(fechaInicio, fechafin)
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        } else {
+            clientes = clienteRepository.findAllByEliminadoFalse()
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -1596,8 +1686,20 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
-    public File generarReporteArmas(LocalDate fechaInicio, LocalDate fechafin) throws Exception {
-        List<Arma> armas = armaRepository.findAllByEliminadoFalse().stream().sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa())).collect(Collectors.toList());
+    public File generarReporteArmas(LocalDateTime fechaInicio, LocalDateTime fechafin) throws Exception {
+        List<Arma> armas;
+        if(fechaInicio != null && fechafin != null) {
+            armas = armaRepository.getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(fechaInicio, fechafin)
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        } else {
+            armas = armaRepository.findAllByEliminadoFalse()
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        }
+
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -1668,8 +1770,7 @@ public class ReporteoServiceImpl implements ReporteoService {
             ArmaMarca marca = armaMarcaRepository.getOne(p.getMarca());
             EmpresaLicenciaColectiva licenciaColectiva = empresaLicenciaColectivaRepository.getOne(p.getLicenciaColectiva());
             EmpresaDomicilio empresaDomicilio = empresaDomicilioRepository.getOne(p.getBunker());
-            EmpresaModalidad empresaModalidad = empresaModalidadRepository.getOne(licenciaColectiva.getModalidad());
-            Modalidad modalidad = modalidadRepository.getOne(empresaModalidad.getModalidad());
+            Modalidad modalidad = modalidadRepository.getOne(licenciaColectiva.getModalidad());
             Personal personalAsignado = null;
             if(p.getStatus() == ArmaStatusEnum.ASIGNADA && p.getTipo() == ArmaTipoEnum.CORTA) {
                 personalAsignado = personaRepository.getByArmaCortaAndEliminadoFalse(p.getId());
@@ -1733,9 +1834,19 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
-    public File generarReporteLicenciasColectivas(LocalDate fechaInicio, LocalDate fechafin) throws Exception {
-        List<EmpresaLicenciaColectiva> licenciasColectivas = empresaLicenciaColectivaRepository.findAllByEliminadoFalse().stream().sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa())).collect(Collectors.toList());
-        List<EmpresaLicenciaColectiva> licenciasColectivasEliminadas = empresaLicenciaColectivaRepository.findAllByEliminadoTrue().stream().sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa())).collect(Collectors.toList());
+    public File generarReporteLicenciasColectivas(LocalDateTime fechaInicio, LocalDateTime fechafin) throws Exception {
+        List<EmpresaLicenciaColectiva> licenciasColectivas;
+        if(fechaInicio != null && fechafin != null) {
+            licenciasColectivas = empresaLicenciaColectivaRepository.getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(fechaInicio, fechafin)
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        } else {
+            licenciasColectivas = empresaLicenciaColectivaRepository.findAllByEliminadoFalse()
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -1747,7 +1858,6 @@ public class ReporteoServiceImpl implements ReporteoService {
         OutputStream outputStream = new FileOutputStream(filepath);
 
         Sheet licenciasColectivasSheet = workbook.createSheet("CREADAS (" + licenciasColectivas.size() + ")");
-        Sheet licenciasColectivasEliminadasSheet = workbook.createSheet("ELIMINADAS (" + licenciasColectivasEliminadas.size() + ")");
 
         // Creando prestadores de servicios
         Row encabezadoReporteRow = licenciasColectivasSheet.createRow(0);
@@ -1788,36 +1898,6 @@ public class ReporteoServiceImpl implements ReporteoService {
         fechaCreacionEncabezadoCell.setCellValue("FECHA DE CREACION");
         registroEmpresaEncabezadoCell.setCellValue("REGISTRO EMPRESA");
         razonSocialEmpresaEncabezadoCell.setCellValue("RAZON SOCIAL");
-
-        Row encabezadoReporteEliminadoRow = licenciasColectivasEliminadasSheet.createRow(0);
-        Cell noCellEliminado = encabezadoReporteEliminadoRow.createCell(0);
-        noCellEliminado.setCellStyle(style);
-        Cell numeroOficioEncabezadoCellEliminado = encabezadoReporteEliminadoRow.createCell(1);
-        numeroOficioEncabezadoCellEliminado.setCellStyle(style);
-        Cell modalidadEncabezadoCellEliminado = encabezadoReporteEliminadoRow.createCell(2);
-        modalidadEncabezadoCellEliminado.setCellStyle(style);
-        Cell submodalidadEncabezadoCellEliminado = encabezadoReporteEliminadoRow.createCell(3);
-        submodalidadEncabezadoCellEliminado.setCellStyle(style);
-        Cell fechaInicioEncabezadoCellEliminado = encabezadoReporteEliminadoRow.createCell(4);
-        fechaInicioEncabezadoCellEliminado.setCellStyle(style);
-        Cell fechaFinEncabezadoCellEliminado = encabezadoReporteEliminadoRow.createCell(5);
-        fechaFinEncabezadoCellEliminado.setCellStyle(style);
-        Cell fechaCreacionEncabezadoCellEliminado = encabezadoReporteEliminadoRow.createCell(6);
-        fechaCreacionEncabezadoCellEliminado.setCellStyle(style);
-        Cell registroEmpresaEncabezadoCellEliminado = encabezadoReporteEliminadoRow.createCell(7);
-        registroEmpresaEncabezadoCellEliminado.setCellStyle(style);
-        Cell razonSocialEmpresaEncabezadoCellEliminado = encabezadoReporteEliminadoRow.createCell(8);
-        razonSocialEmpresaEncabezadoCellEliminado.setCellStyle(style);
-
-        noCellEliminado.setCellValue("NO. CONSECUTIVO");
-        numeroOficioEncabezadoCellEliminado.setCellValue("NUMERO DE OFICIO");
-        modalidadEncabezadoCellEliminado.setCellValue("MODALIDAD");
-        submodalidadEncabezadoCellEliminado.setCellValue("SUBMODALIDAD");
-        fechaInicioEncabezadoCellEliminado.setCellValue("FECHA INICIO");
-        fechaFinEncabezadoCellEliminado.setCellValue("FECHA FIN");
-        fechaCreacionEncabezadoCellEliminado.setCellValue("FECHA DE CREACION");
-        registroEmpresaEncabezadoCellEliminado.setCellValue("REGISTRO EMPRESA");
-        razonSocialEmpresaEncabezadoCellEliminado.setCellValue("RAZON SOCIAL");
 
         AtomicInteger consecutivo = new AtomicInteger(1);
         consecutivo.set(1);
@@ -1879,54 +1959,24 @@ public class ReporteoServiceImpl implements ReporteoService {
             consecutivo.incrementAndGet();
         });
 
-        licenciasColectivasEliminadas.forEach(p -> {
-            Empresa empresa = empresaRepository.getOne(p.getEmpresa());
-            Modalidad modalidad = modalidadRepository.getOne(p.getModalidad());
-            Submodalidad submodalidad = null;
-            if(p.getSubmodalidad() > 0) {
-                submodalidad = submodalidadRepository.getOne(p.getSubmodalidad());
-            }
-
-            Row eRow = licenciasColectivasEliminadasSheet.createRow(consecutivo.get());
-            Cell numeroConsecutivoCell = eRow.createCell(0);
-            numeroConsecutivoCell.setCellStyle(style);
-            Cell numeroOficioCell = eRow.createCell(1);
-            numeroOficioCell.setCellStyle(style);
-            Cell modalidadCell = eRow.createCell(2);
-            modalidadCell.setCellStyle(style);
-            Cell submodalidadCell = eRow.createCell(3);
-            submodalidadCell.setCellStyle(style);
-            Cell fechaInicioCell = eRow.createCell(4);
-            fechaInicioCell.setCellStyle(style);
-            Cell fechaFinCell = eRow.createCell(5);
-            fechaFinCell.setCellStyle(style);
-            Cell fechaCreacionCell = eRow.createCell(6);
-            fechaCreacionCell.setCellStyle(style);
-            Cell registroEmpresaCell = eRow.createCell(7);
-            registroEmpresaCell.setCellStyle(style);
-            Cell razonSocialCell = eRow.createCell(8);
-            razonSocialCell.setCellStyle(style);
-
-            numeroConsecutivoCell.setCellValue(consecutivo.get());
-            numeroOficioCell.setCellValue(p.getNumeroOficio());
-            modalidadCell.setCellValue(modalidad.getNombre());
-            submodalidadCell.setCellValue(submodalidad != null ? submodalidad.getNombre() : "NA");
-            fechaInicioCell.setCellValue(p.getFechaInicio().toString());
-            fechaFinCell.setCellValue(p.getFechaFin().toString());
-            fechaCreacionCell.setCellValue(p.getFechaCreacion().toString());
-            registroEmpresaCell.setCellValue(empresa.getRegistro());
-            razonSocialCell.setCellValue(empresa.getRazonSocial());
-
-            consecutivo.incrementAndGet();
-        });
-
         workbook.write(outputStream);
         return new File(filepath);
     }
 
     @Override
-    public File generarReporteVisitas(LocalDate fechaInicio, LocalDate fechafin) throws Exception {
-        List<Visita> visitas = visitaRepository.getAllByEliminadoFalse().stream().sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa())).collect(Collectors.toList());
+    public File generarReporteVisitas(LocalDateTime fechaInicio, LocalDateTime fechafin) throws Exception {
+        List<Visita> visitas;
+        if(fechaInicio != null && fechafin != null) {
+            visitas = visitaRepository.getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(fechaInicio, fechafin)
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        } else {
+            visitas = visitaRepository.getAllByEliminadoFalse()
+                    .stream()
+                    .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                    .collect(Collectors.toList());
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();

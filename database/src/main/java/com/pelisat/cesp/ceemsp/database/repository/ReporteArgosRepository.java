@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface ReporteArgosRepository extends JpaRepository<ReporteArgos, Integer> {
     List<ReporteArgos> getAllByStatusAndEliminadoFalse(ReporteArgosStatusEnum reporteArgosStatusEnum);
+    List<ReporteArgos> getAllByCreadoPorAndEliminadoFalse(int creadoPor);
     ReporteArgos findByUuidAndEliminadoFalse(String uuid);
 }

@@ -9,6 +9,9 @@ import {faCheck} from "@fortawesome/free-solid-svg-icons";
 import {BotonEmpresasComponent} from "../../_components/botones/boton-empresas/boton-empresas.component";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {MultilineCellComponent} from "../../_components/cell-renderers/multiline-cell/multiline-cell.component";
+import Usuario from "../../_models/Usuario";
+import {UsuariosService} from "../../_services/usuarios.service";
+import {ReporteEmpresasService} from "../../_services/reporte-empresas.service";
 
 @Component({
   selector: 'app-empresas',
@@ -54,6 +57,8 @@ export class EmpresasComponent implements OnInit {
   empresaCreacionForm: FormGroup;
   empresaCambioStatusForm: FormGroup;
   tipoPersona: string;
+  usuarioActual: Usuario;
+  status: string;
 
   @ViewChild('editarEmpresaModal') editarEmpresaModal;
   @ViewChild('seleccionarStatusBusquedaModal') seleccionarStatusBusquedaModal;
@@ -63,9 +68,20 @@ export class EmpresasComponent implements OnInit {
   }
 
   constructor(private toastService: ToastService, private empresaService: EmpresaService, private router: Router,
-              private formBuilder: FormBuilder, private modalService: NgbModal) { }
+              private formBuilder: FormBuilder, private modalService: NgbModal, private usuarioService: UsuariosService,
+              private reporteoService: ReporteEmpresasService) { }
 
   ngOnInit(): void {
+    this.usuarioService.obtenerUsuarioActual().subscribe((data: Usuario) => {
+      this.usuarioActual = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido obtener el usuario actual. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
     this.frameworkComponents = {
       buttonRenderer: BotonEmpresasComponent,
       multilineRenderer: MultilineCellComponent
@@ -219,6 +235,7 @@ export class EmpresasComponent implements OnInit {
 
     let value = form.value;
     this.empresaService.obtenerEmpresasPorStatus(value.status).subscribe((data: Empresa[]) => {
+      this.status = value.status;
       this.rowData = data;
       this.modal.close();
     }, (error) => {
@@ -230,6 +247,21 @@ export class EmpresasComponent implements OnInit {
     })
   }
 
+  generarReporteExcel() {
+
+    this.reporteoService.generarReportePadronEmpresas(this.status).subscribe((data) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "test.xls";
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el reporte en excel. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
   exportGridData(format) {
     switch(format) {
       case "CSV":

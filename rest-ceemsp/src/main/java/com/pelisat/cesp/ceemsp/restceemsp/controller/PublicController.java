@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,6 +95,13 @@ public class PublicController {
     public Map<String, String> ping() {
         Map<String, String> response = new HashMap<>();
         response.put("ping", "pong");
+        return response;
+    }
+
+    @GetMapping(value = "/public/date", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, String> getServerDate() {
+        Map<String, String> response = new HashMap<>();
+        response.put("date", LocalDate.now().toString());
         return response;
     }
 }

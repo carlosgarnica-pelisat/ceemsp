@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface ClienteDomicilioRepository extends JpaRepository<ClienteDomicilio, Integer> {
     List<ClienteDomicilio> getAllByClienteAndEliminadoFalse(int cliente);
+    List<ClienteDomicilio> getAllByCliente(int cliente);
     ClienteDomicilio findByUuidAndEliminadoFalse(String uuid);
     ClienteDomicilio findByClienteAndMatrizTrueAndEliminadoFalse(int cliente);
 }

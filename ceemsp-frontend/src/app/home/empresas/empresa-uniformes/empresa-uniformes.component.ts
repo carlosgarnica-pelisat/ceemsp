@@ -15,6 +15,8 @@ import {
 } from "../../../_components/botones/boton-empresa-uniformes/boton-empresa-uniformes.component";
 import Empresa from "../../../_models/Empresa";
 import EmpresaUniformeElementoMovimiento from "../../../_models/EmpresaUniformeElementoMovimiento";
+import Usuario from "../../../_models/Usuario";
+import {AuthenticationService} from "../../../_services/authentication.service";
 
 @Component({
   selector: 'app-empresa-uniformes',
@@ -76,6 +78,7 @@ export class EmpresaUniformesComponent implements OnInit {
   empresaUniformeElemento: EmpresaUniformeElemento;
 
   frameworkComponents: any;
+  usuarioActual: Usuario;
 
   @ViewChild('mostrarDetallesUniformeModal') mostrarDetallesUniformeModal;
   @ViewChild("modificarUniformeModal") modificarUniformeModal;
@@ -85,11 +88,13 @@ export class EmpresaUniformesComponent implements OnInit {
   @ViewChild('mostrarMovimientosModal') mostrarMovimientosModal;
   @ViewChild('mostrarUniformeCompletoModal') mostrarUniformeCompletoModal;
 
-  constructor(private route: ActivatedRoute, private toastService: ToastService,
+  constructor(private route: ActivatedRoute, private toastService: ToastService, private authenticationService: AuthenticationService,
               private modalService: NgbModal, private empresaService: EmpresaService,
               private formBuilder: FormBuilder, private uniformeService: UniformeService) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
     this.frameworkComponents = {
       buttonRenderer: BotonEmpresaUniformesComponent
     }
@@ -106,8 +111,8 @@ export class EmpresaUniformesComponent implements OnInit {
     })
 
     this.crearUniformeForm = this.formBuilder.group({
-      'nombre': ['', [Validators.required, Validators.maxLength(100)]],
-      'descripcion': ['', [Validators.required, Validators.maxLength(100)]]
+      'nombre': ['', [Validators.required, Validators.maxLength(300)]],
+      'descripcion': ['', [Validators.required, Validators.maxLength(300)]]
     });
 
     this.crearUniformeElementoForm = this.formBuilder.group({
@@ -149,6 +154,15 @@ export class EmpresaUniformesComponent implements OnInit {
   }
 
   editar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerUniformePorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaUniforme) => {
       this.uniforme = data;
       this.mostrarModalModificarUniforme();
@@ -162,6 +176,15 @@ export class EmpresaUniformesComponent implements OnInit {
   }
 
   eliminar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerUniformePorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaUniforme) => {
       this.uniforme = data;
       this.mostrarModalEliminarUniforme();
@@ -194,15 +217,6 @@ export class EmpresaUniformesComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `Hay campos requeridos sin rellenar`,
-        ToastType.WARNING
-      );
-      return;
-    }
-
-    if(this.tempFile === undefined && !this.editandoElemento) {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `Favor de subir un archivo para este elemento`,
         ToastType.WARNING
       );
       return;
@@ -274,7 +288,12 @@ export class EmpresaUniformesComponent implements OnInit {
       });
 
     } else {
-      formData.append('archivo', this.tempFile, this.tempFile.name);
+      if(this.tempFile !== undefined) {
+        formData.append('archivo', this.tempFile, this.tempFile.name);
+      } else {
+        formData.append('archivo', null);
+      }
+
       this.empresaService.guardarUniformeElemento(this.uuid, this.uniforme.uuid, formData).subscribe((data: Uniforme) => {
         this.toastService.showGenericToast(
           "Listo",

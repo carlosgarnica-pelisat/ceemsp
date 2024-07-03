@@ -55,7 +55,7 @@ export class VisitasComponent implements OnInit {
   rowData = [];
   domicilios: EmpresaDomicilio[] = [];
 
-  fechaDeHoy = new Date().toISOString().split('T')[0];
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
 
   uuid: string;
 
@@ -460,7 +460,7 @@ export class VisitasComponent implements OnInit {
   }
 
   mostrarModalModificar() {
-    let registroPiezas = this.visita.numeroOrden.split("/");
+    let registroPiezas = this.visita.numeroOrden?.split("/");
 
     this.tipoVisita = this.visita.tipoVisita;
     this.empresa = this.visita.empresa;
@@ -579,6 +579,21 @@ export class VisitasComponent implements OnInit {
         )
         break;
     }
+  }
+
+  generarReporteExcel() {
+    this.visitaService.generarReporteExcel().subscribe((data: Blob) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "reporte-visitas.xls";
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el reporte. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
   seleccionarUsuario(event) {

@@ -29,6 +29,8 @@ export default class Arma implements Deserializable {
   documentoFundatorioBaja: string;
   fechaBaja: string;
   eliminadoIncidencia: boolean;
+  numeroOficio: string;
+  fechaCreacion: string;
 
 
   deserialize(input: any): this {

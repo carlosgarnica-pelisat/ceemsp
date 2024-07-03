@@ -1,0 +1,72 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2023-09-25-agregar-columnas-vigencia-inicio-fin" author="carlos.garnica@pelisat.com.mx">
+        <sql>
+            create procedure borrar_contenidos_empresa (in empresaId int, in usuario int)
+            begin
+            update acuerdos a
+            set a.fecha_actualizacion = NOW(), a.actualizado_por = usuario, a.eliminado = true, a.motivo_baja = 'CAMBIO DE STATUS', a.fecha_baja = now(), a.observaciones_baja = 'Cambio de status'
+            where a.empresa = empresaId;
+
+            update empresas_domicilios ed
+            set ed.fecha_actualizacion = NOW(), ed.actualizado_por = usuario, ed.eliminado = true, ed.motivo_baja = 'CAMBIO DE STATUS', ed.fecha_baja = now(), ed.observaciones_baja = 'Cambio de status'
+            where ed.empresa = empresaId;
+
+            update empresas_escrituras ee
+            set ee.fecha_actualizacion = NOW(), ee.actualizado_por = usuario, ee.eliminado = true
+            where ee.empresa = empresaId;
+
+            update empresas_licencias_colectivas elc
+            set elc.fecha_actualizacion = NOW(), elc.actualizado_por = usuario, elc.eliminado = true, elc.motivo_baja = 'CAMBIO DE STATUS', elc.fecha_baja = now(), elc.observaciones_baja = 'Cambio de status'
+            where elc.empresa = empresaId;
+
+            update armas ea
+            set ea.fecha_actualizacion = NOW(), ea.actualizado_por = usuario, ea.eliminado = true, ea.motivo_baja = 'CAMBIO DE STATUS', ea.fecha_baja = now(), ea.observaciones_baja = 'Cambio de status'
+            where ea.empresa = empresaId;
+
+            update canes ec
+            set ec.fecha_actualizacion = NOW(), ec.actualizado_por = usuario, ec.eliminado = true, ec.motivo_baja = 'CAMBIO DE STATUS', ec.fecha_baja = now(), ec.observaciones_baja = 'Cambio de status'
+            where ec.empresa = empresaId;
+
+            update vehiculos ev
+            set ev.fecha_actualizacion = NOW(), ev.actualizado_por = usuario, ev.eliminado = true, ev.motivo_baja = 'CAMBIO DE STATUS', ev.fecha_baja = now(), ev.observaciones_baja = 'Cambio de status'
+            where ev.empresa = empresaId;
+
+            update incidencias ei
+            set ei.fecha_actualizacion = NOW(), ei.actualizado_por = usuario, ei.eliminado = true
+            where ei.empresa = empresaId;
+
+            update clientes ec
+            set ec.fecha_actualizacion = NOW(), ec.actualizado_por = usuario, ec.eliminado = true, ec.motivo_baja = 'CAMBIO DE STATUS', ec.fecha_baja = now(), ec.observaciones_baja = 'Cambio de status'
+            where ec.empresa = empresaId;
+
+            update personal ep
+            set ep.fecha_actualizacion = NOW(), ep.actualizado_por = usuario, ep.eliminado = true, ep.motivo_baja = 'CAMBIO DE STATUS', ep.fecha_baja = now(), ep.observaciones_baja = 'Cambio de status'
+            where ep.empresa = empresaId;
+
+            update empresas_equipos ee
+            set ee.fecha_actualizacion = NOW(), ee.actualizado_por = usuario, ee.eliminado = true
+            where ee.empresa = empresaId;
+
+            update empresas_uniformes eu
+            set eu.fecha_actualizacion = NOW(), eu.actualizado_por = usuario, eu.eliminado = true
+            where eu.empresa = empresaId;
+
+            update empresas_modalidades em
+            set em.fecha_actualizacion = NOW(), em.actualizado_por = usuario, em.eliminado = true
+            where em.empresa = empresaId;
+
+            update empresas_formas_ejecucion efe
+            set efe.fecha_actualizacion = NOW(), efe.actualizado_por = usuario, efe.eliminado = true
+            where efe.empresa = empresaId;
+
+            update visitas ev
+            set ev.fecha_actualizacion = NOW(), ev.actualizado_por = usuario, ev.eliminado = true
+            where ev.empresa = empresaId;
+            end
+        </sql>
+    </changeSet>
+</databaseChangeLog>

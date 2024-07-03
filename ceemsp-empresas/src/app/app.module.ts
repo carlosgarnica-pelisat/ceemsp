@@ -79,6 +79,8 @@ import { BotonEmpresaVisitasComponent } from './_components/botones/boton-empres
 import { BotonEmpresaReportesComponent } from './_components/botones/boton-empresa-reportes/boton-empresa-reportes.component';
 import { BusquedaComponent } from './home/busqueda/busqueda.component';
 import { BuscarNombresPipe } from './_pipes/buscar-nombres.pipe';
+import { BuscarMatriculaPipe } from './_pipes/buscar-matricula.pipe';
+import { BuscarPlacasPipe } from './_pipes/buscar-placas.pipe';
 
 @NgModule({
   declarations: [
@@ -140,7 +142,9 @@ import { BuscarNombresPipe } from './_pipes/buscar-nombres.pipe';
     BotonEmpresaVisitasComponent,
     BotonEmpresaReportesComponent,
     BusquedaComponent,
-    BuscarNombresPipe
+    BuscarNombresPipe,
+    BuscarMatriculaPipe,
+    BuscarPlacasPipe
   ],
   imports: [
     BrowserModule,

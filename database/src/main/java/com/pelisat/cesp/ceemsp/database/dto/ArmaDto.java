@@ -32,4 +32,5 @@ public class ArmaDto {
     private String fechaEliminacionIncidencia;
     private String razonBajaIncidencia;
     private EmpresaDto empresa;
+    private String numeroOficio;
 }

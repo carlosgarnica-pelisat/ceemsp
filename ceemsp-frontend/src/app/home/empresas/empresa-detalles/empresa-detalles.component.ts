@@ -108,9 +108,9 @@ export class EmpresaDetallesComponent implements OnInit {
       })
 
       if(this.empresa?.tipoTramite === 'AP') {
-        this.year = this.empresa?.registro.split('/')[4];
+        this.year = this.empresa?.registro?.split('/')[4];
       } else {
-        this.year = this.empresa?.registro.split('/')[3];
+        this.year = this.empresa?.registro?.split('/')[3];
       }
 
       this.tipoTramite = this.empresa?.tipoTramite;
@@ -476,9 +476,9 @@ export class EmpresaDetallesComponent implements OnInit {
   mostrarEditarEmpresaModal(modal) {
     let numero: string;
     if(this.tipoTramite === 'AP') {
-      numero = this.empresa?.registro.split('/')[3]
+      numero = this.empresa?.registro?.split('/')[3]
     } else {
-      numero =  this.empresa?.registro.split('/')[2]
+      numero =  this.empresa?.registro?.split('/')[2]
     }
 
     this.empresaCreacionForm.patchValue({

@@ -176,9 +176,16 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
-    public File generarReportePersonal(String username) throws Exception {
+    public File generarReportePersonal(String username, boolean eliminados) throws Exception {
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
-        List<Personal> personal = personaRepository.getAllByEmpresaAndEliminadoFalse(usuarioDto.getEmpresa().getId());
+        List<Personal> personal;
+
+        if (eliminados) {
+            personal = personaRepository.getAllByEmpresaAndEliminadoTrue(usuarioDto.getEmpresa().getId());
+        } else {
+            personal = personaRepository.getAllByEmpresaAndEliminadoFalse(usuarioDto.getEmpresa().getId());
+        }
+
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -284,6 +291,16 @@ public class ReporteoServiceImpl implements ReporteoService {
         rfcEncabezadoCell.setCellValue("RFC");
         formaEjecucionEncabezadoCell.setCellValue("FORMA EJECUCION");
         cuipEncabezadoCell.setCellValue("CUIP");
+
+        if(eliminados) {
+            Cell fechaBajaEncabezadoCell = encabezadoReporteRow.createCell(30);
+            fechaBajaEncabezadoCell.setCellStyle(style);
+            Cell motivoBajaEncabezadoCell = encabezadoReporteRow.createCell(31);
+            motivoBajaEncabezadoCell.setCellStyle(style);
+
+            fechaBajaEncabezadoCell.setCellValue("FECHA BAJA");
+            motivoBajaEncabezadoCell.setCellValue("MOTIVO BAJA");
+        }
 
         AtomicInteger consecutivo = new AtomicInteger(1);
         consecutivo.set(1);
@@ -400,6 +417,16 @@ public class ReporteoServiceImpl implements ReporteoService {
             formaEjecucionCell.setCellValue((p.getFormaEjecucion() != null) ? p.getFormaEjecucion().getNombre() : "");
             cuipCell.setCellValue(p.getCuip() != null ? p.getCuip() : "NA");
 
+            if(eliminados) {
+                Cell fechaBajaCell = eRow.createCell(30);
+                fechaBajaCell.setCellStyle(style);
+                Cell motivoBajaCell = eRow.createCell(31);
+                motivoBajaCell.setCellStyle(style);
+
+                fechaBajaCell.setCellValue(p.getFechaBaja().toString());
+                motivoBajaCell.setCellValue(p.getMotivoBaja().getNombre());
+            }
+
             consecutivo.incrementAndGet();
         });
 
@@ -495,9 +522,16 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
-    public File generarReporteCanes(String username) throws Exception {
+    public File generarReporteCanes(String username, boolean eliminados) throws Exception {
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
-        List<Can> canes = canRepository.getAllByEmpresaAndEliminadoFalse(usuarioDto.getEmpresa().getId());
+
+        List<Can> canes;
+
+        if (eliminados) {
+            canes = canRepository.getAllByEmpresaAndEliminadoTrue(usuarioDto.getEmpresa().getId());
+        } else {
+            canes = canRepository.getAllByEmpresaAndEliminadoFalse(usuarioDto.getEmpresa().getId());
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -629,9 +663,15 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
-    public File generarReporteVehiculos(String username) throws Exception {
+    public File generarReporteVehiculos(String username, boolean eliminados) throws Exception {
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
-        List<Vehiculo> vehiculos = vehiculoRepository.getAllByEmpresaAndEliminadoFalse(usuarioDto.getEmpresa().getId());
+        List<Vehiculo> vehiculos;
+
+        if (eliminados) {
+            vehiculos = vehiculoRepository.getAllByEmpresaAndEliminadoTrue(usuarioDto.getEmpresa().getId());
+        } else {
+            vehiculos = vehiculoRepository.getAllByEmpresaAndEliminadoFalse(usuarioDto.getEmpresa().getId());
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -778,9 +818,15 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
-    public File generarReporteClientes(String username) throws Exception {
+    public File generarReporteClientes(String username, boolean eliminados) throws Exception {
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
-        List<Cliente> clientes = clienteRepository.findAllByEmpresaAndEliminadoFalse(usuarioDto.getEmpresa().getId());
+        List<Cliente> clientes;
+
+        if (eliminados) {
+            clientes = clienteRepository.findAllByEmpresaAndEliminadoTrue(usuarioDto.getEmpresa().getId());
+        } else {
+            clientes = clienteRepository.findAllByEmpresaAndEliminadoFalse(usuarioDto.getEmpresa().getId());
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();

@@ -3,8 +3,6 @@ package com.pelisat.cesp.ceemsp.database.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-
 @Getter
 @Setter
 public class EmpresaReporteMensualDto {
@@ -56,4 +54,5 @@ public class EmpresaReporteMensualDto {
     private String sello;
     private String fechaCreacion;
     private String numero;
+    private EmpresaDto empresa;
 }

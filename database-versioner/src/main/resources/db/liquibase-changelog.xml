@@ -120,4 +120,5 @@
     <include file="changelog/ventanas/master.xml" relativeToChangelogFile="true"></include>
 
     <include file="changelog/reportes-argos/master.xml" relativeToChangelogFile="true"></include>
+    <include file="changelog/empresa-reportes-mensuales-movimientos/master.xml" relativeToChangelogFile="true"></include>
 </databaseChangeLog>

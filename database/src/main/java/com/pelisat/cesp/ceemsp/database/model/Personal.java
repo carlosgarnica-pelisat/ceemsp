@@ -128,7 +128,8 @@ public class Personal extends CommonModel {
     private int localidadCatalogo;
 
     @Column(name = "MOTIVO_BAJA")
-    private String motivoBaja;
+    @Enumerated(EnumType.STRING)
+    private PersonalRazonBajaEnum motivoBaja;
 
     @Column(name = "OBSERVACIONES_BAJA")
     private String observacionesBaja;

@@ -228,8 +228,13 @@ public class CanAdiestramientoServiceImpl implements CanAdiestramientoService {
 
         logger.info("Eliminando adiestramiento con uuid [{}]", adiestramientoUuid);
 
-        CanAdiestramiento canAdiestramiento = canAdiestramientoRepository.findByUuidAndEliminadoFalse(adiestramientoUuid);
+        Can can = canRepository.getByUuidAndEliminadoFalse(canUuid);
+        if(can == null) {
+            logger.warn("El can no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
 
+        CanAdiestramiento canAdiestramiento = canAdiestramientoRepository.findByUuidAndEliminadoFalse(adiestramientoUuid);
         if(canAdiestramiento == null) {
             logger.warn("El adiestramiento viene como nulo o vacio");
             throw new NotFoundResourceException();
@@ -240,6 +245,14 @@ public class CanAdiestramientoServiceImpl implements CanAdiestramientoService {
         canAdiestramiento.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, canAdiestramiento, usuarioDto.getId());
         canAdiestramientoRepository.save(canAdiestramiento);
+
+        List<CanAdiestramiento> adiestramientos = canAdiestramientoRepository.findAllByCanAndEliminadoFalse(can.getId());
+        if(adiestramientos.size() == 0) {
+            can.setAdiestramientoCapturado(false);
+            daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+            canRepository.save(can);
+        }
+
         return daoToDtoConverter.convertDaoToDtoCanAdiestramiento(canAdiestramiento);
     }
 }

@@ -63,7 +63,7 @@ public class EmpresaPersonalCertificacionServiceImpl implements EmpresaPersonalC
         }
 
         logger.info("Obteniendo las certificaciones para la persona [{}]", personaUuid);
-        Personal personal = personaRepository.getByUuidAndEliminadoFalse(personaUuid);
+        Personal personal = personaRepository.getByUuid(personaUuid);
         if(personal == null) {
             logger.warn("La persona o el personal en la base de datos no existen");
             throw new NotFoundResourceException();

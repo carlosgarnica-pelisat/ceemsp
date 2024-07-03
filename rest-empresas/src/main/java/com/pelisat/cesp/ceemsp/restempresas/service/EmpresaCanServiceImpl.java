@@ -106,6 +106,31 @@ public class EmpresaCanServiceImpl implements EmpresaCanService {
     }
 
     @Override
+    public List<CanDto> obtenerCanesPorEmpresaEliminados(String username) {
+        if(StringUtils.isBlank(username)) {
+            logger.warn("el uuid de la empresa viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo los canes para el usuario", username);
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        List<Can> canes = canRepository.getAllByEmpresaAndEliminadoTrue(usuarioDto.getEmpresa().getId());
+
+        return canes.stream().map(c -> {
+            CanDto canDto = daoToDtoConverter.convertDaoToDtoCan(c);
+            canDto.setRaza(catalogoService.obtenerCanRazaPorId(c.getRaza()));
+            if(canDto.getStatus() == CanStatusEnum.ACTIVO) {
+                Personal personalAsignado = personaRepository.getByCanAndEliminadoFalse(c.getId());
+                if(personalAsignado != null) {
+                    canDto.setElementoAsignado(daoToDtoConverter.convertDaoToDtoPersona(personalAsignado));
+                }
+            }
+            return canDto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
     public List<CanDto> obtenerCanesEnInstalacionesPorEmpresa(String username) {
         if(StringUtils.isBlank(username)) {
             logger.warn("El uuid de la empresa viene como nulo o vacio");

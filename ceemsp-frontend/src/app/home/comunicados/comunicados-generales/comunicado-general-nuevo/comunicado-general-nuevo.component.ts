@@ -22,7 +22,7 @@ export class ComunicadoGeneralNuevoComponent implements OnInit {
     editorData: '<p>Escribe con detalle el comunicado. Puedes utilizar los botones de la parte superior</p>'
   }
   rowData: ComunicadoGeneral[] = [];
-  fechaDeHoy = new Date().toISOString().split('T')[0];
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
 
   constructor(private formBuilder: FormBuilder, private comunicadosGeneralesService: ComunicadosGeneralesService,
               private toastService: ToastService, private sanitizeHtmlPipe: SanitizeHtmlPipe, private router: Router,) { }

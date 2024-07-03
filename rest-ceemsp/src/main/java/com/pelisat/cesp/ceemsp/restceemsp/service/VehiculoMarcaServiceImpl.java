@@ -155,6 +155,7 @@ public class VehiculoMarcaServiceImpl implements VehiculoMarcaService {
         vehiculoMarca.setNombre(vehiculoMarcaDto.getNombre());
         vehiculoMarca.setDescripcion(vehiculoMarcaDto.getDescripcion());
         vehiculoMarca.setTipo(vehiculoMarcaDto.getTipo());
+        vehiculoMarca.setTipo(vehiculoMarcaDto.getTipo());
         vehiculoMarca.setFechaActualizacion(LocalDateTime.now());
         vehiculoMarca.setActualizadoPor(usuario.getId());
 

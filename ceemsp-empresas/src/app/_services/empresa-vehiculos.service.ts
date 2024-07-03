@@ -17,6 +17,10 @@ export class EmpresaVehiculosService {
     return this.http.get(`${this.uri}/vehiculos`);
   }
 
+  obtenerVehiculosEliminados() {
+    return this.http.get(`${this.uri}/vehiculos/eliminados`);
+  }
+
   obtenerVehiculosInstalaciones() {
     return this.http.get(`${this.uri}/vehiculos/instalaciones`);
   }

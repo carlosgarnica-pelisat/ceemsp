@@ -34,6 +34,7 @@ export default class Arma implements Deserializable {
   fechaCreacion: string;
   razonBajaIncidencia: string;
   empresa: Empresa;
+  numeroOficio: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);

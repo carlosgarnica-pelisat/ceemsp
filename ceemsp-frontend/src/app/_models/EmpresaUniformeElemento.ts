@@ -7,6 +7,7 @@ export default class EmpresaUniformeElemento implements Deserializable {
   uuid: string;
   elemento: Uniforme;
   cantidad: number;
+  tieneArchivo: boolean;
   movimientos: EmpresaUniformeElementoMovimiento[];
 
   deserialize(input: any): this {

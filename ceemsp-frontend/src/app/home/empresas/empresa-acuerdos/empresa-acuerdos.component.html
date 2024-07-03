@@ -5,7 +5,7 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Acuerdos</h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear()">Nuevo acuerdo</button>
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalCrear()">Nuevo acuerdo</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button" id="mostrarColumnasDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Mostrar / Ocultar columnas
@@ -117,7 +117,7 @@
               <td><b>Observaciones</b></td>
               <td>{{acuerdo.observaciones}}</td>
             </tr>
-            <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+            <tr *ngIf="usuarioActual.rol !== 'CEEMSP_USER'">
               <td><b>Fecha de creación:</b></td>
               <td>{{acuerdo?.fechaCreacion}}</td>
             </tr>
@@ -131,8 +131,8 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-primary" (click)="mostrarAcuerdo()">Visualizar acuerdo</button>
-      <button type="button" class="btn btn-primary" (click)="mostrarModificarAcuerdoModal()">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarAcuerdo()">Eliminar</button>
+      <button type="button" class="btn btn-primary" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModificarAcuerdoModal()">Modificar</button>
+      <button type="button" class="btn btn-danger" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalEliminarAcuerdo()">Eliminar</button>
     </div>
   </ng-template>
 
@@ -232,8 +232,8 @@
             <div class="row" *ngIf="tipoAcuerdo === 'REVOCACION' || tipoAcuerdo === 'PERDIDA_EFICACIA' || tipoAcuerdo === 'SUSPENSION' || tipoAcuerdo === 'CLAUSURA'">
               <div class="col-sm-12">
                 <b>Nota importante:</b>
-                <p *ngIf="tipoAcuerdo === 'REVOCACION'">Al seleccionar <b>Revocacion</b>, la empresa quedara en status <b>REVOCADA</b> definitivamente, haciendo que no pueda iniciar sesion ni realizar ningun tipo de tramite.</p>
-                <p *ngIf="tipoAcuerdo === 'PERDIDA_EFICACIA'">Al seleccionar <b>Perdida de Eficacia</b> la empresa en status <b>PERDIDA DE EFICACIA</b> definitivamente, haciendo que no pueda iniciar sesion ni realizar ningun tipo de tramite.</p>
+                <p *ngIf="tipoAcuerdo === 'REVOCACION'">ALERTA: Al seleccionar <b>Revocacion</b>, la empresa quedara en status <b>REVOCADA</b> definitivamente, haciendo que no pueda iniciar sesion ni realizar ningun tipo de tramite; asi mismo todos los registros relacionados a la empresa seran eliminados definitivamente; entre ellos canes, armas, personal, vehiculos y demas.</p>
+                <p *ngIf="tipoAcuerdo === 'PERDIDA_EFICACIA'">Al seleccionar <b>Perdida de Eficacia</b> la empresa en status <b>PERDIDA DE EFICACIA</b> definitivamente, haciendo que no pueda iniciar sesion ni realizar ningun tipo de tramite; asi mismo todos los registros relacionados a la empresa seran eliminados definitivamente; entre ellos canes, armas, personal, vehiculos y demas.</p>
                 <p *ngIf="tipoAcuerdo === 'SUSPENSION'">Al seleccionar <b>Suspension</b> la empresa quedara <b>SUSPENDIDA</b> de manera temporal. Durante ese tiempo la empresa no podra realizar tramites ni iniciar sesion.</p>
                 <p *ngIf="tipoAcuerdo === 'CLAUSURA'">Al seleccionar <b>Clausura</b> la empresa quedara <b>CLAUSURADA</b> de manera temporal. Durante ese tiempo la empresa no podra realizar tramites ni iniciar sesion.</p>
               </div>

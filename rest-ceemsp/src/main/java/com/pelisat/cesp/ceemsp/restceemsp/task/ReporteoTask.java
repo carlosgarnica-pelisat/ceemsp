@@ -67,7 +67,7 @@ public class ReporteoTask<T extends CommonModel> {
                     break;
                 case PADRON_ESTATAL:
                     try {
-                        File file = reporteoService.generarReportePadronEmpresas(r.getFechaInicio(), r.getFechaFin());
+                        File file = reporteoService.generarReportePadronEmpresas(r.getFechaInicio(), r.getFechaFin(), null);
                         r.setStatus(ReporteArgosStatusEnum.COMPLETADO);
                         r.setRutaArchivo(file.getAbsolutePath());
                         daoHelper.fulfillAuditorFields(false, r, r.getActualizadoPor());
@@ -96,7 +96,13 @@ public class ReporteoTask<T extends CommonModel> {
                     break;
                 case ACUERDOS:
                     try {
-                        File file = reporteoService.generarReporteAcuerdos(r.getFechaInicio(), r.getFechaFin());
+                        File file;
+                        if(r.getFechaInicio() != null && r.getFechaFin() != null) {
+                            file = reporteoService.generarReporteAcuerdos(r.getFechaInicio().atStartOfDay(), r.getFechaFin().atTime(23, 59, 59));
+                        } else {
+                            file = reporteoService.generarReporteAcuerdos(null, null);
+                        }
+
                         r.setStatus(ReporteArgosStatusEnum.COMPLETADO);
                         r.setRutaArchivo(file.getAbsolutePath());
                         daoHelper.fulfillAuditorFields(false, r, r.getActualizadoPor());
@@ -110,7 +116,13 @@ public class ReporteoTask<T extends CommonModel> {
                     break;
                 case PERSONAL:
                     try {
-                        File file = reporteoService.generarReportePersonal(r.getFechaInicio(), r.getFechaFin());
+                        File file;
+                        if(r.getFechaInicio() != null && r.getFechaFin() != null) {
+                            file = reporteoService.generarReportePersonal(r.getFechaInicio().atStartOfDay(), r.getFechaFin().atTime(23, 59, 59));
+                        } else {
+                            file = reporteoService.generarReportePersonal(null, null);
+                        }
+
                         r.setStatus(ReporteArgosStatusEnum.COMPLETADO);
                         r.setRutaArchivo(file.getAbsolutePath());
                         daoHelper.fulfillAuditorFields(false, r, r.getActualizadoPor());
@@ -124,7 +136,13 @@ public class ReporteoTask<T extends CommonModel> {
                     break;
                 case ESCRITURAS:
                     try {
-                        File file = reporteoService.generarReporteEscrituras(r.getFechaInicio(), r.getFechaFin());
+                        File file;
+                        if(r.getFechaInicio() != null && r.getFechaFin() != null) {
+                            file = reporteoService.generarReporteEscrituras(r.getFechaInicio().atStartOfDay(), r.getFechaFin().atTime(23, 59, 59));
+                        } else {
+                            file = reporteoService.generarReporteEscrituras(null, null);
+                        }
+
                         r.setStatus(ReporteArgosStatusEnum.COMPLETADO);
                         r.setRutaArchivo(file.getAbsolutePath());
                         daoHelper.fulfillAuditorFields(false, r, r.getActualizadoPor());
@@ -138,7 +156,13 @@ public class ReporteoTask<T extends CommonModel> {
                     break;
                 case CANES:
                     try {
-                        File file = reporteoService.generarReporteCanes(r.getFechaInicio(), r.getFechaFin());
+                        File file;
+                        if(r.getFechaInicio() != null && r.getFechaFin() != null) {
+                            file = reporteoService.generarReporteCanes(r.getFechaInicio().atStartOfDay(), r.getFechaFin().atTime(23, 59, 59));
+                        } else {
+                            file = reporteoService.generarReporteCanes(null, null);
+                        }
+
                         r.setStatus(ReporteArgosStatusEnum.COMPLETADO);
                         r.setRutaArchivo(file.getAbsolutePath());
                         daoHelper.fulfillAuditorFields(false, r, r.getActualizadoPor());
@@ -152,7 +176,13 @@ public class ReporteoTask<T extends CommonModel> {
                     break;
                 case VEHICULOS:
                     try {
-                        File file = reporteoService.generarReporteVehiculos(r.getFechaInicio(), r.getFechaFin());
+                        File file;
+                        if(r.getFechaInicio() != null && r.getFechaFin() != null) {
+                            file = reporteoService.generarReporteVehiculos(r.getFechaInicio().atStartOfDay(), r.getFechaFin().atTime(23, 59, 59));
+                        } else {
+                            file = reporteoService.generarReporteVehiculos(null, null);
+                        }
+
                         r.setStatus(ReporteArgosStatusEnum.COMPLETADO);
                         r.setRutaArchivo(file.getAbsolutePath());
                         daoHelper.fulfillAuditorFields(false, r, r.getActualizadoPor());
@@ -166,7 +196,13 @@ public class ReporteoTask<T extends CommonModel> {
                     break;
                 case CLIENTES:
                     try {
-                        File file = reporteoService.generarReporteClientes(r.getFechaInicio(), r.getFechaFin());
+                        File file;
+                        if(r.getFechaInicio() != null && r.getFechaFin() != null) {
+                            file = reporteoService.generarReporteClientes(r.getFechaInicio().atStartOfDay(), r.getFechaFin().atTime(23, 59, 59));
+                        } else {
+                            file = reporteoService.generarReporteClientes(null, null);
+                        }
+
                         r.setStatus(ReporteArgosStatusEnum.COMPLETADO);
                         r.setRutaArchivo(file.getAbsolutePath());
                         daoHelper.fulfillAuditorFields(false, r, r.getActualizadoPor());
@@ -180,7 +216,13 @@ public class ReporteoTask<T extends CommonModel> {
                     break;
                 case ARMAS:
                     try {
-                        File file = reporteoService.generarReporteArmas(r.getFechaInicio(), r.getFechaFin());
+                        File file;
+                        if(r.getFechaInicio() != null && r.getFechaFin() != null) {
+                            file = reporteoService.generarReporteArmas(r.getFechaInicio().atStartOfDay(), r.getFechaFin().atTime(23, 59, 59));
+                        } else {
+                            file = reporteoService.generarReporteArmas(null, null);
+                        }
+
                         r.setStatus(ReporteArgosStatusEnum.COMPLETADO);
                         r.setRutaArchivo(file.getAbsolutePath());
                         daoHelper.fulfillAuditorFields(false, r, r.getActualizadoPor());
@@ -194,7 +236,13 @@ public class ReporteoTask<T extends CommonModel> {
                     break;
                 case LICENCIAS_COLECTIVAS:
                     try {
-                        File file = reporteoService.generarReporteLicenciasColectivas(r.getFechaInicio(), r.getFechaFin());
+                        File file;
+                        if(r.getFechaInicio() != null && r.getFechaFin() != null) {
+                            file = reporteoService.generarReporteLicenciasColectivas(r.getFechaInicio().atStartOfDay(), r.getFechaFin().atTime(23, 59, 59));
+                        } else {
+                            file = reporteoService.generarReporteLicenciasColectivas(null, null);
+                        }
+
                         r.setStatus(ReporteArgosStatusEnum.COMPLETADO);
                         r.setRutaArchivo(file.getAbsolutePath());
                         daoHelper.fulfillAuditorFields(false, r, r.getActualizadoPor());
@@ -208,7 +256,13 @@ public class ReporteoTask<T extends CommonModel> {
                     break;
                 case VISITAS:
                     try {
-                        File file = reporteoService.generarReporteVisitas(r.getFechaInicio(), r.getFechaFin());
+                        File file;
+                        if(r.getFechaInicio() != null && r.getFechaFin() != null) {
+                            file = reporteoService.generarReporteVisitas(r.getFechaInicio().atStartOfDay(), r.getFechaFin().atTime(23, 59, 59));
+                        } else {
+                            file = reporteoService.generarReporteVisitas(null, null);
+                        }
+
                         r.setStatus(ReporteArgosStatusEnum.COMPLETADO);
                         r.setRutaArchivo(file.getAbsolutePath());
                         daoHelper.fulfillAuditorFields(false, r, r.getActualizadoPor());

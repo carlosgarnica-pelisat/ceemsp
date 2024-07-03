@@ -14,6 +14,11 @@ import {
 import {
   BotonEmpresaReportesComponent
 } from "../../_components/botones/boton-empresa-reportes/boton-empresa-reportes.component";
+import Persona from "../../_models/Persona";
+import Cliente from "../../_models/Cliente";
+import Vehiculo from "../../_models/Vehiculo";
+import Arma from "../../_models/Arma";
+import Can from "../../_models/Can";
 
 @Component({
   selector: 'app-empresa-reportes-mensuales',
@@ -25,6 +30,37 @@ export class EmpresaReportesMensualesComponent implements OnInit {
   uuid: string;
   private gridApi;
   private gridColumnApi;
+
+  pestanaActualMovimientosPersonal: string = "ACTIVOS";
+  pestanaActualMovimientosClientes: string = "ACTIVOS";
+  pestanaActualMovimientosVehiculos: string = "ACTIVOS";
+  pestanaActualMovimientosArmasModalidad1: string = "ACTIVOS";
+  pestanaActualMovimientosArmasModalidad2: string = "ACTIVOS";
+  pestanaActualMovimientosArmasModalidad3: string = "ACTIVOS";
+  pestanaActualMovimientosCanes: string = "ACTIVOS";
+
+  personalAltas: Persona[] = [];
+  personalBajas: Persona[] = [];
+  personalActivos: Persona[] = [];
+  clienteAltas: Cliente[] = [];
+  clienteBajas: Cliente[] = [];
+  clienteActivos: Cliente[] = [];
+  vehiculosAltas: Vehiculo[] = [];
+  vehiculosBajas: Vehiculo[] = [];
+  vehiculosActivos: Vehiculo[] = [];
+  armasModalidad1Altas: Arma[] = [];
+  armasModalidad2Altas: Arma[] = [];
+  armasModalidad3Altas: Arma[] = [];
+  armasModalidad1Bajas: Arma[] = [];
+  armasModalidad2Bajas: Arma[] = [];
+  armasModalidad3Bajas: Arma[] = [];
+  armasModalidad1Activos: Arma[] = [];
+  armasModalidad2Activos: Arma[] = [];
+  armasModalidad3Activos: Arma[] = [];
+  canesAltas: Can[] = [];
+  canesBajas: Can[] = [];
+  canesActivos: Can[] = [];
+
   modal: NgbModalRef;
   closeResult: string;
   frameworkComponents: any;
@@ -54,6 +90,13 @@ export class EmpresaReportesMensualesComponent implements OnInit {
   ];
 
   @ViewChild('mostrarDetallesReporteModal') mostrarDetallesReporteModal;
+  @ViewChild('mostrarPersonalMovimientosReporteModal') mostrarPersonalMovimientosReporteModal;
+  @ViewChild('mostrarClienteMovimientosReporteModal') mostrarClienteMovimientosReporteModal;
+  @ViewChild('mostrarVehiculosMovimientosReporteModal') mostrarVehiculosMovimientosReporteModal;
+  @ViewChild('mostrarArmasModalidad1MovimientosReporteModal') mostrarArmasModalidad1MovimientosReporteModal;
+  @ViewChild('mostrarArmasModalidad2MovimientosReporteModal') mostrarArmasModalidad2MovimientosReporteModal;
+  @ViewChild('mostrarArmasModalidad3MovimientosReporteModal') mostrarArmasModalidad3MovimientosReporteModal;
+  @ViewChild('mostrarCanesMovimientosReporteModal') mostrarCanesMovimientosReporteModal;
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaReporteMensualService: EmpresaReportesMensualesService,
@@ -154,6 +197,128 @@ export class EmpresaReportesMensualesComponent implements OnInit {
       let fechaActualSplice = this.fechaReporteLocal.split(" ");
       this.mes = fechaActualSplice[3].toUpperCase()
       this.ano = fechaActualSplice[5]
+
+      this.empresaReporteMensualService.obtenerMovimientosPersonalAltas(this.uuid, this.reporte?.uuid).subscribe((data: Persona[]) => {
+        this.personalAltas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener los movimientos de las altas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.empresaReporteMensualService.obtenerMovimientosPersonalBajas(this.uuid, this.reporte?.uuid).subscribe((data: Persona[]) => {
+        this.personalBajas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener los movimientos de las bajas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.empresaReporteMensualService.obtenerMovimientosPersonalActivos(this.uuid, this.reporte?.uuid).subscribe((data: Persona[]) => {
+        this.personalActivos = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener los movimientos de las bajas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.empresaReporteMensualService.obtenerMovimientosClientesActivos(this.uuid, this.reporte?.uuid).subscribe((data: Cliente[]) => {
+        this.clienteActivos = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener los movimientos de los clientes activos . Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+
+      this.empresaReporteMensualService.obtenerMovimientosClientesAltas(this.uuid, this.reporte?.uuid).subscribe((data: Cliente[]) => {
+        this.clienteAltas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener los movimientos de las altas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.empresaReporteMensualService.obtenerMovimientosClientesBajas(this.uuid, this.reporte?.uuid).subscribe((data: Cliente[]) => {
+        this.clienteBajas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener los movimientos de las bajas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.empresaReporteMensualService.obtenerMovimientosVehiculosActivos(this.uuid, this.reporte?.uuid).subscribe((data: Vehiculo[]) => {
+        this.vehiculosActivos = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener los movimientos de las altas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.empresaReporteMensualService.obtenerMovimientosVehiculosAltas(this.uuid, this.reporte?.uuid).subscribe((data: Vehiculo[]) => {
+        this.vehiculosAltas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener los movimientos de las altas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.empresaReporteMensualService.obtenerMovimientosVehiculosBajas(this.uuid, this.reporte?.uuid).subscribe((data: Vehiculo[]) => {
+        this.vehiculosBajas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener los movimientos de las bajas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.empresaReporteMensualService.obtenerMovimientosCanesActivos(this.uuid, this.reporte?.uuid).subscribe((data: Can[]) => {
+        this.canesActivos = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener los movimientos de las altas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.empresaReporteMensualService.obtenerMovimientosCanesAltas(this.uuid, this.reporte?.uuid).subscribe((data: Can[]) => {
+        this.canesAltas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener los movimientos de las altas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.empresaReporteMensualService.obtenerMovimientosCanesBajas(this.uuid, this.reporte?.uuid).subscribe((data: Can[]) => {
+        this.canesBajas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener los movimientos de las bajas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
       this.modal = this.modalService.open(this.mostrarDetallesReporteModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
     }, (error) => {
       this.toastService.showGenericToast(
@@ -162,6 +327,45 @@ export class EmpresaReportesMensualesComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
+
+  mostrarModalMovimientosPersonal() {
+    this.modal = this.modalService.open(this.mostrarPersonalMovimientosReporteModal, {size: "xl", backdrop: "static"})
+  }
+
+  mostrarModalMovimientosClientes() {
+    this.modal = this.modalService.open(this.mostrarClienteMovimientosReporteModal, {size: "xl", backdrop: "static"})
+  }
+
+  mostrarModalMovimientosVehiculos() {
+    this.modal = this.modalService.open(this.mostrarVehiculosMovimientosReporteModal, {size: "xl", backdrop: "static"})
+  }
+
+  cambiarPestanaMovimientosPersona(pestana: string) {
+    this.pestanaActualMovimientosPersonal = pestana;
+  }
+
+  cambiarPestanaMovimientosCliente(pestana: string) {
+    this.pestanaActualMovimientosClientes = pestana;
+  }
+
+  cambiarPestanaMovimientosVehiculos(pestana: string) {
+    this.pestanaActualMovimientosVehiculos = pestana;
+  }
+
+  cambiarPestanaMovimientosArmasModalidad1(pestana: string) {
+    this.pestanaActualMovimientosArmasModalidad1 = pestana;
+  }
+
+  cambiarPestanaMovimientosArmasModalidad2(pestana: string) {
+    this.pestanaActualMovimientosArmasModalidad2 = pestana;
+  }
+  cambiarPestanaMovimientosArmasModalidad3(pestana: string) {
+    this.pestanaActualMovimientosArmasModalidad3 = pestana;
+  }
+
+  cambiarPestanaMovimientosCanes(pestana: string) {
+    this.pestanaActualMovimientosCanes = pestana;
   }
 
   private getDismissReason(reason: any): string {

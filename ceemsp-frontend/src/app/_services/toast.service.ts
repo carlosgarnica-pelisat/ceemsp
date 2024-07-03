@@ -73,7 +73,7 @@ export class ToastService {
     this.show(
       content, {
         classname: classType,
-        delay: 5000 ,
+        delay: 3000 ,
         autohide: true,
         headertext: title
       }

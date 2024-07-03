@@ -6,4 +6,5 @@
     <include file="db/changelog/usuarios/initialize/schema.xml" />
     <include file="db/changelog/usuarios/CEEMSP-47/schema.xml" />
     <include file="db/changelog/usuarios/CEEMSP-96/schema.xml" />
+    <include file="db/changelog/usuarios/CEEMSP-106/schema.xml" />
 </databaseChangeLog>

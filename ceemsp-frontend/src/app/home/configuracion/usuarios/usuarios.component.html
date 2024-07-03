@@ -16,6 +16,7 @@
           Notificaciones de correo
         </a>
         <a routerLink="/home/configuracion/usuarios" class="list-group-item list-group-item-action active">Control de usuarios</a>
+        <a routerLink="/home/configuracion/usuarios/empresas" class="list-group-item list-group-item-action">Usuarios de empresas</a>
         <a routerLink="/home/configuracion/acerca" class="list-group-item list-group-item-action">Acerca</a>
       </div>
     </div>
@@ -41,28 +42,28 @@
       </button>
     </div>
     <div class="modal-body">
-      <div class="row">
-        <div class="col-sm-12">
-          <ul class="nav nav-pills nav-fill">
-            <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'MOVIMIENTOS' }" (click)="cambiarPestana('MOVIMIENTOS')">Movimientos</a>
-            </li>
-          </ul>
-        </div>
-      </div>
       <div class="row" *ngIf="pestanaActual === 'DETALLES'">
         <div class="col-sm-12">
           <table class="table">
-            <tr>
+            <tr *ngIf="usuario?.rol !== 'ENTERPRISE_USER'">
               <td><b>Nombres:</b></td>
               <td>{{usuario?.nombres}}</td>
             </tr>
-            <tr>
+            <tr *ngIf="usuario?.rol !== 'ENTERPRISE_USER'">
               <td><b>Apellidos:</b></td>
               <td>{{usuario?.apellidos}}</td>
+            </tr>
+            <tr *ngIf="usuario?.rol === 'ENTERPRISE_USER'">
+              <td><b>Razon social:</b></td>
+              <td>{{usuario?.empresa?.registro}}</td>
+            </tr>
+            <tr *ngIf="usuario?.rol === 'ENTERPRISE_USER'">
+              <td><b>Nombre comercial:</b></td>
+              <td>{{usuario?.empresa?.nombreComercial}}</td>
+            </tr>
+            <tr *ngIf="usuario?.rol === 'ENTERPRISE_USER'">
+              <td><b>Razon social:</b></td>
+              <td>{{usuario?.empresa?.razonSocial}}</td>
             </tr>
             <tr>
               <td><b>Rol:</b></td>
@@ -106,6 +107,7 @@
       </div>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
+      <button class="btn btn-primary" *ngIf="usuario?.rol === 'ENTERPRISE_USER'" (click)="redireccionarVerDetallesEmpresa()">Ver informacion de la empresa</button>
       <button class="btn btn-primary" (click)="mostrarModalModificarUsuario()">Modificar</button>
       <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarUsuario()">Eliminar</button>
     </div>
@@ -204,6 +206,7 @@
                 <select id="rol" class="form-control" formControlName="rol">
                   <option value="CEEMSP_SUPERUSER">Superusuario</option>
                   <option value="CEEMSP_USER">Usuario</option>
+                  <option value="CEEMSP_READ_ONLY">Solo lectura</option>
                 </select>
               </div>
             </div>
@@ -260,7 +263,7 @@
                     <i *ngIf="crearUsuarioForm.controls['apellidoMaterno'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                   </span>
                 </label>
-                <input class="form-control" id="apellidoMaternoEditar" type="text" formControlName="apellidoMaternoEditar" placeholder="Ejemplo: Gonzalez">
+                <input class="form-control" id="apellidoMaternoEditar" type="text" formControlName="apellidoMaterno" placeholder="Ejemplo: Gonzalez">
               </div>
             </div>
             <div class="row">
@@ -310,6 +313,7 @@
                 <select id="rolEditar" class="form-control" formControlName="rol">
                   <option value="CEEMSP_SUPERUSER">Superusuario</option>
                   <option value="CEEMSP_USER">Usuario</option>
+                  <option value="CEEMSP_READ_ONLY">Solo lectura</option>
                 </select>
               </div>
             </div>

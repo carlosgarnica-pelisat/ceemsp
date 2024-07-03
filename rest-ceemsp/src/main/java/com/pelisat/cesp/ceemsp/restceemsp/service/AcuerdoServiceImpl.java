@@ -143,6 +143,7 @@ public class AcuerdoServiceImpl implements AcuerdoService {
             empresaDto.setStatus(EmpresaStatusEnum.PERDIDA_EFICACIA);
             empresaDto.setObservaciones(acuerdo.getObservaciones());
             empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
+            empresaRepository.borrar_contenidos_empresa(empresaDto.getId(), usuarioDto.getId());
         } else if(acuerdo.getTipo() == AcuerdoTipoEnum.CLAUSURA) {
             empresaDto.setStatus(EmpresaStatusEnum.CLAUSURADA);
             empresaDto.setObservaciones(acuerdo.getObservaciones());
@@ -151,10 +152,11 @@ public class AcuerdoServiceImpl implements AcuerdoService {
             empresaDto.setStatus(EmpresaStatusEnum.SUSPENDIDA);
             empresaDto.setObservaciones(acuerdo.getObservaciones());
             empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
-        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.REV0CACION) {
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.REVOCACION) {
             empresaDto.setStatus(EmpresaStatusEnum.REVOCADA);
             empresaDto.setObservaciones(acuerdo.getObservaciones());
             empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
+            empresaRepository.borrar_contenidos_empresa(empresaDto.getId(), usuarioDto.getId());
         } else if(acuerdo.getTipo() == AcuerdoTipoEnum.MULTA) {
             acuerdo.setMultaUmas(acuerdoDto.getMultaUmas());
             acuerdo.setMultaPesos(acuerdoDto.getMultaPesos());
@@ -224,7 +226,7 @@ public class AcuerdoServiceImpl implements AcuerdoService {
             empresaDto.setStatus(EmpresaStatusEnum.SUSPENDIDA);
             empresaDto.setObservaciones(acuerdo.getObservaciones());
             empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);
-        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.REV0CACION) {
+        } else if(acuerdo.getTipo() == AcuerdoTipoEnum.REVOCACION) {
             empresaDto.setStatus(EmpresaStatusEnum.REVOCADA);
             empresaDto.setObservaciones(acuerdo.getObservaciones());
             empresaService.cambiarStatusEmpresa(empresaDto, username, uuid);

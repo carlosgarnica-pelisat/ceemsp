@@ -5,6 +5,9 @@ import {faDownload} from "@fortawesome/free-solid-svg-icons";
 import {ToastType} from "../../_enums/ToastType";
 import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import ReporteArgos from "../../_models/ReporteArgos";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import Usuario from "../../_models/Usuario";
+import {UsuariosService} from "../../_services/usuarios.service";
 
 @Component({
   selector: 'app-reporteo',
@@ -18,6 +21,9 @@ export class ReporteoComponent implements OnInit {
   private gridApi;
   private gridColumnApi;
   frameworkComponents: any;
+  requiereFecha: boolean = false;
+  fechaPersonalizada: boolean = false;
+  reporteForm: FormGroup;
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true, resizable: true },
@@ -34,16 +40,36 @@ export class ReporteoComponent implements OnInit {
 
   rowData = [];
   reporte: ReporteArgos;
-  fechaDeHoy = new Date().toISOString().split('T')[0];
-  tipoReporte: string = undefined;
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
+  tipo: string = undefined;
+  usuarioActual: Usuario;
 
   @ViewChild('mostrarModalCrearNuevoReporte') mostrarModalCrearNuevoReporte;
   @ViewChild('modalReportePorUuid') modalReportePorUuid;
+  @ViewChild('eliminarReporteModal') eliminarReporteModal;
 
   constructor(private reporteoService: ReporteoService, private toastService: ToastService,
-              private modalService: NgbModal) { }
+              private modalService: NgbModal, private fb: FormBuilder, private usuarioService: UsuariosService) { }
 
   ngOnInit(): void {
+    this.usuarioService.obtenerUsuarioActual().subscribe((data: Usuario) => {
+      this.usuarioActual = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido obtener el usuario actual. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
+    this.reporteForm = this.fb.group(
+      {
+        tipo: ['', [Validators.required]],
+        fechaInicio: ['', []],
+        fechaFin: ['', []]
+      }
+    )
+
     this.reporteoService.obtenerReportesArgos().subscribe((data: ReporteArgos[]) => {
       this.rowData = data;
     }, (error) => {
@@ -79,7 +105,27 @@ export class ReporteoComponent implements OnInit {
   }
 
   cambiarTipoReporte(event) {
-    this.tipoReporte = event.value
+    this.tipo = event.value
+
+    if(this.tipo === 'LISTADO_NOMINAL' || this.tipo === 'PADRON_ESTATAL' || this.tipo === 'INTERCAMBIO_INFORMACION') {
+      this.requiereFecha = false
+    } else {
+      this.requiereFecha = true
+    }
+  }
+
+  cambiarFechaPersonalizada() {
+    if(this.fechaPersonalizada) {
+      this.reporteForm.controls['fechaInicio'].setValidators([Validators.required])
+      this.reporteForm.controls['fechaInicio'].updateValueAndValidity();
+      this.reporteForm.controls['fechaFin'].setValidators([Validators.required])
+      this.reporteForm.controls['fechaFin'].updateValueAndValidity();
+    } else {
+      this.reporteForm.controls['fechaInicio'].setValidators([])
+      this.reporteForm.controls['fechaInicio'].updateValueAndValidity();
+      this.reporteForm.controls['fechaFin'].setValidators([])
+      this.reporteForm.controls['fechaFin'].updateValueAndValidity();
+    }
   }
 
   onGridReady(params) {
@@ -113,11 +159,33 @@ export class ReporteoComponent implements OnInit {
     })
   }
 
-  programarReporte() {
-    if(this.tipoReporte === undefined) {
+  mostrarEliminarReporteModal() {
+    this.modal = this.modalService.open(this.eliminarReporteModal, {size: "lg", backdrop: "static"})
+  }
+
+  eliminarReporte() {
+    this.reporteoService.eliminarReporte(this.reporte?.uuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha eliminado el reporte con exito`,
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        `No se ha seleccionado el tipo de reporte`,
+        `No se pudo eliminar el reporte`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  programarReporte(form) {
+    console.log(form.value);
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Hay algunos campos invalidos. Favor de verificar`,
         ToastType.WARNING
       );
       return;
@@ -129,8 +197,20 @@ export class ReporteoComponent implements OnInit {
       ToastType.INFO
     );
 
-    let reporte = new ReporteArgos();
-    reporte.tipo = this.tipoReporte;
+    let reporte: ReporteArgos = form.value;
+
+    if(reporte.fechaInicio !== undefined && reporte.fechaFin !== undefined) {
+      let fechaInicio = new Date(reporte.fechaInicio);
+      let fechaFin = new Date(reporte.fechaFin);
+      if(fechaInicio > fechaFin) {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "La fecha de inicio es mayor que la del final",
+          ToastType.WARNING
+        )
+        return;
+      }
+    }
 
     this.reporteoService.programarReporteArgos(reporte).subscribe((data: ReporteArgos) => {
       this.toastService.showGenericToast(

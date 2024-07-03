@@ -62,7 +62,7 @@ public class EmpresaClienteDomicilioServiceImpl implements EmpresaClienteDomicil
 
         logger.info("Obteniendo los domicilios del cliente con id [{}]", clienteId);
 
-        List<ClienteDomicilio> clienteDomicilios = clienteDomicilioRepository.getAllByClienteAndEliminadoFalse(clienteId);
+        List<ClienteDomicilio> clienteDomicilios = clienteDomicilioRepository.getAllByCliente(clienteId);
 
         return clienteDomicilios.stream().map(cd -> {
             ClienteDomicilioDto dto = daoToDtoConverter.convertDaoToDtoClienteDomicilio(cd);
@@ -151,7 +151,7 @@ public class EmpresaClienteDomicilioServiceImpl implements EmpresaClienteDomicil
         logger.info("Obteniendo el domicilio con el id [{}]", id);
 
         ClienteDomicilio clienteDomicilio = clienteDomicilioRepository.getOne(id);
-        if(clienteDomicilio == null || clienteDomicilio.getEliminado()) {
+        if(clienteDomicilio == null) {
             logger.warn("El domicilio del cliente no existe en la base de datos");
             throw new NotFoundResourceException();
         }

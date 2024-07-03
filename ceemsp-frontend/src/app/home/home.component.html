@@ -41,7 +41,7 @@
         <div class="bg-white py-2 collapse-inner rounded">
           <!--h6 class="collapse-header">Custom Components:</h6-->
           <a class="collapse-item" routerLink="/home/empresas"><fa-icon [icon]="faList"></fa-icon> Mostrar todas</a>
-          <a class="collapse-item" routerLink="/home/empresas/nueva"><fa-icon [icon]="faPlus"></fa-icon> Nueva</a>
+          <a class="collapse-item" routerLink="/home/empresas/nueva" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'"><fa-icon [icon]="faPlus"></fa-icon> Nueva</a>
         </div>
       </div>
     </li>
@@ -74,7 +74,7 @@
     </div-->
 
     <!-- Nav Item - Pages Collapse Menu -->
-    <li class="nav-item">
+    <li class="nav-item" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">
       <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
          aria-expanded="true" aria-controls="collapsePages">
         <span><fa-icon [icon]="faComments"></fa-icon> Comunicados <fa-icon [icon]="faChevronDown"></fa-icon></span>
@@ -88,13 +88,13 @@
     </li>
 
     <!-- Nav Item - Charts -->
-    <li class="nav-item">
+    <li class="nav-item" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">
       <a class="nav-link" routerLink="/home/visitas">
         <i class="fas fa-fw fa-chart-area"></i>
         <span><fa-icon [icon]="faCalendar"></fa-icon> Visitas</span></a>
     </li>
 
-    <li class="nav-item">
+    <li class="nav-item" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">
       <a class="nav-link" routerLink="/home/ventanas">
         <i class="fas fa-fw fa-chart-area"></i>
         <span><fa-icon [icon]="faUpload"></fa-icon> Ventanas de informes</span></a>
@@ -155,12 +155,12 @@
               </button>
               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <a class="dropdown-item" (click)="cambiarFiltroBusqueda('EMPRESAS')">Empresas</a>
-                <a class="dropdown-item" (click)="cambiarFiltroBusqueda('CLIENTES')">Clientes</a>
+                <a class="dropdown-item" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="cambiarFiltroBusqueda('CLIENTES')">Clientes</a>
                 <a class="dropdown-item" (click)="cambiarFiltroBusqueda('PERSONAL')">Personal</a>
                 <a class="dropdown-item" (click)="cambiarFiltroBusqueda('CANES')">Canes</a>
                 <a class="dropdown-item" (click)="cambiarFiltroBusqueda('VEHICULOS')">Vehiculos</a>
                 <a class="dropdown-item" (click)="cambiarFiltroBusqueda('ARMAS')">Armas</a>
-                <a class="dropdown-item" (click)="cambiarFiltroBusqueda('ESCRITURAS')">Escrituras</a>
+                <a class="dropdown-item" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="cambiarFiltroBusqueda('ESCRITURAS')">Escrituras</a>
                 <a class="dropdown-item" (click)="cambiarFiltroBusqueda('INCIDENCIAS')">Incidencias</a>
               </div>
             </div>

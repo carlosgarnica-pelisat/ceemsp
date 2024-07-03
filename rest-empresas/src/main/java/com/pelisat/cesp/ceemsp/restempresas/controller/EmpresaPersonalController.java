@@ -44,6 +44,14 @@ public class EmpresaPersonalController {
         return personaService.obtenerTodos(username);
     }
 
+    @GetMapping(value = PERSONA_URI + "/eliminados", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<PersonaDto> obtenerPersonasEliminados(
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return personaService.obtenerPersonasEliminadas(username);
+    }
+
     @GetMapping(value = PERSONA_URI + "/no-asignados", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<PersonaDto> obtenerPersonalNoAsignado(
             HttpServletRequest request

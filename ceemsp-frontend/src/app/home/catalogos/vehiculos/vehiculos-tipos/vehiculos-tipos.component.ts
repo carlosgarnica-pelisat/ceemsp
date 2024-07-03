@@ -68,7 +68,8 @@ export class VehiculosTiposComponent implements OnInit {
 
     this.crearVehiculoTipoForm = this.formBuilder.group({
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
-      descripcion: ['', [Validators.maxLength(100)]]
+      descripcion: ['', [Validators.maxLength(100)]],
+      tipo: ['', [Validators.required]]
     });
 
     this.vehiculoService.obtenerVehiculosTipos().subscribe((data: VehiculoTipo[]) => {
@@ -91,7 +92,8 @@ export class VehiculosTiposComponent implements OnInit {
     this.editandoModal = false;
     this.crearVehiculoTipoForm.patchValue({
       nombre: this.vehiculoTipo.nombre,
-      descripcion: this.vehiculoTipo.descripcion
+      descripcion: this.vehiculoTipo.descripcion,
+      tipo: this.vehiculoTipo.tipo
     });
 
     this.modal = this.modalService.open(this.editarVehiculoTipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
@@ -218,7 +220,8 @@ export class VehiculosTiposComponent implements OnInit {
     this.editandoModal = true;
     this.crearVehiculoTipoForm.patchValue({
       nombre: this.vehiculoTipo.nombre,
-      descripcion: this.vehiculoTipo.descripcion
+      descripcion: this.vehiculoTipo.descripcion,
+      tipo: this.vehiculoTipo.tipo
     });
 
     this.modal = this.modalService.open(this.editarVehiculoTipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});

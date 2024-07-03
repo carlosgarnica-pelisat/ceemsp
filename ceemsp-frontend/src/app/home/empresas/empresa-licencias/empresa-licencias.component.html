@@ -6,7 +6,7 @@
     <h1 class="h3 mb-0 text-gray-800">Licencias colectivas <span *ngIf="mostrandoEliminados">(eliminadas)</span></h1>
     <div class="btn-group">
       <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-              (click)="mostrarModalCrear(crearLicencia)">Nueva licencia colectiva
+              (click)="mostrarModalCrear(crearLicencia)" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Nueva licencia colectiva
       </button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button"
@@ -46,21 +46,21 @@
             <b>Razon social: </b> {{empresa?.razonSocial}}<br>
           </p>
         </a>
-        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
+        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
-        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
+        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Legal</a>
         <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action active" *ngIf="empresa?.tieneArmas">Licencias
           colectivas / Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneCanes">Canes</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias"
            class="list-group-item list-group-item-action">Incidencias</a>
-        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
+        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
         <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo /
           Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
-        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Visitas</a>
         <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
@@ -140,7 +140,7 @@
               <td><b>Observaciones de la baja:</b></td>
               <td>{{licencia?.observacionesBaja}}</td>
             </tr>
-            <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+            <tr *ngIf="usuarioActual.rol !== 'CEEMSP_USER'">
               <td><b>Fecha de creación:</b></td>
               <td>{{licencia?.fechaCreacion}}</td>
             </tr>
@@ -166,7 +166,7 @@
               <td>{{d?.codigoPostal}}</td>
               <td>
                 <fa-icon [icon]="faTrash" title="Eliminar domicilio de la licencia colectiva"
-                         (click)="mostrarModalEliminarDomicilio(d?.uuid)"></fa-icon>
+                         (click)="mostrarModalEliminarDomicilio(d?.uuid)" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="showDireccionForm">
@@ -200,9 +200,9 @@
             </tr>
             <tr *ngIf="!showDireccionForm">
               <td colspan="6">
-                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaDireccion()" *ngIf="!licencia?.eliminado">Agregar dirección</button>
-                <button class="btn btn-sm btn-primary" *ngIf="!mostrandoDomiciliosEliminadas && !licencia?.eliminado" (click)="mostrarDomiciliosEliminados()">Mostrar eliminados</button>
-                <button class="btn btn-sm btn-primary" *ngIf="mostrandoDomiciliosEliminadas && !licencia?.eliminado" (click)="ocultarDomiciliosEliminados()">Ocultar eliminados</button>
+                <button class="btn btn-sm btn-primary" (click)="mostrarFormularioNuevaDireccion()" *ngIf="!licencia?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Agregar dirección</button>
+                <button class="btn btn-sm btn-primary" *ngIf="!mostrandoDomiciliosEliminadas && !licencia?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarDomiciliosEliminados()">Mostrar eliminados</button>
+                <button class="btn btn-sm btn-primary" *ngIf="mostrandoDomiciliosEliminadas && !licencia?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="ocultarDomiciliosEliminados()">Ocultar eliminados</button>
               </td>
             </tr>
           </table>
@@ -238,7 +238,7 @@
 
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="7">No hay armas creadas en la licencia hasta ahora. <a class="fakelink" (click)="mostrarFormularioNuevaArma()">Da clic aqui para crear uno</a></td>
+                <td colspan="7">No hay armas creadas en la licencia hasta ahora. <a class="fakelink" (click)="mostrarFormularioNuevaArma()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aqui para crear uno</a></td>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-arma>
@@ -267,9 +267,9 @@
                 </td>
                 <td>
                   <fa-icon [icon]="faPencil" title="Modificar arma" (click)="mostrarModificarArmaForm(arma?.uuid)"
-                           style="cursor: pointer;" *ngIf="arma?.status !== 'CUSTODIA' && !arma?.eliminado"></fa-icon>
+                           style="cursor: pointer;" *ngIf="arma?.status !== 'CUSTODIA' && !arma?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'"></fa-icon>
                   <fa-icon [icon]="faTrash" title="Eliminar arma" (click)="mostrarModalEliminarArma(arma?.uuid)"
-                           style="cursor: pointer;" *ngIf="arma?.status !== 'CUSTODIA' && !arma?.eliminado"></fa-icon>
+                           style="cursor: pointer;" *ngIf="arma?.status !== 'CUSTODIA' && !arma?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'"></fa-icon>
                   <fa-icon [icon]="faBook" title="Ver movimientos" (click)="mostrarMovimientosArma(arma?.uuid)"
                            style="cursor: pointer;"></fa-icon>
                   <fa-icon [icon]="faInfoCircle" class="fakelink" (click)="mostrarDetallesEliminacionArma(arma?.uuid)" *ngIf="arma?.eliminado" title="Mostrar motivos de borrado"></fa-icon>
@@ -288,11 +288,11 @@
       <button class="btn btn-primary" (click)="descargarLicencia(licencia.uuid, mostrarLicenciaPdfModal)" *ngIf="!licencia?.eliminado">Descargar
         licencia
       </button>
-      <button class="btn btn-primary" (click)="mostrarModificarLicenciaModal()" *ngIf="!licencia?.eliminado">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="mostrarEliminarLicenciaModal()" *ngIf="!licencia?.eliminado">Eliminar</button>
+      <button class="btn btn-primary" (click)="mostrarModificarLicenciaModal()" *ngIf="!licencia?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarEliminarLicenciaModal()" *ngIf="!licencia?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Eliminar</button>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'ARMAS'">
-      <button class="btn btn-primary" (click)="mostrarFormularioNuevaArma()" *ngIf="!licencia?.eliminado">Agregar arma</button>
+      <button class="btn btn-primary" (click)="mostrarFormularioNuevaArma()" *ngIf="!licencia?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Agregar arma</button>
       <button class="btn btn-primary" *ngIf="!mostrandoArmasEliminadas && !licencia?.eliminado" (click)="mostrarArmasEliminadas()">Mostrar eliminados</button>
       <button class="btn btn-primary" *ngIf="mostrandoArmasEliminadas && !licencia?.eliminado" (click)="ocultarArmasEliminadas()">Ocultar eliminados</button>
     </div>
@@ -744,13 +744,13 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-primary" (click)="descargarAcuerdoPdf()">Descargar</button>
+      <button type="button" class="btn btn-primary" (click)="descargarAcuerdoPdf()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Descargar</button>
     </div>
   </ng-template>
 
   <ng-template #modificarLicenciaModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="modificarLicenciaModal">Modificando licencia </h4>
+      <h4 class="modal-title" id="modificarLicenciaModal">ModificanFAdo licencia </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>

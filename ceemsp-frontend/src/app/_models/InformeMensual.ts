@@ -1,4 +1,5 @@
 import {Deserializable} from "./Deserializable";
+import Empresa from "./Empresa";
 
 export default class InformeMensual implements Deserializable {
   id: number;
@@ -48,6 +49,8 @@ export default class InformeMensual implements Deserializable {
   cadenaOriginal: string;
   sello: string;
   fechaCreacion: string;
+  numero: string;
+  empresa?: Empresa;
 
   deserialize(input: any): this {
     Object.assign(this, input);

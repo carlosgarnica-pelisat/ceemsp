@@ -213,6 +213,12 @@ public class CanCartillaVacunacionServiceImpl implements CanCartillaVacunacionSe
 
         logger.info("Eliminando la cartilla de vacunacion con el uuid [{}]", cartillaUuid);
 
+        Can can = canRepository.getByUuidAndEliminadoFalse(canUuid);
+        if(can == null) {
+            logger.warn("El can no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
         CanCartillaVacunacion canCartillaVacunacion = canCartillaVacunacionRepository.findByUuidAndEliminadoFalse(cartillaUuid);
         if(canCartillaVacunacion == null) {
             logger.warn("La cartilla de vacunacion no existe en la base de datos");
@@ -223,6 +229,13 @@ public class CanCartillaVacunacionServiceImpl implements CanCartillaVacunacionSe
         canCartillaVacunacion.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, canCartillaVacunacion, usuario.getId());
         canCartillaVacunacionRepository.save(canCartillaVacunacion);
+
+        List<CanCartillaVacunacion> vacunaciones = canCartillaVacunacionRepository.findAllByCanAndEliminadoFalse(can.getId());
+        if(vacunaciones.size() == 0) {
+            can.setVacunacionCapturada(false);
+            daoHelper.fulfillAuditorFields(false, can, usuario.getId());
+            canRepository.save(can);
+        }
 
         return daoToDtoConverter.convertDaoToDtoCanCartillaVacunacion(canCartillaVacunacion);
     }

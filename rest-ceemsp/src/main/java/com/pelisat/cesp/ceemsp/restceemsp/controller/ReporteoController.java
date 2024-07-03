@@ -1,6 +1,7 @@
 package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
 import com.pelisat.cesp.ceemsp.database.dto.NextRegisterDto;
+import com.pelisat.cesp.ceemsp.database.type.EmpresaStatusEnum;
 import com.pelisat.cesp.ceemsp.restceemsp.service.ComunicadoGeneralService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.PublicService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.ReporteoService;
@@ -10,10 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,8 +39,14 @@ public class ReporteoController {
 
     @PostMapping(value = "/reporteo/padron", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> generarReportePadron(
+            @RequestParam(value = "status", required = false) String status
     ) throws Exception {
-        File resultado = reporteoService.generarReportePadronEmpresas(null, null);
+        EmpresaStatusEnum empresaStatusEnum = null;
+        try {
+            empresaStatusEnum = EmpresaStatusEnum.valueOf(status);
+        } catch(IllegalArgumentException iae) {}
+
+        File resultado = reporteoService.generarReportePadronEmpresas(null, null, empresaStatusEnum);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());

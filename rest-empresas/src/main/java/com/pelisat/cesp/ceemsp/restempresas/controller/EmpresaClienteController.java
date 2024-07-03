@@ -39,6 +39,14 @@ public class EmpresaClienteController {
         return clienteService.obtenerClientesPorEmpresa(username);
     }
 
+    @GetMapping(value = EMPRESA_CLIENTES_URI + "/eliminados", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ClienteDto> obtenerClientesPorUuidEmpresaEliminados(
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return clienteService.obtenerClientesPorEmpresaEliminados(username);
+    }
+
     @GetMapping(value = EMPRESA_CLIENTES_URI + "/{clienteUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ClienteDto obtenerClientePorUuid(
             HttpServletRequest request,

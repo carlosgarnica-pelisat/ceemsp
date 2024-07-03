@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface VisitaRepository extends JpaRepository<Visita, Integer> {
@@ -24,4 +25,5 @@ public interface VisitaRepository extends JpaRepository<Visita, Integer> {
     Visita findByUuidAndEliminadoFalse(String uuid);
     Visita findFirstByEliminadoFalseOrderByFechaCreacionDesc();
     Visita findFirstByTipoVisitaAndEliminadoFalseOrderByFechaCreacionDesc(TipoVisitaEnum tipoVisita);
+    List<Visita> getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 }

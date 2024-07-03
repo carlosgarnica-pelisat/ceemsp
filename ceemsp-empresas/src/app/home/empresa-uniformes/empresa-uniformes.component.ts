@@ -275,7 +275,11 @@ export class EmpresaUniformesComponent implements OnInit {
       });
 
     } else {
-      formData.append('archivo', this.tempFile, this.tempFile.name);
+      if(this.tempFile !== undefined) {
+        formData.append('archivo', this.tempFile, this.tempFile.name);
+      } else {
+        formData.append('archivo', null);
+      }
       this.empresaUniformeService.guardarUniformeElemento(this.uniforme.uuid, formData).subscribe((data: Uniforme) => {
         this.toastService.showGenericToast(
           "Listo",

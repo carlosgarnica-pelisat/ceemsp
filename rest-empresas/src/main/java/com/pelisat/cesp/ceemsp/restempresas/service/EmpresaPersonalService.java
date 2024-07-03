@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface EmpresaPersonalService {
     List<PersonaDto> obtenerTodos(String username);
+    List<PersonaDto> obtenerPersonasEliminadas(String username);
     List<PersonaDto> obtenerSinAsignar(String username);
     PersonaDto obtenerPorUuid(String personaUuid);
     PersonaDto obtenerPorId(Integer id);

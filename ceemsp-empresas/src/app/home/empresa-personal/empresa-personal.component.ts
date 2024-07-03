@@ -82,6 +82,7 @@ export class EmpresaPersonalComponent implements OnInit {
   @ViewChild('visualizarVolanteCuip') visualizarVolanteCuip: any;
   stepper: Stepper;
   pestanaActual: string = "DETALLES";
+  mostrandoEliminados: boolean = false;
 
   columnDefs = [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
@@ -215,6 +216,19 @@ export class EmpresaPersonalComponent implements OnInit {
   rfc: string;
   pdfBlob;
 
+  can: Can;
+  vehiculo: Vehiculo;
+  armaCorta: Arma;
+  armaLarga: Arma;
+
+  armaCortaQuery: string = '';
+  armaLargaQuery: string  = '';
+  vehiculoQuery: string = '';
+  canQuery: string = '';
+
+  personalEliminado: Persona[] = [];
+  personal: Persona[] = [];
+
   constructor(private formBuilder: FormBuilder, private route: ActivatedRoute,
               private toastService: ToastService, private modalService: NgbModal,
               private personalService: PersonalService, private empresaPersonalService: EmpresaPersonalService,
@@ -288,22 +302,18 @@ export class EmpresaPersonalComponent implements OnInit {
     });
 
     this.asignarCanPersonalForm = this.formBuilder.group({
-      can: ['', [Validators.required]],
       observaciones: ['']
     })
 
     this.asignarVehiculoPersonalForm = this.formBuilder.group({
-      vehiculo: ['', [Validators.required]],
       observaciones: ['']
     })
 
     this.asignarArmaCortaForm = this.formBuilder.group({
-      arma: ['', [Validators.required]],
       observaciones: ['']
     })
 
     this.asignarArmaLargaForm = this.formBuilder.group({
-      arma: ['', [Validators.required]],
       observaciones: ['']
     })
 
@@ -325,6 +335,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
     this.empresaPersonalService.obtenerPersonal().subscribe((data: Persona[]) => {
       this.rowData = data;
+      this.personal = data;
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -332,6 +343,16 @@ export class EmpresaPersonalComponent implements OnInit {
         ToastType.ERROR
       );
     });
+
+    this.empresaPersonalService.obtenerPersonalEliminado(this.uuid).subscribe((data: Persona[]) => {
+      this.personalEliminado = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar el personal eliminado. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
 
     this.personalService.obtenerNacionalidades().subscribe((data: PersonalNacionalidad[]) => {
       this.nacionalidades = data;
@@ -669,6 +690,38 @@ export class EmpresaPersonalComponent implements OnInit {
 
   eliminarColonia() {
     this.colonia = undefined;
+  }
+
+  seleccionarArmaLarga(armaLargaUuid) {
+    this.armaLarga = this.armasLargas.filter(x => x.uuid === armaLargaUuid)[0];
+  }
+
+  eliminarArmaLarga() {
+    this.armaLarga = undefined;
+  }
+
+  seleccionarArmaCorta(armaCortaUuid) {
+    this.armaCorta = this.armasCortas.filter(x => x.uuid === armaCortaUuid)[0];
+  }
+
+  eliminarArmaCorta() {
+    this.armaCorta = undefined;
+  }
+
+  seleccionarVehiculo(vehiculoUuid) {
+    this.vehiculo = this.vehiculos.filter(x => x.uuid === vehiculoUuid)[0];
+  }
+
+  eliminarVehiculo() {
+    this.vehiculo = undefined;
+  }
+
+  seleccionarCan(canUuid) {
+    this.can = this.canes.filter(x => x.uuid === canUuid)[0];
+  }
+
+  eliminarCan() {
+    this.can = undefined;
   }
 
   obtenerCalles(event) {
@@ -1151,6 +1204,12 @@ export class EmpresaPersonalComponent implements OnInit {
     })
   }
 
+  onFilterTextBoxChanged() {
+    this.gridApi.setQuickFilter(
+      (document.getElementById('filter-text-box') as HTMLInputElement).value
+    );
+  }
+
   cambiarModalidad(event) {
     this.modalidad = this.modalidades.filter(x => x?.modalidad?.uuid === event.value)[0].modalidad;
   }
@@ -1166,6 +1225,22 @@ export class EmpresaPersonalComponent implements OnInit {
       this.cuipStatus = "TRAMITADA";
     }
 
+    let cuip = undefined;
+    let volante = undefined;
+    let fechaVolanteCuip = undefined;
+
+    if (this.persona?.cuip !== undefined || this.persona?.cuip !== '' || this.persona?.cuip !== null) {
+      cuip = this.persona?.cuip
+    }
+
+    if (this.persona?.numeroVolanteCuip !== undefined || this.persona?.numeroVolanteCuip !== '' || this.persona?.numeroVolanteCuip !== null) {
+      volante = this.persona?.numeroVolanteCuip
+    }
+
+    if (this.persona?.fechaVolanteCuip !== undefined || this.persona?.fechaVolanteCuip !== '' || this.persona?.fechaVolanteCuip !== null) {
+      fechaVolanteCuip = this.persona?.fechaVolanteCuip
+    }
+
     this.domicilio = undefined;
     this.cuipStatus = undefined;
     this.modalidad = undefined;
@@ -1173,9 +1248,9 @@ export class EmpresaPersonalComponent implements OnInit {
       detallesPuesto: undefined,
       domicilioAsignado: undefined,
       estatusCuip: "",
-      cuip: undefined,
-      numeroVolanteCuip: undefined,
-      fechaVolanteCuip: undefined,
+      cuip: cuip,
+      numeroVolanteCuip: volante,
+      fechaVolanteCuip: fechaVolanteCuip,
       modalidad: undefined,
       formaEjecucion: undefined
     })
@@ -2104,6 +2179,15 @@ export class EmpresaPersonalComponent implements OnInit {
       return;
     }
 
+    if(this.armaCorta === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha seleccionado un arma corta aun`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espera un momento",
       `Estamos asignando el arma corta al elemento`,
@@ -2112,7 +2196,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
     let formValue = form.value;
     let personalArmaCorta: PersonalArma = new PersonalArma();
-    personalArmaCorta.arma = this.armasCortas.filter(x => x.uuid === formValue.arma)[0]
+    personalArmaCorta.arma = this.armaCorta
     personalArmaCorta.observaciones = formValue.observaciones;
 
     this.empresaPersonalService.asignarArmaCortaPersona(this.persona?.uuid, personalArmaCorta).subscribe((data) => {
@@ -2150,6 +2234,15 @@ export class EmpresaPersonalComponent implements OnInit {
       return;
     }
 
+    if(this.armaLarga === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha seleccionado un arma larga aun`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espera un momento",
       `Estamos asignando el arma larga al elemento`,
@@ -2158,7 +2251,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
     let formValue = form.value;
     let personalArmaLarga: PersonalArma = new PersonalArma();
-    personalArmaLarga.arma = this.armasLargas.filter(x => x.uuid === formValue.arma)[0]
+    personalArmaLarga.arma = this.armaLarga
     personalArmaLarga.observaciones = formValue.observaciones;
 
     this.empresaPersonalService.asignarArmaLargaPersona(this.persona?.uuid, personalArmaLarga).subscribe((data) => {
@@ -2404,7 +2497,7 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   generarReporteExcel() {
-    this.reporteoService.generarReportePersonal().subscribe((data) => {
+    this.reporteoService.generarReportePersonal(this.mostrandoEliminados).subscribe((data) => {
       let link = document.createElement('a');
       link.href = window.URL.createObjectURL(data);
       link.download = "test.xls";
@@ -2416,6 +2509,16 @@ export class EmpresaPersonalComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
+
+  mostrarEliminados() {
+    this.mostrandoEliminados = true;
+    this.rowData = this.personalEliminado;
+  }
+
+  ocultarEliminados() {
+    this.mostrandoEliminados = false;
+    this.rowData = this.personal;
   }
   private desactivarFormularioInfoPersonal() {
     this.crearPersonalForm.controls['curp'].disable();

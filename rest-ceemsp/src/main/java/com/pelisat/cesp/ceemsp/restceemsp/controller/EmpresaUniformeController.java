@@ -95,7 +95,7 @@ public class EmpresaUniformeController {
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "uniformeUuid") String uniformeUuid,
-            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
             @RequestParam("uniforme") String uniforme
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));

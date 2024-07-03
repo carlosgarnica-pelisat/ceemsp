@@ -82,6 +82,7 @@ public class EmpresaUniformeElementoServiceImpl implements EmpresaUniformeElemen
                     emued.setElemento(uniformeService.obtenerUniformePorId(e.getElemento()));
                     List<EmpresaUniformeElementoMovimiento> movimientos = empresaUniformeElementoMovimientoRepository.getAllByUniformeElementoAndEliminadoFalse(emued.getId());
                     emued.setMovimientos(movimientos.stream().map(daoToDtoConverter::convertDaoToDtoUniformeElementoMovimiento).collect(Collectors.toList()));
+                    if(StringUtils.isNotBlank(e.getUbicacionArchivo())) emued.setTieneArchivo(true);
                     return emued;
                 })
                 .collect(Collectors.toList());
@@ -129,15 +130,20 @@ public class EmpresaUniformeElementoServiceImpl implements EmpresaUniformeElemen
         empresaUniformeElemento.setElemento(empresaUniformeElementoDto.getElemento().getId());
         daoHelper.fulfillAuditorFields(true, empresaUniformeElemento, usuario.getId());
 
-        String ruta = "";
-        try {
-            ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.FOTO_UNIFORME_ELEMENTO, empresaUuid);
-            empresaUniformeElemento.setUbicacionArchivo(ruta);
-        } catch(Exception ex) {
-            logger.warn(ex.getMessage());
-            archivosService.eliminarArchivo(ruta);
-            throw new InvalidDataException();
+        String ruta = null;
+
+        if(multipartFile != null) {
+            try {
+                ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.FOTO_UNIFORME_ELEMENTO, empresaUuid);
+                empresaUniformeElemento.setUbicacionArchivo(ruta);
+            } catch(Exception ex) {
+                logger.warn(ex.getMessage());
+                archivosService.eliminarArchivo(ruta);
+                throw new InvalidDataException();
+            }
         }
+
+
         EmpresaUniformeElemento empresaUniformeelementoCreado = empresaUniformeElementoRepository.save(empresaUniformeElemento);
 
         EmpresaUniformeElementoMovimiento empresaUniformeElementoMovimiento = dtoToDaoConverter.convertDtoToDaoEmpresaUniformeElementoMovimiento(empresaUniformeElementoDto.getMovimientos().get(0));

@@ -30,4 +30,8 @@ export class ReporteoService {
 
     return this.http.get(`${this.uri}/reportes/${uuid}/archivo`, httpOptions)
   }
+
+  eliminarReporte(uuid: string) {
+    return this.http.delete(`${this.uri}/reportes/${uuid}`);
+  }
 }

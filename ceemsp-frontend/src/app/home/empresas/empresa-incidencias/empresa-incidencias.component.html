@@ -28,18 +28,18 @@
             <b>Razon social: </b> {{empresa?.razonSocial}}<br>
           </p>
         </a>
-        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
+        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
-        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
+        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Legal</a>
         <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneArmas">Licencias colectivas / Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneCanes">Canes</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action active">Incidencias</a>
-        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
+        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
         <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
-        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Visitas</a>
         <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
@@ -72,7 +72,7 @@
               <td><b>Fecha de la incidencia:</b></td>
               <td>{{incidencia?.fechaIncidencia}}</td>
             </tr>
-            <tr *ngIf="usuarioActual?.rol === 'CEEMSP_SUPERUSER'">
+            <tr *ngIf="usuarioActual?.rol !== 'CEEMSP_USER'">
               <td><b>Fecha de creacion:</b></td>
               <td>{{incidencia?.fechaCreacion}}</td>
             </tr>
@@ -213,14 +213,28 @@
                       <label for="personal">
                         <b>Personal *</b>
                       </label>
-                      <select formControlName="personaInvolucrada" id="personal" class="form-control">
-                        <option *ngFor="let p of personales" value="{{p.uuid}}">{{p.nombres + " " + p.apellidoPaterno + " " + p.apellidoMaterno}}</option>
-                      </select>
+                      <div class="dropdown" id="personal">
+                        <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                          {{persona === undefined ? 'Ninguno' : persona?.apellidoPaterno + " " + persona?.apellidoMaterno + " " + persona?.nombres}}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                          <form class="px-4 py-3" autocomplete="off">
+                            <label for="nombrePersonaSearchQuery"><b>Buscar por nombre</b></label>
+                            <input type="text" class="form-control" id="nombrePersonaSearchQuery" placeholder="Ej. JUAN PABLO" [(ngModel)]="nombrePersonaQuery" [ngModelOptions]="{standalone: true}">
+                          </form>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" *ngFor="let a of personales | buscarNombres: {nombres: nombrePersonaQuery}" (click)="seleccionarPersonal(a?.uuid)" style="cursor: pointer;">
+                            {{a?.apellidoPaterno}} {{a?.apellidoMaterno}} {{a?.nombres}}
+                          </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" *ngIf="persona !== undefined" (click)="eliminarPersona()">Quitar</a>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </form>
                 <hr>
-                <button class="btn btn-sm btn-primary" (click)="agregarPersonaIncidencia(crearPersonalIncidenciaForm)">Guardar</button>
+                <button class="btn btn-sm btn-primary" (click)="agregarPersonaIncidencia()">Guardar</button>
                 <button class="btn btn-sm btn-danger" (click)="conmutarAgregarPersonalForm()">Cancelar</button>
               </td>
             </tr>
@@ -296,9 +310,23 @@
                       <label for="arma">
                         <b>Arma *</b>
                       </label>
-                      <select formControlName="armaInvolucrada" id="arma" class="form-control">
-                        <option *ngFor="let a of armas" value="{{a?.uuid}}">{{a?.matricula}} - {{a?.marca?.nombre}}</option>
-                      </select>
+                      <div class="dropdown" id="arma">
+                        <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                          {{arma === undefined ? 'Ninguno' : arma?.matricula + " - " + arma?.marca?.nombre + " " + arma?.calibre}}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                          <form class="px-4 py-3" autocomplete="off">
+                            <label for="armaLargaSearchQuery"><b>Buscar por matricula</b></label>
+                            <input type="text" class="form-control" id="armaLargaSearchQuery" placeholder="Ej. XYZQAB" [(ngModel)]="armaQuery" [ngModelOptions]="{standalone: true}">
+                          </form>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" *ngFor="let a of armas | buscarMatricula: {matricula: armaQuery}" (click)="seleccionarArma(a?.uuid)" style="cursor: pointer;">
+                            {{a?.matricula}} - {{a?.marca?.nombre}} {{a?.calibre}}
+                          </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" *ngIf="arma !== undefined" (click)="eliminarArma()">Quitar</a>
+                        </div>
+                      </div>
                     </div>
                     <div class="col-sm-6">
                       <label for="statusArmaDetalles">
@@ -380,14 +408,29 @@
                       <label for="can">
                         <b>Can *</b>
                       </label>
-                      <select formControlName="canInvolucrado" id="can" class="form-control">
-                        <option *ngFor="let c of canes" value="{{c?.uuid}}">{{c?.nombre}}</option>
-                      </select>
+                      <div class="dropdown" id="can">
+                        <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                          {{can === undefined ? 'Ninguno' : can?.nombre}}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                          <form class="px-4 py-3" autocomplete="off">
+                            <label for="canSearchQueryNotario"><b>Buscar por nombre</b></label>
+                            <input type="text" class="form-control" id="canSearchQueryNotario" placeholder="Ej. XYZQAB" [(ngModel)]="canQuery"
+                                   [ngModelOptions]="{standalone: true}">
+                          </form>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" *ngFor="let c of canes | buscarNombre: {nombre: canQuery}" (click)="seleccionarCan(c?.uuid)" style="cursor: pointer;">
+                            {{c?.nombre}}
+                          </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" *ngIf="can !== undefined" (click)="eliminarCan()">Quitar</a>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </form>
                 <hr>
-                <button class="btn btn-sm btn-primary" (click)="agregarCanIncidencia(crearCanIncidenciaForm)">Guardar</button>
+                <button class="btn btn-sm btn-primary" (click)="agregarCanIncidencia()">Guardar</button>
                 <button class="btn btn-sm btn-danger" (click)="conmutarAgregarCanForm()">Cancelar</button>
               </td>
             </tr>
@@ -410,7 +453,7 @@
             </ng-template>
             <ng-template pTemplate="header">
               <tr>
-                <th pSortableColumn="serie"><b>Nombre <p-sortIcon field="serie"></p-sortIcon></b></th>
+                <th pSortableColumn="serie"><b>Serie <p-sortIcon field="serie"></p-sortIcon></b></th>
                 <th pSortableColumn="marca?.nombre"><b>Marca <p-sortIcon field="marca?.nombre"></p-sortIcon></b></th>
                 <th pSortableColumn="submarca?.nombre"><b>Modelo <p-sortIcon field="submarca?.nombre"></p-sortIcon></b></th>
                 <th pSortableColumn="anio"><b>Año <p-sortIcon field="anio"></p-sortIcon></b></th>
@@ -455,20 +498,28 @@
             </tr>
             <tr *ngIf="mostrarAgregarVehiculoForm">
               <td colspan="5">
-                <form [formGroup]="crearVehiculoIncidenciaForm">
-                  <div class="row">
-                    <div class="col-sm-6">
-                      <label for="vehiculo">
-                        <b>Vehiculo *</b>
-                      </label>
-                      <select formControlName="vehiculoInvolucrado" id="vehiculo" class="form-control">
-                        <option *ngFor="let v of vehiculos" value="{{v?.uuid}}">{{v?.placas}} - {{v.marca.nombre + " " + (v.submarca === null ? '' : v.submarca?.nombre) + " " + v.anio}}</option>
-                      </select>
-                    </div>
+                <label for="vehiculo">
+                  <b>Vehiculo *</b>
+                </label>
+                <div class="dropdown" id="vehiculo">
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{vehiculo === undefined ? 'Ninguno' : vehiculo?.placas + " - " + vehiculo?.marca?.nombre}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                    <form class="px-4 py-3" autocomplete="off">
+                      <label for="vehiculoPlacaSearchQuery"><b>Buscar por placa</b></label>
+                      <input type="text" class="form-control" id="vehiculoPlacaSearchQuery" placeholder="Ej. XYZQAB" [(ngModel)]="vehiculoQuery" [ngModelOptions]="{standalone: true}">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let v of vehiculos | buscarPlacas: {placas: vehiculoQuery}" (click)="seleccionarVehiculo(v?.uuid)" style="cursor: pointer;">
+                      {{v?.placas}} - {{v?.marca?.nombre}} {{(v?.submarca === null) ? '' : v?.submarca?.nombre}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="vehiculo !== undefined" (click)="eliminarVehiculo()">Quitar</a>
                   </div>
-                </form>
+                </div>
                 <hr>
-                <button class="btn btn-sm btn-primary" (click)="agregarVehiculoIncidencia(crearVehiculoIncidenciaForm)">Guardar</button>
+                <button class="btn btn-sm btn-primary" (click)="agregarVehiculoIncidencia()">Guardar</button>
                 <button class="btn btn-sm btn-danger" (click)="conmutarAgregarVehiculoForm()">Cancelar</button>
               </td>
             </tr>
@@ -629,9 +680,23 @@
                           <label for="personal">
                             <b>Personal *</b>
                           </label>
-                          <select formControlName="personaInvolucrada" id="personal" class="form-control">
-                            <option *ngFor="let p of personales" value="{{p.uuid}}">{{p.nombres + " " + p.apellidoPaterno + " " + p.apellidoMaterno}}</option>
-                          </select>
+                          <div class="dropdown" id="personal">
+                            <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                              {{persona === undefined ? 'Ninguno' : persona?.apellidoPaterno + " " + persona?.apellidoMaterno + " " + persona?.nombres}}
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                              <form class="px-4 py-3" autocomplete="off">
+                                <label for="nombrePersonaSearchQuery"><b>Buscar por nombre</b></label>
+                                <input type="text" class="form-control" id="nombrePersonaSearchQuery" placeholder="Ej. JUAN PABLO" [(ngModel)]="nombrePersonaQuery" [ngModelOptions]="{standalone: true}">
+                              </form>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" *ngFor="let a of personales | buscarNombres: {nombres: nombrePersonaQuery}" (click)="seleccionarPersonal(a?.uuid)" style="cursor: pointer;">
+                                {{a?.apellidoPaterno}} {{a?.apellidoMaterno}} {{a?.nombres}}
+                              </a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" *ngIf="persona !== undefined" (click)="eliminarPersona()">Quitar</a>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </form>
@@ -640,7 +705,7 @@
                 </tr>
                 <tr *ngIf="mostrarAgregarPersonalForm">
                   <td colspan="4">
-                    <button class="btn btn-sm btn-primary" (click)="agregarPersona(crearPersonalIncidenciaForm)">Guardar</button>
+                    <button class="btn btn-sm btn-primary" (click)="agregarPersona()">Guardar</button>
                     <button class="btn btn-sm btn-danger" (click)="conmutarAgregarPersonalForm()">Cancelar</button>
                   </td>
                 </tr>
@@ -680,9 +745,23 @@
                           <label for="arma">
                             <b>Arma *</b>
                           </label>
-                          <select id="arma" class="form-control" formControlName="armaInvolucrada">
-                            <option *ngFor="let a of armas" value="{{a.uuid}}">{{a?.matricula}} - {{a.marca?.nombre}}</option>
-                          </select>
+                          <div class="dropdown" id="arma">
+                            <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                              {{arma === undefined ? 'Ninguno' : arma?.matricula + " - " + arma?.marca?.nombre + " " + arma?.calibre}}
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                              <form class="px-4 py-3" autocomplete="off">
+                                <label for="armaLargaSearchQuery"><b>Buscar por matricula</b></label>
+                                <input type="text" class="form-control" id="armaLargaSearchQuery" placeholder="Ej. XYZQAB" [(ngModel)]="armaQuery" [ngModelOptions]="{standalone: true}">
+                              </form>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" *ngFor="let a of armas | buscarMatricula: {matricula: armaQuery}" (click)="seleccionarArma(a?.uuid)" style="cursor: pointer;">
+                                {{a?.matricula}} - {{a?.marca?.nombre}} {{a?.calibre}}
+                              </a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" *ngIf="arma !== undefined" (click)="eliminarArma()">Quitar</a>
+                            </div>
+                          </div>
                         </div>
                         <div class="col-sm-6">
                           <label for="arma">
@@ -737,9 +816,24 @@
                           <label for="can">
                             <b>Can *</b>
                           </label>
-                          <select id="can" class="form-control" formControlName="canInvolucrado">
-                            <option *ngFor="let c of canes" value="{{c.uuid}}">{{c.nombre}}</option>
-                          </select>
+                          <div class="dropdown" id="can">
+                            <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                              {{can === undefined ? 'Ninguno' : can?.nombre}}
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                              <form class="px-4 py-3" autocomplete="off">
+                                <label for="canSearchQueryNotario"><b>Buscar por nombre</b></label>
+                                <input type="text" class="form-control" id="canSearchQueryNotario" placeholder="Ej. XYZQAB" [(ngModel)]="canQuery"
+                                       [ngModelOptions]="{standalone: true}">
+                              </form>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" *ngFor="let c of canes | buscarNombre: {nombre: canQuery}" (click)="seleccionarCan(c?.uuid)" style="cursor: pointer;">
+                                {{c?.nombre}}
+                              </a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" *ngIf="can !== undefined" (click)="eliminarCan()">Quitar</a>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </form>
@@ -747,7 +841,7 @@
                 </tr>
                 <tr *ngIf="mostrarAgregarCanForm">
                   <td colspan="4">
-                    <button class="btn btn-sm btn-primary" (click)="agregarCan(crearCanIncidenciaForm)">Guardar</button>
+                    <button class="btn btn-sm btn-primary" (click)="agregarCan()">Guardar</button>
                     <button class="btn btn-sm btn-danger" (click)="conmutarAgregarCanForm()">Cancelar</button>
                   </td>
                 </tr>
@@ -781,23 +875,35 @@
                 </tr>
                 <tr *ngIf="mostrarAgregarVehiculoForm">
                   <td colspan="5">
-                    <form [formGroup]="crearVehiculoIncidenciaForm">
-                      <div class="row">
-                        <div class="col-sm-6">
-                          <label for="vehiculo">
-                            <b>Vehiculo *</b>
-                          </label>
-                          <select id="vehiculo" class="form-control" formControlName="vehiculoInvolucrado">
-                            <option *ngFor="let v of vehiculos" value="{{v.uuid}}">{{v?.placas}} - {{v.marca.nombre + " " + (v.submarca === null ? '' : v.submarca?.nombre) + " " + v.anio}}</option>
-                          </select>
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <label for="vehiculo">
+                          <b>Vehiculo *</b>
+                        </label>
+                        <div class="dropdown" id="vehiculo">
+                          <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                            {{vehiculo === undefined ? 'Ninguno' : vehiculo?.placas + " - " + vehiculo?.marca?.nombre}}
+                          </a>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                            <form class="px-4 py-3" autocomplete="off">
+                              <label for="vehiculoPlacaSearchQuery"><b>Buscar por placa</b></label>
+                              <input type="text" class="form-control" id="vehiculoPlacaSearchQuery" placeholder="Ej. XYZQAB" [(ngModel)]="vehiculoQuery" [ngModelOptions]="{standalone: true}">
+                            </form>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" *ngFor="let v of vehiculos | buscarPlacas: {placas: vehiculoQuery}" (click)="seleccionarVehiculo(v?.uuid)" style="cursor: pointer;">
+                              {{v?.placas}} - {{v?.marca?.nombre}} {{(v?.submarca === null) ? '' : v?.submarca?.nombre}}
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" *ngIf="vehiculo !== undefined" (click)="eliminarVehiculo()">Quitar</a>
+                          </div>
                         </div>
                       </div>
-                    </form>
+                    </div>
                   </td>
                 </tr>
                 <tr *ngIf="mostrarAgregarVehiculoForm">
                   <td colspan="5">
-                    <button class="btn btn-sm btn-primary" (click)="agregarVehiculo(crearVehiculoIncidenciaForm)">Guardar</button>
+                    <button class="btn btn-sm btn-primary" (click)="agregarVehiculo()">Guardar</button>
                     <button class="btn btn-sm btn-danger" (click)="conmutarAgregarVehiculoForm()">Cancelar</button>
                   </td>
                 </tr>

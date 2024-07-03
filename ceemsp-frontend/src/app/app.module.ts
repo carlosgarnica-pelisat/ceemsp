@@ -90,6 +90,9 @@ import { VentanasComponent } from './home/ventanas/ventanas.component';
 import { BotonVentanaComponent } from './_components/botones/boton-ventana/boton-ventana.component';
 import { ValidarReporteComponent } from './validar-reporte/validar-reporte.component';
 import { PerfilComponent } from './home/perfil/perfil.component';
+import { BuscarPlacasPipe } from './_pipes/buscar-placas.pipe';
+import { BuscarMatriculaPipe } from './_pipes/buscar-matricula.pipe';
+import { UsuariosEmpresaComponent } from './home/configuracion/usuarios-empresa/usuarios-empresa.component';
 
 @NgModule({
   declarations: [
@@ -165,7 +168,10 @@ import { PerfilComponent } from './home/perfil/perfil.component';
     VentanasComponent,
     BotonVentanaComponent,
     ValidarReporteComponent,
-    PerfilComponent
+    PerfilComponent,
+    BuscarPlacasPipe,
+    BuscarMatriculaPipe,
+    UsuariosEmpresaComponent
   ],
     imports: [
         BrowserModule,
@@ -193,7 +199,7 @@ import { PerfilComponent } from './home/perfil/perfil.component';
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     SanitizeHtmlPipe
   ],
-  exports: [SanitizeHtmlPipe, PhoneMaskDirective, BuscarNombrePipe, BuscarNombresPipe],
+  exports: [SanitizeHtmlPipe, PhoneMaskDirective, BuscarNombrePipe, BuscarNombresPipe, BuscarPlacasPipe, BuscarMatriculaPipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

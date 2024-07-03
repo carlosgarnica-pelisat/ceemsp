@@ -147,8 +147,14 @@ public class VehiculoFotografiaServiceImpl implements VehiculoFotografiaService 
         }
 
         logger.info("Eliminando la fotografia con uuid [{}]", fotografiaUuid);
-        VehiculoFotografia vehiculoFotografia = vehiculoFotografiaRepository.getByUuidAndEliminadoFalse(fotografiaUuid);
 
+        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+        if(vehiculo == null) {
+            logger.warn("El vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        VehiculoFotografia vehiculoFotografia = vehiculoFotografiaRepository.getByUuidAndEliminadoFalse(fotografiaUuid);
         if(vehiculoFotografia == null) {
             logger.warn("La fotografia esta eliminada o no existe en la base de datos");
             throw new NotFoundResourceException();
@@ -158,5 +164,12 @@ public class VehiculoFotografiaServiceImpl implements VehiculoFotografiaService 
         vehiculoFotografia.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, vehiculoFotografia, usuarioDto.getId());
         vehiculoFotografiaRepository.save(vehiculoFotografia);
+
+        List<VehiculoFotografia> fotografias = vehiculoFotografiaRepository.getAllByVehiculoAndEliminadoFalse(vehiculo.getId());
+        if(fotografias.size() == 0) {
+            vehiculo.setFotografiaCapturada(false);
+            daoHelper.fulfillAuditorFields(false, vehiculo, usuarioDto.getId());
+            vehiculoRepository.save(vehiculo);
+        }
     }
 }

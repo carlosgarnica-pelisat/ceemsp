@@ -48,6 +48,7 @@ import {
 import {BusquedaComponent} from "../../home/busqueda/busqueda.component";
 import {VentanasComponent} from "../../home/ventanas/ventanas.component";
 import {PerfilComponent} from "../../home/perfil/perfil.component";
+import {UsuariosEmpresaComponent} from "../../home/configuracion/usuarios-empresa/usuarios-empresa.component";
 
 
 const routes: Routes = [
@@ -248,6 +249,10 @@ const routes: Routes = [
       {
         path: 'configuracion/usuarios',
         component: UsuariosComponent
+      },
+      {
+        path: 'configuracion/usuarios/empresas',
+        component: UsuariosEmpresaComponent
       },
       {
         path: 'configuracion/acerca',

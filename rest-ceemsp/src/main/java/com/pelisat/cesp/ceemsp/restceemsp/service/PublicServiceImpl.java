@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.TextStyle;
@@ -59,7 +60,23 @@ public class PublicServiceImpl implements PublicService {
             throw new InvalidDataException();
         }
 
-        Empresa empresa = empresaRepository.findFirstByTipoTramiteOrderByFechaCreacionDesc(nextRegisterDto.getTipo());
+        String query = "";
+        switch (nextRegisterDto.getTipo()) {
+            case RESPRO:
+                query = "CESP/RESPRO/%/" + LocalDate.now().getYear();
+                break;
+            case SPSMD:
+                query = "CESP/SPSMD/%/" + LocalDate.now().getYear();
+                break;
+            case AP:
+                query = "CESP/AP/SPSMD/%/" + LocalDate.now().getYear();
+                break;
+            case EAFJAL:
+                query = "CESP/EAFJAL/%/" + LocalDate.now().getYear();
+                break;
+        }
+
+        Empresa empresa = empresaRepository.findFirstByTramiteOrderByTramite(query).get(0);
         NextRegisterDto response = new NextRegisterDto();
 
         if(empresa == null) {

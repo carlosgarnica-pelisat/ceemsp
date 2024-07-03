@@ -52,7 +52,7 @@ export class EmpresaNuevaComponent implements OnInit {
   geocodeResult: GeocoderResult;
   domicilioUbicado: boolean = false;
 
-  fechaDeHoy = new Date().toISOString().split('T')[0];
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
 
   tempFile;
   tempFileRegistroFederal;

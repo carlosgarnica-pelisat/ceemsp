@@ -76,7 +76,7 @@ public class ArmaMarcaServiceImpl implements ArmaMarcaService {
             throw new InvalidDataException();
         }
 
-        logger.info("Obteniendo la marca del arma con el id [{}]", id);
+        logger.debug("Obteniendo la marca del arma con el id [{}]", id);
 
         ArmaMarca armaMarca = armaMarcaRepository.getOne(id);
         return daoToDtoConverter.convertDaoToDtoArmaMarca(armaMarca);

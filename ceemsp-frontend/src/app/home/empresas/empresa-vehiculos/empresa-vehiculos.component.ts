@@ -27,6 +27,8 @@ import {Table} from "primeng/table";
 import PersonalVehiculo from "../../../_models/PersonalVehiculo";
 import VehiculoDomicilio from "../../../_models/VehiculoDomicilio";
 import {ReporteEmpresasService} from "../../../_services/reporte-empresas.service";
+import {AuthenticationService} from "../../../_services/authentication.service";
+import Usuario from "../../../_models/Usuario";
 
 @Component({
   selector: 'app-empresa-vehiculos',
@@ -35,7 +37,7 @@ import {ReporteEmpresasService} from "../../../_services/reporte-empresas.servic
 })
 export class EmpresaVehiculosComponent implements OnInit {
 
-  fechaDeHoy = new Date().toISOString().split('T')[0];
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
 
   private gridApi;
   private gridColumnApi;
@@ -146,6 +148,7 @@ export class EmpresaVehiculosComponent implements OnInit {
   coloresTemp: VehiculoColor[] = [];
   color: VehiculoColor;
   pdfBlob;
+  usuarioActual: Usuario;
 
   @ViewChild('mostrarDetallesVehiculoModal') mostrarDetallesVehiculoModal: any;
   @ViewChild('mostrarFotoVehiculoModal') mostrarFotoVehiculoModal: any;
@@ -165,7 +168,7 @@ export class EmpresaVehiculosComponent implements OnInit {
 
   constructor(private modalService: NgbModal, private toastService: ToastService,
               private empresaService: EmpresaService, private formBuilder: FormBuilder,
-              private vehiculosService: VehiculosService, private route: ActivatedRoute,
+              private vehiculosService: VehiculosService, private route: ActivatedRoute, private authenticationService: AuthenticationService,
               private validacionService: ValidacionService, private reporteEmpresaService: ReporteEmpresasService) { }
 
   ngOnInit(): void {
@@ -173,6 +176,8 @@ export class EmpresaVehiculosComponent implements OnInit {
       buttonRenderer: BotonEmpresaVehiculosComponent
     }
 
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
     this.uuid = this.route.snapshot.paramMap.get("uuid");
 
     this.empresaService.obtenerPorUuid(this.uuid).subscribe((data: Empresa) => {
@@ -363,6 +368,15 @@ export class EmpresaVehiculosComponent implements OnInit {
       return;
     }
 
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerVehiculoPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: Vehiculo) => {
       this.vehiculo = data;
       this.editandoModal = false;
@@ -425,6 +439,15 @@ export class EmpresaVehiculosComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `El elemento ya esta eliminado. No se puede eliminar`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
         ToastType.WARNING
       );
       return;
@@ -978,6 +1001,11 @@ export class EmpresaVehiculosComponent implements OnInit {
     this.recargarVehiculos();
   }
 
+  onFilterTextBoxChanged() {
+    this.gridApi.setQuickFilter(
+      (document.getElementById('filter-text-box') as HTMLInputElement).value
+    );
+  }
   mostrarModalEliminar(modal, temporaryIndex) {
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
     this.temporaryIndex = temporaryIndex;
@@ -1437,7 +1465,7 @@ export class EmpresaVehiculosComponent implements OnInit {
   }
 
   generarReporteExcel() {
-    this.reporteEmpresaService.generarReporteVehiculos(this.uuid).subscribe((data) => {
+    this.reporteEmpresaService.generarReporteVehiculos(this.uuid, this.mostrandoEliminados).subscribe((data) => {
       let link = document.createElement('a');
       link.href = window.URL.createObjectURL(data);
       link.download = "test.xls";

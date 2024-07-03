@@ -178,7 +178,7 @@ export class EmpresaCanesComponent implements OnInit {
   tempUuidEntrenamiento: string = "";
   tempUuidFotografia: string = "";
 
-  fechaDeHoy = new Date().toISOString().split('T')[0];
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
 
   mostrarOtraRaza: boolean = false;
 
@@ -376,6 +376,15 @@ export class EmpresaCanesComponent implements OnInit {
       return;
     }
 
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerCanPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: Can) => {
       this.can = data;
       this.editandoModal = false;
@@ -418,6 +427,15 @@ export class EmpresaCanesComponent implements OnInit {
   }
 
   eliminar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     if(rowData.rowData?.eliminado) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -1454,6 +1472,11 @@ export class EmpresaCanesComponent implements OnInit {
     });
   }
 
+  onFilterTextBoxChanged() {
+    this.gridApi.setQuickFilter(
+      (document.getElementById('filter-text-box') as HTMLInputElement).value
+    );
+  }
   mostrarModalModificarCan() {
     if(this.can.eliminado) {
       this.toastService.showGenericToast(

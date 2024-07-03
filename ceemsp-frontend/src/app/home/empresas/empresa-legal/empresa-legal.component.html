@@ -5,7 +5,7 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Escrituras</h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearEscrituraModal)">Nueva escritura</button>
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalCrear(crearEscrituraModal)">Nueva escritura</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button" id="mostrarColumnasDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Mostrar / Ocultar columnas
@@ -19,7 +19,8 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar escrituras como Excel (csv)</a>
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar como CSV</a>
+          <a class="dropdown-item" (click)="generarReporteExcel()">Descargar como Excel</a>
         </div>
       </div>
     </div>
@@ -550,7 +551,7 @@
               <td><b>Descripcion</b></td>
               <td>{{escritura?.descripcion}}</td>
             </tr>
-            <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+            <tr *ngIf="usuarioActual.rol !== 'CEEMSP_USER'">
               <td><b>Fecha de creación:</b></td>
               <td>{{escritura?.fechaCreacion}}</td>
             </tr>
@@ -587,7 +588,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="7">No hay socios creados en la escritura hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarSocio()">Da clic aqui para crear uno</a></td>
+                <td colspan="7">No hay socios creados en la escritura hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarSocio()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aqui para crear uno</a></td>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-socio>
@@ -599,9 +600,9 @@
                 <td [ngStyle]="socio?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{socio?.sexo}}</td>
                 <td [ngStyle]="socio?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{socio?.porcentajeAcciones}}</td>
                 <td>
-                  <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarSocio(socio?.uuid)" *ngIf="!socio?.eliminado" title="Modificar socio"></fa-icon>
-                  <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarSocio(socio?.uuid)" *ngIf="!socio?.eliminado" title="Eliminar socio"></fa-icon>
-                  <fa-icon [icon]="faInfoCircle" class="fakelink" (click)="mostrarDetallesEliminacionSocio(socio?.uuid)" *ngIf="socio?.eliminado" title="Mostrar motivos de borrado"></fa-icon>
+                  <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarSocio(socio?.uuid)" *ngIf="!socio?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Modificar socio"></fa-icon>
+                  <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarSocio(socio?.uuid)" *ngIf="!socio?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Eliminar socio"></fa-icon>
+                  <fa-icon [icon]="faInfoCircle" class="fakelink" (click)="mostrarDetallesEliminacionSocio(socio?.uuid)" *ngIf="socio?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Mostrar motivos de borrado"></fa-icon>
                 </td>
               </tr>
             </ng-template>
@@ -642,7 +643,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="7">No hay apoderados creados en la escritura hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarApoderado()">Da clic aqui para crear uno</a></td>
+                <td colspan="7">No hay apoderados creados en la escritura hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarApoderado()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aqui para crear uno</a></td>
               </tr>
 
             </ng-template>
@@ -656,9 +657,9 @@
                 <td [ngStyle]="apoderado?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{apoderado?.fechaInicio}}</td>
                 <td [ngStyle]="apoderado?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{apoderado?.fechaFin}}</td>
                 <td>
-                  <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarApoderado(apoderado?.uuid)" *ngIf="!apoderado?.eliminado" title="Modificar apoderado"></fa-icon>
-                  <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarApoderado(apoderado?.uuid)" *ngIf="!apoderado?.eliminado" title="Eliminar apoderado"></fa-icon>
-                  <fa-icon [icon]="faInfoCircle" class="fakelink" (click)="mostrarDetallesEliminacionApoderado(apoderado?.uuid)" *ngIf="apoderado?.eliminado" title="Mostrar motivos de borrado"></fa-icon>
+                  <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarApoderado(apoderado?.uuid)" *ngIf="!apoderado?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Modificar apoderado"></fa-icon>
+                  <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarApoderado(apoderado?.uuid)" *ngIf="!apoderado?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Eliminar apoderado"></fa-icon>
+                  <fa-icon [icon]="faInfoCircle" class="fakelink" (click)="mostrarDetallesEliminacionApoderado(apoderado?.uuid)" *ngIf="apoderado?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Mostrar motivos de borrado"></fa-icon>
                 </td>
               </tr>
             </ng-template>
@@ -668,7 +669,7 @@
                   Hay en total {{escritura.apoderados?.length}} apoderados
                 </div>
                 <div class="col-sm-6">
-                  <button class="btn btn-primary float-right" (click)="clear(apoderadosTable)">Limpiar filtros</button>
+                  <button class="btn btn-primary float-right" (click)="clear(apoderadosTable)" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Limpiar filtros</button>
                 </div>
               </div>
             </ng-template>
@@ -700,7 +701,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="6">No hay representantes creados en la escritura hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarRepresentante()">Da clic aqui para crear uno</a></td>
+                <td colspan="6">No hay representantes creados en la escritura hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarRepresentante()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aqui para crear uno</a></td>
               </tr>
 
             </ng-template>
@@ -712,9 +713,9 @@
                 <td [ngStyle]="representante?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{representante?.curp}}</td>
                 <td [ngStyle]="representante?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{representante?.sexo}}</td>
                 <td>
-                  <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarRepresentante(representante?.uuid)" *ngIf="!representante?.eliminado" title="Modificar representante"></fa-icon>
-                  <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarRepresentante(representante?.uuid)" *ngIf="!representante?.eliminado" title="Eliminar representante"></fa-icon>
-                  <fa-icon [icon]="faInfoCircle" class="fakelink" (click)="mostrarDetallesEliminacionRepresentante(representante?.uuid)" *ngIf="representante?.eliminado" title="Mostrar motivos de borrado"></fa-icon>
+                  <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarRepresentante(representante?.uuid)" *ngIf="!representante?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Modificar representante"></fa-icon>
+                  <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarRepresentante(representante?.uuid)" *ngIf="!representante?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Eliminar representante"></fa-icon>
+                  <fa-icon [icon]="faInfoCircle" class="fakelink" (click)="mostrarDetallesEliminacionRepresentante(representante?.uuid)" *ngIf="representante?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Mostrar motivos de borrado"></fa-icon>
                 </td>
               </tr>
             </ng-template>
@@ -750,7 +751,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="7">No hay miembros del consejo creados en la escritura hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarConsejo()">Da clic aqui para crear uno</a></td>
+                <td colspan="7">No hay miembros del consejo creados en la escritura hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarConsejo()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aqui para crear uno</a></td>
               </tr>
 
             </ng-template>
@@ -763,9 +764,9 @@
                 <td [ngStyle]="consejo?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{consejo?.sexo}}</td>
                 <td [ngStyle]="consejo?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{consejo?.puesto}}</td>
                 <td>
-                  <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarConsejo(consejo?.uuid)" *ngIf="!consejo?.eliminado" title="Modificar miembro del consejo"></fa-icon>
-                  <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarConsejo(consejo?.uuid)" *ngIf="!consejo?.eliminado" title="Eliminar miembro del consejo"></fa-icon>
-                  <fa-icon [icon]="faInfoCircle" class="fakelink" (click)="mostrarDetallesEliminacionConsejo(consejo?.uuid)" *ngIf="consejo?.eliminado" title="Mostrar motivos de borrado"></fa-icon>
+                  <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarConsejo(consejo?.uuid)" *ngIf="!consejo?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Modificar miembro del consejo"></fa-icon>
+                  <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminarConsejo(consejo?.uuid)" *ngIf="!consejo?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Eliminar miembro del consejo"></fa-icon>
+                  <fa-icon [icon]="faInfoCircle" class="fakelink" (click)="mostrarDetallesEliminacionConsejo(consejo?.uuid)" *ngIf="consejo?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Mostrar motivos de borrado"></fa-icon>
                 </td>
               </tr>
             </ng-template>
@@ -779,25 +780,25 @@
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
       <button class="btn btn-primary" (click)="mostrarEscritura(visualizarEscrituraModal)">Vista previa</button>
-      <button class="btn btn-primary" (click)="mostrarModificarEscrituraModal()">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarEscritura()">Eliminar</button>
+      <button class="btn btn-primary" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModificarEscrituraModal()">Modificar</button>
+      <button type="button" class="btn btn-danger" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalEliminarEscritura()">Eliminar</button>
     </div>
-    <div class="modal-footer" *ngIf="this.pestanaActual === 'SOCIOS'">
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'SOCIOS' && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">
       <button class="btn btn-primary" (click)="mostrarModalAgregarSocio()">Agregar socio</button>
       <button class="btn btn-primary" *ngIf="!mostrandoSociosEliminados" (click)="mostrarSociosEliminados()">Mostrar eliminados</button>
       <button class="btn btn-primary" *ngIf="mostrandoSociosEliminados" (click)="ocultarSociosEliminados()">Ocultar eliminados</button>
     </div>
-    <div class="modal-footer" *ngIf="this.pestanaActual === 'APODERADOS'">
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'APODERADOS' && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">
       <button class="btn btn-primary" (click)="mostrarModalAgregarApoderado()">Agregar apoderado</button>
       <button class="btn btn-primary" *ngIf="!mostrandoApoderadosEliminados" (click)="mostrarApoderadosEliminados()">Mostrar eliminados</button>
       <button class="btn btn-primary" *ngIf="mostrandoApoderadosEliminados" (click)="ocultarApoderadosEliminados()">Ocultar eliminados</button>
     </div>
-    <div class="modal-footer" *ngIf="this.pestanaActual === 'REPRESENTANTES'">
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'REPRESENTANTES' && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">
       <button class="btn btn-primary" (click)="mostrarModalAgregarRepresentante()">Agregar representante</button>
       <button class="btn btn-primary" *ngIf="!mostrandoRepresentantesEliminados" (click)="mostrarRepresentantesEliminados()">Mostrar eliminados</button>
       <button class="btn btn-primary" *ngIf="mostrandoRepresentantesEliminados" (click)="ocultarRepresentantesEliminados()">Ocultar eliminados</button>
     </div>
-    <div class="modal-footer" *ngIf="this.pestanaActual === 'CONSEJOS'">
+    <div class="modal-footer" *ngIf="this.pestanaActual === 'CONSEJOS' && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">
       <button class="btn btn-primary" (click)="mostrarModalAgregarConsejo()">Agregar consejo</button>
       <button class="btn btn-primary" *ngIf="!mostrandoConsejosEliminados" (click)="mostrarConsejosEliminados()">Mostrar eliminados</button>
       <button class="btn btn-primary" *ngIf="mostrandoConsejosEliminados" (click)="ocultarConsejosEliminados()">Ocultar eliminados</button>

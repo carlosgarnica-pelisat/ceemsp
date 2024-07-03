@@ -3,6 +3,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.dto.VisitaDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
+import com.pelisat.cesp.ceemsp.database.model.Usuario;
 import com.pelisat.cesp.ceemsp.database.model.Visita;
 import com.pelisat.cesp.ceemsp.database.repository.VisitaRepository;
 import com.pelisat.cesp.ceemsp.database.type.TipoVisitaEnum;
@@ -11,15 +12,22 @@ import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceExceptio
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -318,6 +326,146 @@ public class VisitaServiceImpl implements VisitaService {
         daoHelper.fulfillAuditorFields(false, visita, usuarioDto.getId());
         visitaRepository.save(visita);
         return daoToDtoConverter.convertDaoToDtoVisita(visita);
+    }
+
+    @Override
+    public File obtenerReporteExcelVisitas() throws Exception {
+        List<Visita> visitas = visitaRepository.getAllByEliminadoFalse()
+                .stream()
+                .sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa()))
+                .collect(Collectors.toList());
+
+        Workbook workbook = new HSSFWorkbook();
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setFontHeightInPoints((short) 11);
+        style.setFont(font);
+        style.setWrapText(true);
+        String filepath = "/ceemsp/fs/files/reportes/reporte-" + RandomStringUtils.randomAlphanumeric(6) + ".xls";
+        OutputStream outputStream = new FileOutputStream(filepath);
+
+        Sheet visitasSheet = workbook.createSheet("VISITAS");
+
+        // Creando prestadores de servicios
+        Row encabezadoReporteRow = visitasSheet.createRow(0);
+        Cell noCell = encabezadoReporteRow.createCell(0);
+        noCell.setCellStyle(style);
+        Cell tipoVisitaEncabezadoCell = encabezadoReporteRow.createCell(1);
+        tipoVisitaEncabezadoCell.setCellStyle(style);
+        Cell numeroRegistroEmpresaEncabezadoCell = encabezadoReporteRow.createCell(2);
+        numeroRegistroEmpresaEncabezadoCell.setCellStyle(style);
+        Cell numeroOrdenEncabezadoCell = encabezadoReporteRow.createCell(3);
+        numeroOrdenEncabezadoCell.setCellStyle(style);
+        Cell fechaVisitaEncabezadoCell = encabezadoReporteRow.createCell(4);
+        fechaVisitaEncabezadoCell.setCellStyle(style);
+        Cell requerimientoEncabezadoCell = encabezadoReporteRow.createCell(5);
+        requerimientoEncabezadoCell.setCellStyle(style);
+        Cell fechaTerminoEncabezadoCell = encabezadoReporteRow.createCell(6);
+        fechaTerminoEncabezadoCell.setCellStyle(style);
+        Cell responsableEncabezadoCell = encabezadoReporteRow.createCell(7);
+        responsableEncabezadoCell.setCellStyle(style);
+        Cell calleEncabezadoCell = encabezadoReporteRow.createCell(8);
+        calleEncabezadoCell.setCellStyle(style);
+        Cell numeroExteriorEncabezadoCell = encabezadoReporteRow.createCell(9);
+        numeroExteriorEncabezadoCell.setCellStyle(style);
+        Cell numeroInteriorEncabezadoCell = encabezadoReporteRow.createCell(10);
+        numeroInteriorEncabezadoCell.setCellStyle(style);
+        Cell coloniaEncabezadoCell = encabezadoReporteRow.createCell(11);
+        coloniaEncabezadoCell.setCellStyle(style);
+        Cell municipioEncabezadoCell = encabezadoReporteRow.createCell(12);
+        municipioEncabezadoCell.setCellStyle(style);
+        Cell referenciaEncabezadoCell = encabezadoReporteRow.createCell(13);
+        referenciaEncabezadoCell.setCellStyle(style);
+        Cell fechaCreacionEncabezadoCell = encabezadoReporteRow.createCell(14);
+        fechaCreacionEncabezadoCell.setCellStyle(style);
+        Cell razonSocialEncabezadoCell = encabezadoReporteRow.createCell(15);
+        razonSocialEncabezadoCell.setCellStyle(style);
+        Cell nombreComercialEncabezadoCell = encabezadoReporteRow.createCell(16);
+        nombreComercialEncabezadoCell.setCellStyle(style);
+
+        noCell.setCellValue("NO. CONSECUTIVO");
+        tipoVisitaEncabezadoCell.setCellValue("TIPO DE VISITA");
+        numeroRegistroEmpresaEncabezadoCell.setCellValue("NUMERO REGISTRO");
+        numeroOrdenEncabezadoCell.setCellValue("NUMERO ORDEN");
+        fechaVisitaEncabezadoCell.setCellValue("FECHA VISITA");
+        requerimientoEncabezadoCell.setCellValue("REQUERIMIENTO");
+        fechaTerminoEncabezadoCell.setCellValue("FECHA DE TERMINO");
+        responsableEncabezadoCell.setCellValue("RESPONSABLE");
+        calleEncabezadoCell.setCellValue("CALLE");
+        numeroExteriorEncabezadoCell.setCellValue("NO. EXTERIOR");
+        numeroInteriorEncabezadoCell.setCellValue("NO. INTERIOR");
+        coloniaEncabezadoCell.setCellValue("COLONIA");
+        municipioEncabezadoCell.setCellValue("MUNICIPIO");
+        referenciaEncabezadoCell.setCellValue("REFERENCIA");
+        fechaCreacionEncabezadoCell.setCellValue("FECHA CREACION");
+        razonSocialEncabezadoCell.setCellValue("RAZON SOCIAL");
+        nombreComercialEncabezadoCell.setCellValue("NOMBRE COMERCIAL");
+
+        AtomicInteger consecutivo = new AtomicInteger(1);
+        consecutivo.set(1);
+
+        visitas.forEach(p -> {
+            UsuarioDto responsable = usuarioService.getUserById(p.getResponsable());
+
+            Row eRow = visitasSheet.createRow(consecutivo.get());
+            Cell numeroConsecutivoCell = eRow.createCell(0);
+            numeroConsecutivoCell.setCellStyle(style);
+            Cell tipoVisitaCell = eRow.createCell(1);
+            tipoVisitaCell.setCellStyle(style);
+            Cell numeroRegistroEmpresaCell = eRow.createCell(2);
+            numeroRegistroEmpresaCell.setCellStyle(style);
+            Cell numeroOrdenCell = eRow.createCell(3);
+            numeroOrdenCell.setCellStyle(style);
+            Cell fechaVisitaCell = eRow.createCell(4);
+            fechaVisitaCell.setCellStyle(style);
+            Cell requerimientoCell = eRow.createCell(5);
+            requerimientoCell.setCellStyle(style);
+            Cell fechaTerminoCell = eRow.createCell(6);
+            fechaTerminoCell.setCellStyle(style);
+            Cell responsableCell = eRow.createCell(7);
+            responsableCell.setCellStyle(style);
+            Cell calleCell = eRow.createCell(8);
+            calleCell.setCellStyle(style);
+            Cell numeroExteriorCell = eRow.createCell(9);
+            numeroExteriorCell.setCellStyle(style);
+            Cell numeroInteriorCell = eRow.createCell(10);
+            numeroInteriorCell.setCellStyle(style);
+            Cell coloniaCell = eRow.createCell(11);
+            coloniaCell.setCellStyle(style);
+            Cell municipioCell = eRow.createCell(12);
+            municipioCell.setCellStyle(style);
+            Cell referenciaCell = eRow.createCell(13);
+            referenciaCell.setCellStyle(style);
+            Cell fechaCreacionCell = eRow.createCell(14);
+            fechaCreacionCell.setCellStyle(style);
+            Cell razonSocialCell = eRow.createCell(15);
+            razonSocialCell.setCellStyle(style);
+            Cell nombreComercialCell = eRow.createCell(16);
+            nombreComercialCell.setCellStyle(style);
+
+            numeroConsecutivoCell.setCellValue(consecutivo.get());
+            tipoVisitaCell.setCellValue(p.getTipoVisita().getNombre());
+            numeroRegistroEmpresaCell.setCellValue(p.getNumeroRegistro() != null ? p.getNumeroRegistro() : "NA");
+            numeroOrdenCell.setCellValue(p.getNumeroOrden());
+            fechaVisitaCell.setCellValue(p.getFechaVisita().toString());
+            requerimientoCell.setCellValue(p.isRequerimiento() ? "SI" : "NO");
+            fechaTerminoCell.setCellValue(p.getFechaTermino() != null ? p.getFechaTermino().toString() : "NA");
+            responsableCell.setCellValue(responsable.getNombres() + " " + responsable.getApellidos() + " " + responsable.getApellidoMaterno() != null ? responsable.getApellidoMaterno() : "");
+            calleCell.setCellValue(p.getDomicilio1());
+            numeroExteriorCell.setCellValue(p.getNumeroExterior());
+            numeroInteriorCell.setCellValue(p.getNumeroInterior());
+            coloniaCell.setCellValue(p.getDomicilio2());
+            municipioCell.setCellValue(p.getDomicilio3());
+            referenciaCell.setCellValue(p.getDomicilio4());
+            fechaCreacionCell.setCellValue(p.getFechaCreacion().toString());
+            razonSocialCell.setCellValue(p.getRazonSocial());
+            nombreComercialCell.setCellValue(p.getNombreComercial());
+
+            consecutivo.incrementAndGet();
+        });
+
+        workbook.write(outputStream);
+        return new File(filepath);
     }
 
 

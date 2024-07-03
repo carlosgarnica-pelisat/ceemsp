@@ -6,10 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EmpresaLicenciaColectivaRepository extends JpaRepository<EmpresaLicenciaColectiva, Integer> {
     List<EmpresaLicenciaColectiva> findAllByEmpresaAndEliminadoFalse(Integer empresa);
+    List<EmpresaLicenciaColectiva> findAllByEmpresaAndModalidadAndEliminadoFalse(Integer empresa, Integer modalidad);
+    List<EmpresaLicenciaColectiva> findAllByEmpresaAndModalidad(Integer empresa, Integer modalidad);
     List<EmpresaLicenciaColectiva> findAllByEmpresaAndEliminadoTrue(Integer empresa);
     EmpresaLicenciaColectiva findByUuidAndEliminadoFalse(String uuid);
     EmpresaLicenciaColectiva findByUuid(String uuid);
@@ -19,4 +22,6 @@ public interface EmpresaLicenciaColectivaRepository extends JpaRepository<Empres
 
     @Query(value = "from EmpresaLicenciaColectiva v where v.fechaFin between :fechaInicio and :fechaFin and v.empresa = :empresa")
     List<EmpresaLicenciaColectiva> getAllByEmpresaAndFechaTerminoLessThanAndFechaTerminoGreaterThanAndEliminadoFalse(LocalDate fechaInicio, LocalDate fechaFin, int empresa);
+
+    List<EmpresaLicenciaColectiva> getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(LocalDateTime fechaInicio, LocalDateTime fechafin);
 }

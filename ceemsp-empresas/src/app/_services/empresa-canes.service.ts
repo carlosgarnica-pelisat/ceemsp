@@ -17,6 +17,10 @@ export class EmpresaCanesService {
     return this.http.get(`${this.uri}/canes`);
   }
 
+  obtenerCanesEliminados() {
+    return this.http.get(`${this.uri}/canes/eliminados`);
+  }
+
   obtenerCanesInstalaciones() {
     return this.http.get(`${this.uri}/canes/instalaciones`);
   }

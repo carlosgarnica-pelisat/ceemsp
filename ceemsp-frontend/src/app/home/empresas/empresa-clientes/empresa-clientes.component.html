@@ -5,8 +5,9 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Clientes <span *ngIf="mostrandoEliminados">(eliminados)</span></h1>
     <div class="btn-group">
+      <input type="text" id="filter-text-box" placeholder="Busqueda rapida..." (input)="onFilterTextBoxChanged()">
       <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-              (click)="mostrarModalCrear(crearClienteModal)">Nuevo cliente
+              (click)="mostrarModalCrear(crearClienteModal)" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Nuevo cliente
       </button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button"
@@ -170,7 +171,7 @@
                   <td><b>Observaciones de baja</b></td>
                   <td>{{cliente?.observacionesBaja}}</td>
                 </tr>
-                <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+                <tr *ngIf="usuarioActual.rol !== 'CEEMSP_USER'">
                   <td><b>Fecha de creación:</b></td>
                   <td>{{cliente?.fechaCreacion}}</td>
                 </tr>
@@ -204,7 +205,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="6">No hay domicilios creadas en este momento. <a class="fakelink" (click)="mostrarModalAgregarDomicilio()">Da clic aquí para crear uno</a></td>
+                <td colspan="6">No hay domicilios creadas en este momento. <a class="fakelink" (click)="mostrarModalAgregarDomicilio()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aquí para crear uno</a></td>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-domicilio>
@@ -258,7 +259,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="6">No hay personal asignado en este momento. <a class="fakelink" (click)="mostrarModalAsignarPersonal()">Da clic aquí para asignar uno</a></td>
+                <td colspan="6">No hay personal asignado en este momento. <a class="fakelink" (click)="mostrarModalAsignarPersonal()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aquí para asignar uno</a></td>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-asignacion>
@@ -309,7 +310,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="6">No hay modalidades creadas en este momento. <a class="fakelink" (click)="mostrarModalCrearModalidad()">Da clic aquí para crear una</a></td>
+                <td colspan="6">No hay modalidades creadas en este momento. <a class="fakelink" (click)="mostrarModalCrearModalidad()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aquí para crear una</a></td>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-modalidad>
@@ -357,7 +358,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="6">No hay formas de ejecución creadas en este momento. <a class="fakelink" (click)="mostrarModalCrearFormaEjecucion()">Da clic aquí para crear una</a></td>
+                <td colspan="6">No hay formas de ejecución creadas en este momento. <a class="fakelink" (click)="mostrarModalCrearFormaEjecucion()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aquí para crear una</a></td>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-formaEjecucion>
@@ -385,22 +386,22 @@
     <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
       <button type="button" class="btn btn-primary" *ngIf="!this.cliente.eliminado && (this.cliente?.rutaArchivoContrato !== null)" (click)="descargarContratoPrestacion()">Descargar contrato</button>
       <button type="button" class="btn btn-primary" *ngIf="this.cliente?.eliminado && (this.cliente?.documentoFundatorioBaja !== null)" (click)="descargarDocumentoFundatorio()">Descargar documento fundatorio</button>
-      <button type="button" class="btn btn-primary" *ngIf="!this.cliente.eliminado" (click)="mostrarModalEditarCliente()">Modificar</button>
-      <button type="button" class="btn btn-danger" *ngIf="!this.cliente.eliminado" (click)="mostrarModalEliminarCliente(this.cliente.uuid)">Eliminar</button>
+      <button type="button" class="btn btn-primary" *ngIf="!this.cliente.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalEditarCliente()">Modificar</button>
+      <button type="button" class="btn btn-danger" *ngIf="!this.cliente.eliminado  && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalEliminarCliente(this.cliente.uuid)">Eliminar</button>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'DOMICILIOS'">
-      <button class="btn btn-primary" (click)="mostrarModalAgregarDomicilio()" *ngIf="!this.cliente.eliminado">Agregar domicilio</button>
+      <button class="btn btn-primary" (click)="mostrarModalAgregarDomicilio()" *ngIf="!this.cliente.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Agregar domicilio</button>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'ELEMENTOS'">
-      <button class="btn btn-primary" (click)="mostrarModalAsignarPersonal()" *ngIf="!this.cliente.eliminado">Asignar personal</button>
-      <button class="btn btn-primary" (click)="mostrarPersonalEliminado()" *ngIf="!this.cliente.eliminado && !mostrandoPersonalEliminado">Mostrar eliminados</button>
-      <button class="btn btn-primary" (click)="ocultarPersonalEliminado()" *ngIf="!this.cliente.eliminado && mostrandoPersonalEliminado">Ocultar eliminados</button>
+      <button class="btn btn-primary" (click)="mostrarModalAsignarPersonal()" *ngIf="!this.cliente.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Asignar personal</button>
+      <button class="btn btn-primary" (click)="mostrarPersonalEliminado()" *ngIf="!this.cliente.eliminado && !mostrandoPersonalEliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Mostrar eliminados</button>
+      <button class="btn btn-primary" (click)="ocultarPersonalEliminado()" *ngIf="!this.cliente.eliminado && mostrandoPersonalEliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Ocultar eliminados</button>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'MODALIDADES'">
-      <button class="btn btn-primary" (click)="mostrarModalCrearModalidad()" *ngIf="!this.cliente.eliminado">Agregar modalidad</button>
+      <button class="btn btn-primary" (click)="mostrarModalCrearModalidad()" *ngIf="!this.cliente.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Agregar modalidad</button>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'FORMAS_EJECUCION'">
-      <button class="btn btn-primary" (click)="mostrarModalCrearFormaEjecucion()" *ngIf="!this.cliente.eliminado">Agregar forma de ejecucion</button>
+      <button class="btn btn-primary" (click)="mostrarModalCrearFormaEjecucion()" *ngIf="!this.cliente.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Agregar forma de ejecucion</button>
     </div>
   </ng-template>
 
@@ -1399,8 +1400,8 @@
                         <td>{{d.localidadCatalogo?.nombre}}</td>
                         <td>{{d.tipoInfraestructura?.descripcion}}</td>
                         <td>
-                          <fa-icon [icon]="faPencilAlt" title="Editar domicilio" (click)="modificarDomicilio(i)"></fa-icon>
-                          <fa-icon [icon]="faTrash" title="Eliminar domicilio" (click)="mostrarQuitarClienteDomicilioModal(i)"></fa-icon>
+                          <fa-icon [icon]="faPencilAlt" title="Editar domicilio" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="modificarDomicilio(i)"></fa-icon>
+                          <fa-icon [icon]="faTrash" title="Eliminar domicilio" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarQuitarClienteDomicilioModal(i)"></fa-icon>
                         </td>
                       </tr>
                     </table>
@@ -1438,8 +1439,8 @@
                           C.P. {{c?.domicilio?.codigoPostal}}
                         </td>
                         <td>
-                          <fa-icon [icon]="faPencilAlt" title="Modificar domicilio del cliente" (click)="mostrarEditarAsignacionCliente(i)" style="cursor:pointer;"></fa-icon>
-                          <fa-icon [icon]="faTrash" title="Eliminar domicilio del cliente" (click)="mostrarModalEliminarAsignacionCliente(c?.uuid)" style="cursor:pointer;"></fa-icon>
+                          <fa-icon [icon]="faPencilAlt" title="Modificar domicilio del cliente" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarEditarAsignacionCliente(i)" style="cursor:pointer;"></fa-icon>
+                          <fa-icon [icon]="faTrash" title="Eliminar domicilio del cliente" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalEliminarAsignacionCliente(c?.uuid)" style="cursor:pointer;"></fa-icon>
                         </td>
                       </tr>
                       <tr *ngIf="showAsignacionForm">
@@ -1514,8 +1515,8 @@
                           <span *ngIf="m.modalidad?.submodalidad === null">NA</span>
                         </td>
                         <td>
-                          <fa-icon [icon]="faPencilAlt" title="Modificar domicilio del cliente" (click)="mostrarEditarModalidadCliente(i)" style="cursor:pointer;"></fa-icon>
-                          <fa-icon [icon]="faTrash" title="Eliminar domicilio del cliente" (click)="mostrarModalEliminarModalidadCliente(m?.uuid)" style="cursor:pointer;"></fa-icon>
+                          <fa-icon [icon]="faPencilAlt" title="Modificar domicilio del cliente" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarEditarModalidadCliente(i)" style="cursor:pointer;"></fa-icon>
+                          <fa-icon [icon]="faTrash" title="Eliminar domicilio del cliente" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalEliminarModalidadCliente(m?.uuid)" style="cursor:pointer;"></fa-icon>
                         </td>
                       </tr>
                       <tr *ngIf="showModalidadForm">

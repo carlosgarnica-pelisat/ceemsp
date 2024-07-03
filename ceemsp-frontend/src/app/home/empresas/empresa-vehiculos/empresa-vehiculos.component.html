@@ -5,7 +5,8 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Vehículos <span *ngIf="mostrandoEliminados">(eliminados)</span></h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearVehiculoModal)">Nuevo vehículo</button>
+      <input type="text" id="filter-text-box" placeholder="Busqueda rapida..." (input)="onFilterTextBoxChanged()">
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalCrear(crearVehiculoModal)">Nuevo vehículo</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button" id="mostrarColumnasDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Mostrar / Ocultar columnas
@@ -39,18 +40,18 @@
             <b>Razon social: </b> {{empresa?.razonSocial}}<br>
           </p>
         </a>
-        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
+        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
-        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
+        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Legal</a>
         <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneArmas">Licencias colectivas / Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneCanes">Canes</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action active">Vehículos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
-        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
+        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
         <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
-        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Visitas</a>
         <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
@@ -271,7 +272,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="6">No hay colores creados hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarColor()">Da clic aquí para crear una</a></td>
+                <td colspan="6">No hay colores creados hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarColor()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aquí para crear una</a></td>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-color>
@@ -279,8 +280,8 @@
                 <td>{{color.color}}</td>
                 <td>{{color.descripcion}}</td>
                 <td>
-                  <fa-icon [icon]="faPencilAlt" title="Modificar color del vehiculo" (click)="mostrarEditarVehiculoColor(color.uuid)"></fa-icon>
-                  <fa-icon [icon]="faTrash" title="Eliminar color del vehiculo" (click)="mostrarModalEliminarVehiculoColor(color.uuid)"></fa-icon>
+                  <fa-icon [icon]="faPencilAlt" title="Modificar color del vehiculo" (click)="mostrarEditarVehiculoColor(color.uuid)" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'"></fa-icon>
+                  <fa-icon [icon]="faTrash" title="Eliminar color del vehiculo" (click)="mostrarModalEliminarVehiculoColor(color.uuid)" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'"></fa-icon>
                 </td>
               </tr>
             </ng-template>
@@ -321,7 +322,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="6">No hay fotografías creadas hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarFotografia()">Da clic aquí para crear una</a></td>
+                <td colspan="6">No hay fotografías creadas hasta ahora. <a class="fakelink" (click)="mostrarModalAgregarFotografia()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aquí para crear una</a></td>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-fotografia>
@@ -330,7 +331,7 @@
                 <td>{{fotografia.descripcion}}</td>
                 <td>
                   <fa-icon [icon]="faDownload" title="Descargar fotografia" (click)="descargarFotografia(fotografia?.uuid)"></fa-icon>
-                  <fa-icon [icon]="faTrash" title="Eliminar fotografia" (click)="mostrarModalEliminarFotografia(fotografia?.uuid)"></fa-icon>
+                  <fa-icon [icon]="faTrash" title="Eliminar fotografia" (click)="mostrarModalEliminarFotografia(fotografia?.uuid)" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'"></fa-icon>
                 </td>
               </tr>
             </ng-template>
@@ -350,16 +351,16 @@
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
       <button class="btn btn-primary" (click)="mostrarModalMovimientosVehiculo()">Mostrar movimientos</button>
-      <button class="btn btn-primary" (click)="descargarDocumentoFundatorio()"  *ngIf="vehiculo?.eliminado && (vehiculo?.documentoFundatorioBaja !== null)">Descargar documento fundatorio</button>
+      <button class="btn btn-primary" (click)="descargarDocumentoFundatorio()" *ngIf="vehiculo?.eliminado && (vehiculo?.documentoFundatorioBaja !== null)">Descargar documento fundatorio</button>
       <button class="btn btn-primary" (click)="mostrarModalVerConstanciaBlindaje()" *ngIf="!vehiculo?.eliminado && vehiculo?.blindado === true && (vehiculo?.constanciaBlindaje !== null)">Ver constancia de blindaje</button>
-      <button class="btn btn-primary" (click)="mostrarModalModificarVehiculo()" *ngIf="!vehiculo?.eliminado">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarVehiculo()" *ngIf="!vehiculo?.eliminado">Eliminar</button>
+      <button class="btn btn-primary" (click)="mostrarModalModificarVehiculo()" *ngIf="!vehiculo?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminarVehiculo()" *ngIf="!vehiculo?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Eliminar</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'COLORES'">
-      <button class="btn btn-primary" (click)="mostrarModalAgregarColor()" *ngIf="!vehiculo.eliminado">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarModalAgregarColor()" *ngIf="!vehiculo.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Agregar nuevo</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'FOTOGRAFIAS'">
-      <button class="btn btn-primary" (click)="mostrarModalAgregarFotografia()" *ngIf="!vehiculo.eliminado">Agregar fotografía</button>
+      <button class="btn btn-primary" (click)="mostrarModalAgregarFotografia()" *ngIf="!vehiculo.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Agregar fotografía</button>
     </div>
   </ng-template>
 
@@ -592,7 +593,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-primary" (click)="descargarAcuerdoPdf()">Descargar</button>
+      <button type="button" class="btn btn-primary" (click)="descargarAcuerdoPdf()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Descargar</button>
     </div>
   </ng-template>
 
@@ -1166,8 +1167,8 @@
                     </td>
                     <td>{{c?.descripcion}}</td>
                     <td>
-                      <fa-icon [icon]="faPencilAlt" (click)="mostrarEditarColorForm(i)"></fa-icon>
-                      <fa-icon [icon]="faTrash" (click)="mostrarModalQuitarVehiculoColor(i)"></fa-icon>
+                      <fa-icon [icon]="faPencilAlt" (click)="mostrarEditarColorForm(i)" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'"></fa-icon>
+                      <fa-icon [icon]="faTrash" (click)="mostrarModalQuitarVehiculoColor(i)" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'"></fa-icon>
                     </td>
                   </tr>
                   <tr *ngIf="!showColorForm">

@@ -2,7 +2,7 @@ FROM node:14.20-alpine AS build
 ENV TZ="America/Mexico_City"
 WORKDIR /usr/src/app
 COPY package.json package.json
-RUN npm install @angular/cli -g
+RUN npm install @angular/cli@11.0.0 -g
 RUN npm i --silent
 COPY . .
 # A head-of-time compilation

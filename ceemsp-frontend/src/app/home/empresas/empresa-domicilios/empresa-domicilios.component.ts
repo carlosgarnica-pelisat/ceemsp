@@ -124,7 +124,7 @@ export class EmpresaDomiciliosComponent implements OnInit {
   coloniaQuery: string = '';
   calleQuery: string = '';
 
-  fechaDeHoy = new Date().toISOString().split('T')[0];
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
 
   obtenerCallesTimeout = undefined;
   empresa: Empresa;
@@ -274,6 +274,15 @@ export class EmpresaDomiciliosComponent implements OnInit {
   }
 
   editar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerDomicilioPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaDomicilio) => {
       this.domicilio = data;
       this.editandoModal = false;
@@ -342,6 +351,15 @@ export class EmpresaDomiciliosComponent implements OnInit {
   }
 
   eliminar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerDomicilioPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaDomicilio) => {
       this.domicilio = data;
       this.mostrarEliminarEmpresaModal();

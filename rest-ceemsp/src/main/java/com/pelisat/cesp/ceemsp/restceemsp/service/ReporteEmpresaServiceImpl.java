@@ -4,10 +4,7 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaModalidadDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.*;
-import com.pelisat.cesp.ceemsp.database.type.ArmaStatusEnum;
-import com.pelisat.cesp.ceemsp.database.type.ArmaTipoEnum;
-import com.pelisat.cesp.ceemsp.database.type.CanStatusEnum;
-import com.pelisat.cesp.ceemsp.database.type.FormaEjecucionEnum;
+import com.pelisat.cesp.ceemsp.database.type.*;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -22,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -60,6 +58,9 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
     private final EmpresaLicenciaColectivaDomicilioRepository empresaLicenciaColectivaDomicilioRepository;
     private final ClienteModalidadRepository clienteModalidadRepository;
     private final EmpresaModalidadService empresaModalidadService;
+    private final EmpresaEquipoRepository empresaEquipoRepository;
+    private final EquipoRepository equipoRepository;
+    private final int PUESTO_OPERATIVO = 3;
 
     @Autowired
     public ReporteEmpresaServiceImpl(AcuerdoRepository acuerdoRepository, EmpresaEscrituraRepository empresaEscrituraRepository, VisitaRepository visitaRepository, UsuarioRepository usuarioRepository, EmpresaLicenciaColectivaRepository empresaLicenciaColectivaRepository, ModalidadRepository modalidadRepository, SubmodalidadRepository submodalidadRepository, PersonalPuestoRepository personalPuestoRepository, PersonalNacionalidadRepository personalNacionalidadRepository, CanRepository canRepository, CanRazaRepository canRazaRepository, EmpresaDomicilioRepository empresaDomicilioRepository, ArmaRepository armaRepository, ArmaClaseRepository armaClaseRepository, ArmaMarcaRepository armaMarcaRepository, ClienteRepository clienteRepository, VehiculoRepository vehiculoRepository, VehiculoTipoRepository vehiculoTipoRepository, VehiculoMarcaRepository vehiculoMarcaRepository, VehiculoSubmarcaRepository vehiculoSubmarcaRepository, VehiculoUsoRepository vehiculoUsoRepository,
@@ -68,7 +69,9 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
                                      EmpresaRepository empresaRepository,
                                      ClienteDomicilioRepository clienteDomicilioRepository,
                                      EmpresaLicenciaColectivaDomicilioRepository empresaLicenciaColectivaDomicilioRepository,
-                                     ClienteModalidadRepository clienteModalidadRepository, EmpresaModalidadService empresaModalidadService) {
+                                     ClienteModalidadRepository clienteModalidadRepository, EmpresaModalidadService empresaModalidadService,
+                                     EmpresaEquipoRepository empresaEquipoRepository,
+                                     EquipoRepository equipoRepository) {
         this.acuerdoRepository = acuerdoRepository;
         this.empresaEscrituraRepository = empresaEscrituraRepository;
         this.visitaRepository = visitaRepository;
@@ -99,6 +102,100 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
         this.empresaLicenciaColectivaDomicilioRepository = empresaLicenciaColectivaDomicilioRepository;
         this.clienteModalidadRepository = clienteModalidadRepository;
         this.empresaModalidadService = empresaModalidadService;
+        this.empresaEquipoRepository = empresaEquipoRepository;
+        this.equipoRepository = equipoRepository;
+    }
+
+    @Override
+    public File generarReporteDomicilios(String uuid) throws Exception {
+        if(StringUtils.isBlank(uuid)) {
+            logger.warn("Alguno de los datos viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(empresa == null) {
+            logger.warn("La empresa no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<EmpresaDomicilio> domicilios = empresaDomicilioRepository.findAllByEmpresaAndEliminadoFalse(empresa.getId());
+
+        Workbook workbook = new HSSFWorkbook();
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setFontHeightInPoints((short) 11);
+        style.setFont(font);
+        style.setWrapText(true);
+        OutputStream outputStream = new FileOutputStream("test.xls");
+
+        Sheet acuerdosSheet = workbook.createSheet("DOMICILIOS");
+
+        // Creando prestadores de servicios
+        Row encabezadoReporteRow = acuerdosSheet.createRow(0);
+        Cell noCell = encabezadoReporteRow.createCell(0);
+        noCell.setCellStyle(style);
+        Cell calleEncabezadoCell = encabezadoReporteRow.createCell(1);
+        calleEncabezadoCell.setCellStyle(style);
+        Cell numeroExteriorEncabezadoCell = encabezadoReporteRow.createCell(2);
+        numeroExteriorEncabezadoCell.setCellStyle(style);
+        Cell numeroInteriorEncabezadoCell = encabezadoReporteRow.createCell(3);
+        numeroInteriorEncabezadoCell.setCellStyle(style);
+        Cell coloniaEncabezadoCell = encabezadoReporteRow.createCell(4);
+        coloniaEncabezadoCell.setCellStyle(style);
+        Cell municipioEncabezadoCell = encabezadoReporteRow.createCell(5);
+        municipioEncabezadoCell.setCellStyle(style);
+        Cell estadoEncabezadoCell = encabezadoReporteRow.createCell(6);
+        estadoEncabezadoCell.setCellStyle(style);
+        Cell codigoPostalEncabezadoCell = encabezadoReporteRow.createCell(7);
+        codigoPostalEncabezadoCell.setCellStyle(style);
+
+        noCell.setCellValue("NO. CONSECUTIVO");
+        calleEncabezadoCell.setCellValue("CALLE");
+        numeroExteriorEncabezadoCell.setCellValue("NUMERO EXTERIOR");
+        numeroInteriorEncabezadoCell.setCellValue("NUMERO INTERIOR");
+        coloniaEncabezadoCell.setCellValue("COLONIA");
+        municipioEncabezadoCell.setCellValue("MUNICIPIO");
+        estadoEncabezadoCell.setCellValue("ESTADO");
+        codigoPostalEncabezadoCell.setCellValue("CODIGO POSTAL");
+
+        AtomicInteger consecutivo = new AtomicInteger(1);
+        consecutivo.set(1);
+
+        domicilios.forEach(p -> {
+            Row eRow = acuerdosSheet.createRow(consecutivo.get());
+            Cell numeroConsecutivoCell = eRow.createCell(0);
+            numeroConsecutivoCell.setCellStyle(style);
+            Cell calleCell = eRow.createCell(1);
+            calleCell.setCellStyle(style);
+            Cell numeroExteriorCell = eRow.createCell(2);
+            numeroExteriorCell.setCellStyle(style);
+            Cell numeroInteriorCell = eRow.createCell(3);
+            numeroInteriorCell.setCellStyle(style);
+            Cell coloniaCell = eRow.createCell(4);
+            coloniaCell.setCellStyle(style);
+            Cell municipioCell = eRow.createCell(5);
+            municipioCell.setCellStyle(style);
+            Cell estadoCell = eRow.createCell(6);
+            estadoCell.setCellStyle(style);
+            Cell codigoPostalEncabezado = eRow.createCell(7);
+            codigoPostalEncabezado.setCellStyle(style);
+
+            numeroConsecutivoCell.setCellValue(consecutivo.get());
+            calleCell.setCellValue(p.getDomicilio1());
+            numeroExteriorCell.setCellValue(p.getNumeroExterior());
+            numeroInteriorCell.setCellValue(p.getNumeroInterior() != null ? p.getNumeroInterior().toString() : "");
+            coloniaCell.setCellValue(p.getDomicilio2());
+            municipioCell.setCellValue(p.getDomicilio3() != null ? p.getDomicilio3().toString() : "");
+            estadoCell.setCellValue(p.getEstado() != null ? p.getEstado().toString() : "");
+            codigoPostalEncabezado.setCellValue(p.getCodigoPostal() != null ? p.getCodigoPostal().toString() : "");
+
+            consecutivo.incrementAndGet();
+        });
+
+        workbook.write(outputStream);
+        return new File("test.xls");
     }
 
     @Override
@@ -188,11 +285,13 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
     }
 
     @Override
-    public File generarReportePersonal(String uuid) throws Exception {
+    public File generarReportePersonal(String uuid, boolean eliminados, String username) throws Exception {
         if(StringUtils.isBlank(uuid)) {
             logger.warn("Alguno de los datos viene como nulo o vacio");
             throw new InvalidDataException();
         }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
 
         Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(uuid);
 
@@ -201,7 +300,22 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             throw new NotFoundResourceException();
         }
 
-        List<Personal> personal = personaRepository.getAllByEmpresaAndEliminadoFalse(empresa.getId());
+        List<Personal> personal;
+
+        if(eliminados) {
+            if(usuarioDto.getRol() == RolTypeEnum.CEEMSP_READ_ONLY) {
+                personal = personaRepository.getAllByEmpresaAndPuestoInAndEliminadoTrue(empresa.getId(), Arrays.asList(PUESTO_OPERATIVO, null, 0));
+            } else {
+                personal = personaRepository.getAllByEmpresaAndEliminadoTrue(empresa.getId());
+            }
+
+        } else {
+            if(usuarioDto.getRol() == RolTypeEnum.CEEMSP_READ_ONLY) {
+                personal = personaRepository.getAllByEmpresaAndPuestoInAndEliminadoFalse(empresa.getId(), Arrays.asList(PUESTO_OPERATIVO, null, 0));
+            } else {
+                personal = personaRepository.getAllByEmpresaAndEliminadoFalse(empresa.getId());
+            }
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -283,7 +397,12 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
         estatusEncabezadoCell.setCellStyle(style);
         Cell fechaCreacionEncabezadoCell = encabezadoReporteRow.createCell(33);
         fechaCreacionEncabezadoCell.setCellStyle(style);
-
+        Cell registroEmpresaEncabezadoCell = encabezadoReporteRow.createCell(34);
+        registroEmpresaEncabezadoCell.setCellStyle(style);
+        Cell razonSocialEmpresaEncabezadoCell = encabezadoReporteRow.createCell(35);
+        razonSocialEmpresaEncabezadoCell.setCellStyle(style);
+        Cell domicilioEncabezadoCell = encabezadoReporteRow.createCell(36);
+        domicilioEncabezadoCell.setCellStyle(style);
 
         noCell.setCellValue("NO. CONSECUTIVO");
         nacionalidadEncabezadoCell.setCellValue("NACIONALIDAD");
@@ -319,6 +438,19 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
         portaCanesEncabezadoCell.setCellValue("PORTACION DE CANES");
         estatusEncabezadoCell.setCellValue("ESTATUS");
         fechaCreacionEncabezadoCell.setCellValue("FECHA DE CREACION");
+        registroEmpresaEncabezadoCell.setCellValue("REGISTRO EMPRESA");
+        razonSocialEmpresaEncabezadoCell.setCellValue("RAZON SOCIAL");
+        domicilioEncabezadoCell.setCellValue("DOMICILIO");
+
+        if(eliminados) {
+            Cell fechaBajaEncabezadoCell = encabezadoReporteRow.createCell(36);
+            fechaBajaEncabezadoCell.setCellStyle(style);
+            Cell motivoBajaEncabezadoCell = encabezadoReporteRow.createCell(37);
+            motivoBajaEncabezadoCell.setCellStyle(style);
+
+            fechaBajaEncabezadoCell.setCellValue("FECHA BAJA");
+            motivoBajaEncabezadoCell.setCellValue("MOTIVO BAJA");
+        }
 
         AtomicInteger consecutivo = new AtomicInteger(1);
         consecutivo.set(1);
@@ -341,6 +473,7 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
                 EmpresaModalidad empresaModalidad = empresaModalidadRepository.getOne(p.getModalidad());
                 modalidad = modalidadRepository.getOne(empresaModalidad.getModalidad());
             }
+            EmpresaDomicilio domicilio = empresaDomicilioRepository.getOne(p.getDomicilioAsignado());
 
             Row eRow = personalSheet.createRow(consecutivo.get());
             Cell numeroConsecutivoCell = eRow.createCell(0);
@@ -411,6 +544,12 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             estatusCell.setCellStyle(style);
             Cell fechaCreacionCell = eRow.createCell(33);
             fechaCreacionCell.setCellStyle(style);
+            Cell registroEmpresaCell = eRow.createCell(34);
+            registroEmpresaCell.setCellStyle(style);
+            Cell razonSocialCell = eRow.createCell(35);
+            razonSocialCell.setCellStyle(style);
+            Cell domicilioAsignadoCell = eRow.createCell(36);
+            domicilioAsignadoCell.setCellStyle(style);
 
             numeroConsecutivoCell.setCellValue(consecutivo.get());
             nacionalidadCell.setCellValue(nacionalidad.getNombre());
@@ -445,11 +584,24 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             portaArmasCell.setCellValue(p.getFormaEjecucion() == FormaEjecucionEnum.ARMAS ? "SI" : "NO");
             portaCanesCell.setCellValue(p.getFormaEjecucion() == FormaEjecucionEnum.CANES ? "SI" : "NO");
             fechaCreacionCell.setCellValue(p.getFechaCreacion().toString());
+            registroEmpresaCell.setCellValue(empresa.getRegistro());
+            razonSocialCell.setCellValue(empresa.getRazonSocial());
+            domicilioAsignadoCell.setCellValue(p.getDomicilioAsignado() > 0 ? domicilio.getDomicilio1() + " " + domicilio.getNumeroExterior() + " " + (domicilio.getNumeroInterior() != null ? domicilio.getNumeroInterior() : "") + " " + domicilio.getDomicilio2() : "NA");
 
             if(!p.isPuestoTrabajoCapturado() || (!p.isCursosCapturados() && StringUtils.containsIgnoreCase(personalPuesto.getNombre(), "Operativo")) || !p.isFotografiaCapturada()) {
                 estatusCell.setCellValue("INCOMPLETA");
             } else {
                 estatusCell.setCellValue("COMPLETA");
+            }
+
+            if(eliminados) {
+                Cell fechaBajaCell = eRow.createCell(36);
+                fechaBajaCell.setCellStyle(style);
+                Cell motivoBajaCell = eRow.createCell(37);
+                motivoBajaCell.setCellStyle(style);
+
+                fechaBajaCell.setCellValue(p.getFechaBaja().toString());
+                motivoBajaCell.setCellValue(p.getMotivoBaja().getNombre());
             }
 
             consecutivo.incrementAndGet();
@@ -558,7 +710,7 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
     }
 
     @Override
-    public File generarReporteCanes(String uuid) throws Exception {
+    public File generarReporteCanes(String uuid, boolean eliminados) throws Exception {
         if(StringUtils.isBlank(uuid)) {
             logger.warn("Alguno de los datos viene como nulo o vacio");
             throw new InvalidDataException();
@@ -570,7 +722,13 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             logger.warn("La empresa no existe en la base de datos");
             throw new NotFoundResourceException();
         }
-        List<Can> canes = canRepository.getAllByEmpresaAndEliminadoFalse(empresa.getId());
+
+        List<Can> canes;
+        if(eliminados) {
+            canes = canRepository.getAllByEmpresaAndEliminadoTrue(empresa.getId());
+        } else {
+            canes = canRepository.getAllByEmpresaAndEliminadoFalse(empresa.getId());
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -618,6 +776,10 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
         completitudEncabezadoCell.setCellStyle(style);
         Cell fechaCreacionEncabezadoCell = encabezadoReporteRow.createCell(16);
         fechaCreacionEncabezadoCell.setCellStyle(style);
+        Cell registroEmpresaEncabezadoCell = encabezadoReporteRow.createCell(17);
+        registroEmpresaEncabezadoCell.setCellStyle(style);
+        Cell razonSocialEmpresaEncabezadoCell = encabezadoReporteRow.createCell(18);
+        razonSocialEmpresaEncabezadoCell.setCellStyle(style);
 
         noCell.setCellValue("NO. CONSECUTIVO");
         nombreEncabezadoCell.setCellValue("NOMBRE");
@@ -636,6 +798,18 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
         personalAsignadoEncabezadoCell.setCellValue("PERSONAL ASIGNADO");
         completitudEncabezadoCell.setCellValue("ESTATUS");
         fechaCreacionEncabezadoCell.setCellValue("FECHA CREACION");
+        registroEmpresaEncabezadoCell.setCellValue("REGISTRO EMPRESA");
+        razonSocialEmpresaEncabezadoCell.setCellValue("RAZON SOCIAL");
+
+        if(eliminados) {
+            Cell fechaBajaEncabezadoCell = encabezadoReporteRow.createCell(19);
+            fechaBajaEncabezadoCell.setCellStyle(style);
+            Cell motivoBajaEncabezadoCell = encabezadoReporteRow.createCell(20);
+            motivoBajaEncabezadoCell.setCellStyle(style);
+
+            fechaBajaEncabezadoCell.setCellValue("FECHA BAJA");
+            motivoBajaEncabezadoCell.setCellValue("MOTIVO BAJA");
+        }
 
         AtomicInteger consecutivo = new AtomicInteger(1);
         consecutivo.set(1);
@@ -687,6 +861,10 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             completitudCell.setCellStyle(style);
             Cell fechaCreacionCell = eRow.createCell(16);
             fechaCreacionCell.setCellStyle(style);
+            Cell registroEmpresaCell = eRow.createCell(17);
+            registroEmpresaCell.setCellStyle(style);
+            Cell razonSocialCell = eRow.createCell(18);
+            razonSocialCell.setCellStyle(style);
 
             numeroConsecutivoCell.setCellValue(consecutivo.get());
             nombreCell.setCellValue(p.getNombre());
@@ -704,11 +882,23 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             razonSocialContratoCell.setCellValue(p.getRazonSocial() != null ? p.getRazonSocial() : "NA");
             personalAsignadoCell.setCellValue(personaAsignada != null ? personaAsignada.getNombres() + " " + personaAsignada.getApellidoPaterno() + " " + personaAsignada.getApellidoMaterno() : "");
             fechaCreacionCell.setCellValue(p.getFechaCreacion().toString());
+            registroEmpresaCell.setCellValue(empresa.getRegistro());
+            razonSocialCell.setCellValue(empresa.getRazonSocial());
 
             if(p.isFotografiaCapturada() && p.isAdiestramientoCapturado() && (p.isVacunacionCapturada() || p.isConstanciaCapturada())) {
                 completitudCell.setCellValue("COMPLETO");
             } else {
                 completitudCell.setCellValue("INCOMPLETO");
+            }
+
+            if(eliminados) {
+                Cell fechaBajaCell = eRow.createCell(19);
+                fechaBajaCell.setCellStyle(style);
+                Cell motivoBajaCell = eRow.createCell(20);
+                motivoBajaCell.setCellStyle(style);
+
+                fechaBajaCell.setCellValue(p.getFechaBaja().toString());
+                motivoBajaCell.setCellValue(p.getMotivoBaja());
             }
 
             consecutivo.incrementAndGet();
@@ -719,7 +909,7 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
     }
 
     @Override
-    public File generarReporteVehiculos(String uuid) throws Exception {
+    public File generarReporteVehiculos(String uuid, boolean eliminados) throws Exception {
         if(StringUtils.isBlank(uuid)) {
             logger.warn("Alguno de los datos viene como nulo o vacio");
             throw new InvalidDataException();
@@ -731,7 +921,13 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             logger.warn("La empresa no existe en la base de datos");
             throw new NotFoundResourceException();
         }
-        List<Vehiculo> vehiculos = vehiculoRepository.getAllByEmpresaAndEliminadoFalse(empresa.getId()).stream().sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa())).collect(Collectors.toList());
+
+        List<Vehiculo> vehiculos;
+        if(eliminados) {
+            vehiculos = vehiculoRepository.getAllByEmpresaAndEliminadoTrue(empresa.getId()).stream().sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa())).collect(Collectors.toList());
+        } else {
+            vehiculos = vehiculoRepository.getAllByEmpresaAndEliminadoFalse(empresa.getId()).stream().sorted((o1, o2) -> Integer.valueOf(o1.getEmpresa()).compareTo(o2.getEmpresa())).collect(Collectors.toList());
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -783,6 +979,12 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
         completitudEncabezadoCell.setCellStyle(style);
         Cell fechaCreacionEncabezadoCell = encabezadoReporteRow.createCell(18);
         fechaCreacionEncabezadoCell.setCellStyle(style);
+        Cell registroEmpresaEncabezadoCell = encabezadoReporteRow.createCell(19);
+        registroEmpresaEncabezadoCell.setCellStyle(style);
+        Cell razonSocialEmpresaEncabezadoCell = encabezadoReporteRow.createCell(20);
+        razonSocialEmpresaEncabezadoCell.setCellStyle(style);
+        Cell domicilioAsignadoEncabezadoCell = encabezadoReporteRow.createCell(21);
+        domicilioAsignadoEncabezadoCell.setCellStyle(style);
 
         noCell.setCellValue("NO. CONSECUTIVO");
         tipoVehiculoEncabezadoCell.setCellValue("TIPO VEHICULO");
@@ -803,6 +1005,19 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
         statusEncabezadoCell.setCellValue("STATUS");
         completitudEncabezadoCell.setCellValue("ESTATUS");
         fechaCreacionEncabezadoCell.setCellValue("FECHA DE CREACION");
+        registroEmpresaEncabezadoCell.setCellValue("REGISTRO EMPRESA");
+        razonSocialEmpresaEncabezadoCell.setCellValue("RAZON SOCIAL");
+        domicilioAsignadoEncabezadoCell.setCellValue("DOMICILIO");
+
+        if(eliminados) {
+            Cell fechaBajaEncabezadoCell = encabezadoReporteRow.createCell(21);
+            fechaBajaEncabezadoCell.setCellStyle(style);
+            Cell motivoBajaEncabezadoCell = encabezadoReporteRow.createCell(22);
+            motivoBajaEncabezadoCell.setCellStyle(style);
+
+            fechaBajaEncabezadoCell.setCellValue("FECHA BAJA");
+            motivoBajaEncabezadoCell.setCellValue("MOTIVO BAJA");
+        }
 
         AtomicInteger consecutivo = new AtomicInteger(1);
         consecutivo.set(1);
@@ -815,6 +1030,8 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             if(p.getSubmarca() > 0) {
                 vehiculoSubmarca = vehiculoSubmarcaRepository.getOne(p.getSubmarca());
             }
+
+            EmpresaDomicilio domicilio = empresaDomicilioRepository.getOne(p.getEmpresa());
 
             Row eRow = vehiculoSheet.createRow(consecutivo.get());
             Cell numeroConsecutivoCell = eRow.createCell(0);
@@ -855,6 +1072,12 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             completitudCell.setCellStyle(style);
             Cell fechaCreacionCell = eRow.createCell(18);
             fechaCreacionCell.setCellStyle(style);
+            Cell registroEmpresaCell = eRow.createCell(19);
+            registroEmpresaCell.setCellStyle(style);
+            Cell razonSocialEmpresaCell = eRow.createCell(20);
+            razonSocialEmpresaCell.setCellStyle(style);
+            Cell domicilioAsignadoCell = eRow.createCell(21);
+            domicilioAsignadoCell.setCellStyle(style);
 
             numeroConsecutivoCell.setCellValue(consecutivo.get());
             tipoVehiculoCell.setCellValue(vehiculoTipo.getNombre());
@@ -875,11 +1098,22 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             statusCell.setCellValue(p.getStatus().toString());
             completitudCell.setCellValue(p.isColoresCapturado() && p.isFotografiaCapturada() ? "COMPLETO" : "INCOMPLETO");
             fechaCreacionCell.setCellValue(p.getFechaCreacion().toString());
+            registroEmpresaCell.setCellValue(empresa.getRegistro());
+            razonSocialEmpresaCell.setCellValue(empresa.getRazonSocial());
+            domicilioAsignadoCell.setCellValue(p.getDomicilio() > 0 ? domicilio.getDomicilio1() + " " + domicilio.getNumeroExterior() + " " + (domicilio.getNumeroInterior() != null ? domicilio.getNumeroInterior() : "") + " " + domicilio.getDomicilio2() : "NA");
+
+            if(eliminados) {
+                Cell fechaBajaCell = eRow.createCell(21);
+                fechaBajaCell.setCellStyle(style);
+                Cell motivoBajaCell = eRow.createCell(22);
+                motivoBajaCell.setCellStyle(style);
+
+                fechaBajaCell.setCellValue(p.getFechaBaja().toString());
+                motivoBajaCell.setCellValue(p.getMotivoBaja());
+            }
 
             consecutivo.incrementAndGet();
         });
-
-
 
         workbook.write(outputStream);
         return new File("test.xls");
@@ -1016,7 +1250,7 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
     }
 
     @Override
-    public File generarReporteArmas(String uuid) throws Exception {
+    public File generarReporteArmas(String uuid, boolean eliminados) throws Exception {
         if(StringUtils.isBlank(uuid)) {
             logger.warn("Alguno de los datos viene como nulo o vacio");
             throw new InvalidDataException();
@@ -1028,7 +1262,13 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             logger.warn("La empresa no existe en la base de datos");
             throw new NotFoundResourceException();
         }
-        List<Arma> armas = armaRepository.getAllByEmpresaAndEliminadoFalse(empresa.getId());
+
+        List<Arma> armas;
+        if(eliminados) {
+            armas = armaRepository.getAllByEmpresaAndEliminadoTrue(empresa.getId());
+        } else {
+            armas = armaRepository.getAllByEmpresaAndEliminadoFalse(empresa.getId());
+        }
 
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -1083,6 +1323,16 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
         fechaCreacionEncabezadoCell.setCellValue("FECHA DE CREACION");
         personalAsignadoEncabezadoCell.setCellValue("PERSONAL ASIGNADO");
 
+        if(eliminados) {
+            Cell fechaBajaEncabezadoCell = encabezadoReporteRow.createCell(13);
+            fechaBajaEncabezadoCell.setCellStyle(style);
+            Cell motivoBajaEncabezadoCell = encabezadoReporteRow.createCell(14);
+            motivoBajaEncabezadoCell.setCellStyle(style);
+
+            fechaBajaEncabezadoCell.setCellValue("FECHA BAJA");
+            motivoBajaEncabezadoCell.setCellValue("MOTIVO BAJA");
+        }
+
         AtomicInteger consecutivo = new AtomicInteger(1);
         consecutivo.set(1);
 
@@ -1091,8 +1341,7 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             ArmaMarca marca = armaMarcaRepository.getOne(p.getMarca());
             EmpresaLicenciaColectiva licenciaColectiva = empresaLicenciaColectivaRepository.getOne(p.getLicenciaColectiva());
             EmpresaDomicilio empresaDomicilio = empresaDomicilioRepository.getOne(p.getBunker());
-            EmpresaModalidad empresaModalidad = empresaModalidadRepository.getOne(licenciaColectiva.getModalidad());
-            Modalidad modalidad = modalidadRepository.getOne(empresaModalidad.getModalidad());
+            Modalidad modalidad = modalidadRepository.getOne(licenciaColectiva.getModalidad());
             Personal personalAsignado = null;
             if(p.getStatus() == ArmaStatusEnum.ASIGNADA && p.getTipo() == ArmaTipoEnum.CORTA) {
                 personalAsignado = personaRepository.getByArmaCortaAndEliminadoFalse(p.getId());
@@ -1141,6 +1390,17 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             modalidadCell.setCellValue(modalidad.getNombre());
             fechaCreacionCell.setCellValue(p.getFechaCreacion().toString());
             personalAsignadoCell.setCellValue((personalAsignado != null) ? personalAsignado.getNombres() + " " + personalAsignado.getApellidoPaterno() + " " + personalAsignado.getApellidoMaterno() : "");
+
+
+            if(eliminados) {
+                Cell fechaBajaCell = eRow.createCell(13);
+                fechaBajaCell.setCellStyle(style);
+                Cell motivoBajaCell = eRow.createCell(14);
+                motivoBajaCell.setCellStyle(style);
+
+                fechaBajaCell.setCellValue(p.getFechaBaja().toString());
+                motivoBajaCell.setCellValue(p.getMotivoBaja());
+            }
 
             consecutivo.incrementAndGet();
         });
@@ -1400,6 +1660,89 @@ public class ReporteEmpresaServiceImpl implements ReporteEmpresaService {
             fechaCreacionCell.setCellValue(p.getFechaCreacion().toString());
             razonSocialCell.setCellValue(p.getRazonSocial());
             nombreComercialCell.setCellValue(p.getNombreComercial());
+
+            consecutivo.incrementAndGet();
+        });
+
+        workbook.write(outputStream);
+        return new File(filepath);
+    }
+
+    @Override
+    public File generarReporteEquipo(String uuid) throws Exception {
+        if(StringUtils.isBlank(uuid)) {
+            logger.warn("Alguno de los datos viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(empresa == null) {
+            logger.warn("La empresa no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        List<EmpresaEquipo> equipos = empresaEquipoRepository.findAllByEmpresaAndEliminadoFalse(empresa.getId());
+
+        Workbook workbook = new HSSFWorkbook();
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setFontHeightInPoints((short) 11);
+        style.setFont(font);
+        style.setWrapText(true);
+        String filepath = "/ceemsp/fs/files/reportes/reporte-" + RandomStringUtils.randomAlphanumeric(6) + ".xls";
+        OutputStream outputStream = new FileOutputStream(filepath);
+
+        Sheet visitasSheet = workbook.createSheet("VISITAS");
+
+        // Creando prestadores de servicios
+        Row encabezadoReporteRow = visitasSheet.createRow(0);
+        Cell noCell = encabezadoReporteRow.createCell(0);
+        noCell.setCellStyle(style);
+        Cell equipoEncabezadoCell = encabezadoReporteRow.createCell(1);
+        equipoEncabezadoCell.setCellStyle(style);
+        Cell cantidadEncabezadoCell = encabezadoReporteRow.createCell(2);
+        cantidadEncabezadoCell.setCellStyle(style);
+        Cell fechaCreacionEncabezadoCell = encabezadoReporteRow.createCell(3);
+        fechaCreacionEncabezadoCell.setCellStyle(style);
+        Cell razonSocialEncabezadoCell = encabezadoReporteRow.createCell(4);
+        razonSocialEncabezadoCell.setCellStyle(style);
+        Cell nombreComercialEncabezadoCell = encabezadoReporteRow.createCell(5);
+        nombreComercialEncabezadoCell.setCellStyle(style);
+
+        noCell.setCellValue("NO. CONSECUTIVO");
+        equipoEncabezadoCell.setCellValue("TIPO DE EQUIPO");
+        cantidadEncabezadoCell.setCellValue("CANTIDAD");
+        fechaCreacionEncabezadoCell.setCellValue("FECHA CREACION");
+        razonSocialEncabezadoCell.setCellValue("RAZON SOCIAL");
+        nombreComercialEncabezadoCell.setCellValue("NOMBRE COMERCIAL");
+
+        AtomicInteger consecutivo = new AtomicInteger(1);
+        consecutivo.set(1);
+
+        equipos.forEach(p -> {
+            Equipo equipo = equipoRepository.getOne(p.getEquipo());
+
+            Row eRow = visitasSheet.createRow(consecutivo.get());
+            Cell numeroConsecutivoCell = eRow.createCell(0);
+            numeroConsecutivoCell.setCellStyle(style);
+            Cell tipoEquipoCell = eRow.createCell(1);
+            tipoEquipoCell.setCellStyle(style);
+            Cell cantidadCell = eRow.createCell(2);
+            cantidadCell.setCellStyle(style);
+            Cell fechaCreacionCell = eRow.createCell(3);
+            fechaCreacionCell.setCellStyle(style);
+            Cell razonSocialCell = eRow.createCell(4);
+            razonSocialCell.setCellStyle(style);
+            Cell nombreComercialCell = eRow.createCell(5);
+            nombreComercialCell.setCellStyle(style);
+
+            numeroConsecutivoCell.setCellValue(consecutivo.get());
+            tipoEquipoCell.setCellValue(equipo.getNombre());
+            cantidadCell.setCellValue(p.getCantidad().toString());
+            fechaCreacionCell.setCellValue(p.getFechaCreacion().toString());
+            razonSocialCell.setCellValue(empresa.getRazonSocial());
+            nombreComercialCell.setCellValue(empresa.getNombreComercial());
 
             consecutivo.incrementAndGet();
         });

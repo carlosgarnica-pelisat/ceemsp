@@ -21,6 +21,8 @@ import {
 import Empresa from "../../../_models/Empresa";
 import {AgmGeocoder, MapsAPILoader} from "@agm/core";
 import ClienteDomicilio from "../../../_models/ClienteDomicilio";
+import {PublicService} from "../../../_services/public.service";
+import DateResponse from "../../../_models/DateResponse";
 import GeocoderResult = google.maps.GeocoderResult;
 
 @Component({
@@ -65,8 +67,8 @@ export class EmpresaIncidenciasComponent implements OnInit {
   ubicacionCliente: boolean = false;
 
   fechaHoyDate = new Date()
-  fechaDeHoy = new Date(this.fechaHoyDate.getFullYear(), this.fechaHoyDate.getMonth(), this.fechaHoyDate.getDate()).toISOString().split('T')[0];
-  fechaTresDiasAntes = new Date(this.fechaHoyDate.getFullYear(), this.fechaHoyDate.getMonth(), this.fechaHoyDate.getDate() - 3).toISOString().split('T')[0];
+  fechaDeHoy;
+  fechaTresDiasAntes;
 
   crearIncidenciaForm: FormGroup;
   crearPersonalIncidenciaForm: FormGroup;
@@ -122,6 +124,15 @@ export class EmpresaIncidenciasComponent implements OnInit {
   geocodeResult;
   usuarioActual: Usuario;
   motivoBajaIncidenciaArmaForm: FormGroup;
+  persona: Persona;
+  arma: Arma;
+  vehiculo: Vehiculo;
+  can: Can;
+
+  nombrePersonaQuery: string = "";
+  armaQuery: string = "";
+  vehiculoQuery: string = "";
+  canQuery: string = "";
 
   @ViewChild('busquedaDireccion') searchElementRef;
 
@@ -152,9 +163,23 @@ export class EmpresaIncidenciasComponent implements OnInit {
               private toastService: ToastService, private modalService: NgbModal,
               private empresaService: EmpresaService, private usuariosService: UsuariosService,
               private mapsApiLoader: MapsAPILoader, private ngZone: NgZone,
-              private geocodeService: AgmGeocoder) { }
+              private geocodeService: AgmGeocoder, private publicService: PublicService) { }
 
   ngOnInit(): void {
+    this.publicService.obtenerFechaServidor().subscribe((response: DateResponse) => {
+      let date = new Date(response?.date);
+      this.fechaDeHoy = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1).toISOString()?.split('T')[0];
+      this.fechaTresDiasAntes = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 2).toISOString()?.split('T')[0];
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Problema con la fecha`,
+        ToastType.WARNING
+      );
+      this.fechaDeHoy = new Date(this.fechaHoyDate.getFullYear(), this.fechaHoyDate.getMonth(), this.fechaHoyDate.getDate()).toISOString()?.split('T')[0];
+      this.fechaTresDiasAntes = new Date(this.fechaHoyDate.getFullYear(), this.fechaHoyDate.getMonth(), this.fechaHoyDate.getDate() - 3).toISOString()?.split('T')[0];
+    })
+
     this.usuariosService.obtenerUsuarioActual().subscribe((data: Usuario) => {
       this.usuarioActual = data;
     }, (error) => {
@@ -188,21 +213,8 @@ export class EmpresaIncidenciasComponent implements OnInit {
       'clienteDomicilio': ['']
     });
 
-    this.crearPersonalIncidenciaForm = this.formBuilder.group({
-      'personaInvolucrada': ['', Validators.required]
-    });
-
     this.crearArmaIncidenciaForm = this.formBuilder.group({
-      'armaInvolucrada': ['', Validators.required],
       'status': ['', Validators.required]
-    });
-
-    this.crearVehiculoIncidenciaForm = this.formBuilder.group({
-      'vehiculoInvolucrado': ['', Validators.required]
-    });
-
-    this.crearCanIncidenciaForm = this.formBuilder.group({
-      'canInvolucrado': ['', Validators.required]
     });
 
     this.cambiarAsignacionTicketForm = this.formBuilder.group({
@@ -309,6 +321,15 @@ export class EmpresaIncidenciasComponent implements OnInit {
   }
 
   cambiarStatus(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerIncidenciaPorUuid(this.uuid, rowData.rowData.uuid).subscribe((data: Incidencia) => {
       this.incidencia = data;
       this.mostrarModalResponder();
@@ -322,6 +343,15 @@ export class EmpresaIncidenciasComponent implements OnInit {
   }
 
   cambiarAsignado(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerIncidenciaPorUuid(this.uuid, rowData.rowData.uuid).subscribe((data: Incidencia) => {
       this.incidencia = data;
       this.mostrarModalAsignar();
@@ -619,29 +649,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
       return;
     }
 
-    let formValue = form.value;
-
-    let existeArma = this.armasInvolucradas.filter(x => x.uuid === formValue.armaInvolucrada)
-
-    if(existeArma.length > 0) {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        "Ya se encuentra esta arma en la incidencia",
-        ToastType.WARNING
-      );
-      return;
-    }
-
-    let arma: Arma = this.armas.filter(x => x.uuid === formValue.armaInvolucrada)[0];
-    arma.status = formValue.status;
-
-    this.armasInvolucradas.push(arma);
-    form.reset();
-    this.conmutarAgregarArmaForm();
-  }
-
-  agregarCan(form) {
-    if(!form.valid) {
+    if(this.arma === undefined) {
       this.toastService.showGenericToast(
         'Ocurrio un problema',
         'Hay campos requeridos sin rellenar. Favor de rellenarlos',
@@ -652,7 +660,36 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     let formValue = form.value;
 
-    let existeCan = this.canesInvolucrados.filter(x => x.uuid === formValue.canInvolucrado)
+    let existeArma = this.armasInvolucradas.filter(x => x.uuid === this.arma.uuid)
+
+    if(existeArma.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra esta arma en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let arma: Arma = this.arma;
+    arma.status = formValue.status;
+
+    this.armasInvolucradas.push(arma);
+    form.reset();
+    this.conmutarAgregarArmaForm();
+  }
+
+  agregarCan() {
+    if(this.can === undefined) {
+      this.toastService.showGenericToast(
+        'Ocurrio un problema',
+        'No hay can seleccionado aun.',
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let existeCan = this.canesInvolucrados.filter(x => x.uuid === this.can.uuid)
 
     if(existeCan.length > 0) {
       this.toastService.showGenericToast(
@@ -663,7 +700,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
       return;
     }
 
-    this.canesInvolucrados.push(this.canes.filter(x => x.uuid === formValue.canInvolucrado)[0]);
+    this.canesInvolucrados.push(this.can);
     this.conmutarAgregarCanForm();
   }
 
@@ -748,19 +785,17 @@ export class EmpresaIncidenciasComponent implements OnInit {
     })
   }
 
-  agregarPersonaIncidencia(form) {
-    if(!form.valid) {
+  agregarPersonaIncidencia() {
+    if(this.persona === undefined) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        "El formulario viene invalido",
+        "La persona no ha sido seleccionada",
         ToastType.WARNING
       );
       return;
     }
 
-    let formValue = form.value;
-
-    let existePersona = this.incidencia.personasInvolucradas.filter(x => x.uuid === formValue.personaInvolucrada)
+    let existePersona = this.incidencia.personasInvolucradas.filter(x => x.uuid === this.persona.uuid)
 
     if(existePersona.length > 0) {
       this.toastService.showGenericToast(
@@ -777,7 +812,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
       ToastType.INFO
     );
 
-    let persona = this.personales.filter(x => x.uuid === formValue.personaInvolucrada)[0]
+    let persona = this.persona
 
     this.empresaService.agregarPersonaIncidencia(this.uuid, this.incidencia.uuid, persona).subscribe((data: Persona) => {
       this.toastService.showGenericToast(
@@ -807,8 +842,17 @@ export class EmpresaIncidenciasComponent implements OnInit {
   agregarArmaIncidencia(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        "El formulario viene invalido",
+        'Ocurrio un problema',
+        'Hay campos requeridos sin rellenar. Favor de rellenarlos',
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    if(this.arma === undefined) {
+      this.toastService.showGenericToast(
+        'Ocurrio un problema',
+        'Hay campos requeridos sin rellenar. Favor de rellenarlos',
         ToastType.WARNING
       );
       return;
@@ -816,7 +860,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     let formValue = form.value;
 
-    let existeArma = this.incidencia.armasInvolucradas.filter(x => x.uuid === formValue.armaInvolucrada && x.eliminadoIncidencia === false)
+    let existeArma = this.armasInvolucradas.filter(x => x.uuid === this.arma.uuid)
 
     if(existeArma.length > 0) {
       this.toastService.showGenericToast(
@@ -833,7 +877,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
       ToastType.INFO
     );
 
-    let arma: Arma = this.armas.filter(x => x.uuid === formValue.armaInvolucrada)[0]
+    let arma: Arma = this.arma;
     arma.status = formValue.status;
 
     this.empresaService.agregarArmaIncidencia(this.uuid, this.incidencia.uuid, arma).subscribe((data: Arma) => {
@@ -871,19 +915,17 @@ export class EmpresaIncidenciasComponent implements OnInit {
     })
   }
 
-  agregarCanIncidencia(form) {
-    if(!form.valid) {
+  agregarCanIncidencia() {
+    if(this.can === undefined) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        "El formulario viene invalido",
+        "No hay can seleccionado",
         ToastType.WARNING
       );
       return;
     }
 
-    let formValue = form.value;
-
-    let existeCan = this.incidencia.canesInvolucrados.filter(x => x.uuid === formValue.canInvolucrado)
+    let existeCan = this.incidencia.canesInvolucrados.filter(x => x.uuid === this.can.uuid)
 
     if(existeCan.length > 0) {
       this.toastService.showGenericToast(
@@ -900,7 +942,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
       ToastType.INFO
     );
 
-    let can = this.canes.filter(x => x.uuid === formValue.canInvolucrado)[0]
+    let can = this.can
 
     this.empresaService.agregarCanIncidencia(this.uuid, this.incidencia.uuid, can).subscribe((data: Can) => {
       this.toastService.showGenericToast(
@@ -954,19 +996,17 @@ export class EmpresaIncidenciasComponent implements OnInit {
     })
   }
 
-  agregarVehiculoIncidencia(form) {
-    if(!form.valid) {
+  agregarVehiculoIncidencia() {
+    if (this.vehiculo === undefined) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        "El formulario viene invalido",
+        `No hay vehiculo seleccionado`,
         ToastType.WARNING
       );
       return;
     }
 
-    let formValue = form.value;
-
-    let existeVehiculo = this.incidencia.vehiculosInvolucrados.filter(x => x.uuid === formValue.vehiculoInvolucrado)
+    let existeVehiculo = this.incidencia.vehiculosInvolucrados.filter(x => x.uuid === this.vehiculo.uuid)
 
     if(existeVehiculo.length > 0) {
       this.toastService.showGenericToast(
@@ -983,7 +1023,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
       ToastType.INFO
     );
 
-    let vehiculo = this.vehiculos.filter(x => x.uuid === formValue.vehiculoInvolucrado)[0]
+    let vehiculo = this.vehiculo;
 
     this.empresaService.agregarVehiculoIncidencia(this.uuid, this.incidencia.uuid, vehiculo).subscribe((data: Can) => {
       this.toastService.showGenericToast(
@@ -1010,19 +1050,17 @@ export class EmpresaIncidenciasComponent implements OnInit {
     })
   }
 
-  agregarPersona(form) {
-    if(!form.valid) {
+  agregarPersona() {
+    if(this.persona === undefined) {
       this.toastService.showGenericToast(
         'Ocurrio un problema',
-        'Hay campos requeridos sin rellenar. Favor de rellenarlos',
+        'No se ha seleccionado ninguna persona.',
         ToastType.WARNING
       );
       return;
     }
 
-    let formValue = form.value;
-
-    let existePersona = this.personalInvolucrado.filter(x => x.uuid === formValue.personaInvolucrada)
+    let existePersona = this.personalInvolucrado.filter(x => x.uuid === this.persona.uuid)
 
     if(existePersona.length > 0) {
       this.toastService.showGenericToast(
@@ -1033,23 +1071,21 @@ export class EmpresaIncidenciasComponent implements OnInit {
       return;
     }
 
-    this.personalInvolucrado.push(this.personales.filter(x => x.uuid === formValue.personaInvolucrada)[0]);
+    this.personalInvolucrado.push(this.persona);
     this.conmutarAgregarPersonalForm();
   }
 
-  agregarVehiculo(form) {
-    if(!form.valid) {
+  agregarVehiculo() {
+    if(this.vehiculo === undefined) {
       this.toastService.showGenericToast(
-        'Ocurrio un problema',
-        'Hay campos requeridos sin rellenar. Favor de rellenarlos',
+        "Ocurrio un problema",
+        `No se ha seleccionado el vehiculo`,
         ToastType.WARNING
       );
       return;
     }
 
-    let formValue = form.value;
-
-    let existeVehiculo = this.vehiculosInvolucrados.filter(x => x.uuid === formValue.vehiculoInvolucrado)
+    let existeVehiculo = this.vehiculosInvolucrados.filter(x => x.uuid === this.vehiculo?.uuid)
 
     if(existeVehiculo.length > 0) {
       this.toastService.showGenericToast(
@@ -1060,7 +1096,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
       return;
     }
 
-    this.vehiculosInvolucrados.push(this.vehiculos.filter(x => x.uuid === formValue.vehiculoInvolucrado)[0]);
+    this.vehiculosInvolucrados.push(this.vehiculo);
     this.conmutarAgregarVehiculoForm();
   }
 
@@ -1565,5 +1601,37 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
   mostrarModalEliminarPersonal(uuid) {
 
+  }
+
+  seleccionarPersonal(uuid: string) {
+    this.persona = this.personales.filter(x => x.uuid === uuid)[0];
+  }
+
+  seleccionarArma(uuid: string) {
+    this.arma = this.armas.filter(x => x.uuid === uuid)[0];
+  }
+
+  seleccionarVehiculo(uuid: string) {
+    this.vehiculo = this.vehiculos.filter(x => x.uuid === uuid)[0];
+  }
+
+  seleccionarCan(uuid: string) {
+    this.can = this.canes.filter(x => x.uuid === uuid)[0];
+  }
+
+  eliminarPersona() {
+    this.persona = undefined;
+  }
+
+  eliminarArma() {
+    this.arma = undefined;
+  }
+
+  eliminarVehiculo() {
+    this.vehiculo = undefined;
+  }
+
+  eliminarCan() {
+    this.can = undefined;
   }
 }

@@ -6,6 +6,7 @@ export default class VehiculoMarca implements Deserializable {
   uuid: string;
   nombre: string;
   descripcion?: string;
+  tipo: string;
   submarcas: VehiculoSubmarca[]
 
   deserialize(input: any): this {

@@ -81,7 +81,7 @@ export class EmpresaClientesComponent implements OnInit {
 
   obtenerCallesTimeout = undefined;
 
-  fechaDeHoy = new Date().toISOString().split('T')[0];
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
   modal: NgbModalRef;
   closeResult: string;
   cliente: Cliente;
@@ -429,6 +429,15 @@ export class EmpresaClientesComponent implements OnInit {
       return;
     }
 
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerClientePorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: Cliente) => {
       this.cliente = data;
       this.editandoModal = false;
@@ -465,6 +474,15 @@ export class EmpresaClientesComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `El elemento ya esta eliminado. No se puede editar`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
         ToastType.WARNING
       );
       return;
@@ -1593,6 +1611,11 @@ export class EmpresaClientesComponent implements OnInit {
     this.estado = this.domicilio.estadoCatalogo;
   }
 
+  onFilterTextBoxChanged() {
+    this.gridApi.setQuickFilter(
+      (document.getElementById('filter-text-box') as HTMLInputElement).value
+    );
+  }
   mostrarEditarModalidadCliente(uuid) {
     this.clienteModalidad = this.cliente.modalidades.filter(x => x.uuid === uuid)[0];
     this.modal = this.modalService.open(this.crearModalidadClienteModal, {size: 'xl', backdrop: "static"})

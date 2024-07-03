@@ -7,8 +7,8 @@ import java.io.File;
 import java.util.List;
 
 public interface PersonaService {
-    List<PersonaDto> obtenerTodos(String empresaUuid);
-    List<PersonaDto> obtenerPersonasEliminadas(String empresaUuid);
+    List<PersonaDto> obtenerTodos(String empresaUuid, String username);
+    List<PersonaDto> obtenerPersonasEliminadas(String empresaUuid, String username);
     List<PersonaDto> obtenerPersonasNoAsignadas(String empresaUuid);
     PersonaDto obtenerPorUuid(String empresaUuid, String personaUuid);
     PersonaDto obtenerPorId(Integer id);

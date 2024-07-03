@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface EmpresaClienteService {
     List<ClienteDto> obtenerClientesPorEmpresa(String empresaUuid);
+    List<ClienteDto> obtenerClientesPorEmpresaEliminados(String empresaUuid);
     File obtenerContrato(String clienteUuid);
     ClienteDto obtenerClientePorId(Integer id);
     ClienteDto obtenerClientePorUuid(String username, String clienteUuid, boolean soloEntidad);

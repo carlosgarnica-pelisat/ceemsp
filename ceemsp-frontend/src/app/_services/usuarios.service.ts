@@ -20,6 +20,14 @@ export class UsuariosService {
     return this.http.get(`${this.uri}/usuarios/internos`);
   }
 
+  obtenerUsuariosNoEmpresas() {
+    return this.http.get(`${this.uri}/usuarios/no-empresas`);
+  }
+
+  obtenerUsuariosEmpresas() {
+    return this.http.get(`${this.uri}/usuarios/empresas`);
+  }
+
   obtenerUsuarioByUuid(uuid: string) {
     return this.http.get(`${this.uri}/usuarios/${uuid}`)
   }

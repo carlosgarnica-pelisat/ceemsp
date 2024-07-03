@@ -45,6 +45,7 @@ export default class Can implements Deserializable {
   constanciasSalud: CanConstanciaSalud[];
   adiestramientos: CanAdiestramiento[];
   fotografias: CanFotografia[];
+  fechaCreacion: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);

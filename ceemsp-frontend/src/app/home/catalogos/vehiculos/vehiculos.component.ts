@@ -93,7 +93,8 @@ export class VehiculosComponent implements OnInit {
 
     this.crearVehiculoMarcaForm = this.formBuilder.group({
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
-      descripcion: ['',  [Validators.maxLength(100)]]
+      descripcion: ['',  [Validators.maxLength(100)]],
+      tipo: ['', [Validators.required]]
     })
 
     this.crearVehiculoSubmarcaForm = this.formBuilder.group({
@@ -111,7 +112,8 @@ export class VehiculosComponent implements OnInit {
     this.editandoModal = false;
     this.crearVehiculoMarcaForm.patchValue({
       nombre: this.vehiculoMarca.nombre,
-      descripcion: this.vehiculoMarca.descripcion
+      descripcion: this.vehiculoMarca.descripcion,
+      tipo: this.vehiculoMarca.tipo
     });
 
     this.modal = this.modalService.open(this.editarVehiculoMarcaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
@@ -383,11 +385,7 @@ export class VehiculosComponent implements OnInit {
       return;
     }
 
-    let value = form.value;
-
-    let vehiculoMarca: VehiculoMarca = new VehiculoMarca();
-    vehiculoMarca.nombre = value.nombre;
-    vehiculoMarca.descripcion = value.descripcion;
+    let vehiculoMarca: VehiculoMarca = form.value;
 
     this.vehiculoService.guardarVehiculoMarca(vehiculoMarca).subscribe((response) => {
       this.toastService.showGenericToast(

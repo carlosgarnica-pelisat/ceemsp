@@ -51,7 +51,7 @@ export class EmpresaPersonalComponent implements OnInit {
   private gridApi;
   private gridColumnApi;
 
-  fechaDeHoy = new Date().toISOString().split('T')[0];
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
 
   faDownload = faDownload;
   faTrash = faTrash;
@@ -118,6 +118,11 @@ export class EmpresaPersonalComponent implements OnInit {
   localidadSearchForm: FormGroup;
   calleSearchForm: FormGroup;
   coloniaSearchForm: FormGroup;
+  armaCortaSearchForm: FormGroup;
+  armaLargaSearchForm: FormGroup;
+  vehiculoSearchForm: FormGroup;
+  canSearchForm: FormGroup;
+
 
   modalidadSearchForm: FormGroup;
   nacionalidadSearchForm: FormGroup;
@@ -128,6 +133,10 @@ export class EmpresaPersonalComponent implements OnInit {
   localidad: Localidad;
   colonia: Colonia;
   calle: Calle;
+  can: Can;
+  vehiculo: Vehiculo;
+  armaCorta: Arma;
+  armaLarga: Arma;
 
   estadoQuery: string = '';
   municipioQuery: string = '';
@@ -135,6 +144,10 @@ export class EmpresaPersonalComponent implements OnInit {
   coloniaQuery: string = '';
   calleQuery: string = '';
   nacionalidadQuery: string = '';
+  armaCortaQuery: string = '';
+  armaLargaQuery: string  = '';
+  vehiculoQuery: string = '';
+  canQuery: string = '';
 
   tempFile;
   imagenActual: any;
@@ -312,22 +325,18 @@ export class EmpresaPersonalComponent implements OnInit {
     })
 
     this.asignarCanPersonalForm = this.formBuilder.group({
-      can: ['', [Validators.required]],
       observaciones: ['']
     })
 
     this.asignarVehiculoPersonalForm = this.formBuilder.group({
-      vehiculo: ['', [Validators.required]],
       observaciones: ['']
     })
 
     this.asignarArmaCortaForm = this.formBuilder.group({
-      arma: ['', [Validators.required]],
       observaciones: ['']
     })
 
     this.asignarArmaLargaForm = this.formBuilder.group({
-      arma: ['', [Validators.required]],
       observaciones: ['']
     })
 
@@ -451,6 +460,12 @@ export class EmpresaPersonalComponent implements OnInit {
     })
   }
 
+  onFilterTextBoxChanged() {
+    this.gridApi.setQuickFilter(
+      (document.getElementById('filter-text-box') as HTMLInputElement).value
+    );
+  }
+
   onGridReady(params) {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
@@ -488,6 +503,15 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   editar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     if(rowData.rowData?.eliminado) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -571,6 +595,15 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   eliminar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     if(rowData.rowData?.eliminado) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -749,6 +782,38 @@ export class EmpresaPersonalComponent implements OnInit {
 
   eliminarCalle() {
     this.calle = undefined;
+  }
+
+  seleccionarArmaLarga(armaLargaUuid) {
+    this.armaLarga = this.armasLargas.filter(x => x.uuid === armaLargaUuid)[0];
+  }
+
+  eliminarArmaLarga() {
+    this.armaLarga = undefined;
+  }
+
+  seleccionarArmaCorta(armaCortaUuid) {
+    this.armaCorta = this.armasCortas.filter(x => x.uuid === armaCortaUuid)[0];
+  }
+
+  eliminarArmaCorta() {
+    this.armaCorta = undefined;
+  }
+
+  seleccionarVehiculo(vehiculoUuid) {
+    this.vehiculo = this.vehiculos.filter(x => x.uuid === vehiculoUuid)[0];
+  }
+
+  eliminarVehiculo() {
+    this.vehiculo = undefined;
+  }
+
+  seleccionarCan(canUuid) {
+    this.can = this.canes.filter(x => x.uuid === canUuid)[0];
+  }
+
+  eliminarCan() {
+    this.can = undefined;
   }
 
   cerrarModalDetallesPersona() {
@@ -1154,6 +1219,22 @@ export class EmpresaPersonalComponent implements OnInit {
       this.cuipStatus = "TRAMITADA";
     }
 
+    let cuip = undefined;
+    let volante = undefined;
+    let fechaVolanteCuip = undefined;
+
+    if (this.persona?.cuip !== undefined || this.persona?.cuip !== '' || this.persona?.cuip !== null) {
+      cuip = this.persona?.cuip
+    }
+
+    if (this.persona?.numeroVolanteCuip !== undefined || this.persona?.numeroVolanteCuip !== '' || this.persona?.numeroVolanteCuip !== null) {
+      volante = this.persona?.numeroVolanteCuip
+    }
+
+    if (this.persona?.fechaVolanteCuip !== undefined || this.persona?.fechaVolanteCuip !== '' || this.persona?.fechaVolanteCuip !== null) {
+      fechaVolanteCuip = this.persona?.fechaVolanteCuip
+    }
+
     this.domicilio = undefined;
     this.cuipStatus = undefined;
     this.modalidad = undefined;
@@ -1161,9 +1242,9 @@ export class EmpresaPersonalComponent implements OnInit {
       detallesPuesto: undefined,
       domicilioAsignado: undefined,
       estatusCuip: "",
-      cuip: undefined,
-      numeroVolanteCuip: undefined,
-      fechaVolanteCuip: undefined,
+      cuip: cuip,
+      numeroVolanteCuip: volante,
+      fechaVolanteCuip: fechaVolanteCuip,
       modalidad: undefined,
       formaEjecucion: undefined
     })
@@ -2020,6 +2101,15 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   mostrarModalAsignarArmaCorta() {
+    if(this.usuarioActual.rol === 'CEEMSP_READ_ONLY') {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "No cuentas con permisos para realizar esta accion",
+        ToastType.WARNING
+      )
+      return;
+    }
+
     this.empresaService.obtenerArmasCortas(this.uuid).subscribe((data: Arma[]) => {
       this.armasCortas = data;
       this.modal = this.modalService.open(this.asignarArmaCortaModal, {size: 'lg', backdrop: 'static'})
@@ -2033,6 +2123,15 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   mostrarModalAsignarArmaLarga() {
+    if(this.usuarioActual.rol === 'CEEMSP_READ_ONLY') {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "No cuentas con permisos para realizar esta accion",
+        ToastType.WARNING
+      )
+      return;
+    }
+
     this.empresaService.obtenerArmasLargas(this.uuid).subscribe((data: Arma[]) => {
       this.armasLargas = data;
       this.modal = this.modalService.open(this.asignarArmaLargaModal, {size: 'lg', backdrop: 'static'})
@@ -2046,6 +2145,15 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   mostrarModalAsignarCan() {
+    if(this.usuarioActual.rol === 'CEEMSP_READ_ONLY') {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "No cuentas con permisos para realizar esta accion",
+        ToastType.WARNING
+      )
+      return;
+    }
+
     this.empresaService.obtenerCanesInstalaciones(this.uuid).subscribe((data: Can[]) => {
       this.canes = data;
       this.modal = this.modalService.open(this.asignarCanPersonaModal, {size: "lg", backdrop: "static"})
@@ -2059,6 +2167,14 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   mostrarModalAsignarVehiculo() {
+    if(this.usuarioActual.rol === 'CEEMSP_READ_ONLY') {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "No cuentas con permisos para realizar esta accion",
+        ToastType.WARNING
+      )
+      return;
+    }
     this.empresaService.obtenerVehiculosInstalaciones(this.uuid).subscribe((data: Vehiculo[]) => {
       this.vehiculos = data;
       this.modal = this.modalService.open(this.asignarVehiculoPersonaModal, {size: "lg", backdrop: "static"})
@@ -2072,18 +2188,54 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   mostrarModalDesasignarCan() {
+    if(this.usuarioActual.rol === 'CEEMSP_READ_ONLY') {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "No cuentas con permisos para realizar esta accion",
+        ToastType.WARNING
+      )
+      return;
+    }
+
     this.modal = this.modalService.open(this.desasignarCanPersonaModal, {size: 'lg', backdrop: 'static'})
   }
 
   mostrarModalDesasignarVehiculo() {
+    if(this.usuarioActual.rol === 'CEEMSP_READ_ONLY') {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "No cuentas con permisos para realizar esta accion",
+        ToastType.WARNING
+      )
+      return;
+    }
+
     this.modal = this.modalService.open(this.desasignarVehiculoPersonaModal, {size: 'lg', backdrop: 'static'});
   }
 
   mostrarModalDesasignarArmaCorta() {
+    if(this.usuarioActual.rol === 'CEEMSP_READ_ONLY') {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "No cuentas con permisos para realizar esta accion",
+        ToastType.WARNING
+      )
+      return;
+    }
+
     this.modal = this.modalService.open(this.desasignarArmaCortaPersonaModal, {size: 'lg', backdrop: 'static'})
   }
 
   mostrarModalDesasignarArmaLarga() {
+    if(this.usuarioActual.rol === 'CEEMSP_READ_ONLY') {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "No cuentas con permisos para realizar esta accion",
+        ToastType.WARNING
+      )
+      return;
+    }
+
     this.modal = this.modalService.open(this.desasignarArmaLargaPersonaModal, {size: 'lg', backdrop: 'static'})
   }
 
@@ -2097,6 +2249,15 @@ export class EmpresaPersonalComponent implements OnInit {
       return;
     }
 
+    if(this.can === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Favor de seleccionar un can`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espera un momento",
       `Estamos asignando el can al elemento`,
@@ -2105,7 +2266,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
     let formValue = form.value;
     let personaCan: PersonalCan = new PersonalCan();
-    personaCan.can = this.canes.filter(x => x.uuid === formValue.can)[0]
+    personaCan.can = this.can;
     personaCan.observaciones = formValue.observaciones;
 
     this.empresaService.asignarCanPersona(this.uuid, this.persona?.uuid, personaCan).subscribe((data) => {
@@ -2114,6 +2275,7 @@ export class EmpresaPersonalComponent implements OnInit {
         `Se ha guardado el can con exito`,
         ToastType.SUCCESS
       );
+      this.can = undefined;
       this.modal.close();
       this.recargarPersonal();
       this.empresaService.obtenerPersonalPorUuid(this.uuid, this.persona?.uuid).subscribe((data: Persona) => {
@@ -2144,6 +2306,15 @@ export class EmpresaPersonalComponent implements OnInit {
       return;
     }
 
+    if(this.vehiculo === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Favor de seleccionar un vehiculo`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espera un momento",
       `Estamos asignando el vehiculo al elemento`,
@@ -2152,7 +2323,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
     let formValue = form.value;
     let personalVehiculo: PersonalVehiculo = new PersonalVehiculo();
-    personalVehiculo.vehiculo = this.vehiculos.filter(x => x.uuid === formValue.vehiculo)[0]
+    personalVehiculo.vehiculo = this.vehiculo
     personalVehiculo.observaciones = formValue.observaciones;
 
     this.empresaService.asignarVehiculoPersona(this.uuid, this.persona?.uuid, personalVehiculo).subscribe((data) => {
@@ -2161,6 +2332,7 @@ export class EmpresaPersonalComponent implements OnInit {
         `Se ha guardado el vehiculo con exito`,
         ToastType.SUCCESS
       );
+      this.vehiculo = undefined;
       this.modal.close();
       this.recargarPersonal();
       this.empresaService.obtenerPersonalPorUuid(this.uuid, this.persona?.uuid).subscribe((data: Persona) => {
@@ -2191,6 +2363,15 @@ export class EmpresaPersonalComponent implements OnInit {
       return;
     }
 
+    if(this.armaCorta === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha seleccionado un arma corta aun`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espera un momento",
       `Estamos asignando el arma corta al elemento`,
@@ -2199,7 +2380,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
     let formValue = form.value;
     let personalArmaCorta: PersonalArma = new PersonalArma();
-    personalArmaCorta.arma = this.armasCortas.filter(x => x.uuid === formValue.arma)[0]
+    personalArmaCorta.arma = this.armaCorta
     personalArmaCorta.observaciones = formValue.observaciones;
 
     this.empresaService.asignarArmaCortaPersona(this.uuid, this.persona?.uuid, personalArmaCorta).subscribe((data) => {
@@ -2208,6 +2389,7 @@ export class EmpresaPersonalComponent implements OnInit {
         `Se ha asignado el arma corta con exito`,
         ToastType.SUCCESS
       );
+      this.armaCorta = undefined;
       this.modal.close();
       this.recargarPersonal();
       this.empresaService.obtenerPersonalPorUuid(this.uuid, this.persona?.uuid).subscribe((data: Persona) => {
@@ -2238,6 +2420,15 @@ export class EmpresaPersonalComponent implements OnInit {
       return;
     }
 
+    if(this.armaLarga === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha seleccionado un arma larga aun`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espera un momento",
       `Estamos asignando el arma larga al elemento`,
@@ -2246,7 +2437,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
     let formValue = form.value;
     let personalArmaLarga: PersonalArma = new PersonalArma();
-    personalArmaLarga.arma = this.armasLargas.filter(x => x.uuid === formValue.arma)[0]
+    personalArmaLarga.arma = this.armaLarga
     personalArmaLarga.observaciones = formValue.observaciones;
 
     this.empresaService.asignarArmaLargaPersona(this.uuid, this.persona?.uuid, personalArmaLarga).subscribe((data) => {
@@ -2255,6 +2446,7 @@ export class EmpresaPersonalComponent implements OnInit {
         `Se ha asignado el arma larga con exito`,
         ToastType.SUCCESS
       );
+      this.armaLarga = undefined;
       this.modal.close();
       this.recargarPersonal();
       this.empresaService.obtenerPersonalPorUuid(this.uuid, this.persona?.uuid).subscribe((data: Persona) => {
@@ -2493,7 +2685,7 @@ export class EmpresaPersonalComponent implements OnInit {
   }
 
   generarReporteExcel() {
-    this.reporteEmpresasService.generarReportePersonal(this.uuid).subscribe((data) => {
+    this.reporteEmpresasService.generarReportePersonal(this.uuid, this.mostrandoEliminados).subscribe((data) => {
       let link = document.createElement('a');
       link.href = window.URL.createObjectURL(data);
       link.download = "test.xls";

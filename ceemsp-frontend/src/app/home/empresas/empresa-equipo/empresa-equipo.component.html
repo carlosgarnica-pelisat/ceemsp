@@ -5,7 +5,7 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Equipo / Fornituras</h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'"
               (click)="mostrarModalCrear(crearEquipoModal)">Nuevo equipo
       </button>
       <div class="dropdown">
@@ -14,7 +14,8 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Descargar direcciones como Excel (csv)</a>
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar como CSV</a>
+          <a class="dropdown-item" (click)="generarReporteExcel()">Descargar como Excel</a>
         </div>
       </div>
     </div>
@@ -31,18 +32,18 @@
             <b>Razon social: </b> {{empresa?.razonSocial}}<br>
           </p>
         </a>
-        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
+        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
-        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
+        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Legal</a>
         <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneArmas">Licencias colectivas / Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneCanes">Canes</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
-        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
+        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
         <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action active">Equipo / Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
-        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Visitas</a>
         <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
@@ -85,8 +86,8 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="mostrarMovimientos()">Mostrar movimientos</button>
-      <button class="btn btn-primary" (click)="mostrarModalModificar()">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminar()">Eliminar</button>
+      <button class="btn btn-primary" (click)="mostrarModalModificar()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Modificar</button>
+      <button type="button" class="btn btn-danger" (click)="mostrarModalEliminar()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Eliminar</button>
     </div>
   </ng-template>
 

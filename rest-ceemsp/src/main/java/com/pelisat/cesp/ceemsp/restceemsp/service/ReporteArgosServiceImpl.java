@@ -8,6 +8,7 @@ import com.pelisat.cesp.ceemsp.database.repository.ReporteArgosRepository;
 import com.pelisat.cesp.ceemsp.database.type.ReporteArgosStatusEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -29,18 +31,28 @@ public class ReporteArgosServiceImpl implements ReporteArgosService {
     private final UsuarioService usuarioService;
     private final DaoToDtoConverter daoToDtoConverter;
     private final Logger logger = LoggerFactory.getLogger(ReporteArgosService.class);
+    private final ArchivosService archivosService;
 
     @Autowired
     public ReporteArgosServiceImpl(ReporteArgosRepository reporteArgosRepository, DaoHelper<CommonModel> daoHelper,
-                                   UsuarioService usuarioService, DaoToDtoConverter daoToDtoConverter) {
+                                   UsuarioService usuarioService, DaoToDtoConverter daoToDtoConverter,
+                                   ArchivosService archivosService) {
         this.reporteArgosRepository = reporteArgosRepository;
         this.daoHelper = daoHelper;
         this.usuarioService = usuarioService;
         this.daoToDtoConverter = daoToDtoConverter;
+        this.archivosService = archivosService;
     }
     @Override
-    public List<ReporteArgosDto> obtenerReportes() {
-        return reporteArgosRepository.findAll()
+    public List<ReporteArgosDto> obtenerReportes(String username) {
+        if(StringUtils.isBlank(username)) {
+            logger.warn("El usuario viene invalido");
+            throw new InvalidDataException();
+        }
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        return reporteArgosRepository.getAllByCreadoPorAndEliminadoFalse(usuario.getId())
                 .stream()
                 .map(daoToDtoConverter::convertDaoToDtoReporteArgos)
                 .collect(Collectors.toList());
@@ -116,7 +128,34 @@ public class ReporteArgosServiceImpl implements ReporteArgosService {
     }
 
     @Override
+    @Transactional
     public ReporteArgosDto eliminarReporte(String reporteUuid, String username) {
-        return null;
+        if(StringUtils.isBlank(reporteUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o invalido");
+            throw new InvalidDataException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+
+        ReporteArgos reporteArgos = reporteArgosRepository.findByUuidAndEliminadoFalse(reporteUuid);
+        if(reporteArgos == null) {
+            logger.warn("El reporte no existe en la base de datos o ya fue eliminado");
+            throw new NotFoundResourceException();
+        }
+
+        if(reporteArgos.getStatus() == ReporteArgosStatusEnum.PROCESANDO) {
+            logger.warn("El reporte se encuentra procesandose, no puede ser eliminado");
+            throw new NotFoundResourceException();
+        }
+
+        if(reporteArgos.getStatus() == ReporteArgosStatusEnum.COMPLETADO) {
+            archivosService.eliminarArchivo(reporteArgos.getRutaArchivo());
+        }
+
+        reporteArgos.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, reporteArgos, usuarioDto.getId());
+        reporteArgosRepository.save(reporteArgos);
+
+        return daoToDtoConverter.convertDaoToDtoReporteArgos(reporteArgos);
     }
 }

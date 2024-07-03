@@ -137,16 +137,31 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
         }
 
         logger.info("Eliminando el color con el uuid [{}]", colorUuid);
-        VehiculoColor vehiculoColor = vehiculoColorRepository.findByUuidAndEliminadoFalse(colorUuid);
 
+        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+        if(vehiculo == null) {
+            logger.warn("El vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        VehiculoColor vehiculoColor = vehiculoColorRepository.findByUuidAndEliminadoFalse(colorUuid);
         if(vehiculoColor == null) {
             logger.warn("El color no existe en la base de datos");
-            throw new InvalidDataException();
+            throw new NotFoundResourceException();
         }
+
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
         vehiculoColor.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, vehiculoColor, usuarioDto.getId());
         vehiculoColorRepository.save(vehiculoColor);
+
+        List<VehiculoColor> colores = vehiculoColorRepository.getAllByVehiculoAndEliminadoFalse(vehiculo.getId());
+        if(colores.size() == 0) {
+            vehiculo.setColoresCapturado(false);
+            daoHelper.fulfillAuditorFields(false, vehiculo, usuarioDto.getId());
+            vehiculoRepository.save(vehiculo);
+        }
+
         return daoToDtoConverter.convertDaoToDtoVehiculoColor(vehiculoColor);
     }
 }

@@ -30,7 +30,7 @@ export class ComunicadosGeneralesComponent implements OnInit {
   rowDataClicked = {
     uuid: undefined
   };
-  fechaDeHoy = new Date().toISOString().split('T')[0];
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
 
   nuevoComunicadoForm: FormGroup;
   comunicadoGeneral: ComunicadoGeneral;

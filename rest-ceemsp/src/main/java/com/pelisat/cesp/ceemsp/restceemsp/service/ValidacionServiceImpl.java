@@ -4,6 +4,7 @@ import com.pelisat.cesp.ceemsp.database.dto.*;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.*;
 import com.pelisat.cesp.ceemsp.database.type.ArmaStatusEnum;
+import com.pelisat.cesp.ceemsp.database.type.EmpresaStatusEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -130,7 +132,7 @@ public class ValidacionServiceImpl implements ValidacionService {
 
         if(StringUtils.isNotBlank(existeEmpresaDto.getRfc())) {
             logger.info("Buscando la empresa con el RFC [{}]", existeEmpresaDto.getRfc());
-            Empresa empresa = empresaRepository.getByRfcAndEliminadoFalse(existeEmpresaDto.getRfc());
+            Empresa empresa = empresaRepository.findFirstByRfcContainingAndStatusIn(existeEmpresaDto.getRfc(), Arrays.asList(EmpresaStatusEnum.ACTIVA));
             if(empresa != null) {
                 logger.info("La empresa fue encontrada con el RFC");
                 existeEmpresaDto.setExiste(true);
@@ -140,7 +142,7 @@ public class ValidacionServiceImpl implements ValidacionService {
 
         if(StringUtils.isNotBlank(existeEmpresaDto.getCurp())) {
             logger.info("Buscando la empresa con el CURP [{}]", existeEmpresaDto.getCurp());
-            Empresa empresa = empresaRepository.getByCurpAndEliminadoFalse(existeEmpresaDto.getCurp());
+            Empresa empresa = empresaRepository.findFirstByCurpContainingAndStatusIn(existeEmpresaDto.getCurp(), Arrays.asList(EmpresaStatusEnum.ACTIVA));
             if(empresa != null) {
                 logger.info("La empresa fue encontrada con el CURP");
                 existeEmpresaDto.setExiste(true);

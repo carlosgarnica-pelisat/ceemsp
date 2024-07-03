@@ -68,7 +68,7 @@ public class EmpresaClienteAsignacionPersonalServiceImpl implements EmpresaClien
             throw new NotFoundResourceException();
         }
 
-        List<ClienteAsignacionPersonal> asignaciones = clienteAsignacionPersonalRepository.getAllByClienteAndEliminadoFalse(cliente.getId());
+        List<ClienteAsignacionPersonal> asignaciones = clienteAsignacionPersonalRepository.getAllByCliente(cliente.getId());
 
         return asignaciones.stream().map(a -> {
             ClienteAsignacionPersonalDto capd = new ClienteAsignacionPersonalDto();

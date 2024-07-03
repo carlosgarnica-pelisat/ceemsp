@@ -20,6 +20,9 @@ export class EmpresaPersonalService {
     return this.http.get(`${this.uri}/personas`)
   }
 
+  obtenerPersonalEliminado(uuid: string) {
+    return this.http.get(`${this.uri}/personas/eliminados`)
+  }
   obtenerPersonalSinAsignar() {
     return this.http.get(`${this.uri}/personas/no-asignados`)
   }

@@ -8,6 +8,8 @@ import java.util.List;
 public interface UsuarioService {
     List<UsuarioDto> getAllUsers();
     List<UsuarioDto> obtenerUsuariosInternos();
+    List<UsuarioDto> obtenerUsuariosNoEmpresas();
+    List<UsuarioDto> obtenerUsuariosEmpresas();
     UsuarioDto saveUser(UsuarioDto usuarioDto, String username);
     UsuarioDto getUserByUuid(String uuid);
     UsuarioDto getUserByUsername(String username);

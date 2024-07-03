@@ -61,7 +61,7 @@ export class EmpresaLicenciasComponent implements OnInit {
   faInfoCircle = faInfoCircle;
   faBook = faBook;
 
-  fechaDeHoy = new Date().toISOString().split('T')[0];
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
 
   marcas: ArmaMarca[] = [];
   clases: ArmaClase[] = [];
@@ -327,6 +327,15 @@ export class EmpresaLicenciasComponent implements OnInit {
   }
 
   editar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerLicenciaColectivaPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaLicenciaColectiva) => {
       this.licencia = data;
       this.mostrarModificarLicenciaModal();
@@ -340,6 +349,15 @@ export class EmpresaLicenciasComponent implements OnInit {
   }
 
   eliminar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerLicenciaColectivaPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaLicenciaColectiva) => {
       this.licencia = data;
       this.mostrarEliminarLicenciaModal();

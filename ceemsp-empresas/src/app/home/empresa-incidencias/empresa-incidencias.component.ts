@@ -88,6 +88,15 @@ export class EmpresaIncidenciasComponent implements OnInit {
   canes: Can[] = [];
   vehiculos: Vehiculo[] = [];
   personales: Persona[] = [];
+  persona: Persona;
+  arma: Arma;
+  vehiculo: Vehiculo;
+  can: Can;
+
+  nombrePersonaQuery: string = "";
+  armaQuery: string = "";
+  vehiculoQuery: string = "";
+  canQuery: string = "";
 
   mostrarAgregarCanForm: boolean = false;
   mostrarAgregarVehiculoForm: boolean = false;
@@ -167,21 +176,8 @@ export class EmpresaIncidenciasComponent implements OnInit {
       'clienteDomicilio': ['']
     });
 
-    this.crearPersonalIncidenciaForm = this.formBuilder.group({
-      'personaInvolucrada': ['', Validators.required]
-    });
-
     this.crearArmaIncidenciaForm = this.formBuilder.group({
-      'armaInvolucrada': ['', Validators.required],
       'status': ['', Validators.required]
-    });
-
-    this.crearVehiculoIncidenciaForm = this.formBuilder.group({
-      'vehiculoInvolucrado': ['', Validators.required]
-    });
-
-    this.crearCanIncidenciaForm = this.formBuilder.group({
-      'canInvolucrado': ['', Validators.required]
     });
 
     this.responderIncidenciaForm = this.formBuilder.group({
@@ -488,30 +484,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
       return;
     }
 
-    let formValue = form.value;
-
-    let existeArma = this.armasInvolucradas.filter(x => x.uuid === formValue.armaInvolucrada)
-
-    if(existeArma.length > 0) {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        "Ya se encuentra esta arma en la incidencia",
-        ToastType.WARNING
-      );
-      return;
-    }
-
-    let arma: Arma = this.armas.filter(x => x.uuid === formValue.armaInvolucrada)[0];
-    console.log(formValue);
-    arma.status = formValue.status;
-
-    this.armasInvolucradas.push(arma);
-    form.reset();
-    this.conmutarAgregarArmaForm();
-  }
-
-  agregarCan(form) {
-    if(!form.valid) {
+    if(this.arma === undefined) {
       this.toastService.showGenericToast(
         'Ocurrio un problema',
         'Hay campos requeridos sin rellenar. Favor de rellenarlos',
@@ -522,7 +495,36 @@ export class EmpresaIncidenciasComponent implements OnInit {
 
     let formValue = form.value;
 
-    let existeCan = this.canesInvolucrados.filter(x => x.uuid === formValue.canInvolucrado)
+    let existeArma = this.armasInvolucradas.filter(x => x.uuid === this.arma.uuid)
+
+    if(existeArma.length > 0) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Ya se encuentra esta arma en la incidencia",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let arma: Arma = this.arma;
+    arma.status = formValue.status;
+
+    this.armasInvolucradas.push(arma);
+    form.reset();
+    this.conmutarAgregarArmaForm();
+  }
+
+  agregarCan() {
+    if(this.can === undefined) {
+      this.toastService.showGenericToast(
+        'Ocurrio un problema',
+        'No hay can seleccionado aun.',
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let existeCan = this.canesInvolucrados.filter(x => x.uuid === this.can.uuid)
 
     if(existeCan.length > 0) {
       this.toastService.showGenericToast(
@@ -533,8 +535,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
       return;
     }
 
-    this.canesInvolucrados.push(this.canes.filter(x => x.uuid === formValue.canInvolucrado)[0]);
-    form.reset();
+    this.canesInvolucrados.push(this.can);
     this.conmutarAgregarCanForm();
   }
 
@@ -777,19 +778,17 @@ export class EmpresaIncidenciasComponent implements OnInit {
     })
   }
 
-  agregarPersona(form) {
-    if(!form.valid) {
+  agregarPersona() {
+    if(this.persona === undefined) {
       this.toastService.showGenericToast(
         'Ocurrio un problema',
-        'Hay campos requeridos sin rellenar. Favor de rellenarlos',
+        'No se ha seleccionado ninguna persona.',
         ToastType.WARNING
       );
       return;
     }
 
-    let formValue = form.value;
-
-    let existePersona = this.personalInvolucrado.filter(x => x.uuid === formValue.personaInvolucrada)
+    let existePersona = this.personalInvolucrado.filter(x => x.uuid === this.persona.uuid)
 
     if(existePersona.length > 0) {
       this.toastService.showGenericToast(
@@ -800,24 +799,21 @@ export class EmpresaIncidenciasComponent implements OnInit {
       return;
     }
 
-    form.reset();
-    this.personalInvolucrado.push(this.personales.filter(x => x.uuid === formValue.personaInvolucrada)[0]);
+    this.personalInvolucrado.push(this.persona);
     this.conmutarAgregarPersonalForm();
   }
 
-  agregarVehiculo(form) {
-    if(!form.valid) {
+  agregarVehiculo() {
+    if(this.vehiculo === undefined) {
       this.toastService.showGenericToast(
-        'Ocurrio un problema',
-        'Hay campos requeridos sin rellenar. Favor de rellenarlos',
+        "Ocurrio un problema",
+        `No se ha seleccionado el vehiculo`,
         ToastType.WARNING
       );
       return;
     }
 
-    let formValue = form.value;
-
-    let existeVehiculo = this.vehiculosInvolucrados.filter(x => x.uuid === formValue.vehiculoInvolucrado)
+    let existeVehiculo = this.vehiculosInvolucrados.filter(x => x.uuid === this.vehiculo?.uuid)
 
     if(existeVehiculo.length > 0) {
       this.toastService.showGenericToast(
@@ -828,8 +824,7 @@ export class EmpresaIncidenciasComponent implements OnInit {
       return;
     }
 
-    form.reset();
-    this.vehiculosInvolucrados.push(this.vehiculos.filter(x => x.uuid === formValue.vehiculoInvolucrado)[0]);
+    this.vehiculosInvolucrados.push(this.vehiculo);
     this.conmutarAgregarVehiculoForm();
   }
 
@@ -1229,4 +1224,35 @@ export class EmpresaIncidenciasComponent implements OnInit {
     }
   }
 
+  seleccionarPersonal(uuid: string) {
+    this.persona = this.personales.filter(x => x.uuid === uuid)[0];
+  }
+
+  seleccionarArma(uuid: string) {
+    this.arma = this.armas.filter(x => x.uuid === uuid)[0];
+  }
+
+  seleccionarVehiculo(uuid: string) {
+    this.vehiculo = this.vehiculos.filter(x => x.uuid === uuid)[0];
+  }
+
+  seleccionarCan(uuid: string) {
+    this.can = this.canes.filter(x => x.uuid === uuid)[0];
+  }
+
+  eliminarPersona() {
+    this.persona = undefined;
+  }
+
+  eliminarArma() {
+    this.arma = undefined;
+  }
+
+  eliminarVehiculo() {
+    this.vehiculo = undefined;
+  }
+
+  eliminarCan() {
+    this.can = undefined;
+  }
 }

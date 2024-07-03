@@ -83,6 +83,25 @@ public class EmpresaClienteServiceImpl implements EmpresaClienteService {
     }
 
     @Override
+    public List<ClienteDto> obtenerClientesPorEmpresaEliminados(String username) {
+        if(StringUtils.isBlank(username)) {
+            logger.warn("El uuid de la empresa viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        List<Cliente> clientes = clienteRepository.findAllByEmpresaAndEliminadoTrue(usuarioDto.getEmpresa().getId());
+        return clientes.stream().map(c -> {
+            ClienteDto clienteDto = daoToDtoConverter.convertDaoToDtoCliente(c);
+            List<ClienteDomicilioDto> domicilios = clienteDomicilioService.obtenerDomiciliosPorCliente(c.getId());
+            List<ClienteAsignacionPersonalDto> asignacionPersonalDtos = empresaClienteAsignacionPersonalService.obtenerAsignacionesCliente(username, c.getUuid());
+            clienteDto.setNumeroSucursales(domicilios.size());
+            clienteDto.setNumeroElementosAsignados(asignacionPersonalDtos.size());
+            return clienteDto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
     public File obtenerContrato(String clienteUuid) {
         if(StringUtils.isBlank(clienteUuid)) {
             logger.warn("El uuid de la empresa o de la escritura vienen como nulos o vacios");

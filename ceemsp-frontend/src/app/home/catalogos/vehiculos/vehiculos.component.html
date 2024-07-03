@@ -73,6 +73,10 @@
               <td><b>Descripción:</b></td>
               <td>{{vehiculoMarca?.descripcion}}</td>
             </tr>
+            <tr>
+              <td><b>Grupo:</b></td>
+              <td>{{vehiculoMarca?.tipo}}</td>
+            </tr>
           </table>
         </div>
       </div>
@@ -156,7 +160,7 @@
         <div class="col-sm-12">
           <form [formGroup]="crearVehiculoMarcaForm">
             <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="nombre">
                   <b>Nombre *</b>
                   <span
@@ -167,7 +171,7 @@
                 </label>
                 <input id="nombre" type="text" class="form-control" placeholder="Ejemplo: Volkswagen" formControlName="nombre" #nombre>
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="descripcion">
                   <b>Descripcion</b>
                   <span
@@ -176,6 +180,20 @@
                   </span>
                 </label>
                 <input id="descripcion" type="text" class="form-control" placeholder="Ejemplo: Marca alemana de vehiculos" formControlName="descripcion" #descripcion>
+              </div>
+              <div class="col-sm-4">
+                <label for="tipo">
+                  <b>Grupo *</b>
+                  <span
+                    *ngIf="crearVehiculoMarcaForm.controls['tipo'].invalid && (crearVehiculoMarcaForm.controls['tipo'].dirty || crearVehiculoMarcaForm.controls['tipo'].touched)">
+                      <i *ngIf="crearVehiculoMarcaForm.controls['tipo'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select class="form-control" name="tipo" id="tipo" formControlName="tipo">
+                  <option value="AUTOMOVIL">Automovil, SUV, Pickup</option>
+                  <option value="MOTOCICLETA">Motocicleta, cuatrimoto</option>
+                  <option value="AUTOBUS">Autobus, camion</option>
+                </select>
               </div>
             </div>
           </form>
@@ -200,7 +218,7 @@
         <div class="col-sm-12">
           <form [formGroup]="crearVehiculoMarcaForm">
             <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="nombreEditar">
                   <b>Nombre *</b>
                   <span
@@ -211,7 +229,7 @@
                 </label>
                 <input id="nombreEditar" type="text" class="form-control" placeholder="Ejemplo: Volkswagen" formControlName="nombre" #nombre>
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="descripcionEditar">
                   <b>Descripcion</b>
                   <span
@@ -220,6 +238,20 @@
                   </span>
                 </label>
                 <input id="descripcionEditar" type="text" class="form-control" placeholder="Ejemplo: Marca alemana" formControlName="descripcion" #descripcion>
+              </div>
+              <div class="col-sm-4">
+                <label for="tipo">
+                <b>Grupo *</b>
+                  <span
+                    *ngIf="crearVehiculoMarcaForm.controls['tipo'].invalid && (crearVehiculoMarcaForm.controls['tipo'].dirty || crearVehiculoMarcaForm.controls['tipo'].touched)">
+                      <i *ngIf="crearVehiculoMarcaForm.controls['tipo'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select class="form-control" name="tipo" id="tipo" formControlName="tipo">
+                  <option value="AUTOMOVIL">Automovil, SUV, Pickup</option>
+                  <option value="MOTOCICLETA">Motocicleta, cuatrimoto</option>
+                  <option value="AUTOBUS">Autobus, camion</option>
+                </select>
               </div>
             </div>
           </form>

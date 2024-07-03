@@ -78,6 +78,8 @@ export class HomeComponent implements OnInit {
   notificacionesSinLeer: number;
   modalAbierto: boolean = false;
 
+  resultadoBusqueda: ResultadosBusqueda;
+
   notificacionesArgos: NotificacionArgos[];
   modal: NgbModalRef;
   @ViewChild('verNotificacionesModal') verNotificacionesModal;
@@ -87,6 +89,9 @@ export class HomeComponent implements OnInit {
               private modalService: NgbModal) { }
 
   ngOnInit(): void {
+    this.resultadoBusqueda = this.busquedaService.obtenerResultadosBusqueda();
+    this.filtroBusqueda = this.resultadoBusqueda?.filtro
+
     this.usuarioService.obtenerUsuarioActual().subscribe((data: Usuario) => {
       this.usuarioActual = data;
     }, (error) => {

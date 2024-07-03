@@ -206,7 +206,7 @@ public class ArmaServiceImpl implements ArmaService {
 
         logger.info("Obteniendo las armas guardadas para la empresa {}", licenciaColectivaUuid);
         EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto = empresaLicenciaColectivaService.obtenerLicenciaColectivaPorUuid(empresaUuid, licenciaColectivaUuid, false);
-        List<Arma> armas = armaRepository.getAllByLicenciaColectiva(empresaLicenciaColectivaDto.getId());
+        List<Arma> armas = armaRepository.getAllByLicenciaColectivaAndEliminadoTrue(empresaLicenciaColectivaDto.getId());
 
         List<ArmaDto> response = armas.stream().map(arma -> {
             ArmaDto armaDto = daoToDtoConverter.convertDaoToDtoArma(arma);

@@ -8,10 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -29,6 +26,18 @@ public class ReporteEmpresaController {
         this.reporteEmpresaService = reporteEmpresaService;
     }
 
+    @PostMapping(value = "/empresas/{empresaUuid}/reporteo/domicilios", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> generarReporteDomicilios(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) throws Exception {
+        File resultado = reporteEmpresaService.generarReporteDomicilios(empresaUuid);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(resultado));
+        return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);
+    }
+
     @PostMapping(value = "/empresas/{empresaUuid}/reporteo/acuerdos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> generarReporteAcuerdos(
             @PathVariable(value = "empresaUuid") String empresaUuid
@@ -43,9 +52,13 @@ public class ReporteEmpresaController {
 
     @PostMapping(value = "/empresas/{empresaUuid}/reporteo/personal", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> generarReportePersonal(
-            @PathVariable(value = "empresaUuid") String empresaUuid
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @RequestParam(value = "eliminados", required = false) boolean eliminados,
+            HttpServletRequest request
     ) throws Exception {
-        File resultado = reporteEmpresaService.generarReportePersonal(empresaUuid);
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+
+        File resultado = reporteEmpresaService.generarReportePersonal(empresaUuid, eliminados, username);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
@@ -67,9 +80,10 @@ public class ReporteEmpresaController {
 
     @PostMapping(value = "/empresas/{empresaUuid}/reporteo/canes", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> generarReporteCanes(
-            @PathVariable(value = "empresaUuid") String empresaUuid
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @RequestParam(value = "eliminados", required = false) boolean eliminados
     ) throws Exception {
-        File resultado = reporteEmpresaService.generarReporteCanes(empresaUuid);
+        File resultado = reporteEmpresaService.generarReporteCanes(empresaUuid, eliminados);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
@@ -79,9 +93,10 @@ public class ReporteEmpresaController {
 
     @PostMapping(value = "/empresas/{empresaUuid}/reporteo/vehiculos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> generarReporteVehiculos(
-            @PathVariable(value = "empresaUuid") String empresaUuid
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @RequestParam(value = "eliminados", required = false) boolean eliminados
     ) throws Exception {
-        File resultado = reporteEmpresaService.generarReporteVehiculos(empresaUuid);
+        File resultado = reporteEmpresaService.generarReporteVehiculos(empresaUuid, eliminados);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
@@ -103,9 +118,10 @@ public class ReporteEmpresaController {
 
     @PostMapping(value = "/empresas/{empresaUuid}/reporteo/armas", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> generarReporteArmas(
-            @PathVariable(value = "empresaUuid") String empresaUuid
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @RequestParam(value = "eliminados", required = false) boolean eliminados
     ) throws Exception {
-        File resultado = reporteEmpresaService.generarReporteArmas(empresaUuid);
+        File resultado = reporteEmpresaService.generarReporteArmas(empresaUuid, eliminados);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
@@ -130,6 +146,18 @@ public class ReporteEmpresaController {
             @PathVariable(value = "empresaUuid") String empresaUuid
     ) throws Exception {
         File resultado = reporteEmpresaService.generarReporteVisitas(empresaUuid);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(resultado));
+        return new ResponseEntity<InputStreamResource>(isr, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/empresas/{empresaUuid}/reporteo/equipos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> generarReporteEquipo(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) throws Exception {
+        File resultado = reporteEmpresaService.generarReporteEquipo(empresaUuid);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         httpHeaders.setContentDispositionFormData("attachment",  resultado.getName());

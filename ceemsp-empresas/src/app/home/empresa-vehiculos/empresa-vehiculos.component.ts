@@ -37,6 +37,8 @@ export class EmpresaVehiculosComponent implements OnInit {
   private gridApi;
   private gridColumnApi;
 
+  mostrandoEliminados: boolean = false;
+
   columnDefs =  [
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true, resizable: true},
     {
@@ -91,6 +93,9 @@ export class EmpresaVehiculosComponent implements OnInit {
   crearColorForm: FormGroup;
   crearVehiculoFotografiaForm: FormGroup;
   motivosEliminacionForm: FormGroup;
+
+  vehiculos: Vehiculo[] = [];
+  vehiculosEliminados: Vehiculo[] = [];
 
   marca: VehiculoMarca;
   marcas: VehiculoMarca[];
@@ -202,6 +207,17 @@ export class EmpresaVehiculosComponent implements OnInit {
 
     this.empresaVehiculoService.obtenerVehiculos().subscribe((data: Vehiculo[]) => {
       this.rowData = data;
+      this.vehiculos = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudieron descargar los vehiculos. ${error}`,
+        ToastType.ERROR
+      )
+    })
+
+    this.empresaVehiculoService.obtenerVehiculosEliminados().subscribe((data: Vehiculo[]) => {
+      this.vehiculosEliminados = data;
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -591,6 +607,16 @@ export class EmpresaVehiculosComponent implements OnInit {
         ToastType.ERROR
       )
     })
+  }
+
+  mostrarEliminados() {
+    this.mostrandoEliminados = true;
+    this.rowData = this.vehiculosEliminados;
+  }
+
+  ocultarEliminados() {
+    this.mostrandoEliminados = false;
+    this.rowData = this.vehiculos;
   }
 
   cancelarCambiosVehiculo() {
@@ -1230,6 +1256,11 @@ export class EmpresaVehiculosComponent implements OnInit {
     this.showFotografiaForm = !this.showFotografiaForm;
   }
 
+  onFilterTextBoxChanged() {
+    this.gridApi.setQuickFilter(
+      (document.getElementById('filter-text-box') as HTMLInputElement).value
+    );
+  }
   descargarFotografia(uuid) {
     this.empresaVehiculoService.descargarVehiculoFotografia(this.vehiculo.uuid, uuid).subscribe((data) => {
       // @ts-ignore
@@ -1299,7 +1330,7 @@ export class EmpresaVehiculosComponent implements OnInit {
   }
 
   generarReporteExcel() {
-    this.reporteoService.generarReporteVehiculos().subscribe((data) => {
+    this.reporteoService.generarReporteVehiculos(this.mostrandoEliminados).subscribe((data) => {
       let link = document.createElement('a');
       link.href = window.URL.createObjectURL(data);
       link.download = "test.xls";

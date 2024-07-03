@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -35,17 +36,21 @@ public class PersonaController {
     }
 
     @GetMapping(value = PERSONA_URI, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<PersonaDto> obtenerNacionalidades(
-            @PathVariable(value = "empresaUuid") String empresaUuid
-    ) {
-        return personaService.obtenerTodos(empresaUuid);
+    public List<PersonaDto> obtenerPersonal(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            HttpServletRequest httpServletRequest
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return personaService.obtenerTodos(empresaUuid, username);
     }
 
     @GetMapping(value = PERSONA_URI + "/eliminados", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<PersonaDto> obtenerPersonasEliminados(
-            @PathVariable(value = "empresaUuid") String empresaUuid
-    ) {
-        return personaService.obtenerPersonasEliminadas(empresaUuid);
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            HttpServletRequest httpServletRequest
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
+        return personaService.obtenerPersonasEliminadas(empresaUuid, username);
     }
 
     @GetMapping(value = PERSONA_URI + "/no-asignados", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -82,7 +87,7 @@ public class PersonaController {
     @PostMapping(value = PERSONA_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public PersonaDto guardarPersona(
             HttpServletRequest request,
-            @RequestBody PersonaDto personalDto,
+            @RequestBody @Valid PersonaDto personalDto,
             @PathVariable(value = "empresaUuid") String empresaUuid
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));

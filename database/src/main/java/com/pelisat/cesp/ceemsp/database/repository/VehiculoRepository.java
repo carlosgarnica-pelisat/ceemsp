@@ -15,19 +15,14 @@ public interface VehiculoRepository extends JpaRepository<Vehiculo, Integer> {
     Vehiculo getByUuid(String uuid);
     List<Vehiculo> getAllByEmpresaAndEliminadoFalse(int empresa);
     List<Vehiculo> getAllByEmpresaAndEliminadoTrue(int empresa);
-    List<Vehiculo> getAllByEmpresa(int empresa);
     List<Vehiculo> getAllByEmpresaAndStatusAndEliminadoFalse(int empresa, VehiculoStatusEnum status);
-    int countByEmpresaAndEliminadoFalse(int empresa);
-    int countByEmpresaAndFechaCreacionLessThanAndEliminadoFalse(int empresa, LocalDateTime fechaFin);
-    int countByEmpresaAndFechaCreacionLessThanAndFechaCreacionGreaterThanAndEliminadoFalse(int empresa, LocalDateTime fechaFin, LocalDateTime fechaInicio);
-    int countByEmpresaAndFechaActualizacionLessThanAndFechaActualizacionGreaterThanAndEliminadoTrue(int empresa, LocalDateTime fechaFin, LocalDateTime fechaInicio);
-    int countByEmpresaAndColoresCapturadoTrueAndFotografiaCapturadaTrueAndFechaCreacionLessThanAndEliminadoFalse(int empresa, LocalDateTime fechaFin);
-    int countByEmpresaAndColoresCapturadoTrueAndFotografiaCapturadaTrueAndFechaCreacionLessThanAndFechaCreacionGreaterThanAndEliminadoFalse(int empresa, LocalDateTime fechaFin, LocalDateTime fechaInicio);
-    int countByEmpresaAndColoresCapturadoTrueAndFotografiaCapturadaTrueAndFechaActualizacionLessThanAndFechaActualizacionGreaterThanAndEliminadoTrue(int empresa, LocalDateTime fechaFin, LocalDateTime fechaInicio);
+    List<Vehiculo> getAllByEmpresaAndColoresCapturadoTrueAndFotografiaCapturadaTrueAndFechaCreacionLessThanAndEliminadoFalse(int empresa, LocalDateTime fechaFin);
+    List<Vehiculo> getAllByEmpresaAndColoresCapturadoTrueAndFotografiaCapturadaTrueAndFechaCreacionLessThanAndFechaCreacionGreaterThanAndEliminadoFalse(int empresa, LocalDateTime fechaFin, LocalDateTime fechaInicio);
+    List<Vehiculo> getAllByEmpresaAndColoresCapturadoTrueAndFotografiaCapturadaTrueAndFechaActualizacionLessThanAndFechaActualizacionGreaterThanAndEliminadoTrue(int empresa, LocalDateTime fechaFin, LocalDateTime fechaInicio);
 
     List<Vehiculo> findAllByEmpresaAndColoresCapturadoTrueAndFotografiaCapturadaTrueAndFechaCreacionLessThanAndFechaCreacionGreaterThanAndEliminadoFalse(int empresa, LocalDateTime fechaFin, LocalDateTime fechaInicio);
     List<Vehiculo> findAllByEmpresaAndColoresCapturadoTrueAndFotografiaCapturadaTrueAndFechaActualizacionLessThanAndFechaActualizacionGreaterThanAndEliminadoTrue(int empresa, LocalDateTime fechaFin, LocalDateTime fechaInicio);
-
+    List<Vehiculo> findAllByEmpresaAndColoresCapturadoTrueAndFotografiaCapturadaTrueAndFechaCreacionLessThanAndEliminadoFalse(int empresa, LocalDateTime fechaFin);
     // Search
     List<Vehiculo> findAllByPlacasContaining(String placas);
     List<Vehiculo> findAllByPlacasContainingAndEmpresa(String placas, int empresa);
@@ -38,4 +33,5 @@ public interface VehiculoRepository extends JpaRepository<Vehiculo, Integer> {
     List<Vehiculo> findAllByEmpresaBlindajeContaining(String empresaBlindaje);
     List<Vehiculo> findAllByEmpresaBlindajeContainingAndEmpresa(String empresaBlindaje, int empresa);
     List<Vehiculo> findAllByEliminadoFalse();
+    List<Vehiculo> getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 }

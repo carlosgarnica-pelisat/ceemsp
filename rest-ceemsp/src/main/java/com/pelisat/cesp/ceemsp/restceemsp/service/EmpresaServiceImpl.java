@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -212,6 +213,18 @@ public class EmpresaServiceImpl implements EmpresaService {
         if(existeEmpresa != null) {
             logger.warn("Ya hay una empresa con este registro");
             throw new DuplicatedEnterpriseException();
+        }
+
+        int existenEmpresasPorRfcYStatus = empresaRepository.countByRfcContainingAndStatusIn(empresaDto.getRfc(), Arrays.asList(EmpresaStatusEnum.ACTIVA));
+        if (existenEmpresasPorRfcYStatus > 0) {
+            logger.warn("La empresa ya esta activa con el RFC [{}]", empresaDto.getRfc());
+        }
+
+        if (empresaDto.getTipoPersona() == TipoPersonaEnum.FISICA) {
+            int existenEmpresasPorCurpYStatus = empresaRepository.countByCurpContainingAndStatusIn(empresaDto.getCurp(), Arrays.asList(EmpresaStatusEnum.ACTIVA));
+            if (existenEmpresasPorCurpYStatus > 0) {
+                logger.warn("La empresa ya esta activa con el CURP [{}]", empresaDto.getCurp());
+            }
         }
 
         Usuario existeUsuario = usuarioRepository.getUsuarioByEmailAndEliminadoFalse(empresaDto.getUsuario().getEmail());

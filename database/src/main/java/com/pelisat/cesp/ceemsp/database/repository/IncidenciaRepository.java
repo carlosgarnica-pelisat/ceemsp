@@ -10,10 +10,9 @@ import java.util.List;
 public interface IncidenciaRepository extends JpaRepository<Incidencia, Integer> {
     List<Incidencia> findAllByEmpresaAndEliminadoFalse(int empresa);
     Incidencia getByUuidAndEliminadoFalse(String uuid);
-    Incidencia getByUuidAndEliminadoTrue(String uuid);
-    Integer countAllByStatusAndEliminadoFalse(IncidenciaStatusEnum incidenciaStatusEnum);
     List<Incidencia> getAllByStatusAndAsignadoAndEliminadoFalse(IncidenciaStatusEnum incidenciaStatusEnum, int usuarioAsignado);
     List<Incidencia> getAllByStatusAndEliminadoFalse(IncidenciaStatusEnum incidenciaStatusEnum);
+    List<Incidencia> getAllByStatusInAndEliminadoFalse(List<IncidenciaStatusEnum> incidenciaStatusEnum);
     Integer countAllByStatusAndEmpresaAndEliminadoFalse(IncidenciaStatusEnum status, int empresa);
 
     Integer countAllByEmpresaAndFechaCreacionLessThanAndFechaCreacionGreaterThanAndEliminadoFalse(int empresa, LocalDateTime fechaFin, LocalDateTime fechaInicio);

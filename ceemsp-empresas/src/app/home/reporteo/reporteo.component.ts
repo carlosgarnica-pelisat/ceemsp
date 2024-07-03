@@ -34,7 +34,7 @@ export class ReporteoComponent implements OnInit {
   }
 
   descargarReportePersonal() {
-    this.reporteoService.generarReportePersonal().subscribe((data) => {
+    this.reporteoService.generarReportePersonal(false).subscribe((data) => {
       let link = document.createElement('a');
       link.href = window.URL.createObjectURL(data);
       link.download = "test.xls";
@@ -49,7 +49,7 @@ export class ReporteoComponent implements OnInit {
   }
 
   descargarReporteCanes() {
-    this.reporteoService.generarReporteCanes().subscribe((data) => {
+    this.reporteoService.generarReporteCanes(false).subscribe((data) => {
       let link = document.createElement('a');
       link.href = window.URL.createObjectURL(data);
       link.download = "test.xls";
@@ -64,7 +64,7 @@ export class ReporteoComponent implements OnInit {
   }
 
   descargarReporteVehiculos() {
-    this.reporteoService.generarReporteVehiculos().subscribe((data) => {
+    this.reporteoService.generarReporteVehiculos(false).subscribe((data) => {
       let link = document.createElement('a');
       link.href = window.URL.createObjectURL(data);
       link.download = "test.xls";
@@ -79,7 +79,7 @@ export class ReporteoComponent implements OnInit {
   }
 
   descargarReporteClientes() {
-    this.reporteoService.generarReporteClientes().subscribe((data) => {
+    this.reporteoService.generarReporteClientes(false).subscribe((data) => {
       let link = document.createElement('a');
       link.href = window.URL.createObjectURL(data);
       link.download = "test.xls";

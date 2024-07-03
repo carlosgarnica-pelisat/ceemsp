@@ -66,6 +66,20 @@
                 </label>
                 <input id="descripcion" type="text" class="form-control" placeholder="Ejemplo: Automovil de desplazamiento" formControlName="descripcion" #descripcion>
               </div>
+              <div class="col-sm-4">
+                <label for="tipo">
+                  <b>Grupo *</b>
+                  <span
+                    *ngIf="crearVehiculoTipoForm.controls['tipo'].invalid && (crearVehiculoTipoForm.controls['tipo'].dirty || crearVehiculoTipoForm.controls['tipo'].touched)">
+                      <i *ngIf="crearVehiculoTipoForm.controls['tipo'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select class="form-control" name="tipo" id="tipo" formControlName="tipo">
+                  <option value="AUTOMOVIL">Automovil, SUV, Pickup</option>
+                  <option value="MOTOCICLETA">Motocicleta, cuatrimoto</option>
+                  <option value="AUTOBUS">Autobus, camion</option>
+                </select>
+              </div>
             </div>
           </form>
         </div>
@@ -96,6 +110,10 @@
               <td><b>Descripcion:</b></td>
               <td>{{vehiculoTipo?.descripcion}}</td>
             </tr>
+            <tr>
+              <td><b>Grupo:</b></td>
+              <td>{{vehiculoTipo?.tipo}}</td>
+            </tr>
           </table>
         </div>
       </div>
@@ -118,7 +136,7 @@
         <div class="col-sm-12">
           <form [formGroup]="crearVehiculoTipoForm">
             <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="nombreEditar">
                   <b>Nombre *</b>
                   <span
@@ -129,7 +147,7 @@
                 </label>
                 <input id="nombreEditar" type="text" class="form-control" placeholder="Ejemplo: Pastor aleman" formControlName="nombre" #nombre>
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="descripcionEditar">
                   <b>Descripcion</b>
                   <span
@@ -138,6 +156,20 @@
                   </span>
                 </label>
                 <input id="descripcionEditar" type="text" class="form-control" placeholder="Ejemplo: Perro con tales caracteristicas" formControlName="descripcion" #descripcion>
+              </div>
+              <div class="col-sm-4">
+                <label for="tipo">
+                  <b>Grupo *</b>
+                  <span
+                    *ngIf="crearVehiculoTipoForm.controls['tipo'].invalid && (crearVehiculoTipoForm.controls['tipo'].dirty || crearVehiculoTipoForm.controls['tipo'].touched)">
+                      <i *ngIf="crearVehiculoTipoForm.controls['tipo'].errors.required" class="text-danger"> - Campo requerido</i>
+                    </span>
+                </label>
+                <select class="form-control" name="tipo" id="tipo" formControlName="tipo">
+                  <option value="AUTOMOVIL">Automovil, SUV, Pickup</option>
+                  <option value="MOTOCICLETA">Motocicleta, cuatrimoto</option>
+                  <option value="AUTOBUS">Autobus, camion</option>
+                </select>
               </div>
             </div>
           </form>

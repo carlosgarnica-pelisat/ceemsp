@@ -13,6 +13,9 @@ import {
 } from "../../../_components/botones/boton-empresa-equipos/boton-empresa-equipos.component";
 import EmpresaEquipoMovimiento from "../../../_models/EmpresaEquipoMovimiento";
 import Empresa from "../../../_models/Empresa";
+import Usuario from "../../../_models/Usuario";
+import {AuthenticationService} from "../../../_services/authentication.service";
+import {ReporteEmpresasService} from "../../../_services/reporte-empresas.service";
 
 @Component({
   selector: 'app-empresa-equipo',
@@ -54,6 +57,7 @@ export class EmpresaEquipoComponent implements OnInit {
   cantidadActual: number = 0;
 
   rowData: EmpresaEquipo[] = [];
+  usuarioActual: Usuario;
 
   @ViewChild('equipoDetallesModal') equipoDetallesModal;
   @ViewChild('eliminarEquipoModal') eliminarEquipoModal;
@@ -61,10 +65,12 @@ export class EmpresaEquipoComponent implements OnInit {
   @ViewChild('mostrarMovimientosModal') mostrarMovimientosModal;
 
   constructor(private route: ActivatedRoute, private toastService: ToastService,
-              private modalService: NgbModal, private empresaService: EmpresaService,
-              private formBuilder: FormBuilder, private equipoService: EquipoService) { }
+              private modalService: NgbModal, private empresaService: EmpresaService, private authenticationService: AuthenticationService,
+              private formBuilder: FormBuilder, private equipoService: EquipoService, private reporteEmpresasService: ReporteEmpresasService) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
     this.frameworkComponents = {
       empresaEquipoButtonRenderer: BotonEmpresaEquiposComponent
     }
@@ -119,6 +125,15 @@ export class EmpresaEquipoComponent implements OnInit {
   }
 
   editar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerEquipoPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaEquipo) => {
       this.empresaEquipo = data;
       this.editandoModal = false;
@@ -139,6 +154,15 @@ export class EmpresaEquipoComponent implements OnInit {
   }
 
   eliminar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerEquipoPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaEquipo) => {
       this.empresaEquipo = data;
       this.mostrarModalEliminar();
@@ -442,6 +466,21 @@ export class EmpresaEquipoComponent implements OnInit {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se ha podido guardar el equipo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  generarReporteExcel() {
+    this.reporteEmpresasService.generarReporteEquipos(this.uuid).subscribe((data) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "test.xls";
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el reporte en excel. Motivo: ${error}`,
         ToastType.ERROR
       );
     })

@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface EmpresaVehiculoService {
     List<VehiculoDto> obtenerVehiculos(String empresaUsername);
+    List<VehiculoDto> obtenerVehiculosEliminadosPorEmpresa(String empresaUsername);
     List<VehiculoDto> obtenerVehiculosEnInstalacionesPorEmpresa(String username);
     VehiculoDto obtenerVehiculoPorUuid(String vehiculoUuid);
     VehiculoDto obtenerVehiculoPorId(Integer id);

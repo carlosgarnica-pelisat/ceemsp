@@ -150,16 +150,30 @@ public class CanFotografiaServiceImpl implements CanFotografiaService {
         }
 
         logger.info("Eliminando la fotografia del can con uuid [{}]", fotografiaUuid);
-        CanFotografia canFotografia = canFotografiaRepository.getByUuidAndEliminadoFalse(fotografiaUuid);
 
+        Can can = canRepository.getByUuidAndEliminadoFalse(canUuid);
+        if(can == null) {
+            logger.warn("El can no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        CanFotografia canFotografia = canFotografiaRepository.getByUuidAndEliminadoFalse(fotografiaUuid);
         if(canFotografia == null) {
             logger.warn("La fotografia esta eliminada o no existe en la base de datos");
             throw new NotFoundResourceException();
         }
+
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
         archivosService.eliminarArchivo(canFotografia.getRuta());
         canFotografia.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, canFotografia, usuarioDto.getId());
         canFotografiaRepository.save(canFotografia);
+
+        List<CanFotografia> fotografias = canFotografiaRepository.getAllByCanAndEliminadoFalse(can.getId());
+        if(fotografias.size() == 0) {
+            can.setFotografiaCapturada(false);
+            daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+            canRepository.save(can);
+        }
     }
 }

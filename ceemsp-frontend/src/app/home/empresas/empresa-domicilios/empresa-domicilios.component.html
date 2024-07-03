@@ -5,7 +5,7 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Domicilios <span *ngIf="mostrandoEliminados">(eliminados)</span></h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearDomicilioModal)">Nuevo domicilio</button>
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalCrear(crearDomicilioModal)">Nuevo domicilio</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button" id="mostrarColumnasDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Mostrar / Ocultar columnas
@@ -22,7 +22,7 @@
           <a class="dropdown-item" *ngIf="!mostrandoEliminados" (click)="mostrarEliminados()">Mostrar eliminados</a>
           <a class="dropdown-item" *ngIf="mostrandoEliminados" (click)="ocultarEliminados()">Ocultar eliminados</a>
           <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar como CSV</a>
-          <!--a class="dropdown-item" (click)="generarReporteExcel()">Descargar como Excel</a-->
+          <a class="dropdown-item" (click)="generarReporteExcel()">Descargar como Excel</a>
         </div>
       </div>
     </div>
@@ -39,18 +39,18 @@
             <b>Razon social: </b> {{empresa?.razonSocial}}<br>
           </p>
         </a>
-        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
+        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action active">Domicilios</a>
-        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
+        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Legal</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/licencias" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneArmas">Licencias colectivas / Armas</a>
         <a routerLink="/home/empresas/{{empresa?.uuid}}/canes" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneCanes">Canes</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehículos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
-        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
+        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
         <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
-        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Visitas</a>
         <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
@@ -111,7 +111,7 @@
               <td><b>Observaciones de baja:</b></td>
               <td>{{domicilio?.observacionesBaja}}</td>
             </tr>
-            <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+            <tr *ngIf="usuarioActual.rol !== 'CEEMSP_USER'">
               <td><b>Fecha de creación:</b></td>
               <td>{{domicilio?.fechaCreacion}}</td>
             </tr>
@@ -154,7 +154,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="3">No hay telefonos creados en este momento. <a class="fakelink" (click)="mostrarModalAgregarTelefono()">Da clic aquí para crear uno</a></td>
+                <td colspan="3">No hay telefonos creados en este momento. <a class="fakelink" (click)="mostrarModalAgregarTelefono()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aquí para crear uno</a></td>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-telefono>
@@ -162,8 +162,8 @@
                 <td>{{telefono?.tipoTelefono}}</td>
                 <td>{{telefono?.telefono}}</td>
                 <td>
-                  <fa-icon [icon]="faPencil" *ngIf="!domicilio?.eliminado" (click)="mostrarEditarTelefonoForm(telefono?.uuid)"></fa-icon>
-                  <fa-icon [icon]="faTrash" *ngIf="!domicilio?.eliminado" (click)="mostrarModalEliminarTelefono(telefono?.uuid)"></fa-icon>
+                  <fa-icon [icon]="faPencil" *ngIf="!domicilio?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarEditarTelefonoForm(telefono?.uuid)"></fa-icon>
+                  <fa-icon [icon]="faTrash" *ngIf="!domicilio?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalEliminarTelefono(telefono?.uuid)"></fa-icon>
                 </td>
               </tr>
             </ng-template>
@@ -180,9 +180,9 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" (click)="descargarDocumentoFundatorio()" *ngIf="domicilio?.eliminado && (domicilio?.documentoFundatorioBaja !== null)">Descargar documento fundatorio</button>
-      <button class="btn btn-primary" *ngIf="!domicilio?.eliminado && pestanaActual === 'DETALLES'" (click)="mostrarModificarDomicilioModal()">Modificar</button>
-      <button type="button" class="btn btn-danger" *ngIf="!domicilio?.eliminado && pestanaActual === 'DETALLES'" (click)="mostrarEliminarEmpresaModal()">Eliminar</button>
-      <button class="btn btn-primary" *ngIf="!domicilio?.eliminado && pestanaActual === 'TELEFONOS'" (click)="mostrarModalAgregarTelefono()">Agregar teléfono</button>
+      <button class="btn btn-primary" *ngIf="(usuarioActual?.rol !== 'CEEMSP_READ_ONLY') && (!domicilio?.eliminado && pestanaActual === 'DETALLES')" (click)="mostrarModificarDomicilioModal()">Modificar</button>
+      <button type="button" class="btn btn-danger" *ngIf="(usuarioActual?.rol !== 'CEEMSP_READ_ONLY') && (!domicilio?.eliminado && pestanaActual === 'DETALLES')" (click)="mostrarEliminarEmpresaModal()">Eliminar</button>
+      <button class="btn btn-primary" *ngIf="(usuarioActual?.rol !== 'CEEMSP_READ_ONLY') && (!domicilio?.eliminado && pestanaActual === 'TELEFONOS')" (click)="mostrarModalAgregarTelefono()">Agregar teléfono</button>
     </div>
   </ng-template>
 

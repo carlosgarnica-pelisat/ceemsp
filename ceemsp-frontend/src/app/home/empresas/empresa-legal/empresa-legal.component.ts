@@ -26,6 +26,7 @@ import {Table} from "primeng/table";
 import {formatDate} from "@angular/common";
 import Usuario from "../../../_models/Usuario";
 import {AuthenticationService} from "../../../_services/authentication.service";
+import {ReporteEmpresasService} from "../../../_services/reporte-empresas.service";
 
 @Component({
   selector: 'app-empresa-legal',
@@ -41,7 +42,7 @@ export class EmpresaLegalComponent implements OnInit {
   editandoModal: boolean = false;
   tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
   localISOTime = (new Date(Date.now() - this.tzoffset)).toISOString().slice(0, -1);
-  fechaDeHoy = this.localISOTime.split('T')[0];
+  fechaDeHoy = this.localISOTime?.split('T')[0];
 
   showSocioForm: boolean = false;
   showApoderadoForm: boolean = false;
@@ -169,7 +170,8 @@ export class EmpresaLegalComponent implements OnInit {
   constructor(private route: ActivatedRoute, private toastService: ToastService,
               private modalService: NgbModal, private empresaService: EmpresaService,
               private formBuilder: FormBuilder, private estadoService: EstadosService,
-              private validacionService: ValidacionService, private authenticationService: AuthenticationService) { }
+              private validacionService: ValidacionService, private authenticationService: AuthenticationService,
+              private reporteEmpresaService: ReporteEmpresasService) { }
 
   ngOnInit(): void {
     let usuario = this.authenticationService.currentUserValue;
@@ -359,6 +361,15 @@ export class EmpresaLegalComponent implements OnInit {
   }
 
   editar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerEscrituraPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaEscritura) => {
       this.escritura = data;
       this.editandoModal = false;
@@ -416,6 +427,15 @@ export class EmpresaLegalComponent implements OnInit {
   }
 
   eliminar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.empresaService.obtenerEscrituraPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaEscritura) => {
       this.escritura = data;
       this.mostrarModalEliminarEscritura();
@@ -2035,6 +2055,20 @@ export class EmpresaLegalComponent implements OnInit {
     link.click();
   }
 
+  generarReporteExcel() {
+    this.reporteEmpresaService.generarReporteEscrituras(this.uuid).subscribe((data) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "test.xls";
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el reporte en excel. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
   private getDismissReason(reason: any): string {
     if (reason == ModalDismissReasons.ESC) {
       return `by pressing ESC`;

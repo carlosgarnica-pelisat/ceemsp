@@ -4,6 +4,7 @@ public enum RolTypeEnum {
 
     CEEMSP_SUPERUSER("CEEMSP_SUPERUSER", "Superusuario", "Puede manejar toda la plataforma"),
     CEEMSP_USER("CEEMSP_USER", "Usuario", "Usuario capaz de realizar operaciones sobre el ceemsp"),
+    CEEMSP_READ_ONLY("CEEMSP_READ_ONLY", "Solo lectura", "Usuario capaz de solo leer la informacion"),
     ENTERPRISE_USER("ENTERPRISE_USER", "Usuario", "Usuario capaz de realizar operaciones sobre la empresa"),
     NA("NA", "No aplica", "Este usuario no necesita rol alguno.");
 

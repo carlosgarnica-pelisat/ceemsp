@@ -5,7 +5,8 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Canes <span *ngIf="mostrandoEliminados">(eliminados)</span></h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearCanModal)">Nuevo can</button>
+      <input type="text" id="filter-text-box" placeholder="Busqueda rapida..." (input)="onFilterTextBoxChanged()">
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalCrear(crearCanModal)">Nuevo can</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button" id="mostrarColumnasDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Mostrar / Ocultar columnas
@@ -39,18 +40,18 @@
             <b>Razon social: </b> {{empresa?.razonSocial}}<br>
           </p>
         </a>
-        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action">Acuerdos</a>
+        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action">Domicilios</a>
-        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
+        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Legal</a>
         <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneArmas">Licencias colectivas / Armas</a>
         <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action active" *ngIf="empresa?.tieneCanes">Canes</a>
         <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehículos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
-        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
+        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
         <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
-        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Visitas</a>
         <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
@@ -219,7 +220,7 @@
                       <td><b>Elemento asignado:</b></td>
                       <td>{{can?.elementoAsignado?.nombres + " " + can?.elementoAsignado?.apellidoPaterno + " " + can?.elementoAsignado?.apellidoMaterno}}</td>
                     </tr>
-                    <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+                    <tr *ngIf="usuarioActual.rol !== 'CEEMSP_USER'">
                       <td><b>Fecha de creación:</b></td>
                       <td>{{can?.fechaCreacion}}</td>
                     </tr>
@@ -254,7 +255,7 @@
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                   <tr>
-                    <td colspan="4">No hay cartillas de vacunación creadas. <a class="fakelink" (click)="mostrarModalAgregarCartillaVacunacion()">Da clic aqui para crear una</a></td>
+                    <td colspan="4">No hay cartillas de vacunación creadas. <a class="fakelink" (click)="mostrarModalAgregarCartillaVacunacion()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aqui para crear una</a></td>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-cartillaVacunacion>
@@ -264,8 +265,8 @@
                     <td [ngStyle]="cartillaVacunacion?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{cartillaVacunacion?.fechaExpedicion}}</td>
                     <td>
                       <fa-icon [icon]="faDownload" *ngIf="!can?.eliminado && !cartillaVacunacion?.eliminado" title="Descargar el certificado de vacunacion" (click)="descargarCertificadoVacunacion(cartillaVacunacion.uuid, visualizarCartillaVacunacionModal)"></fa-icon>
-                      <fa-icon [icon]="faPencilAlt" *ngIf="!can?.eliminado && !cartillaVacunacion?.eliminado" title="Modificar el certificado de vacunacion" (click)="mostrarModalEditarVacunacion(cartillaVacunacion.uuid)"></fa-icon>
-                      <fa-icon [icon]="faTrash" *ngIf="!can?.eliminado && !cartillaVacunacion?.eliminado" title="Eliminar el certificado de vacunacion" (click)="mostrarModalEliminarCartillaVacunacion(cartillaVacunacion.uuid)"></fa-icon>
+                      <fa-icon [icon]="faPencilAlt" *ngIf="!can?.eliminado && !cartillaVacunacion?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Modificar el certificado de vacunacion" (click)="mostrarModalEditarVacunacion(cartillaVacunacion.uuid)"></fa-icon>
+                      <fa-icon [icon]="faTrash" *ngIf="!can?.eliminado && !cartillaVacunacion?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Eliminar el certificado de vacunacion" (click)="mostrarModalEliminarCartillaVacunacion(cartillaVacunacion.uuid)"></fa-icon>
                     </td>
                   </tr>
                 </ng-template>
@@ -296,7 +297,7 @@
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                   <tr>
-                    <td colspan="4">No hay certificados de salud creados. <a class="fakelink" (click)="mostrarModalAgregarCertificadoSalud()">Da clic aqui para crear una</a></td>
+                    <td colspan="4">No hay certificados de salud creados. <a class="fakelink" (click)="mostrarModalAgregarCertificadoSalud()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aqui para crear una</a></td>
                   </tr>
 
                 </ng-template>
@@ -307,8 +308,8 @@
                     <td [ngStyle]="certificadoSalud?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{certificadoSalud?.fechaExpedicion}}</td>
                     <td>
                       <fa-icon [icon]="faDownload" *ngIf="!can?.eliminado && !certificadoSalud?.eliminado" title="Descargar el certificado de salud" (click)="descargarConstanciaSalud(certificadoSalud.uuid, visualizarCertificadoSaludModal)"></fa-icon>
-                      <fa-icon [icon]="faPencilAlt" *ngIf="!can?.eliminado && !certificadoSalud?.eliminado" title="Modificar el certificado de salud" (click)="mostrarModalEditarCertificado(certificadoSalud.uuid)"></fa-icon>
-                      <fa-icon [icon]="faTrash" *ngIf="!can?.eliminado && !certificadoSalud?.eliminado" title="Eliminar el certificado de salud" (click)="mostrarModalEliminarCertificadoSalud(certificadoSalud.uuid)"></fa-icon>
+                      <fa-icon [icon]="faPencilAlt" *ngIf="!can?.eliminado && !certificadoSalud?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Modificar el certificado de salud" (click)="mostrarModalEditarCertificado(certificadoSalud.uuid)"></fa-icon>
+                      <fa-icon [icon]="faTrash" *ngIf="!can?.eliminado && !certificadoSalud?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Eliminar el certificado de salud" (click)="mostrarModalEliminarCertificadoSalud(certificadoSalud.uuid)"></fa-icon>
                     </td>
                   </tr>
                 </ng-template>
@@ -339,7 +340,7 @@
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                   <tr>
-                    <td colspan="4">No hay entrenamientos creados. <a class="fakelink" (click)="mostrarModalAgregarEntrenamiento()">Da clic aqui para crear uno</a></td>
+                    <td colspan="4">No hay entrenamientos creados. <a class="fakelink" (click)="mostrarModalAgregarEntrenamiento()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aqui para crear uno</a></td>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-entrenamiento>
@@ -349,8 +350,8 @@
                     <td [ngStyle]="entrenamiento?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">{{entrenamiento?.canTipoAdiestramiento?.nombre}}</td>
                     <td>
                       <fa-icon [icon]="faDownload" *ngIf="!can?.eliminado && !entrenamiento?.eliminado" title="Descargar el certificado de vacunacion" (click)="descargarArchivoAdiestramiento(entrenamiento.uuid, visualizarArchivoAdiestramientoModal)"></fa-icon>
-                      <fa-icon [icon]="faPencilAlt" *ngIf="!can?.eliminado && !entrenamiento?.eliminado" title="Modificar entrenamiento" (click)="mostrarModalEditarAdiestramiento(entrenamiento.uuid)"></fa-icon>
-                      <fa-icon [icon]="faTrash" *ngIf="!can?.eliminado && !entrenamiento?.eliminado" title="Eliminar entrenamiento" (click)="mostrarModalEliminarAdiestramiento(entrenamiento.uuid)"></fa-icon>
+                      <fa-icon [icon]="faPencilAlt" *ngIf="!can?.eliminado && !entrenamiento?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Modificar entrenamiento" (click)="mostrarModalEditarAdiestramiento(entrenamiento.uuid)"></fa-icon>
+                      <fa-icon [icon]="faTrash" *ngIf="!can?.eliminado && !entrenamiento?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Eliminar entrenamiento" (click)="mostrarModalEliminarAdiestramiento(entrenamiento.uuid)"></fa-icon>
                     </td>
                   </tr>
                 </ng-template>
@@ -372,7 +373,7 @@
                   <td>
                     <div class="btn-group">
                       <fa-icon [icon]="faDownload" *ngIf="!can?.eliminado" title="Descargar la fotografia" (click)="descargarFotografia(f?.uuid)"></fa-icon>
-                      <fa-icon [icon]="faTrash" *ngIf="!can?.eliminado" title="Eliminar la fotografia" (click)="mostrarModalEliminarFotografia(f?.uuid)"></fa-icon>
+                      <fa-icon [icon]="faTrash" *ngIf="!can?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" title="Eliminar la fotografia" (click)="mostrarModalEliminarFotografia(f?.uuid)"></fa-icon>
                     </div>
                   </td>
                 </tr>
@@ -415,27 +416,27 @@
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'DETALLES'">
       <button class="btn btn-primary" (click)="mostrarModalMovimientosCan()">Mostrar movimientos</button>
-      <button class="btn btn-primary" *ngIf="!can?.eliminado" (click)="mostrarModalModificarCan()">Modificar</button>
-      <button type="button" class="btn btn-danger" *ngIf="!can?.eliminado" (click)="mostrarModalEliminarCan()">Eliminar</button>
+      <button class="btn btn-primary" *ngIf="!can?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalModificarCan()">Modificar</button>
+      <button type="button" class="btn btn-danger" *ngIf="!can?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalEliminarCan()">Eliminar</button>
       <button type="button" class="btn btn-primary" *ngIf="can?.eliminado && (can?.documentoFundatorioBaja !== null)" (click)="descargarDocumentoFundatorio()">Descargar documento fundatorio</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'VACUNACION'">
-      <button class="btn btn-primary" (click)="mostrarModalAgregarCartillaVacunacion()" *ngIf="!can.eliminado">Agregar nuevo</button>
-      <button class="btn btn-primary" (click)="mostrarVacunacionEliminados()" *ngIf="!can?.eliminado && !mostrandoVacunacionEliminados">Mostrar eliminados</button>
-      <button class="btn btn-primary" (click)="ocultarVacunacionEliminados()" *ngIf="!can?.eliminado && mostrandoVacunacionEliminados">Ocultar eliminados</button>
+      <button class="btn btn-primary" (click)="mostrarModalAgregarCartillaVacunacion()" *ngIf="!can.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarVacunacionEliminados()" *ngIf="!can?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY' && !mostrandoVacunacionEliminados">Mostrar eliminados</button>
+      <button class="btn btn-primary" (click)="ocultarVacunacionEliminados()" *ngIf="!can?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY' && mostrandoVacunacionEliminados">Ocultar eliminados</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'CERTIFICADOS'">
-      <button class="btn btn-primary" (click)="mostrarModalAgregarCertificadoSalud()" *ngIf="!can.eliminado">Agregar nuevo</button>
-      <button class="btn btn-primary" (click)="mostrarCertificadosEliminados()" *ngIf="!can?.eliminado && !mostrandoCertificadosEliminados">Mostrar eliminados</button>
-      <button class="btn btn-primary" (click)="ocultarCertificadosEliminados()" *ngIf="!can?.eliminado && mostrandoCertificadosEliminados">Ocultar eliminados</button>
+      <button class="btn btn-primary" (click)="mostrarModalAgregarCertificadoSalud()" *ngIf="!can.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarCertificadosEliminados()" *ngIf="!can?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY' && !mostrandoCertificadosEliminados">Mostrar eliminados</button>
+      <button class="btn btn-primary" (click)="ocultarCertificadosEliminados()" *ngIf="!can?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY' && mostrandoCertificadosEliminados">Ocultar eliminados</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'ENTRENAMIENTO'">
-      <button class="btn btn-primary" (click)="mostrarModalAgregarEntrenamiento()" *ngIf="!can.eliminado">Agregar nuevo</button>
-      <button class="btn btn-primary" (click)="mostrarEntrenamientosEliminados()" *ngIf="!can?.eliminado && !mostrandoEntrenamientosEliminados">Mostrar eliminados</button>
-      <button class="btn btn-primary" (click)="ocultarEntrenamientosEliminados()" *ngIf="!can?.eliminado && mostrandoEntrenamientosEliminados">Ocultar eliminados</button>
+      <button class="btn btn-primary" (click)="mostrarModalAgregarEntrenamiento()" *ngIf="!can.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarEntrenamientosEliminados()" *ngIf="!can?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY' && !mostrandoEntrenamientosEliminados">Mostrar eliminados</button>
+      <button class="btn btn-primary" (click)="ocultarEntrenamientosEliminados()" *ngIf="!can?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY' && mostrandoEntrenamientosEliminados">Ocultar eliminados</button>
     </div>
     <div class="modal-footer" *ngIf="this.pestanaActual === 'FOTOGRAFIAS'">
-      <button class="btn btn-primary" (click)="mostrarFormularioNuevaFotografia()" *ngIf="!showFotografiaForm && !can.eliminado">Agregar nuevo</button>
+      <button class="btn btn-primary" (click)="mostrarFormularioNuevaFotografia()" *ngIf="!showFotografiaForm && usuarioActual?.rol !== 'CEEMSP_READ_ONLY' && !can.eliminado">Agregar nuevo</button>
       <button class="btn btn-primary" (click)="guardarFotografia(crearCanFotografiaForm)" *ngIf="showFotografiaForm">Guardar</button>
       <button class="btn btn-danger" (click)="mostrarFormularioNuevaFotografia()" *ngIf="showFotografiaForm">Cancelar</button>
     </div>
@@ -1768,7 +1769,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="descargarDocumentoCartillaVacunacion()">Descargar</button>
+      <button class="btn btn-primary" (click)="descargarDocumentoCartillaVacunacion()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Descargar</button>
     </div>
   </ng-template>
 
@@ -1790,7 +1791,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="descargarDocumentoEntrenamiento()">Descargar</button>
+      <button class="btn btn-primary" (click)="descargarDocumentoEntrenamiento()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Descargar</button>
     </div>
   </ng-template>
 
@@ -1812,7 +1813,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="descargarDocumentoCertificadoSalud()">Descargar</button>
+      <button class="btn btn-primary" (click)="descargarDocumentoCertificadoSalud()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Descargar</button>
     </div>
   </ng-template>
 

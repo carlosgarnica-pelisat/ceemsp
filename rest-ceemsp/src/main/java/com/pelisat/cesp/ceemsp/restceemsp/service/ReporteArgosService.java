@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.List;
 
 public interface ReporteArgosService {
-    List<ReporteArgosDto> obtenerReportes();
+    List<ReporteArgosDto> obtenerReportes(String username);
     File descargarReporte(String reporteUuid);
     ReporteArgosDto obtenerReportePorUuid(String reporteUuid);
     ReporteArgosDto crearReporte(ReporteArgosDto reporteArgosDto, String username);

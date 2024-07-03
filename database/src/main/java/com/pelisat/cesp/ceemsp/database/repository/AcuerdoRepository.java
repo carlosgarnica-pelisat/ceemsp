@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AcuerdoRepository extends JpaRepository<Acuerdo, Integer> {
@@ -16,4 +17,5 @@ public interface AcuerdoRepository extends JpaRepository<Acuerdo, Integer> {
     List<Acuerdo> getAllByEmpresaAndFechaFinGreaterThanAndFechaFinLessThanAndEliminadoFalse(int empresa, LocalDate fechaFinLess, LocalDate fechaFinGreater);
     List<Acuerdo> getAllByEmpresaAndFechaFinGreaterThanEqualAndEliminadoFalse(int empresa, LocalDate localDate);
     Acuerdo getByUuid(String uuid);
+    List<Acuerdo> getAllByFechaCreacionGreaterThanEqualAndFechaCreacionLessThanEqualAndEliminadoFalse(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 }
