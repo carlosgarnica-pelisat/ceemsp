@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface EmpresaClienteAsignacionPersonalService {
     List<ClienteAsignacionPersonalDto> obtenerAsignacionesCliente(String username, String clienteUuid);
+    List<ClienteAsignacionPersonalDto> obtenerAsignacionesClienteTodo(String username, String clienteUuid);
     ClienteAsignacionPersonalDto obtenerAsignacionPorUuid(String clienteUuid, String asignacionUuid);
     ClienteAsignacionPersonalDto crearAsignacion(String clienteUuid, String username, ClienteAsignacionPersonalDto clienteAsignacionPersonalDto);
     ClienteAsignacionPersonalDto modificarAsignacion(String clienteUuid, String asignacionUuid, String username, ClienteAsignacionPersonalDto clienteAsignacionPersonalDto);

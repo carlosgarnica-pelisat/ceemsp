@@ -10,5 +10,6 @@
     <include file="db/changelog/empresas/CEEMSP-76/schema.xml" />
     <include file="db/changelog/empresas/CEEMSP-79/schema.xml" />
     <include file="db/changelog/empresas/CEEMSP-101/schema.xml" />
+    <include file="db/changelog/empresas/CEEMSP-104/schema.xml" />
     <include file="db/changelog/empresas/CEEMSP-105/schema.xml" />
 </databaseChangeLog>

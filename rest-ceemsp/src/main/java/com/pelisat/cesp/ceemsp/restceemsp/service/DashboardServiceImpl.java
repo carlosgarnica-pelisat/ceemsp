@@ -36,6 +36,16 @@ public class DashboardServiceImpl implements DashboardService {
     private final EmpresaEscrituraRepository empresaEscrituraRepository;
     private final EmpresaService empresaService;
 
+    // Views
+    private final PersonalAltaViewRepository personalAltaViewRepository;
+    private final PersonalBajaViewRepository personalBajaViewRepository;
+    private final ClienteAltaViewRepository clienteAltaViewRepository;
+    private final ClienteBajaViewRepository clienteBajaViewRepository;
+    private final VehiculoAltaViewRepository vehiculoAltaViewRepository;
+    private final VehiculoBajaViewRepository vehiculoBajaViewRepository;
+    private final ArmaAltaViewRepository armaAltaViewRepository;
+    private final ArmaBajaViewRepository armaBajaViewRepository;
+
     @Autowired
     public DashboardServiceImpl(EmpresaRepository empresaRepository, IncidenciaRepository incidenciaRepository,
                                 VisitaRepository visitaRepository, DaoToDtoConverter daoToDtoConverter,
@@ -43,7 +53,11 @@ public class DashboardServiceImpl implements DashboardService {
                                 EmpresaReporteMensualRepository empresaReporteMensualRepository,
                                 EmpresaLicenciaColectivaRepository empresaLicenciaColectivaRepository,
                                 EmpresaEscrituraApoderadoRepository empresaEscrituraApoderadoRepository,
-                                EmpresaEscrituraRepository empresaEscrituraRepository, EmpresaService empresaService) {
+                                EmpresaEscrituraRepository empresaEscrituraRepository, EmpresaService empresaService,
+                                PersonalAltaViewRepository personalAltaViewRepository, PersonalBajaViewRepository personalBajaViewRepository,
+                                ClienteAltaViewRepository clienteAltaViewRepository, ClienteBajaViewRepository clienteBajaViewRepository,
+                                VehiculoAltaViewRepository vehiculoAltaViewRepository, VehiculoBajaViewRepository vehiculoBajaViewRepository,
+                                ArmaAltaViewRepository armaAltaViewRepository, ArmaBajaViewRepository armaBajaViewRepository) {
         this.empresaRepository = empresaRepository;
         this.incidenciaRepository = incidenciaRepository;
         this.visitaRepository = visitaRepository;
@@ -55,6 +69,14 @@ public class DashboardServiceImpl implements DashboardService {
         this.empresaEscrituraApoderadoRepository = empresaEscrituraApoderadoRepository;
         this.empresaEscrituraRepository = empresaEscrituraRepository;
         this.empresaService = empresaService;
+        this.personalAltaViewRepository = personalAltaViewRepository;
+        this.personalBajaViewRepository = personalBajaViewRepository;
+        this.clienteAltaViewRepository = clienteAltaViewRepository;
+        this.clienteBajaViewRepository = clienteBajaViewRepository;
+        this.vehiculoAltaViewRepository = vehiculoAltaViewRepository;
+        this.vehiculoBajaViewRepository = vehiculoBajaViewRepository;
+        this.armaAltaViewRepository = armaAltaViewRepository;
+        this.armaBajaViewRepository = armaBajaViewRepository;
     }
 
     @Override
@@ -159,13 +181,42 @@ public class DashboardServiceImpl implements DashboardService {
             throw new InvalidDataException();
         }
 
-        List<ConteoMensualDto> conteos = empresaReporteMensualRepository.getSumReportesMensualesByMonthAndYear(LocalDate.parse(fechaInicio).atStartOfDay(), LocalDate.parse(fechaFin).atTime(23, 59, 59));
+        LocalDateTime fechaInicioLocalDate = LocalDate.parse(fechaInicio).atStartOfDay();
+        LocalDateTime fechaFinLocalDate = LocalDate.parse(fechaFin).atTime(23, 59, 59);
+
+        ConteoMensualDto conteos = new ConteoMensualDto();
+
+        conteos.setPersonalAltas(personalAltaViewRepository.countByFechaCreacionIsLessThanEqual(fechaFinLocalDate));
+        conteos.setClientesAltas(clienteAltaViewRepository.countByFechaCreacionIsLessThanEqual(fechaFinLocalDate));
+        conteos.setVehiculosAltas(vehiculoAltaViewRepository.countByFechaCreacionIsLessThanEqual(fechaFinLocalDate));
+
+        conteos.setPersonalBajas(personalBajaViewRepository.countByFechaBajaIsLessThanEqual(fechaFinLocalDate));
+        conteos.setClientesBajas(clienteBajaViewRepository.countByFechaBajaIsLessThanEqual(fechaFinLocalDate));
+        conteos.setVehiculosBajas(vehiculoBajaViewRepository.countByFechaBajaIsLessThanEqual(fechaFinLocalDate));
+
+        conteos.setPersonalTotal(conteos.getPersonalAltas() - conteos.getPersonalBajas());
+        conteos.setClientesTotal(conteos.getClientesAltas() - conteos.getClientesBajas());
+        conteos.setVehiculosTotal(conteos.getVehiculosAltas() - conteos.getVehiculosBajas());
+
+        int altasMesActual = personalAltaViewRepository.countByFechaCreacionIsGreaterThanEqualAndFechaCreacionIsLessThanEqual(
+                fechaInicioLocalDate,
+                fechaFinLocalDate
+        );
+
+        int bajasMesActual = personalAltaViewRepository.countByFechaCreacionIsGreaterThanEqualAndFechaCreacionIsLessThanEqual(
+                fechaInicioLocalDate,
+                fechaFinLocalDate
+        );
+
+        // Activos = altas totales - (altas del mes vigente - bajas del mes vigente)
+
+        /*List<ConteoMensualDto> conteos = empresaReporteMensualRepository.getSumReportesMensualesByMonthAndYear(LocalDate.parse(fechaInicio).atStartOfDay(), LocalDate.parse(fechaFin).atTime(23, 59, 59));
 
         if(conteos.isEmpty()) {
             return null;
-        }
+        }*/
 
-        return conteos.get(0);
+        return conteos;
     }
 
     @Override

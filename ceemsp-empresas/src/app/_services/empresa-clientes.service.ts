@@ -96,6 +96,10 @@ export class EmpresaClientesService {
     return this.http.get(`${this.uri}/clientes/${uuidCliente}/asignaciones`)
   }
 
+  obtenerAsignacionesClienteTodas(uuidCliente: string) {
+    return this.http.get(`${this.uri}/clientes/${uuidCliente}/asignaciones/todas`);
+  }
+
   guardarAsignacionCliente(uuidCliente: string, asignacionCliente: ClienteAsignacionPersonal) {
     return this.http.post(`${this.uri}/clientes/${uuidCliente}/asignaciones`, asignacionCliente)
   }

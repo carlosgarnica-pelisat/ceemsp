@@ -1452,8 +1452,8 @@
                                   <b>Elemento *</b>
                                   <span
                                     *ngIf="nuevaAsignacionForm.controls['personal'].invalid && (nuevaAsignacionForm.controls['personal'].dirty || nuevaAsignacionForm.controls['personal'].touched)">
-                          <i *ngIf="nuevaAsignacionForm.controls['personal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                        </span>
+                                    <i *ngIf="nuevaAsignacionForm.controls['personal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                                  </span>
                                 </label>
                                 <select id="personalAsignacion" formControlName="personal" class="form-control">
                                   <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.rfc}} - {{p?.apellidoPaterno}} {{p?.apellidoMaterno}} {{p?.nombres}}</option>

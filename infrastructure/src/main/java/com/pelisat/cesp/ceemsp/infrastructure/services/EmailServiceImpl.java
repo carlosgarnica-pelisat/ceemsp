@@ -1,5 +1,6 @@
 package com.pelisat.cesp.ceemsp.infrastructure.services;
 
+import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.type.NotificacionEmailEnum;
 import com.pelisat.cesp.ceemsp.database.type.NotificacionInternalEmailEnum;
@@ -57,6 +58,8 @@ public class EmailServiceImpl<T extends CommonModel> implements EmailService {
             }
         } else if(notificacionEmailEnum == NotificacionEmailEnum.ACUSE_INFORME_MENSUAL) {
             try {
+                EmpresaDto empresaInforme = (EmpresaDto) map.get("empresa");
+                helper.setSubject(notificacionEmailEnum.getMotivo() + " " + empresaInforme.getRegistro());
                 AcuseReciboTemplate acuseReciboTemplate = new AcuseReciboTemplate();
                 File pdfOutput = acuseReciboTemplate.generarReporte(emailContent);
                 helper.addAttachment("informe-mensual", pdfOutput);

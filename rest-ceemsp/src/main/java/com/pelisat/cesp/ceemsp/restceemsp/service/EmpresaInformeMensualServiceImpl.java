@@ -414,7 +414,25 @@ public class EmpresaInformeMensualServiceImpl implements EmpresaInformeMensualSe
         EmpresaReporteMensualMovimiento movimiento = empresaReporteMensualMovimientoRepository.getByReporteMensualAndTipoAndMovimientoAndEliminadoFalse(reporteMensual.getId(), ReporteTipoEnum.PERSONAL, ReporteMovimientoEnum.ACTIVOS);
 
         if(movimiento != null) {
-            return null;
+            String movimientos = movimiento.getElementos();
+            List<String> ids = Arrays.asList(movimientos.split(", "));
+            List<Integer> idsInteger = ids.stream().map(Integer::parseInt).collect(Collectors.toList());
+
+            List<Personal> personalTotalMes;
+
+            if(usuarioDto.getRol() == RolTypeEnum.CEEMSP_READ_ONLY) {
+                personalTotalMes = personaRepository.findAllByEmpresaAndPuestoInAndIdIn(empresa.getId(), Arrays.asList(3), idsInteger);
+            } else {
+                personalTotalMes = personaRepository.findAllByEmpresaAndIdIn(empresa.getId(), idsInteger);
+            }
+
+            return personalTotalMes.stream()
+                    .map(p -> {
+                        PersonaDto dto = daoToDtoConverter.convertDaoToDtoPersona(p);
+                        dto.setPuestoDeTrabajo(personalPuestoDeTrabajoService.obtenerPorId(p.getPuesto()));
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
         } else {
             List<Personal> personalTotalMes = personaRepository.findAllByEmpresaAndPuestoInAndFechaCreacionLessThanAndPuestoTrabajoCapturadoTrueAndCursosCapturadosTrueAndFotografiaCapturadaTrueAndEliminadoFalse(
                     empresa.getId(),

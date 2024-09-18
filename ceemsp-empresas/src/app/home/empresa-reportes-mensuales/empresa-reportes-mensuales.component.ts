@@ -89,6 +89,7 @@ export class EmpresaReportesMensualesComponent implements OnInit {
       }}
   ];
 
+  @ViewChild('alertaPresentandoReporteModal') alertaPresentandoReporteModal;
   @ViewChild('mostrarDetallesReporteModal') mostrarDetallesReporteModal;
   @ViewChild('mostrarPersonalMovimientosReporteModal') mostrarPersonalMovimientosReporteModal;
   @ViewChild('mostrarClienteMovimientosReporteModal') mostrarClienteMovimientosReporteModal;
@@ -169,6 +170,7 @@ export class EmpresaReportesMensualesComponent implements OnInit {
     this.actionInProgress = true;
     let reporte: ReporteMensual = new ReporteMensual();
     reporte.reportaUniformes = false;
+    this.modal = this.modalService.open(this.alertaPresentandoReporteModal, {backdrop: 'static', keyboard: false})
     this.empresaReporteMensualService.guardarReporte(reporte).subscribe((data: ReporteMensual) => {
       this.actionInProgress = false;
       this.toastService.showGenericToast(
@@ -179,6 +181,7 @@ export class EmpresaReportesMensualesComponent implements OnInit {
       window.location.reload();
     }, (error) => {
       this.actionInProgress = false;
+      this.modal.close();
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se ha podido enviar el reporte. Motivo: ${error}`,

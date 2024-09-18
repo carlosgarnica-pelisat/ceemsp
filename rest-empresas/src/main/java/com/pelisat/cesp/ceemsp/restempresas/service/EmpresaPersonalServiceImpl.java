@@ -129,7 +129,7 @@ public class EmpresaPersonalServiceImpl implements EmpresaPersonalService {
         }
 
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
-        List<Personal> personal = personaRepository.getAllByEmpresaAndEliminadoFalse(usuarioDto.getEmpresa().getId());
+        List<Personal> personal = personaRepository.getAllByEmpresaAndClienteIsNullAndClienteDomicilioIsNullAndEliminadoFalse(usuarioDto.getEmpresa().getId());
 
         return personal.stream().map(daoToDtoConverter::convertDaoToDtoPersona).collect(Collectors.toList());
     }

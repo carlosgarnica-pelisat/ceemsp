@@ -204,7 +204,7 @@
           </div>
           <div style="border: 1px solid #333333; margin-top: 20px; ">
             <h4 style="text-align: center">OPERACIONES CON PERSONAL - ALTAS</h4>
-            <p style="text-align: center;" *ngIf="personalAltas.length === 0">La empresa no realizo altas de personal en este mes. </p>
+            <p style="text-align: center;" *ngIf="personalAltas?.length === 0">La empresa no realizo altas de personal en este mes. </p>
             <table id="personal-altas-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;"  *ngIf="personalAltas.length > 0">
               <tr>
                 <td><b>No.</b></td>
@@ -309,8 +309,8 @@
           </div>
           <div style="border: 1px solid #333333; margin-top: 20px;">
             <h4 style="text-align: center">OPERACIONES CON PERSONAL - ACTIVOS</h4>
-            <p style="text-align: center;" *ngIf="personalActivos.length === 0">La empresa no tiene personal activo en este mes. </p>
-            <table id="personal-activos-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="personalActivos.length > 0">
+            <p style="text-align: center;" *ngIf="personalActivos?.length === 0">La empresa no tiene personal activo en este mes. </p>
+            <table id="personal-activos-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="personalActivos?.length > 0">
               <tr>
                 <td><b>No.</b></td>
                 <td><b>Puesto</b></td>
@@ -348,8 +348,8 @@
           </div>
           <div style="border: 1px solid #333333; margin-top: 20px;">
             <h4 style="text-align: center">OPERACIONES CON CLIENTES - ALTAS</h4>
-            <p style="text-align: center;" *ngIf="clienteAltas.length === 0">La empresa no realizo altas de clientes en este mes. </p>
-            <table id="clientes-altas-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="clienteAltas.length > 0">
+            <p style="text-align: center;" *ngIf="clienteAltas?.length === 0">La empresa no realizo altas de clientes en este mes. </p>
+            <table id="clientes-altas-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="clienteAltas?.length > 0">
               <tr>
                 <td><b>No.</b></td>
                 <td><b>Tipo Mov.</b></td>
@@ -378,8 +378,8 @@
           </div>
           <div style="border: 1px solid #333333; margin-top: 20px; ">
             <h4 style="text-align: center">OPERACIONES CON CLIENTES - BAJAS</h4>
-            <p style="text-align: center;" *ngIf="clienteBajas.length === 0">La empresa no realizo bajas de clientes en este mes. </p>
-            <table  id="clientes-bajas-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="clienteBajas.length > 0">
+            <p style="text-align: center;" *ngIf="clienteBajas?.length === 0">La empresa no realizo bajas de clientes en este mes. </p>
+            <table  id="clientes-bajas-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="clienteBajas?.length > 0">
               <tr>
                 <td><b>No.</b></td>
                 <td><b>Tipo Mov.</b></td>
@@ -408,8 +408,8 @@
           </div>
           <div style="border: 1px solid #333333; margin-top: 20px; ">
             <h4 style="text-align: center">OPERACIONES CON CLIENTES - ACTIVOS</h4>
-            <p style="text-align: center;" *ngIf="clienteActivos.length === 0">La empresa no tiene clientes activos en el mes. </p>
-            <table id="clientes-activos-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="clienteActivos.length > 0">
+            <p style="text-align: center;" *ngIf="clienteActivos?.length === 0">La empresa no tiene clientes activos en el mes. </p>
+            <table id="clientes-activos-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="clienteActivos?.length > 0">
               <tr>
                 <td><b>No.</b></td>
                 <td><b>Tipo Mov.</b></td>
@@ -438,8 +438,8 @@
           </div>
           <div style="border: 1px solid #333333; margin-top: 20px; ">
             <h4 style="text-align: center">OPERACIONES CON VEHICULOS - ALTAS</h4>
-            <p style="text-align: center;" *ngIf="vehiculosAltas.length === 0">La empresa no realizo altas de vehiculos en este mes.  </p>
-            <table id="vehiculos-altas-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="vehiculosAltas.length > 0">
+            <p style="text-align: center;" *ngIf="vehiculosAltas?.length === 0">La empresa no realizo altas de vehiculos en este mes.  </p>
+            <table id="vehiculos-altas-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="vehiculosAltas?.length > 0">
               <tr>
                 <td><b>No.</b></td>
                 <td><b>Tipo Mov.</b></td>
@@ -477,8 +477,8 @@
           </div>
           <div style="border: 1px solid #333333; margin-top: 20px; ">
             <h4 style="text-align: center">OPERACIONES CON VEHICULOS - BAJAS</h4>
-            <p style="text-align: center;" *ngIf="vehiculosBajas.length === 0">La empresa no realizo bajas de vehiculos en este mes.  </p>
-            <table id="vehiculos-bajas-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="vehiculosBajas.length > 0">
+            <p style="text-align: center;" *ngIf="vehiculosBajas?.length === 0">La empresa no realizo bajas de vehiculos en este mes.  </p>
+            <table id="vehiculos-bajas-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="vehiculosBajas?.length > 0">
               <tr>
                 <td><b>No.</b></td>
                 <td><b>Tipo Mov.</b></td>
@@ -516,8 +516,8 @@
           </div>
           <div style="border: 1px solid #333333; margin-top: 20px; ">
             <h4 style="text-align: center">OPERACIONES CON VEHICULOS - ACTIVOS</h4>
-            <p style="text-align: center;" *ngIf="vehiculosActivos.length === 0">La empresa no tiene vehiculos activos en este mes.  </p>
-            <table id="vehiculos-activos-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="vehiculosBajas.length > 0">
+            <p style="text-align: center;" *ngIf="vehiculosActivos?.length === 0">La empresa no tiene vehiculos activos en este mes.  </p>
+            <table id="vehiculos-activos-table" class="table table-bordered" style="border: 1px solid #aaaaaa; font-size: 12px;" *ngIf="vehiculosBajas?.length > 0">
               <tr>
                 <td><b>No.</b></td>
                 <td><b>Tipo Mov.</b></td>
@@ -1318,7 +1318,7 @@
             <tr *ngFor="let a of armasModalidad1Activos; let i = index;">
               <td>{{i + 1}}</td>
               <td>{{a?.numeroOficio}}</td>
-              <td>Alta</td>
+              <td>Activa</td>
               <td>{{a?.fechaCreacion}}</td>
               <td>{{a?.clase?.nombre}}</td>
               <td>{{a?.marca?.nombre}}</td>
@@ -1372,7 +1372,7 @@
             <tr *ngFor="let a of armasModalidad1Bajas; let i = index;">
               <td>{{i + 1}}</td>
               <td>{{a?.numeroOficio}}</td>
-              <td>Alta</td>
+              <td>Baja</td>
               <td>{{a?.fechaCreacion}}</td>
               <td>{{a?.clase?.nombre}}</td>
               <td>{{a?.marca?.nombre}}</td>
@@ -1457,7 +1457,7 @@
             <tr *ngFor="let a of armasModalidad2Activos; let i = index;">
               <td>{{i + 1}}</td>
               <td>{{a?.numeroOficio}}</td>
-              <td>Alta</td>
+              <td>Activa</td>
               <td>{{a?.fechaCreacion}}</td>
               <td>{{a?.clase?.nombre}}</td>
               <td>{{a?.marca?.nombre}}</td>
@@ -1567,7 +1567,7 @@
             <tr *ngFor="let a of armasModalidad3Activos; let i = index;">
               <td>{{i + 1}}</td>
               <td>{{a?.numeroOficio}}</td>
-              <td>Alta</td>
+              <td>Activa</td>
               <td>{{a?.fechaCreacion}}</td>
               <td>{{a?.clase?.nombre}}</td>
               <td>{{a?.marca?.nombre}}</td>
@@ -1621,7 +1621,7 @@
             <tr *ngFor="let a of armasModalidad3Bajas; let i = index;">
               <td>{{i + 1}}</td>
               <td>{{a?.numeroOficio}}</td>
-              <td>Alta</td>
+              <td>Baja</td>
               <td>{{a?.fechaCreacion}}</td>
               <td>{{a?.clase?.nombre}}</td>
               <td>{{a?.marca?.nombre}}</td>

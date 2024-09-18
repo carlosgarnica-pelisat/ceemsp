@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -126,6 +127,7 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
+    @Transactional
     public File generarReporteListadoNominal(LocalDate fechaInicio, LocalDate fechafin) throws Exception {
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -247,6 +249,7 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
+    @Transactional
     public File generarReportePadronEmpresas(LocalDate fechaInicio, LocalDate fechafin, EmpresaStatusEnum empresaStatusEnum) throws Exception {
         Workbook workbook = new HSSFWorkbook();
         CellStyle style = workbook.createCellStyle();
@@ -434,6 +437,7 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
+    @Transactional
     public File generarReporteIntercambioInformacion(LocalDate fechaInicio, LocalDate fechafin) throws Exception {
         // Obteniendo la informacion de las empresas, ya que esto siempre se va a requerir
         List<Empresa> empresas = empresaRepository.getAllByStatus(EmpresaStatusEnum.ACTIVA);
@@ -721,6 +725,7 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
+    @Transactional
     public File generarReporteAcuerdos(LocalDateTime fechaInicio, LocalDateTime fechafin) throws Exception {
         List<Acuerdo> acuerdos;
         if(fechaInicio != null && fechafin != null) {
@@ -828,6 +833,7 @@ public class ReporteoServiceImpl implements ReporteoService {
     }
 
     @Override
+    @Transactional
     public File generarReportePersonal(LocalDateTime fechaInicio, LocalDateTime fechafin) throws Exception {
         List<Personal> personal;
         if(fechaInicio != null && fechafin != null) {

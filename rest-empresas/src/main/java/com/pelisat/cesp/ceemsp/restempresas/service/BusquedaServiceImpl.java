@@ -85,7 +85,7 @@ public class BusquedaServiceImpl implements BusquedaService {
                 }).collect(Collectors.toList()));
                 break;
             case PERSONAL:
-                List<Personal> personalPorNombreCompleto = personaRepository.findAllByApellidoPaternoContainingOrApellidoMaternoContainingOrNombresContainingAndEmpresa(busquedaDto.getPalabraABuscar(), busquedaDto.getPalabraABuscar(), busquedaDto.getPalabraABuscar(), usuarioDto.getEmpresa().getId());
+                List<Personal> personalPorNombreCompleto = personaRepository.findAllByEmpresaAndApellidoPaternoContainingOrApellidoMaternoContainingOrNombresContainingAsQuery(usuarioDto.getEmpresa().getId(), busquedaDto.getPalabraABuscar(), busquedaDto.getPalabraABuscar(), busquedaDto.getPalabraABuscar());
                 List<Personal> personalPorRfc = personaRepository.findAllByRfcContainingAndEmpresa(busquedaDto.getPalabraABuscar(), usuarioDto.getEmpresa().getId());
                 List<Personal> personalPorCurp = personaRepository.findAllByCurpContainingAndEmpresa(busquedaDto.getPalabraABuscar(), usuarioDto.getEmpresa().getId());
                 List<Personal> personalPorCuip = personaRepository.findAllByCuipContainingAndEmpresa(busquedaDto.getPalabraABuscar(), usuarioDto.getEmpresa().getId());

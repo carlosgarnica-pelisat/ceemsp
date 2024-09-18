@@ -29,7 +29,7 @@ public interface EmpresaReporteMensualRepository extends JpaRepository<EmpresaRe
             "SUM(e.armas2Activas), SUM(e.armas2Altas), SUM(e.armas2Bajas), SUM(e.armas2Total)," +
             "SUM(e.armas3Activas), SUM(e.armas3Altas), SUM(e.armas3Bajas), SUM(e.armas3Total))" +
             "FROM EmpresaReporteMensual as e " +
-            "WHERE e.fechaCreacion BETWEEN :fechaInicio AND :fechaFin " +
+            "WHERE (e.eliminado = false) and (e.fechaCreacion BETWEEN :fechaInicio AND :fechaFin)" +
             "GROUP BY FUNCTION('date_format', e.fechaCreacion, '%Y, %m')")
     List<ConteoMensualDto> getSumReportesMensualesByMonthAndYear(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 }

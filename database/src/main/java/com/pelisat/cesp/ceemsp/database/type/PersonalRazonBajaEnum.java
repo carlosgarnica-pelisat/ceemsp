@@ -24,6 +24,7 @@ public enum PersonalRazonBajaEnum {
     DEFUNCION("DEFUNCION", "Defuncion"),
     PENSION("PENSION", "Pension"),
     OTRO("OTRO", "Otro (favor de especificar lo mejor posible)"),
+    CAMBIO_STATUS("CAMBIO_STATUS", "Cambio de status"),
     DOCUMENTACION_APOCRIFA("DOCUMENTACION_APOCRIFA", "Presentar documentacion apocrifa");
 
     private String codigo;

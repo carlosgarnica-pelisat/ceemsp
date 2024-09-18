@@ -1173,6 +1173,86 @@
             </tr>
           </table>
         </div>
+
+        <div class="col-sm-12" *ngIf="tabActualMovimientos === 'ARMAS'">
+          <div class="row">
+            <div class="col-sm-12">
+              <label>
+                <b>Modalidad *</b>
+              </label>
+              <div class="dropdown" id="estadoEditar">
+                <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  <span [ngSwitch]="tabActualArmasMovimientos">
+                    <span *ngSwitchCase="'MODALIDAD_1'">{{"I. Seguridad privada a personas Consistente en la proteccion, custodia, salvaguarda, defensa de la vida y de la integridad corporal del prestatario".substring(0, 150)}}</span>
+                    <span *ngSwitchCase="'MODALIDAD_2'">{{"II. Seguridad privada en los bienes Consistente en el cuidado y proteccion de bienes muebles e inmuebles".substring(0, 150)}}</span>
+                    <span *ngSwitchCase="'MODALIDAD_3'">{{"III. Seguridad privada en el traslado de bienes o valores Consistente en la prestacion de servicios de custodia, vigilancia, cuidado y proteccion de bienes muebles o valores, incluyendo su traslado".substring(0, 150)}}</span>
+                  </span>
+
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <a class="dropdown-item" (click)="cambiarPestanaArmas('MODALIDAD_1')">
+                    I. Seguridad privada a personas Consistente en la proteccion, custodia, salvaguarda, defensa de la vida y de la integridad corporal del prestatario
+                  </a>
+                  <a class="dropdown-item" (click)="cambiarPestanaArmas('MODALIDAD_2')">
+                    II. Seguridad privada en los bienes Consistente en el cuidado y proteccion de bienes muebles e inmuebles
+                  </a>
+                  <a class="dropdown-item" (click)="cambiarPestanaArmas('MODALIDAD_3')">
+                    III. Seguridad privada en el traslado de bienes o valores Consistente en la prestacion de servicios de custodia, vigilancia, cuidado y proteccion de bienes muebles o valores, incluyendo su traslado
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <table class="table" id="armas-movimientos-1" *ngIf="tabActualArmasMovimientos === 'MODALIDAD_1'">
+            <tr>
+              <td><b>Empresa</b></td>
+              <td><b>Activos</b></td>
+              <td><b>Altas</b></td>
+              <td><b>Bajas</b></td>
+              <td><b>Total</b></td>
+            </tr>
+            <tr *ngFor="let m of movimientosEmpresa">
+              <td *ngIf="m.armas1Activas !== null || m.armas1Altas !== null || m.armas1Bajas !== null || m.armas1Total !== null">{{m?.empresa?.registro}} {{m?.empresa?.razonSocial}}</td>
+              <td *ngIf="m.armas1Activas !== null || m.armas1Altas !== null || m.armas1Bajas !== null || m.armas1Total !== null">{{m?.armas1Activas}}</td>
+              <td *ngIf="m.armas1Activas !== null || m.armas1Altas !== null || m.armas1Bajas !== null || m.armas1Total !== null">{{m?.armas1Altas}}</td>
+              <td *ngIf="m.armas1Activas !== null || m.armas1Altas !== null || m.armas1Bajas !== null || m.armas1Total !== null">{{m?.armas1Bajas}}</td>
+              <td *ngIf="m.armas1Activas !== null || m.armas1Altas !== null || m.armas1Bajas !== null || m.armas1Total !== null">{{m?.armas1Total}}</td>
+            </tr>
+          </table>
+          <table class="table" id="armas-movimientos-2" *ngIf="tabActualArmasMovimientos === 'MODALIDAD_2'">
+            <tr>
+              <td><b>Empresa</b></td>
+              <td><b>Activos</b></td>
+              <td><b>Altas</b></td>
+              <td><b>Bajas</b></td>
+              <td><b>Total</b></td>
+            </tr>
+            <tr *ngFor="let m of movimientosEmpresa">
+              <td *ngIf="m.armas2Activas !== null || m.armas2Altas !== null || m.armas2Bajas !== null || m.armas2Total !== null">{{m?.empresa?.registro}} {{m?.empresa?.razonSocial}}</td>
+              <td *ngIf="m.armas2Activas !== null || m.armas2Altas !== null || m.armas2Bajas !== null || m.armas2Total !== null">{{m?.armas2Activas}}</td>
+              <td *ngIf="m.armas2Activas !== null || m.armas2Altas !== null || m.armas2Bajas !== null || m.armas2Total !== null">{{m?.armas2Altas}}</td>
+              <td *ngIf="m.armas2Activas !== null || m.armas2Altas !== null || m.armas2Bajas !== null || m.armas2Total !== null">{{m?.armas2Bajas}}</td>
+              <td *ngIf="m.armas2Activas !== null || m.armas2Altas !== null || m.armas2Bajas !== null || m.armas2Total !== null">{{m?.armas2Total}}</td>
+            </tr>
+          </table>
+          <table class="table" id="armas-movimientos-3" *ngIf="tabActualArmasMovimientos === 'MODALIDAD_3'">
+            <tr>
+              <td><b>Empresa</b></td>
+              <td><b>Activos</b></td>
+              <td><b>Altas</b></td>
+              <td><b>Bajas</b></td>
+              <td><b>Total</b></td>
+            </tr>
+            <tr *ngFor="let m of movimientosEmpresa">
+              <td *ngIf="m.armas3Activas !== null || m.armas3Altas !== null || m.armas3Bajas !== null || m.armas3Total !== null">{{m?.empresa?.registro}} {{m?.empresa?.razonSocial}}</td>
+              <td *ngIf="m.armas3Activas !== null || m.armas3Altas !== null || m.armas3Bajas !== null || m.armas3Total !== null">{{m?.armas3Activas}}</td>
+              <td *ngIf="m.armas3Activas !== null || m.armas3Altas !== null || m.armas3Bajas !== null || m.armas3Total !== null">{{m?.armas3Altas}}</td>
+              <td *ngIf="m.armas3Activas !== null || m.armas3Altas !== null || m.armas3Bajas !== null || m.armas3Total !== null">{{m?.armas3Bajas}}</td>
+              <td *ngIf="m.armas3Activas !== null || m.armas3Altas !== null || m.armas3Bajas !== null || m.armas3Total !== null">{{m?.armas3Total}}</td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
     <div class="modal-footer">

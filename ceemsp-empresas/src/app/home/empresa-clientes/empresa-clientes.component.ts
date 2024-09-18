@@ -151,6 +151,9 @@ export class EmpresaClientesComponent implements OnInit {
 
   clienteModalidad: ClienteModalidad;
 
+  asignaciones: ClienteAsignacionPersonal[] = [];
+  asignacionesEliminadas: ClienteAsignacionPersonal[] = [];
+
   tiposInfraestructura: TipoInfraestructura[] = [];
   tipoInfraestructura: TipoInfraestructura = undefined;
   personal: Persona[] = [];
@@ -185,6 +188,7 @@ export class EmpresaClientesComponent implements OnInit {
   formasEjecucionGuardadas: boolean = false;
 
   temporaryIndex: number;
+  mostrandoPersonalEliminado: boolean = false;
 
   modalidad: EmpresaModalidad;
   persona: Persona;
@@ -458,6 +462,16 @@ export class EmpresaClientesComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
+
+  mostrarPersonalEliminado() {
+    this.mostrandoPersonalEliminado = true;
+    this.cliente.asignaciones = this.asignacionesEliminadas;
+  }
+
+  ocultarPersonalEliminado() {
+    this.mostrandoPersonalEliminado = false;
+    this.cliente.asignaciones = this.asignaciones;
   }
 
   mostrarEliminados() {
@@ -817,7 +831,18 @@ export class EmpresaClientesComponent implements OnInit {
 
     this.empresaClienteService.obtenerClientePorUuid(clienteUuid).subscribe((data: Cliente) => {
       this.cliente = data;
+      this.asignaciones = this.cliente.asignaciones;
       this.domicilioMatriz = this.cliente.domicilios.filter(x => x.matriz === true)[0];
+
+      this.empresaClienteService.obtenerAsignacionesClienteTodas(clienteUuid).subscribe((data: ClienteAsignacionPersonal[]) => {
+        this.asignacionesEliminadas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar las asignaciones del cliente. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
 
       this.modal = this.modalService.open(this.clienteDetallesModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
       this.modal.result.then((result) => {
@@ -1783,10 +1808,21 @@ export class EmpresaClientesComponent implements OnInit {
       this.modal?.close();
       this.empresaClienteService.obtenerAsignacionesCliente(this.cliente.uuid).subscribe((data: ClienteAsignacionPersonal[]) => {
         this.cliente.asignaciones = data;
+        this.asignaciones = data;
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
           `No se han podido descargar las asignaciones del cliente. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      })
+
+      this.empresaClienteService.obtenerAsignacionesClienteTodas(this.cliente.uuid).subscribe((data: ClienteAsignacionPersonal[]) => {
+        this.asignacionesEliminadas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las asignaciones. Motivo: ${error}`,
           ToastType.ERROR
         )
       })

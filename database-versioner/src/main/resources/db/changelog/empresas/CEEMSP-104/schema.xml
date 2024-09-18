@@ -3,7 +3,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
 
-    <changeSet id="2023-09-25-agregar-columnas-vigencia-inicio-fin" author="carlos.garnica@pelisat.com.mx">
+    <changeSet id="2024-07-04-add-procedure-empresa" author="carlos.garnica@pelisat.com.mx">
         <sql>
             create procedure borrar_contenidos_empresa (in empresaId int, in usuario int)
             begin
@@ -44,7 +44,7 @@
             where ec.empresa = empresaId;
 
             update personal ep
-            set ep.fecha_actualizacion = NOW(), ep.actualizado_por = usuario, ep.eliminado = true, ep.motivo_baja = 'CAMBIO DE STATUS', ep.fecha_baja = now(), ep.observaciones_baja = 'Cambio de status'
+            set ep.fecha_actualizacion = NOW(), ep.actualizado_por = usuario, ep.eliminado = true, ep.motivo_baja = 'CAMBIO_STATUS', ep.fecha_baja = now(), ep.observaciones_baja = 'Cambio de status'
             where ep.empresa = empresaId;
 
             update empresas_equipos ee

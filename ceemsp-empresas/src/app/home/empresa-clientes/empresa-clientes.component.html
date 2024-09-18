@@ -230,10 +230,10 @@
             </ng-template>
             <ng-template pTemplate="body" let-asignacion>
               <tr>
-                <td>
+                <td [ngStyle]="asignacion?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">
                   {{asignacion?.personal?.rfc}} - {{asignacion?.personal?.apellidoPaterno}} {{asignacion?.personal?.apellidoMaterno}} {{asignacion?.personal?.nombres}}
                 </td>
-                <td>
+                <td [ngStyle]="asignacion?.eliminado ? {'font-style': 'italic', 'color': '#AAA'} : {}">
                   {{asignacion?.domicilio?.domicilio1}} {{asignacion?.domicilio?.numeroExterior}} {{asignacion?.domicilio?.numeroInterior}}. Colonia: {{asignacion?.domicilio?.domicilio2}}<br>
                   {{asignacion?.domicilio?.domicilio3}}, {{asignacion?.domicilio?.estado}}<br>
                   C.P. {{asignacion?.domicilio?.codigoPostal}}
@@ -359,6 +359,8 @@
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'ELEMENTOS'">
       <button class="btn btn-primary" (click)="mostrarModalAsignarPersonal()" *ngIf="!this.cliente.eliminado">Asignar personal</button>
+      <button class="btn btn-primary" (click)="mostrarPersonalEliminado()" *ngIf="!this.cliente.eliminado && !mostrandoPersonalEliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Mostrar eliminados</button>
+      <button class="btn btn-primary" (click)="ocultarPersonalEliminado()" *ngIf="!this.cliente.eliminado && mostrandoPersonalEliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Ocultar eliminados</button>
     </div>
     <div class="modal-footer" *ngIf="pestanaActual === 'MODALIDADES'">
       <button class="btn btn-primary" (click)="mostrarModalCrearModalidad()" *ngIf="!this.cliente.eliminado">Agregar modalidad</button>
@@ -772,7 +774,7 @@
       <form [formGroup]="nuevaAsignacionForm">
         <div class="row">
           <div class="col-sm-6">
-            <label for="personalAsignacion">
+            <label>
               <b>Elemento *</b>
             </label>
             <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown"
@@ -1385,16 +1387,28 @@
                           <form [formGroup]="nuevaAsignacionForm">
                             <div class="row">
                               <div class="col-sm-6">
-                                <label for="personalAsignacion">
+                                <label>
                                   <b>Elemento *</b>
-                                  <span
-                                    *ngIf="nuevaAsignacionForm.controls['personal'].invalid && (nuevaAsignacionForm.controls['personal'].dirty || nuevaAsignacionForm.controls['personal'].touched)">
-                          <i *ngIf="nuevaAsignacionForm.controls['personal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                        </span>
                                 </label>
-                                <select id="personalAsignacion" formControlName="personal" class="form-control">
-                                  <option *ngFor="let p of personal" value="{{p?.uuid}}">{{p?.rfc}} - {{p?.apellidoPaterno}} {{p?.apellidoMaterno}} {{p?.nombres}}</option>
-                                </select>
+                                <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown"
+                                   aria-expanded="false" style="width: 100%;">
+                                  {{persona === undefined ? 'Ninguno' : (persona?.apellidoPaterno + " " + persona?.apellidoMaterno + " " + persona?.nombres).substr(0, 90)}}
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton"
+                                     style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                                  <form class="px-4 py-3" autocomplete="off">
+                                    <label for="personaSearchQuery"><b>Buscar por nombres</b></label>
+                                    <input type="text" class="form-control" id="personaSearchQuery" placeholder="Ej. GARCIA"
+                                           [(ngModel)]="personaQuery"
+                                           [ngModelOptions]="{standalone: true}">
+                                  </form>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item" *ngFor="let p of personal | buscarNombres: {nombres: personaQuery}" (click)="seleccionarPersona(p?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                                    {{p?.apellidoPaterno}} {{p?.apellidoMaterno}} {{p?.nombres}}<br/>
+                                  </a>
+                                  <div class="dropdown-divider"></div>
+                                  <a class="dropdown-item" *ngIf="persona !== undefined" (click)="quitarPersona()">Quitar</a>
+                                </div>
                               </div>
                               <div class="col-sm-6">
                                 <label for="domicilioClienteAsignacion">

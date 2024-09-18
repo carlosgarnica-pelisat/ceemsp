@@ -1679,4 +1679,13 @@
       <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">Cerrar</button>
     </div>
   </ng-template>
+
+  <ng-template #alertaPresentandoReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="alertaPresentandoReporteModal">Espera un momento... </h4>
+    </div>
+    <div class="modal-body">
+      <p>Se esta generando el Informe mensual. Esto puede demorar algunos minutos, se sugiere no cerrar ni actualizar la ventana actual hasta en tanto se notifique que ha quedado presentado de manera exitosa.</p>
+    </div>
+  </ng-template>
 </div>

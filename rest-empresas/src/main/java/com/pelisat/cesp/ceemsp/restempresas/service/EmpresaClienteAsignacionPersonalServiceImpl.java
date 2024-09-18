@@ -68,6 +68,33 @@ public class EmpresaClienteAsignacionPersonalServiceImpl implements EmpresaClien
             throw new NotFoundResourceException();
         }
 
+        List<ClienteAsignacionPersonal> asignaciones = clienteAsignacionPersonalRepository.getAllByClienteAndEliminadoFalse(cliente.getId());
+
+        return asignaciones.stream().map(a -> {
+            ClienteAsignacionPersonalDto capd = new ClienteAsignacionPersonalDto();
+            capd.setId(a.getId());
+            capd.setUuid(a.getUuid());
+            capd.setPersonal(daoToDtoConverter.convertDaoToDtoPersona(personaRepository.getOne(a.getPersonal())));
+            capd.setDomicilio(clienteDomicilioService.obtenerPorId(a.getClienteDomicilio()));
+            return capd;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ClienteAsignacionPersonalDto> obtenerAsignacionesClienteTodo(String username, String clienteUuid) {
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(clienteUuid)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo las asignaciones de personal con el cliente [{}]", clienteUuid);
+        Cliente cliente = clienteRepository.findByUuid(clienteUuid);
+
+        if(cliente == null) {
+            logger.warn("El cliente no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
         List<ClienteAsignacionPersonal> asignaciones = clienteAsignacionPersonalRepository.getAllByCliente(cliente.getId());
 
         return asignaciones.stream().map(a -> {
@@ -76,6 +103,7 @@ public class EmpresaClienteAsignacionPersonalServiceImpl implements EmpresaClien
             capd.setUuid(a.getUuid());
             capd.setPersonal(daoToDtoConverter.convertDaoToDtoPersona(personaRepository.getOne(a.getPersonal())));
             capd.setDomicilio(clienteDomicilioService.obtenerPorId(a.getClienteDomicilio()));
+            capd.setEliminado(a.getEliminado());
             return capd;
         }).collect(Collectors.toList());
     }

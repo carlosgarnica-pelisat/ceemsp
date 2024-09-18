@@ -50,10 +50,23 @@ public interface PersonaRepository extends JpaRepository<Personal, Integer> {
     List<Personal> findAllByEmpresaAndPuestoNotInAndFechaCreacionLessThanAndPuestoTrabajoCapturadoTrueAndFotografiaCapturadaTrueAndFechaCreacionGreaterThanAndEliminadoFalse(int empresa, List<Integer> puestos, LocalDateTime fechaInicio, LocalDateTime fechaFin);
     List<Personal> findAllByEmpresaAndPuestoNotInAndFechaActualizacionLessThanAndPuestoTrabajoCapturadoTrueAndFotografiaCapturadaTrueAndFechaActualizacionGreaterThanAndEliminadoTrue(int empresa, List<Integer> puestos, LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
-    @Query("select p from Personal p where CONCAT(p.apellidoPaterno, ' ', p.apellidoMaterno, ' ', p.nombres) like %:nombres% or " +
-            "CONCAT(p.apellidoPaterno, ' ', p.apellidoMaterno, ' ', p.nombres) like %:apellidoPaterno% or " +
-            "CONCAT(p.apellidoPaterno, ' ', p.apellidoMaterno, ' ', p.nombres) like %:apellidoMaterno%")
+    List<Personal> findAllByEmpresaAndPuestoInAndIdIn(int empresa, List<Integer> puestos, List<Integer> ids);
+    List<Personal> findAllByEmpresaAndIdIn(int empresa, List<Integer> ids);
+
+    @Query("select p from Personal p where CONCAT(TRIM(p.apellidoPaterno), ' ', TRIM(p.apellidoMaterno), ' ', TRIM(p.nombres)) like %:nombres% or " +
+            "CONCAT(TRIM(p.apellidoPaterno), ' ', TRIM(p.apellidoMaterno), ' ', TRIM(p.nombres)) like %:apellidoPaterno% or " +
+            "CONCAT(TRIM(p.apellidoPaterno), ' ', TRIM(p.apellidoMaterno), ' ', TRIM(p.nombres)) like %:apellidoMaterno%")
     List<Personal> findAllByApellidoPaternoContainingOrApellidoMaternoContainingOrNombresContainingAsQuery(
+            @Param("apellidoPaterno")String apellidoPaterno,
+            @Param("apellidoMaterno") String apellidoMaterno,
+            @Param("nombres") String nombres);
+
+    @Query("select p from Personal p where p.empresa = :empresaId AND " +
+            "(CONCAT(TRIM(p.apellidoPaterno), ' ', TRIM(p.apellidoMaterno), ' ', TRIM(p.nombres)) like %:nombres% or " +
+            "CONCAT(TRIM(p.apellidoPaterno), ' ', TRIM(p.apellidoMaterno), ' ', TRIM(p.nombres)) like %:apellidoPaterno% or " +
+            "CONCAT(TRIM(p.apellidoPaterno), ' ', TRIM(p.apellidoMaterno), ' ', TRIM(p.nombres)) like %:apellidoMaterno%)")
+    List<Personal> findAllByEmpresaAndApellidoPaternoContainingOrApellidoMaternoContainingOrNombresContainingAsQuery(
+            @Param("empresaId") int empresaId,
             @Param("apellidoPaterno")String apellidoPaterno,
             @Param("apellidoMaterno") String apellidoMaterno,
             @Param("nombres") String nombres);

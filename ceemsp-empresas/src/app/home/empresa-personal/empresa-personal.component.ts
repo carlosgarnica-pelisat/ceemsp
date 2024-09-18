@@ -2087,6 +2087,15 @@ export class EmpresaPersonalComponent implements OnInit {
       return;
     }
 
+    if(this.can === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Favor de seleccionar un can`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espera un momento",
       `Estamos asignando el can al elemento`,
@@ -2095,7 +2104,7 @@ export class EmpresaPersonalComponent implements OnInit {
 
     let formValue = form.value;
     let personaCan: PersonalCan = new PersonalCan();
-    personaCan.can = this.canes.filter(x => x.uuid === formValue.can)[0]
+    personaCan.can = this.can;
     personaCan.observaciones = formValue.observaciones;
 
     this.empresaPersonalService.asignarCanPersona(this.persona?.uuid, personaCan).subscribe((data) => {

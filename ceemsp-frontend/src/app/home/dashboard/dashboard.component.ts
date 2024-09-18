@@ -56,6 +56,7 @@ export class DashboardComponent implements OnInit {
   mesMovimientos = this.fecha.getMonth();
   anoMovimientos = this.fechaDeHoy.split("-")[0];
   tabActualMovimientos = 'PERSONAL';
+  tabActualArmasMovimientos = 'MODALIDAD_1';
   movimientosEmpresa: InformeMensual[];
   buscandoEmpresasSinInformes: boolean = false;
 
@@ -241,6 +242,10 @@ export class DashboardComponent implements OnInit {
 
   cambiarPestana(tab: string) {
     this.tabActualMovimientos = tab;
+  }
+
+  cambiarPestanaArmas(tab: string) {
+    this.tabActualArmasMovimientos = tab;
   }
 
   cambiarMesEmpresasSinInformes() {

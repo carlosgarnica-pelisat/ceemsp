@@ -32,6 +32,15 @@ public class EmpresaClienteAsignacionPersonalController {
         return empresaClienteAsignacionPersonalService.obtenerAsignacionesCliente(username, clienteUuid);
     }
 
+    @GetMapping(value = CLIENTE_ASIGNACION_PERSONAL_URI + "/todas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ClienteAsignacionPersonalDto> obtenerAsignacionesPorClienteTodas(
+            @PathVariable(value = "clienteUuid") String clienteUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaClienteAsignacionPersonalService.obtenerAsignacionesClienteTodo(username, clienteUuid);
+    }
+
     @PostMapping(value = CLIENTE_ASIGNACION_PERSONAL_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ClienteAsignacionPersonalDto guardarAsignacion(
             @PathVariable(value = "clienteUuid") String clienteUuid,
