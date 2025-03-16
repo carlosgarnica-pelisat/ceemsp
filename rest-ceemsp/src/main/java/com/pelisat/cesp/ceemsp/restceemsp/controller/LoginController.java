@@ -2,7 +2,9 @@ package com.pelisat.cesp.ceemsp.restceemsp.controller;
 
 import com.pelisat.cesp.ceemsp.database.dto.CredentialDto;
 import com.pelisat.cesp.ceemsp.database.dto.JwtDto;
+import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.JwtUserDetailsService;
+import com.pelisat.cesp.ceemsp.restceemsp.service.UsuarioService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -25,13 +27,15 @@ public class LoginController {
     private final AuthenticationManager authenticationManager;
     private final JwtToken jwtToken;
     private final JwtUserDetailsService jwtUserDetailsService;
+    private final UsuarioService usuarioService;
 
     @Autowired
     public LoginController(AuthenticationManager authenticationManager, JwtToken jwtToken,
-                           JwtUserDetailsService jwtUserDetailsService) {
+                           JwtUserDetailsService jwtUserDetailsService, UsuarioService usuarioService) {
         this.authenticationManager = authenticationManager;
         this.jwtToken = jwtToken;
         this.jwtUserDetailsService = jwtUserDetailsService;
+        this.usuarioService = usuarioService;
     }
 
     @PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -39,7 +43,8 @@ public class LoginController {
         authenticate(credentialDto.getEmail(), credentialDto.getPassword());
         final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(credentialDto.getEmail());
         final String token = jwtToken.generateToken(userDetails);
-        return ResponseEntity.ok(new JwtDto(token));
+        final UsuarioDto usuarioDto = usuarioService.getUserByEmail(credentialDto.getEmail());
+        return ResponseEntity.ok(new JwtDto(token, usuarioDto));
     }
 
     @PostMapping(value = "/logout", consumes = MediaType.APPLICATION_JSON_VALUE)

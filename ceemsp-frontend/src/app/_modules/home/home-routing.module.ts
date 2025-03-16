@@ -37,6 +37,18 @@ import {EmpresaEquipoComponent} from "../../home/empresas/empresa-equipo/empresa
 import {EquipoComponent} from "../../home/catalogos/equipo/equipo.component";
 import {UniformesComponent} from "../../home/catalogos/equipo/uniformes/uniformes.component";
 import {EmpresaUniformesComponent} from "../../home/empresas/empresa-uniformes/empresa-uniformes.component";
+import {UsuariosComponent} from "../../home/configuracion/usuarios/usuarios.component";
+import {AcercaComponent} from "../../home/configuracion/acerca/acerca.component";
+import {EmpresaAcuerdosComponent} from "../../home/empresas/empresa-acuerdos/empresa-acuerdos.component";
+import {EmpresaVisitasComponent} from "../../home/empresas/empresa-visitas/empresa-visitas.component";
+import {ClientesComponent} from "../../home/catalogos/clientes/clientes.component";
+import {
+  EmpresaReportesMensualesComponent
+} from "../../home/empresas/empresa-reportes-mensuales/empresa-reportes-mensuales.component";
+import {BusquedaComponent} from "../../home/busqueda/busqueda.component";
+import {VentanasComponent} from "../../home/ventanas/ventanas.component";
+import {PerfilComponent} from "../../home/perfil/perfil.component";
+import {UsuariosEmpresaComponent} from "../../home/configuracion/usuarios-empresa/usuarios-empresa.component";
 
 
 const routes: Routes = [
@@ -61,6 +73,10 @@ const routes: Routes = [
       {
         path: 'empresas/:uuid',
         component: EmpresaDetallesComponent
+      },
+      {
+        path: 'empresas/:uuid/acuerdos',
+        component: EmpresaAcuerdosComponent
       },
       {
         path: 'empresas/:uuid/domicilios',
@@ -106,6 +122,14 @@ const routes: Routes = [
         path: 'empresas/:uuid/uniformes',
         component: EmpresaUniformesComponent
       },
+      {
+        path: 'empresas/:uuid/visitas',
+        component: EmpresaVisitasComponent
+      },
+      {
+        path: 'empresas/:uuid/reportes-mensuales',
+        component: EmpresaReportesMensualesComponent
+      },
 
       // Catalogos
       // Canes
@@ -133,10 +157,6 @@ const routes: Routes = [
       // Armas
       {
         path: 'catalogos/armas',
-        component: ArmasComponent
-      },
-      {
-        path: 'catalogos/armas/marcas',
         component: ArmasMarcasComponent
       },
       {
@@ -166,6 +186,14 @@ const routes: Routes = [
       {
         path: 'catalogos/equipo/uniformes',
         component: UniformesComponent
+      },
+      {
+        path: 'catalogos/equipo/clientes',
+        component: UniformesComponent
+      },
+      {
+        path: 'catalogos/clientes',
+        component: ClientesComponent
       },
 
       // Comunicados
@@ -201,11 +229,38 @@ const routes: Routes = [
         path: 'reporteo',
         component: ReporteoComponent
       },
+      // Ventanas
+      {
+        path: 'ventanas',
+        component: VentanasComponent
+      },
+
+      // Busqueda
+      {
+        path: 'busqueda',
+        component: BusquedaComponent
+      },
 
       // Configuracion
       {
         path: 'configuracion',
         component: ConfiguracionComponent
+      },
+      {
+        path: 'configuracion/usuarios',
+        component: UsuariosComponent
+      },
+      {
+        path: 'configuracion/usuarios/empresas',
+        component: UsuariosEmpresaComponent
+      },
+      {
+        path: 'configuracion/acerca',
+        component: AcercaComponent
+      },
+      {
+        path: 'perfil',
+        component: PerfilComponent
       }
     ]
   }

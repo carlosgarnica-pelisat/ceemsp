@@ -15,8 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -85,6 +85,7 @@ public class TipoInfraestructuraServiceImpl implements TipoInfraestructuraServic
     }
 
     @Override
+    @Transactional
     public TipoInfraestructuraDto guardarTipoInfraestructura(TipoInfraestructuraDto tipoInfraestructuraDto, String username) {
         if(tipoInfraestructuraDto == null || StringUtils.isBlank(username)) {
             logger.warn("El tipo de vehiculo o el usuario estan viniendo como nulos o vacios");
@@ -94,12 +95,55 @@ public class TipoInfraestructuraServiceImpl implements TipoInfraestructuraServic
         logger.info("Creando nuevo tipo de infraestructura con nombre: [{}]", tipoInfraestructuraDto.getNombre());
 
         UsuarioDto usuario = usuarioService.getUserByEmail(username);
-
         TipoInfraestructura tipoInfraestructura = dtoToDaoConverter.convertDtoToDaoTipoInfraestructura(tipoInfraestructuraDto);
-
         daoHelper.fulfillAuditorFields(true, tipoInfraestructura, usuario.getId());
-
         TipoInfraestructura tipoInfraestructuraCreado = tipoInfraestructuraRepository.save(tipoInfraestructura);
+        return daoToDtoConverter.convertDaoToDtoTipoInfraestructura(tipoInfraestructura);
+    }
+
+    @Override
+    @Transactional
+    public TipoInfraestructuraDto modificarTipoInfraestructura(String uuid, TipoInfraestructuraDto tipoInfraestructuraDto, String username) {
+        if(tipoInfraestructuraDto == null || StringUtils.isBlank(username) || StringUtils.isBlank(uuid)) {
+            logger.warn("El tipo de vehiculo o el usuario estan viniendo como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando tipo de infraestructura con uuid: [{}]", uuid);
+
+        TipoInfraestructura tipoInfraestructura = tipoInfraestructuraRepository.getByUuidAndEliminadoFalse(uuid);
+        if(tipoInfraestructura == null) {
+            logger.warn("El tipo de infraestructura con uuid [{}] viene como nula o vacia", uuid);
+            throw new NotFoundResourceException();
+        }
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        tipoInfraestructura.setNombre(tipoInfraestructuraDto.getNombre());
+        tipoInfraestructura.setDescripcion(tipoInfraestructuraDto.getDescripcion());
+        daoHelper.fulfillAuditorFields(false, tipoInfraestructura, usuario.getId());
+        tipoInfraestructuraRepository.save(tipoInfraestructura);
+
+        return daoToDtoConverter.convertDaoToDtoTipoInfraestructura(tipoInfraestructura);
+    }
+
+    @Override
+    @Transactional
+    public TipoInfraestructuraDto eliminarTipoInfraestructura(String uuid, String username) {
+        if(StringUtils.isBlank(username) || StringUtils.isBlank(uuid)) {
+            logger.warn("El tipo de vehiculo o el usuario estan viniendo como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando tipo de infraestructura con uuid: [{}]", uuid);
+
+        TipoInfraestructura tipoInfraestructura = tipoInfraestructuraRepository.getByUuidAndEliminadoFalse(uuid);
+        if(tipoInfraestructura == null) {
+            logger.warn("El tipo de infraestructura con uuid [{}] viene como nula o vacia", uuid);
+            throw new NotFoundResourceException();
+        }
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        tipoInfraestructura.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, tipoInfraestructura, usuario.getId());
+        tipoInfraestructuraRepository.save(tipoInfraestructura);
 
         return daoToDtoConverter.convertDaoToDtoTipoInfraestructura(tipoInfraestructura);
     }

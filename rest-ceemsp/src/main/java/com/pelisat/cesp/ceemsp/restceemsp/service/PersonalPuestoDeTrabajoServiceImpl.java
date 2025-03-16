@@ -2,10 +2,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.PersonalPuestoDeTrabajoDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.PersonalPuesto;
-import com.pelisat.cesp.ceemsp.database.model.PersonalSubpuesto;
-import com.pelisat.cesp.ceemsp.database.model.VehiculoTipo;
+import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.PersonalPuestoRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -17,7 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,6 +99,7 @@ public class PersonalPuestoDeTrabajoServiceImpl implements PersonalPuestoDeTraba
     }
 
     @Override
+    @Transactional
     public PersonalPuestoDeTrabajoDto crearNuevo(PersonalPuestoDeTrabajoDto personalPuestoDeTrabajoDto, String username) {
         if(personalPuestoDeTrabajoDto == null || StringUtils.isBlank(username)) {
             logger.warn("El usuario o el puesto de trabajo vienen como nulos o vacios");
@@ -114,5 +114,62 @@ public class PersonalPuestoDeTrabajoServiceImpl implements PersonalPuestoDeTraba
         PersonalPuesto personalPuestoCreado = personalPuestoRepository.save(personalPuesto);
 
         return daoToDtoConverter.convertDaoToDtoPersonalPuestoDeTrabajo(personalPuestoCreado);
+    }
+
+    @Override
+    @Transactional
+    public PersonalPuestoDeTrabajoDto modificar(String uuid, String username, PersonalPuestoDeTrabajoDto personalPuestoDeTrabajoDto) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || personalPuestoDeTrabajoDto == null) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el puesto de trabajo con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        PersonalPuesto personalPuesto = personalPuestoRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(personalPuesto == null) {
+            logger.warn("El puesto de trabajo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        personalPuesto.setNombre(personalPuestoDeTrabajoDto.getNombre());
+        personalPuesto.setDescripcion(personalPuestoDeTrabajoDto.getDescripcion());
+        personalPuesto.setFechaActualizacion(LocalDateTime.now());
+        personalPuesto.setActualizadoPor(usuario.getId());
+
+        personalPuestoRepository.save(personalPuesto);
+
+        return daoToDtoConverter.convertDaoToDtoPersonalPuestoDeTrabajo(personalPuesto);
+    }
+
+    @Override
+    @Transactional
+    public PersonalPuestoDeTrabajoDto eliminar(String uuid, String username) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el puesto de trabajo con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        PersonalPuesto personalPuesto = personalPuestoRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(personalPuesto == null) {
+            logger.warn("El puesto de trabajo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        personalPuesto.setEliminado(true);
+        personalPuesto.setFechaActualizacion(LocalDateTime.now());
+        personalPuesto.setActualizadoPor(usuario.getId());
+
+        personalPuestoRepository.save(personalPuesto);
+
+        return daoToDtoConverter.convertDaoToDtoPersonalPuestoDeTrabajo(personalPuesto);
     }
 }

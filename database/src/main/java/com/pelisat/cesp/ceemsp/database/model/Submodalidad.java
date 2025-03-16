@@ -20,4 +20,10 @@ public class Submodalidad extends CommonModel {
 
     @Column(name = "CATEGORIA", nullable = false)
     private int categoria;
+
+    @Column(name = "CANES")
+    private Boolean canes;
+
+    @Column(name = "ARMAS")
+    private Boolean armas;
 }

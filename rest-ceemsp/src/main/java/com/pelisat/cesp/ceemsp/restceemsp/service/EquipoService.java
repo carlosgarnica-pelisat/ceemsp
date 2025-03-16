@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface EquipoService {
     List<EquipoDto> obtenerEquipos();
+    List<EquipoDto> obtenerEquipos(String empresaUuid);
     EquipoDto obtenerEquipoPorUuid(String equipoUuid);
     EquipoDto obtenerEquipoPorId(int id);
     EquipoDto guardarEquipo(EquipoDto equipoDto, String username);

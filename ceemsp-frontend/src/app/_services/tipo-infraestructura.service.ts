@@ -15,7 +15,19 @@ export class TipoInfraestructuraService {
     return this.http.get(`${this.uri}/catalogos/tipos-infraestructura`)
   }
 
+  obtenerTipoInfraestructuraPorUuid(uuid: string) {
+    return this.http.get(`${this.uri}/catalogos/tipos-infraestructura/${uuid}`);
+  }
+
   guardarTipoInfraestructura(tipoInfraestructura: TipoInfraestructura) {
     return this.http.post(`${this.uri}/catalogos/tipos-infraestructura`, tipoInfraestructura);
+  }
+
+  modificarTipoInfraestructura(uuid: string, tipoInfraestructura: TipoInfraestructura) {
+    return this.http.put(`${this.uri}/catalogos/tipos-infraestructura/${uuid}`, tipoInfraestructura)
+  }
+
+  eliminarTipoInfraestructura(uuid: string) {
+    return this.http.delete(`${this.uri}/catalogos/tipos-infraestructura/${uuid}`)
   }
 }

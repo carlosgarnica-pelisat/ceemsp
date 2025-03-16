@@ -5,6 +5,7 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.PersonalNacionalidad;
 import com.pelisat.cesp.ceemsp.database.model.PersonalPuesto;
+import com.pelisat.cesp.ceemsp.database.model.Uniforme;
 import com.pelisat.cesp.ceemsp.database.repository.PersonalNacionalidadRepository;
 import com.pelisat.cesp.ceemsp.database.repository.PersonalPuestoRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -17,7 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +47,7 @@ public class PersonalNacionalidadServiceImpl implements PersonalNacionalidadServ
     @Override
     public List<PersonalNacionalidadDto> obtenerTodos() {
         logger.info("Consultando todas las nacionalidades guardadas en la base de datos");
-        List<PersonalNacionalidad> personalNacionalidades = personalNacionalidadRepository.getAllByEliminadoFalse();
+        List<PersonalNacionalidad> personalNacionalidades = personalNacionalidadRepository.getAllByEliminadoFalseOrderByNombre();
         return personalNacionalidades.stream()
                 .map(daoToDtoConverter::convertDaoToDtoPersonalNacionalidad)
                 .collect(Collectors.toList());
@@ -89,6 +92,7 @@ public class PersonalNacionalidadServiceImpl implements PersonalNacionalidadServ
     }
 
     @Override
+    @Transactional
     public PersonalNacionalidadDto crearNuevo(PersonalNacionalidadDto personalNacionalidadDto, String username) {
         if(personalNacionalidadDto == null || StringUtils.isBlank(username)) {
             logger.warn("El usuario o la nacionalidad vienen como nulos o vacios");
@@ -103,5 +107,62 @@ public class PersonalNacionalidadServiceImpl implements PersonalNacionalidadServ
         PersonalNacionalidad personalNacionalidadCreada = personalNacionalidadRepository.save(personalNacionalidad);
 
         return daoToDtoConverter.convertDaoToDtoPersonalNacionalidad(personalNacionalidadCreada);
+    }
+
+    @Override
+    @Transactional
+    public PersonalNacionalidadDto modificarNacionalidad(String uuid, String username, PersonalNacionalidadDto personalNacionalidadDto) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || personalNacionalidadDto == null) {
+            logger.warn("Alguno de los campos vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando la nacionalidad con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        PersonalNacionalidad nacionalidad = personalNacionalidadRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(nacionalidad == null) {
+            logger.warn("La nacionalidad no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        nacionalidad.setNombre(personalNacionalidadDto.getNombre());
+        nacionalidad.setDescripcion(personalNacionalidadDto.getDescripcion());
+        nacionalidad.setFechaActualizacion(LocalDateTime.now());
+        nacionalidad.setActualizadoPor(usuario.getId());
+
+        personalNacionalidadRepository.save(nacionalidad);
+
+        return daoToDtoConverter.convertDaoToDtoPersonalNacionalidad(nacionalidad);
+    }
+
+    @Override
+    @Transactional
+    public PersonalNacionalidadDto eliminarNacionalidad(String uuid, String username) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la nacionalidad con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        PersonalNacionalidad nacionalidad = personalNacionalidadRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(nacionalidad == null) {
+            logger.warn("La nacionalidad no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        nacionalidad.setEliminado(true);
+        nacionalidad.setFechaActualizacion(LocalDateTime.now());
+        nacionalidad.setActualizadoPor(usuario.getId());
+
+        personalNacionalidadRepository.save(nacionalidad);
+
+        return daoToDtoConverter.convertDaoToDtoPersonalNacionalidad(nacionalidad);
     }
 }

@@ -20,4 +20,7 @@ public class EmpresaUniforme extends CommonModel {
 
     @Column(name = "DESCRIPCION")
     private String descripcion;
+
+    @Column(name = "UBICACION_ARCHIVO")
+    private String ubicacionArchivo;
 }

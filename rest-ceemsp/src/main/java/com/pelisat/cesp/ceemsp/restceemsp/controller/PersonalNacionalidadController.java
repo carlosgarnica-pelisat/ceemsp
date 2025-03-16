@@ -45,4 +45,23 @@ public class PersonalNacionalidadController {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return personalNacionalidadService.crearNuevo(personalNacionalidadDto, username);
     }
+
+    @PutMapping(value = PERSONALIDAD_NACIONALIDAD_URI + "/{nacionalidadUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PersonalNacionalidadDto modificarNacionalidad(
+            HttpServletRequest request,
+            @RequestBody PersonalNacionalidadDto personalNacionalidadDto,
+            @PathVariable(value = "nacionalidadUuid") String nacionalidadUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return personalNacionalidadService.modificarNacionalidad(nacionalidadUuid, username, personalNacionalidadDto);
+    }
+
+    @DeleteMapping(value = PERSONALIDAD_NACIONALIDAD_URI + "/{nacionalidadUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public PersonalNacionalidadDto eliminarNacionalidad(
+            HttpServletRequest request,
+            @PathVariable(value = "nacionalidadUuid") String nacionalidadUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return personalNacionalidadService.eliminarNacionalidad(nacionalidadUuid, username);
+    }
 }

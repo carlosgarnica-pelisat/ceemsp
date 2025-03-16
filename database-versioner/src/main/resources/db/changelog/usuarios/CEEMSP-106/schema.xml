@@ -1,0 +1,27 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+    <changeSet id="2021-08-24-crear-tabla-usuarios" author="carlos.garnica@pelisat.com.mx">
+        <dropUniqueConstraint
+                constraintName="USERNAME"
+                tableName="usuarios"/>
+
+        <dropUniqueConstraint
+                constraintName="EMAIL"
+                tableName="usuarios"/>
+
+        <!-- Crear la nueva llave única compuesta -->
+        <addUniqueConstraint
+                columnNames="USERNAME, UUID"
+                constraintName="unique_username_uuid"
+                tableName="usuarios"/>
+
+        <addUniqueConstraint
+                columnNames="EMAIL, UUID"
+                constraintName="unique_email_uuid"
+                tableName="usuarios"/>
+    </changeSet>
+</databaseChangeLog>
+
+

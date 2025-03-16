@@ -7,6 +7,7 @@ export default class ExisteEmpresa implements Deserializable {
   rfc: string;
   curp: string;
   empresa: Empresa;
+  registro: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);

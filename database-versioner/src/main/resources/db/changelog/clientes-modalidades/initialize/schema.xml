@@ -5,16 +5,11 @@
 
     <changeSet id="2021-10-30-crear-tabla-cliente-modalidades" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="CLIENTE_MODALIDADES">
+        <createTable tableName="cliente_modalidades">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="CLIENTE" type="INT"></column>
-            <column name="MODALIDAD" type="VARCHAR(10)"></column>
-            <column name="SUBMODALIDAD" type="INT"></column>
-            <column name="MARCA" type="INT"></column>
-            <column name="CALIBRE" type="VARCHAR(10)"></column>
-            <column name="BUNKER" type="INT"></column>
-            <column name="STATUS" type="VARCHAR(15)"></column>
+            <column name="EMPRESA_MODALIDAD" type="INT"></column>
             <column name="ELIMINADO" type="bit" defaultValue="0"></column>
             <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
             <column name="CREADO_POR" type="int"></column>
@@ -23,11 +18,11 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="CLIENTE_MODALIDADES" columnNames="ID" />
-        <addAutoIncrement tableName="CLIENTE_MODALIDADES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="cliente_modalidades" columnNames="ID" />
+        <addAutoIncrement tableName="cliente_modalidades" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="CLIENTE_MODALIDADES" columnNames="UUID" />
+        <addUniqueConstraint tableName="cliente_modalidades" columnNames="UUID" />
 
 
     </changeSet>

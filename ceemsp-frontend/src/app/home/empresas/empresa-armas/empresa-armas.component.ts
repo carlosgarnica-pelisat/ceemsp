@@ -29,7 +29,7 @@ export class EmpresaArmasComponent implements OnInit {
     {headerName: 'Marca', field: 'marca.nombre', sortable: true, filter: true },
     {headerName: 'Tipo', field: 'tipo', sortable: true, filter: true },
     {headerName: 'Status', field: 'status', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+    {headerName: 'Opciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
         modify: this.modify.bind(this),
         delete: this.delete.bind(this)
       }}
@@ -141,7 +141,6 @@ export class EmpresaArmasComponent implements OnInit {
   }
 
   crearArma(form) {
-    console.log(form.value);
     if(!form.valid) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",

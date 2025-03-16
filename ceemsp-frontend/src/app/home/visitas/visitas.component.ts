@@ -1,5 +1,28 @@
-import { Component, OnInit } from '@angular/core';
-import {ModalDismissReasons, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {EmpresaService} from "../../_services/empresa.service";
+import {ActivatedRoute} from "@angular/router";
+import {ToastService} from "../../_services/toast.service";
+import {EstadosService} from "../../_services/estados.service";
+import {ValidacionService} from "../../_services/validacion.service";
+import Empresa from "../../_models/Empresa";
+import Usuario from "../../_models/Usuario";
+import {ToastType} from "../../_enums/ToastType";
+import {UsuariosService} from "../../_services/usuarios.service";
+import Visita from "../../_models/Visita";
+import {VisitaService} from "../../_services/visita.service";
+import {faDownload, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {CalleService} from "../../_services/calle.service";
+import Estado from "../../_models/Estado";
+import Calle from "../../_models/Calle";
+import Municipio from "../../_models/Municipio";
+import Colonia from "../../_models/Colonia";
+import Localidad from "../../_models/Localidad";
+import {PublicService} from "../../_services/public.service";
+import ProximaVisita from "../../_models/ProximaVisita";
+import EmpresaDomicilio from "../../_models/EmpresaDomicilio";
+import {BotonVisitasComponent} from "../../_components/botones/boton-visitas/boton-visitas.component";
 
 @Component({
   selector: 'app-visitas',
@@ -7,31 +30,351 @@ import {ModalDismissReasons, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
   styleUrls: ['./visitas.component.css']
 })
 export class VisitasComponent implements OnInit {
-
+  editandoModal: boolean = false;
   private gridApi;
   private gridColumnApi;
 
+  faTrash = faTrash;
+  faDownload = faDownload;
+
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
-    {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
-    {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true,  resizable: true },
+    {headerName: 'Tipo', field: 'tipoVisita', sortable: true, filter: true, resizable: true },
+    {headerName: 'Num. Orden', field: 'numeroOrden', sortable: true, filter: true,  resizable: true},
+    {headerName: 'Nombre empresa', field: 'nombreComercial', sortable: true, filter: true,  pinned: 'left', resizable: true, width: 400, minWidth: 250, maxWidth: 450},
+    {headerName: 'Domicilio', sortable: true, filter: true,  resizable: true, valueGetter: function (params) { return params.data.domicilio1 + " " + params.data.numeroExterior}},
+    {headerName: 'Fecha de visita', field: 'fechaVisita', sortable: true, filter: true, resizable: true, width: 150, minWidth: 150, maxWidth: 200},
+    {headerName: 'Fecha de termino', field: 'fechaTermino', sortable: true, filter: true, resizable: true, width: 150, minWidth: 150, maxWidth: 200},
+    {headerName: 'Opciones',  pinned: 'right', cellRenderer: 'catalogoButtonRenderer', width: 100, cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
       }}
   ];
   rowData = [];
+  domicilios: EmpresaDomicilio[] = [];
+
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
 
   uuid: string;
+
+  tempFile;
+  closeResult: string;
   modal: NgbModalRef;
   frameworkComponents: any;
   rowDataClicked = {
     uuid: undefined
   };
 
-  constructor() { }
+  pestanaActual: string = 'DETALLES';
+
+  crearVisitaForm: FormGroup;
+  crearRequerimientoForm: FormGroup;
+  crearArchivoVisitaForm: FormGroup;
+
+  tipoVisita: string = undefined;
+  existeEmpresa: boolean;
+  hayRequerimiento: boolean;
+  showArchivoForm: boolean = false;
+
+  anio = new Date().getFullYear();
+
+  tempUuid: string;
+
+  empresas: Empresa[] = [];
+  usuarios: Usuario[] = [];
+
+  estados: Estado[] = [];
+  municipios: Municipio[] = [];
+  calles: Calle[] = [];
+  colonias: Colonia[] = [];
+  localidades: Localidad[] = [];
+
+  estado: Estado;
+  municipio: Municipio;
+  localidad: Localidad;
+  colonia: Colonia;
+  calle: Calle;
+
+  estadoQuery: string = '';
+  municipioQuery: string = '';
+  localidadQuery: string = '';
+  coloniaQuery: string = '';
+  calleQuery: string = '';
+
+  estadoSearchForm: FormGroup;
+  municipioSearchForm: FormGroup;
+  localidadSearchForm: FormGroup;
+  calleSearchForm: FormGroup;
+  coloniaSearchForm: FormGroup;
+
+  visita: Visita;
+  empresa: Empresa;
+  usuario: Usuario;
+  empresaQuery: string = '';
+
+  obtenerCallesTimeout = undefined;
+
+  editorData: string = "<p>Favor de escribir con detalle el requerimiento. Puede utilizar los botones arriba para darle formato al documento</p>"
+
+  @ViewChild("crearVisitaModal") crearVisitaModal;
+  @ViewChild("mostrarVisitaDetallesModal") mostrarVisitaDetallesModal;
+  @ViewChild("modificarRequerimientoModal") modificarRequerimientoModal;
+  @ViewChild("eliminarVisitaModal") eliminarVisitaModal;
+  @ViewChild("eliminarVisitaArchivoModal") eliminarVisitaArchivoModal;
+  @ViewChild("modificarVisitaModal") modificarVisitaModal;
+
+  constructor(private route: ActivatedRoute, private toastService: ToastService,
+              private modalService: NgbModal, private empresaService: EmpresaService,
+              private formBuilder: FormBuilder, private estadoService: EstadosService,
+              private validacionService: ValidacionService, private usuarioService: UsuariosService,
+              private visitaService: VisitaService, private calleService: CalleService, private publicService: PublicService) { }
 
   ngOnInit(): void {
+    this.frameworkComponents = {
+      catalogoButtonRenderer: BotonVisitasComponent
+    }
+
+    this.crearVisitaForm = this.formBuilder.group({
+      empresa: [''],
+      responsable: ['', [Validators.required]],
+      tipoVisita: ['', [Validators.required]],
+      numeroRegistro: [''],
+      numeroOrden: ['', [Validators.required]],
+      fechaVisita: ['', [Validators.required]],
+      existeEmpresa: [''],
+      nombreComercial: ['', [Validators.required]],
+      razonSocial: ['', [Validators.required]],
+      numeroExterior: [''],
+      numeroInterior: [''],
+      codigoPostal: ['', [ Validators.minLength(5), Validators.maxLength(5)]],
+      domicilio4: [''],
+      empresaDomicilio: ['']
+    })
+
+    this.crearRequerimientoForm = this.formBuilder.group({
+      requerimiento: ['', Validators.required],
+      fechaTermino: ['', Validators.required]
+    })
+
+    this.crearArchivoVisitaForm = this.formBuilder.group({
+      file: ['', Validators.required],
+      descripcion: ['', Validators.required]
+    })
+
+    this.estadoSearchForm = this.formBuilder.group({
+      nombre: ['']
+    });
+
+    this.municipioSearchForm = this.formBuilder.group({
+      nombre: ['']
+    });
+
+    this.localidadSearchForm = this.formBuilder.group({
+      nombre: ['']
+    });
+
+    this.coloniaSearchForm = this.formBuilder.group({
+      nombre: ['']
+    });
+
+    this.calleSearchForm = this.formBuilder.group({
+      nombre: ['']
+    });
+
+    this.visitaService.obtenerVisitas().subscribe((data: Visita[]) => {
+      this.rowData = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las visitas. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
+    this.empresaService.obtenerEmpresas().subscribe((data: Empresa[]) => {
+      this.empresas = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las empresas. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
+    this.usuarioService.obtenerUsuariosInternos().subscribe((data: Usuario[]) => {
+      this.usuarios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los usuarios. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+
+    this.estadoService.obtenerEstados().subscribe((data: Estado[]) => {
+      this.estados = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los estados. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
+
+    this.calleService.obtenerCallesPorLimite(10).subscribe((response: Calle[]) => {
+      this.calles = response;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrió un problema",
+        `No se pudieron descargar las calles. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  verDetalles(rowData) {
+    this.mostrarModalDetalles(rowData.rowData);
+  }
+
+  editar(rowData) {
+    this.visitaService.obtenerVisitaPorUuid(rowData.rowData.uuid).subscribe((data: Visita) => {
+      this.visita = data;
+      this.mostrarModalModificar();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la visita. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  eliminar(rowData) {
+    this.visitaService.obtenerVisitaPorUuid(rowData.rowData.uuid).subscribe((data: Visita) => {
+      this.visita = data;
+      this.mostrarModalEliminarVisita();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la visita. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  seleccionarEstado(estadoUuid) {
+    this.estado = this.estados.filter(x => x.uuid === estadoUuid)[0];
+    this.estadoService.obtenerEstadosPorMunicipio(estadoUuid).subscribe((data: Municipio[]) => {
+      this.municipios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los municipios. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    });
+  }
+
+  eliminarEstado() {
+    this.estado = undefined;
+    this.municipio = undefined;
+    this.localidad = undefined;
+    this.colonia = undefined;
+  }
+
+  seleccionarMunicipio(municipioUuid) {
+    this.municipio = this.municipios.filter(x => x.uuid === municipioUuid)[0];
+
+    this.estadoService.obtenerColoniasPorMunicipioYEstado(this.estado.uuid, municipioUuid).subscribe((data: Colonia[]) => {
+      this.colonias = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las colonias. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
+
+    this.estadoService.obtenerLocalidadesPorMunicipioYEstado(this.estado.uuid, municipioUuid).subscribe((data: Localidad[]) => {
+      this.localidades = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las localidades. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  eliminarMunicipio() {
+    this.municipio = undefined;
+    this.localidad = undefined;
+    this.colonia = undefined;
+    this.calle = undefined;
+  }
+
+  seleccionarLocalidad(localidadUuid) {
+    this.localidad = this.localidades.filter(x => x.uuid === localidadUuid)[0];
+  }
+
+  eliminarLocalidad() {
+    this.localidad = undefined;
+  }
+
+  seleccionarColonia(coloniaUuid) {
+    this.colonia = this.colonias.filter(x => x.uuid === coloniaUuid)[0];
+  }
+
+  eliminarColonia() {
+    this.colonia = undefined;
+  }
+
+  eliminarEmpresa() {
+    this.empresa = undefined;
+  }
+
+  obtenerCalles(event) {
+    if(this.obtenerCallesTimeout !== undefined) {
+      clearTimeout(this.obtenerCallesTimeout);
+    }
+
+    this.obtenerCallesTimeout = setTimeout(() => {
+      if(this.calleQuery === '' || this.calleQuery === undefined) {
+        this.calleService.obtenerCallesPorLimite(10).subscribe((response: Calle[]) => {
+          this.calles = response;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrió un problema",
+            `No se pudieron descargar los clientes. Motivo: ${error}`,
+            ToastType.ERROR
+          )
+        })
+      } else {
+        this.calleService.obtenerCallesPorQuery(this.calleQuery).subscribe((response: Calle[]) => {
+          this.calles = response;
+        }, (error) => {
+          this.toastService.showGenericToast(
+            "Ocurrio un problema",
+            `Los clientes no se pudieron obtener. Motivo: ${error}`,
+            ToastType.ERROR
+          )
+        });
+      }
+    }, 1000);
+  }
+
+  seleccionarCalle(calleUuid) {
+    this.calle = this.calles.filter(x => x.uuid === calleUuid)[0];
+  }
+
+  eliminarCalle() {
+    this.calle = undefined;
+  }
+
+  cambiarExistenciaRequerimiento(event) {
+    this.hayRequerimiento = (event.value === 'true');
   }
 
   onGridReady(params) {
@@ -40,18 +383,530 @@ export class VisitasComponent implements OnInit {
     this.gridColumnApi = params.gridApi;
   }
 
-  checkForDetails(data) {
-    //this.modal = this.modalService.open(showCustomerDetailsModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
-    this.uuid = data.uuid;
+
+  cambiarPestana(status) {
+    if(status == this.pestanaActual) {
+      return;
+    }
+    this.pestanaActual = status;
   }
 
-  modify(rowData) {
+  mostrarModalDetalles(rowData) {
+    let visitaUuid = rowData.uuid;
+    this.visitaService.obtenerVisitaPorUuid(visitaUuid).subscribe((data: Visita) => {
+      this.visita = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la informacion de la visita. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
 
+    this.modal = this.modalService.open(this.mostrarVisitaDetallesModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl', scrollable: true});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
   }
 
-  delete(rowData) {
+  cambiarExistenciaEmpresa(event) {
+    this.existeEmpresa = (event.value === 'true');
 
+    if(this.existeEmpresa) {
+      this.crearVisitaForm.controls['numeroRegistro'].disable();
+      this.crearVisitaForm.controls['nombreComercial'].disable();
+      this.crearVisitaForm.controls['razonSocial'].disable();
+    } else {
+      this.crearVisitaForm.controls['numeroRegistro'].enable();
+      this.crearVisitaForm.controls['nombreComercial'].enable();
+      this.crearVisitaForm.controls['razonSocial'].enable();
+    }
+  }
+
+  cambiarTipoVisita(event) {
+    this.tipoVisita = event.value;
+
+    if(this.tipoVisita === 'EXTRAORDINARIA' || this.tipoVisita === 'IMPACTO' || this.tipoVisita === 'INICIAL') {
+
+      this.crearVisitaForm.controls['numeroRegistro'].enable();
+      this.crearVisitaForm.controls['nombreComercial'].enable();
+      this.crearVisitaForm.controls['razonSocial'].enable();
+    } else {
+      this.crearVisitaForm.controls['numeroRegistro'].disable();
+      this.crearVisitaForm.controls['nombreComercial'].disable();
+      this.crearVisitaForm.controls['razonSocial'].disable();
+    }
+
+    if(this.tipoVisita !== 'IMPACTO') {
+      let proximaVisita: ProximaVisita = new ProximaVisita();
+      proximaVisita.tipoVisita = this.tipoVisita;
+
+      this.publicService.obtenerSiguienteVisita(proximaVisita).subscribe((data: ProximaVisita) => {
+        this.crearVisitaForm.patchValue({
+          numeroOrden: data?.numeroSiguiente
+        })
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido descargar el siguiente numero de visita. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
+  }
+
+  mostrarModalModificar() {
+    let registroPiezas = this.visita.numeroOrden?.split("/");
+
+    this.tipoVisita = this.visita.tipoVisita;
+    this.empresa = this.visita.empresa;
+    this.usuario = this.visita.responsable;
+
+    this.crearVisitaForm.patchValue({
+      empresa: this.visita.empresa?.uuid,
+      responsable: this.visita.responsable.uuid,
+      tipoVisita: this.visita.tipoVisita,
+      numeroRegistro: this.visita.numeroRegistro,
+      numeroOrden: (this.tipoVisita === 'IMPACTO') ? this.visita.numeroOrden : registroPiezas[3],
+      fechaVisita: this.visita.fechaVisita,
+      existeEmpresa: this.visita.existeEmpresa,
+      nombreComercial: this.visita.nombreComercial,
+      razonSocial: this.visita.razonSocial,
+      numeroExterior: this.visita.numeroExterior,
+      numeroInterior: this.visita.numeroInterior,
+      codigoPostal: this.visita.codigoPostal,
+      domicilio4: this.visita.domicilio4,
+      empresaDomicilio: this.visita.empresaDomicilio?.uuid
+    })
+
+    this.estado = this.visita?.estadoCatalogo;
+    this.municipio = this.visita?.municipioCatalogo;
+    this.calle = this.visita?.calleCatalogo;
+    this.localidad = this.visita?.localidadCatalogo;
+    this.colonia = this.visita?.coloniaCatalogo;
+
+
+    this.modal = this.modalService.open(this.modificarVisitaModal, {size: "xl"})
+
+    if(this.visita.tipoVisita === 'ORDINARIA' || (this.visita.tipoVisita === 'EXTRAORDINARIA' && this.visita.existeEmpresa)) {
+      this.empresaService.obtenerDomicilios(this.empresa?.uuid).subscribe((data: EmpresaDomicilio[]) => {
+        this.domicilios = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los domicilios. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModalRequerimiento() {
+    this.crearRequerimientoForm.patchValue({
+      requerimiento: this.visita.requerimiento,
+      fechaTermino: this.visita.fechaTermino
+    })
+    this.hayRequerimiento = this.visita.requerimiento;
+    this.editorData = this.visita.detallesRequerimiento;
+
+    this.modal = this.modalService.open(this.modificarRequerimientoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'})
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModalEliminarVisita() {
+    this.modal = this.modalService.open(this.eliminarVisitaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModalEliminarArchivo(tempUuid) {
+    this.tempUuid = tempUuid;
+    this.modal = this.modalService.open(this.eliminarVisitaArchivoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModalNuevaVisita() {
+    this.modal = this.modalService.open(this.crearVisitaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'})
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  exportGridData(format) {
+    switch(format) {
+      case "CSV":
+        this.gridApi.exportDataAsCsv();
+        break;
+      case "PDF":
+        this.toastService.showGenericToast(
+          "Bajo desarrollo",
+          "Actualmente estamos desarrollando esta funcionalidad",
+          ToastType.INFO
+        )
+        break;
+      default:
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          "No podemos exportar en dicho formato",
+          ToastType.WARNING
+        )
+        break;
+    }
+  }
+
+  generarReporteExcel() {
+    this.visitaService.generarReporteExcel().subscribe((data: Blob) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "reporte-visitas.xls";
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el reporte. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  seleccionarUsuario(event) {
+    let uuid = event.value;
+    this.usuario = this.usuarios.filter(x => x.uuid === uuid)[0];
+  }
+
+  seleccionarEmpresa(uuid) {
+    this.empresa = this.empresas.filter(x => x.uuid === uuid)[0];
+    this.crearVisitaForm.patchValue({
+      nombreComercial: this.empresa.nombreComercial,
+      razonSocial: this.empresa.razonSocial,
+      numeroRegistro: this.empresa.registro
+    })
+
+    this.empresaService.obtenerDomicilios(this.empresa?.uuid).subscribe((data: EmpresaDomicilio[]) => {
+      this.domicilios = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los domicilios. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarArchivoVisita() {
+    if(this.tempUuid === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID del archivo a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos eliminando el archivo de la visita",
+      ToastType.INFO
+    );
+
+    this.visitaService.eliminarArchivoVisita(this.visita.uuid, this.tempUuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el archivo con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el archivo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarVisita() {
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos eliminando la visita",
+      ToastType.INFO
+    );
+
+    this.visitaService.eliminarVisita(this.visita.uuid).subscribe((data: Visita) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la visita con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar la visita. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  guardarArchivo(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos pendientes que no se han rellenado",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando el archivo de la visita",
+      ToastType.INFO
+    );
+
+    let formValue = form.value;
+    let formData = new FormData();
+    formData.append('archivo', this.tempFile, this.tempFile.name);
+    formData.append('metadataArchivo', JSON.stringify(formValue));
+
+    this.visitaService.guardarArchivoVisita(this.visita.uuid, formData).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado la fotografia con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la fotografia. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  mostrarFormularioNuevoArchivo() {
+    this.showArchivoForm = !this.showArchivoForm;
+  }
+
+  descargarArchivo(uuid) {
+    this.visitaService.descargarArchivoVisita(this.visita.uuid, uuid).subscribe((data) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "archivo";
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el archivo de la visita`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  guardarCambiosVisita(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario es invalido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando los cambios de la visita",
+      ToastType.INFO
+    );
+
+    let value = form.value;
+
+    let formValue: Visita = form.value;
+    if(this.tipoVisita === 'ORDINARIA' || (this.tipoVisita === 'EXTRAORDINARIA' && this.existeEmpresa) || (this.tipoVisita === 'INICIAL' && this.existeEmpresa) || (this.tipoVisita === 'IMPACTO' && this.existeEmpresa)) {
+      formValue.nombreComercial = this.empresa.nombreComercial;
+      formValue.razonSocial = this.empresa.razonSocial;
+      formValue.numeroRegistro = this.empresa.registro;
+      formValue.empresaDomicilio = this.domicilios.filter(x => x.uuid === value.empresaDomicilio)[0]
+    } else {
+      formValue.empresaDomicilio = null;
+    }
+
+    formValue.empresa = this.empresa;
+    formValue.responsable = this.usuario;
+    if(this.tipoVisita === 'ORDINARIA') {
+      formValue.numeroOrden = `CESP/DSSP/ORD/${formValue.numeroOrden}/${this.anio}`
+    } else if(this.tipoVisita === 'EXTRAORDINARIA') {
+      formValue.numeroOrden = `CESP/DSSP/EXT/${formValue.numeroOrden}/${this.anio}`
+    } else if(this.tipoVisita === 'INICIAL') {
+      formValue.numeroOrden = `CESP/DSSP/VICOM/${formValue.numeroOrden}/${this.anio}`
+    } else if(this.tipoVisita === 'IMPACTO') {
+      formValue.numeroOrden = formValue.numeroOrden
+    }
+
+    formValue.estadoCatalogo = this.estado;
+    formValue.municipioCatalogo = this.municipio;
+    formValue.localidadCatalogo = this.localidad;
+    formValue.coloniaCatalogo = this.colonia;
+    formValue.calleCatalogo = this.calle;
+
+    this.visitaService.modificarVisita(this.visita.uuid, formValue).subscribe((data: Visita) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se han guardado los cambios con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar los cambios de la visita. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  guardarCambiosRequerimiento(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos no llenados aun",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espera un momento",
+      "Guadando el detalle del requerimiento.",
+      ToastType.INFO
+    )
+
+    let value: Visita = form.value;
+
+    if(this.hayRequerimiento) {
+      value.requerimiento = true;
+      value.detallesRequerimiento = this.editorData;
+    } else {
+      value.requerimiento = false;
+      value.detallesRequerimiento = "";
+      value.fechaTermino = "";
+    }
+
+    this.visitaService.modificarVisitaRequerimiento(this.visita.uuid, value).subscribe((data: Visita) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado el requerimiento",
+        ToastType.SUCCESS
+      );
+      this.modal.close();
+      this.visitaService.obtenerVisitaPorUuid(this.visita.uuid).subscribe((data: Visita) => {
+        this.visita = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido obtener la visita. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido actualizar la informacion del requerimiento. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  guardarVisita(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos que faltan por rellenar",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando la visita",
+      ToastType.INFO
+    );
+
+    let value = form.value;
+    let formValue: Visita = form.value;
+
+    if(this.tipoVisita === 'ORDINARIA' || (this.tipoVisita === 'EXTRAORDINARIA' && this.existeEmpresa) || (this.tipoVisita === 'INICIAL' && this.existeEmpresa) || (this.tipoVisita === 'IMPACTO' && this.existeEmpresa)) {
+      formValue.nombreComercial = this.empresa.nombreComercial;
+      formValue.razonSocial = this.empresa.razonSocial;
+      formValue.numeroRegistro = this.empresa.registro;
+      formValue.empresaDomicilio = this.domicilios.filter(x => x.uuid === value.empresaDomicilio)[0]
+    } else {
+      formValue.empresaDomicilio = null;
+    }
+    formValue.empresa = this.empresa;
+    formValue.responsable = this.usuario;
+    if(this.tipoVisita === 'ORDINARIA') {
+      formValue.numeroOrden = `CESP/DSSP/ORD/${formValue.numeroOrden}/${this.anio}`
+    } else if(this.tipoVisita === 'EXTRAORDINARIA') {
+      formValue.numeroOrden = `CESP/DSSP/EXT/${formValue.numeroOrden}/${this.anio}`
+    } else if(this.tipoVisita === 'INICIAL') {
+      formValue.numeroOrden = `CESP/DSSP/VICOM/${formValue.numeroOrden}/${this.anio}`
+    } else if(this.tipoVisita === 'IMPACTO') {
+      formValue.numeroOrden = formValue.numeroOrden
+    }
+    formValue.estadoCatalogo = this.estado;
+    formValue.municipioCatalogo = this.municipio;
+    formValue.localidadCatalogo = this.localidad;
+    formValue.coloniaCatalogo = this.colonia;
+    formValue.calleCatalogo = this.calle;
+
+    this.visitaService.guardarVisita(formValue).subscribe((data: Visita) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado la visita con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la visita. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  onFileChange(event) {
+    this.tempFile = event.target.files[0]
   }
 
   private getDismissReason(reason: any): string {

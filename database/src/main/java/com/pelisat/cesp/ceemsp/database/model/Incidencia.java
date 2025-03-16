@@ -39,4 +39,7 @@ public class Incidencia extends CommonModel {
 
     @Column(name = "ASIGNADO")
     private Integer asignado;
+
+    @Column(name = "CLIENTE_DOMICILIO")
+    private Integer clienteDomicilio;
 }

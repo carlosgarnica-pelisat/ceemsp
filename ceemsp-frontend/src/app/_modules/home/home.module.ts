@@ -13,12 +13,16 @@ import {ToastComponent} from "../../_components/toast/toast.component";
 import {NgxPrintModule} from "ngx-print";
 import {PdfViewerComponent} from "ng2-pdf-viewer";
 import {platformBrowserDynamic} from "@angular/platform-browser-dynamic";
+import {GoogleChartsModule} from "angular-google-charts";
+import {BotonEmpresasComponent} from "../../_components/botones/boton-empresas/boton-empresas.component";
+import {TableModule} from "primeng/table";
 
 @NgModule({
   declarations: [
     HomeComponent,
     DashboardComponent,
-    ToastComponent
+    ToastComponent,
+    BotonEmpresasComponent
   ],
   imports: [
     CommonModule,
@@ -28,7 +32,9 @@ import {platformBrowserDynamic} from "@angular/platform-browser-dynamic";
     FormsModule,
     FontAwesomeModule,
     NgxPrintModule,
-    AgGridModule.withComponents([])
+    AgGridModule.withComponents([]),
+    GoogleChartsModule,
+    TableModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

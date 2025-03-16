@@ -8,13 +8,32 @@ import {ToastType} from "../../../_enums/ToastType";
 import EmpresaLicenciaColectiva from "../../../_models/EmpresaLicenciaColectiva";
 import EmpresaModalidad from "../../../_models/EmpresaModalidad";
 import Arma from "../../../_models/Arma";
-import {faCheck, faEdit, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
-import Persona from "../../../_models/Persona";
+import {
+  faBook,
+  faCheck,
+  faEdit,
+  faHandPaper,
+  faInfoCircle,
+  faPencilAlt,
+  faTrash
+} from "@fortawesome/free-solid-svg-icons";
 import EmpresaDomicilio from "../../../_models/EmpresaDomicilio";
 import ArmaMarca from "../../../_models/ArmaMarca";
 import ArmaClase from "../../../_models/ArmaClase";
 import {ArmasService} from "../../../_services/armas.service";
-import EmpresaEscrituraApoderado from "../../../_models/EmpresaEscrituraApoderado";
+import {
+  BotonEmpresaLicenciasComponent
+} from "../../../_components/botones/boton-empresa-licencias/boton-empresa-licencias.component";
+import ExisteArma from "../../../_models/ExisteArma";
+import {ValidacionService} from "../../../_services/validacion.service";
+import {formatDate} from "@angular/common";
+import {AuthenticationService} from "../../../_services/authentication.service";
+import Usuario from "../../../_models/Usuario";
+import PersonalArma from "../../../_models/PersonalArma";
+import ArmaDomicilio from "../../../_models/ArmaDomicilio";
+import Empresa from "../../../_models/Empresa";
+import Incidencia from "../../../_models/Incidencia";
+import {ReporteEmpresasService} from "../../../_services/reporte-empresas.service";
 
 @Component({
   selector: 'app-empresa-licencias',
@@ -23,22 +42,53 @@ import EmpresaEscrituraApoderado from "../../../_models/EmpresaEscrituraApoderad
 })
 export class EmpresaLicenciasComponent implements OnInit {
 
+  mostrandoArmasEliminadas: boolean = false;
+  mostrandoDomiciliosEliminadas: boolean = false;
+
+  modalidad: EmpresaModalidad;
+  empresa: Empresa;
+
+  existeArma: ExisteArma;
+
   private gridApi;
   private gridColumnApi;
 
-  faSync = faSync;
+  faHandPaper = faHandPaper;
   faEdit = faEdit;
   faTrash = faTrash;
   faCheck = faCheck;
+  faPencil = faPencilAlt;
+  faInfoCircle = faInfoCircle;
+  faBook = faBook;
+
+  fechaDeHoy = new Date().toISOString()?.split('T')[0];
 
   marcas: ArmaMarca[] = [];
   clases: ArmaClase[] = [];
+  matriculaValida: boolean;
 
   tempFile;
 
-  columnDefs = EmpresaLicenciaColectiva.obtenerColumnasPorDefault();
+  columnDefs = [
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true, resizable: true },
+    {headerName: 'Numero de oficio', field: 'numeroOficio', sortable: true, filter: true, resizable: true },
+    {headerName: 'Fecha de Inicio', field: 'fechaInicio', sortable: true, filter: true, resizable: true},
+    {headerName: 'Fecha de Término', field: 'fechaFin', sortable: true, filter: true, resizable: true},
+    {headerName: 'Modalidad', field: 'modalidad.nombre', sortable: true, filter: true, resizable: true},
+    {headerName: 'Armas cortas', field: 'cantidadArmasCortas', sortable: true, filter: true, resizable: true},
+    {headerName: 'Armas largas', field: 'cantidadArmasLargas', sortable: true, filter: true, resizable: true},
+    {headerName: 'Opciones', cellRenderer: 'buttonRenderer', resizable: true, cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
+      }}
+  ];
   allColumnDefs = EmpresaLicenciaColectiva.obtenerTodasLasColumnas();
   rowData: EmpresaLicenciaColectiva[] = [];
+
+  licenciasColectivas: EmpresaLicenciaColectiva[] = [];
+  licenciasColectivasEliminadas: EmpresaLicenciaColectiva[] = [];
 
   uuid: string;
   modal: NgbModalRef;
@@ -46,10 +96,12 @@ export class EmpresaLicenciasComponent implements OnInit {
   closeResult: string;
   licencia: EmpresaLicenciaColectiva;
   pestanaActual: string = "DETALLES";
+  pestanaActualMovimientos: string = "ASIGNACIONES";
   armas: Arma[];
+  armasNoEliminadas: Arma[];
+  armasEliminadas: Arma[];
   domicilios: EmpresaDomicilio[];
   domiciliosLicenciaColectiva: EmpresaDomicilio[];
-  personal: Persona[] = [];
   status: string = "ACTIVA";
 
   rowDataClicked = {
@@ -58,11 +110,16 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   pdfActual;
 
+  modalidadQuery: string;
+
   modalidades: EmpresaModalidad[];
   crearEmpresaLicenciaForm: FormGroup;
-  modificarStatusArmaForm: FormGroup;
   crearDireccionForm: FormGroup;
   crearArmaForm: FormGroup;
+  editarArmaForm: FormGroup;
+  modalidadSearchForm: FormGroup;
+  motivosEliminacionForm: FormGroup;
+  motivosEliminacionArmaForm: FormGroup;
   mostrarModificarStatusArma: boolean = false;
 
   showDireccionForm: boolean = false;
@@ -71,29 +128,70 @@ export class EmpresaLicenciasComponent implements OnInit {
   tempUuidDireccion: string;
   tempUuidArma: string;
 
+  arma: Arma;
+  editandoArma: boolean;
+
+  usuarioActual: Usuario;
+
+  mostrandoEliminados: boolean = false;
+  movimientosArma: PersonalArma[] = [];
+  movimientosDomicilioArma: ArmaDomicilio[] = [];
+  incidenciasArma: Incidencia[] = [];
+  pdfBlob;
+
+  model = {
+    editorData: '<p>Escribe con detalle el relato de los hechos. Toma en cuenta que al finalizar se creara una incidencia de manera automatica y el arma quedara EN CUSTODIA.</p>'
+  }
+
+  dtOptions: DataTables.Settings = {
+  }
+
+  @ViewChild('mostrarLicenciaDetallesModal') mostrarLicenciaDetallesModal;
+  @ViewChild('modificarLicenciaModal') modificarLicenciaModal;
   @ViewChild('eliminarEmpresaLicenciaModal') eliminarEmpresaLicenciaModal;
   @ViewChild('eliminarEmpresaLicenciaDireccionModal') eliminarEmpresaLicenciaDireccionModal;
   @ViewChild('eliminarEmpresaLicenciaArmaModal') eliminarEmpresaLicenciaArmaModal;
+  @ViewChild('agregarArmaModal') agregarArmaModal;
+  @ViewChild('editarArmaModal') editarArmaModal;
+  @ViewChild('mostrarMotivosEliminacionArma') mostrarMotivosEliminacionArma;
+  @ViewChild('mostrarMovimientosArmaModal') mostrarMovimientosArmaModal;
 
   constructor(private modalService: NgbModal, private empresaService: EmpresaService, private toastService: ToastService,
-              private route: ActivatedRoute, private formBuilder: FormBuilder, private armaService: ArmasService) { }
+              private route: ActivatedRoute, private formBuilder: FormBuilder, private armaService: ArmasService,
+              private validacionService: ValidacionService, private authenticationService: AuthenticationService,
+              private reporteEmpresaService: ReporteEmpresasService) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
     this.uuid = this.route.snapshot.paramMap.get("uuid");
+
+    this.dtOptions = {
+      pagingType: 'full_numbers'
+    }
+
+    this.frameworkComponents = {
+      buttonRenderer: BotonEmpresaLicenciasComponent
+    }
+
+    this.uuid = this.route.snapshot.paramMap.get("uuid");
+
+    this.empresaService.obtenerPorUuid(this.uuid).subscribe((data: Empresa) => {
+      this.empresa = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la informacion de la empresa. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
 
     this.crearEmpresaLicenciaForm = this.formBuilder.group({
       numeroOficio: ['', Validators.required],
-      modalidad: ['', Validators.required],
       submodalidad: [''],
       fechaInicio: ['', Validators.required],
       fechaFin: ['', Validators.required],
       archivo: ['', Validators.required]
-    });
-
-    this.modificarStatusArmaForm = this.formBuilder.group({
-      status: ['', Validators.required],
-      motivo: [''],
-      personalAsignado: ['']
     });
 
     this.crearDireccionForm = this.formBuilder.group({
@@ -104,13 +202,41 @@ export class EmpresaLicenciasComponent implements OnInit {
       tipo: ['', Validators.required],
       clase: ['', Validators.required],
       marca: ['', Validators.required],
-      calibre: ['', Validators.required],
+      calibre: ['', [Validators.required, Validators.maxLength(10)]],
       bunker: ['', Validators.required],
-      status: ['']
-    })
+      status: ['', Validators.required],
+      serie: ['', [Validators.maxLength(30)]],
+      matricula: ['', [Validators.required, Validators.maxLength(30)]]
+    });
+
+    this.editarArmaForm = this.formBuilder.group({
+      tipo: ['', Validators.required],
+      clase: ['', Validators.required],
+      marca: ['', Validators.required],
+      calibre: ['', [Validators.required, Validators.maxLength(10)]],
+      bunker: ['', Validators.required],
+      status: ['', Validators.required],
+      serie: ['', [Validators.maxLength(30)]],
+      matricula: ['', [Validators.required, Validators.maxLength(30)]]
+    });
+
+    this.motivosEliminacionForm = this.formBuilder.group({
+      motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
+      observacionesBaja: [''],
+      fechaBaja: ['', Validators.required],
+      documentoFundatorioBaja: ['']
+    });
+
+    this.motivosEliminacionArmaForm = this.formBuilder.group({
+      motivoBaja: ['', [Validators.required, Validators.maxLength(60)]],
+      observacionesBaja: [''],
+      fechaBaja: ['', Validators.required],
+      documentoFundatorioBaja: ['']
+    });
 
     this.empresaService.obtenerLicenciasColectivas(this.uuid).subscribe((data: EmpresaLicenciaColectiva[]) => {
       this.rowData = data;
+      this.licenciasColectivas = data;
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -119,15 +245,15 @@ export class EmpresaLicenciasComponent implements OnInit {
       )
     });
 
-    this.empresaService.obtenerPersonal(this.uuid).subscribe((data: Persona[]) => {
-      this.personal = data;
+    this.empresaService.obtenerLicenciasColectivasEliminadas(this.uuid).subscribe((data: EmpresaLicenciaColectiva[]) => {
+      this.licenciasColectivasEliminadas = data;
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        `no se han podido descargar las licencias colectivas. Motivo: ${error}`,
+        `No se han podido descargar las licencias eliminadas. Motivo: ${error}`,
         ToastType.ERROR
-      )
-    });
+      );
+    })
 
     this.empresaService.obtenerDomicilios(this.uuid).subscribe((data: EmpresaDomicilio[]) => {
       this.domicilios = data;
@@ -158,14 +284,98 @@ export class EmpresaLicenciasComponent implements OnInit {
           ToastType.ERROR
       );
     });
+
+    this.empresaService.obtenerModalidades(this.uuid).subscribe((data: EmpresaModalidad[]) => {
+      this.modalidades = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se pudieron descargar las modalidades de la empresa. ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  seleccionarModalidad(uuid) {
+    this.modalidad = this.modalidades.filter(x => x.uuid === uuid)[0];
+  }
+
+  quitarModalidad() {
+    this.modalidad = undefined;
+  }
+
+  verDetalles(rowData) {
+    this.mostrarModalDetalles(rowData.rowData, this.mostrarLicenciaDetallesModal);
+  }
+
+  mostrarArmasEliminadas() {
+    this.mostrandoArmasEliminadas = true;
+    this.armas = this.armasEliminadas;
+  }
+
+  ocultarArmasEliminadas() {
+    this.mostrandoArmasEliminadas = false;
+    this.armas = this.armasNoEliminadas;
+  }
+
+  mostrarDomiciliosEliminados() {
+    this.mostrandoDomiciliosEliminadas = true;
+  }
+
+  ocultarDomiciliosEliminados() {
+    this.mostrandoDomiciliosEliminadas = false;
+  }
+
+  editar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.empresaService.obtenerLicenciaColectivaPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaLicenciaColectiva) => {
+      this.licencia = data;
+      this.mostrarModificarLicenciaModal();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la licencia. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  eliminar(rowData) {
+    if(this.usuarioActual.rol === "CEEMSP_READ_ONLY") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Esta operacion no puede ser completada. No tienes permisos suficientes",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.empresaService.obtenerLicenciaColectivaPorUuid(this.uuid, rowData.rowData?.uuid).subscribe((data: EmpresaLicenciaColectiva) => {
+      this.licencia = data;
+      this.mostrarEliminarLicenciaModal();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar la licencia. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
   }
 
   cambiarPestana(pestana) {
     this.pestanaActual = pestana;
   }
 
-  seleccionarStatus(event) {
-    this.status = event.value;
+  cambiarPestanaMovimiento(pestanaMovimiento) {
+    this.pestanaActualMovimientos = pestanaMovimiento;
   }
 
   seleccionarPersona(event) {
@@ -178,6 +388,13 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   mostrarFormularioArma() {
     this.showArmaForm = !this.showArmaForm;
+    if(!this.showArmaForm) {
+      this.crearArmaForm.reset();
+    }
+    if(this.editandoArma) {
+      this.editandoArma = false;
+      this.arma = undefined;
+    }
   }
 
   convertirPdf(pdf: Blob) {
@@ -201,13 +418,23 @@ export class EmpresaLicenciasComponent implements OnInit {
       return;
     }
 
+    let data: EmpresaDomicilio = this.domicilios.filter(x => x.uuid === form.value.direccion)[0];
+    let existeDomicilio = this.domiciliosLicenciaColectiva.filter(x => x.uuid === form.value.direccion)[0];
+
+    if(existeDomicilio !== undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El domicilio ya se encuentra registrado en la licencia colectiva`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espere un momento",
       "Estamos guardando el domicilio en la licencia colectiva",
       ToastType.INFO
     );
-
-    let data: EmpresaDomicilio = this.domicilios.filter(x => x.uuid === form.value.direccion)[0];
 
     this.empresaService.guardarDomicilioEnLicenciaColectiva(this.uuid, this.licencia.uuid, data).subscribe((data) => {
       this.toastService.showGenericToast(
@@ -215,11 +442,155 @@ export class EmpresaLicenciasComponent implements OnInit {
         "Se ha guardado el domicilio con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.mostrarFormularioNuevaDireccion();
+      this.empresaService.obtenerDomiciliosPorLicenciaColectiva(this.uuid, this.licencia.uuid).subscribe((data: EmpresaDomicilio[]) => {
+        this.domiciliosLicenciaColectiva = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar los domicilios. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
         `No se ha guardado el domicilio en la licencia colectiva. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  consultarArmaModelo(event) {
+    this.existeArma = undefined;
+    let existeArma: ExisteArma = new ExisteArma();
+    existeArma.serie = event.value;
+
+    this.validacionService.validarArma(existeArma).subscribe((existeArma: ExisteArma) => {
+      this.existeArma = existeArma;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido consultar la existencia del arma. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  consultarArmaMatricula(event) {
+    let matricula = event.value;
+    let cuipRegexSerie = /^[a-zA-Z0-9]{3,20}$/g;
+    if(!cuipRegexSerie.test(matricula)) {
+      this.toastService.showGenericToast(
+        "Espera un momento",
+        `La matricula no es validas. Favor de revisarla`,
+        ToastType.WARNING
+      );
+      this.matriculaValida = false;
+      return;
+    } else {
+      this.matriculaValida = true;
+    }
+
+    this.existeArma = undefined;
+    let existeArma: ExisteArma = new ExisteArma();
+    existeArma.matricula = event.value;
+
+    this.validacionService.validarArma(existeArma).subscribe((existeArma: ExisteArma) => {
+      this.existeArma = existeArma;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido consultar la existencia del arma. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  modificarLicencia(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `El formulario es invalido`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    let formValue = form.value;
+    let licencia: EmpresaLicenciaColectiva = new EmpresaLicenciaColectiva();
+
+    licencia.numeroOficio = formValue.numeroOficio;
+    licencia.modalidad = this.modalidades.filter(x => x.uuid === this.modalidad.uuid)[0].modalidad;
+    licencia.submodalidad = this.modalidades.filter(x => x.uuid === this.modalidad.uuid)[0].submodalidad;
+    licencia.fechaInicio = formValue.fechaInicio;
+    licencia.fechaFin = formValue.fechaFin;
+
+    let fechaInicio = new Date(licencia.fechaInicio);
+    let fechaFin = new Date(licencia.fechaFin);
+    if(fechaInicio > fechaFin) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "La fecha de inicio es mayor que la del final",
+        ToastType.WARNING
+      )
+      return;
+    }
+    let existeModalidad = this.rowData.filter(x => x.modalidad.uuid === licencia.modalidad.uuid)[0];
+    if(existeModalidad !== undefined && existeModalidad?.uuid !== this.licencia.uuid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "La modalidad ya se encuentra registrada en esta licencia colectiva",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos modificando la licencia",
+      ToastType.INFO
+    );
+
+    let formData = new FormData();
+    formData.append('licencia', JSON.stringify(licencia));
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null);
+    }
+
+    this.empresaService.modificarLicenciaColectiva(this.uuid, this.licencia.uuid, formData).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha actualizado la licencia colectiva con exito`,
+        ToastType.SUCCESS
+      );
+      this.modal.close();
+      this.empresaService.obtenerLicenciasColectivas(this.uuid).subscribe((data: EmpresaLicenciaColectiva[]) => {
+        this.rowData = data;
+        this.licenciasColectivas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las licencias colectivas. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      });
+
+      this.empresaService.obtenerLicenciasColectivasEliminadas(this.uuid).subscribe((data: EmpresaLicenciaColectiva[]) => {
+        this.licenciasColectivasEliminadas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las licencias eliminadas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido modificar la licencia colectiva. Motivo: ${error}`,
         ToastType.ERROR
       );
     })
@@ -233,21 +604,11 @@ export class EmpresaLicenciasComponent implements OnInit {
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     });
-
-    this.empresaService.obtenerModalidades(this.uuid).subscribe((data: EmpresaModalidad[]) => {
-      this.modalidades = data;
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `No se pudieron descargar las modalidades de la empresa. ${error}`,
-        ToastType.ERROR
-      );
-    })
   }
 
   mostrarModalDetalles(rowData, modal) {
     let licenciaUuid = rowData.uuid;
-    this.modal = this.modalService.open(modal, {ariaLabelledBy: "modal-basic-title", size: 'xl'});
+    this.modal = this.modalService.open(modal, {ariaLabelledBy: "modal-basic-title", size: 'xl', scrollable: true});
 
     this.empresaService.obtenerLicenciaColectivaPorUuid(this.uuid, licenciaUuid).subscribe((data: EmpresaLicenciaColectiva) => {
       this.licencia = data;
@@ -257,13 +618,24 @@ export class EmpresaLicenciasComponent implements OnInit {
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
-          `No se han podido descargar los domicilios de la licencia colectiva. Motivo: {error}`,
+          `No se han podido descargar los domicilios de la licencia colectiva. Motivo: ${error}`,
           ToastType.ERROR
         )
       })
 
       this.empresaService.obtenerArmasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
         this.armas = data;
+        this.armasNoEliminadas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `Las armas de la licencia colectiva no se pudieron descargar. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.empresaService.obtenerArmasEliminadasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
+        this.armasEliminadas = data;
       }, (error) => {
         this.toastService.showGenericToast(
           "Ocurrio un problema",
@@ -290,16 +662,55 @@ export class EmpresaLicenciasComponent implements OnInit {
     this.tempFile = event.target.files[0]
   }
 
-  modify() {
+  custodiaArma() {
+    if(this.model.editorData === '') {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Favor de agregar mas informacion en el relato de hechos`,
+        ToastType.INFO
+      );
+      return;
+    }
 
+    let formData = new FormData();
+    formData.append('relatoHechos', JSON.stringify(this.model.editorData));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+    this.empresaService.custodiaArma(this.uuid, this.licencia.uuid, this.arma.uuid, formData).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha cambiado el status del arma con exito",
+        ToastType.SUCCESS
+      );
+      this.mostrarCambioStatusForm(undefined);
+      this.empresaService.obtenerArmasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
+        this.armas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las armas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido cambiar el status del arma. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
   }
 
-  delete() {
-
-  }
-
-  mostrarCambioStatusForm() {
+  mostrarCambioStatusForm(uuid) {
     this.mostrarModificarStatusArma = !this.mostrarModificarStatusArma;
+    if(uuid !== undefined) {
+      this.arma = this.armas.filter(x => uuid === x.uuid)[0];
+    }
   }
 
   guardarLicencia(form) {
@@ -316,8 +727,8 @@ export class EmpresaLicenciasComponent implements OnInit {
     let licencia: EmpresaLicenciaColectiva = new EmpresaLicenciaColectiva();
 
     licencia.numeroOficio = formValue.numeroOficio;
-    licencia.modalidad = this.modalidades.filter(x => x.modalidad.uuid === formValue.modalidad)[0].modalidad;
-    //licencia.submodalidad = this.modalidades.filter(x => x.submodalidad.uuid === formValue.submodalidad)[0].submodalidad; //TODO: revisar por que esta fallando esta mamada
+    licencia.modalidad = this.modalidades.filter(x => x.uuid === this.modalidad.uuid)[0].modalidad;
+    licencia.submodalidad = this.modalidades.filter(x => x.uuid === this.modalidad.uuid)[0].submodalidad;
     licencia.fechaInicio = formValue.fechaInicio;
     licencia.fechaFin = formValue.fechaFin;
 
@@ -331,9 +742,6 @@ export class EmpresaLicenciasComponent implements OnInit {
       )
       return;
     }
-
-    console.log(this.rowData);
-
     let existeModalidad = this.rowData.filter(x => x.modalidad.uuid === licencia.modalidad.uuid)[0];
     if(existeModalidad !== undefined) {
       this.toastService.showGenericToast(
@@ -360,7 +768,27 @@ export class EmpresaLicenciasComponent implements OnInit {
         "Se ha guardado la licencia con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerLicenciasColectivas(this.uuid).subscribe((data: EmpresaLicenciaColectiva[]) => {
+        this.rowData = data;
+        this.licenciasColectivas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las licencias colectivas. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      });
+
+      this.empresaService.obtenerLicenciasColectivasEliminadas(this.uuid).subscribe((data: EmpresaLicenciaColectiva[]) => {
+        this.licenciasColectivasEliminadas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las licencias eliminadas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -374,6 +802,7 @@ export class EmpresaLicenciasComponent implements OnInit {
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
 
     this.empresaService.descargarLicenciaPdf(this.uuid, this.licencia.uuid).subscribe((data: Blob) => {
+      this.pdfBlob = data;
       this.convertirPdf(data);
       // TODO: Manejar esta opcion para descargar
       /*let link = document.createElement('a');
@@ -387,6 +816,16 @@ export class EmpresaLicenciasComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
+
+  mostrarEliminados() {
+    this.mostrandoEliminados = true;
+    this.rowData = this.licenciasColectivasEliminadas;
+  }
+
+  ocultarEliminados() {
+    this.mostrandoEliminados = false;
+    this.rowData = this.licenciasColectivas;
   }
 
   exportGridData(format) {
@@ -423,7 +862,7 @@ export class EmpresaLicenciasComponent implements OnInit {
         filter: true
       };
 
-      this.columnDefs.push(newColumnDef);
+      //this.columnDefs.push(newColumnDef);
       this.gridApi.setColumnDefs(this.columnDefs);
     } else {
       this.columnDefs = this.columnDefs.filter(s => s.field !== field);
@@ -434,11 +873,56 @@ export class EmpresaLicenciasComponent implements OnInit {
     return this.columnDefs.filter(s => s.field === field)[0] !== undefined;
   }
 
-  mostrarModificarLicenciaModal() {
+  mostrarModificarArmaForm(uuid) {
+    this.arma = this.armas.filter(x => x.uuid === uuid)[0];
+    this.modal = this.modalService.open(this.editarArmaModal, {size: "xl", backdrop: "static"})
+    this.editandoArma = true;
 
+    let cuipRegexSerie = /^[a-zA-Z0-9]{3,20}$/g;
+    if(!cuipRegexSerie.test(this.arma.matricula)) {
+      this.matriculaValida = false;
+    } else {
+      this.matriculaValida = true;
+    }
+
+    this.editarArmaForm.patchValue({
+      tipo: this.arma.tipo,
+      clase: this.arma.clase.uuid,
+      serie: this.arma.serie,
+      marca: this.arma.marca.uuid,
+      calibre: this.arma.calibre,
+      bunker: this.arma.bunker?.uuid,
+      matricula: this.arma.matricula,
+      status: this.arma.status
+    });
+
+    this.status = this.arma.status;
+  }
+
+  mostrarModificarLicenciaModal() {
+    this.crearEmpresaLicenciaForm.patchValue({
+      numeroOficio: this.licencia.numeroOficio,
+      submodalidad: this.licencia?.submodalidad?.uuid,
+      fechaInicio: this.licencia.fechaInicio,
+      fechaFin: this.licencia.fechaFin
+    });
+    this.modalidad = this.modalidades.filter(x => x.modalidad.uuid === this.licencia.modalidad.uuid)[0];;
+    this.crearEmpresaLicenciaForm.controls['archivo'].clearValidators();
+    this.crearEmpresaLicenciaForm.controls['archivo'].updateValueAndValidity();
+    this.modal = this.modalService.open(this.modificarLicenciaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'})
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
   }
 
   mostrarEliminarLicenciaModal() {
+    this.motivosEliminacionForm.patchValue({
+      fechaBaja: formatDate(new Date(), "yyyy-MM-dd", "en")
+    });
+    this.motivosEliminacionForm.controls['fechaBaja'].disable();
     this.modal = this.modalService.open(this.eliminarEmpresaLicenciaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'})
 
     this.modal.result.then((result) => {
@@ -449,7 +933,7 @@ export class EmpresaLicenciasComponent implements OnInit {
   }
 
   mostrarFormularioNuevaArma() {
-    this.showArmaForm = !this.showArmaForm;
+    this.modal = this.modalService.open(this.agregarArmaModal, {size: "xl", backdrop: "static"})
   }
 
   mostrarModalEliminarDomicilio(uuid) {
@@ -465,6 +949,10 @@ export class EmpresaLicenciasComponent implements OnInit {
 
   mostrarModalEliminarArma(uuid) {
     this.tempUuidArma = uuid;
+    this.motivosEliminacionArmaForm.patchValue({
+      fechaBaja: formatDate(new Date(), "yyyy-MM-dd", "en")
+    });
+    this.motivosEliminacionArmaForm.controls['fechaBaja'].disable();
     this.modal = this.modalService.open(this.eliminarEmpresaLicenciaArmaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
     this.modal.result.then((result) => {
@@ -474,12 +962,154 @@ export class EmpresaLicenciasComponent implements OnInit {
     })
   }
 
+  mostrarMovimientosArma(uuid) {
+    this.modal = this.modalService.open(this.mostrarMovimientosArmaModal, {size: 'xl', backdrop: 'static'})
+
+    this.empresaService.obtenerMovimientosArma(this.uuid, this.licencia?.uuid, uuid).subscribe((data: PersonalArma[]) => {
+      this.movimientosArma = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar los movimientos de asignaciones. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+      this.movimientosArma = [];
+    })
+
+    this.empresaService.obtenerMovimientosDireccionesArma(this.uuid, this.licencia?.uuid, uuid).subscribe((data: ArmaDomicilio[]) => {
+      this.movimientosDomicilioArma = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar los movimientos de asignaciones. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+      this.movimientosDomicilioArma = [];
+    })
+
+    this.empresaService.obtenerIncidenciasPorArma(this.uuid, uuid).subscribe((data: Incidencia[]) => {
+      this.incidenciasArma = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar las incidencias por el arma. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+      this.incidenciasArma = [];
+    })
+  }
+
+  cerrarModalCrearArma() {
+    this.modal.close();
+  }
+
+  modificarArma(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos requeridos sin rellenar",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    if(!this.matriculaValida) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `La matricula no es valida`,
+        ToastType.WARNING
+      )
+      return;
+    }
+
+    if(this.existeArma?.existe) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Esta arma ya cuenta con matricula registrada`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando el arma",
+      ToastType.INFO
+    );
+
+    let bunkerUuid = form.controls['bunker'].value;
+
+    let formData: Arma = form.value;
+
+    formData.bunker = this.domiciliosLicenciaColectiva .filter(x => x.uuid === bunkerUuid)[0];
+    formData.clase = this.clases.filter(x => x.uuid === form.value.clase)[0];
+    formData.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
+
+    this.empresaService.modificarArma(this.uuid, this.licencia.uuid, this.arma.uuid, formData).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha modificado el arma con exito",
+        ToastType.SUCCESS
+      );
+      this.crearArmaForm.reset();
+      this.modal.close();
+      this.empresaService.obtenerArmasEliminadasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
+        this.armasEliminadas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se pudiieron descargar las armas eliminadas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+      this.empresaService.obtenerArmasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
+        this.armas = data;
+        this.armasNoEliminadas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido obtener las armas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido modificar el arma. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    });
+  }
+
+  mostrarDetallesEliminacionArma(uuid) {
+    this.modal = this.modalService.open(this.mostrarMotivosEliminacionArma, {size: 'lg', backdrop: 'static'})
+    this.arma = this.armas?.filter(x => x.uuid === uuid)[0];
+  }
+
   crearArma(form) {
     if(!form.valid) {
       this.toastService.showGenericToast(
           "Ocurrio un problema",
           "Hay algunos campos requeridos sin rellenar",
           ToastType.WARNING
+      );
+      return;
+    }
+
+    if(!this.matriculaValida) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `La matricula no es valida`,
+        ToastType.WARNING
+      )
+      return;
+    }
+
+    if(this.existeArma?.existe) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Esta arma ya cuenta con modelo o matricula registrada`,
+        ToastType.WARNING
       );
       return;
     }
@@ -495,39 +1125,98 @@ export class EmpresaLicenciasComponent implements OnInit {
     formData.bunker = this.domicilios.filter(x => x.uuid === form.value.bunker)[0];
     formData.clase = this.clases.filter(x => x.uuid === form.value.clase)[0];
     formData.marca = this.marcas.filter(x => x.uuid === form.value.marca)[0];
-    formData.status = "DEPOSITO";
 
     this.empresaService.guardarArma(this.uuid, this.licencia.uuid, formData).subscribe((data: Arma) => {
       this.toastService.showGenericToast(
-          "Listo",
-          "Se ha guardado el arma con exito",
-          ToastType.SUCCESS
+        "Listo",
+        "Se ha guardado el arma con exito",
+        ToastType.SUCCESS
       );
-
-      window.location.reload();
+      this.crearArmaForm.reset();
+      this.modal.close();
+      this.empresaService.obtenerArmasEliminadasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
+        this.armasEliminadas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se pudiieron descargar las armas eliminadas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+      this.empresaService.obtenerArmasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
+        this.armas = data;
+        this.armasNoEliminadas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido obtener las armas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
-          "Ocurrio un problema",
-          `no se pudo guarar el arma. Motivo: ${error}`,
-          ToastType.ERROR
+        "Ocurrio un problema",
+        `no se pudo guarar el arma. Motivo: ${error}`,
+        ToastType.ERROR
       );
     })
   }
 
-  confirmarEliminarLicencia() {
+  confirmarEliminarLicencia(form) {
+
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario es invalido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     this.toastService.showGenericToast(
       "Espere un momento",
       "Estamos guardando la licencia colectiva",
       ToastType.INFO
     );
 
-    this.empresaService.eliminarLicenciaColectiva(this.uuid, this.licencia.uuid).subscribe((data: EmpresaLicenciaColectiva) => {
+    let formValue: EmpresaDomicilio = form.value;
+
+    let formData = new FormData();
+    formData.append('licencia', JSON.stringify(formValue));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+    this.empresaService.eliminarLicenciaColectiva(this.uuid, this.licencia.uuid, formData).subscribe((data: EmpresaLicenciaColectiva) => {
       this.toastService.showGenericToast(
         "Listo",
         "Se ha eliminado la licencia colectiva con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerLicenciasColectivas(this.uuid).subscribe((data: EmpresaLicenciaColectiva[]) => {
+        this.rowData = data;
+        this.licenciasColectivas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las licencias colectivas. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      });
+
+      this.empresaService.obtenerLicenciasColectivasEliminadas(this.uuid).subscribe((data: EmpresaLicenciaColectiva[]) => {
+        this.licenciasColectivasEliminadas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido descargar las licencias eliminadas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -537,11 +1226,20 @@ export class EmpresaLicenciasComponent implements OnInit {
     })
   }
 
-  confirmarEliminarLicenciaArma() {
+  confirmarEliminarLicenciaArma(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El formulario es invalido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
     if(this.tempUuidArma === undefined) {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        "El UUID del domicilio a eliminar no esta definido",
+        "El UUID del arma a eliminar no esta definido",
         ToastType.WARNING
       );
       return;
@@ -549,21 +1247,52 @@ export class EmpresaLicenciasComponent implements OnInit {
 
     this.toastService.showGenericToast(
       "Espere un momento",
-      "Se esta eliminando el domicilio de la licencia colectiva",
+      "Se esta eliminando el arma de la licencia colectiva",
       ToastType.INFO
     );
 
-    this.empresaService.eliminarDomicilioEnLicenciaColectiva(this.uuid, this.licencia.uuid, this.tempUuidDireccion).subscribe((data) => {
+    let formValue: Arma = form.value;
+    formValue.fechaBaja = formatDate(new Date(), "yyyy-MM-dd", "en")
+
+    let formData = new FormData();
+    formData.append('arma', JSON.stringify(formValue));
+
+    if(this.tempFile !== undefined) {
+      formData.append('archivo', this.tempFile, this.tempFile.name);
+    } else {
+      formData.append('archivo', null)
+    }
+
+    this.empresaService.eliminarArma(this.uuid, this.licencia.uuid, this.tempUuidArma, formData).subscribe((data) => {
       this.toastService.showGenericToast(
         "Listo",
-        "Se ha eliminado el domicilio de la licencia colectiva con exito",
+        "Se ha eliminado el arma de la licencia colectiva con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerArmasEliminadasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
+        this.armasEliminadas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se pudiieron descargar las armas eliminadas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+      this.empresaService.obtenerArmasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
+        this.armas = data;
+        this.armasNoEliminadas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se han podido obtener las armas. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
-        `El domicilio de la licencia colectiva no se ha podido eliminar. Motivo: ${error}`,
+        `El arma de la licencia colectiva no se ha podido eliminar. Motivo: ${error}`,
         ToastType.ERROR
       );
     })
@@ -591,7 +1320,26 @@ export class EmpresaLicenciasComponent implements OnInit {
         "Se ha eliminado el domicilio de la licencia colectiva con exito",
         ToastType.SUCCESS
       );
-      window.location.reload();
+      this.modal.close();
+      this.empresaService.obtenerDomiciliosPorLicenciaColectiva(this.uuid, this.licencia.uuid).subscribe((data: EmpresaDomicilio[]) => {
+        this.domiciliosLicenciaColectiva = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se pudieron descargar los domicilios. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      })
+
+      this.empresaService.obtenerArmasPorLicenciaColectivaUuid(this.uuid, this.licencia.uuid).subscribe((data: Arma[]) => {
+        this.armas = data;
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se pudieron descargar las armas. Motivo: ${error}`,
+          ToastType.ERROR
+        )
+      })
     }, (error) => {
       this.toastService.showGenericToast(
         "Ocurrio un problema",
@@ -599,6 +1347,73 @@ export class EmpresaLicenciasComponent implements OnInit {
         ToastType.ERROR
       );
     })
+  }
+
+  descargarDocumentoFundatorioLicencia() {
+    this.empresaService.descargarDocumentoFundatorioLicencia(this?.uuid, this.licencia?.uuid).subscribe((data: Blob) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "documento-fundatorio-" + this.licencia?.uuid;
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el documento fundatorio. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  descargarDocumentoFundatorioArma() {
+    this.empresaService.descargarArmaDocumentoFundatorio(this?.uuid, this.arma?.uuid).subscribe((data: Blob) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "documento-fundatorio-" + this.licencia?.uuid;
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el documento fundatorio. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  generarReporteExcelLicencias() {
+    this.reporteEmpresaService.generarReporteLicenciasColectivas(this.uuid).subscribe((data) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "test.xls";
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el reporte en excel. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  generarReporteExcelArmas() {
+    this.reporteEmpresaService.generarReporteArmas(this.uuid).subscribe((data) => {
+      let link = document.createElement('a');
+      link.href = window.URL.createObjectURL(data);
+      link.download = "test.xls";
+      link.click();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el reporte en excel. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  descargarAcuerdoPdf() {
+    let link = document.createElement('a');
+    link.href = window.URL.createObjectURL(this.pdfBlob);
+    link.download = "licencia.pdf";
+    link.click();
   }
 
   private getDismissReason(reason: any): string {

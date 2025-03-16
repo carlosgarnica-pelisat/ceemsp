@@ -7,6 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class VehiculoColorDto {
+    private int id;
+    private String uuid;
     private VehiculoColorEnum color;
     private String descripcion;
 }

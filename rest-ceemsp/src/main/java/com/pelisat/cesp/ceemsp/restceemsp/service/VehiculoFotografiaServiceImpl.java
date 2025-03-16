@@ -1,7 +1,6 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.dto.metadata.PersonalFotografiaMetadata;
 import com.pelisat.cesp.ceemsp.database.dto.metadata.VehiculoFotografiaMetadata;
 import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoFotografiaRepository;
@@ -18,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -61,7 +61,7 @@ public class VehiculoFotografiaServiceImpl implements VehiculoFotografiaService 
 
         logger.info("Obteniendo el metadata de las fotos del vehiculo [{}]", vehiculoUuid);
 
-        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+        Vehiculo vehiculo = vehiculoRepository.getByUuid(vehiculoUuid);
         if(vehiculo == null) {
             logger.warn("el vehiculo no existe en la base de datos");
             throw new NotFoundResourceException();
@@ -99,6 +99,7 @@ public class VehiculoFotografiaServiceImpl implements VehiculoFotografiaService 
     }
 
     @Override
+    @Transactional
     public void guardarVehiculoFotografia(String uuid, String personalUuid, String username, MultipartFile multipartFile, VehiculoFotografiaMetadata metadata) {
         if (StringUtils.isBlank(uuid) || StringUtils.isBlank(personalUuid) || StringUtils.isBlank(username) || multipartFile == null) {
             logger.warn("El uuid de la empresa o la persona o la foto vienen como nulos o vacios");
@@ -124,10 +125,51 @@ public class VehiculoFotografiaServiceImpl implements VehiculoFotografiaService 
             ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.FOTOGRAFIA_VEHICULO, uuid);
             vehiculoFotografia.setUbicacionArchivo(ruta);
             vehiculoFotografiaRepository.save(vehiculoFotografia);
+
+            if(!vehiculo.isFotografiaCapturada()) {
+                vehiculo.setFotografiaCapturada(true);
+                daoHelper.fulfillAuditorFields(false, vehiculo, usuarioDto.getId());
+                vehiculoRepository.save(vehiculo);
+            }
         } catch (IOException ioException) {
             logger.warn(ioException.getMessage());
             archivosService.eliminarArchivo(ruta);
             throw new InvalidDataException();
+        }
+    }
+
+    @Transactional
+    @Override
+    public void eliminarVehiculoFotografia(String uuid, String vehiculoUuid, String fotografiaUuid, String username) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(fotografiaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la fotografia con uuid [{}]", fotografiaUuid);
+
+        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+        if(vehiculo == null) {
+            logger.warn("El vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        VehiculoFotografia vehiculoFotografia = vehiculoFotografiaRepository.getByUuidAndEliminadoFalse(fotografiaUuid);
+        if(vehiculoFotografia == null) {
+            logger.warn("La fotografia esta eliminada o no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        archivosService.eliminarArchivo(vehiculoFotografia.getUbicacionArchivo());
+        vehiculoFotografia.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, vehiculoFotografia, usuarioDto.getId());
+        vehiculoFotografiaRepository.save(vehiculoFotografia);
+
+        List<VehiculoFotografia> fotografias = vehiculoFotografiaRepository.getAllByVehiculoAndEliminadoFalse(vehiculo.getId());
+        if(fotografias.size() == 0) {
+            vehiculo.setFotografiaCapturada(false);
+            daoHelper.fulfillAuditorFields(false, vehiculo, usuarioDto.getId());
+            vehiculoRepository.save(vehiculo);
         }
     }
 }

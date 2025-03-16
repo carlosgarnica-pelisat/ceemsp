@@ -11,7 +11,7 @@
     <description>Backend para el Control de Empresas de Seguridad Privada</description>
     <organization>
         <name>Pelisat</name>
-        <url>http://www.pelisat.com.mx</url>
+        <url>https://www.pelisat.com.mx</url>
     </organization>
 
     <parent>
@@ -85,7 +85,8 @@
     </dependencies>
 
     <modules>
-        <module>database-versioner</module>
+
+
         <module>database</module>
         <module>infrastructure</module>
         <module>rest-ceemsp</module>

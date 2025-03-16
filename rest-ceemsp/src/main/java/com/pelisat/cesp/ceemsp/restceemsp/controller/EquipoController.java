@@ -5,6 +5,7 @@ import com.pelisat.cesp.ceemsp.database.dto.VehiculoMarcaDto;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EquipoService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.VehiculoMarcaService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,12 @@ public class EquipoController {
     }
 
     @GetMapping(value = EQUIPO_URI, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<EquipoDto> obtenerEquipos() {
+    public List<EquipoDto> obtenerEquipos(
+            @RequestParam(value = "empresaUuid", required = false) String empresaUuid
+    ) {
+        if(StringUtils.isNotBlank(empresaUuid)) {
+            return equipoService.obtenerEquipos(empresaUuid);
+        }
         return equipoService.obtenerEquipos();
     }
 
@@ -46,22 +52,22 @@ public class EquipoController {
         return equipoService.guardarEquipo(equipoDto, username);
     }
 
-    /*@PutMapping(value = VEHICULO_MARCA_URI + "/{vehiculoMarcaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public VehiculoMarcaDto modificarArmaMarca(
+    @PutMapping(value = EQUIPO_URI + "/{equipoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EquipoDto modificarEquipo(
             HttpServletRequest request,
-            @RequestBody VehiculoMarcaDto VehiculoMarcaDto,
-            @PathVariable(value = "vehiculoMarcaUuid") String vehiculoMarcaUuid
+            @RequestBody EquipoDto equipoDto,
+            @PathVariable(value = "equipoUuid") String equipoUuid
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return vehiculoMarcaService.modificar(VehiculoMarcaDto, vehiculoMarcaUuid, username);
+        return equipoService.modificarEquipo(equipoUuid, username, equipoDto);
     }
 
-    @DeleteMapping(value = VEHICULO_MARCA_URI + "/{vehiculoMarcaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public VehiculoMarcaDto eliminarArmaMarca(
-            @PathVariable(value = "vehiculoMarcaUuid") String vehiculoMarcaUuid,
+    @DeleteMapping(value = EQUIPO_URI + "/{equipoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public EquipoDto eliminarEquipo(
+            @PathVariable(value = "equipoUuid") String equipoUuid,
             HttpServletRequest request
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return vehiculoMarcaService.eliminar(vehiculoMarcaUuid, username);
-    }*/
+        return equipoService.eliminarEquipo(equipoUuid, username);
+    }
 }

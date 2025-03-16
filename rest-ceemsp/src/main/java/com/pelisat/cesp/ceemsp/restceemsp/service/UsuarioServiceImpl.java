@@ -1,11 +1,17 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
+import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
+import com.pelisat.cesp.ceemsp.database.model.ActualizarContrasenaDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
+import com.pelisat.cesp.ceemsp.database.model.Empresa;
 import com.pelisat.cesp.ceemsp.database.model.Usuario;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
 import com.pelisat.cesp.ceemsp.database.repository.UsuarioRepository;
+import com.pelisat.cesp.ceemsp.database.type.RolTypeEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.exception.PasswordMismatchException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -14,7 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,14 +34,17 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
     private final DaoHelper<CommonModel> daoHelper;
+    private final EmpresaRepository empresaRepository;
 
     @Autowired
     public UsuarioServiceImpl(UsuarioRepository usuarioRepository, DaoToDtoConverter daoToDtoConverter,
-                              DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper) {
+                              DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper,
+                              EmpresaRepository empresaRepository) {
         this.usuarioRepository = usuarioRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.daoHelper = daoHelper;
+        this.empresaRepository = empresaRepository;
     }
 
     @Override
@@ -51,6 +62,42 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    public List<UsuarioDto> obtenerUsuariosInternos() {
+        logger.info("Obteniendo los usuarios internos");
+        List<Usuario> usuarios = usuarioRepository.findAllByRolInAndEliminadoFalse(Arrays.asList(RolTypeEnum.CEEMSP_USER, RolTypeEnum.CEEMSP_SUPERUSER));
+
+        return usuarios.stream()
+                .map(user -> daoToDtoConverter.convertDaoToDtoUser(user))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UsuarioDto> obtenerUsuariosNoEmpresas() {
+        logger.info("Obteniendo los usuarios internos");
+        List<Usuario> usuarios = usuarioRepository.findAllByRolInAndEliminadoFalse(Arrays.asList(RolTypeEnum.CEEMSP_USER, RolTypeEnum.CEEMSP_SUPERUSER,
+                RolTypeEnum.CEEMSP_READ_ONLY));
+
+        return usuarios.stream()
+                .map(user -> daoToDtoConverter.convertDaoToDtoUser(user))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UsuarioDto> obtenerUsuariosEmpresas() {
+        logger.info("Obteniendo los usuarios internos");
+        List<Usuario> usuarios = usuarioRepository.findAllByRolInAndEliminadoFalse(Arrays.asList(RolTypeEnum.ENTERPRISE_USER));
+
+        return usuarios.stream()
+                .map(user -> {
+                    UsuarioDto dto = daoToDtoConverter.convertDaoToDtoUser(user);
+                    dto.setEmpresa(daoToDtoConverter.convertDaoToDtoEmpresa(empresaRepository.getOne(user.getEmpresa())));
+                    return dto;
+                } )
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
     public UsuarioDto saveUser(UsuarioDto userDto, String username) {
         if(userDto == null || StringUtils.isBlank(username)) {
             logger.warn("El usuario o el nombre de usuario vienen como nulos o vacios");
@@ -83,7 +130,15 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new NotFoundResourceException();
         }
 
-        return daoToDtoConverter.convertDaoToDtoUser(usuario);
+        Empresa empresa = null;
+        UsuarioDto usuarioDto = daoToDtoConverter.convertDaoToDtoUser(usuario);
+
+        if(usuario.getRol() == RolTypeEnum.ENTERPRISE_USER) {
+            empresa = empresaRepository.getOne(usuario.getEmpresa());
+            usuarioDto.setEmpresa(daoToDtoConverter.convertDaoToDtoEmpresa(empresa));
+        }
+
+        return usuarioDto;
     }
 
     @Override
@@ -111,16 +166,109 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public UsuarioDto getUserById(int id) {
-        return null;
+        if(id < 1) {
+            logger.warn("El id esta viniendo como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo el usuario con el uuid [{}]", id);
+        Usuario usuario = usuarioRepository.getOne(id);
+
+        if(usuario == null || usuario.getEliminado()) {
+            logger.warn("El usuario no fue encontrado en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        return daoToDtoConverter.convertDaoToDtoUser(usuario);
     }
 
     @Override
+    @Transactional
     public UsuarioDto updateUserByUuid(String uuid, UsuarioDto userDto, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || userDto == null) {
+            logger.warn("El email esta viniendo como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Actualizando el usuario con el uuid [{}]", uuid);
+        Usuario usuario = usuarioRepository.getUsuarioByUuidAndEliminadoFalse(uuid);
+
+        if(usuario == null) {
+            logger.warn("El usuario no fue encontrado en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioQueModifico = getUserByEmail(username);
+
+        usuario.setNombres(userDto.getNombres());
+        usuario.setApellidos(userDto.getApellidos());
+        usuario.setApellidoMaterno(userDto.getApellidoMaterno());
+        usuario.setRol(userDto.getRol());
+        usuario.setUsername(userDto.getUsername());
+        usuario.setEmail(userDto.getEmail());
+
+        if(StringUtils.isNotBlank(userDto.getPassword())) {
+            usuario.setPassword(userDto.getPassword());
+        }
+
+        daoHelper.fulfillAuditorFields(false, usuario, usuarioQueModifico.getId());
+
+        usuarioRepository.save(usuario);
+        return daoToDtoConverter.convertDaoToDtoUser(usuario);
     }
 
     @Override
+    @Transactional
     public UsuarioDto deleteUser(String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("El email esta viniendo como vacio o nulo");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el usuario con el uuid [{}]", uuid);
+        Usuario usuario = usuarioRepository.getUsuarioByUuidAndEliminadoFalse(uuid);
+
+        if(usuario == null) {
+            logger.warn("El usuario no fue encontrado en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioQueModifico = getUserByEmail(username);
+
+        usuario.setEliminado(true);
+
+        daoHelper.fulfillAuditorFields(false, usuario, usuarioQueModifico.getId());
+
+        usuarioRepository.save(usuario);
+        return daoToDtoConverter.convertDaoToDtoUser(usuario);
     }
+
+    @Override
+    public UsuarioDto actualizarContrasena(String username, ActualizarContrasenaDto actualizarContrasenaDto) {
+        if(StringUtils.isBlank(username) || actualizarContrasenaDto == null) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Se esta actualizando la contrasena para el usuario [{}]", username);
+        Usuario usuario = usuarioRepository.getUsuarioByEmail(username);
+
+        if(usuario == null) {
+            logger.warn("El usuario no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(!StringUtils.equalsIgnoreCase(usuario.getPassword(), actualizarContrasenaDto.getActualPassword())) {
+            logger.warn("La contrasena no coincide con la anterior");
+            throw new PasswordMismatchException();
+        }
+
+        usuario.setPassword(actualizarContrasenaDto.getPassword());
+        daoHelper.fulfillAuditorFields(false, usuario, usuario.getId());
+        Usuario usuarioActualizado = usuarioRepository.save(usuario);
+        usuarioActualizado.setPassword(null);
+        return daoToDtoConverter.convertDaoToDtoUser(usuarioActualizado);
+    }
+
+
 }

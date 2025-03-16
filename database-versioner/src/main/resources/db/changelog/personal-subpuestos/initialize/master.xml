@@ -5,7 +5,7 @@
 
     <changeSet id="2021-09-15-crear-tabla-subpuestos" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="PERSONAL_SUBPUESTOS">
+        <createTable tableName="personal_subpuestos">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="PUESTO" type="INT"></column>
@@ -21,11 +21,11 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="PERSONAL_SUBPUESTOS" columnNames="ID" />
-        <addAutoIncrement tableName="PERSONAL_SUBPUESTOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="personal_subpuestos" columnNames="ID" />
+        <addAutoIncrement tableName="personal_subpuestos" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="PERSONAL_SUBPUESTOS" columnNames="UUID" />
+        <addUniqueConstraint tableName="personal_subpuestos" columnNames="UUID" />
 
     </changeSet>
 </databaseChangeLog>

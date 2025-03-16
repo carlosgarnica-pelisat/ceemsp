@@ -5,8 +5,8 @@
 
     <changeSet id="2022-01-30-agregar-empresa-escritura-ubicacion-archivo" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <addColumn tableName="EMPRESAS_ESCRITURAS">
-            <column name="RUTA_ARCHIVO" type="VARCHAR(512)"></column>
+        <addColumn tableName="empresas_escrituras">
+            <column name="ruta_archivo" type="VARCHAR(512)"></column>
         </addColumn>
     </changeSet>
 </databaseChangeLog>

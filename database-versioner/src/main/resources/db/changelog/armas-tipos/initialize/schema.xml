@@ -5,7 +5,7 @@
 
     <changeSet id="2021-09-28-crear-tabla-armas-tipos" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="ARMAS_TIPOS">
+        <createTable tableName="armas_tipos">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(100)"></column>
@@ -18,10 +18,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="ARMAS_TIPOS" columnNames="ID" />
-        <addAutoIncrement tableName="ARMAS_TIPOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="armas_tipos" columnNames="ID" />
+        <addAutoIncrement tableName="armas_tipos" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="ARMAS_TIPOS" columnNames="UUID" />
+        <addUniqueConstraint tableName="armas_tipos" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

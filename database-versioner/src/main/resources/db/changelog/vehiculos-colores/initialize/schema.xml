@@ -5,7 +5,7 @@
 
     <changeSet id="2021-09-28-crear-tabla-vehiculos-colores" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="VEHICULOS_COLORES">
+        <createTable tableName="vehiculos_colores">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="VEHICULO" type="int"></column>
@@ -19,10 +19,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="VEHICULOS_COLORES" columnNames="ID" />
-        <addAutoIncrement tableName="VEHICULOS_COLORES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="vehiculos_colores" columnNames="ID" />
+        <addAutoIncrement tableName="vehiculos_colores" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="VEHICULOS_COLORES" columnNames="UUID" />
+        <addUniqueConstraint tableName="vehiculos_colores" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

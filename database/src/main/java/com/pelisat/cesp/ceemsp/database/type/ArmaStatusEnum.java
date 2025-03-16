@@ -7,7 +7,8 @@ public enum ArmaStatusEnum {
     ACTIVA("ACTIVA", "El arma se encuentra activa"),
     DEPOSITO("DEPOSITO", "El arma se encuentra en deposito"),
     ASIGNADA("ASIGNADA", "El arma esta asignada a un elemento"),
-    CUSTODIA("CUSTODIA", "El arma esta custodiada o resguardada por el MP");
+    CUSTODIA("CUSTODIA", "El arma esta custodiada o resguardada por el MP"),
+    BAJA("BAJA", "El arma ha sido eliminada definitivamente");
 
     private String codigo;
     private String nombre;

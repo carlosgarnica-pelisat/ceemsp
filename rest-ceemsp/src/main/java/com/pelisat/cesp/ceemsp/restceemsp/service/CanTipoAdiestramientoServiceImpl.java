@@ -2,7 +2,6 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.CanTipoAdiestramientoDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.CanRaza;
 import com.pelisat.cesp.ceemsp.database.model.CanTipoAdiestramiento;
 import com.pelisat.cesp.ceemsp.database.repository.CanTipoAdiestramientoRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -14,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -84,6 +84,7 @@ public class CanTipoAdiestramientoServiceImpl implements CanTipoAdiestramientoSe
     }
 
     @Override
+    @Transactional
     public CanTipoAdiestramientoDto crearNuevo(CanTipoAdiestramientoDto canTipoAdiestramientoDto, String username) {
         if(canTipoAdiestramientoDto == null || StringUtils.isBlank(username)) {
             logger.warn("El tipo de adiestramiento a crear o el usuario estan viniendo como nulos o vacios");
@@ -112,12 +113,59 @@ public class CanTipoAdiestramientoServiceImpl implements CanTipoAdiestramientoSe
     }
 
     @Override
+    @Transactional
     public CanTipoAdiestramientoDto modificar(CanTipoAdiestramientoDto canTipoAdiestramientoDto, String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || canTipoAdiestramientoDto == null) {
+            logger.warn("El usuario o el uuid estan viniendo como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el tipo de adiestramiento con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        CanTipoAdiestramiento canTipoAdiestramiento = canTipoAdiestramientoRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(canTipoAdiestramiento == null) {
+            logger.warn("El adiestramiento no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        canTipoAdiestramiento.setNombre(canTipoAdiestramientoDto.getNombre());
+        canTipoAdiestramiento.setDescripcion(canTipoAdiestramientoDto.getDescripcion());
+        canTipoAdiestramiento.setFechaActualizacion(LocalDateTime.now());
+        canTipoAdiestramiento.setActualizadoPor(usuario.getId());
+
+        canTipoAdiestramientoRepository.save(canTipoAdiestramiento);
+
+        return daoToDtoConverter.convertDaoToDtoCanTipoAdiestramiento(canTipoAdiestramiento);
     }
 
     @Override
+    @Transactional
     public CanTipoAdiestramientoDto eliminar(String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("El usuario o el uuid estan viniendo como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el tipo de adiestramiento con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        CanTipoAdiestramiento canTipoAdiestramiento = canTipoAdiestramientoRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(canTipoAdiestramiento == null) {
+            logger.warn("El adiestramiento no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        canTipoAdiestramiento.setEliminado(true);
+        canTipoAdiestramiento.setFechaActualizacion(LocalDateTime.now());
+        canTipoAdiestramiento.setActualizadoPor(usuario.getId());
+
+        canTipoAdiestramientoRepository.save(canTipoAdiestramiento);
+
+        return daoToDtoConverter.convertDaoToDtoCanTipoAdiestramiento(canTipoAdiestramiento);
     }
 }

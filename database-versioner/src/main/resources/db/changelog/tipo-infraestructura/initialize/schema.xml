@@ -5,7 +5,7 @@
 
     <changeSet id="2021-09-15-crear-tabla-tipo-infraestructura" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="TIPO_INFRAESTRUCTURA">
+        <createTable tableName="tipo_infraestructura">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(500)"></column>
@@ -18,13 +18,13 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="TIPO_INFRAESTRUCTURA" columnNames="ID" />
-        <addAutoIncrement tableName="TIPO_INFRAESTRUCTURA" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="tipo_infraestructura" columnNames="ID" />
+        <addAutoIncrement tableName="tipo_infraestructura" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="TIPO_INFRAESTRUCTURA" columnNames="UUID" />
+        <addUniqueConstraint tableName="tipo_infraestructura" columnNames="UUID" />
 
-        <insert tableName="TIPO_INFRAESTRUCTURA">
+        <insert tableName="tipo_infraestructura">
             <column name="ID" value="1"></column>
             <column name="UUID" value="pfjzvPygSH6K"></column>
             <column name="NOMBRE" value="Bodega"></column>
@@ -36,7 +36,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="TIPO_INFRAESTRUCTURA">
+        <insert tableName="tipo_infraestructura">
             <column name="ID" value="2"></column>
             <column name="UUID" value="DnOvsNcRdifJ"></column>
             <column name="NOMBRE" value="Tienda"></column>
@@ -48,7 +48,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="TIPO_INFRAESTRUCTURA">
+        <insert tableName="tipo_infraestructura">
             <column name="ID" value="3"></column>
             <column name="UUID" value="zsVmX6V3Tlw2"></column>
             <column name="NOMBRE" value="Edificio"></column>
@@ -60,7 +60,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="TIPO_INFRAESTRUCTURA">
+        <insert tableName="tipo_infraestructura">
             <column name="ID" value="4"></column>
             <column name="UUID" value="y50wH8XVQURV"></column>
             <column name="NOMBRE" value="Hospital"></column>
@@ -72,7 +72,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="TIPO_INFRAESTRUCTURA">
+        <insert tableName="tipo_infraestructura">
             <column name="ID" value="5"></column>
             <column name="UUID" value="lofPwjf7V1LC"></column>
             <column name="NOMBRE" value="Institucion financiera"></column>
@@ -84,7 +84,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="TIPO_INFRAESTRUCTURA">
+        <insert tableName="tipo_infraestructura">
             <column name="ID" value="6"></column>
             <column name="UUID" value="g9mmLXyGa8ks"></column>
             <column name="NOMBRE" value="Casa"></column>
@@ -96,7 +96,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="TIPO_INFRAESTRUCTURA">
+        <insert tableName="tipo_infraestructura">
             <column name="ID" value="7"></column>
             <column name="UUID" value="09NrHG2LuthO"></column>
             <column name="NOMBRE" value="Escuela"></column>
@@ -108,7 +108,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="TIPO_INFRAESTRUCTURA">
+        <insert tableName="tipo_infraestructura">
             <column name="ID" value="8"></column>
             <column name="UUID" value="WFH2XhJTk6Fr"></column>
             <column name="NOMBRE" value="Plaza comercial"></column>
@@ -120,7 +120,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="TIPO_INFRAESTRUCTURA">
+        <insert tableName="tipo_infraestructura">
             <column name="ID" value="9"></column>
             <column name="UUID" value="qXqNLcbpWjeB"></column>
             <column name="NOMBRE" value="Local comercial"></column>
@@ -132,7 +132,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="TIPO_INFRAESTRUCTURA">
+        <insert tableName="tipo_infraestructura">
             <column name="ID" value="10"></column>
             <column name="UUID" value="DlqByMada7tp"></column>
             <column name="NOMBRE" value="Fraccionamiento"></column>
@@ -144,7 +144,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="TIPO_INFRAESTRUCTURA">
+        <insert tableName="tipo_infraestructura">
             <column name="ID" value="11"></column>
             <column name="UUID" value="ilxsSHl11MSA"></column>
             <column name="NOMBRE" value="Condominio"></column>
@@ -156,7 +156,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="TIPO_INFRAESTRUCTURA">
+        <insert tableName="tipo_infraestructura">
             <column name="ID" value="12"></column>
             <column name="UUID" value="eKwv3Y7DzNOU"></column>
             <column name="NOMBRE" value="Tienda de autoservicio"></column>
@@ -168,7 +168,7 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="TIPO_INFRAESTRUCTURA">
+        <insert tableName="tipo_infraestructura">
             <column name="ID" value="13"></column>
             <column name="UUID" value="qYuSUWiH1EOE"></column>
             <column name="NOMBRE" value="Otro"></column>

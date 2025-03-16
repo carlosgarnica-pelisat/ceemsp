@@ -49,4 +49,25 @@ public class EmpresaEquipoController {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return empresaEquipoService.guardarEquipo(empresaUuid, username, equipoDto);
     }
+
+    @PutMapping(value = EMPRESA_EQUIPOS_URI + "/{equipoUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaEquipoDto modificarEquipo(
+            HttpServletRequest request,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "equipoUuid") String equipoUuid,
+            @RequestBody EmpresaEquipoDto equipoDto
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaEquipoService.modificarEquipo(empresaUuid, equipoUuid, username, equipoDto);
+    }
+
+    @DeleteMapping(value = EMPRESA_EQUIPOS_URI + "/{equipoUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public EmpresaEquipoDto eliminarEquipo(
+            HttpServletRequest request,
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "equipoUuid") String equipoUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return empresaEquipoService.eliminarEquipo(empresaUuid, equipoUuid, username);
+    }
 }

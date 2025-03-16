@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -37,4 +38,28 @@ public class Arma extends CommonModel {
     @Column(name = "STATUS", nullable = false)
     @Enumerated(EnumType.STRING)
     private ArmaStatusEnum status;
+
+    @Column(name = "SERIE", nullable = false)
+    private String serie;
+
+    @Column(name = "MATRICULA", nullable = false)
+    private String matricula;
+
+    @Column(name = "PERSONAL")
+    private Integer personal;
+
+    @Column(name = "INCIDENCIA")
+    private Integer incidencia;
+
+    @Column(name = "MOTIVO_BAJA")
+    private String motivoBaja;
+
+    @Column(name = "OBSERVACIONES_BAJA")
+    private String observacionesBaja;
+
+    @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
+    private String documentoFundatorioBaja;
+
+    @Column(name = "FECHA_BAJA")
+    private LocalDate fechaBaja;
 }

@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface IncidenciaCanRepository extends JpaRepository<IncidenciaCan, Integer> {
     List<IncidenciaCan> getAllByIncidenciaAndEliminadoFalse(int incidenciaId);
+    IncidenciaCan getByIncidenciaAndCanAndEliminadoFalse(int incidencia, int can);
+    int countByIncidenciaAndEliminadoFalse(int incidencia);
 }

@@ -15,4 +15,9 @@ public class EmpresaEscrituraConsejoDto {
     private SexoEnum sexo;
     private String puesto;
     private String curp;
+    private boolean eliminado;
+    private String motivoBaja;
+    private String observacionesBaja;
+    private String documentoFundatorioBaja;
+    private String fechaBaja;
 }

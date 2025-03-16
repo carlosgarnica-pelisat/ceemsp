@@ -19,7 +19,7 @@ export class ComunicadosGeneralesComponent implements OnInit {
     {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
     {headerName: 'Titulo', field: 'titulo', sortable: true, filter: true },
     {headerName: 'Fecha de publicacion', field: 'fechaPublicacion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
+    {headerName: 'Opciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
         modify: this.modify.bind(this),
         delete: this.delete.bind(this)
       }}

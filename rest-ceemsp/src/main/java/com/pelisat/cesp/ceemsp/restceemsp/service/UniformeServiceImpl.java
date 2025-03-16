@@ -3,10 +3,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.UniformeDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaUniforme;
-import com.pelisat.cesp.ceemsp.database.model.Equipo;
 import com.pelisat.cesp.ceemsp.database.model.Uniforme;
-import com.pelisat.cesp.ceemsp.database.repository.EquipoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.UniformeRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
@@ -18,7 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,6 +83,7 @@ public class UniformeServiceImpl implements UniformeService {
     }
 
     @Override
+    @Transactional
     public UniformeDto guardarUniforme(UniformeDto uniformeDto, String username) {
         if(uniformeDto == null || StringUtils.isBlank(username)) {
             logger.warn("El uniforme a crear o el usuario estan viniendo como nulos o vacios");
@@ -102,12 +102,59 @@ public class UniformeServiceImpl implements UniformeService {
     }
 
     @Override
+    @Transactional
     public UniformeDto modificarUniforme(String uniformeUuid, String username, UniformeDto uniformeDto) {
-        return null;
+        if(StringUtils.isBlank(uniformeUuid) || StringUtils.isBlank(username) || uniformeDto == null) {
+            logger.warn("Alguno de los campos vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el uniforme con el uuid [{}]", uniformeUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        Uniforme uniforme = uniformeRepository.findByUuidAndEliminadoFalse(uniformeUuid);
+
+        if(uniforme == null) {
+            logger.warn("El uniforme no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        uniforme.setNombre(uniformeDto.getNombre());
+        uniforme.setDescripcion(uniformeDto.getDescripcion());
+        uniforme.setFechaActualizacion(LocalDateTime.now());
+        uniforme.setActualizadoPor(usuario.getId());
+
+        uniformeRepository.save(uniforme);
+
+        return daoToDtoConverter.convertDaoToDtoUniforme(uniforme);
     }
 
     @Override
+    @Transactional
     public UniformeDto eliminarUniforme(String uniformeUuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uniformeUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el uniforme con el uuid [{}]", uniformeUuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        Uniforme uniforme = uniformeRepository.findByUuidAndEliminadoFalse(uniformeUuid);
+
+        if(uniforme == null) {
+            logger.warn("El uniforme no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        uniforme.setEliminado(true);
+        uniforme.setFechaActualizacion(LocalDateTime.now());
+        uniforme.setActualizadoPor(usuario.getId());
+
+        uniformeRepository.save(uniforme);
+
+        return daoToDtoConverter.convertDaoToDtoUniforme(uniforme);
     }
 }

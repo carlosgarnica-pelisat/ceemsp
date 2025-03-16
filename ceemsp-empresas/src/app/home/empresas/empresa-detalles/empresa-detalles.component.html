@@ -107,10 +107,10 @@
         <h3>Domicilios</h3>
         <div class="row" *ngFor="let d of domicilios">
           <p><b>Nombre del domicilio:</b>{{d.nombre}}</p>
-          <p><b>Direccion:</b>{{d.domicilio1 + " " + d.domicilio2}}</p>
-          <p><b>Codigo postal:</b>{{d.codigoPostal}}</p>
-          <p><b>Telefono fijo:</b>{{d.telefonoFijo}}</p>
-          <p><b>Telefono movil:</b>{{d.telefonoMovil}}</p>
+          <p><b>Dirección:</b>{{d.domicilio1 + " " + d.domicilio2}}</p>
+          <p><b>Código postal:</b>{{d.codigoPostal}}</p>
+          <p><b>Teléfono fijo:</b>{{d.telefonoFijo}}</p>
+          <p><b>Teléfono movil:</b>{{d.telefonoMovil}}</p>
         </div>
       </div>
 
@@ -159,7 +159,7 @@
           <td>{{empresa?.tipoPersona}}</td>
         </tr>
         <tr>
-          <td><b>Tipo de tramite</b></td>
+          <td><b>Tipo de trámite</b></td>
           <td>{{empresa?.tipoTramite}}</td>
         </tr>
 
@@ -168,7 +168,7 @@
           <td>{{empresa?.curp}}</td>
         </tr>
         <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
-          <td><b>Sexo</b></td>
+          <td><b>Genero</b></td>
           <td>{{empresa?.sexo}}</td>
         </tr>
 
@@ -224,7 +224,7 @@
               </div>
               <div class="col-sm-4">
                 <label for="email">
-                  <b>Correo electronico *</b>
+                  <b>Correo electrónico *</b>
                   <span
                     *ngIf="empresaUsuarioForm.controls['email'].invalid && (empresaUsuarioForm.controls['email'].dirty || empresaUsuarioForm.controls['email'].touched)">
                         <i *ngIf="empresaUsuarioForm.controls['email'].errors.required" class="error-text"> - Campo requerido</i>
@@ -350,7 +350,7 @@
               </div>
               <div class="col-sm-3" *ngIf="tipoPersona === 'FISICA'">
                 <label for="sexo">
-                  <b>Sexo</b>
+                  <b>Genero</b>
                 </label>
                 <select id="sexo" class="form-control" formControlName="sexo">
                   <option value="MASCULINO">MASCULINO</option>
@@ -394,7 +394,7 @@
               </div>
               <div class="col-sm-3">
                 <label for="telefono">
-                  <b>Telefono *</b>
+                  <b>Teléfono *</b>
                   <span
                     *ngIf="empresaCreacionForm.controls['telefono'].invalid && (empresaCreacionForm.controls['telefono'].dirty || empresaCreacionForm.controls['telefono'].touched)">
                       <i *ngIf="empresaCreacionForm.controls['telefono'].errors.required" class="error-text"> - Campo requerido</i>
@@ -426,7 +426,7 @@
           <table class="table">
             <tr>
               <td><b>Forma de ejecucion</b></td>
-              <td><b>Acciones</b></td>
+              <td><b>Opciones</b></td>
             </tr>
             <tr *ngFor="let fe of empresaFormasEjecucion">
               <td [ngSwitch]="fe?.formaEjecucion">
@@ -502,7 +502,7 @@
               <td><b>Submodalidad</b></td>
               <td><b>Fecha Inicio</b></td>
               <td><b>Fecha Fin</b></td>
-              <td><b>Acciones</b></td>
+              <td><b>Opciones</b></td>
             </tr>
             <tr *ngFor="let m of empresaModalidades">
               <td>{{m.modalidad?.nombre}}</td>

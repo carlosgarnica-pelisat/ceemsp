@@ -17,4 +17,20 @@ public class ArmaDto {
     private String calibre;
     private EmpresaDomicilioDto bunker;
     private ArmaStatusEnum status;
+    private String serie;
+    private String matricula;
+    private Boolean eliminado;
+    private IncidenciaDto incidencia;
+    private String motivoBaja;
+    private String observacionesBaja;
+    private String documentoFundatorioBaja;
+    private String fechaBaja;
+    private PersonaDto personalAsignado;
+    private String fechaCreacion;
+    private Boolean eliminadoIncidencia;
+    private String fechaCreacionIncidencia;
+    private String fechaEliminacionIncidencia;
+    private String razonBajaIncidencia;
+    private EmpresaDto empresa;
+    private String numeroOficio;
 }

@@ -1,0 +1,244 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-04-01-agregar-equipo" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <insert tableName="equipos">
+            <column name="ID" value="1"></column>
+            <column name="UUID" value="wbd9oNe9vox6"></column>
+            <column name="NOMBRE" value="Tali"></column>
+            <column name="DESCRIPCION" value="Tali"></column>
+            <column name="FORMA_EJECUCION" value="NA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="equipos">
+            <column name="ID" value="2"></column>
+            <column name="UUID" value="tMH99FV9GzKO"></column>
+            <column name="NOMBRE" value="Baston PR-24 (Tolete)"></column>
+            <column name="DESCRIPCION" value="Baston PR-24 (Tolete)"></column>
+            <column name="FORMA_EJECUCION" value="NA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="equipos">
+            <column name="ID" value="3"></column>
+            <column name="UUID" value="fUEn05IY32bP"></column>
+            <column name="NOMBRE" value="Baston retractil"></column>
+            <column name="DESCRIPCION" value="Baston retractil"></column>
+            <column name="FORMA_EJECUCION" value="NA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="equipos">
+            <column name="ID" value="4"></column>
+            <column name="UUID" value="v8uIiHoPVP2O"></column>
+            <column name="NOMBRE" value="Aros de aprehension"></column>
+            <column name="DESCRIPCION" value="Aros de aprehension"></column>
+            <column name="FORMA_EJECUCION" value="NA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="equipos">
+            <column name="ID" value="5"></column>
+            <column name="UUID" value="fkdM8alorjUy"></column>
+            <column name="NOMBRE" value="Lampara"></column>
+            <column name="DESCRIPCION" value="Lampara"></column>
+            <column name="FORMA_EJECUCION" value="NA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="equipos">
+            <column name="ID" value="6"></column>
+            <column name="UUID" value="pGT4bMeVGFe7"></column>
+            <column name="NOMBRE" value="Chaleco tactico"></column>
+            <column name="DESCRIPCION" value="Chaleco tactico"></column>
+            <column name="FORMA_EJECUCION" value="NA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="equipos">
+            <column name="ID" value="7"></column>
+            <column name="UUID" value="ls6B8WEgZVg1"></column>
+            <column name="NOMBRE" value="Porta gas"></column>
+            <column name="DESCRIPCION" value="Porta gas"></column>
+            <column name="FORMA_EJECUCION" value="NA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="equipos">
+            <column name="ID" value="8"></column>
+            <column name="UUID" value="trJ69Aje3Qug"></column>
+            <column name="NOMBRE" value="Chaleco balistico"></column>
+            <column name="DESCRIPCION" value="Chaleco balistico"></column>
+            <column name="FORMA_EJECUCION" value="ARMAS"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="equipos">
+            <column name="ID" value="9"></column>
+            <column name="UUID" value="Zp38ua7rtSj5"></column>
+            <column name="NOMBRE" value="Gas defensivo"></column>
+            <column name="DESCRIPCION" value="Gas defensivo"></column>
+            <column name="FORMA_EJECUCION" value="INSTRUMENTOS"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="equipos">
+            <column name="ID" value="10"></column>
+            <column name="UUID" value="RFR62xjsEyGf"></column>
+            <column name="NOMBRE" value="Dispositivos de descarga electrica (taser)"></column>
+            <column name="DESCRIPCION" value="Taser"></column>
+            <column name="FORMA_EJECUCION" value="INSTRUMENTOS"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="equipos">
+            <column name="ID" value="11"></column>
+            <column name="UUID" value="SdAyTohGNYJp"></column>
+            <column name="NOMBRE" value="Detector de metal"></column>
+            <column name="DESCRIPCION" value="Detector de metal"></column>
+            <column name="FORMA_EJECUCION" value="TECNOLOGIA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="equipos">
+            <column name="ID" value="12"></column>
+            <column name="UUID" value="m97ht1XIevFi"></column>
+            <column name="NOMBRE" value="Drones"></column>
+            <column name="DESCRIPCION" value="Drones"></column>
+            <column name="FORMA_EJECUCION" value="TECNOLOGIA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="equipos">
+            <column name="ID" value="13"></column>
+            <column name="UUID" value="XkQt9zSYpGq9"></column>
+            <column name="NOMBRE" value="Collar de control"></column>
+            <column name="DESCRIPCION" value="Collar de control"></column>
+            <column name="FORMA_EJECUCION" value="CANES"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="equipos">
+            <column name="ID" value="14"></column>
+            <column name="UUID" value="q5VpGYN1eweo"></column>
+            <column name="NOMBRE" value="Correa"></column>
+            <column name="DESCRIPCION" value="Correa"></column>
+            <column name="FORMA_EJECUCION" value="CANES"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="equipos">
+            <column name="ID" value="15"></column>
+            <column name="UUID" value="76Q4kHHDwXFa"></column>
+            <column name="NOMBRE" value="Chaleco identificador"></column>
+            <column name="DESCRIPCION" value="Chaleco identificador"></column>
+            <column name="FORMA_EJECUCION" value="CANES"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="equipos">
+            <column name="ID" value="16"></column>
+            <column name="UUID" value="rJmGGnoESccH"></column>
+            <column name="NOMBRE" value="Bozal"></column>
+            <column name="DESCRIPCION" value="Bozal"></column>
+            <column name="FORMA_EJECUCION" value="CANES"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="equipos">
+            <column name="ID" value="17"></column>
+            <column name="UUID" value="GSXt4kxXBhfT"></column>
+            <column name="NOMBRE" value="Radio transmisor"></column>
+            <column name="DESCRIPCION" value="Radio transmisor"></column>
+            <column name="FORMA_EJECUCION" value="NA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="equipos">
+            <column name="ID" value="18"></column>
+            <column name="UUID" value="4PyVGImJ7ddt"></column>
+            <column name="NOMBRE" value="Celular"></column>
+            <column name="DESCRIPCION" value="Celular"></column>
+            <column name="FORMA_EJECUCION" value="NA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="equipos">
+            <column name="ID" value="19"></column>
+            <column name="UUID" value="kkF0CeLD8u25"></column>
+            <column name="NOMBRE" value="Otro"></column>
+            <column name="DESCRIPCION" value="Otro"></column>
+            <column name="FORMA_EJECUCION" value="NA"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+
+    </changeSet>
+</databaseChangeLog>

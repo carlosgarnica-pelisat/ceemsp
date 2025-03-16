@@ -4,8 +4,6 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaModalidadDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaLicenciaColectiva;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaModalidad;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaModalidadRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -20,7 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,6 +78,32 @@ public class EmpresaModalidadServiceImpl implements EmpresaModalidadService {
     }
 
     @Override
+    public EmpresaModalidadDto obtenerEmpresaModalidadPorId(int id) {
+        if(id < 1) {
+            logger.warn("El id suministrado es invalido");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Obteniendo la modalidad de la empresa con el id [{}]", id);
+
+        EmpresaModalidad empresaModalidad = empresaModalidadRepository.getOne(id);
+
+        if(empresaModalidad == null || empresaModalidad.getEliminado()) {
+            logger.warn("La modalidad no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        EmpresaModalidadDto empresaModalidadDto = daoToDtoConverter.convertDaoToDtoEmpresaModalidad(empresaModalidad);
+        empresaModalidadDto.setModalidad(modalidadService.obtenerModalidadPorId(empresaModalidad.getModalidad()));
+        if(empresaModalidad.getSubmodalidad() != null && empresaModalidad.getSubmodalidad() > 0 ){
+            empresaModalidadDto.setSubmodalidad(submodalidadService.obtenerSubmodalidadPorId(empresaModalidad.getSubmodalidad()));
+        }
+        return empresaModalidadDto;
+    }
+
+
+    @Override
+    @Transactional
     public EmpresaModalidadDto guardarModalidad(String empresaUuid, String username, EmpresaModalidadDto empresaModalidadDto) {
         if(StringUtils.isBlank(empresaUuid) || empresaModalidadDto == null || StringUtils.isBlank(username)) {
             logger.warn("El uuid o la escritura a crear vienen como nulos o vacios");
@@ -91,8 +117,17 @@ public class EmpresaModalidadServiceImpl implements EmpresaModalidadService {
         empresaModalidad.setUuid(RandomStringUtils.randomAlphanumeric(12));
         empresaModalidad.setEmpresa(empresaDto.getId());
         empresaModalidad.setModalidad(empresaModalidadDto.getModalidad().getId());
+        empresaModalidad.setNumeroRegistroFederal(empresaModalidadDto.getNumeroRegistroFederal());
         if(empresaModalidadDto.getSubmodalidad() != null) {
             empresaModalidad.setSubmodalidad(empresaModalidadDto.getSubmodalidad().getId());
+        }
+
+        if(StringUtils.isNotBlank(empresaModalidadDto.getFechaInicio())) {
+            empresaModalidad.setFechaInicio(LocalDate.parse(empresaModalidadDto.getFechaInicio()));
+        }
+
+        if(StringUtils.isNotBlank(empresaModalidadDto.getFechaFin())) {
+            empresaModalidad.setFechaFin(LocalDate.parse(empresaModalidadDto.getFechaFin()));
         }
 
         daoHelper.fulfillAuditorFields(true, empresaModalidad, usuarioDto.getId());
@@ -126,6 +161,7 @@ public class EmpresaModalidadServiceImpl implements EmpresaModalidadService {
     }
 
     @Override
+    @Transactional
     public EmpresaModalidadDto eliminarModalidadPorUuid(String empresaUuid, String modalidadUuid, String username) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(modalidadUuid) || StringUtils.isBlank(username)) {
             logger.warn("Alguno de los parametros no es valido");

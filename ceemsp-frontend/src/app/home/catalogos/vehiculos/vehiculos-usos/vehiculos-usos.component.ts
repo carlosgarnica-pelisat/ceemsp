@@ -1,10 +1,16 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ToastType} from "../../../../_enums/ToastType";
 import {VehiculosService} from "../../../../_services/vehiculos.service";
 import {ToastService} from "../../../../_services/toast.service";
 import VehiculoUso from "../../../../_models/VehiculoUso";
+import PersonalNacionalidad from "../../../../_models/PersonalNacionalidad";
+import Uniforme from "../../../../_models/Uniforme";
+import {BotonCatalogosComponent} from "../../../../_components/botones/boton-catalogos/boton-catalogos.component";
+import {AuthenticationService} from "../../../../_services/authentication.service";
+import Usuario from "../../../../_models/Usuario";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-vehiculos-usos',
@@ -12,17 +18,19 @@ import VehiculoUso from "../../../../_models/VehiculoUso";
   styleUrls: ['./vehiculos-usos.component.css']
 })
 export class VehiculosUsosComponent implements OnInit {
-
+  editandoModal: boolean = false;
   private gridApi;
   private gridColumnApi;
 
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
     {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
+    {headerName: 'Opciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
       }}
   ];
   rowData = [];
@@ -34,18 +42,34 @@ export class VehiculosUsosComponent implements OnInit {
   rowDataClicked = {
     uuid: undefined
   };
+  usuarioActual: Usuario;
 
   crearVehiculoUsoForm: FormGroup;
 
   vehiculoUso: VehiculoUso;
 
-  constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
-              private vehiculoService: VehiculosService, private toastService: ToastService) { }
+  @ViewChild("mostrarUsoVehiculoDetallesModal") mostrarUsoVehiculoDetallesModal;
+  @ViewChild("editarUsoVehiculoModal") editarUsoVehiculoModal;
+  @ViewChild("eliminarUsoVehiculoModal") eliminarUsoVehiculoModal;
+
+  constructor(private modalService: NgbModal, private formBuilder: FormBuilder, private authenticationService: AuthenticationService,
+              private vehiculoService: VehiculosService, private toastService: ToastService, private router: Router) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
+
+    if(this.usuarioActual.rol !== 'CEEMSP_SUPERUSER') {
+      this.router.navigate(['/home']);
+    }
+
+    this.frameworkComponents = {
+      catalogoButtonRenderer: BotonCatalogosComponent
+    }
+
     this.crearVehiculoUsoForm = this.formBuilder.group({
-      nombre: ['', Validators.required],
-      descripcion: ['']
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      descripcion: ['', [Validators.maxLength(100)]]
     })
 
     this.vehiculoService.obtenerVehiculosUsos().subscribe((data: VehiculoUso[]) => {
@@ -59,6 +83,32 @@ export class VehiculosUsosComponent implements OnInit {
     })
   }
 
+  verDetalles(rowData) {
+    this.checkForDetails(rowData.rowData, this.mostrarUsoVehiculoDetallesModal);
+  }
+
+  editar(rowData) {
+    this.vehiculoUso = rowData.rowData;
+    this.editandoModal = false;
+    this.crearVehiculoUsoForm.patchValue({
+      nombre: this.vehiculoUso.nombre,
+      descripcion: this.vehiculoUso.descripcion
+    });
+
+    this.modal = this.modalService.open(this.editarUsoVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  eliminar(rowData) {
+    this.vehiculoUso = rowData.rowData;
+    this.mostrarEliminarVehiculoUsoModal();
+  }
+
   onGridReady(params) {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
@@ -68,30 +118,7 @@ export class VehiculosUsosComponent implements OnInit {
   checkForDetails(data, modal) {
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
-    this.uuid = data.uuid;
-
-    this.vehiculoService.obtenerVehiculoUsoPorUuid(this.uuid).subscribe((data: VehiculoUso) => {
-      this.vehiculoUso = data;
-      this.modal.result.then((result) => {
-        this.closeResult = `Closed with ${result}`;
-      }, (error) => {
-        this.closeResult = `Dismissed ${this.getDismissReason(error)}`
-      });
-    }, (error) => {
-      this.toastService.showGenericToast(
-        "Ocurrio un problema",
-        `La informacion de la marca del vehiculo no se descargo. Motivo: ${error}`,
-        ToastType.ERROR
-      );
-    })
-  }
-
-  modify(rowData) {
-
-  }
-
-  delete(rowData) {
-
+    this.vehiculoUso = this.rowData.filter(x => x.uuid === data.uuid)[0];
   }
 
   mostrarModalCrear(modal) {
@@ -138,6 +165,82 @@ export class VehiculosUsosComponent implements OnInit {
     })
   }
 
+  guardarCambios(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos requeridos que no se han validado",
+        ToastType.WARNING
+      )
+      return;
+    }
+
+    let vehiculoUso: VehiculoUso = form.value;
+
+    this.vehiculoService.modificarVehiculoUso(this.vehiculoUso.uuid, vehiculoUso).subscribe((data: VehiculoUso) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha modificado con exito el uso del vehiculo",
+        ToastType.SUCCESS
+      )
+      if(this.editandoModal) {
+        this.vehiculoUso = data;
+        this.modal.close();
+      } else {
+        window.location.reload();
+      }
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido modificar el uso del vehiculo. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+  confirmarEliminar() {
+    this.vehiculoService.borrarVehiculoUso(this.vehiculoUso.uuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el uso del vehiculo con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar el uso del vehiculo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  mostrarModificarVehiculoUsoModal() {
+    this.editandoModal = true;
+    this.crearVehiculoUsoForm.patchValue({
+      nombre: this.vehiculoUso.nombre,
+      descripcion: this.vehiculoUso.descripcion
+    });
+
+    this.modal = this.modalService.open(this.editarUsoVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  mostrarEliminarVehiculoUsoModal() {
+    this.modal = this.modalService.open(this.eliminarUsoVehiculoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
   private getDismissReason(reason: any): string {
     if (reason == ModalDismissReasons.ESC) {
       return `by pressing ESC`;
@@ -146,10 +249,6 @@ export class VehiculosUsosComponent implements OnInit {
     } else {
       return `with ${reason}`;
     }
-  }
-
-  changeToSubmarcas() {
-
   }
 
 }

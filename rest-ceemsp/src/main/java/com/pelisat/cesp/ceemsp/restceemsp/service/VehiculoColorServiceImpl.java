@@ -3,9 +3,7 @@ package com.pelisat.cesp.ceemsp.restceemsp.service;
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.dto.VehiculoColorDto;
-import com.pelisat.cesp.ceemsp.database.dto.VehiculoDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
 import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
 import com.pelisat.cesp.ceemsp.database.model.VehiculoColor;
 import com.pelisat.cesp.ceemsp.database.repository.VehiculoColorRepository;
@@ -20,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,7 +55,7 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
             throw new InvalidDataException();
         }
         EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
-        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+        Vehiculo vehiculo = vehiculoRepository.getByUuid(vehiculoUuid);
 
         if(vehiculo == null) {
             logger.warn("El vehiculo no existe en la base de datos");
@@ -72,6 +71,7 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
         return null;
     }
 
+    @Transactional
     @Override
     public VehiculoColorDto guardarcolor(String empresaUuid, String vehiculoUuid, String username, VehiculoColorDto vehiculoColorDto) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(username) || vehiculoColorDto == null) {
@@ -79,7 +79,13 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
             throw new InvalidDataException();
         }
 
-        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+        Vehiculo vehiculo = vehiculoRepository.getByUuid(vehiculoUuid);
+
+        if(vehiculo == null) {
+            logger.warn("El vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
 
         VehiculoColor vehiculoColor = dtoToDaoConverter.convertDtoToDaoColor(vehiculoColorDto);
@@ -88,10 +94,17 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
 
         VehiculoColor vehiculoColorCreado = vehiculoColorRepository.save(vehiculoColor);
 
+        if(!vehiculo.isColoresCapturado()) {
+            vehiculo.setColoresCapturado(true);
+            daoHelper.fulfillAuditorFields(false, vehiculo, usuarioDto.getId());
+            vehiculoRepository.save(vehiculo);
+        }
+
         return daoToDtoConverter.convertDaoToDtoVehiculoColor(vehiculoColorCreado);
     }
 
     @Override
+    @Transactional
     public VehiculoColorDto modificarColor(String empresaUuid, String vehiculoUuid, String colorUuid, String username, VehiculoColorDto vehiculoColorDto) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(username) || vehiculoColorDto == null) {
             logger.warn("El uuid de la empresa, del vehiculo, el usuario o el color a dar de alta vienen como nulos o vacios");
@@ -116,6 +129,7 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
     }
 
     @Override
+    @Transactional
     public VehiculoColorDto eliminarColor(String empresaUuid, String vehiculoUuid, String colorUuid, String username) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(vehiculoUuid) || StringUtils.isBlank(username)) {
             logger.warn("El uuid de la empresa, del vehiculo, el usuario o el color a dar de alta vienen como nulos o vacios");
@@ -123,16 +137,31 @@ public class VehiculoColorServiceImpl implements VehiculoColorService {
         }
 
         logger.info("Eliminando el color con el uuid [{}]", colorUuid);
-        VehiculoColor vehiculoColor = vehiculoColorRepository.findByUuidAndEliminadoFalse(colorUuid);
 
+        Vehiculo vehiculo = vehiculoRepository.getByUuidAndEliminadoFalse(vehiculoUuid);
+        if(vehiculo == null) {
+            logger.warn("El vehiculo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        VehiculoColor vehiculoColor = vehiculoColorRepository.findByUuidAndEliminadoFalse(colorUuid);
         if(vehiculoColor == null) {
             logger.warn("El color no existe en la base de datos");
-            throw new InvalidDataException();
+            throw new NotFoundResourceException();
         }
+
         UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
         vehiculoColor.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, vehiculoColor, usuarioDto.getId());
         vehiculoColorRepository.save(vehiculoColor);
+
+        List<VehiculoColor> colores = vehiculoColorRepository.getAllByVehiculoAndEliminadoFalse(vehiculo.getId());
+        if(colores.size() == 0) {
+            vehiculo.setColoresCapturado(false);
+            daoHelper.fulfillAuditorFields(false, vehiculo, usuarioDto.getId());
+            vehiculoRepository.save(vehiculo);
+        }
+
         return daoToDtoConverter.convertDaoToDtoVehiculoColor(vehiculoColor);
     }
 }

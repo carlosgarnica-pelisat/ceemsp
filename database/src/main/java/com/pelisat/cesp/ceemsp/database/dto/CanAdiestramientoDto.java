@@ -6,7 +6,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CanAdiestramientoDto {
+    private int id;
+    private String uuid;
     private String nombreInstructor;
     private String fechaConstancia;
     private CanTipoAdiestramientoDto canTipoAdiestramiento;
+    private boolean eliminado;
 }

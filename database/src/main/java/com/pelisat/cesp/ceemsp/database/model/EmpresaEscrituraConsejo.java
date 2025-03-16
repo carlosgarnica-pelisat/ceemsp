@@ -33,4 +33,16 @@ public class EmpresaEscrituraConsejo extends CommonModel {
 
     @Column(name = "CURP")
     private String curp;
+
+    @Column(name = "MOTIVO_BAJA")
+    private String motivoBaja;
+
+    @Column(name = "OBSERVACIONES_BAJA")
+    private String observacionesBaja;
+
+    @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
+    private String documentoFundatorioBaja;
+
+    @Column(name = "FECHA_BAJA")
+    private LocalDate fechaBaja;
 }

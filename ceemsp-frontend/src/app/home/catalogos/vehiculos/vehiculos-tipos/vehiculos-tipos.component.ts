@@ -1,10 +1,15 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {VehiculosService} from "../../../../_services/vehiculos.service";
 import {ToastService} from "../../../../_services/toast.service";
 import {ToastType} from "../../../../_enums/ToastType";
 import VehiculoTipo from "../../../../_models/VehiculoTipo";
+import Uniforme from "../../../../_models/Uniforme";
+import {BotonCatalogosComponent} from "../../../../_components/botones/boton-catalogos/boton-catalogos.component";
+import {AuthenticationService} from "../../../../_services/authentication.service";
+import {Router} from "@angular/router";
+import Usuario from "../../../../_models/Usuario";
 
 @Component({
   selector: 'app-vehiculos-tipos',
@@ -12,20 +17,24 @@ import VehiculoTipo from "../../../../_models/VehiculoTipo";
   styleUrls: ['./vehiculos-tipos.component.css']
 })
 export class VehiculosTiposComponent implements OnInit {
-
+  editandoModal: boolean = false;
   private gridApi;
   private gridColumnApi;
 
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
     {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
+    {headerName: 'Opciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
       }}
   ];
   rowData = [];
+
+  vehiculoTipo: VehiculoTipo;
 
   uuid: string;
   modal: NgbModalRef;
@@ -34,16 +43,33 @@ export class VehiculosTiposComponent implements OnInit {
   rowDataClicked = {
     uuid: undefined
   };
+  usuarioActual: Usuario;
 
   crearVehiculoTipoForm: FormGroup;
 
-  constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
-              private vehiculoService: VehiculosService, private toastService: ToastService) { }
+  @ViewChild("mostrarVehiculoTipoModal") mostrarVehiculoTipoModal;
+  @ViewChild("editarVehiculoTipoModal") editarVehiculoTipoModal;
+  @ViewChild("eliminarVehiculoTipoModal") eliminarVehiculoTipoModal;
+
+  constructor(private modalService: NgbModal, private formBuilder: FormBuilder, private authenticationService: AuthenticationService,
+              private vehiculoService: VehiculosService, private toastService: ToastService, private router: Router) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
+
+    if(this.usuarioActual.rol !== 'CEEMSP_SUPERUSER') {
+      this.router.navigate(['/home']);
+    }
+
+    this.frameworkComponents = {
+      catalogoButtonRenderer: BotonCatalogosComponent
+    }
+
     this.crearVehiculoTipoForm = this.formBuilder.group({
-      nombre: ['', Validators.required],
-      descripcion: ['']
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      descripcion: ['', [Validators.maxLength(100)]],
+      tipo: ['', [Validators.required]]
     });
 
     this.vehiculoService.obtenerVehiculosTipos().subscribe((data: VehiculoTipo[]) => {
@@ -57,6 +83,33 @@ export class VehiculosTiposComponent implements OnInit {
     })
   }
 
+  verDetalles(rowData) {
+    this.checkForDetails(rowData.rowData);
+  }
+
+  editar(rowData) {
+    this.vehiculoTipo = rowData.rowData;
+    this.editandoModal = false;
+    this.crearVehiculoTipoForm.patchValue({
+      nombre: this.vehiculoTipo.nombre,
+      descripcion: this.vehiculoTipo.descripcion,
+      tipo: this.vehiculoTipo.tipo
+    });
+
+    this.modal = this.modalService.open(this.editarVehiculoTipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  eliminar(rowData) {
+    this.vehiculoTipo = rowData.rowData;
+    this.mostrarEliminarVehiculoTipoModal();
+  }
+
   onGridReady(params) {
     params.api.sizeColumnsToFit();
     this.gridApi = params.api;
@@ -64,17 +117,14 @@ export class VehiculosTiposComponent implements OnInit {
   }
 
   checkForDetails(data) {
-    //this.modal = this.modalService.open(showCustomerDetailsModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+    this.vehiculoTipo = this.rowData.filter(x => x.uuid === data.uuid)[0]
+    this.modal = this.modalService.open(this.mostrarVehiculoTipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
-    this.uuid = data.uuid;
-  }
-
-  modify(rowData) {
-
-  }
-
-  delete(rowData) {
-
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    });
   }
 
   guardarTipoVehiculo(form) {
@@ -105,8 +155,86 @@ export class VehiculosTiposComponent implements OnInit {
     })
   }
 
+  guardarCambios(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay algunos campos requeridos que no se han validado",
+        ToastType.WARNING
+      )
+      return;
+    }
+
+    let vehiculoTipo: VehiculoTipo = form.value;
+
+    this.vehiculoService.modificarVehiculoTipo(this.vehiculoTipo.uuid, vehiculoTipo).subscribe((data: VehiculoTipo) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha modificado con exito el tipo de vehiculo",
+        ToastType.SUCCESS
+      )
+      if(this.editandoModal) {
+        this.vehiculoTipo = data;
+        this.modal.close();
+      } else {
+        window.location.reload();
+      }
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar el tipo de vehiculo. Motivo: ${error}`,
+        ToastType.ERROR
+      )
+    })
+  }
+
+
+  confirmarEliminar() {
+    this.vehiculoService.borrarVehiculoTipo(this.vehiculoTipo.uuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el tipo de vehiculo con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar el tipo de vehiculo. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
   mostrarModalCrear(modal) {
     this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarModificarVehiculoTipoModal() {
+    this.editandoModal = true;
+    this.crearVehiculoTipoForm.patchValue({
+      nombre: this.vehiculoTipo.nombre,
+      descripcion: this.vehiculoTipo.descripcion,
+      tipo: this.vehiculoTipo.tipo
+    });
+
+    this.modal = this.modalService.open(this.editarVehiculoTipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  mostrarEliminarVehiculoTipoModal() {
+    this.modal = this.modalService.open(this.eliminarVehiculoTipoModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
     this.modal.result.then((result) => {
       this.closeResult = `Closed with ${result}`;

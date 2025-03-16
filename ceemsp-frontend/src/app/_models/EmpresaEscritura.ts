@@ -3,6 +3,10 @@ import EmpresaEscrituraSocio from "./EmpresaEscrituraSocio";
 import EmpresaEscrituraApoderado from "./EmpresaEscrituraApoderado";
 import EmpresaEscrituraRepresentante from "./EmpresaEscrituraRepresentante";
 import EmpresaEscrituraConsejo from "./EmpresaEscrituraConsejo";
+import Estado from "./Estado";
+import Municipio from "./Municipio";
+import Localidad from "./Localidad";
+import Empresa from "./Empresa";
 
 export default class EmpresaEscritura implements Deserializable {
   id: number;
@@ -14,11 +18,23 @@ export default class EmpresaEscritura implements Deserializable {
   numero: string;
   nombreFedatario: string;
   descripcion: string;
+  apellidoMaterno: string;
+  apellidoPaterno: string;
+  curp: string;
+  estadoCatalogo: Estado;
+  municipioCatalogo: Municipio;
+  localidadCatalogo: Localidad;
   socios: EmpresaEscrituraSocio[];
   apoderados: EmpresaEscrituraApoderado[];
   representantes: EmpresaEscrituraRepresentante[];
   consejos: EmpresaEscrituraConsejo[];
+  nombreArchivo: string;
 
+  fechaCreacion: string;
+  fechaActualizacion: string;
+  empresa: Empresa;
+
+  eliminado: boolean;
   deserialize(input: any): this {
     Object.assign(this, input);
     return this;

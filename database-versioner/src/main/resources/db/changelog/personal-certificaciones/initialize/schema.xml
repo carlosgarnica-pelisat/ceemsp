@@ -5,7 +5,7 @@
 
     <changeSet id="2021-12-09-crear-tabla-personal-certificaciones" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="PERSONAL_CERTIFICACIONES">
+        <createTable tableName="personal_certificaciones">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="PERSONAL" type="int"></column>
@@ -23,11 +23,11 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="PERSONAL_CERTIFICACIONES" columnNames="ID" />
-        <addAutoIncrement tableName="PERSONAL_CERTIFICACIONES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="personal_certificaciones" columnNames="ID" />
+        <addAutoIncrement tableName="personal_certificaciones" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="PERSONAL_CERTIFICACIONES" columnNames="UUID" />
+        <addUniqueConstraint tableName="personal_certificaciones" columnNames="UUID" />
 
     </changeSet>
 </databaseChangeLog>

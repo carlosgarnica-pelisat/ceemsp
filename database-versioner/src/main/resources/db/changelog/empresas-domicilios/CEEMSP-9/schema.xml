@@ -5,7 +5,7 @@
 
     <changeSet id="2021-12-16-agregar-empresas-domicilio-exterior-interior" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <addColumn tableName="EMPRESAS_DOMICILIOS">
+        <addColumn tableName="empresas_domicilios">
             <column name="NUMERO_EXTERIOR" type="VARCHAR(20)"></column>
             <column name="NUMERO_INTERIOR" type="VARCHAR(20)"></column>
         </addColumn>

@@ -3,40 +3,24 @@ import {HomeComponent} from "../../home/home.component";
 import {NgModule} from "@angular/core";
 import {AuthGuard} from "../../_helpers/auth.guard";
 import {DashboardComponent} from "../../home/dashboard/dashboard.component";
-import {EmpresasComponent} from "../../home/empresas/empresas.component";
-import {EmpresaNuevaComponent} from "../../home/empresas/empresa-nueva/empresa-nueva.component";
-import {VehiculosComponent} from "../../home/catalogos/vehiculos/vehiculos.component";
-import {ArmasComponent} from "../../home/catalogos/armas/armas.component";
-import {CanesComponent} from "../../home/catalogos/canes/canes.component";
-import {CanesEntrenamientosComponent} from "../../home/catalogos/canes/canes-entrenamientos/canes-entrenamientos.component";
-import {ArmasMarcasComponent} from "../../home/catalogos/armas/armas-marcas/armas-marcas.component";
-import {ArmasClasesComponent} from "../../home/catalogos/armas/armas-clases/armas-clases.component";
-import {VehiculosTiposComponent} from "../../home/catalogos/vehiculos/vehiculos-tipos/vehiculos-tipos.component";
-import {ComunicadosGeneralesComponent} from "../../home/comunicados/comunicados-generales/comunicados-generales.component";
-import {BuzonSalidaComponent} from "../../home/comunicados/buzon-salida/buzon-salida.component";
-import {VisitasComponent} from "../../home/visitas/visitas.component";
-import {IncidenciasComponent} from "../../home/incidencias/incidencias.component";
-import {ReporteoComponent} from "../../home/reporteo/reporteo.component";
-import {ConfiguracionComponent} from "../../home/configuracion/configuracion.component";
-import {ModalidadesComponent} from "../../home/catalogos/modalidades/modalidades.component";
-import {EmpresaDetallesComponent} from "../../home/empresas/empresa-detalles/empresa-detalles.component";
 import {EmpresaDomiciliosComponent} from "../../home/empresa-domicilios/empresa-domicilios.component";
 import {EmpresaLegalComponent} from "../../home/empresa-legal/empresa-legal.component";
 import {EmpresaLicenciasComponent} from "../../home/empresa-licencias/empresa-licencias.component";
 import {EmpresaCanesComponent} from "../../home/empresa-canes/empresa-canes.component";
-import {EmpresaArmasComponent} from "../../home/empresa-armas/empresa-armas.component";
 import {EmpresaVehiculosComponent} from "../../home/empresa-vehiculos/empresa-vehiculos.component";
 import {EmpresaIncidenciasComponent} from "../../home/empresa-incidencias/empresa-incidencias.component";
 import {EmpresaPersonalComponent} from "../../home/empresa-personal/empresa-personal.component";
 import {EmpresaClientesComponent} from "../../home/empresa-clientes/empresa-clientes.component";
-import {VehiculosUsosComponent} from "../../home/catalogos/vehiculos/vehiculos-usos/vehiculos-usos.component";
-import {PersonalComponent} from "../../home/catalogos/personal/personal.component";
-import {NacionalidadesComponent} from "../../home/catalogos/personal/nacionalidades/nacionalidades.component";
-import {ComunicadoGeneralNuevoComponent} from "../../home/comunicados/comunicados-generales/comunicado-general-nuevo/comunicado-general-nuevo.component";
 import {EmpresaEquipoComponent} from "../../home/empresa-equipo/empresa-equipo.component";
-import {EquipoComponent} from "../../home/catalogos/equipo/equipo.component";
-import {UniformesComponent} from "../../home/catalogos/equipo/uniformes/uniformes.component";
 import {EmpresaUniformesComponent} from "../../home/empresa-uniformes/empresa-uniformes.component";
+import {EmpresaAcuerdosComponent} from "../../home/empresa-acuerdos/empresa-acuerdos.component";
+import {EmpresaInformacionComponent} from "../../home/empresa-informacion/empresa-informacion.component";
+import {EmpresaVisitasComponent} from "../../home/empresa-visitas/empresa-visitas.component";
+import {
+  EmpresaReportesMensualesComponent
+} from "../../home/empresa-reportes-mensuales/empresa-reportes-mensuales.component";
+import {ReporteoComponent} from "../../home/reporteo/reporteo.component";
+import {BusquedaComponent} from "../../home/busqueda/busqueda.component";
 
 
 const routes: Routes = [
@@ -53,6 +37,10 @@ const routes: Routes = [
       {
         path: 'domicilios',
         component: EmpresaDomiciliosComponent
+      },
+      {
+        path: 'acuerdos',
+        component: EmpresaAcuerdosComponent
       },
       {
         path: 'legal',
@@ -90,11 +78,29 @@ const routes: Routes = [
         path: 'uniformes',
         component: EmpresaUniformesComponent
       },
+      {
+        path: 'visitas',
+        component: EmpresaVisitasComponent
+      },
+      {
+        path: 'reportes-mensuales',
+        component: EmpresaReportesMensualesComponent
+      },
+      {
+        path: 'reporteo',
+        component: ReporteoComponent
+      },
+
+      // Busqueda
+      {
+        path: 'busqueda',
+        component: BusquedaComponent
+      },
 
       // Configuracion
       {
-        path: 'configuracion',
-        component: ConfiguracionComponent
+        path: 'informacion',
+        component: EmpresaInformacionComponent
       }
     ]
   }

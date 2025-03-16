@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ToastService} from "../../../_services/toast.service";
@@ -6,6 +6,12 @@ import {VehiculosService} from "../../../_services/vehiculos.service";
 import VehiculoMarca from "../../../_models/VehiculoMarca";
 import {ToastType} from "../../../_enums/ToastType";
 import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
+import VehiculoSubmarca from "../../../_models/VehiculoSubmarca";
+import EmpresaEscrituraSocio from "../../../_models/EmpresaEscrituraSocio";
+import {BotonCatalogosComponent} from "../../../_components/botones/boton-catalogos/boton-catalogos.component";
+import {AuthenticationService} from "../../../_services/authentication.service";
+import {Router} from "@angular/router";
+import Usuario from "../../../_models/Usuario";
 
 @Component({
   selector: 'app-vehiculos',
@@ -13,20 +19,25 @@ import {faPencilAlt, faTrash} from "@fortawesome/free-solid-svg-icons";
   styleUrls: ['./vehiculos.component.css']
 })
 export class VehiculosComponent implements OnInit {
-
+  editandoModal: boolean = false;
   faPencilAlt = faPencilAlt;
   faTrash = faTrash;
 
   private gridApi;
   private gridColumnApi;
 
+  showSubmarcaForm: boolean;
+  editandoSubmarca: boolean;
+
   columnDefs = [
-    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true, hide: true },
     {headerName: 'Nombre', field: 'nombre', sortable: true, filter: true },
     {headerName: 'Descripcion', field: 'descripcion', sortable: true, filter: true},
-    {headerName: 'Acciones', cellRenderer: 'buttonRenderer', cellRendererParams: {
-        modify: this.modify.bind(this),
-        delete: this.delete.bind(this)
+    {headerName: 'Opciones', cellRenderer: 'catalogoButtonRenderer', cellRendererParams: {
+        label: 'Ver detalles',
+        verDetalles: this.verDetalles.bind(this),
+        editar: this.editar.bind(this),
+        eliminar: this.eliminar.bind(this)
       }}
   ];
   rowData = [];
@@ -35,6 +46,7 @@ export class VehiculosComponent implements OnInit {
   modal: NgbModalRef;
   frameworkComponents: any;
   closeResult: string;
+  tempUuidSubmarca: string;
   rowDataClicked = {
     uuid: undefined
   };
@@ -43,13 +55,32 @@ export class VehiculosComponent implements OnInit {
   crearVehiculoSubmarcaForm: FormGroup;
 
   vehiculoMarca: VehiculoMarca;
+  vehiculoSubmarca: VehiculoSubmarca;
+
+  usuarioActual: Usuario;
 
   currentTab: string = "DETALLES";
 
-  constructor(private modalService: NgbModal, private formBuilder: FormBuilder,
-              private vehiculoService: VehiculosService, private toastService: ToastService) { }
+  @ViewChild("mostrarVehiculoModal") mostrarVehiculoModal;
+  @ViewChild("editarVehiculoMarcaModal") editarVehiculoMarcaModal;
+  @ViewChild("eliminarVehiculoMarcaModal") eliminarVehiculoMarcaModal;
+  @ViewChild("eliminarVehiculoSubmarcaModal") eliminarVehiculoSubmarcaModal;
+
+  constructor(private modalService: NgbModal, private formBuilder: FormBuilder, private authenticationService: AuthenticationService,
+              private vehiculoService: VehiculosService, private toastService: ToastService, private router: Router) { }
 
   ngOnInit(): void {
+    let usuario = this.authenticationService.currentUserValue;
+    this.usuarioActual = usuario.usuario;
+
+    if(this.usuarioActual.rol !== 'CEEMSP_SUPERUSER') {
+      this.router.navigate(['/home']);
+    }
+
+    this.frameworkComponents = {
+      catalogoButtonRenderer: BotonCatalogosComponent
+    }
+
     this.vehiculoService.obtenerVehiculosMarcas().subscribe((data: VehiculoMarca[]) => {
       this.rowData = data;
     }, (error) => {
@@ -61,13 +92,249 @@ export class VehiculosComponent implements OnInit {
     })
 
     this.crearVehiculoMarcaForm = this.formBuilder.group({
-      submarcaNombre: ['', Validators.required],
-      submarcaDescripcion: ['']
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      descripcion: ['',  [Validators.maxLength(100)]],
+      tipo: ['', [Validators.required]]
     })
 
     this.crearVehiculoSubmarcaForm = this.formBuilder.group({
-      nombre: ['', Validators.required],
-      descripcion: ['']
+      nombre: ['',  [Validators.required, Validators.maxLength(100)]],
+      descripcion: ['',  [Validators.maxLength(100)]]
+    })
+  }
+
+  verDetalles(rowData) {
+    this.checkForDetails(rowData.rowData, this.mostrarVehiculoModal);
+  }
+
+  editar(rowData) {
+    this.vehiculoMarca = rowData.rowData;
+    this.editandoModal = false;
+    this.crearVehiculoMarcaForm.patchValue({
+      nombre: this.vehiculoMarca.nombre,
+      descripcion: this.vehiculoMarca.descripcion,
+      tipo: this.vehiculoMarca.tipo
+    });
+
+    this.modal = this.modalService.open(this.editarVehiculoMarcaModal, {ariaLabelledBy: 'modal-basic-title', size: 'xl'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  eliminar(rowData) {
+    this.vehiculoMarca = rowData.rowData;
+    this.mostrarEliminarVehiculoMarcaModal();
+  }
+
+  mostrarEditarSubmarca(index) {
+    this.vehiculoSubmarca = this.vehiculoMarca.submarcas[index];
+    this.mostrarFormularioSubmarca();
+    this.editandoSubmarca = true;
+    this.crearVehiculoSubmarcaForm.patchValue({
+      nombre: this.vehiculoSubmarca.nombre,
+      descripcion: this.vehiculoSubmarca.descripcion
+    });
+  }
+
+  guardarSubmarca(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Faltan campos requeridos por rellenar. Favor de rellenarlos",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espera un momento",
+      "Estamos guardando la submarca",
+      ToastType.INFO
+    );
+
+    let formValue: VehiculoSubmarca = form.value;
+
+    if(this.editandoSubmarca) {
+      formValue.uuid = this.vehiculoSubmarca.uuid;
+      formValue.id = this.vehiculoSubmarca.id;
+
+      this.vehiculoService.modificarSubmarca(this.uuid, this.vehiculoSubmarca.uuid, formValue).subscribe((data: VehiculoSubmarca) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha modificado la submarca con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido modificar la submarca. Motivo: ${error}`,
+          ToastType.ERROR
+        );
+      });
+
+    } else {
+      this.vehiculoService.guardarSubmarca(this.uuid, formValue).subscribe((data: EmpresaEscrituraSocio) => {
+        this.toastService.showGenericToast(
+          "Listo",
+          "Se ha registrado la submarca con exito",
+          ToastType.SUCCESS
+        );
+        window.location.reload();
+      }, (error) => {
+        this.toastService.showGenericToast(
+          "Ocurrio un problema",
+          `No se ha podido guardar la submarca. ${error}`,
+          ToastType.ERROR
+        );
+      });
+    }
+  }
+
+  mostrarFormularioSubmarca() {
+    this.showSubmarcaForm = !this.showSubmarcaForm;
+    if(!this.showSubmarcaForm) {
+      this.crearVehiculoSubmarcaForm.reset();
+    }
+    if(this.editandoSubmarca) {
+      this.editandoSubmarca = false;
+      this.vehiculoSubmarca = undefined;
+    }
+  }
+
+  mostrarModificarVehiculoMarcaModal() {
+    this.editandoModal = true;
+    this.crearVehiculoMarcaForm.patchValue({
+      nombre: this.vehiculoMarca.nombre,
+      descripcion: this.vehiculoMarca.descripcion
+    });
+
+    this.modal = this.modalService.open(this.editarVehiculoMarcaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`;
+    })
+  }
+
+  mostrarEliminarVehiculoMarcaModal() {
+    this.modal = this.modalService.open(this.eliminarVehiculoMarcaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  mostrarEliminarVehiculoSubmarcaModal(uuid: string) {
+    this.tempUuidSubmarca = uuid;
+
+    this.modal = this.modalService.open(this.eliminarVehiculoSubmarcaModal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  confirmarEliminar() {
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos eliminando la marca",
+      ToastType.INFO
+    );
+
+    this.vehiculoService.borrarVehiculoMarcaPorUuid(this.uuid).subscribe((data) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la marca con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar la marca. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  confirmarEliminarSubmarca() {
+    if(this.tempUuidSubmarca === undefined) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "El UUID de la submarca a eliminar no esta definido",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta eliminando la submarca",
+      ToastType.INFO
+    );
+
+    this.vehiculoService.eliminarSubmarca(this.uuid, this.tempUuidSubmarca).subscribe((data: VehiculoSubmarca) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado la submarca con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `La submarca no se ha podido eliminar. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  guardarCambios(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos requeridos que no se han rellenado",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Se esta actualizando la marca del vehiculo",
+      ToastType.INFO
+    );
+
+    let formValue: VehiculoMarca = form.value;
+
+    this.vehiculoService.modificarVehiculoMarca(this.uuid, formValue).subscribe((data: VehiculoMarca) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha actualizado la marca del vehiculo con exito",
+        ToastType.SUCCESS
+      );
+      if(this.editandoModal) {
+        this.vehiculoMarca = data;
+        this.modal.close();
+      } else {
+        window.location.reload();
+      }
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar la marca. Motivo: ${error}`,
+        ToastType.ERROR
+      );
     })
   }
 
@@ -98,14 +365,6 @@ export class VehiculosComponent implements OnInit {
     })
   }
 
-  modify(rowData) {
-
-  }
-
-  delete(rowData) {
-
-  }
-
   mostrarModalCrear(modal) {
     this.modal = this.modalService.open(modal, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
 
@@ -126,11 +385,7 @@ export class VehiculosComponent implements OnInit {
       return;
     }
 
-    let value = form.value;
-
-    let vehiculoMarca: VehiculoMarca = new VehiculoMarca();
-    vehiculoMarca.nombre = value.nombre;
-    vehiculoMarca.descripcion = value.descripcion;
+    let vehiculoMarca: VehiculoMarca = form.value;
 
     this.vehiculoService.guardarVehiculoMarca(vehiculoMarca).subscribe((response) => {
       this.toastService.showGenericToast(

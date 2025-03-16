@@ -1,0 +1,29 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-12-05-crear-tabla-personal-vehiculos" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="personal_vehiculos">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="PERSONAL" type="INT"></column>
+            <column name="VEHICULO" type="INT"></column>
+            <column name="OBSERVACIONES" type="TEXT"></column>
+            <column name="ELIMINADO" type="BIT" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="DATETIME" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="INT"></column>
+            <column name="FECHA_ACTUALIZACION" type="DATETIME" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="INT"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="personal_vehiculos" columnNames="ID" />
+        <addAutoIncrement tableName="personal_vehiculos" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="personal_vehiculos" columnNames="UUID" />
+
+    </changeSet>
+</databaseChangeLog>

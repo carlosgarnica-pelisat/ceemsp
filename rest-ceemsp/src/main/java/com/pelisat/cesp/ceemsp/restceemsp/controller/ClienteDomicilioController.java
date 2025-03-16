@@ -34,14 +34,14 @@ public class ClienteDomicilioController {
     }
 
     @PostMapping(value = CLIENTE_DOMICILIOS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public List<ClienteDomicilioDto> guardarClienteDomicilio(
-            @RequestBody List<ClienteDomicilioDto> clienteDomicilioDtos,
+    public ClienteDomicilioDto guardarClienteDomicilio(
+            @RequestBody ClienteDomicilioDto clienteDomicilioDto,
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "clienteUuid") String clienteUuid
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return clienteDomicilioService.crearDomicilio(username, empresaUuid, clienteUuid, clienteDomicilioDtos);
+        return clienteDomicilioService.crearDomicilio(username, empresaUuid, clienteUuid, clienteDomicilioDto);
     }
 
     @PutMapping(value = CLIENTE_DOMICILIOS_URI + "/{domicilioUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)

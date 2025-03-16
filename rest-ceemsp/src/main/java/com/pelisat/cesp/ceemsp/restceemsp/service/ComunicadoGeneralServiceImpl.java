@@ -15,9 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,10 +45,24 @@ public class ComunicadoGeneralServiceImpl implements ComunicadoGeneralService {
     }
 
     @Override
-    public List<ComunicadoGeneralDto> obtenerComunicadosGenerales() {
+    public List<ComunicadoGeneralDto> obtenerComunicadosGenerales(String titulo, Integer mes, Integer ano) {
         logger.info("Obteniendo los comunicados generales");
-        List<ComunicadoGeneral> comunicadoGenerales = comunicadoGeneralRepository.getAllByEliminadoFalseOrderByFechaPublicacionDesc();
-        return comunicadoGenerales.stream().map(daoToDtoConverter::convertDaoToDtoComunicadoGeneral).collect(Collectors.toList());
+        List<ComunicadoGeneral> comunicadosGenerales = new ArrayList<ComunicadoGeneral>();
+        if(mes != null && ano != null) {
+            LocalDate fechaInicio = LocalDate.of(ano, mes, 1);
+            LocalDate fechaFin = fechaInicio.withDayOfMonth(fechaInicio.getMonth().length(false));
+            if(StringUtils.isNotBlank(titulo) && !titulo.equals("null")) {
+                comunicadosGenerales = comunicadoGeneralRepository.getAllByFechaPublicacionAndTitulo(fechaInicio, fechaFin, titulo);
+            } else {
+                comunicadosGenerales = comunicadoGeneralRepository.getAllByFechaPublicacionBetweenAndEliminadoFalse(fechaInicio, fechaFin);
+            }
+        } else if(StringUtils.isNotBlank(titulo)) {
+            comunicadosGenerales = comunicadoGeneralRepository.getAllByComunicadoGeneral(titulo);
+        } else {
+            comunicadosGenerales = comunicadoGeneralRepository.getAllByEliminadoFalseOrderByFechaPublicacionDesc();
+
+        }
+        return comunicadosGenerales.stream().map(daoToDtoConverter::convertDaoToDtoComunicadoGeneral).collect(Collectors.toList());
     }
 
     @Override
@@ -71,11 +87,17 @@ public class ComunicadoGeneralServiceImpl implements ComunicadoGeneralService {
     public ComunicadoGeneralDto obtenerUltimoComunicado() {
         logger.info("Obteniendo el ultimo comunicado creado");
 
-        List<ComunicadoGeneral> comunicadoGenerales = comunicadoGeneralRepository.getTop1ByFechaPublicacionBeforeAndEliminadoFalseOrderByFechaPublicacionDesc(LocalDate.now());
-        return daoToDtoConverter.convertDaoToDtoComunicadoGeneral(comunicadoGenerales.get(0));
+        List<ComunicadoGeneral> comunicadoGenerales = comunicadoGeneralRepository.getTop1ByFechaPublicacionBeforeAndEliminadoFalseOrderByFechaPublicacionDesc(LocalDate.now().plusDays(1));
+        if(comunicadoGenerales != null && comunicadoGenerales.size() > 0) {
+            return daoToDtoConverter.convertDaoToDtoComunicadoGeneral(comunicadoGenerales.get(0));
+        } else {
+            return null;
+        }
+        //return daoToDtoConverter.convertDaoToDtoComunicadoGeneral(comunicadoGenerales.get(0));
     }
 
     @Override
+    @Transactional
     public ComunicadoGeneralDto guardarComunicado(String username, ComunicadoGeneralDto comunicadoGeneralDto) {
         if(StringUtils.isBlank(username) || comunicadoGeneralDto == null) {
             logger.warn("El usuario o el comunicado general vienen como nulos o vacios");
@@ -90,5 +112,53 @@ public class ComunicadoGeneralServiceImpl implements ComunicadoGeneralService {
 
         ComunicadoGeneral comunicadoGeneralCreado = comunicadoGeneralRepository.save(comunicadoGeneral);
         return daoToDtoConverter.convertDaoToDtoComunicadoGeneral(comunicadoGeneralCreado);
+    }
+
+    @Override
+    @Transactional
+    public ComunicadoGeneralDto modificarComunicado(String uuid, String username, ComunicadoGeneralDto comunicadoGeneralDto) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || comunicadoGeneralDto == null) {
+            logger.warn("Alguno de los parametros vienen como nulos o invalidos");
+            throw new InvalidDataException();
+        }
+        logger.info("Modificando el comunicado con el uuid [{}]", uuid);
+
+        ComunicadoGeneral comunicadoGeneral = comunicadoGeneralRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(comunicadoGeneral == null) {
+            logger.warn("El comunicado con el uuid no existe [{}]", uuid);
+            throw new InvalidDataException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        comunicadoGeneral.setTitulo(comunicadoGeneralDto.getTitulo());
+        comunicadoGeneral.setFechaPublicacion(LocalDate.parse(comunicadoGeneralDto.getFechaPublicacion()));
+        comunicadoGeneral.setDescripcion(comunicadoGeneralDto.getDescripcion());
+        daoHelper.fulfillAuditorFields(false, comunicadoGeneral, usuarioDto.getId());
+        comunicadoGeneralRepository.save(comunicadoGeneral);
+        return comunicadoGeneralDto;
+    }
+
+    @Override
+    @Transactional
+    public ComunicadoGeneralDto eliminarComunicado(String uuid, String username) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros vienen como nulos o invalidos");
+            throw new InvalidDataException();
+        }
+        logger.info("Modificando el comunicado con el uuid [{}]", uuid);
+
+        ComunicadoGeneral comunicadoGeneral = comunicadoGeneralRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(comunicadoGeneral == null) {
+            logger.warn("El comunicado con el uuid no existe [{}]", uuid);
+            throw new InvalidDataException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        comunicadoGeneral.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, comunicadoGeneral, usuarioDto.getId());
+        comunicadoGeneralRepository.save(comunicadoGeneral);
+        return daoToDtoConverter.convertDaoToDtoComunicadoGeneral(comunicadoGeneral);
     }
 }

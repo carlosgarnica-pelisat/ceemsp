@@ -1,0 +1,14 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2023-01-24-agregar-columnas-pasos-completados-clientes" author="carlos.garnica@pelisat.com.mx">
+        <addColumn tableName="clientes">
+            <column name="DOMICILIO_CAPTURADO" type="bit"></column>
+            <column name="ASIGNACION_CAPTURADA" type="bit"></column>
+            <column name="MODALIDAD_CAPTURADA" type="bit"></column>
+            <column name="FORMA_EJECUCION_CAPTURADA" type="bit"></column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

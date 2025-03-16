@@ -10,6 +10,8 @@ export default class Modalidad implements Deserializable {
   tipo: string;
   tieneSubmodalidades: boolean;
   submodalidades: Submodalidad[];
+  canes: boolean;
+  armas: boolean;
 
   deserialize(input: any): this {
     Object.assign(this, input);

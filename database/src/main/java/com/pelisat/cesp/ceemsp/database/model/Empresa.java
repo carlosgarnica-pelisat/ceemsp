@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "EMPRESAS")
@@ -53,4 +54,37 @@ public class Empresa extends CommonModel {
 
     @Column(name = "OBSERVACIONES")
     private String observaciones;
+
+    @Column(name = "REGISTRO_FEDERAL")
+    private String registroFederal;
+
+    @Column(name = "FECHA_INICIO")
+    private LocalDate fechaInicio;
+
+    @Column(name = "FECHA_FIN")
+    private LocalDate fechaFin;
+
+    @Column(name = "RUTA_LOGO")
+    private String rutaLogo;
+
+    @Column(name = "RUTA_REGISTRO_FEDERAL")
+    private String rutaRegistroFederal;
+
+    @Column(name = "DOMICILIOS_CAPTURADOS")
+    private boolean domiciliosCapturados;
+
+    @Column(name = "ESCRITURAS_CAPTURADAS")
+    private boolean escriturasCapturadas;
+
+    @Column(name = "FORMAS_EJECUCION_CAPTURADAS")
+    private boolean formasEjecucionCapturadas;
+
+    @Column(name = "ACUERDOS_CAPTURADOS")
+    private boolean acuerdosCapturados;
+
+    @Column(name = "VIGENCIA_INICIO")
+    private LocalDate vigenciaInicio;
+
+    @Column(name = "VIGENCIA_FIN")
+    private LocalDate vigenciaFin;
 }

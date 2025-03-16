@@ -5,7 +5,7 @@
 
     <changeSet id="2021-09-15-crear-tabla-empresa-licencias-colectivas-domicilios" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="EMPRESAS_LICENCIAS_COLECTIVAS_DOMICILIOS">
+        <createTable tableName="empresas_licencias_colectivas_domicilios">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="LICENCIA_COLECTIVA" type="int"></column>
@@ -18,10 +18,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="EMPRESAS_LICENCIAS_COLECTIVAS_DOMICILIOS" columnNames="ID" />
-        <addAutoIncrement tableName="EMPRESAS_LICENCIAS_COLECTIVAS_DOMICILIOS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="empresas_licencias_colectivas_domicilios" columnNames="ID" />
+        <addAutoIncrement tableName="empresas_licencias_colectivas_domicilios" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="EMPRESAS_LICENCIAS_COLECTIVAS_DOMICILIOS" columnNames="UUID" />
+        <addUniqueConstraint tableName="empresas_licencias_colectivas_domicilios" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

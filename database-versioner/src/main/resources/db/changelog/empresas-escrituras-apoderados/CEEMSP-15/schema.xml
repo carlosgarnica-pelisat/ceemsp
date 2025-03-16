@@ -5,7 +5,7 @@
 
     <changeSet id="2022-02-23-agregar-columna-apellido-materno-apoderado" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <addColumn tableName="EMPRESAS_ESCRITURAS_APODERADOS">
+        <addColumn tableName="empresas_escrituras_apoderados">
             <column name="APELLIDO_MATERNO" type="VARCHAR(60)"></column>
         </addColumn>
     </changeSet>

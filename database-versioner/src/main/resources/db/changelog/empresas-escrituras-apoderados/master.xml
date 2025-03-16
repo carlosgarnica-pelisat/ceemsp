@@ -6,4 +6,5 @@
     <include file="db/changelog/empresas-escrituras-apoderados/initialize/schema.xml" />
     <include file="db/changelog/empresas-escrituras-apoderados/CEEMSP-15/schema.xml" />
     <include file="db/changelog/empresas-escrituras-apoderados/CEEMSP-22/schema.xml" />
+    <include file="db/changelog/empresas-escrituras-apoderados/CEEMSP-61/schema.xml" />
 </databaseChangeLog>

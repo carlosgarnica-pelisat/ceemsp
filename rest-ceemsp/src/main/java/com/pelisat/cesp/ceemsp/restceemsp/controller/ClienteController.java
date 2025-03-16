@@ -7,12 +7,18 @@ import com.pelisat.cesp.ceemsp.restceemsp.service.ClienteService;
 import com.pelisat.cesp.ceemsp.restceemsp.service.EmpresaDomicilioService;
 import com.pelisat.cesp.ceemsp.restceemsp.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 @RestController
@@ -35,6 +41,13 @@ public class ClienteController {
         return clienteService.obtenerClientesPorEmpresa(empresaUuid);
     }
 
+    @GetMapping(value = EMPRESA_CLIENTES_URI + "/eliminados", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ClienteDto> obtenerClientesEliminadosPorUuidEmpresa(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) {
+        return clienteService.obtenerClientesEliminadosPorEmpresa(empresaUuid);
+    }
+
     @GetMapping(value = EMPRESA_CLIENTES_URI + "/{clienteUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ClienteDto obtenerClientePorUuid(
             @PathVariable(value = "empresaUuid") String empresaUuid,
@@ -43,9 +56,39 @@ public class ClienteController {
         return clienteService.obtenerClientePorUuid(empresaUuid, clienteUuid, false);
     }
 
+    @GetMapping(value = EMPRESA_CLIENTES_URI + "/{clienteUuid}/pdf", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> descargarContratoPdf(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "clienteUuid") String clienteUuid
+    ) throws Exception {
+        File file = clienteService.obtenerContrato(empresaUuid, clienteUuid);
+        HttpHeaders responseHeaders = new HttpHeaders();
+
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentLength(file.length());
+        responseHeaders.setContentDispositionFormData("attachment", file.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+        return new ResponseEntity<>(isr, responseHeaders, HttpStatus.OK);
+    }
+
+    @GetMapping(value = EMPRESA_CLIENTES_URI + "/{clienteUuid}/documentos/fundatorios", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<InputStreamResource> descargarDocumentoFundatorioCliente(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "clienteUuid") String clienteUuid
+    ) throws Exception {
+        File file = clienteService.descargarDocumentoFundatorio(empresaUuid, clienteUuid);
+        HttpHeaders responseHeaders = new HttpHeaders();
+
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentLength(file.length());
+        responseHeaders.setContentDispositionFormData("attachment", file.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+        return new ResponseEntity<>(isr, responseHeaders, HttpStatus.OK);
+    }
+
     @PostMapping(value = EMPRESA_CLIENTES_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ClienteDto guardarClienteEmpresa(
-            @RequestParam("archivo") MultipartFile archivo,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
             @RequestParam("cliente") String cliente,
             HttpServletRequest request,
             @PathVariable(value = "empresaUuid") String empresaUuid
@@ -65,13 +108,15 @@ public class ClienteController {
         return clienteService.modificarCliente(empresaUuid, clienteUuid, username, clienteDto);
     }
 
-    @DeleteMapping(value = EMPRESA_CLIENTES_URI + "/{clienteUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_CLIENTES_URI + "/{clienteUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ClienteDto eliminarClienteEmpresa(
             HttpServletRequest request,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
+            @RequestParam("cliente") String cliente,
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "clienteUuid") String clienteUuid
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
-        return clienteService.eliminarCliente(empresaUuid, clienteUuid, username);
+        return clienteService.eliminarCliente(empresaUuid, clienteUuid, username, new Gson().fromJson(cliente, ClienteDto.class), archivo);
     }
 }

@@ -4,11 +4,8 @@ import com.pelisat.cesp.ceemsp.database.dto.ClienteDomicilioDto;
 import com.pelisat.cesp.ceemsp.database.dto.ClienteDto;
 import com.pelisat.cesp.ceemsp.database.dto.TipoInfraestructuraDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.Cliente;
-import com.pelisat.cesp.ceemsp.database.model.ClienteDomicilio;
-import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.repository.ClienteDomicilioRepository;
-import com.pelisat.cesp.ceemsp.database.repository.ClienteRepository;
+import com.pelisat.cesp.ceemsp.database.model.*;
+import com.pelisat.cesp.ceemsp.database.repository.*;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
@@ -19,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,13 +37,19 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
     private final ColoniaService coloniaService;
     private final LocalidadService localidadService;
     private final CalleService calleService;
+    private final PersonaRepository personaRepository;
+    private final EmpresaRepository empresaRepository;
+    private final ClienteAsignacionPersonalRepository clienteAsignacionPersonalRepository;
 
     @Autowired
     public ClienteDomicilioServiceImpl(ClienteDomicilioRepository clienteDomicilioRepository, DaoToDtoConverter daoToDtoConverter,
                                    DtoToDaoConverter dtoToDaoConverter, DaoHelper<CommonModel> daoHelper, UsuarioService usuarioService,
                                    ClienteRepository clienteRepository, TipoInfraestructuraService tipoInfraestructuraService,
                                        EstadoService estadoService, MunicipioService municipioService, LocalidadService localidadService,
-                                   ColoniaService coloniaService, CalleService calleService) {
+                                   ColoniaService coloniaService, CalleService calleService,
+                                       PersonaRepository personaRepository,
+                                       EmpresaRepository empresaRepository,
+                                       ClienteAsignacionPersonalRepository clienteAsignacionPersonalRepository) {
         this.clienteDomicilioRepository = clienteDomicilioRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
@@ -58,6 +62,9 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
         this.localidadService = localidadService;
         this.coloniaService = coloniaService;
         this.calleService = calleService;
+        this.personaRepository = personaRepository;
+        this.empresaRepository = empresaRepository;
+        this.clienteAsignacionPersonalRepository = clienteAsignacionPersonalRepository;
     }
 
     @Override
@@ -96,7 +103,8 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
     }
 
     @Override
-    public List<ClienteDomicilioDto> crearDomicilio(String username, String empresaUuid, String clienteUuid, List<ClienteDomicilioDto> clienteDomicilioDto) {
+    @Transactional
+    public ClienteDomicilioDto crearDomicilio(String username, String empresaUuid, String clienteUuid, ClienteDomicilioDto clienteDomicilioDto) {
         if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(clienteUuid) || clienteDomicilioDto == null) {
             logger.warn("Hay alguno de los parametros que no es valido");
             throw new InvalidDataException();
@@ -109,28 +117,39 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
             throw new NotFoundResourceException();
         }
 
-        List<ClienteDomicilio> clienteDomicilios = clienteDomicilioDto.stream().map(m -> {
-            ClienteDomicilio c = dtoToDaoConverter.convertDtoToDaoClienteDomicilio(m);
-            daoHelper.fulfillAuditorFields(true, c, usuario.getId());
-            c.setCliente(cliente.getId());
-            c.setTipoInfraestructura(m.getTipoInfraestructura().getId());
-            c.setEstadoCatalogo(m.getEstadoCatalogo().getId());
-            c.setMunicipioCatalogo(m.getMunicipioCatalogo().getId());
-            c.setLocalidadCatalogo(m.getLocalidadCatalogo().getId());
-            c.setColoniaCatalogo(m.getColoniaCatalogo().getId());
-            c.setCalleCatalogo(m.getCalleCatalogo().getId());
 
-            c.setDomicilio1(m.getCalleCatalogo().getNombre());
-            c.setDomicilio2(m.getColoniaCatalogo().getNombre());
-            c.setLocalidad(m.getLocalidadCatalogo().getNombre());
-            c.setDomicilio3(m.getMunicipioCatalogo().getNombre());
-            c.setEstado(m.getEstadoCatalogo().getNombre());
+        ClienteDomicilio c = dtoToDaoConverter.convertDtoToDaoClienteDomicilio(clienteDomicilioDto);
+        daoHelper.fulfillAuditorFields(true, c, usuario.getId());
+        c.setCliente(cliente.getId());
+        c.setTipoInfraestructura(clienteDomicilioDto.getTipoInfraestructura().getId());
+        c.setEstadoCatalogo(clienteDomicilioDto.getEstadoCatalogo().getId());
+        c.setMunicipioCatalogo(clienteDomicilioDto.getMunicipioCatalogo().getId());
+        c.setLocalidadCatalogo(clienteDomicilioDto.getLocalidadCatalogo().getId());
+        c.setColoniaCatalogo(clienteDomicilioDto.getColoniaCatalogo().getId());
+        c.setCalleCatalogo(clienteDomicilioDto.getCalleCatalogo().getId());
 
-            return c;
-        }).collect(Collectors.toList());
-        List<ClienteDomicilio> clienteDomicilioCreado = clienteDomicilioRepository.saveAll(clienteDomicilios);
+        c.setDomicilio1(clienteDomicilioDto.getCalleCatalogo().getNombre());
+        c.setDomicilio2(clienteDomicilioDto.getColoniaCatalogo().getNombre());
+        c.setLocalidad(clienteDomicilioDto.getLocalidadCatalogo().getNombre());
+        c.setDomicilio3(clienteDomicilioDto.getMunicipioCatalogo().getNombre());
+        c.setEstado(clienteDomicilioDto.getEstadoCatalogo().getNombre());
 
-        return clienteDomicilioCreado.stream().map(daoToDtoConverter::convertDaoToDtoClienteDomicilio).collect(Collectors.toList());
+        ClienteDomicilio clienteDomicilioCreado = clienteDomicilioRepository.save(c);
+
+        if(!cliente.isDomicilioCapturado()) {
+            cliente.setDomicilioCapturado(true);
+            daoHelper.fulfillAuditorFields(false, cliente, usuario.getId());
+            clienteRepository.save(cliente);
+        }
+
+        ClienteDomicilioDto dto = daoToDtoConverter.convertDaoToDtoClienteDomicilio(clienteDomicilioCreado);
+        dto.setCalleCatalogo(calleService.obtenerCallePorId(clienteDomicilioCreado.getCalleCatalogo()));
+        dto.setColoniaCatalogo(coloniaService.obtenerColoniaPorId(clienteDomicilioCreado.getColoniaCatalogo()));
+        dto.setLocalidadCatalogo(localidadService.obtenerLocalidadPorId(clienteDomicilioCreado.getLocalidadCatalogo()));
+        dto.setMunicipioCatalogo(municipioService.obtenerMunicipioPorId(clienteDomicilioCreado.getMunicipioCatalogo()));
+        dto.setEstadoCatalogo(estadoService.obtenerPorId(clienteDomicilioCreado.getEstadoCatalogo()));
+        dto.setTipoInfraestructura(clienteDomicilioDto.getTipoInfraestructura());
+        return dto;
     }
 
     @Override
@@ -143,7 +162,7 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
         logger.info("Obteniendo el domicilio con el id [{}]", id);
 
         ClienteDomicilio clienteDomicilio = clienteDomicilioRepository.getOne(id);
-        if(clienteDomicilio == null || clienteDomicilio.getEliminado()) {
+        if(clienteDomicilio == null) {
             logger.warn("El domicilio del cliente no existe en la base de datos");
             throw new NotFoundResourceException();
         }
@@ -152,6 +171,7 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
     }
 
     @Override
+    @Transactional
     public ClienteDomicilioDto modificarDomicilio(String empresaUuid, String clienteUuid, String domicilioUuid, String username, ClienteDomicilioDto clienteDomicilioDto) {
         if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) | StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(clienteUuid) || clienteDomicilioDto == null) {
             logger.warn("Alguno de los parametros vienen como nulos o vacios");
@@ -176,6 +196,10 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
         clienteDomicilio.setCodigoPostal(clienteDomicilioDto.getCodigoPostal());
         clienteDomicilio.setTelefonoFijo(clienteDomicilioDto.getTelefonoFijo());
         clienteDomicilio.setTelefonoMovil(clienteDomicilioDto.getTelefonoMovil());
+        clienteDomicilio.setContacto(clienteDomicilioDto.getContacto());
+        clienteDomicilio.setApellidoPaternoContacto(clienteDomicilioDto.getApellidoPaternoContacto());
+        clienteDomicilio.setApellidoMaternoContacto(clienteDomicilioDto.getApellidoMaternoContacto());
+        clienteDomicilio.setCorreoElectronico(clienteDomicilioDto.getCorreoElectronico());
 
         clienteDomicilio.setTipoInfraestructura(clienteDomicilioDto.getTipoInfraestructura().getId());
         clienteDomicilio.setEstadoCatalogo(clienteDomicilioDto.getEstadoCatalogo().getId());
@@ -198,6 +222,7 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
     }
 
     @Override
+    @Transactional
     public ClienteDomicilioDto eliminarDomicilio(String empresaUuid, String clienteUuid, String domicilioUuid, String username) {
         if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) | StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(clienteUuid)) {
             logger.warn("Alguno de los parametros vienen como nulos o vacios");
@@ -206,12 +231,63 @@ public class ClienteDomicilioServiceImpl implements ClienteDomicilioService {
 
         logger.info("Eliminando domicilio con el uuid [{}]", domicilioUuid);
 
+        Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(empresaUuid);
+        if(empresa == null) {
+            logger.warn("La empresa no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        Cliente cliente = clienteRepository.findByUuidAndEliminadoFalse(clienteUuid);
+
+        if(cliente == null) {
+            logger.warn("El cliente no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
         ClienteDomicilio clienteDomicilio = clienteDomicilioRepository.findByUuidAndEliminadoFalse(domicilioUuid);
         if(clienteDomicilio == null || clienteDomicilio.getEliminado()) {
             logger.warn("El domicilio del cliente no existe en la base de datos");
             throw new NotFoundResourceException();
         }
+
         UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        List<ClienteDomicilio> clienteDomicilios = clienteDomicilioRepository.getAllByClienteAndEliminadoFalse(clienteDomicilio.getCliente());
+
+        if(clienteDomicilio.isMatriz() && clienteDomicilios.size() > 1) {
+
+            ClienteDomicilio domicilio = clienteDomicilios.stream()
+                    .filter(n -> n.getId() != clienteDomicilio.getId())
+                    .findFirst()
+                    .orElseThrow(NotFoundResourceException::new);
+            domicilio.setMatriz(true);
+            daoHelper.fulfillAuditorFields(false, domicilio, usuario.getId());
+            clienteDomicilioRepository.save(domicilio);
+            clienteDomicilio.setMatriz(false);
+        }
+
+        if(clienteDomicilios.size() <= 1) {
+            cliente.setDomicilioCapturado(false);
+            daoHelper.fulfillAuditorFields(false, cliente, usuario.getId());
+            clienteRepository.save(cliente);
+        }
+
+        List<Personal> personalAsignadoADomicilio = personaRepository.getAllByEmpresaAndClienteDomicilioAndEliminadoFalse(empresa.getId(), clienteDomicilio.getId());
+        personalAsignadoADomicilio.forEach(pad -> {
+            pad.setClienteDomicilio(null);
+            pad.setCliente(null);
+            daoHelper.fulfillAuditorFields(false, pad, usuario.getId());
+
+            ClienteAsignacionPersonal asignacion = clienteAsignacionPersonalRepository.getByPersonalAndEliminadoFalse(pad.getId());
+            if(asignacion == null) {
+                logger.warn("La asignacion de personal no existe en la base de datos");
+                throw new NotFoundResourceException();
+            }
+            asignacion.setEliminado(true);
+            daoHelper.fulfillAuditorFields(false, asignacion, usuario.getId());
+            personaRepository.save(pad);
+            clienteAsignacionPersonalRepository.save(asignacion);
+        });
 
         clienteDomicilio.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, clienteDomicilio, usuario.getId());

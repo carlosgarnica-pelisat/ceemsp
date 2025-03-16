@@ -2,6 +2,7 @@ import { Deserializable } from "./Deserializable";
 import Modalidad from "./Modalidad";
 import EmpresaModalidad from "./EmpresaModalidad";
 import EmpresaFormaEjecucion from "./EmpresaFormaEjecucion";
+import Usuario from "./Usuario";
 
 export default class Empresa implements Deserializable {
   id: number;
@@ -18,9 +19,27 @@ export default class Empresa implements Deserializable {
   telefono: string;
   status: string;
   observaciones: string;
+  tieneArmas: boolean;
+  tieneCanes: boolean;
+  registroFederal: string;
+  fechaInicio: string;
+  fechaFin: string;
 
   formasEjecucion: EmpresaFormaEjecucion[];
   modalidades: EmpresaModalidad[];
+
+  usuario: Usuario;
+
+  fechaCreacion: string;
+  fechaActualizacion: string;
+
+  domiciliosCapturados: boolean;
+  escriturasCapturadas: boolean;
+  formasEjecucionCapturadas: boolean;
+  acuerdosCapturados: boolean;
+  eliminado: false;
+  vigenciaInicio: string;
+  vigenciaFin: string;
 
   deserialize(input: any): this {
     Object.assign(this, input);
@@ -46,7 +65,7 @@ export default class Empresa implements Deserializable {
       {headerName: 'Tipo persona', field: 'tipoPersona', sortable: true, filter: true},
       {headerName: 'RFC', field: 'rfc', sortable: true, filter: true},
       {headerName: 'CURP', field: 'curp', sortable: true, filter: true},
-      {headerName: 'Sexo', field: 'sexo', sortable: true, filter: true},
+      {headerName: 'Genero', field: 'sexo', sortable: true, filter: true},
       {headerName: 'Correo electronico', field: 'correoElectronico', sortable: true, filter: true},
       {headerName: 'Telefono', field: 'telefono', sortable: true, filter: true}
     ]

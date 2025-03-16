@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface SubmodalidadRepository extends JpaRepository<Submodalidad, Integer> {
     List<Submodalidad> getAllByCategoriaAndEliminadoFalse(int categoria);
+    Submodalidad getByUuidAndEliminadoFalse(String uuid);
 }

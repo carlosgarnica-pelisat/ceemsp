@@ -1,4 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {ToastService} from "../../../_services/toast.service";
+import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
+import {UsuariosService} from "../../../_services/usuarios.service";
+import Usuario from "../../../_models/Usuario";
+import {ToastType} from "../../../_enums/ToastType";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import * as sha256 from "js-sha256";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-usuarios',
@@ -7,9 +15,292 @@ import { Component, OnInit } from '@angular/core';
 })
 export class UsuariosComponent implements OnInit {
 
-  constructor() { }
+  columnDefs = [
+    {headerName: 'ID', field: 'uuid', sortable: true, filter: true },
+    {headerName: 'Apellido Paterno', field: 'apellidos', sortable: true, filter: true },
+    {headerName: 'Apellido Materno', field: 'apellidoMaterno', sortable: true, filter: true },
+    {headerName: 'Nombre', field: 'nombres', sortable: true, filter: true},
+    {headerName: 'Rol', field: 'rol', sortable: true, filter: true}
+  ];
+
+  movimientos = [];
+
+  tipoMovimiento = undefined;
+
+  tiposMovimiento = [
+    {nombre: "Empresas", tipo: "EMPRESAS"},
+    {nombre: "----Modalidades", tipo: "EMPRESAS_MODALIDADES"},
+    {nombre: "----Formas de ejecucion", tipo: "EMPRESAS_FORMAS_EJECUCION"},
+    {nombre: "Acuerdos", tipo: "ACUERDOS"},
+    {nombre: "Domicilios (empresa)", tipo: "DOMICILIOS_EMPRESA"},
+    {nombre: "----Telefonos", tipo: "DOMICILIOS_EMPRESA"},
+    {nombre: "Escrituras", tipo: "ESCRITURAS"},
+    {nombre: "----Socios", tipo: "SOCIOS"},
+    {nombre: "----Apoderados", tipo: "APODERADOS"},
+    {nombre: "----Representantes", tipo: "REPRESENTANTES"},
+    {nombre: "----Consejo", tipo: "CONSEJO"}
+  ];
+
+  tipoMovimientoQuery: string = "";
+
+  pestanaActual = 'DETALLES';
+  rowData = [];
+
+  private gridApi;
+  private gridColumnApi;
+
+  frameworkComponents: any;
+
+  closeResult: string;
+  modal: NgbModalRef;
+  usuario: Usuario;
+
+  crearUsuarioForm: FormGroup;
+  tipoMovimientoSearchForm: FormGroup;
+
+  @ViewChild("crearUsuarioModal") crearUsuarioModal;
+  @ViewChild("detallesUsuarioModal") detallesUsuarioModal;
+  @ViewChild("modificarUsuarioModal") modificarUsuarioModal;
+  @ViewChild("eliminarUsuarioModal") eliminarUsuarioModal;
+
+  constructor(private toastService: ToastService, private modalService: NgbModal, private usuarioService: UsuariosService,
+              private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
+    this.crearUsuarioForm = this.formBuilder.group({
+      usuario: ['', [Validators.required, Validators.maxLength(20)]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
+      password: ['', [Validators.minLength(8), Validators.maxLength(15)]],
+      nombres: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidos: ['', [Validators.required, Validators.maxLength(60)]],
+      apellidoMaterno: ['', [Validators.required, Validators.maxLength(60)]],
+      rol: ['', Validators.required]
+    })
+
+    this.usuarioService.obtenerUsuariosNoEmpresas().subscribe((data: Usuario[]) => {
+      this.rowData = data;
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se han podido descargar los usuarios. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  onGridReady(params) {
+    params.api.sizeColumnsToFit();
+    this.gridApi = params.api;
+    this.gridColumnApi = params.gridApi;
+  }
+
+  checkForDetails(data) {
+    let uuid = data.uuid;
+
+    this.usuarioService.obtenerUsuarioByUuid(uuid).subscribe((data: Usuario) => {
+      this.usuario = data;
+
+      this.modal = this.modalService.open(this.detallesUsuarioModal, {size: "xl"});
+
+      this.modal.result.then((result) => {
+        this.closeResult = `Closed with ${result}`;
+      }, (error) => {
+        this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+      })
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido descargar el usuario. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  cerrarModalCrearModificarUsuario() {
+    this.crearUsuarioForm.reset();
+    this.modal.close();
+  }
+
+  mostrarModalModificarUsuario() {
+    if(this.usuario.rol === "ENTERPRISE_USER") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Para modificar usuarios de empresas, necesitas ir a "Ver informacion de la empresa" > Opciones > Modificar inicio de sesion`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.crearUsuarioForm.patchValue({
+      usuario: this.usuario.username,
+      email: this.usuario.email,
+      nombres: this.usuario.nombres,
+      apellidos: this.usuario.apellidos,
+      rol: this.usuario.rol
+    })
+
+    this.modal = this.modalService.open(this.modificarUsuarioModal, {size: 'xl', backdrop: 'static'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  redireccionarVerDetallesEmpresa() {
+    this.modal.close();
+    this.router.navigate([`/home/empresas/${this.usuario?.empresa?.uuid}`]);
+  }
+
+  mostrarModalEliminarUsuario() {
+    if(this.usuario.rol === "ENTERPRISE_USER") {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Para eliminar usuarios de empresas, necesitas eliminar la empresa creando un acuerdo`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.modal = this.modalService.open(this.eliminarUsuarioModal, {size: 'lg'});
+
+    this.modal.result.then((result) => {
+      this.closeResult = `Closed with ${result}`;
+    }, (error) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(error)}`
+    })
+  }
+
+  confirmarEliminarUsuario() {
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos eliminando el usuario",
+      ToastType.INFO
+    );
+
+    this.usuarioService.eliminarUsuario(this.usuario.uuid).subscribe((data: Usuario) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha eliminado el usuario con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido eliminar el usuario. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  mostrarModalNuevoUsuario() {
+    this.modal = this.modalService.open(this.crearUsuarioModal, {size: 'xl', backdrop: 'static'})
+
+    //this.crearUsuarioForm.controls["password"].setValidators([Validators.required])
+  }
+
+  guardarUsuario(form) {
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        "Hay campos que no han sido rellenados debidamente",
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espere un momento",
+      "Estamos guardando al usuario",
+      ToastType.INFO
+    );
+
+    let value: Usuario = form.value;
+    let tempPassword = value.password;
+    value.password = sha256.sha256(tempPassword);
+
+    this.usuarioService.guardarUsuario(value).subscribe((data: Usuario) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        "Se ha guardado el usuario con exito",
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido guardar el usuario. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  guardarCambiosUsuario(form) {
+    console.log(form.value)
+    if(!form.valid) {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `Alguno de los parametros es invalido`,
+        ToastType.WARNING
+      );
+      return;
+    }
+
+    this.toastService.showGenericToast(
+      "Espera un momento",
+      `Estamos guardando los cambios del usuario`,
+      ToastType.INFO
+    );
+
+    let usuario: Usuario = form.value;
+
+    if(usuario.password !== undefined) {
+      let tempPassword = usuario.password;
+      usuario.password = sha256.sha256(tempPassword);
+    }
+
+    this.usuarioService.modificarUsuario(this.usuario?.uuid, usuario).subscribe((data: Usuario) => {
+      this.toastService.showGenericToast(
+        "Listo",
+        `Se ha actualizado el usuario con exito`,
+        ToastType.SUCCESS
+      );
+      window.location.reload();
+    }, (error) => {
+      this.toastService.showGenericToast(
+        "Ocurrio un problema",
+        `No se ha podido actualizar el usuario. Motivo: ${error}`,
+        ToastType.ERROR
+      );
+    })
+  }
+
+  cambiarPestana(pestana) {
+    this.pestanaActual = pestana;
+  }
+
+  seleccionarTipoMovimiento(event) {
+    this.tipoMovimiento = this.tiposMovimiento.filter(x => x.nombre === event.nombre)[0]
+  }
+
+  eliminarTipoMovimiento() {
+
+  }
+
+  buscarMovimientos() {
+
+  }
+
+  private getDismissReason(reason: any): string {
+    if (reason == ModalDismissReasons.ESC) {
+      return `by pressing ESC`;
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return `by clicking on a backdrop`;
+    } else {
+      return `with ${reason}`;
+    }
   }
 
 }

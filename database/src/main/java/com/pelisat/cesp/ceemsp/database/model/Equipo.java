@@ -1,11 +1,10 @@
 package com.pelisat.cesp.ceemsp.database.model;
 
+import com.pelisat.cesp.ceemsp.database.type.FormaEjecucionEnum;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "EQUIPOS")
@@ -19,7 +18,8 @@ public class Equipo extends CommonModel {
     private String descripcion;
 
     @Column(name = "FORMA_EJECUCION")
-    private String formaEjecucion;
+    @Enumerated(EnumType.STRING)
+    private FormaEjecucionEnum formaEjecucion;
 
     public Equipo() {
         super();

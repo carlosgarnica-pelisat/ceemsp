@@ -16,13 +16,11 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/api/v1")
 public class ValidacionController {
     private final ValidacionService validacionService;
-    private final JwtUtils jwtUtils;
     private static final String VALIDACION_URI = "/validaciones";
 
     @Autowired
-    public ValidacionController(ValidacionService validacionService, JwtUtils jwtUtils) {
+    public ValidacionController(ValidacionService validacionService) {
         this.validacionService = validacionService;
-        this.jwtUtils = jwtUtils;
     }
 
     @PostMapping(value = VALIDACION_URI + "/vehiculos", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -51,5 +49,19 @@ public class ValidacionController {
             @RequestBody ExisteEscrituraDto existeEscrituraDto
     ) {
         return validacionService.buscarEscrituraDto(existeEscrituraDto);
+    }
+
+    @PostMapping(value = VALIDACION_URI + "/usuarios", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ExisteUsuarioDto buscarExistenciaUsuario(
+            @RequestBody ExisteUsuarioDto existeUsuarioDto
+    ) {
+        return validacionService.buscarUsuario(existeUsuarioDto);
+    }
+
+    @PostMapping(value = VALIDACION_URI + "/armas", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ExisteArmaDto buscarExistenciaArma(
+            @RequestBody ExisteArmaDto existeArmaDto
+    ) {
+        return validacionService.buscarArma(existeArmaDto);
     }
 }

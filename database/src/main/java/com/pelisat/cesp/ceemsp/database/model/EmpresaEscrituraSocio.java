@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "EMPRESAS_ESCRITURAS_SOCIOS")
@@ -33,4 +34,16 @@ public class EmpresaEscrituraSocio extends CommonModel {
 
     @Column(name = "CURP")
     private String curp;
+
+    @Column(name = "MOTIVO_BAJA")
+    private String motivoBaja;
+
+    @Column(name = "OBSERVACIONES_BAJA")
+    private String observacionesBaja;
+
+    @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
+    private String documentoFundatorioBaja;
+
+    @Column(name = "FECHA_BAJA")
+    private LocalDate fechaBaja;
 }

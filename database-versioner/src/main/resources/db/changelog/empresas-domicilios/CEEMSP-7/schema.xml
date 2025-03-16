@@ -5,7 +5,7 @@
 
     <changeSet id="2021-11-21-agregar-empresas-domicilio-latitud-longitud" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <addColumn tableName="EMPRESAS_DOMICILIOS">
+        <addColumn tableName="empresas_domicilios">
             <column name="LATITUD" type="VARCHAR(20)"></column>
             <column name="LONGITUD" type="VARCHAR(20)"></column>
         </addColumn>

@@ -25,8 +25,6 @@ import { ArmasMarcasComponent } from './home/catalogos/armas/armas-marcas/armas-
 import { ArmasClasesComponent } from './home/catalogos/armas/armas-clases/armas-clases.component';
 import { VehiculosTiposComponent } from './home/catalogos/vehiculos/vehiculos-tipos/vehiculos-tipos.component';
 import { ComunicadosGeneralesComponent } from './home/comunicados/comunicados-generales/comunicados-generales.component';
-import { BuzonSalidaComponent } from './home/comunicados/buzon-salida/buzon-salida.component';
-import { VisitasComponent } from './home/visitas/visitas.component';
 import { ReporteoComponent } from './home/reporteo/reporteo.component';
 import { ModalidadesComponent } from './home/catalogos/modalidades/modalidades.component';
 import { ToastComponent } from './_components/toast/toast.component';
@@ -52,9 +50,41 @@ import { EmpresaEquipoComponent } from './home/empresa-equipo/empresa-equipo.com
 import { EquipoComponent } from './home/catalogos/equipo/equipo.component';
 import { UniformesComponent } from './home/catalogos/equipo/uniformes/uniformes.component';
 import { EmpresaUniformesComponent } from './home/empresa-uniformes/empresa-uniformes.component';
+import { AcercaComponent } from './app/home/configuracion/acerca/acerca.component';
+import {BuscarNombrePipe} from "./_pipes/buscar-nombre.pipe";
+import {PdfViewerModule} from "ng2-pdf-viewer";
+import { BotonEmpresaAcuerdosComponent } from './_components/botones/boton-empresa-acuerdos/boton-empresa-acuerdos.component';
+import { BotonEmpresaCanesComponent } from './_components/botones/boton-empresa-canes/boton-empresa-canes.component';
+import { BotonEmpresaClientesComponent } from './_components/botones/boton-empresa-clientes/boton-empresa-clientes.component';
+import { BotonEmpresaDomiciliosComponent } from './_components/botones/boton-empresa-domicilios/boton-empresa-domicilios.component';
+import { BotonEmpresaEquiposComponent } from './_components/botones/boton-empresa-equipos/boton-empresa-equipos.component';
+import { BotonEmpresaIncidenciasComponent } from './_components/botones/boton-empresa-incidencias/boton-empresa-incidencias.component';
+import { BotonEmpresaLegalComponent } from './_components/botones/boton-empresa-legal/boton-empresa-legal.component';
+import { BotonEmpresaLicenciasComponent } from './_components/botones/boton-empresa-licencias/boton-empresa-licencias.component';
+import { BotonEmpresaPersonalComponent } from './_components/botones/boton-empresa-personal/boton-empresa-personal.component';
+import { BotonEmpresaUniformeComponent } from './_components/botones/boton-empresa-uniforme/boton-empresa-uniforme.component';
+import { BotonEmpresaVehiculosComponent } from './_components/botones/boton-empresa-vehiculos/boton-empresa-vehiculos.component';
+import {GoogleChartsModule} from "angular-google-charts";
+import {AgmCoreModule} from "@agm/core";
+import {DataTablesModule} from "angular-datatables";
+import {TableModule} from "primeng/table";
+import { GoogleMapsModule } from "@angular/google-maps";
+import {PhoneMaskDirective} from "./_directives/phone-mask.directive";
+import { EmpresaAcuerdosComponent } from './home/empresa-acuerdos/empresa-acuerdos.component';
+import { ModalidadArmadaPipe } from './_pipes/modalidad-armada.pipe';
+import { EmpresaInformacionComponent } from './home/empresa-informacion/empresa-informacion.component';
+import { EmpresaVisitasComponent } from './home/empresa-visitas/empresa-visitas.component';
+import { EmpresaReportesMensualesComponent } from './home/empresa-reportes-mensuales/empresa-reportes-mensuales.component';
+import { BotonEmpresaVisitasComponent } from './_components/botones/boton-empresa-visitas/boton-empresa-visitas.component';
+import { BotonEmpresaReportesComponent } from './_components/botones/boton-empresa-reportes/boton-empresa-reportes.component';
+import { BusquedaComponent } from './home/busqueda/busqueda.component';
+import { BuscarNombresPipe } from './_pipes/buscar-nombres.pipe';
+import { BuscarMatriculaPipe } from './_pipes/buscar-matricula.pipe';
+import { BuscarPlacasPipe } from './_pipes/buscar-placas.pipe';
 
 @NgModule({
   declarations: [
+    PhoneMaskDirective,
     AppComponent,
     LoginComponent,
     EmpresasComponent,
@@ -69,8 +99,6 @@ import { EmpresaUniformesComponent } from './home/empresa-uniformes/empresa-unif
     ArmasClasesComponent,
     VehiculosTiposComponent,
     ComunicadosGeneralesComponent,
-    BuzonSalidaComponent,
-    VisitasComponent,
     ReporteoComponent,
     ModalidadesComponent,
     AgButtonComponent,
@@ -92,7 +120,31 @@ import { EmpresaUniformesComponent } from './home/empresa-uniformes/empresa-unif
     EmpresaEquipoComponent,
     EquipoComponent,
     UniformesComponent,
-    EmpresaUniformesComponent
+    EmpresaUniformesComponent,
+    AcercaComponent,
+    BuscarNombrePipe,
+    BotonEmpresaAcuerdosComponent,
+    BotonEmpresaCanesComponent,
+    BotonEmpresaClientesComponent,
+    BotonEmpresaDomiciliosComponent,
+    BotonEmpresaEquiposComponent,
+    BotonEmpresaIncidenciasComponent,
+    BotonEmpresaLegalComponent,
+    BotonEmpresaLicenciasComponent,
+    BotonEmpresaPersonalComponent,
+    BotonEmpresaUniformeComponent,
+    BotonEmpresaVehiculosComponent,
+    EmpresaAcuerdosComponent,
+    ModalidadArmadaPipe,
+    EmpresaInformacionComponent,
+    EmpresaVisitasComponent,
+    EmpresaReportesMensualesComponent,
+    BotonEmpresaVisitasComponent,
+    BotonEmpresaReportesComponent,
+    BusquedaComponent,
+    BuscarNombresPipe,
+    BuscarMatriculaPipe,
+    BuscarPlacasPipe
   ],
   imports: [
     BrowserModule,
@@ -104,14 +156,24 @@ import { EmpresaUniformesComponent } from './home/empresa-uniformes/empresa-unif
     FontAwesomeModule,
     AgGridModule,
     CKEditorModule,
-    NgxPrintModule
+    NgxPrintModule,
+    PdfViewerModule,
+    GoogleChartsModule,
+    GoogleMapsModule,
+    AgmCoreModule.forRoot({
+      apiKey: 'AIzaSyB7dj4T5sXyKfmMfAjivi4lJnndOV_T5yY',
+      libraries: ['geometry', 'places']
+    }),
+    DataTablesModule,
+    TableModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-    SanitizeHtmlPipe
+    SanitizeHtmlPipe,
+    BuscarNombrePipe
   ],
-  exports: [SanitizeHtmlPipe],
+  exports: [SanitizeHtmlPipe, PhoneMaskDirective],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

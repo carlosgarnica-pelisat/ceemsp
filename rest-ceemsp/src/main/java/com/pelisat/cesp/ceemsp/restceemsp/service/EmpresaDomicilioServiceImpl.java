@@ -1,14 +1,15 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.EmpresaDomicilioDto;
-import com.pelisat.cesp.ceemsp.database.dto.EmpresaDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
-import com.pelisat.cesp.ceemsp.database.model.CommonModel;
-import com.pelisat.cesp.ceemsp.database.model.Empresa;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaDomicilio;
+import com.pelisat.cesp.ceemsp.database.model.*;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaDomicilioRepository;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaDomicilioTelefonoRepository;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
+import com.pelisat.cesp.ceemsp.database.type.TipoArchivoEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.NotFoundResourceException;
+import com.pelisat.cesp.ceemsp.infrastructure.services.ArchivosService;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoHelper;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DtoToDaoConverter;
@@ -17,7 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,13 +35,15 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
     private final UsuarioService usuarioService;
-    private final EmpresaService empresaService;
+    private final EmpresaRepository empresaRepository;
     private final DaoHelper<CommonModel> daoHelper;
     private final EstadoService estadoService;
     private final MunicipioService municipioService;
     private final ColoniaService coloniaService;
     private final LocalidadService localidadService;
     private final CalleService calleService;
+    private final ArchivosService archivosService;
+    private final EmpresaDomicilioTelefonoRepository empresaDomicilioTelefonoRepository;
 
     @Autowired
     public EmpresaDomicilioServiceImpl(
@@ -44,25 +51,29 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         DaoToDtoConverter daoToDtoConverter,
         DtoToDaoConverter dtoToDaoConverter,
         UsuarioService usuarioService,
-        EmpresaService empresaService,
+        EmpresaRepository empresaRepository,
         DaoHelper<CommonModel> daoHelper,
         EstadoService estadoService,
         MunicipioService municipioService,
         LocalidadService localidadService,
         ColoniaService coloniaService,
-        CalleService calleService
+        CalleService calleService,
+        ArchivosService archivosService,
+        EmpresaDomicilioTelefonoRepository empresaDomicilioTelefonoRepository
     ) {
         this.empresaDomicilioRepository = empresaDomicilioRepository;
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.usuarioService = usuarioService;
-        this.empresaService = empresaService;
+        this.empresaRepository = empresaRepository;
         this.daoHelper = daoHelper;
         this.estadoService = estadoService;
         this.municipioService = municipioService;
         this.localidadService = localidadService;
         this.coloniaService = coloniaService;
         this.calleService = calleService;
+        this.archivosService = archivosService;
+        this.empresaDomicilioTelefonoRepository = empresaDomicilioTelefonoRepository;
     }
 
     @Override
@@ -83,9 +94,30 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
             throw new InvalidDataException();
         }
 
-        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(empresaUuid);
 
-        List<EmpresaDomicilio> empresaDomicilios = empresaDomicilioRepository.findAllByEmpresaAndEliminadoFalse(empresaDto.getId());
+        List<EmpresaDomicilio> empresaDomicilios = empresaDomicilioRepository.findAllByEmpresaAndEliminadoFalse(empresa.getId());
+        return empresaDomicilios.stream().map(d -> {
+            EmpresaDomicilioDto empresaDomicilioDto = daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(d);
+            empresaDomicilioDto.setCalleCatalogo(calleService.obtenerCallePorId(d.getCalleCatalogo()));
+            empresaDomicilioDto.setColoniaCatalogo(coloniaService.obtenerColoniaPorId(d.getColoniaCatalogo()));
+            empresaDomicilioDto.setLocalidadCatalogo(localidadService.obtenerLocalidadPorId(d.getLocalidadCatalogo()));
+            empresaDomicilioDto.setEstadoCatalogo(estadoService.obtenerPorId(d.getEstadoCatalogo()));
+            empresaDomicilioDto.setMunicipioCatalogo(municipioService.obtenerMunicipioPorId(d.getMunicipioCatalogo()));
+            return empresaDomicilioDto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EmpresaDomicilioDto> obtenerEliminadosPorEmpresaUuid(String empresaUuid) {
+        if(StringUtils.isBlank(empresaUuid)) {
+            logger.warn("El uuid de la empresa no es correcto");
+            throw new InvalidDataException();
+        }
+
+        Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(empresaUuid);
+
+        List<EmpresaDomicilio> empresaDomicilios = empresaDomicilioRepository.findAllByEmpresaAndEliminadoTrue(empresa.getId());
         return empresaDomicilios.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaDomicilio).collect(Collectors.toList());
     }
 
@@ -110,7 +142,7 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
 
         logger.info("Obteniendo el domicilio con uuid [{}]", domicilioUuid);
 
-        EmpresaDomicilio empresaDomicilio = empresaDomicilioRepository.findByUuidAndEliminadoFalse(domicilioUuid);
+        EmpresaDomicilio empresaDomicilio = empresaDomicilioRepository.findByUuid(domicilioUuid);
         if(empresaDomicilio == null) {
             logger.warn("El domiciio de la empresa no existe en la bsase de datos");
             throw new NotFoundResourceException();
@@ -123,9 +155,38 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         empresaDomicilioDto.setEstadoCatalogo(estadoService.obtenerPorId(empresaDomicilio.getEstadoCatalogo()));
         empresaDomicilioDto.setMunicipioCatalogo(municipioService.obtenerMunicipioPorId(empresaDomicilio.getMunicipioCatalogo()));
 
+        List<EmpresaDomicilioTelefono> telefonos = empresaDomicilioTelefonoRepository.findAllByDomicilioAndEliminadoFalse(empresaDomicilio.getId());
+
+        empresaDomicilioDto.setTelefonos(telefonos.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaDomicilioTelefono).collect(Collectors.toList()));
+
         return empresaDomicilioDto;
     }
 
+    @Override
+    public File descargarDocumentoFundatorio(String empresaUuid, String domicilioUuid) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(domicilioUuid)) {
+            logger.warn("El uuid de la empresa o del vehiculo vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Descargando el documento fundatorio para el vehiculo [{}]", domicilioUuid);
+
+        EmpresaDomicilio empresaDomicilio = empresaDomicilioRepository.findByUuid(domicilioUuid);
+
+        if(empresaDomicilio == null) {
+            logger.warn("El domicilio no fue encontrada en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        if(!empresaDomicilio.getEliminado()) {
+            logger.warn("El domicilio no esta eliminado. Esta funcion no es compatible");
+            throw new NotFoundResourceException();
+        }
+
+        return new File(empresaDomicilio.getDocumentoFundatorioBaja());
+    }
+
+    @Transactional
     @Override
     public EmpresaDomicilioDto guardar(String empresaUuid, String username, EmpresaDomicilioDto empresaDomicilioDto) {
         if(StringUtils.isBlank(username) || StringUtils.isBlank(empresaUuid) || empresaDomicilioDto == null) {
@@ -142,11 +203,11 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
             throw new InvalidDataException();
         }
 
-        EmpresaDto empresaDto = empresaService.obtenerPorUuid(empresaUuid);
+        Empresa empresa = empresaRepository.getByUuidAndEliminadoFalse(empresaUuid);
 
         EmpresaDomicilio empresaDomicilio = dtoToDaoConverter.convertDtoToDaoEmpresaDomicilio(empresaDomicilioDto);
 
-        empresaDomicilio.setEmpresa(empresaDto.getId());
+        empresaDomicilio.setEmpresa(empresa.getId());
         empresaDomicilio.setFechaCreacion(LocalDateTime.now());
         empresaDomicilio.setCreadoPor(usuario.getId());
         empresaDomicilio.setActualizadoPor(usuario.getId());
@@ -163,12 +224,26 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         empresaDomicilio.setEstado(empresaDomicilioDto.getEstadoCatalogo().getNombre());
         empresaDomicilio.setLocalidad(empresaDomicilioDto.getLocalidadCatalogo().getNombre());
 
+        daoHelper.fulfillAuditorFields(true, empresaDomicilio, usuario.getId());
         EmpresaDomicilio empresaDomicilioCreado = empresaDomicilioRepository.save(empresaDomicilio);
 
-        return daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilioCreado);
+        if(!empresa.isDomiciliosCapturados()) {
+            empresa.setDomiciliosCapturados(true);
+            daoHelper.fulfillAuditorFields(false, empresa, usuario.getId());
+            empresaRepository.save(empresa);
+        }
+
+        EmpresaDomicilioDto response = daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilioCreado);
+        response.setCalleCatalogo(empresaDomicilioDto.getCalleCatalogo());
+        response.setColoniaCatalogo(empresaDomicilioDto.getColoniaCatalogo());
+        response.setLocalidadCatalogo(empresaDomicilioDto.getLocalidadCatalogo());
+        response.setMunicipioCatalogo(empresaDomicilioDto.getMunicipioCatalogo());
+        response.setEstadoCatalogo(empresaDomicilioDto.getEstadoCatalogo());
+        return response;
     }
 
     @Override
+    @Transactional
     public EmpresaDomicilioDto modificarEmpresaDomicilio(String empresaUuid, String domicilioUuid, String username, EmpresaDomicilioDto empresaDomicilioDto) {
         if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(username) || empresaDomicilioDto == null) {
             logger.warn("El uuid de la empresa, el domicilio, el usuario o el domicilio a modificar vienen como nulos o vacios");
@@ -206,15 +281,26 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
         empresaDomicilio.setEstado(empresaDomicilioDto.getEstadoCatalogo().getNombre());
         empresaDomicilio.setLocalidad(empresaDomicilioDto.getLocalidadCatalogo().getNombre());
 
-        daoHelper.fulfillAuditorFields(false, empresaDomicilio, usuarioDto.getId());
-        empresaDomicilioRepository.save(empresaDomicilio);
+        empresaDomicilio.setLatitud(empresaDomicilioDto.getLatitud());
+        empresaDomicilio.setLongitud(empresaDomicilioDto.getLongitud());
 
-        return daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilio);
+        daoHelper.fulfillAuditorFields(false, empresaDomicilio, usuarioDto.getId());
+        EmpresaDomicilio empresaDomicilioCreado = empresaDomicilioRepository.save(empresaDomicilio);
+
+        EmpresaDomicilioDto response = daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilioCreado);
+        response.setCalleCatalogo(empresaDomicilioDto.getCalleCatalogo());
+        response.setColoniaCatalogo(empresaDomicilioDto.getColoniaCatalogo());
+        response.setLocalidadCatalogo(empresaDomicilioDto.getLocalidadCatalogo());
+        response.setMunicipioCatalogo(empresaDomicilioDto.getMunicipioCatalogo());
+        response.setEstadoCatalogo(empresaDomicilioDto.getEstadoCatalogo());
+
+        return response;
     }
 
     @Override
-    public EmpresaDomicilioDto eliminarEmpresaDomicilio(String empresaUuid, String domicilioUuid, String username) {
-        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(username)) {
+    @Transactional
+    public EmpresaDomicilioDto eliminarEmpresaDomicilio(String empresaUuid, String domicilioUuid, String username, EmpresaDomicilioDto empresaDomicilioDto, MultipartFile multipartFile) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(domicilioUuid) || StringUtils.isBlank(username) || empresaDomicilioDto == null) {
             logger.warn("El uuid de la empresa, el domicilio o el usuario vienen como nulos o vacios");
             throw new InvalidDataException();
         }
@@ -228,8 +314,24 @@ public class EmpresaDomicilioServiceImpl implements EmpresaDomicilioService{
             throw new NotFoundResourceException();
         }
 
+        empresaDomicilio.setMotivoBaja(empresaDomicilioDto.getMotivoBaja());
+        empresaDomicilio.setObservacionesBaja(empresaDomicilioDto.getObservacionesBaja());
+        empresaDomicilio.setFechaBaja(LocalDate.now());
         empresaDomicilio.setEliminado(true);
         daoHelper.fulfillAuditorFields(false, empresaDomicilio, usuarioDto.getId());
+
+        if(multipartFile != null) {
+            logger.info("Se subio con un archivo. Agregando");
+            String rutaArchivoNuevo = "";
+            try {
+                rutaArchivoNuevo = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.DOCUMENTO_FUNDATORIO_BAJA_DOMICILIO, empresaUuid);
+                empresaDomicilio.setDocumentoFundatorioBaja(rutaArchivoNuevo);
+            } catch(Exception ex) {
+                logger.warn("No se ha podido guardar el archivo. {}", ex);
+                throw new InvalidDataException();
+            }
+        }
+
         empresaDomicilioRepository.save(empresaDomicilio);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaDomicilio(empresaDomicilio);

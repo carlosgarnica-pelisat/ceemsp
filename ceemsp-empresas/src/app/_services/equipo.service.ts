@@ -16,11 +16,11 @@ export class EquipoService {
     return this.http.get(`${this.uri}/catalogos/equipos`)
   }
 
-  obtenerEquipoByUuid(uuid: String) {
-    return this.http.get(`${this.uri}/catalogos/equipos/${uuid}`)
+  obtenerEquiposEmpresa() {
+    return this.http.get(`${this.uri}/catalogos/equipos/empresas`);
   }
 
-  guardarEquipo(equipo: Equipo) {
-    return this.http.post(`${this.uri}/catalogos/equipos`, equipo)
+  obtenerEquipoByUuid(uuid: String) {
+    return this.http.get(`${this.uri}/catalogos/equipos/${uuid}`)
   }
 }

@@ -42,4 +42,28 @@ public class Cliente extends CommonModel {
 
     @Column(name = "RUTA_ARCHIVO_CONTRATO")
     private String rutaArchivoContrato;
+
+    @Column(name = "MOTIVO_BAJA")
+    private String motivoBaja;
+
+    @Column(name = "OBSERVACIONES_BAJA")
+    private String observacionesBaja;
+
+    @Column(name = "FECHA_BAJA")
+    private LocalDate fechaBaja;
+
+    @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
+    private String documentoFundatorioBaja;
+
+    @Column(name = "DOMICILIO_CAPTURADO")
+    private boolean domicilioCapturado;
+
+    @Column(name = "ASIGNACION_CAPTURADA")
+    private boolean asignacionCapturada;
+
+    @Column(name = "MODALIDAD_CAPTURADA")
+    private boolean modalidadCapturada;
+
+    @Column(name = "FORMA_EJECUCION_CAPTURADA")
+    private boolean formaEjecucionCapturada;
 }

@@ -1,0 +1,16 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2022-10-18-agregar-acuerdos-tipo-campos-especificos" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <addColumn tableName="acuerdos">
+            <column name="TIPO" type="VARCHAR(60)"></column>
+            <column name="FECHA_INICIO" type="DATE"></column>
+            <column name="FECHA_FIN" type="DATE"></column>
+            <column name="MULTA_UMAS" type="DECIMAL(10,2)"></column>
+            <column name="MULTA_PESOS" type="DECIMAL(10,2)"></column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

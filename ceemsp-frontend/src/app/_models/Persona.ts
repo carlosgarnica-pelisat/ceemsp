@@ -11,6 +11,13 @@ import Municipio from "./Municipio";
 import Localidad from "./Localidad";
 import Colonia from "./Colonia";
 import Calle from "./Calle";
+import Can from "./Can";
+import Arma from "./Arma";
+import Vehiculo from "./Vehiculo";
+import EmpresaModalidad from "./EmpresaModalidad";
+import ClienteDomicilio from "./ClienteDomicilio";
+import Cliente from "./Cliente";
+import Empresa from "./Empresa";
 
 export default class Persona implements Deserializable {
   id: string;
@@ -37,6 +44,15 @@ export default class Persona implements Deserializable {
   codigoPostal: string;
   telefono: string;
   correoElectronico: string;
+  rfc: string;
+  eliminado: boolean;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+
+  motivoBaja: string;
+  observacionesBaja: string;
+  documentoFundatorioBaja: string;
+  fechaBaja: string;
 
   puestoDeTrabajo: PersonalPuestoTrabajo;
   subpuestoDeTrabajo: PersonalSubpuestoTrabajo;
@@ -46,7 +62,9 @@ export default class Persona implements Deserializable {
   cuip: string;
   numeroVolanteCuip: string;
   fechaVolanteCuip: string;
-  modalidad: Modalidad;
+  archivoVolanteCuipCargado: boolean;
+  modalidad: EmpresaModalidad;
+  formaEjecucion: string;
 
   estadoCatalogo: Estado;
   municipioCatalogo: Municipio;
@@ -56,6 +74,20 @@ export default class Persona implements Deserializable {
 
   fotografias: PersonaFotografiaMetadata[];
   certificaciones: PersonaCertificacion[];
+
+  can: Can;
+  armaCorta: Arma;
+  armaLarga: Arma;
+  vehiculo: Vehiculo;
+  cliente: Cliente;
+  clienteDomicilio: ClienteDomicilio;
+
+  puestoTrabajoCapturado: boolean;
+  cursosCapturados: boolean;
+  fotografiaCapturada: boolean;
+  eliminadoIncidencia: boolean;
+  fechaCreacionIncidencia: string;
+  empresa: Empresa;
 
   deserialize(input: any): this {
     Object.assign(this, input);

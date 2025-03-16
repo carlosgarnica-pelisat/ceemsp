@@ -55,4 +55,22 @@ public class ModalidadController {
         return modalidadService.guardarModalidad(modalidadDto, username);
     }
 
+    @PutMapping(value = MODALIDAD_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ModalidadDto modificarModalidad(
+            HttpServletRequest request,
+            @PathVariable(value = "modalidadUuid") String modalidadUuid,
+            @RequestBody ModalidadDto modalidadDto
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return modalidadService.modificarModalidad(modalidadDto, modalidadUuid, username);
+    }
+
+    @DeleteMapping(value = MODALIDAD_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ModalidadDto eliminarModalidad(
+            HttpServletRequest request,
+            @PathVariable(value = "modalidadUuid") String modalidadUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return modalidadService.eliminarModalidad(modalidadUuid, username);
+    }
 }

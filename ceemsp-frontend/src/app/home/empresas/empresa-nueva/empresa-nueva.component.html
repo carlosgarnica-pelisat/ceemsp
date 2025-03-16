@@ -42,6 +42,13 @@
           <div class="step" data-target="#test-l-5">
             <button class="step-trigger">
               <span class="bs-stepper-circle">5</span>
+              <span class="bs-stepper-label">Acuerdo</span>
+            </button>
+          </div>
+          <div class="line"></div>
+          <div class="step" data-target="#test-l-6">
+            <button class="step-trigger">
+              <span class="bs-stepper-circle">6</span>
               <span class="bs-stepper-label">Resumen</span>
             </button>
           </div>
@@ -60,10 +67,11 @@
                     </span>
                   </label>
                   <select id="tipoTramite" class="form-control" formControlName="tipoTramite" (change)="cambiarTipoTramite($event.target)">
+                    <option value="" disabled selected></option>
                     <option value="EAFJAL">TRÁMITE FEDERAL (EAFJAL)</option>
                     <option value="SPSMD">TRÁMITE ESTATAL (SPSMD)</option>
                     <option value="RESPRO">SERVICIOS PROPIOS (RESPRO)</option>
-                    <option value="AP">AUTORIZACIÓN PROVISIONAL (AP)</option>
+                    <option value="AP">AUTORIZACIÓN PROVISIONAL (AP/SPSMD)</option>
                   </select>
                 </div>
                 <div class="col-sm-4">
@@ -75,12 +83,16 @@
                       <i *ngIf="empresaCreacionForm.controls['registro'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                       <i *ngIf="empresaCreacionForm.controls['registro'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
                     </span>
+                    <a style="cursor: pointer;"><i *ngIf="existeEmpresa?.existe && existeEmpresa?.registro !== null" class="text-danger" (click)="mostrarModalEmpresaRegistrada(verEmpresaRegistradaModal)"> - La empresa ya existe con este registro</i></a>
                   </label>
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text">CESP/{{tipoTranite}}/</span>
+                      <span class="input-group-text" *ngIf="tipoTranite === 'SPSMD'">CESP/SPSMD/</span>
+                      <span class="input-group-text" *ngIf="tipoTranite === 'EAFJAL'">CESP/EAFJAL/</span>
+                      <span class="input-group-text" *ngIf="tipoTranite === 'RESPRO'">CESP/RESPRO/</span>
+                      <span class="input-group-text" *ngIf="tipoTranite === 'AP'">CESP/AP/SPSMD/</span>
                     </div>
-                    <input class="form-control" id="registro" type="tel" formControlName="registro" placeholder="Se generara automaticamente" appNumberMask>
+                    <input class="form-control" id="registro" type="tel" formControlName="registro" placeholder="Se generara automaticamente" (focusout)="verificarRegistro($event.target)" appNumberMask>
                     <div class="input-group-append">
                       <span class="input-group-text">/{{year}}</span>
                     </div>
@@ -139,7 +151,7 @@
                 </div>
                 <div class="col-sm-2" *ngIf="tipoPersona === 'FISICA'">
                   <label for="sexo">
-                    <b>Sexo</b>
+                    <b>Genero</b>
                   </label>
                   <select id="sexo" class="form-control" formControlName="sexo">
                     <option value="MASCULINO">MASCULINO</option>
@@ -158,9 +170,9 @@
                       <i *ngIf="empresaCreacionForm.controls['rfc'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
                     <a style="cursor: pointer;"><i *ngIf="existeEmpresa?.existe && existeEmpresa?.rfc !== null" class="text-danger" (click)="mostrarModalEmpresaRegistrada(verEmpresaRegistradaModal)"> - La empresa ya existe con este RFC</i></a>
-                    <i *ngIf="rfcVerificationResponse?.errors.length > 0" class="text-danger" (click)="mostrarModalEmpresaRegistrada(verEmpresaRegistradaModal)">
+                    <i *ngIf="rfcVerificationResponse?.errors?.length > 0" class="text-danger" (click)="mostrarModalEmpresaRegistrada(verEmpresaRegistradaModal)">
                       - El RFC no es valido.
-                      <span *ngIf="rfcVerificationResponse?.errors.length > 0 && rfcVerificationResponse.errors[0] === 'INVALID_VERIFICATION_DIGIT'">Digito verificador invalido</span>
+                      <span *ngIf="rfcVerificationResponse?.errors?.length > 0 && rfcVerificationResponse?.errors[0] === 'INVALID_VERIFICATION_DIGIT' && !validacionRfcOmitida">Digito verificador invalido</span>
                     </i>
                   </label>
                   <input class="form-control" id="rfc" type="text" formControlName="rfc" placeholder="Ejemplo. XAXX010101AAA" (focusout)="consultarEmpresaRfc($event.target)" appRfcMask>
@@ -175,7 +187,7 @@
                       <i *ngIf="empresaCreacionForm.controls['correoElectronico'].errors.email" class="text-danger"> - No es un email</i>
                     </span>
                   </label>
-                  <input class="form-control" id="correoElectronico" type="email" formControlName="correoElectronico" placeholder="Ejemplo hola@hola.com">
+                  <input class="form-control" id="correoElectronico" type="email" formControlName="correoElectronico" placeholder="Ejemplo hola@hola.com" (focusout)="actualizarCorreoElectronico($event.target)">
                 </div>
                 <div class="col-sm-4">
                   <label for="telefono">
@@ -188,28 +200,124 @@
                   <input class="form-control" id="telefono" type="text" formControlName="telefono" placeholder="Ejemplo 3312345678" appPhoneMask>
                 </div>
               </div>
-            </form>
-            <form [formGroup]="empresaModalidadForm" style="margin-top: 10px;">
               <div class="form-row">
-                <div class="col-sm-2">
-                  <label for="modalidad">
-                    <b>Modalidad *</b>
+                <div class="col-sm-4" *ngIf="tipoTranite === 'EAFJAL'">
+                  <label for="numeroRegistroFederalEmpresa">
+                    <b>No. de Registro Federal</b>
                     <span
-                      *ngIf="empresaModalidadForm.controls['modalidad'].invalid && (empresaModalidadForm.controls['modalidad'].dirty || empresaModalidadForm.controls['modalidad'].touched)">
-                      <i *ngIf="empresaModalidadForm.controls['modalidad'].errors.required" class="text-danger"> - Campo requerido</i>
+                      *ngIf="empresaCreacionForm.controls['registroFederal'].invalid && (empresaCreacionForm.controls['registroFederal'].dirty || empresaCreacionForm.controls['registroFederal'].touched)">
+                      <i *ngIf="empresaCreacionForm.controls['registroFederal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
                   </label>
-                  <select id="modalidad" class="form-control" formControlName="modalidad" (change)="seleccionarModalidad($event.target)">
-                    <option *ngFor="let m of modalidades" value="{{m?.uuid}}">{{m?.nombre}}</option>
-                  </select>
+                  <input class="form-control" id="numeroRegistroFederalEmpresa" type ="text" formControlName="registroFederal" placeholder="Ejemplo. 156861215" (focusout)="actualizarRegistroFederal($event.target)">
                 </div>
-                <div class="col-sm-2" *ngIf="modalidad?.tieneSubmodalidades">
-                  <label for="submodalidad">
+                <div class="col-sm-4" *ngIf="tipoTranite === 'EAFJAL'">
+                  <label for="documentoRegistroFederal">
+                    <b>Documento de Registro Federal (en pdf)</b>
+                  </label>
+                  <input id="documentoRegistroFederal" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChangeRegistroFederal($event)">
+                </div>
+                <div class="col-sm-2" *ngIf="tipoTranite === 'EAFJAL'">
+                  <label for="fechaInicioEmpresa">
+                    <b>Fecha de Inicio</b>
+                  </label>
+                  <input class="form-control" id="fechaInicioEmpresa" type="date" formControlName="fechaInicio" placeholder="Fecha inicio" (focusout)="actualizarFechaInicio($event.target)">
+                </div>
+                <div class="col-sm-2" *ngIf="tipoTranite === 'EAFJAL'">
+                  <label for="fechaFinEmpresa">
+                    <b>Fecha de Fin</b>
+                  </label>
+                  <input class="form-control" id="fechaFinEmpresa" type="date" formControlName="fechaFin" placeholder="Fecha fin" (focusout)="actualizarFechaFin($event.target)">
+                </div>
+              </div>
+            </form>
+            <hr>
+            <form [formGroup]="empresaUsuarioForm" style="margin-top: 10px;">
+              <div class="form-row">
+                <div class="col-sm-4">
+                  <label for="emailUsuario">
+                    <b>Correo electronico (usuario)*</b>
+                    <span
+                      *ngIf="empresaUsuarioForm.controls['email'].invalid && (empresaUsuarioForm.controls['email'].dirty || empresaUsuarioForm.controls['email'].touched)">
+                        <i *ngIf="empresaUsuarioForm.controls['email'].errors.required" class="text-danger"> - Campo requerido</i>
+                        <i *ngIf="empresaUsuarioForm.controls['email'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        <i *ngIf="empresaUsuarioForm.controls['email'].errors.email" class="text-danger"> - No es un email</i>
+                      </span>
+                    <i *ngIf="existeUsuario !== undefined && existeUsuario.existe" class="text-danger"> - El usuario ya existe</i>
+                  </label>
+                  <input class="form-control" id="emailUsuario" type="email" formControlName="email" (focusout)="consultarEmail($event.target)" placeholder="Ejemplo: hola@hotmail.com">
+                </div>
+                <div class="col-sm-4">
+                  <label for="password">
+                    <b>Contrasena * <a style="color:#0057a0; cursor: pointer;" class="fakelink" (click)="autogenerarContrasena()">(autogenerar)</a></b>
+                    <span
+                      *ngIf="empresaUsuarioForm.controls['password'].invalid && (empresaUsuarioForm.controls['password'].dirty || empresaUsuarioForm.controls['password'].touched)">
+                        <i *ngIf="empresaUsuarioForm.controls['password'].errors.required" class="text-danger"> - Campo requerido</i>
+                        <i *ngIf="empresaUsuarioForm.controls['password'].errors.minlength" class="text-danger"> - Longitud invalida</i>
+                        <i *ngIf="empresaUsuarioForm.controls['password'].errors.maxlength" class="text-danger"> - Longitud invalida</i>
+                      </span>
+                  </label>
+                  <div class="input-group">
+                    <input class="form-control" id="password" [type]="mostrarContrasena ? 'text' : 'password'" formControlName="password" placeholder="De 8 a 15 caracteres.">
+                    <div class="input-group-append">
+                      <span class="input-group-text" style="cursor: pointer;" (click)="conmutarMostrarContrasena()">{{mostrarContrasena ? 'Ocultar' : 'Mostrar'}}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <label for="logo">
+                    <b>Logo</b>
+                  </label>
+                  <div class="input-group">
+                    <input id="logo" class="form-control" formControlName="archivo" type="file" accept="image/*" (change)="actualizarLogo($event)">
+                  </div>
+                </div>
+              </div>
+            </form>
+            <hr>
+            <form [formGroup]="empresaModalidadForm" style="margin-top: 10px;">
+              <div class="form-row">
+                <div class="col-sm-3">
+                  <label>
+                    <b>Modalidad * </b>
+                  </label>
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{modalidad === undefined ? 'Ninguno' : (modalidad?.nombre).substr(0, 50)}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                    <form class="px-4 py-3" autocomplete="off">
+                      <label for="modalidadSearchQuery"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="modalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="modalidadQuery"
+                             [ngModelOptions]="{standalone: true}">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let m of modalidades | buscarNombre: {nombre: modalidadQuery}" (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                      {{m.nombre}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="modalidad !== undefined" (click)="quitarModalidad()">Quitar</a>
+                  </div>
+                </div>
+                <div class="col-sm-3" *ngIf="modalidad?.tieneSubmodalidades">
+                  <label>
                     <b>Submodalidad</b>
                   </label>
-                  <select id="submodalidad" class="form-control" formControlName="submodalidad">
-                    <option *ngFor="let s of modalidad?.submodalidades" value="{{s?.uuid}}">{{s?.nombre}}</option>
-                  </select>
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{submodalidad === undefined ? 'Ninguno' : (submodalidad?.nombre).substr(0, 50)}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                    <form class="px-4 py-3" autocomplete="off">
+                      <label for="submodalidadSearchQuery"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="submodalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="submodalidadQuery"
+                             [ngModelOptions]="{standalone: true}">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let s of modalidad.submodalidades | buscarNombre: {nombre: submodalidadQuery}" (click)="seleccionarSubmodalidad(s?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                      {{s.nombre}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="submodalidad !== undefined" (click)="quitarSubmodalidad()">Quitar</a>
+                  </div>
                 </div>
                 <div class="col-sm-2" *ngIf="modalidad?.tipo === 'EAFJAL'">
                   <label for="numeroRegistroFederal">
@@ -219,19 +327,19 @@
                       <i *ngIf="empresaModalidadForm.controls['numeroRegistroFederal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
                   </label>
-                  <input class="form-control" id="numeroRegistroFederal" type ="tel" formControlName="numeroRegistroFederal" placeholder="Ejemplo. 156861215" appNumberMaskp>
+                  <input class="form-control" id="numeroRegistroFederal" disabled type ="text" formControlName="numeroRegistroFederal" placeholder="Ejemplo. 156861215">
                 </div>
                 <div class="col-sm-2" *ngIf="modalidad?.tipo === 'EAFJAL'">
                   <label for="fechaInicio">
                     <b>Fecha de Inicio</b>
                   </label>
-                  <input class="form-control" id="fechaInicio" type="date" formControlName="fechaInicio" placeholder="Fecha inicio">
+                  <input class="form-control" id="fechaInicio" type="date" formControlName="fechaInicio" placeholder="Fecha inicio" disabled>
                 </div>
                 <div class="col-sm-2" *ngIf="modalidad?.tipo === 'EAFJAL'">
                   <label for="fechaFin">
                     <b>Fecha de Fin</b>
                   </label>
-                  <input class="form-control" id="fechaFin" type="date" formControlName="fechaFin" placeholder="Fecha fin">
+                  <input class="form-control" id="fechaFin" type="date" formControlName="fechaFin" placeholder="Fecha fin" disabled>
                 </div>
                 <div class="col-sm-2" style="margin-top: 8px;">
                   <br>
@@ -247,17 +355,17 @@
                   <tr>
                     <td><b>Modalidad</b></td>
                     <td><b>Submodalidad</b></td>
-                    <td><b>No. de Registro Federal</b></td>
-                    <td><b>Fecha de Inicio</b></td>
-                    <td><b>Fecha de Fin</b></td>
-                    <td><b>Acciones</b></td>
+                    <td *ngIf="tipoTranite === 'EAFJAL'"><b>No. de Registro Federal</b></td>
+                    <td *ngIf="tipoTranite === 'EAFJAL'"><b>Fecha de Inicio</b></td>
+                    <td *ngIf="tipoTranite === 'EAFJAL'"><b>Fecha de Fin</b></td>
+                    <td><b>Opciones</b></td>
                   </tr>
                   <tr *ngFor="let m of empresaModalidades; let i = index;">
-                    <td>{{m.modalidad.nombre.substring(0, 40)}}</td>
-                    <td>{{m.submodalidad?.nombre.substring(0, 40)}}</td>
-                    <td>{{m.numeroRegistroFederal}}</td>
-                    <td>{{m.fechaInicio}}</td>
-                    <td>{{m.fechaFin}}</td>
+                    <td style="max-width: 30%; word-break: break-word;">{{m.modalidad.nombre}}</td>
+                    <td style="max-width: 30%; word-break: break-word;">{{m.submodalidad?.nombre}}</td>
+                    <td *ngIf="tipoTranite === 'EAFJAL'">{{m.numeroRegistroFederal}}</td>
+                    <td *ngIf="tipoTranite === 'EAFJAL'">{{m.fechaInicio}}</td>
+                    <td *ngIf="tipoTranite === 'EAFJAL'">{{m.fechaFin}}</td>
                     <td>
                       <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminar(eliminarModalidadModal, i)" *ngIf="!empresaGuardada" title="Eliminar modalidad" style="cursor: pointer;"></fa-icon>
                     </td>
@@ -265,6 +373,14 @@
                 </table>
               </div>
             </div>
+            <hr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+            <div class="row"  *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+              <div class="col-sm-12">
+                <button class="btn btn-info" *ngIf="!validacionRfcOmitida" (click)="omitirValidacionRfc()">Omitir validacion del RFC</button>
+                <button class="btn btn-info" *ngIf="validacionRfcOmitida" (click)="omitirValidacionRfc()">No omitir validacion del RFC</button>
+              </div>
+            </div>
+            <hr  *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
             <div class="row">
               <div class="col-sm-12">
                 <button (click)="next('DOMICILIOS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
@@ -274,7 +390,7 @@
             </div>
           </div>
 
-          <!-- STEP 2 - Psychologist information -->
+
           <div id="test-l-2" class="content">
 
             <form [formGroup]="empresaDomiciliosForm" autocomplete="off">
@@ -311,11 +427,11 @@
                     <b>Estado *</b>
                   </label>
                   <div class="dropdown" id="customer">
-                    <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                       {{estado === undefined ? 'Ninguno' : estado?.nombre}}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
-                      <form [formGroup]="estadoSearchForm" class="px-4 py-3" autocomplete="off">
+                      <form class="px-4 py-3" autocomplete="off">
                         <label for="estadoSearchQuery"><b>Buscar por nombre</b></label>
                         <input type="text" class="form-control" id="estadoSearchQuery" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
                                [ngModelOptions]="{standalone: true}">
@@ -333,11 +449,11 @@
                   <label>
                     <b>Municipio *</b>
                   </label>
-                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                     {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
                   </a>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
-                    <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                    <form class="px-4 py-3" autocomplete="off">
                       <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
                       <input type="text" class="form-control" id="municipioSearchQuery" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
                              [ngModelOptions]="{standalone: true}">
@@ -354,11 +470,11 @@
                   <label>
                     <b>Localidad *</b>
                   </label>
-                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                     {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
                   </a>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
-                    <form [formGroup]="localidadSearchForm" autocomplete="off" class="px-4 py-3">
+                    <form autocomplete="off" class="px-4 py-3">
                       <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
                       <input type="text" class="form-control" id="localidadSearchQuery" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
                              [ngModelOptions]="{standalone: true}">
@@ -375,11 +491,11 @@
                   <label>
                     <b>Colonia *</b>
                   </label>
-                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                     {{colonia === undefined ? 'Ninguno' : colonia?.nombre}}
                   </a>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
-                    <form [formGroup]="municipioSearchForm" class="px-4 py-3">
+                    <form class="px-4 py-3">
                       <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
                       <input type="text" class="form-control" id="coloniaSearchQuery" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
                              [ngModelOptions]="{standalone: true}" autocomplete="off">
@@ -399,11 +515,11 @@
                   <label>
                     <b>Calle * </b>
                   </label>
-                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': domiciliosGuardados }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                     {{calle === undefined ? 'Ninguno' : calle?.nombre}}
                   </a>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
-                    <form [formGroup]="calleSearchForm" class="px-4 py-3" autocomplete="off">
+                    <form class="px-4 py-3" autocomplete="off">
                       <label for="calleSearchQuery"><b>Buscar por nombre</b></label>
                       <input type="text" class="form-control" id="calleSearchQuery" placeholder="Ej. Av. Empresarios" [(ngModel)]="calleQuery"
                              [ngModelOptions]="{standalone: true}" (keyup)="obtenerCalles($event)">
@@ -465,21 +581,13 @@
               <div class="row">
                 <div class="col-sm-3">
                   <label for="telefonoFijo">
-                    <b>Teléfono Fijo *</b>
-                    <span
-                      *ngIf="empresaDomiciliosForm.controls['telefonoFijo'].invalid && (empresaDomiciliosForm.controls['telefonoFijo'].dirty || empresaDomiciliosForm.controls['telefonoFijo'].touched)">
-                      <i *ngIf="empresaDomiciliosForm.controls['telefonoFijo'].errors.required" class="text-danger"> - Campo requerido</i>
-                    </span>
+                    <b>Teléfono Fijo</b>
                   </label>
                   <input id="telefonoFijo" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoFijo" #telefonoFijo appPhoneMask>
                 </div>
                 <div class="col-sm-3">
                   <label for="telefonoMovil">
-                    <b>Teléfono Móvil *</b>
-                    <span
-                      *ngIf="empresaDomiciliosForm.controls['telefonoMovil'].invalid && (empresaDomiciliosForm.controls['telefonoMovil'].dirty || empresaDomiciliosForm.controls['telefonoMovil'].touched)">
-                      <i *ngIf="empresaDomiciliosForm.controls['telefonoMovil'].errors.required" class="text-danger"> - Campo requerido</i>
-                    </span>
+                    <b>Teléfono Móvil</b>
                   </label>
                   <input id="telefonoMovil" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoMovil" #telefonoMovil appPhoneMask>
                 </div>
@@ -488,6 +596,7 @@
             <div class="row" style="margin-top: 20px;">
               <div class="col-sm-12">
                 <button class="btn btn-outline-primary" (click)="agregarDomicilio(empresaDomiciliosForm)">Agregar</button>
+                <button class="btn btn-outline-primary" (click)="ubicarDomicilio(empresaDomiciliosForm)">Ubicar en el mapa</button>
               </div>
             </div>
 
@@ -508,7 +617,7 @@
                     <td><b>Referencia</b></td>
                     <td><b>Teléfono fijo</b></td>
                     <td><b>Teléfono movil</b></td>
-                    <td><b>Acciones</b></td>
+                    <td><b>Opciones</b></td>
                   </tr>
                   <tr *ngFor="let d of empresaDomicilios; let i = index">
                     <td>{{d.nombre}}</td>
@@ -528,8 +637,9 @@
                     <td>{{d.telefonoFijo}}</td>
                     <td>{{d.telefonoMovil}}</td>
                     <td>
-                      <fa-icon [icon]="faPencil" style="cursor: pointer;" (click)="editarDomicilio(i)" title="Modificar domicililo"></fa-icon>
-                      <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarModalEliminar(eliminarDomicilioModal, i)" title="Eliminar domicilio"></fa-icon>
+                      <fa-icon [icon]="faPhone" style="cursor: pointer;" (click)="mostrarModalTelefonosDomicilio(d?.uuid)" title="Ver telefonos" *ngIf="!domiciliosGuardados"></fa-icon>
+                      <fa-icon [icon]="faPencil" style="cursor: pointer;" (click)="editarDomicilio(i)" title="Modificar domicililo" *ngIf="!domiciliosGuardados"></fa-icon>
+                      <fa-icon [icon]="faTrash" style="cursor: pointer;" (click)="mostrarModalEliminar(eliminarDomicilioModal, d?.uuid)" title="Eliminar domicilio" *ngIf="!domiciliosGuardados"></fa-icon>
                     </td>
                   </tr>
                 </table>
@@ -548,44 +658,52 @@
             </div>
           </div>
 
-          <!-- STEP 3 - SUMMARY -->
           <div id="test-l-3" class="content">
             <form [formGroup]="nuevaEscrituraForm">
               <div class="row">
                 <div class="col-sm-4">
-                  <label for="numeroEscritura">
+                  <label for="numeroEscrituraEditar">
                     <b>Número de escritura *</b>
                     <span
                       *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].invalid && (nuevaEscrituraForm.controls['numeroEscritura'].dirty || nuevaEscrituraForm.controls['numeroEscritura'].touched)">
                       <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
                       <i *ngIf="nuevaEscrituraForm.controls['numeroEscritura'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
-                    <i *ngIf="existeEscritura !== undefined && existeEscritura.existe"> - La escritura ya existe</i>
+                    <i *ngIf="existeEscritura !== undefined && existeEscritura.existe" class="text-danger"> - La escritura ya existe</i>
                   </label>
-                  <input id="numeroEscritura" type="tel" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" appNumberMask #numeroEscritura (focusout)="validarEscritura($event.target)">
+                  <input id="numeroEscrituraEditar" type="tel" class="form-control" placeholder="Ej. 01830" formControlName="numeroEscritura" appNumberMask #numeroEscritura (focusout)="validarEscritura($event.target)">
                 </div>
                 <div class="col-sm-4">
-                  <label for="fechaEscritura">
+                  <label for="fechaEscrituraEditar">
                     <b>Fecha de escritura *</b>
                     <span
                       *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].invalid && (nuevaEscrituraForm.controls['fechaEscritura'].dirty || nuevaEscrituraForm.controls['fechaEscritura'].touched)">
                       <i *ngIf="nuevaEscrituraForm.controls['fechaEscritura'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                   </label>
-                  <input [max]="fechaDeHoy" id="fechaEscritura" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaEscritura"  #fechaEscritura>
+                  <input [max]="fechaDeHoy" id="fechaEscrituraEditar" type="date" class="form-control" placeholder="Selecciona una fecha" formControlName="fechaEscritura"  #fechaEscritura>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-4">
+                  <label for="archivoEditar">
+                    <b>Archivo (en pdf) * <a *ngIf="this.escritura?.nombreArchivo !== null" (click)="mostrarPdfActual()" style="cursor: pointer;">(Mostrar actual)</a></b>
+                  </label>
+                  <input id="archivoEditar" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChangeEscritura($event)">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-sm-4">
                   <label>
                     <b>Estado *</b>
                   </label>
-                  <div class="dropdown" id="customer">
-                    <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  <div class="dropdown" id="estadoEditar">
+                    <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': escriturasGuardadas }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                       {{estado === undefined ? 'Ninguno' : estado?.nombre}}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
-                      <form [formGroup]="estadoSearchForm" class="px-4 py-3" autocomplete="off">
-                        <label for="estadoSearchQueryNotario"><b>Buscar por nombre</b></label>
-                        <input type="text" class="form-control" id="estadoSearchQueryNotario" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
+                      <form class="px-4 py-3" autocomplete="off">
+                        <label for="estadoSearchQueryNotarioEditar"><b>Buscar por nombre</b></label>
+                        <input type="text" class="form-control" id="estadoSearchQueryNotarioEditar" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
                                [ngModelOptions]="{standalone: true}">
                       </form>
                       <div class="dropdown-divider"></div>
@@ -597,17 +715,17 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-4">
                   <label>
                     <b>Municipio *</b>
                   </label>
-                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': escriturasGuardadas }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                     {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
                   </a>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
-                    <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
-                      <label for="municipioSearchQueryNotario"><b>Buscar por nombre</b></label>
-                      <input type="text" class="form-control" id="municipioSearchQueryNotario" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
+                    <form class="px-4 py-3" autocomplete="off">
+                      <label for="municipioSearchQueryNotarioEditar"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="municipioSearchQueryNotarioEditar" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
                              [ngModelOptions]="{standalone: true}">
                     </form>
                     <div class="dropdown-divider"></div>
@@ -618,11 +736,77 @@
                     <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
                   </div>
                 </div>
+                <div class="col-sm-4">
+                  <label>
+                    <b>Localidad *</b>
+                  </label>
+                  <a href="" class="btn btn-outline-info dropdown-toggle text-left" [ngClass]="{ 'disabled': escriturasGuardadas }" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                    <form fautocomplete="off" class="px-4 py-3">
+                      <label for="localidadSearchQueryEditar"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="localidadSearchQueryEditar" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
+                             [ngModelOptions]="{standalone: true}">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let l of localidades | buscarNombre: {nombre: localidadQuery}" (click)="seleccionarLocalidad(l.uuid)" style="cursor: pointer;">
+                      {{l.nombre}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
+                  </div>
+                </div>
+
               </div>
 
               <div class="row">
-                <div class="col-sm-2">
-                  <label for="tipoFedatario">
+                <div class="col-sm-4">
+                  <label for="nombreFedatarioEditar">
+                    <b>Nombre del Fedatario *</b>
+                    <span
+                      *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].invalid && (nuevaEscrituraForm.controls['nombreFedatario'].dirty || nuevaEscrituraForm.controls['nombreFedatario'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.required" class="text-danger"> - Campo requerido</i>
+                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                  </label>
+                  <input id="nombreFedatarioEditar" type="text" class="form-control" placeholder="Ej. Juan Carlos" formControlName="nombreFedatario" #nombreFedatario>
+                </div>
+                <div class="col-sm-4">
+                  <label for="apellidoPaternoFedatarioEditar">
+                    <b>Ap. Paterno del Fedatario</b>
+                    <span
+                      *ngIf="nuevaEscrituraForm.controls['apellidoPaterno'].invalid && (nuevaEscrituraForm.controls['apellidoPaterno'].dirty || nuevaEscrituraForm.controls['apellidoPaterno'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['apellidoPaterno'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                  </label>
+                  <input id="apellidoPaternoFedatarioEditar" type="text" class="form-control" placeholder="Ej. Gonzalez" formControlName="apellidoPaterno" #nombreFedatario>
+                </div>
+                <div class="col-sm-4">
+                  <label for="apellidoMaternoFedatario">
+                    <b>Ap. Materno del Fedatario</b>
+                    <span
+                      *ngIf="nuevaEscrituraForm.controls['apellidoMaterno'].invalid && (nuevaEscrituraForm.controls['apellidoMaterno'].dirty || nuevaEscrituraForm.controls['apellidoMaterno'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['apellidoMaterno'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                  </label>
+                  <input id="apellidoMaternoFedatario" type="text" class="form-control" placeholder="Ej. Chavez" formControlName="apellidoMaterno" #nombreFedatario>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-sm-4">
+                  <label for="curpFedatarioEditar">
+                    <b>CURP del Fedatario</b>
+                    <span
+                      *ngIf="nuevaEscrituraForm.controls['curp'].invalid && (nuevaEscrituraForm.controls['curp'].dirty || nuevaEscrituraForm.controls['curp'].touched)">
+                      <i *ngIf="nuevaEscrituraForm.controls['curp'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    </span>
+                  </label>
+                  <input id="curpFedatarioEditar" type="text" class="form-control" placeholder="Ej. XAXX010101ABCDEF00" formControlName="curp" #nombreFedatario>
+                </div>
+                <div class="col-sm-4">
+                  <label for="tipoFedatarioEditar">
                     <b>Tipo de Fedatario *</b>
                     <span
                       *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].invalid && (nuevaEscrituraForm.controls['tipoFedatario'].dirty || nuevaEscrituraForm.controls['tipoFedatario'].touched)">
@@ -630,13 +814,13 @@
                       <i *ngIf="nuevaEscrituraForm.controls['tipoFedatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                     </span>
                   </label>
-                  <select id="tipoFedatario" class="form-control" formControlName="tipoFedatario">
+                  <select id="tipoFedatarioEditar" class="form-control" formControlName="tipoFedatario">
                     <option value="CORREDOR">Corredor</option>
                     <option value="NOTARIO">Notario</option>
                   </select>
                 </div>
-                <div class="col-sm-2">
-                  <label for="numero">
+                <div class="col-sm-4">
+                  <label for="numeroEditar">
                     <b>Número *</b>
                     <span
                       *ngIf="nuevaEscrituraForm.controls['numero'].invalid && (nuevaEscrituraForm.controls['numero'].dirty || nuevaEscrituraForm.controls['numero'].touched)">
@@ -645,37 +829,20 @@
                       <i *ngIf="nuevaEscrituraForm.controls['numero'].errors.min" class="text-danger"> - Valor invalido</i>
                     </span>
                   </label>
-                  <input id="numero" type="number" class="form-control" placeholder="Ej. 73" formControlName="numero" #numero>
-                </div>
-                <div class="col-sm-4">
-                  <label for="nombreFedatario">
-                    <b>Nombre del Fedatario *</b>
-                    <span
-                      *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].invalid && (nuevaEscrituraForm.controls['nombreFedatario'].dirty || nuevaEscrituraForm.controls['nombreFedatario'].touched)">
-                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.required" class="text-danger"> - Campo requerido</i>
-                      <i *ngIf="nuevaEscrituraForm.controls['nombreFedatario'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
-                    </span>
-                  </label>
-                  <input id="nombreFedatario" type="text" class="form-control" placeholder="Ej. Juan Carlos Garnica" formControlName="nombreFedatario" #nombreFedatario>
-                </div>
-                <div class="col-sm-4">
-                  <label for="archivo">
-                    <b>Archivo (en pdf) *</b>
-                  </label>
-                  <input id="archivo" class="form-control" formControlName="archivo" type="file" accept="application/pdf" (change)="onFileChange($event)">
+                  <input id="numeroEditar" type="number" class="form-control" placeholder="Ej. 73" formControlName="numero" #numero>
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-sm-12">
-                  <label for="descripcion">
+                  <label for="descripcionEditar">
                     <b>Detalles de la escritura *</b>
                     <span
                       *ngIf="nuevaEscrituraForm.controls['descripcion'].invalid && (nuevaEscrituraForm.controls['descripcion'].dirty || nuevaEscrituraForm.controls['descripcion'].touched)">
                       <i *ngIf="nuevaEscrituraForm.controls['descripcion'].errors.required" class="text-danger"> - Campo requerido</i>
                     </span>
                   </label>
-                  <textarea id="descripcion" class="form-control" placeholder="Por favor, explique de manera detallada la razon de la escritura." formControlName="descripcion" #descripcion></textarea>
+                  <textarea id="descripcionEditar" class="form-control" placeholder="Por favor, explique de manera detallada la razon de la escritura." formControlName="descripcion" #descripcion></textarea>
                 </div>
               </div>
 
@@ -696,7 +863,7 @@
                     <td><b>Tipo de fedatario</b></td>
                     <td><b>Número</b></td>
                     <td><b>Nombre de fedatario</b></td>
-                    <td><b>Acciones</b></td>
+                    <td><b>Opciones</b></td>
                   </tr>
                   <tr *ngFor="let e of empresaEscrituras; let i = index;">
                     <td>{{e?.numeroEscritura}}</td>
@@ -706,8 +873,9 @@
                     <td>{{e?.numero}}</td>
                     <td>{{e?.nombreFedatario}}</td>
                     <td>
-                      <fa-icon style="cursor: pointer;" [icon]="faUsers" (click)="mostrarModalDetallesEscritura(verEscrituraEmpresaModal, e?.uuid)" title="Agregar entes (socios, apoderados, etc)"></fa-icon>
-                      <fa-icon style="cursor: pointer;" [icon]="faTrash" (click)="mostrarModalEliminar(eliminarEscrituraModal, i)" title="Eliminar escritura"></fa-icon>
+                      <fa-icon style="cursor: pointer;" [icon]="faUsers" (click)="mostrarModalDetallesEscritura(verEscrituraEmpresaModal, e?.uuid)" title="Agregar entes (socios, apoderados, etc)" *ngIf="!escriturasGuardadas"></fa-icon>
+                      <fa-icon style="cursor: pointer;" [icon]="faPencil" (click)="editarEscritura(i)" title="Modificar escritura" *ngIf="!escriturasGuardadas"></fa-icon>
+                      <fa-icon style="cursor: pointer;" [icon]="faTrash" (click)="mostrarModalEliminar(eliminarEscrituraModal, e?.uuid)" title="Eliminar escritura" *ngIf="!escriturasGuardadas"></fa-icon>
                     </td>
                   </tr>
                 </table>
@@ -734,12 +902,15 @@
                   <label for="formaEjecucion">
                     <b>Forma de ejecucion *</b>
                     <span *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].invalid && (empresaFormaEjecucionForm.controls['formaEjecucion'].dirty || empresaFormaEjecucionForm.controls['formaEjecucion'].touched)">
-                              <i *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].errors.required" class="error-text"> - Campo requerido</i>
+                              <i *ngIf="empresaFormaEjecucionForm.controls['formaEjecucion'].errors.required" class="text-danger"> - Campo requerido</i>
                             </span>
                   </label>
                   <select id="formaEjecucion" class="form-control" formControlName="formaEjecucion">
-                    <option value="ARMAS">Con portación de armas de fuego</option>
+                    <option value="" disabled selected></option>
+                    <option value="ARMAS" *ngIf="tipoTranite === 'EAFJAL'">Con portación de armas de fuego</option>
+                    <option value="NO_ARMAS">Sin portación de armas de fuego</option>
                     <option value="CANES">Con el auxilio de canes</option>
+                    <option value="NO_CANES">Sin el auxilio de canes</option>
                     <option value="INSTRUMENTOS">Con portación de instrumentos de apoyo para control</option>
                     <option value="TECNOLOGIA">Con apoyo de tecnología</option>
                   </select>
@@ -755,17 +926,19 @@
                 <table class="table">
                   <tr>
                     <td><b>Forma de ejecucion</b></td>
-                    <td><b>Acciones</b></td>
+                    <td><b>Opciones</b></td>
                   </tr>
                   <tr *ngFor="let f of empresaFormasEjecucion; let i = index">
                     <td [ngSwitch]="f?.formaEjecucion">
                       <span *ngSwitchCase="'ARMAS'">Con portación de armas de fuego</span>
+                      <span *ngSwitchCase="'NO_ARMAS'">Sin portación de armas de fuego</span>
                       <span *ngSwitchCase="'CANES'">Con el auxilio de canes</span>
+                      <span *ngSwitchCase="'NO_CANES'">Sin el auxilio de canes</span>
                       <span *ngSwitchCase="'INSTRUMENTOS'">Con portación de instrumentos de apoyo para control</span>
                       <span *ngSwitchCase="'TECNOLOGIA'">Con apoyo de tecnología</span>
                     </td>
                     <td>
-                      <fa-icon style="cursor: pointer;" [icon]="faTrash" (click)="mostrarModalEliminar(eliminarFormaEjecucionModal, i)" title="Eliminar forma de ejecución"></fa-icon>
+                      <fa-icon style="cursor: pointer;" [icon]="faTrash" (click)="mostrarModalEliminar(eliminarFormaEjecucionModal, i)" title="Eliminar forma de ejecución" *ngIf="!formasEjecucionGuardadas"></fa-icon>
                     </td>
                   </tr>
                 </table>
@@ -778,8 +951,8 @@
                 <button (click)="previous()" class="btn btn-primary"><fa-icon [icon]="faChevronLeft"></fa-icon> Anterior:
                   Legal
                 </button>
-                <button (click)="next('RESUMEN', empresaCreacionForm)" class="btn btn-primary">Siguiente:
-                  Resumen <fa-icon [icon]="faChevronRight"></fa-icon>
+                <button (click)="next('ACUERDOS', empresaCreacionForm)" class="btn btn-primary">Siguiente:
+                  Acuerdo <fa-icon [icon]="faChevronRight"></fa-icon>
                 </button>
               </div>
             </div>
@@ -787,8 +960,273 @@
           <div id="test-l-5" class="content">
             <div class="row">
               <div class="col-sm-12">
+                <form [formGroup]="nuevoAcuerdoForm">
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <label for="fecha">
+                        <b>Tipo de acuerdo *</b>
+                      </label>
+                      <select id="tipo" class="form-control" formControlName="tipo">
+                        <option value="AUTORIZACION_ESTATAL">Autorizacion estatal</option>
+                        <option value="AUTORIZACION_PROVISIONAL">Autorizacion provisional</option>
+                        <option value="REGISTRO_FEDERAL">Registro federal</option>
+                        <option value="REGISTRO_SERVICIOS_PROPIOS">Registro de servicios propios</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="fecha">
+                        <b>Fecha del acuerdo *</b>
+                        <span *ngIf="nuevoAcuerdoForm.controls['fecha'].invalid && (nuevoAcuerdoForm.controls['fecha'].dirty || nuevoAcuerdoForm.controls['fecha'].touched)">
+                              <i *ngIf="nuevoAcuerdoForm.controls['fecha'].errors.required" class="text-danger"> - Campo requerido</i>
+                            </span>
+                      </label>
+                      <input class="form-control" id="fecha" type="date" formControlName="fecha" placeholder="Fecha del acuerdo">
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="documentoAcuerdo">
+                        <b>Archivo del acuerdo (en pdf) *</b>
+                      </label>
+                      <input id="documentoAcuerdo" class="form-control" type="file" accept="application/pdf" (change)="onFileChangeAcuerdo($event)">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <label for="fechaInicio">
+                        <b>Fecha de inicio *</b>
+                      </label>
+                      <input class="form-control" id="fechaInicio" type="date" formControlName="fechaInicio" placeholder="Fecha de inicio">
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="fechaFin">
+                        <b>Fecha de fin *</b>
+                      </label>
+                      <input class="form-control" id="fechaFin" type="date" formControlName="fechaFin" placeholder="Fecha de fin">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <label for="observaciones">
+                        <b>Observaciones</b>
+                      </label>
+                      <textarea id="observaciones" type="text" class="form-control" placeholder="Detallar si hay observaciones del acuerdo" formControlName="observaciones" #observaciones></textarea>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-12">
+                <button (click)="previous()" class="btn btn-primary"><fa-icon [icon]="faChevronLeft"></fa-icon> Anterior:
+                  Formas de ejecucion
+                </button>
+                <button (click)="next('RESUMEN', nuevoAcuerdoForm)" class="btn btn-primary">Siguiente:
+                  Resumen <fa-icon [icon]="faChevronRight"></fa-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div id="test-l-6" class="content">
+            <div class="row">
+              <div class="col-sm-12">
                 <h2>Listo, se ha registrado correctamente la empresa {{empresa?.razonSocial}}</h2>
-                <p>Ahora, ya puedes comenzar a registrar operaciones en la empresa</p>
+                <p>A continuacion, veras los detalles. Para finalizar, actualiza la pagina o dale click en el boton finalizar</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-12">
+                <h4>Info. Empresa</h4>
+                <table class="table">
+                  <tr>
+                    <td><b>Registro</b></td>
+                    <td>{{empresa?.registro}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Nombre comercial</b></td>
+                    <td>{{empresa?.nombreComercial}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Razon social</b></td>
+                    <td>{{empresa?.razonSocial}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>RFC</b></td>
+                    <td>{{empresa?.rfc}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Tipo de persona</b></td>
+                    <td>{{empresa?.tipoPersona}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Tipo de tramite</b></td>
+                    <td>{{empresa?.tipoTramite}}</td>
+                  </tr>
+
+                  <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
+                    <td><b>CURP</b></td>
+                    <td>{{empresa?.curp}}</td>
+                  </tr>
+                  <tr *ngIf="empresa?.tipoPersona === 'FISICA'">
+                    <td><b>Sexo</b></td>
+                    <td>{{empresa?.sexo}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Correo electronico: </b></td>
+                    <td>{{empresa?.correoElectronico}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Telefono: </b></td>
+                    <td>{{empresa?.telefono}}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <h4>Modalidades</h4>
+                <table class="table">
+                  <tr>
+                    <td><b>Modalidad</b></td>
+                    <td><b>Submodalidad</b></td>
+                    <td><b>Fecha Inicio</b></td>
+                    <td><b>Fecha Fin</b></td>
+                  </tr>
+                  <tr *ngFor="let m of empresaModalidades">
+                    <td>{{m.modalidad?.nombre}}</td>
+                    <td>
+                      <span *ngIf="m.submodalidad !== null">{{m.submodalidad?.nombre}}</span>
+                      <span *ngIf="m.submodalidad === null">NA</span>
+                    </td>
+                    <td>
+                      <span *ngIf="m.fechaInicio !== null">{{m.fechaInicio}}</span>
+                      <span *ngIf="m.fechaInicio === null">NA</span>
+                    </td>
+                    <td>
+                      <span *ngIf="m.fechaFin !== null">{{m.fechaFin}}</span>
+                      <span *ngIf="m.fechaFin === null">NA</span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <h4>Formas de ejecucion</h4>
+                <table class="table">
+                  <tr>
+                    <td><b>Forma de ejecucion</b></td>
+                  </tr>
+                  <tr *ngFor="let fe of empresaFormasEjecucion">
+                    <td [ngSwitch]="fe?.formaEjecucion">
+                      <span *ngSwitchCase="'ARMAS'">Con portación de armas de fuego</span>
+                      <span *ngSwitchCase="'NO_ARMAS'">Sin portación de armas de fuego</span>
+                      <span *ngSwitchCase="'CANES'">Con el auxilio de canes</span>
+                      <span *ngSwitchCase="'NO_CANES'">Sin el auxilio de canes</span>
+                      <span *ngSwitchCase="'INSTRUMENTOS'">Con portacion de instrumentos de apoyo para control</span>
+                      <span *ngSwitchCase="'TECNOLOGIA'">Con apoyo de tecnologia</span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <h4>Domicilios</h4>
+                <table class="table">
+                  <tr>
+                    <td><b>Nombre</b></td>
+                    <td><b>Tipo</b></td>
+                    <td><b>Calle</b></td>
+                    <td><b>N. Ext</b></td>
+                    <td><b>N. Int</b></td>
+                    <td><b>Colonia</b></td>
+                    <td><b>Localidad</b></td>
+                    <td><b>Municipio</b></td>
+                    <td><b>Entidad</b></td>
+                    <td><b>Código postal</b></td>
+                    <td><b>Referencia</b></td>
+                    <td><b>Teléfono fijo</b></td>
+                    <td><b>Teléfono movil</b></td>
+                  </tr>
+                  <tr *ngFor="let d of empresaDomicilios; let i = index">
+                    <td>{{d.nombre}}</td>
+                    <td [ngSwitch]="d?.matriz">
+                      <span *ngSwitchCase="'true'">Matriz</span>
+                      <span *ngSwitchCase="'false'">Sucursal</span>
+                    </td>
+                    <td>{{d.calleCatalogo?.nombre}}</td>
+                    <td>{{d.numeroExterior}}</td>
+                    <td>{{d.numeroInterior}}</td>
+                    <td>{{d.coloniaCatalogo?.nombre}}</td>
+                    <td>{{d.localidadCatalogo?.nombre}}</td>
+                    <td>{{d.municipioCatalogo?.nombre}}</td>
+                    <td>{{d.estadoCatalogo?.nombre}}</td>
+                    <td>{{d.codigoPostal}}</td>
+                    <td>{{d.domicilio4}}</td>
+                    <td>{{d.telefonoFijo}}</td>
+                    <td>{{d.telefonoMovil}}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <h4>Legal</h4>
+                <table class="table">
+                  <tr>
+                    <td><b>Número de escritura</b></td>
+                    <td><b>Fecha de escritura</b></td>
+                    <td><b>Ciudad</b></td>
+                    <td><b>Tipo de fedatario</b></td>
+                    <td><b>Número</b></td>
+                    <td><b>Nombre de fedatario</b></td>
+                  </tr>
+                  <tr *ngFor="let e of empresaEscrituras; let i = index;">
+                    <td>{{e?.numeroEscritura}}</td>
+                    <td>{{e?.fechaEscritura}}</td>
+                    <td>{{e?.ciudad}}</td>
+                    <td>{{e?.tipoFedatario}}</td>
+                    <td>{{e?.numero}}</td>
+                    <td>{{e?.nombreFedatario}}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <h4>Acuerdo</h4>
+                <table class="table">
+                  <tr>
+                    <td><b>Tipo de acuerdo:</b></td>
+                    <td [ngSwitch]="acuerdo?.tipo">
+                      <span *ngSwitchCase="'AUTORIZACION_ESTATAL'">Autorizacion Estatal</span>
+                      <span *ngSwitchCase="'AUTORIZACION_PROVISIONAL'">Autorizacion Provisional</span>
+                      <span *ngSwitchCase="'REGISTRO_FEDERAL'">Registro Federal</span>
+                      <span *ngSwitchCase="'REGISTRO_SERVICIOS_PROPIOS'">Registro de Servicios Propios</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Fecha del acuerdo:</b></td>
+                    <td>{{acuerdo?.fecha}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Fecha de inicio:</b></td>
+                    <td>{{acuerdo?.fechaInicio}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Fecha de fin:</b></td>
+                    <td>{{acuerdo?.fechaFin}}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Observaciones:</b></td>
+                    <td>{{acuerdo?.observaciones}}</td>
+                  </tr>
+                </table>
               </div>
             </div>
             <hr>
@@ -796,7 +1234,7 @@
               <div class="col-sm-12">
                 <button class="btn btn-primary" (click)="previous()">
                   <fa-icon [icon]="faChevronLeft"></fa-icon> Anterior:
-                  Formas de ejecucion
+                  Acuerdos
                 </button>
                 <button class="btn btn-primary" (click)="redireccionarEmpresas()">
                   Finalizar
@@ -846,7 +1284,7 @@
               <td><b>CURP</b></td>
               <td><b>Sexo</b></td>
               <td><b>% Acciones</b></td>
-              <td><b>Acciones</b></td>
+              <td><b>Opciones</b></td>
             </tr>
             <tr *ngFor="let socio of empresaEscritura?.socios; let i = index">
               <td>{{socio?.nombres}}</td>
@@ -857,7 +1295,7 @@
               <td>{{socio?.porcentajeAcciones}}</td>
               <td>
                 <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarSocioForm(i)" title="Editar socio"></fa-icon>
-                <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminar(eliminarEscrituraSocioModal, i)" title="Eliminar socio de la escritura"></fa-icon>
+                <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminar(eliminarEscrituraSocioModal, socio?.uuid)" title="Eliminar socio de la escritura"></fa-icon>
               </td>
             </tr>
             <tr *ngIf="!showSocioForm">
@@ -907,7 +1345,7 @@
                       <div class="row">
                         <div class="col-sm-4">
                           <label for="sexoSocio">
-                            <b>Sexo *</b>
+                            <b>Genero *</b>
                             <span
                               *ngIf="nuevoSocioForm.controls['sexo'].invalid && (nuevoSocioForm.controls['sexo'].dirty || nuevoSocioForm.controls['sexo'].touched)">
                               <i *ngIf="nuevoSocioForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -932,7 +1370,7 @@
                         </div>
                         <div class="col-sm-4">
                           <label for="curpSocio">
-                            <b>CURP *</b>
+                            <b>CURP</b>
                             <span
                               *ngIf="nuevoSocioForm.controls['curp'].invalid && (nuevoSocioForm.controls['curp'].dirty || nuevoSocioForm.controls['curp'].touched)">
                               <i *ngIf="nuevoSocioForm.controls['curp'].errors.required" class="text-danger"> - Requerido</i>
@@ -981,7 +1419,7 @@
             <td>{{apoderado?.fechaFin}}</td>
             <td>
               <fa-icon [icon]="faPencil" class="fakelink" (click)="mostrarEditarApoderadoForm(i)" title="Modificar apoderado"></fa-icon>
-              <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminar(eliminarEscrituraApoderadoModal, i)" title="Eliminar apoderado de la escritura"></fa-icon>
+              <fa-icon [icon]="faTrash" class="fakelink" (click)="mostrarModalEliminar(eliminarEscrituraApoderadoModal, apoderado?.uuid)" title="Eliminar apoderado de la escritura"></fa-icon>
             </td>
           </tr>
           <tr *ngIf="!showApoderadoForm">
@@ -1031,7 +1469,7 @@
                     <div class="form-row">
                       <div class="col-sm-4">
                         <label for="apoderadoSexo">
-                          <b>Sexo *</b>
+                          <b>Genero *</b>
                           <span
                             *ngIf="nuevoApoderadoForm.controls['sexo'].invalid && (nuevoApoderadoForm.controls['sexo'].dirty || nuevoApoderadoForm.controls['sexo'].touched)">
                               <i *ngIf="nuevoApoderadoForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -1064,7 +1502,7 @@
                       </div>
                       <div class="col-sm-4">
                         <label for="curpApoderado">
-                          <b>CURP *</b>
+                          <b>CURP</b>
                           <span
                             *ngIf="nuevoApoderadoForm.controls['curp'].invalid && (nuevoApoderadoForm.controls['curp'].dirty || nuevoApoderadoForm.controls['curp'].touched)">
                               <i *ngIf="nuevoApoderadoForm.controls['curp'].errors.required" class="text-danger"> - Requerido</i>
@@ -1108,7 +1546,7 @@
             <td>{{representante.sexo}}</td>
             <td>
               <fa-icon [icon]="faPencil" (click)="mostrarEditarRepresentanteForm(i)" title="Modificar representante"></fa-icon>
-              <fa-icon [icon]="faTrash" (click)="mostrarModalEliminar(eliminarEscrituraRepresentanteModal, i)" title="Eliminar representante de la escritura"></fa-icon>
+              <fa-icon [icon]="faTrash" (click)="mostrarModalEliminar(eliminarEscrituraRepresentanteModal, representante?.uuid)" title="Eliminar representante de la escritura"></fa-icon>
             </td>
           </tr>
           <tr *ngIf="!showRepresentanteForm">
@@ -1157,7 +1595,7 @@
                       </div>
                       <div class="col-sm-3">
                         <label for="representanteSexo">
-                          <b>Sexo *</b>
+                          <b>Genero *</b>
                           <span
                             *ngIf="nuevoRepresentanteForm.controls['sexo'].invalid && (nuevoRepresentanteForm.controls['sexo'].dirty || nuevoRepresentanteForm.controls['sexo'].touched)">
                               <i *ngIf="nuevoRepresentanteForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -1171,7 +1609,7 @@
                       </div>
                       <div class="col-sm-3">
                         <label for="curpRepresentante">
-                          <b>CURP *</b>
+                          <b>CURP</b>
                           <span
                             *ngIf="nuevoRepresentanteForm.controls['curp'].invalid && (nuevoRepresentanteForm.controls['curp'].dirty || nuevoRepresentanteForm.controls['curp'].touched)">
                               <i *ngIf="nuevoRepresentanteForm.controls['curp'].errors.required" class="text-danger"> - Requerido</i>
@@ -1217,7 +1655,7 @@
             <td>{{c.puesto}}</td>
             <td>
               <fa-icon [icon]="faPencil" (click)="mostrarEditarConsejoForm(i)" title="Modificar miembro del consejo"></fa-icon>
-              <fa-icon [icon]="faTrash" (click)="mostrarModalEliminar(eliminarEscrituraConsejoModal, i)" title="Eliminar miembro del consejo de la escritura"></fa-icon>
+              <fa-icon [icon]="faTrash" (click)="mostrarModalEliminar(eliminarEscrituraConsejoModal, c?.uuid)" title="Eliminar miembro del consejo de la escritura"></fa-icon>
             </td>
           </tr>
           <tr *ngIf="!showConsejoForm">
@@ -1266,7 +1704,7 @@
                       </div>
                       <div class="col-sm-4">
                         <label for="consejoSexo">
-                          <b>Sexo *</b>
+                          <b>Genero *</b>
                           <span
                             *ngIf="nuevoConsejoAdministracionForm.controls['sexo'].invalid && (nuevoConsejoAdministracionForm.controls['sexo'].dirty || nuevoConsejoAdministracionForm.controls['sexo'].touched)">
                               <i *ngIf="nuevoConsejoAdministracionForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -1297,7 +1735,7 @@
                       </div>
                       <div class="col-sm-4">
                         <label for="curpConsejo">
-                          <b>CURP *</b>
+                          <b>CURP</b>
                           <span
                             *ngIf="nuevoConsejoAdministracionForm.controls['curp'].invalid && (nuevoConsejoAdministracionForm.controls['curp'].dirty || nuevoConsejoAdministracionForm.controls['curp'].touched)">
                               <i *ngIf="nuevoConsejoAdministracionForm.controls['curp'].errors.required" class="text-danger"> - Requerido</i>
@@ -1370,7 +1808,7 @@
       </button>
     </div>
     <div class="modal-body">
-      <p>Estás a punto de eliminar un domicilio que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
+      <p>Estás a punto de eliminar una modalidad que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-danger" (click)="eliminarModalidad(this.temporaryIndex)">Si, borralo</button>
@@ -1386,11 +1824,50 @@
       </button>
     </div>
     <div class="modal-body">
+      <form [formGroup]="motivosEliminacionForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBaja">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['motivoBaja'].invalid && (motivosEliminacionForm.controls['motivoBaja'].dirty || motivosEliminacionForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBaja">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionForm.controls['fechaBaja'].invalid && (motivosEliminacionForm.controls['fechaBaja'].dirty || motivosEliminacionForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBaja" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBaja">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBaja">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesBaja" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
       <p>Estás a punto de eliminar un domicilio que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="eliminarDomicilio(this.temporaryIndex)">Si, borrarlo</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, ya lo reconsidere</button>
+      <button type="button" class="btn btn-danger" (click)="eliminarDomicilio(motivosEliminacionForm)">Si, borrarlo</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 
@@ -1422,7 +1899,7 @@
         seran tambien eliminados y esta operacion no se puede deshacer. ¿Quieres continuar?</p>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Si, borrar escritura</button>
+      <button type="button" class="btn btn-danger" (click)="eliminarEscritura(this.temporaryIndex)">Si, borrar escritura</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, siempre no</button>
     </div>
   </ng-template>
@@ -1435,10 +1912,53 @@
       </button>
     </div>
     <div class="modal-body">
-      <p>Estás a punto de eliminar un socio que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
+      <form [formGroup]="motivosEliminacionSocioForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBajaSocio">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionSocioForm.controls['motivoBaja'].invalid && (motivosEliminacionSocioForm.controls['motivoBaja'].dirty || motivosEliminacionSocioForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionSocioForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionSocioForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBajaSocio" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBajaSocio">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionSocioForm.controls['fechaBaja'].invalid && (motivosEliminacionSocioForm.controls['fechaBaja'].dirty || motivosEliminacionSocioForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionSocioForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBajaSocio" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBajaSocio">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBajaSocio" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBajaSocio">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesBajaSocio" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar el socio de la escritura. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="eliminarSocio(this.temporaryIndex)">Si, borrarlo</button>
+      <button type="button" class="btn btn-danger" (click)="eliminarSocio(motivosEliminacionSocioForm)">Si, borrarlo</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, ya lo reconsidere</button>
     </div>
   </ng-template>
@@ -1451,43 +1971,298 @@
       </button>
     </div>
     <div class="modal-body">
-      <p>Estás a punto de eliminar un apoderado que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
+      <form [formGroup]="motivosEliminacionAopderadoForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBaja">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionAopderadoForm.controls['motivoBaja'].invalid && (motivosEliminacionAopderadoForm.controls['motivoBaja'].dirty || motivosEliminacionAopderadoForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionAopderadoForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionAopderadoForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBaja">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionAopderadoForm.controls['fechaBaja'].invalid && (motivosEliminacionAopderadoForm.controls['fechaBaja'].dirty || motivosEliminacionAopderadoForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionAopderadoForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBaja" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBaja">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBaja">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesBaja" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar el apoderado de la escritura. Esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="eliminarApoderado(this.temporaryIndex)">Si, borrarlo</button>
+      <button type="button" class="btn btn-danger" (click)="eliminarApoderado(motivosEliminacionAopderadoForm)">Si, borrarlo</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, ya lo reconsidere</button>
     </div>
   </ng-template>
 
   <ng-template #eliminarEscrituraRepresentanteModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="eliminarEscrituraApoderadoModal">Eliminando un representante </h4>
+      <h4 class="modal-title" id="eliminarEscrituraRepresentanteModal">Eliminando un representante </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
     </div>
     <div class="modal-body">
-      <p>Estás a punto de eliminar un representante que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
+      <form [formGroup]="motivosEliminacionRepresentanteForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBajaRepresentante">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionRepresentanteForm.controls['motivoBaja'].invalid && (motivosEliminacionRepresentanteForm.controls['motivoBaja'].dirty || motivosEliminacionRepresentanteForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionRepresentanteForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionRepresentanteForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBajaRepresentante" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBajaRepresentante">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionRepresentanteForm.controls['fechaBaja'].invalid && (motivosEliminacionRepresentanteForm.controls['fechaBaja'].dirty || motivosEliminacionRepresentanteForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionRepresentanteForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBajaRepresentante" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBajaRepresentante">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBajaRepresentante" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBajaRepresentante">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesBajaRepresentante" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar el representante de la escritura. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="eliminarRepresentante(this.temporaryIndex)">Si, borrarlo</button>
+      <button type="button" class="btn btn-danger" (click)="eliminarRepresentante(motivosEliminacionRepresentanteForm)">Si, borrarlo</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, ya lo reconsidere</button>
     </div>
   </ng-template>
 
   <ng-template #eliminarEscrituraConsejoModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="eliminarEscrituraApoderadoModal">Eliminando un miembro del consejo </h4>
+      <h4 class="modal-title" id="eliminarEscrituraConsejoModal">Eliminando un miembro del consejo </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
     </div>
     <div class="modal-body">
-      <p>Estás a punto de eliminar un miembro del consejo que acabas de crear y esta acción <b>no</b> se puede deshacer. ¿Quieres continuar?</p>
+      <form [formGroup]="motivosEliminacionConsejoForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBajaConsejo">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionConsejoForm.controls['motivoBaja'].invalid && (motivosEliminacionConsejoForm.controls['motivoBaja'].dirty || motivosEliminacionConsejoForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionConsejoForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionConsejoForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBajaConsejo" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBajaConsejo">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionConsejoForm.controls['fechaBaja'].invalid && (motivosEliminacionConsejoForm.controls['fechaBaja'].dirty || motivosEliminacionConsejoForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionConsejoForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBajaConsejo" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBajaConsejo">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBajaConsejo" class="form-control" formControlName="file" type="file" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBajaConsejo">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesBajaConsejo" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar el consejo de la escritura. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="eliminarConsejo(this.temporaryIndex)">Si, borrarlo</button>
+      <button type="button" class="btn btn-danger" (click)="eliminarConsejo(this.temporaryElementoEscrituraUuid)">Si, borrarlo</button>
       <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, ya lo reconsidere</button>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarEscrituraModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarEscrituraModal">Ver adjunto de la escritura </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <pdf-viewer [src]="pdfActual"
+                      [render-text]="true"
+                      [original-size]="false"
+                      style="width: 100%; height: 600px"></pdf-viewer>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarTelefonosModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarTelefonosModal">Visualizar telefonos del domicilio </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Tipo</b></td>
+              <td><b>Telefono</b></td>
+              <td><b>Acciones</b></td>
+            </tr>
+            <tr *ngFor="let t of this.empresaDomicilio?.telefonos; let i = index">
+              <td [ngSwitch]="t?.tipoTelefono">
+                <span *ngSwitchCase="'FIJO'">Telefono fijo</span>
+                <span *ngSwitchCase="'CELULAR'">Celular</span>
+                <span *ngSwitchCase="'FAX'">Fax</span>
+              </td>
+              <td>{{t?.telefono}}</td>
+              <td>
+                <fa-icon [icon]="faPencil" (click)="mostrarEditarTelefonoForm(i)"></fa-icon>
+                <fa-icon [icon]="faTrash" (click)="mostrarModalEliminarTelefono(t?.uuid)"></fa-icon>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3" *ngIf="showTelefonoForm">
+                <form [formGroup]="crearTelefonoForm">
+                  <div class="form-row">
+                    <div class="col-sm-6">
+                      <b>Tipo de telefono *</b>
+                      <span
+                        *ngIf="crearTelefonoForm.controls['tipoTelefono'].invalid && (crearTelefonoForm.controls['tipoTelefono'].dirty || crearTelefonoForm.controls['tipoTelefono'].touched)">
+                        <i *ngIf="crearTelefonoForm.controls['tipoTelefono'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+                      <select id="tipoTelefono" class="form-control" formControlName="tipoTelefono">
+                        <option value="FIJO">Telefono fijo</option>
+                        <option value="CELULAR">Celular</option>
+                        <option value="FAX">Fax</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-6">
+                      <b>Telefono *</b>
+                      <span
+                        *ngIf="crearTelefonoForm.controls['telefono'].invalid && (crearTelefonoForm.controls['telefono'].dirty || crearTelefonoForm.controls['telefono'].touched)">
+                        <i *ngIf="crearTelefonoForm.controls['telefono'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+                      <input id="telefono" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefono" appPhoneMask #telefonoFijo>
+                    </div>
+                  </div>
+                </form>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <button class="btn btn-sm btn-primary" *ngIf="!showTelefonoForm" (click)="mostrarAgregarTelefonoForm()">Agregar telefono</button>
+                <button class="btn btn-sm btn-primary" *ngIf="showTelefonoForm" (click)="guardarTelefono(crearTelefonoForm)">Guardar</button>
+                <button class="btn btn-sm btn-danger" *ngIf="showTelefonoForm" (click)="mostrarAgregarTelefonoForm()">Cancelar</button>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarMapaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarMapaModal">Visualizar ubicacion en el mapa </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <agm-map [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()" [zoom]="16">
+            <agm-marker [latitude]="this.geocodeResult.geometry.location.lat()" [longitude]="this.geocodeResult.geometry.location.lng()"
+                        [markerDraggable]="true"
+                        (dragEnd)="markerDragEnd($event)">
+              <agm-info-window>Aqui se encuentra el domicilio</agm-info-window>
+            </agm-marker>
+          </agm-map>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarTelefonoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarTelefonoModal">Eliminando un telefono </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Estas a punto de eliminar un telefono. Toma en cuenta que esta accion <b>no puede deshacerse</b>. ¿Quieres continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="eliminarTelefono()">Si, eliminar telefono</button>
+      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
     </div>
   </ng-template>
 

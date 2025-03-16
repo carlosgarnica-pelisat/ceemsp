@@ -3,15 +3,20 @@
 
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Personal</h1>
+    <h1 class="h3 mb-0 text-gray-800">Personal <span *ngIf="mostrandoEliminados">(eliminados)</span></h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearVehiculoModal)">Nueva persona</button>
+      <input type="text" id="filter-text-box" placeholder="Busqueda rapida..." (input)="onFilterTextBoxChanged()">
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearPersonaModal)">Nueva persona</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm shadow-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">Descargar direcciones como Excel (csv)</a>
+          <a class="dropdown-item" *ngIf="!mostrandoEliminados" (click)="mostrarEliminados()">Mostrar eliminados</a>
+          <a class="dropdown-item" *ngIf="mostrandoEliminados" (click)="ocultarEliminados()">Ocultar eliminados</a>
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar como CSV</a>
+          <a class="dropdown-item" *ngIf="!mostrandoEliminados" (click)="generarReporteExcel()">Descargar como Excel</a>
+          <a class="dropdown-item" *ngIf="mostrandoEliminados" (click)="generarReporteExcel()">Descargar como Excel</a>
         </div>
       </div>
     </div>
@@ -27,16 +32,22 @@
         [columnDefs]="columnDefs"
         (gridReady)="onGridReady($event)"
         [frameworkComponents]="frameworkComponents"
-        (rowDoubleClicked)="mostrarModalDetalles($event.data, mostrarDetallesPersonaModal)"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data)"
         #agGrid
       ></ag-grid-angular>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <i>Hay un total de {{rowData.length}} personas registrados</i>
     </div>
   </div>
 
   <ng-template #mostrarDetallesPersonaModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="mostrarDetallesEscritura">Detalles de persona </h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <button type="button" class="close" aria-label="Close" (click)="cerrarModalDetallesPersona()">
         <span aria-hidden="true">×</span>
       </button>
     </div>
@@ -51,7 +62,7 @@
               <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'PUESTO' }" (click)="cambiarPestana('PUESTO')">Puesto</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'CERTIFICACIONES' }" (click)="cambiarPestana('CERTIFICACIONES')">Capacitaciones</a>
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'CERTIFICACIONES' }" (click)="cambiarPestana('CERTIFICACIONES')">Certificaciones</a>
             </li>
             <li class="nav-item">
               <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'FOTOGRAFIAS' }" (click)="cambiarPestana('FOTOGRAFIAS')">Fotografias</a>
@@ -62,55 +73,164 @@
 
       <div class="row" style="margin-top: 20px;">
         <div class="col-sm-12" *ngIf="pestanaActual === 'DETALLES'">
-          <table class="table">
-            <tr>
-              <td><b>Apellido paterno</b></td>
-              <td>{{persona?.apellidoPaterno}}</td>
-            </tr>
-            <tr>
-              <td><b>Apellido materno</b></td>
-              <td>{{persona?.apellidoMaterno}}</td>
-            </tr>
-            <tr>
-              <td><b>Nombre(s)</b></td>
-              <td>{{persona?.nombres}}</td>
-            </tr>
-            <tr>
-              <td><b>Domicilio</b></td>
-              <td>{{persona?.domicilio1 + ". Colonia: " + persona?.domicilio2 + ", " + persona?.domicilio3 + ", " + persona?.estado}}</td>
-            </tr>
-            <tr>
-              <td><b>Nacionalidad</b></td>
-              <td>{{persona?.nacionalidad?.nombre}}</td>
-            </tr>
-            <tr>
-              <td><b>Correo electronico</b></td>
-              <td>{{persona?.correoElectronico}}</td>
-            </tr>
-            <tr>
-              <td><b>Estado civil</b></td>
-              <td [ngSwitch]="persona?.estadoCivil">
-                <span *ngSwitchCase="'SOLTERO'">Soltero</span>
-                <span *ngSwitchCase="'CASADO'">Casado</span>
-                <span *ngSwitchCase="'DIVORCIADO'">Divorciado</span>
-                <span *ngSwitchCase="'UNION_LIBRE'">Union libre</span>
-                <span *ngSwitchCase="'VIUDO'">Viudo</span>
-              </td>
-            </tr>
-            <tr>
-              <td><b>Tipo de sangre</b></td>
-              <td [ngSwitch]="persona?.tipoSangre">
-                <span *ngSwitchCase="'AB_POSITIVO'">AB+</span>
-                <span *ngSwitchCase="'AB_NEGATIVO'">AB-</span>
-                <span *ngSwitchCase="'B_POSITIVO'">B+</span>
-                <span *ngSwitchCase="'B_NEGATIVO'">B-</span>
-                <span *ngSwitchCase="'A_POSITIVO'">A-</span>
-                <span *ngSwitchCase="'A_NEGATIVO'">A-</span>
-                <span *ngSwitchCase="'O_POSITIVO'">O+</span>
-                <span *ngSwitchCase="'O_NEGATIVO'">O-</span>
-              </td>
-            </tr>
-          </table>
+          <div class="row">
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-12">
+                  <img [src]="imagenPrincipal" style="width: 100%;">
+                </div>
+              </div>
+
+              <div class="row" *ngIf="!persona?.puestoTrabajoCapturado || (!persona?.cursosCapturados && persona?.puestoDeTrabajo?.nombre === 'Operativo') || !persona?.fotografiaCapturada">
+                <div class="col-sm-12">
+                  <div class="alert alert-warning">
+                    <h4 class="alert-heading">
+                      Persona no finalizada
+                    </h4>
+                    <b>Esta persona carece de la siguiente informacion:</b>
+                    <ul>
+                      <li *ngIf="!persona?.puestoTrabajoCapturado">Puesto de trabajo</li>
+                      <li *ngIf="!persona?.cursosCapturados">Cursos / Certificaciones</li>
+                      <li *ngIf="!persona?.fotografiaCapturada">Fotografia</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" *ngIf="persona?.estatusCuip === 'TRAMITADO' && !persona?.eliminado && persona?.formaEjecucion === 'ARMAS'">
+                <div class="col-sm-12">
+                  <b>Arma corta asignada</b><br>
+                  <a *ngIf="persona?.armaCorta === null" class="fakelink" (click)="mostrarModalAsignarArmaCorta()">Asignar arma corta</a>
+                  <a *ngIf="persona?.armaCorta !== null" class="fakelink" (click)="mostrarModalDesasignarArmaCorta()">{{persona?.armaCorta?.matricula}} - {{persona?.armaCorta?.marca?.nombre}} ({{persona?.armaCorta?.clase?.nombre}})</a>
+                </div>
+              </div>
+              <div class="row" *ngIf="persona?.estatusCuip === 'TRAMITADO' && !persona?.eliminado && persona?.formaEjecucion === 'ARMAS'">
+                <div class="col-sm-12">
+                  <b>Arma larga asignada</b><br>
+                  <a *ngIf="persona?.armaLarga === null" class="fakelink" (click)="mostrarModalAsignarArmaLarga()">Asignar arma larga</a>
+                  <a *ngIf="persona?.armaLarga !== null" class="fakelink" (click)="mostrarModalDesasignarArmaLarga()">{{persona?.armaLarga?.matricula}} - {{persona?.armaLarga?.marca?.nombre}} ({{persona?.armaLarga?.clase?.nombre}})</a>
+                </div>
+              </div>
+              <div class="row" *ngIf="!persona?.eliminado && persona?.formaEjecucion === 'CANES'">
+                <div class="col-sm-12">
+                  <b>Can asignado</b><br>
+                  <a *ngIf="persona?.can === null" class="fakelink" (click)="mostrarModalAsignarCan()">Asignar can</a>
+                  <a *ngIf="persona?.can !== null" class="fakelink" (click)="mostrarModalDesasignarCan()">{{persona?.can?.nombre}}</a>
+                </div>
+              </div>
+              <div class="row" *ngIf="!persona?.eliminado">
+                <div class="col-sm-12">
+                  <b>Vehiculo asignado</b><br>
+                  <a *ngIf="persona?.vehiculo === null" class="fakelink" (click)="mostrarModalAsignarVehiculo()">Asignar vehiculo</a>
+                  <a *ngIf="persona?.vehiculo !== null" class="fakelink" (click)="mostrarModalDesasignarVehiculo()">{{persona?.vehiculo?.placas}}</a>
+                </div>
+              </div>
+              <div class="row" *ngIf="persona?.cliente !== null">
+                <div class="col-sm-12">
+                  <b>Cliente asignado</b><br>
+                  <p>{{persona?.cliente?.razonSocial}}</p>
+                </div>
+              </div>
+              <div class="row" *ngIf="persona?.clienteDomicilio !== null">
+                <div class="col-sm-12">
+                  <b>Domicilio del cliente asignado</b>
+                  <p>
+                    {{persona?.clienteDomicilio?.domicilio1}} {{persona?.clienteDomicilio?.numeroExterior}} {{persona?.clienteDomicilio?.numeroInterior}}.<br>
+                    Colonia: {{persona?.clienteDomicilio?.domicilio2}}, {{persona?.clienteDomicilio?.domicilio3}}, {{persona?.clienteDomicilio?.estado}}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-9">
+              <table class="table">
+                <tr>
+                  <td><b>Apellido paterno</b></td>
+                  <td>{{persona?.apellidoPaterno}}</td>
+                </tr>
+                <tr>
+                  <td><b>Apellido materno</b></td>
+                  <td>{{persona?.apellidoMaterno}}</td>
+                </tr>
+                <tr>
+                  <td><b>Nombre(s)</b></td>
+                  <td>{{persona?.nombres}}</td>
+                </tr>
+                <tr>
+                  <td><b>CURP</b></td>
+                  <td>{{persona?.curp}}</td>
+                </tr>
+                <tr>
+                  <td><b>RFC</b></td>
+                  <td>{{persona?.rfc}}</td>
+                </tr>
+                <tr>
+                  <td><b>Domicilio</b></td>
+                  <td>{{persona?.domicilio1}} {{persona?.numeroExterior}} {{persona?.numeroInterior}}. Colonia: {{persona?.domicilio2}}<br>
+                    {{persona?.domicilio3}}, {{persona?.estado}}, {{persona?.pais}}<br>
+                    C.P. {{persona?.codigoPostal}}</td>
+                </tr>
+                <tr>
+                  <td><b>Nacionalidad</b></td>
+                  <td>{{persona?.nacionalidad?.nombre}}</td>
+                </tr>
+                <tr>
+                  <td><b>Genero</b></td>
+                  <td>{{persona?.sexo}}</td>
+                </tr>
+                <tr>
+                  <td><b>Fecha de nacimiento</b></td>
+                  <td>{{persona?.fechaNacimiento}}</td>
+                </tr>
+                <tr>
+                  <td><b>Fecha de ingreso</b></td>
+                  <td>{{persona?.fechaIngreso}}</td>
+                </tr>
+                <tr>
+                  <td><b>Correo electronico</b></td>
+                  <td>{{persona?.correoElectronico}}</td>
+                </tr>
+                <tr>
+                  <td><b>Telefono</b></td>
+                  <td>{{persona?.telefono}}</td>
+                </tr>
+                <tr>
+                  <td><b>Estado civil</b></td>
+                  <td [ngSwitch]="persona?.estadoCivil">
+                    <span *ngSwitchCase="'SOLTERO'">Soltero</span>
+                    <span *ngSwitchCase="'CASADO'">Casado</span>
+                    <span *ngSwitchCase="'DIVORCIADO'">Divorciado</span>
+                    <span *ngSwitchCase="'UNION_LIBRE'">Union libre</span>
+                    <span *ngSwitchCase="'VIUDO'">Viudo</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Tipo de sangre</b></td>
+                  <td [ngSwitch]="persona?.tipoSangre">
+                    <span *ngSwitchCase="'AB_P'">AB+</span>
+                    <span *ngSwitchCase="'AB_N'">AB-</span>
+                    <span *ngSwitchCase="'B_P'">B+</span>
+                    <span *ngSwitchCase="'B_N'">B-</span>
+                    <span *ngSwitchCase="'A_P'">A+</span>
+                    <span *ngSwitchCase="'A_N'">A-</span>
+                    <span *ngSwitchCase="'O_P'">O+</span>
+                    <span *ngSwitchCase="'O_N'">O-</span>
+                  </td>
+                </tr>
+                <tr *ngIf="persona?.eliminado">
+                  <td><b>Motivo de la baja</b></td>
+                  <td>{{persona?.motivoBaja}}</td>
+                </tr>
+                <tr *ngIf="persona?.eliminado">
+                  <td><b>Fecha de la baja</b></td>
+                  <td>{{persona?.fechaBaja}}</td>
+                </tr>
+                <tr *ngIf="persona?.eliminado">
+                  <td><b>Observaciones de la baja</b></td>
+                  <td>{{persona?.observacionesBaja}}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
         </div>
 
         <div class="col-sm-12" *ngIf="pestanaActual === 'PUESTO'">
@@ -128,12 +248,29 @@
               <td>{{persona?.detallesPuesto}}</td>
             </tr>
             <tr>
-              <td><b>Estatus de la CUIP</b></td>
-              <td>{{persona?.estatusCuip}}</td>
+              <td><b>Domicilio</b></td>
+              <td>{{persona?.domicilioAsignado?.domicilio1}} {{persona?.domicilioAsignado?.numeroExterior}} {{persona?.domicilioAsignado?.numeroInterior}}.<br>
+                Colonia: {{persona?.domicilioAsignado?.domicilio2}}, {{persona?.domicilioAsignado?.domicilio3}}, {{persona?.domicilioAsignado?.estado}}</td>
             </tr>
-            <tr>
-              <td><b>CUIP</b></td>
+            <tr *ngIf="persona?.puestoDeTrabajo?.nombre === 'Operativo'">
+              <td><b>Estatus de la CUIP</b></td>
+              <td [ngSwitch]="persona?.estatusCuip">
+                <span *ngSwitchCase="'NA'">No aplica</span>
+                <span *ngSwitchCase="'EN_TRAMITE'">En tramite</span>
+                <span *ngSwitchCase="'TRAMITADO'">Tramitado</span>
+              </td>
+            </tr>
+            <tr *ngIf="persona?.estatusCuip === 'TRAMITADO'">
+              <td ><b>CUIP</b></td>
               <td>{{persona?.cuip}}</td>
+            </tr>
+            <tr *ngIf="persona?.puestoDeTrabajo?.nombre === 'Operativo'">
+              <td><b>Forma de ejecución</b></td>
+              <td>{{persona?.formaEjecucion}}</td>
+            </tr>
+            <tr *ngIf="persona?.puestoDeTrabajo?.nombre === 'Operativo'">
+              <td><b>Modalidad</b></td>
+              <td>{{persona?.modalidad?.modalidad?.nombre}}</td>
             </tr>
             <tr *ngIf="persona?.estatusCuip === 'EN_TRAMITE'">
               <td><b>Numero de volante</b></td>
@@ -152,6 +289,10 @@
                         <div class="col-sm-3">
                           <label for="crearPuesto">
                             <b>Tipo de puesto *</b>
+                            <span
+                              *ngIf="crearPersonalPuestoForm.controls['puesto'].invalid && (crearPersonalPuestoForm.controls['puesto'].dirty || crearPersonalPuestoForm.controls['puesto'].touched)">
+                              <i *ngIf="crearPersonalPuestoForm.controls['puesto'].errors.required" class="text-danger"> - Requerido</i>
+                            </span>
                           </label>
                           <select id="crearPuesto" formControlName="puesto" class="form-control" (change)="cambiarPuestoTrabajo($event.target)">
                             <option *ngFor="let p of puestosTrabajo" value="{{p?.uuid}}">{{p?.nombre}}</option>
@@ -160,6 +301,10 @@
                         <div class="col-sm-3">
                           <label for="crearSubpuesto">
                             <b>Subpuesto *</b>
+                            <span
+                              *ngIf="crearPersonalPuestoForm.controls['subpuesto'].invalid && (crearPersonalPuestoForm.controls['subpuesto'].dirty || crearPersonalPuestoForm.controls['subpuesto'].touched)">
+                              <i *ngIf="crearPersonalPuestoForm.controls['subpuesto'].errors.required" class="text-danger"> - Requerido</i>
+                            </span>
                           </label>
                           <select id="crearSubpuesto" formControlName="subpuesto" class="form-control" (change)="cambiarSubpuestoTrabajo($event.target)">
                             <option *ngFor="let s of puestoTrabajo?.subpuestos" value="{{s?.uuid}}">{{s?.nombre}}</option>
@@ -168,12 +313,20 @@
                         <div class="col-sm-3">
                           <label for="crearDetallesPuesto">
                             <b>Detalles del puesto *</b>
+                            <span
+                              *ngIf="crearPersonalPuestoForm.controls['detallesPuesto'].invalid && (crearPersonalPuestoForm.controls['detallesPuesto'].dirty || crearPersonalPuestoForm.controls['detallesPuesto'].touched)">
+                              <i *ngIf="crearPersonalPuestoForm.controls['detallesPuesto'].errors.required" class="text-danger"> - Requerido</i>
+                            </span>
                           </label>
                           <input id="crearDetallesPuesto" type="text" class="form-control" placeholder="Ej. Detalles del puesto" formControlName="detallesPuesto">
                         </div>
                         <div class="col-sm-3">
                           <label for="crearDomicilioPersonal">
                             <b>Domicilio *</b>
+                            <span
+                              *ngIf="crearPersonalPuestoForm.controls['domicilioAsignado'].invalid && (crearPersonalPuestoForm.controls['domicilioAsignado'].dirty || crearPersonalPuestoForm.controls['domicilioAsignado'].touched)">
+                              <i *ngIf="crearPersonalPuestoForm.controls['domicilioAsignado'].errors.required" class="text-danger"> - Requerido</i>
+                            </span>
                           </label>
                           <select id="crearDomicilioPersonal" formControlName="domicilioAsignado" class="form-control" (change)="cambiarDomicilio($event.target)">
                             <option *ngFor="let d of domicilios" value="{{d?.uuid}}">{{d?.nombre + " - " + d?.domicilio1 + " " + d?.numeroExterior + " " + d?.numeroInterior}}</option>
@@ -184,19 +337,39 @@
                       <div class="form-row">
                         <div class="col-sm-3">
                           <label for="crearCuip">
-                            <b>Status de la CUIP *</b>
+                            <b>Estatus de la CUIP *</b>
                           </label>
                           <select id="crearCuip" formControlName="estatusCuip" class="form-control" (change)="cambiarStatusCuip($event.target)">
-                            <option value="EN_TRAMITE" *ngIf="!subpuestoTrabajo?.portacion">En tramite</option>
-                            <option value="TRAMITADO">Tramitado</option>
+                            <option value="" disabled selected></option>
+                            <option value="NA" *ngIf="!subpuestoTrabajo?.portacion && puestoTrabajo?.nombre !== 'Operativo'">NA</option>
+                            <option value="EN_TRAMITE" *ngIf="puestoTrabajo?.nombre === 'Operativo' && !subpuestoTrabajo?.cuip">En tramite</option>
+                            <option value="TRAMITADO" *ngIf="puestoTrabajo?.nombre === 'Operativo' && !subpuestoTrabajo?.cuip">Tramitado</option>
+                            <option value="TRAMITADO" *ngIf="puestoTrabajo?.nombre === 'Operativo' && subpuestoTrabajo?.cuip">Tramitado</option>
                           </select>
                         </div>
-                        <div class="col-sm-3" *ngIf="subpuestoTrabajo?.portacion">
-                          <label for="crearModalidad">
-                            <b>Modalidad *</b>
+                        <div class="col-sm-6" *ngIf="this.puestoTrabajo?.nombre === 'Operativo'">
+                          <label>
+                            <b>Modalidad * </b>
                           </label>
-                          <select id="crearModalidad" formControlName="modalidad" class="form-control" (change)="cambiarModalidad($event.target)">
-                            <option *ngFor="let m of modalidades" value="{{m?.modalidad?.uuid}}">{{m?.modalidad?.nombre}}</option>
+                          <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                            {{empresaModalidad === undefined ? 'Ninguno' : (empresaModalidad?.modalidad.nombre).substr(0, 90)}}
+                          </a>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" *ngFor="let m of modalidades" (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                              {{m.modalidad.nombre}}<br>
+                              <span style="font-size: 14px; color: #999; padding-left: 10px;">{{m?.submodalidad?.nombre}}</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" *ngIf="modalidad !== undefined" (click)="quitarModalidad()">Quitar</a>
+                          </div>
+                        </div>
+                        <div class="col-sm-3" *ngIf="this.puestoTrabajo?.nombre === 'Operativo'">
+                          <label for="formaEjecucion">
+                            <b>Forma de ejecucion * </b>
+                          </label>
+                          <select id="formaEjecucion" formControlName="formaEjecucion" class="form-control" (change)="cambiarFormaEjecucion($event.target)">
+                            <option *ngFor="let fe of formasEjecucion" value="{{fe?.formaEjecucion}}">{{fe.formaEjecucion}}</option>
                           </select>
                         </div>
                         <div class="col-sm-3" *ngIf="cuipStatus === 'EN_TRAMITE'">
@@ -214,8 +387,18 @@
                         <div class="col-sm-3" *ngIf="cuipStatus === 'TRAMITADO'">
                           <label for="crearCuipNumero">
                             <b>Numero de CUIP *</b>
+                            <span
+                              *ngIf="(crearPersonalCertificadoForm.controls['nombre'].dirty || crearPersonalCertificadoForm.controls['nombre'].touched)">
+                              <i *ngIf="!cuipValida" class="text-danger"> - CUIP Invalida</i>
+                            </span>
                           </label>
-                          <input id="crearCuipNumero" type="text" class="form-control" formControlName="cuip">
+                          <input id="crearCuipNumero" type="text" class="form-control" formControlName="cuip" (focusout)="verificarCuip($event.target)">
+                        </div>
+                        <div class="col-sm-3" *ngIf="cuipStatus === 'EN_TRAMITE'">
+                          <label for="archivoVolanteCuip">
+                            <b>Archivo de volante *</b>
+                          </label>
+                          <input id="archivoVolanteCuip" accept="application/pdf" type="file" class="form-control" (change)="onFileChange($event)">
                         </div>
                       </div>
                     </form>
@@ -226,17 +409,6 @@
                   <div class="col-sm-12">
                     <button class="btn btn-primary btn-sm" (click)="actualizarPuesto(crearPersonalPuestoForm)">Guardar</button>
                     <button class="btn btn-danger btn-sm" (click)="mostrarFormularioInformacionPuesto()">Cancelar</button>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="!showPuestoForm">
-              <td colspan="2">
-                <div class="row">
-                  <div class="col-sm-12">
-                    <button class="btn btn-sm btn-primary" (click)="mostrarFormularioInformacionPuesto()">
-                      Agregar / Modificar info. puesto
-                    </button>
                   </div>
                 </div>
               </td>
@@ -252,15 +424,19 @@
               <td><b>Duracion</b></td>
               <td><b>Fecha Inicio</b></td>
               <td><b>Fecha Fin</b></td>
-              <td><b>Acciones</b></td>
+              <td><b>Opciones</b></td>
             </tr>
-            <tr *ngFor="let c of persona?.certificaciones">
+            <tr *ngFor="let c of persona?.certificaciones; let i = index">
               <td>{{c.nombre}}</td>
               <td>{{c.nombreInstructor}}</td>
               <td>{{c.duracion}} horas</td>
               <td>{{c.fechaInicio}}</td>
               <td>{{c.fechaFin}}</td>
-              <td></td>
+              <td>
+                <fa-icon [icon]="faDownload" title="Descargar archivo adjunto" (click)="descargarCapacitacion(c?.uuid)" style="cursor:pointer;"></fa-icon>
+                <fa-icon [icon]="faPencilAlt" title="Modificar capacitacion" (click)="mostrarModalEditarCapacitacion(i)" style="cursor:pointer;"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar capacitacion" (click)="mostrarModalEliminarCapacitacion(c?.uuid)" style="cursor:pointer;"></fa-icon>
+              </td>
             </tr>
             <tr *ngIf="showCertificadoForm">
               <td colspan="6">
@@ -271,41 +447,69 @@
                         <div class="col-sm-4">
                           <label for="nombre">
                             <b>Nombre(s) *</b>
-                            <span *ngIf="crearPersonalCertificadoForm.controls['nombre'].invalid && (crearPersonalCertificadoForm.controls['nombre'].dirty || crearPersonalCertificadoForm.controls['nombre'].touched)" class="text-danger"> - Requerido</span>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['nombre'].invalid && (crearPersonalCertificadoForm.controls['nombre'].dirty || crearPersonalCertificadoForm.controls['nombre'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombre'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
                           </label>
                           <input id="nombre" type="text" class="form-control" placeholder="Ej. Primeros auxilios" formControlName="nombre" #nombre>
                         </div>
                         <div class="col-sm-4">
                           <label for="nombreInstructor">
                             <b>Instructor *</b>
-                            <span *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].invalid && (crearPersonalCertificadoForm.controls['nombreInstructor'].dirty || crearPersonalCertificadoForm.controls['nombreInstructor'].touched)" class="text-danger"> - Requerido</span>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].invalid && (crearPersonalCertificadoForm.controls['nombreInstructor'].dirty || crearPersonalCertificadoForm.controls['nombreInstructor'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
                           </label>
                           <input id="nombreInstructor" type="text" class="form-control" placeholder="Ej. Carlos Jose Perez" formControlName="nombreInstructor" #nombreInstructor>
                         </div>
                         <div class="col-sm-4">
-                          <label for="duracion">
-                            <b>Duracion *</b>
-                            <span *ngIf="crearPersonalCertificadoForm.controls['duracion'].invalid && (crearPersonalCertificadoForm.controls['duracion'].dirty || crearPersonalCertificadoForm.controls['duracion'].touched)" class="text-danger"> - Requerido</span>
+                          <label for="nombreInstructor">
+                            <b>Duracion (en horas) *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['duracion'].invalid && (crearPersonalCertificadoForm.controls['duracion'].dirty || crearPersonalCertificadoForm.controls['duracion'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['duracion'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['duracion'].errors.min" class="text-danger"> - Valor invalido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['duracion'].errors.max" class="text-danger"> - Valor invalido</i>
+                            </span>
                           </label>
-                          <input id="duracion" type="number" min="1" class="form-control" placeholder="En horas" formControlName="duracion" #duracion>
+                          <input id="duracion" type="number" class="form-control" placeholder="En horas" formControlName="duracion" #duracion>
                         </div>
                       </div>
                       <div class="form-row">
                         <div class="col-sm-4">
                           <label for="fechaInicio">
                             <b>Fecha de inicio *</b>
-                            <span *ngIf="crearPersonalCertificadoForm.controls['fechaInicio'].invalid && (crearPersonalCertificadoForm.controls['fechaInicio'].dirty || crearPersonalCertificadoForm.controls['fechaInicio'].touched)" class="text-danger"> - Requerido</span>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['fechaInicio'].invalid && (crearPersonalCertificadoForm.controls['fechaInicio'].dirty || crearPersonalCertificadoForm.controls['fechaInicio'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['fechaInicio'].errors.required" class="text-danger"> - Requerido</i>
+                            </span>
                           </label>
                           <input id="fechaInicio" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
                         </div>
                         <div class="col-sm-4">
                           <label for="fechaFin">
                             <b>Fecha de fin *</b>
-                            <span *ngIf="crearPersonalCertificadoForm.controls['fechaFin'].invalid && (crearPersonalCertificadoForm.controls['fechaFin'].dirty || crearPersonalCertificadoForm.controls['fechaFin'].touched)" class="text-danger"> - Requerido</span>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['fechaFin'].invalid && (crearPersonalCertificadoForm.controls['fechaFin'].dirty || crearPersonalCertificadoForm.controls['fechaFin'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['fechaFin'].errors.required" class="text-danger"> - Requerido</i>
+                            </span>
                           </label>
                           <input id="fechaFin" type="date" class="form-control" formControlName="fechaFin" #duracion>
                         </div>
-                        <div class="col-sm-4"></div>
+                        <div class="col-sm-4">
+                          <label for="archivoCertificado">
+                            <b>Archivo (en PDF) *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['archivo'].invalid && (crearPersonalCertificadoForm.controls['archivo'].dirty || crearPersonalCertificadoForm.controls['archivo'].touched)">
+                                  <i *ngIf="crearPersonalCertificadoForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
+                                </span>
+                          </label>
+                          <input id="archivoCertificado" accept="application/pdf" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
+                        </div>
                       </div>
                     </form>
                   </div>
@@ -334,6 +538,14 @@
               <td><b>Descripcion</b></td>
               <td><b>Opciones</b></td>
             </tr>
+            <tr *ngFor="let f of persona?.fotografias">
+              <td>{{f?.nombreArchivo}}</td>
+              <td>{{f?.descripcion}}</td>
+              <td>
+                <fa-icon [icon]="faDownload" title="Visualizar fotografia" (click)="descargarFotografia(f?.uuid)"></fa-icon>
+                <fa-icon [icon]="faTrash" title="Eliminar fotografia" (click)="mostrarModalEliminarFotografia(f?.uuid)"></fa-icon>
+              </td>
+            </tr>
             <tr *ngIf="showFotografiaForm">
               <td colspan="3">
                 <div class="row">
@@ -350,7 +562,13 @@
                           <label for="fotoDescripcion">
                             <b>Descripcion</b>
                           </label>
-                          <input id="fotoDescripcion" class="form-control" formControlName="descripcion" type="text" placeholder="Ej. Foto frontal">
+                          <select id="fotoDescripcion" class="form-control" formControlName="descripcion">
+                            <option value="DERECHA">DERECHA</option>
+                            <option value="IZQUIERDA">IZQUIERDA</option>
+                            <option value="FRONTAL">FRONTAL</option>
+                            <option value="TRASERO">TRASERO</option>
+                            <option value="SUPERIOR">SUPERIOR</option>
+                          </select>
                         </div>
                       </div>
                     </form>
@@ -374,9 +592,65 @@
         </div>
       </div>
     </div>
+    <div class="modal-footer" *ngIf="pestanaActual === 'DETALLES'">
+      <button *ngIf="!persona?.eliminado" class="btn btn-primary" (click)="mostrarModificarPersonaModal(modificarPersonalModal)">Modificar</button>
+      <button *ngIf="!persona?.eliminado" type="button" class="btn btn-danger" (click)="mostrarModalEliminarPersona()">Eliminar</button>
+    </div>
+    <div class="modal-footer" *ngIf="pestanaActual === 'PUESTO'">
+      <button *ngIf="!persona?.eliminado" class="btn btn-primary" (click)="mostrarFormularioInformacionPuesto()">
+        Agregar / Modificar info. puesto
+      </button>
+      <button class="btn btn-primary" *ngIf="persona?.estatusCuip === 'EN_TRAMITE'" (click)="descargarVolanteCuip()">
+        Descargar volante
+      </button>
+    </div>
+    <div class="modal-footer" *ngIf="pestanaActual === 'CERTIFICACIONES'">
+      <button *ngIf="!persona?.eliminado" class="btn btn-primary" (click)="mostrarFormularioNuevoCertificado()">Agregar certificacion</button>
+    </div>
+    <div class="modal-footer" *ngIf="pestanaActual === 'FOTOGRAFIAS'">
+      <button *ngIf="!persona?.eliminado" class="btn btn-primary" (click)="mostrarFormularioNuevaFotografia()">Agregar fotografia</button>
+    </div>
   </ng-template>
 
-  <ng-template #crearVehiculoModal let-modal>
+  <ng-template #mostrarFotoPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarFotoPersonaModal">Ver fotografia del personal </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <img [src]="imagenActual" style="width: 100%;">
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarVolanteCuip let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarVolanteCuip">Ver volante de CUIP </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <pdf-viewer [src]="pdfActual"
+                      [render-text]="true"
+                      [original-size]="false"
+                      style="width: 100%; height: 600px"></pdf-viewer>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="descargarAcuerdoPdf()">Descargar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #crearPersonaModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="modal-survey-response">Nuevo personal </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
@@ -412,6 +686,13 @@
               <div class="step" data-target="#test-l-4">
                 <button class="step-trigger">
                   <span class="bs-stepper-circle">4</span>
+                  <span class="bs-stepper-label">Fotografias</span>
+                </button>
+              </div>
+              <div class="line"></div>
+              <div class="step" data-target="#test-l-5">
+                <button class="step-trigger">
+                  <span class="bs-stepper-circle">5</span>
                   <span class="bs-stepper-label">Resumen</span>
                 </button>
               </div>
@@ -421,38 +702,81 @@
               <div id="test-l-1" class="content">
                 <form [formGroup]="crearPersonalForm">
                   <div class="form-row">
-                    <div class="col-sm-6">
-                      <label for="nacionalidad">
+                    <div class="col-sm-4">
+                      <label>
                         <b>Nacionalidad *</b>
                       </label>
-                      <select id="nacionalidad" class="form-control" formControlName="nacionalidad">
-                        <option *ngFor="let n of nacionalidades" value="{{n.uuid}}">{{n.nombre}}</option>
-                      </select>
+                      <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{nacionalidad === undefined ? 'Ninguno' : (nacionalidad?.nombre)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                        <form [formGroup]="nacionalidadSearchForm" class="px-4 py-3" autocomplete="off">
+                          <label for="nacionalidadQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="nacionalidadQuery" placeholder="Ej. dsadasdas" [(ngModel)]="nacionalidadQuery"
+                                 [ngModelOptions]="{standalone: true}">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let n of nacionalidades | buscarNombrePipe: {nombre: nacionalidadQuery}" (click)="seleccionarNacionalidad(n?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                          {{n.nombre}}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="nacionalidad !== undefined" (click)="quitarNacionalidad()">Quitar</a>
+                      </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                       <label for="curp">
-                        <b>CURP *</b>
+                        <b>CURP</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['curp'].invalid && (crearPersonalForm.controls['curp'].dirty || crearPersonalForm.controls['curp'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['curp'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                          <i *ngIf="crearPersonalForm.controls['curp'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                        <i *ngIf="(existePersona !== undefined || existePersona !== null) && existePersona?.existe" class="text-danger"> - Persona ya registrada</i>
                       </label>
-                      <input id="curp" type="text" class="form-control" placeholder="Ejemplo: XAXX010101ABCD00" formControlName="curp" #curp>
+                      <input id="curp" type="text" class="form-control" placeholder="Ejemplo: XAXX010101ABCD00" formControlName="curp" (focusout)="verificarPersonal($event.target)" #curp>
+                    </div>
+                    <div class="col-sm-4">
+                      <label for="rfc">
+                        <b>RFC</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['rfc'].invalid && (crearPersonalForm.controls['rfc'].dirty || crearPersonalForm.controls['rfc'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['rfc'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                          <i *ngIf="crearPersonalForm.controls['rfc'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="rfc" type="text" class="form-control" placeholder="Ejemplo: XAXX010101AAA" formControlName="rfc" (focusout)="verificarPersonalRfc($event.target)" #rfc>
                     </div>
                   </div>
 
                   <div class="form-row">
                     <div class="col-sm-4">
                       <label for="apellidoPaterno">
-                        <b>Apellido paterno *</b>
+                        <b>Apellido paterno</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['apellidoPaterno'].invalid && (crearPersonalForm.controls['apellidoPaterno'].dirty || crearPersonalForm.controls['apellidoPaterno'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['apellidoPaterno'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
                       </label>
                       <input id="apellidoPaterno" type="text" class="form-control" placeholder="Ejemplo: Garcia" formControlName="apellidoPaterno" #apellidoPaterno>
                     </div>
                     <div class="col-sm-4">
                       <label for="apellidoMaterno">
-                        <b>Apellido paterno *</b>
+                        <b>Apellido materno</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['apellidoMaterno'].invalid && (crearPersonalForm.controls['apellidoMaterno'].dirty || crearPersonalForm.controls['apellidoMaterno'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['apellidoMaterno'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
                       </label>
                       <input id="apellidoMaterno" type="text" class="form-control" placeholder="Ejemplo: Garcia" formControlName="apellidoMaterno" #apellidoMaterno>
                     </div>
                     <div class="col-sm-4">
                       <label for="nombres">
                         <b>Nombres *</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['nombres'].invalid && (crearPersonalForm.controls['nombres'].dirty || crearPersonalForm.controls['nombres'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['nombres'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearPersonalForm.controls['nombres'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
                       </label>
                       <input id="nombres" type="text" class="form-control" placeholder="Ejemplo: Jose" formControlName="nombres" #nombres>
                     </div>
@@ -461,7 +785,11 @@
                   <div class="form-row">
                     <div class="col-sm-3">
                       <label for="sexo">
-                        <b>Sexo *</b>
+                        <b>Genero *</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['sexo'].invalid && (crearPersonalForm.controls['sexo'].dirty || crearPersonalForm.controls['sexo'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="sexo" class="form-control" formControlName="sexo">
                         <option value="MASCULINO">Masculino</option>
@@ -471,27 +799,39 @@
                     <div class="col-sm-3">
                       <label for="fechaNacimiento">
                         <b>Fecha de nacimiento *</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['fechaNacimiento'].invalid && (crearPersonalForm.controls['fechaNacimiento'].dirty || crearPersonalForm.controls['fechaNacimiento'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['fechaNacimiento'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
-                      <input id="fechaNacimiento" type="date" class="form-control" placeholder="Ejemplo: Garcia" formControlName="fechaNacimiento" #fechaNacimiento>
+                      <input [max]="fechaDeHoy" id="fechaNacimiento" type="date" class="form-control" placeholder="Ejemplo: Garcia" formControlName="fechaNacimiento" #fechaNacimiento>
                     </div>
                     <div class="col-sm-3">
                       <label for="tipoSangre">
                         <b>Tipo de sangre *</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['tipoSangre'].invalid && (crearPersonalForm.controls['tipoSangre'].dirty || crearPersonalForm.controls['tipoSangre'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['tipoSangre'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="tipoSangre" class="form-control" formControlName="tipoSangre">
-                        <option value="O_POSITIVO">O+ (O positivo)</option>
-                        <option value="O_NEGATIVO">O- (O negativo)</option>
-                        <option value="A_POSITIVO">A+ (A positivo)</option>
-                        <option value="A_NEGATIVO">A- (A negativo)</option>
-                        <option value="B_POSITIVO">B+ (B positivo)</option>
-                        <option value="B_NEGATIVO">B- (B negativo)</option>
-                        <option value="AB_POSITIVO">AB+ (AB positivo)</option>
-                        <option value="AB_NEGATIVO">AB- (AB negativo)</option>
+                        <option value="O_P">O+ (O positivo)</option>
+                        <option value="O_N">O- (O negativo)</option>
+                        <option value="A_P">A+ (A positivo)</option>
+                        <option value="A_N">A- (A negativo)</option>
+                        <option value="B_P">B+ (B positivo)</option>
+                        <option value="B_N">B- (B negativo)</option>
+                        <option value="AB_P">AB+ (AB positivo)</option>
+                        <option value="AB_N">AB- (AB negativo)</option>
                       </select>
                     </div>
                     <div class="col-sm-3">
                       <label for="estadoCivil">
                         <b>Estado civil *</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['estadoCivil'].invalid && (crearPersonalForm.controls['estadoCivil'].dirty || crearPersonalForm.controls['estadoCivil'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['estadoCivil'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
                       <select id="estadoCivil" class="form-control" formControlName="estadoCivil">
                         <option value="SOLTERO">Soltero</option>
@@ -503,97 +843,195 @@
                     </div>
                   </div>
 
-                  <div class="form-row">
+                  <div class="row">
                     <div class="col-sm-3">
-                      <label for="domicilio1">
-                        <b>Domicilio *</b>
+                      <label>
+                        <b>Estado *</b>
                       </label>
-                      <input id="domicilio1" type="text" class="form-control" placeholder="Ejemplo: Av. La Paz" formControlName="domicilio1" #domicilio1>
+                      <div class="dropdown" id="estadoDropdown">
+                        <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                          {{estado === undefined ? 'Ninguno' : estado?.nombre}}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                          <form [formGroup]="estadoSearchForm" class="px-4 py-3" autocomplete="off">
+                            <label for="estadoSearchQuery"><b>Buscar por nombre</b></label>
+                            <input type="text" class="form-control" id="estadoSearchQuery" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
+                                   [ngModelOptions]="{standalone: true}">
+                          </form>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" *ngFor="let e of estados | buscarNombrePipe: {nombre: estadoQuery}" (click)="seleccionarEstado(e.uuid)" style="cursor: pointer;">
+                            {{e.nombre}}
+                          </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarEstado()">Quitar</a>
+                        </div>
+                      </div>
                     </div>
                     <div class="col-sm-3">
-                      <label for="domicilio2">
-                        <b>Colonia *</b>
-                      </label>
-                      <input id="domicilio2" type="text" class="form-control" placeholder="Ejemplo: Centro" formControlName="domicilio2" #domicilio2>
-                    </div>
-                    <div class="col-sm-3">
-                      <label for="domicilio3">
+                      <label>
                         <b>Municipio *</b>
                       </label>
-                      <input id="domicilio3" type="text" class="form-control" placeholder="Ejemplo: Guadalajara" formControlName="domicilio3" #domicilio3>
+                      <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{municipio === undefined ? 'Ninguno' : municipio?.nombre.substring(0, 20)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                        <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                          <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="municipioSearchQuery" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
+                                 [ngModelOptions]="{standalone: true}">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let m of municipios | buscarNombrePipe: {nombre: municipioQuery}" (click)="seleccionarMunicipio(m.uuid)" style="cursor: pointer;">
+                          {{m.nombre}}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
+                      </div>
+                    </div>
+                    <div class="col-sm-6">
+                      <label>
+                        <b>Localidad *</b>
+                      </label>
+                      <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{localidad === undefined ? 'Ninguno' : localidad?.nombre.substring(0, 60)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                        <form [formGroup]="localidadSearchForm" autocomplete="off" class="px-4 py-3">
+                          <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="localidadSearchQuery" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
+                                 [ngModelOptions]="{standalone: true}">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let l of localidades | buscarNombrePipe: {nombre: localidadQuery}" (click)="seleccionarLocalidad(l.uuid)" style="cursor: pointer;">
+                          {{l.nombre}}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label>
+                        <b>Colonia *</b>
+                      </label>
+                      <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{colonia === undefined ? 'Ninguno' : colonia?.nombre.substring(0, 60)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                        <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                          <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="coloniaSearchQuery" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
+                                 [ngModelOptions]="{standalone: true}">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let c of colonias | buscarNombrePipe: {nombre: coloniaQuery}" (click)="seleccionarColonia(c.uuid)" style="cursor: pointer;">
+                          {{c.nombre}}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="colonia !== undefined" (click)="eliminarColonia()">Quitar</a>
+                      </div>
+                    </div>
+                    <div class="col-sm-6">
+                      <label>
+                        <b>Calle * </b>
+                      </label>
+                      <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{calle === undefined ? 'Ninguno' : calle?.nombre.substring(0, 60)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                        <form [formGroup]="calleSearchForm" class="px-4 py-3" autocomplete="off">
+                          <label for="calleSearchQuery"><b>Buscar por nombre</b></label>
+                          <input type="text" class="form-control" id="calleSearchQuery" placeholder="Ej. Av. Empresarios" [(ngModel)]="calleQuery"
+                                 [ngModelOptions]="{standalone: true}" (keyup)="obtenerCalles($event)">
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let c of calles" (click)="seleccionarCalle(c.uuid)" style="cursor: pointer;">
+                          {{c.nombre}}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="calle !== undefined" (click)="eliminarCalle()">Quitar</a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <label for="numeroExterior">
+                        <b>N. Ext * </b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['numeroExterior'].invalid && (crearPersonalForm.controls['numeroExterior'].dirty || crearPersonalForm.controls['numeroExterior'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['numeroExterior'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearPersonalForm.controls['numeroExterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="numeroExterior" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="numeroInterior">
+                        <b>N. Int </b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['numeroInterior'].invalid && (crearPersonalForm.controls['numeroExterior'].dirty || crearPersonalForm.controls['numeroInterior'].touched)">
+                    <i *ngIf="crearPersonalForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                      </label>
+                      <input id="numeroInterior" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <label for="codigoPostal">
+                        <b>Codigo Postal *</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['codigoPostal'].invalid && (crearPersonalForm.controls['codigoPostal'].dirty || crearPersonalForm.controls['codigoPostal'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['codigoPostal'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearPersonalForm.controls['codigoPostal'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                          <i *ngIf="crearPersonalForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                      </label>
+                      <input id="codigoPostal" type="tel" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" appNumberMask #codigoPostal>
                     </div>
                     <div class="col-sm-3">
                       <label for="domicilio4">
                         <b>Referencia</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['domicilio4'].invalid && (crearPersonalForm.controls['domicilio4'].dirty || crearPersonalForm.controls['domicilio4'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['domicilio4'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
                       </label>
-                      <input id="domicilio4" type="text" class="form-control" placeholder="Ejemplo: Edificio Mulbar" formControlName="domicilio4" #domicilio4>
+                      <input id="domicilio4" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
                     </div>
                   </div>
 
                   <div class="form-row">
                     <div class="col-sm-4">
-                      <label for="estado">
-                        <b>Estado *</b>
+                      <label for="fechaIngreso">
+                        <b>Fecha de ingreso *</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['fechaIngreso'].invalid && (crearPersonalForm.controls['fechaIngreso'].dirty || crearPersonalForm.controls['fechaIngreso'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['fechaIngreso'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
-                      <select id="estado" formControlName="estado" class="form-control">
-                        <option value="AGUASCALIENTES">Aguascalientes</option>
-                        <option value="BAJA CALIFORNIA">Baja California</option>
-                        <option value="BAJA CALIFORNIA SUR">Baja California Sur</option>
-                        <option value="CAMPECHE">Campeche</option>
-                        <option value="CIUDAD DE MEXICO">Baja California</option>
-                        <option value="COAHUILA">Coahuila</option>
-                        <option value="COLIMA">Colima</option>
-                        <option value="CHIAPAS">Chiapas</option>
-                        <option value="CHIHUAHUA">Chihuahua</option>
-                        <option value="DURANGO">Durango</option>
-                        <option value="ESTADO DE MEXICO">Estado de Mexico</option>
-                        <option value="GUANAJUATO">Guanajuato</option>
-                        <option value="GUERRERO">Guerrero</option>
-                        <option value="HIDALGO">Hidalgo</option>
-                        <option value="JALISCO">Jalisco</option>
-                        <option value="MICHOACAN">Michoacan</option>
-                        <option value="MORELOS">Morelos</option>
-                        <option value="NAYARIT">Nayarit</option>
-                        <option value="NUEVO LEON">Nuevo Leon</option>
-                        <option value="OAXACA">Oaxaca</option>
-                        <option value="PUEBLA">Puebla</option>
-                        <option value="QUERETARO">Queretaro</option>
-                        <option value="QUINTANA ROO">Quintana Roo</option>
-                        <option value="SAN LUIS POTOSI">San Luis Potosi</option>
-                        <option value="SINALOA">Sinaloa</option>
-                        <option value="SONORA">Sonora</option>
-                        <option value="TABASCO">Tabasco</option>
-                        <option value="TAMAULIPAS">Tamaulipas</option>
-                        <option value="TLAXCALA">Tlaxcala</option>
-                        <option value="VERACRUZ">Veracruz</option>
-                        <option value="YUCATAN">Yucatan</option>
-                        <option value="ZACATECAS">Zacatecas</option>
-                      </select>
+                      <input [max]="fechaDeHoy" id="fechaIngreso" type="date" class="form-control" formControlName="fechaIngreso" #fechaNacimiento>
                     </div>
                     <div class="col-sm-4">
-                      <label for="pais">
-                        <b>Pais *</b>
-                      </label>
-                      <input id="pais" type="text" class="form-control" placeholder="Ejemplo: Centro" formControlName="pais" #pais>
-                    </div>
-                    <div class="col-sm-4">
-                      <label for="codigoPostal">
-                        <b>Codigo postal *</b>
-                      </label>
-                      <input id="codigoPostal" type="text" class="form-control" placeholder="Ejemplo: 44630" formControlName="codigoPostal" #codigoPostal>
-                    </div>
-                  </div>
-
-                  <div class="form-row">
-                    <div class="col-sm-6">
                       <label for="telefono">
                         <b>Telefono *</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['telefono'].invalid && (crearPersonalForm.controls['telefono'].dirty || crearPersonalForm.controls['telefono'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['telefono'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
                       </label>
-                      <input id="telefono" type="text" class="form-control" placeholder="Ejemplo: 3312345678" formControlName="telefono" #telefono>
+                      <input id="telefono" type="text" class="form-control" placeholder="Ejemplo: 3312345678" formControlName="telefono" #telefono appPhoneMask>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                       <label for="correoElectronico">
-                        <b>Correo electronico *</b>
+                        <b>Correo electronico</b>
+                        <span
+                          *ngIf="crearPersonalForm.controls['correoElectronico'].invalid && (crearPersonalForm.controls['correoElectronico'].dirty || crearPersonalForm.controls['correoElectronico'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['correoElectronico'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                          <i *ngIf="crearPersonalForm.controls['correoElectronico'].errors.email" class="text-danger"> - No es un email</i>
+                        </span>
                       </label>
                       <input id="correoElectronico" type="email" class="form-control" placeholder="Ejemplo: test@test.com" formControlName="correoElectronico" #correoElectronico>
                     </div>
@@ -602,60 +1040,434 @@
                 <hr>
                 <div class="row">
                   <div class="col-sm-12">
-                    <button (click)="next('INFORMACION', crearPersonalForm)" class="btn btn-primary">Siguiente: Puesto
+                    <button (click)="next('INFORMACION_PUESTO', crearPersonalForm)" [disabled]="actionInProgress" class="btn btn-primary">Siguiente: Puesto
                     </button>
                   </div>
                 </div>
               </div>
 
-              <!-- STEP 2 - Psychologist information -->
               <div id="test-l-2" class="content">
-                <form>
+                <form [formGroup]="crearPersonalPuestoForm">
                   <div class="form-row">
-                    <div class="col-sm-4">
-                      <label for="puesto">
-                        <b>Puesto *</b>
+                    <div class="col-sm-3">
+                      <label for="crearPuestoCrearPersonal">
+                        <b>Tipo de puesto *</b>
+                        <span
+                          *ngIf="crearPersonalPuestoForm.controls['puesto'].invalid && (crearPersonalPuestoForm.controls['puesto'].dirty || crearPersonalPuestoForm.controls['puesto'].touched)">
+                          <i *ngIf="crearPersonalPuestoForm.controls['puesto'].errors.required" class="text-danger"> - Requerido</i>
+                        </span>
                       </label>
-                      <select id="puesto" class="form-control" formControlName="puesto">
-                        <option *ngFor="let p of puestosTrabajo" value="{{p.uuid}}">{{p.nombre}}</option>
+                      <select id="crearPuestoCrearPersonal" formControlName="puesto" class="form-control" (change)="cambiarPuestoTrabajo($event.target)">
+                        <option *ngFor="let p of puestosTrabajo" value="{{p?.uuid}}">{{p?.nombre}}</option>
                       </select>
                     </div>
-
-                    <div class="col-sm-4">
-                    </div>
-
-                    <div class="col-sm-4">
-                      <label for="domicilioAsignado">
-                        <b>Domicilio asignado *</b>
+                    <div class="col-sm-3">
+                      <label for="crearSubpuestoCrearPersonal">
+                        <b>Subpuesto *</b>
+                        <span
+                          *ngIf="crearPersonalPuestoForm.controls['subpuesto'].invalid && (crearPersonalPuestoForm.controls['subpuesto'].dirty || crearPersonalPuestoForm.controls['subpuesto'].touched)">
+                              <i *ngIf="crearPersonalPuestoForm.controls['subpuesto'].errors.required" class="text-danger"> - Requerido</i>
+                            </span>
                       </label>
-                      <select id="domicilioAsignado" class="form-control" formControlName="domicilioAsignado">
-                        <option *ngFor="let d of domicilios" value="{{d.uuid}}">{{d.domicilio1 + ". Colonia: " + d.domicilio2}}</option>
+                      <select id="crearSubpuestoCrearPersonal" formControlName="subpuesto" class="form-control" (change)="cambiarSubpuestoTrabajo($event.target)">
+                        <option *ngFor="let s of puestoTrabajo?.subpuestos" value="{{s?.uuid}}">{{s?.nombre}}</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="crearDetallesPuestoCrearPersonal">
+                        <b>Detalles del puesto *</b>
+                        <span
+                          *ngIf="crearPersonalPuestoForm.controls['detallesPuesto'].invalid && (crearPersonalPuestoForm.controls['detallesPuesto'].dirty || crearPersonalPuestoForm.controls['detallesPuesto'].touched)">
+                          <i *ngIf="crearPersonalPuestoForm.controls['detallesPuesto'].errors.required" class="text-danger"> - Requerido</i>
+                        </span>
+                      </label>
+                      <input id="crearDetallesPuestoCrearPersonal" type="text" class="form-control" placeholder="Ej. Detalles del puesto" formControlName="detallesPuesto">
+                    </div>
+                    <div class="col-sm-3">
+                      <label for="crearDomicilioPersonalCrearPersonal">
+                        <b>Domicilio *</b>
+                        <span
+                          *ngIf="crearPersonalPuestoForm.controls['domicilioAsignado'].invalid && (crearPersonalPuestoForm.controls['domicilioAsignado'].dirty || crearPersonalPuestoForm.controls['domicilioAsignado'].touched)">
+                          <i *ngIf="crearPersonalPuestoForm.controls['domicilioAsignado'].errors.required" class="text-danger"> - Requerido</i>
+                        </span>
+                      </label>
+                      <select id="crearDomicilioPersonalCrearPersonal" formControlName="domicilioAsignado" class="form-control" (change)="cambiarDomicilio($event.target)">
+                        <option *ngFor="let d of domicilios" value="{{d?.uuid}}">{{d?.nombre + " - " + d?.domicilio1 + " " + d?.numeroExterior + " " + d?.numeroInterior}}</option>
                       </select>
                     </div>
                   </div>
+
                   <div class="form-row">
-                    <div class="col-sm-12">
-                      <label for="detallesPuesto">
-                        <b>Descripcion detallada del puesto *</b>
+                    <div class="col-sm-3">
+                      <label for="crearCuipCrearPersonal">
+                        <b>Estatus de la CUIP *</b>
                       </label>
-                      <textarea id="detallesPuesto" class="form-control" formControlName="detallesPuesto"></textarea>
+                      <select id="crearCuipCrearPersonal" formControlName="estatusCuip" class="form-control" (change)="cambiarStatusCuip($event.target)">
+                        <option value="" disabled selected></option>
+                        <option value="NA" *ngIf="!subpuestoTrabajo?.portacion && puestoTrabajo?.nombre !== 'Operativo'">NA</option>
+                        <option value="EN_TRAMITE" *ngIf="puestoTrabajo?.nombre === 'Operativo' && !subpuestoTrabajo?.cuip">En tramite</option>
+                        <option value="TRAMITADO" *ngIf="puestoTrabajo?.nombre === 'Operativo' && !subpuestoTrabajo?.cuip">Tramitado</option>
+                        <option value="TRAMITADO" *ngIf="puestoTrabajo?.nombre === 'Operativo' && subpuestoTrabajo?.cuip">Tramitado</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-6" *ngIf="this.puestoTrabajo?.nombre === 'Operativo'">
+                      <label>
+                        <b>Modalidad * </b>
+                      </label>
+                      <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                        {{empresaModalidad === undefined ? 'Ninguno' : (empresaModalidad?.modalidad.nombre).substr(0, 90)}}
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngFor="let m of modalidades" (click)="seleccionarModalidad(m?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                          {{m.modalidad.nombre}}<br>
+                          <span style="font-size: 14px; color: #999; padding-left: 10px;">{{m?.submodalidad?.nombre}}</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" *ngIf="modalidad !== undefined" (click)="quitarModalidad()">Quitar</a>
+                      </div>
+                    </div>
+                    <div class="col-sm-3" *ngIf="this.puestoTrabajo?.nombre === 'Operativo'">
+                      <label for="formaEjecucion">
+                        <b>Forma de ejecucion * </b>
+                      </label>
+                      <select id="formaEjecucion" formControlName="formaEjecucion" class="form-control" (change)="cambiarFormaEjecucion($event.target)">
+                        <option *ngFor="let fe of formasEjecucion" value="{{fe?.formaEjecucion}}">{{fe.formaEjecucion}}</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-3" *ngIf="cuipStatus === 'EN_TRAMITE'">
+                      <label for="crearNumeroVolanteCrearPersonal">
+                        <b>Numero de volante *</b>
+                      </label>
+                      <input id="crearNumeroVolanteCrearPersonal" type="text" class="form-control" placeholder="Ej. 151156056156" formControlName="numeroVolanteCuip">
+                    </div>
+                    <div class="col-sm-3" *ngIf="cuipStatus === 'EN_TRAMITE'">
+                      <label for="crearNumeroVolanteFechaCrearPersonal">
+                        <b>Fecha de volante *</b>
+                      </label>
+                      <input id="crearNumeroVolanteFechaCrearPersonal" type="date" class="form-control" formControlName="fechaVolanteCuip">
+                    </div>
+                    <div class="col-sm-3" *ngIf="cuipStatus === 'TRAMITADO'">
+                      <label for="crearCuipNumeroCrearPersonal">
+                        <b>Numero de CUIP *</b>
+                      </label>
+                      <input id="crearCuipNumeroCrearPersonal" type="text" class="form-control" formControlName="cuip" (focusout)="verificarCuip($event.target)">
+                    </div>
+                    <div class="col-sm-3" *ngIf="cuipStatus === 'EN_TRAMITE'">
+                      <label for="archivoVolanteCuip">
+                        <b>Archivo de volante *</b>
+                      </label>
+                      <input id="archivoVolanteCuip" accept="application/pdf" type="file" class="form-control" (change)="onFileChange($event)">
                     </div>
                   </div>
                 </form>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button (click)="previous()" class="btn btn-primary">Anterior: Personal
+                    </button>
+                    <button (click)="next('CURSOS', crearPersonalPuestoForm)" [disabled]="actionInProgress" class="btn btn-primary">Siguiente: Cursos
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <!-- STEP 3 - SUMMARY -->
               <div id="test-l-3" class="content">
                 <div class="row">
                   <div class="col-sm-12">
-
+                    <form [formGroup]="crearPersonalCertificadoForm">
+                      <div class="form-row">
+                        <div class="col-sm-4">
+                          <label for="nombreCrear">
+                            <b>Nombre del curso *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['nombre'].invalid && (crearPersonalCertificadoForm.controls['nombre'].dirty || crearPersonalCertificadoForm.controls['nombre'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombre'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombre'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                          </label>
+                          <input id="nombreCrear" type="text" class="form-control" placeholder="Ej. Primeros auxilios" formControlName="nombre" #nombre>
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="nombreInstructorCrear">
+                            <b>Instructor *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].invalid && (crearPersonalCertificadoForm.controls['nombreInstructor'].dirty || crearPersonalCertificadoForm.controls['nombreInstructor'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['nombreInstructor'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                            </span>
+                          </label>
+                          <input id="nombreInstructorCrear" type="text" class="form-control" placeholder="Ej. Carlos Jose Perez" formControlName="nombreInstructor" #nombreInstructor>
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="duracionCrear">
+                            <b>Duracion (en horas) *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['duracion'].invalid && (crearPersonalCertificadoForm.controls['duracion'].dirty || crearPersonalCertificadoForm.controls['duracion'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['duracion'].errors.required" class="text-danger"> - Requerido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['duracion'].errors.min" class="text-danger"> - Valor invalido</i>
+                              <i *ngIf="crearPersonalCertificadoForm.controls['duracion'].errors.max" class="text-danger"> - Valor invalido</i>
+                            </span>
+                          </label>
+                          <input id="duracionCrear" type="number" class="form-control" placeholder="En horas" formControlName="duracion" #duracion>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="col-sm-4">
+                          <label for="fechaInicioCrear">
+                            <b>Fecha de inicio *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['fechaInicio'].invalid && (crearPersonalCertificadoForm.controls['fechaInicio'].dirty || crearPersonalCertificadoForm.controls['fechaInicio'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['fechaInicio'].errors.required" class="text-danger"> - Requerido</i>
+                            </span>
+                          </label>
+                          <input id="fechaInicioCrear" type="date" class="form-control" formControlName="fechaInicio" #fechaInicio>
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="fechaFinCrear">
+                            <b>Fecha de fin *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['fechaFin'].invalid && (crearPersonalCertificadoForm.controls['fechaFin'].dirty || crearPersonalCertificadoForm.controls['fechaFin'].touched)">
+                              <i *ngIf="crearPersonalCertificadoForm.controls['fechaFin'].errors.required" class="text-danger"> - Requerido</i>
+                            </span>
+                          </label>
+                          <input id="fechaFinCrear" type="date" class="form-control" formControlName="fechaFin" #duracion>
+                        </div>
+                        <div class="col-sm-4">
+                          <label for="archivoCertificadoCrear">
+                            <b>Archivo (en PDF) *</b>
+                            <span
+                              *ngIf="crearPersonalCertificadoForm.controls['archivo'].invalid && (crearPersonalCertificadoForm.controls['archivo'].dirty || crearPersonalCertificadoForm.controls['archivo'].touched)">
+                                  <i *ngIf="crearPersonalCertificadoForm.controls['archivo'].errors.required" class="text-danger"> - Campo requerido</i>
+                                </span>
+                          </label>
+                          <input id="archivoCertificadoCrear" accept="application/pdf" type="file" class="form-control" formControlName="archivo" (change)="onFileChange($event)">
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-6">
+                    <button (click)="previous()" class="btn btn-primary">Anterior: Puesto de trabajo
+                    </button>
+                    <button (click)="next('FOTOGRAFIAS', crearPersonalCertificadoForm)" [disabled]="actionInProgress" class="btn btn-primary">Siguiente: Fotografias
+                    </button>
+                  </div>
+                  <div class="col-sm-6" *ngIf="persona?.puestoDeTrabajo?.nombre !== 'Operativo'">
+                    <button (click)="omitirPaso('FOTOGRAFIAS')" class="btn btn-secondary float-right">Omitir e ir al siguiente paso
+                    </button>
                   </div>
                 </div>
               </div>
               <div id="test-l-4" class="content">
                 <div class="row">
                   <div class="col-sm-12">
+                    <form [formGroup]="crearPersonaFotografiaForm">
+                      <div class="form-row">
+                        <div class="col-sm-6">
+                          <label for="fotoCrearPersona">
+                            <b>Archivo</b>
+                          </label>
+                          <input id="fotoCrearPersona" class="form-control" formControlName="file" type="file" accept="image/*" (change)="onFileChange($event)">
+                        </div>
+                        <div class="col-sm-6">
+                          <label for="fotoDescripcion">
+                            <b>Descripcion</b>
+                          </label>
+                          <select id="fotoDescripcion" class="form-control" formControlName="descripcion">
+                            <option value="DERECHA">DERECHA</option>
+                            <option value="IZQUIERDA">IZQUIERDA</option>
+                            <option value="FRONTAL">FRONTAL</option>
+                            <option value="TRASERO">TRASERO</option>
+                            <option value="SUPERIOR">SUPERIOR</option>
+                          </select>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button (click)="previous()" class="btn btn-primary">Anterior: Puesto de trabajo
+                    </button>
+                    <button (click)="next('RESUMEN', crearPersonaFotografiaForm)" [disabled]="actionInProgress" class="btn btn-primary">Siguiente: Resumen
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div id="test-l-5" class="content">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h2>El personal se ha guardado con exito</h2>
+                    <p>A continuación verás los detalles. Para finalizar, actualiza la pagina o dale click en el boton terminar</p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Info. persona</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>CURP</b></td>
+                        <td>{{persona?.curp}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>RFC</b></td>
+                        <td>{{persona?.rfc}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Apellido paterno</b></td>
+                        <td>{{persona?.apellidoPaterno}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Apellido materno</b></td>
+                        <td>{{persona?.apellidoMaterno}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Nombre(s)</b></td>
+                        <td>{{persona?.nombres}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Sexo</b></td>
+                        <td>{{persona?.sexo}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Fecha de nacimiento</b></td>
+                        <td>{{persona?.fechaNacimiento}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Domicilio</b></td>
+                        <td>{{persona?.domicilio1 + " " + persona?.numeroExterior + " " + persona?.numeroInterior + ". Colonia: " + persona?.domicilio2 + ", " + persona?.domicilio3 + ", " + persona?.estado}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Nacionalidad</b></td>
+                        <td>{{persona?.nacionalidad?.nombre}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Correo electronico</b></td>
+                        <td>{{persona?.correoElectronico}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Estado civil</b></td>
+                        <td [ngSwitch]="persona?.estadoCivil">
+                          <span *ngSwitchCase="'SOLTERO'">Soltero</span>
+                          <span *ngSwitchCase="'CASADO'">Casado</span>
+                          <span *ngSwitchCase="'DIVORCIADO'">Divorciado</span>
+                          <span *ngSwitchCase="'UNION_LIBRE'">Union libre</span>
+                          <span *ngSwitchCase="'VIUDO'">Viudo</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><b>Tipo de sangre</b></td>
+                        <td [ngSwitch]="persona?.tipoSangre">
+                          <span *ngSwitchCase="'AB_P'">AB+</span>
+                          <span *ngSwitchCase="'AB_N'">AB-</span>
+                          <span *ngSwitchCase="'B_P'">B+</span>
+                          <span *ngSwitchCase="'B_N'">B-</span>
+                          <span *ngSwitchCase="'A_P'">A+</span>
+                          <span *ngSwitchCase="'A_N'">A-</span>
+                          <span *ngSwitchCase="'O_P'">O+</span>
+                          <span *ngSwitchCase="'O_N'">O-</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><b>Fecha de ingreso</b></td>
+                        <td>{{persona?.fechaIngreso}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Telefono</b></td>
+                        <td>{{persona?.telefono}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
 
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Info. del puesto</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Puesto</b></td>
+                        <td>{{persona?.puestoDeTrabajo?.nombre}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Subpuesto</b></td>
+                        <td>{{persona?.subpuestoDeTrabajo?.nombre}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Detalles del puesto</b></td>
+                        <td>{{persona?.detallesPuesto}}</td>
+                      </tr>
+                      <tr *ngIf="persona?.puestoDeTrabajo?.nombre === 'Operativo'">
+                        <td><b>Estatus de la CUIP</b></td>
+                        <td [ngSwitch]="persona?.estatusCuip">
+                          <span *ngSwitchCase="'NA'">No aplica</span>
+                          <span *ngSwitchCase="'EN_TRAMITE'">En tramite</span>
+                          <span *ngSwitchCase="'TRAMITADO'">Tramitado</span>
+                        </td>
+                      </tr>
+                      <tr *ngIf="persona?.estatusCuip === 'TRAMITADO'">
+                        <td ><b>CUIP</b></td>
+                        <td>{{persona?.cuip}}</td>
+                      </tr>
+                      <tr *ngIf="persona?.estatusCuip === 'EN_TRAMITE'">
+                        <td><b>Numero de volante</b></td>
+                        <td>{{persona?.numeroVolanteCuip}}</td>
+                      </tr>
+                      <tr *ngIf="persona?.estatusCuip === 'EN_TRAMITE'">
+                        <td><b>Fecha de tramitacion de CUIP</b></td>
+                        <td>{{persona?.fechaVolanteCuip}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Info. del curso</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Nombre</b></td>
+                        <td><b>Instructor</b></td>
+                        <td><b>Duracion</b></td>
+                        <td><b>Fecha de Inicio</b></td>
+                        <td><b>Fecha de Fin</b></td>
+                      </tr>
+                      <tr>
+                        <td>{{this.personaCertificacion?.nombre}}</td>
+                        <td>{{this.personaCertificacion?.nombreInstructor}}</td>
+                        <td>{{this.personaCertificacion?.duracion}}</td>
+                        <td>{{this.personaCertificacion?.fechaInicio}}</td>
+                        <td>{{this.personaCertificacion?.fechaFin}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h4>Fotografias</h4>
+                    <table class="table">
+                      <tr>
+                        <td><b>Informacion de la foto</b></td>
+                        <td><b>Archivo</b></td>
+                      </tr>
+                      <tr>
+                        <td>{{this.personaFotografia?.descripcion}}</td>
+                        <td>{{this.personaFotografia?.nombreArchivo}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <hr>
+                <div class="row">
+                  <div class="col-sm-12">
+                    <button class="btn btn-primary" (click)="finalizar()">
+                      Cerrar
+                    </button>
                   </div>
                 </div>
               </div>
@@ -663,6 +1475,816 @@
           </div>
         </div>
       </div>
+    </div>
+  </ng-template>
+
+  <ng-template #modificarPersonalModal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modificarPersonalModal">Modificando personal </h4>
+      <button type="button" class="close" aria-label="Close" (click)="cancelarCambiosPersonal()">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <form [formGroup]="crearPersonalForm">
+            <div class="form-row">
+              <div class="col-sm-4">
+                <label>
+                  <b>Nacionalidad *</b>
+                </label>
+                <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{nacionalidad === undefined ? 'Ninguno' : (nacionalidad?.nombre)}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px; width: 500px;">
+                  <form [formGroup]="nacionalidadSearchForm" class="px-4 py-3" autocomplete="off">
+                    <label for="nacionalidadSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="nacionalidadSearchQuery" placeholder="Ej. dsadasdas" [(ngModel)]="nacionalidadQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let n of nacionalidades | buscarNombrePipe: {nombre: nacionalidadQuery}" (click)="seleccionarNacionalidad(n?.uuid)" style="cursor: pointer; white-space: pre-wrap !important;">
+                    {{n.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="nacionalidad !== undefined" (click)="quitarNacionalidad()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <label for="curpEditar">
+                  <b>CURP</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['curp'].invalid && (crearPersonalForm.controls['curp'].dirty || crearPersonalForm.controls['curp'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['curp'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                          <i *ngIf="crearPersonalForm.controls['curp'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                  <i *ngIf="existePersona !== undefined && existePersona.existe && existePersona.curp !== null" class="text-danger"> - Persona ya registrada</i>
+                </label>
+                <input id="curpEditar" type="text" class="form-control" placeholder="Ejemplo: XAXX010101ABCD00" formControlName="curp" (focusout)="verificarPersonal($event.target)" #curp>
+              </div>
+              <div class="col-sm-4">
+                <label for="rfcEditar">
+                  <b>RFC</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['rfc'].invalid && (crearPersonalForm.controls['rfc'].dirty || crearPersonalForm.controls['rfc'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['rfc'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                          <i *ngIf="crearPersonalForm.controls['rfc'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                  <i *ngIf="existePersona !== undefined && existePersona.existe && existePersona.rfc !== null" class="text-danger"> - Persona ya registrada</i>
+                </label>
+                <input id="rfcEditar" type="text" class="form-control" placeholder="Ejemplo: XAXX010101AAA" formControlName="rfc" #rfc>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="col-sm-4">
+                <label for="apellidoPaternoEditar">
+                  <b>Apellido paterno</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['apellidoPaterno'].invalid && (crearPersonalForm.controls['apellidoPaterno'].dirty || crearPersonalForm.controls['apellidoPaterno'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['apellidoPaterno'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="apellidoPaternoEditar" type="text" class="form-control" placeholder="Ejemplo: Garcia" formControlName="apellidoPaterno" #apellidoPaterno>
+              </div>
+              <div class="col-sm-4">
+                <label for="apellidoMaternoEditar">
+                  <b>Apellido materno</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['apellidoMaterno'].invalid && (crearPersonalForm.controls['apellidoMaterno'].dirty || crearPersonalForm.controls['apellidoMaterno'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['apellidoMaterno'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="apellidoMaternoEditar" type="text" class="form-control" placeholder="Ejemplo: Garcia" formControlName="apellidoMaterno" #apellidoMaterno>
+              </div>
+              <div class="col-sm-4">
+                <label for="nombresEditar">
+                  <b>Nombres *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['nombres'].invalid && (crearPersonalForm.controls['nombres'].dirty || crearPersonalForm.controls['nombres'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['nombres'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearPersonalForm.controls['nombres'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="nombresEditar" type="text" class="form-control" placeholder="Ejemplo: Jose" formControlName="nombres" #nombres>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="col-sm-3">
+                <label for="sexoEditar">
+                  <b>Genero *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['sexo'].invalid && (crearPersonalForm.controls['sexo'].dirty || crearPersonalForm.controls['sexo'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['sexo'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="sexoEditar" class="form-control" formControlName="sexo">
+                  <option value="MASCULINO">Masculino</option>
+                  <option value="FEMENINO">Femenino</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <label for="fechaNacimientoEditar">
+                  <b>Fecha de nacimiento *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['fechaNacimiento'].invalid && (crearPersonalForm.controls['fechaNacimiento'].dirty || crearPersonalForm.controls['fechaNacimiento'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['fechaNacimiento'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <input [max]="fechaDeHoy" id="fechaNacimientoEditar" type="date" class="form-control" placeholder="Ejemplo: Garcia" formControlName="fechaNacimiento" #fechaNacimiento>
+              </div>
+              <div class="col-sm-3">
+                <label for="tipoSangreEditar">
+                  <b>Tipo de sangre *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['tipoSangre'].invalid && (crearPersonalForm.controls['tipoSangre'].dirty || crearPersonalForm.controls['tipoSangre'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['tipoSangre'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="tipoSangreEditar" class="form-control" formControlName="tipoSangre">
+                  <option value="O_P">O+ (O positivo)</option>
+                  <option value="O_N">O- (O negativo)</option>
+                  <option value="A_P">A+ (A positivo)</option>
+                  <option value="A_N">A- (A negativo)</option>
+                  <option value="B_P">B+ (B positivo)</option>
+                  <option value="B_N">B- (B negativo)</option>
+                  <option value="AB_P">AB+ (AB positivo)</option>
+                  <option value="AB_N">AB- (AB negativo)</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <label for="estadoCivilEditar">
+                  <b>Estado civil *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['estadoCivil'].invalid && (crearPersonalForm.controls['estadoCivil'].dirty || crearPersonalForm.controls['estadoCivil'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['estadoCivil'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <select id="estadoCivilEditar" class="form-control" formControlName="estadoCivil">
+                  <option value="SOLTERO">Soltero</option>
+                  <option value="CASADO">Casado</option>
+                  <option value="DIVORCIADO">Divorciado</option>
+                  <option value="VIUDO">Viudo</option>
+                  <option value="UNION_LIBRE">Union libre</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-3">
+                <label>
+                  <b>Estado *</b>
+                </label>
+                <div class="dropdown" id="customer">
+                  <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                    {{estado === undefined ? 'Ninguno' : estado?.nombre}}
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                    <form [formGroup]="estadoSearchForm" class="px-4 py-3" autocomplete="off">
+                      <label for="estadoSearchQuery"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="estadoSearchQuery" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
+                             [ngModelOptions]="{standalone: true}">
+                    </form>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngFor="let e of estados | buscarNombrePipe: {nombre: estadoQuery}" (click)="seleccionarEstado(e.uuid)" style="cursor: pointer;">
+                      {{e.nombre}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarEstado()">Quitar</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <label>
+                  <b>Municipio *</b>
+                </label>
+                <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre.substring(0, 20)}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="municipioSearchQuery" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let m of municipios | buscarNombrePipe: {nombre: municipioQuery}" (click)="seleccionarMunicipio(m.uuid)" style="cursor: pointer;">
+                    {{m.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <label>
+                  <b>Localidad *</b>
+                </label>
+                <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre.substring(0, 60)}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="localidadSearchForm" autocomplete="off" class="px-4 py-3">
+                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="localidadSearchQuery" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let l of localidades | buscarNombrePipe: {nombre: localidadQuery}" (click)="seleccionarLocalidad(l.uuid)" style="cursor: pointer;">
+                    {{l.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-6">
+                <label>
+                  <b>Colonia *</b>
+                </label>
+                <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{colonia === undefined ? 'Ninguno' : colonia?.nombre.substring(0, 60)}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="municipioSearchForm" class="px-4 py-3" autocomplete="off">
+                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="coloniaSearchQuery" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
+                           [ngModelOptions]="{standalone: true}">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let c of colonias | buscarNombrePipe: {nombre: coloniaQuery}" (click)="seleccionarColonia(c.uuid)" style="cursor: pointer;">
+                    {{c.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="colonia !== undefined" (click)="eliminarColonia()">Quitar</a>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <label>
+                  <b>Calle * </b>
+                </label>
+                <a href="" class="btn btn-outline-primary dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                  {{calle === undefined ? 'Ninguno' : calle?.nombre.substring(0, 60)}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                  <form [formGroup]="calleSearchForm" class="px-4 py-3" autocomplete="off">
+                    <label for="calleSearchQuery"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="calleSearchQuery" placeholder="Ej. Av. Empresarios" [(ngModel)]="calleQuery"
+                           [ngModelOptions]="{standalone: true}" (keyup)="obtenerCalles($event)">
+                  </form>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngFor="let c of calles" (click)="seleccionarCalle(c.uuid)" style="cursor: pointer;">
+                    {{c.nombre}}
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" *ngIf="calle !== undefined" (click)="eliminarCalle()">Quitar</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-3">
+                <label for="numeroExteriorEditar">
+                  <b>N. Ext * </b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['numeroExterior'].invalid && (crearPersonalForm.controls['numeroExterior'].dirty || crearPersonalForm.controls['numeroExterior'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['numeroExterior'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearPersonalForm.controls['numeroExterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="numeroExteriorEditar" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
+              </div>
+              <div class="col-sm-3">
+                <label for="numeroInteriorEditar">
+                  <b>N. Int </b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['numeroInterior'].invalid && (crearPersonalForm.controls['numeroExterior'].dirty || crearPersonalForm.controls['numeroInterior'].touched)">
+                    <i *ngIf="crearPersonalForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+                </label>
+                <input id="numeroInteriorEditar" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
+              </div>
+
+              <div class="col-sm-3">
+                <label for="codigoPostalEditar">
+                  <b>Codigo Postal *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['codigoPostal'].invalid && (crearPersonalForm.controls['codigoPostal'].dirty || crearPersonalForm.controls['codigoPostal'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['codigoPostal'].errors.required" class="text-danger"> - Campo requerido</i>
+                          <i *ngIf="crearPersonalForm.controls['codigoPostal'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                          <i *ngIf="crearPersonalForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="codigoPostalEditar" type="tel" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" appNumberMask #codigoPostal>
+              </div>
+              <div class="col-sm-3">
+                <label for="domicilio4">
+                  <b>Referencia</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['domicilio4'].invalid && (crearPersonalForm.controls['domicilio4'].dirty || crearPersonalForm.controls['domicilio4'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['domicilio4'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                        </span>
+                </label>
+                <input id="domicilio4" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="col-sm-4">
+                <label for="fechaIngreso">
+                  <b>Fecha de ingreso *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['fechaIngreso'].invalid && (crearPersonalForm.controls['fechaIngreso'].dirty || crearPersonalForm.controls['fechaIngreso'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['fechaIngreso'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <input [max]="fechaDeHoy" id="fechaIngreso" type="date" class="form-control" formControlName="fechaIngreso" disabled #fechaNacimiento>
+              </div>
+              <div class="col-sm-4">
+                <label for="telefonoEditar">
+                  <b>Telefono *</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['telefono'].invalid && (crearPersonalForm.controls['telefono'].dirty || crearPersonalForm.controls['telefono'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['telefono'].errors.required" class="text-danger"> - Campo requerido</i>
+                        </span>
+                </label>
+                <input id="telefonoEditar" type="text" class="form-control" placeholder="Ejemplo: 3312345678" formControlName="telefono" #telefono appPhoneMask>
+              </div>
+              <div class="col-sm-4">
+                <label for="correoElectronicoEditar">
+                  <b>Correo electronico</b>
+                  <span
+                    *ngIf="crearPersonalForm.controls['correoElectronico'].invalid && (crearPersonalForm.controls['correoElectronico'].dirty || crearPersonalForm.controls['correoElectronico'].touched)">
+                          <i *ngIf="crearPersonalForm.controls['correoElectronico'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                          <i *ngIf="crearPersonalForm.controls['correoElectronico'].errors.email" class="text-danger"> - No es un email</i>
+                        </span>
+                </label>
+                <input id="correoElectronicoEditar" type="email" class="form-control" placeholder="Ejemplo: test@test.com" formControlName="correoElectronico" #correoElectronico>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarCambiosPersonal(crearPersonalForm)">Guardar cambios</button>
+      <button class="btn btn-danger" (click)="cancelarCambiosPersonal()">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarPersonalModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarPersonalModal">Eliminando una persona </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="motivosEliminacionForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBaja">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['motivoBaja'].invalid && (motivosEliminacionForm.controls['motivoBaja'].dirty || motivosEliminacionForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <select id="motivoBaja" class="form-control" formControlName="motivoBaja">
+              <option value="RENUNCIA_VOLUNTARIA">Renuncia voluntaria</option>
+              <option value="ABANDONO_EMPLEO">Abandono de empleo</option>
+              <option value="ABANDONO_SERVICIO">Abandono del servicio</option>
+              <option value="FALTAS_INJUSTIFICADAS">Faltas injustificadas</option>
+              <option value="PERDIDA_CONFIANZA">Hechos que generan la perdida de la confianza</option>
+              <option value="RESCISION_CONTRATO">Rescision del contrato</option>
+              <option value="RECORTE_PERSONAL">Recorte de personal</option>
+              <option value="TERMINO_CONTRATO">Termino de contrato</option>
+              <option value="EN_PROCESO_JUDICIAL">Por estar en proceso judicial</option>
+              <option value="POSIBLE_COMISION_DELITO">Posible comision de delito</option>
+              <option value="INCAPACIDAD_FISICA">Incapacidad fisica permanente</option>
+              <option value="CESANTIA_EDAD_AVANZADA">Cesantia en edad avanzada</option>
+              <option value="JUBILACION">Jubilacion</option>
+              <option value="MUERTE_NATURAL">Muerte natural</option>
+              <option value="ACCIDENTE">Accidente</option>
+              <option value="LIQUIDACION">Liquidacion</option>
+              <option value="CIERRE_EMPRESA">Cierre de la empresa</option>
+              <option value="DEFUNCION">Defuncion</option>
+              <option value="PENSION">Pension</option>
+              <option value="DOCUMENTACION_APOCRIFA">Presentar documentacion apocrifa</option>
+            </select>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBaja">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionForm.controls['fechaBaja'].invalid && (motivosEliminacionForm.controls['fechaBaja'].dirty || motivosEliminacionForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBaja" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy"
+                   #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBaja">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" accept="application/pdf"
+                   (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBaja">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesBaja" type="text" class="form-control"
+                      placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja"
+                      #descripcion></textarea>
+          </div>
+        </div>
+      </form>
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar una persona. Toma en cuenta que al eliminarlo, todos las certificaciones y fotografias seran eliminadas y esta operación no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarPersonal(motivosEliminacionForm)">Si, eliminar</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarCapacitacionesModal Modal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarCapacitacionesModal">Eliminando una capacitacion </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar una capacitacion. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarCapacitacion()">Si, eliminar</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarFotografiasModal Modal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarFotografiaModal">Eliminando una fotografia del personal </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estás a punto de eliminar una fotografia del personal. Toma en cuenta que esta operacion no se puede deshacer. ¿Deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarFotografia()">Si, eliminar</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #visualizarCertificacionPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="visualizarCertificacionPersonaModal">Ver adjunto de la certificacion </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <pdf-viewer [src]="pdfActual"
+                      [render-text]="true"
+                      [original-size]="false"
+                      style="width: 100%; height: 600px"></pdf-viewer>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="descargarCertificacion()">Descargar</button>
+    </div>
+  </ng-template>
+  <ng-template #asignarCanPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="asignarCanPersonaModal">Asignar can </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="asignarCanPersonalForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="can">
+              <b>Can *</b>
+            </label>
+            <div class="dropdown" id="can">
+              <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                {{can === undefined ? 'Ninguno' : can?.nombre}}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                <form [formGroup]="canSearchForm" class="px-4 py-3" autocomplete="off">
+                  <label for="canSearchQueryNotario"><b>Buscar por nombre</b></label>
+                  <input type="text" class="form-control" id="canSearchQueryNotario" placeholder="Ej. XYZQAB" [(ngModel)]="canQuery"
+                         [ngModelOptions]="{standalone: true}">
+                </form>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngFor="let c of canes | buscarNombrePipe: {nombre: canQuery}" (click)="seleccionarCan(c?.uuid)" style="cursor: pointer;">
+                  {{c?.nombre}}
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngIf="can !== undefined" (click)="eliminarCan()">Quitar</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-12">
+            <label for="observacionesCan">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesCan" type="text" class="form-control" placeholder="Describir las razones por las que el elemento tiene al can" formControlName="observaciones"></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="asignarCanPersona(asignarCanPersonalForm)">Asignar can</button>
+    </div>
+  </ng-template>
+
+  <ng-template #asignarVehiculoPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="asignarVehiculoPersonaModal">Asignar vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="asignarVehiculoPersonalForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="vehiculo">
+              <b>Vehiculo *</b>
+            </label>
+            <div class="dropdown" id="vehiculo">
+              <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                {{vehiculo === undefined ? 'Ninguno' : vehiculo?.placas + " - " + vehiculo?.marca?.nombre}}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                <form class="px-4 py-3" autocomplete="off">
+                  <label for="vehiculoPlacaSearchQuery"><b>Buscar por placa</b></label>
+                  <input type="text" class="form-control" id="vehiculoPlacaSearchQuery" placeholder="Ej. XYZQAB" [(ngModel)]="vehiculoQuery" [ngModelOptions]="{standalone: true}">
+                </form>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngFor="let v of vehiculos | buscarPlacas: {placas: vehiculoQuery}" (click)="seleccionarVehiculo(v?.uuid)" style="cursor: pointer;">
+                  {{v?.placas}} - {{v?.marca?.nombre}} {{(v?.submarca === null) ? '' : v?.submarca?.nombre}}
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngIf="vehiculo !== undefined" (click)="eliminarVehiculo()">Quitar</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesVehiculo">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesVehiculo" type="text" class="form-control" placeholder="Describir las razones por las que el elemento tiene este vehiculo" formControlName="observaciones"></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="asignarVehiculoPersona(asignarVehiculoPersonalForm)">Asignar vehiculo</button>
+    </div>
+  </ng-template>
+
+  <ng-template #asignarArmaCortaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="asignarArmaCortaModal">Asignar arma corta </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="asignarArmaCortaForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="armaCorta">
+              <b>Arma corta *</b>
+            </label>
+            <div class="dropdown" id="armaCorta">
+              <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                {{armaCorta === undefined ? 'Ninguno' : armaCorta?.matricula + " - " + armaCorta?.marca?.nombre + " " + armaCorta?.calibre}}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                <form class="px-4 py-3" autocomplete="off">
+                  <label for="armaCortaSearchQuery"><b>Buscar por matricula</b></label>
+                  <input type="text" class="form-control" id="armaCortaSearchQuery" placeholder="Ej. XYZQAB" [(ngModel)]="armaCortaQuery" [ngModelOptions]="{standalone: true}">
+                </form>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngFor="let a of armasCortas | buscarMatricula: {matricula: armaCortaQuery}" (click)="seleccionarArmaCorta(a?.uuid)" style="cursor: pointer;">
+                  {{a?.matricula}} - {{a?.marca?.nombre}} {{a?.calibre}}
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngIf="armaCorta !== undefined" (click)="eliminarArmaCorta()">Quitar</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesArmaCorta">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesArmaCorta" type="text" class="form-control" placeholder="Describir las razones por las que el elemento tiene esta arma" formControlName="observaciones"></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="asignarArmaCortaPersona(asignarArmaCortaForm)">Asignar arma corta</button>
+    </div>
+  </ng-template>
+
+  <ng-template #asignarArmaLargaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="asignarArmaCortaModal">Asignar arma larga </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="asignarArmaLargaForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="armaCorta">
+              <b>Arma *</b>
+            </label>
+            <div class="dropdown" id="armaCorta">
+              <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
+                {{armaLarga === undefined ? 'Ninguno' : armaLarga?.matricula + " - " + armaLarga?.marca?.nombre + " " + armaLarga?.calibre}}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
+                <form class="px-4 py-3" autocomplete="off">
+                  <label for="armaLargaSearchQuery"><b>Buscar por matricula</b></label>
+                  <input type="text" class="form-control" id="armaLargaSearchQuery" placeholder="Ej. XYZQAB" [(ngModel)]="armaLargaQuery" [ngModelOptions]="{standalone: true}">
+                </form>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngFor="let a of armasLargas | buscarMatricula: {matricula: armaLargaQuery}" (click)="seleccionarArmaLarga(a?.uuid)" style="cursor: pointer;">
+                  {{a?.matricula}} - {{a?.marca?.nombre}} {{a?.calibre}}
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" *ngIf="armaLarga !== undefined" (click)="eliminarArmaLarga()">Quitar</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesArmaLarga">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesArmaLarga" type="text" class="form-control" placeholder="Describir las razones por las que el elemento tiene esta arma" formControlName="observaciones"></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="asignarArmaLargaPersona(asignarArmaLargaForm)">Asignar arma larga</button>
+    </div>
+  </ng-template>
+
+  <!-- DESASIGNACIONES -->
+  <ng-template #desasignarCanPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="desasignarCanPersonaModal">Quitar asignacion de can </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="desasignarCanForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="motivoBajaAsignacion">
+              <b>Motivos de la baja de asignacion *</b>
+              <span
+                *ngIf="desasignarCanForm.controls['motivoBajaAsignacion'].invalid && (desasignarCanForm.controls['motivoBajaAsignacion'].dirty || desasignarCanForm.controls['motivoBajaAsignacion'].touched)">
+                      <i *ngIf="desasignarCanForm.controls['motivoBajaAsignacion'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+            </label>
+            <textarea id="motivoBajaAsignacion" type="text" class="form-control" placeholder="Describir las razones de la baja de este can" formControlName="motivoBajaAsignacion"></textarea>
+          </div>
+        </div>
+      </form>
+      <p>Estas a punto de quitar esta asignacion. Esta operacion no podra deshacerse. Deseas continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="desasignarCanPersona(desasignarCanForm)">Si, quitar asignacion</button>
+    </div>
+  </ng-template>
+
+  <ng-template #desasignarVehiculoPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="desasignarVehiculoPersonaModal">Quitar asignacion de vehiculo </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="desasignarVehiculoForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="motivoBajaAsignacionVehiculo">
+              <b>Motivos de la baja de asignacion *</b>
+              <span
+                *ngIf="desasignarVehiculoForm.controls['motivoBajaAsignacion'].invalid && (desasignarVehiculoForm.controls['motivoBajaAsignacion'].dirty || desasignarVehiculoForm.controls['motivoBajaAsignacion'].touched)">
+                      <i *ngIf="desasignarVehiculoForm.controls['motivoBajaAsignacion'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+            </label>
+            <textarea id="motivoBajaAsignacionVehiculo" type="text" class="form-control" placeholder="Describir las razones de la baja de este vehiculo" formControlName="motivoBajaAsignacion"></textarea>
+          </div>
+        </div>
+      </form>
+      <p>Estas a punto de quitar esta asignacion. Esta operacion no podra deshacerse. Deseas continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="desasignarVehiculoPersona(desasignarVehiculoForm)">Si, quitar asignacion</button>
+    </div>
+  </ng-template>
+
+  <ng-template #desasignarArmaCortaPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="desasignarArmaCortaPersonaModal">Quitar asignacion de arma corta </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="desasignarArmaCortaForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="motivoBajaAsignacionArmaCorta">
+              <b>Motivos de la baja de asignacion *</b>
+              <span
+                *ngIf="desasignarArmaCortaForm.controls['motivoBajaAsignacion'].invalid && (desasignarArmaCortaForm.controls['motivoBajaAsignacion'].dirty || desasignarArmaCortaForm.controls['motivoBajaAsignacion'].touched)">
+                      <i *ngIf="desasignarArmaCortaForm.controls['motivoBajaAsignacion'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+            </label>
+            <textarea id="motivoBajaAsignacionArmaCorta" type="text" class="form-control" placeholder="Describir las razones de la baja de esta arma" formControlName="motivoBajaAsignacion"></textarea>
+          </div>
+        </div>
+      </form>
+      <p>Estas a punto de quitar esta asignacion. Esta operacion no podra deshacerse. Deseas continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="desasignarArmaCorta(desasignarArmaCortaForm)">Si, quitar asignacion</button>
+    </div>
+  </ng-template>
+
+  <ng-template #desasignarArmaLargaPersonaModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="desasignarArmaLargaPersonaModal">Quitar asignacion de arma larga </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="desasignarArmaLargaForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="motivoBajaAsignacionArmaLarga">
+              <b>Motivos de la baja de asignacion *</b>
+              <span
+                *ngIf="desasignarArmaLargaForm.controls['motivoBajaAsignacion'].invalid && (desasignarArmaLargaForm.controls['motivoBajaAsignacion'].dirty || desasignarArmaLargaForm.controls['motivoBajaAsignacion'].touched)">
+                      <i *ngIf="desasignarArmaLargaForm.controls['motivoBajaAsignacion'].errors.required" class="error-text"> - Campo requerido</i>
+                    </span>
+            </label>
+            <textarea id="motivoBajaAsignacionArmaLarga" type="text" class="form-control" placeholder="Describir las razones de la baja de esta arma" formControlName="motivoBajaAsignacion"></textarea>
+          </div>
+        </div>
+      </form>
+      <p>Estas a punto de quitar esta asignacion. Esta operacion no podra deshacerse. Deseas continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="desasignarArmaLarga(desasignarArmaLargaForm)">Si, quitar asignacion</button>
     </div>
   </ng-template>
 </div>

@@ -3,6 +3,8 @@ package com.pelisat.cesp.ceemsp.database.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class EmpresaDomicilioDto {
@@ -29,4 +31,15 @@ public class EmpresaDomicilioDto {
     private LocalidadDto localidadCatalogo;
     private ColoniaDto coloniaCatalogo;
     private CalleDto calleCatalogo;
+    private boolean eliminado;
+
+    private String motivoBaja;
+    private String observacionesBaja;
+    private String documentoFundatorioBaja;
+    private String fechaBaja;
+
+    private String fechaCreacion;
+    private String fechaActualizacion;
+
+    private List<EmpresaDomicilioTelefonoDto> telefonos;
 }

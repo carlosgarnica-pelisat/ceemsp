@@ -1,6 +1,10 @@
 import { Deserializable } from "./Deserializable";
-import Modalidad from "./Modalidad";
-import EmpresaModalidad from "./EmpresaModalidad";
+import Estado from "./Estado";
+import Municipio from "./Municipio";
+import Localidad from "./Localidad";
+import Colonia from "./Colonia";
+import Calle from "./Calle";
+import EmpresaDomicilioTelefono from "./EmpresaDomicilioTelefono";
 
 export default class EmpresaDomicilio implements Deserializable {
   id: number;
@@ -12,6 +16,7 @@ export default class EmpresaDomicilio implements Deserializable {
   domicilio2: string;
   domicilio3: string;
   domicilio4: string;
+  localidad: string;
   estado: string;
   pais: string;
   codigoPostal: string;
@@ -20,6 +25,19 @@ export default class EmpresaDomicilio implements Deserializable {
   telefonoMovil: string;
   latitud: string;
   longitud: string;
+  estadoCatalogo: Estado;
+  municipioCatalogo: Municipio;
+  localidadCatalogo: Localidad;
+  coloniaCatalogo: Colonia;
+  calleCatalogo: Calle;
+  eliminado: boolean;
+
+  motivoBaja: string;
+  observacionesBaja: string;
+  documentoFundatorioBaja: string;
+  fechaBaja: string;
+
+  telefonos: EmpresaDomicilioTelefono[];
 
   deserialize(input: any): this {
     Object.assign(this, input);

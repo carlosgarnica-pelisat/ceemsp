@@ -9,5 +9,6 @@ import java.util.List;
 public interface VehiculoFotografiaService {
     List<VehiculoFotografiaMetadata> mostrarVehiculoFotografias(String uuid, String personalUuid);
     File descargarFotografiaVehiculo(String uuid, String personalUuid, String fotografiaUuid);
-    void guardarVehiculoFotografia(String uuid, String personalUuid, String username, MultipartFile multipartFile, VehiculoFotografiaMetadata metadata);
+    void guardarVehiculoFotografia(String uuid, String vehiculoUuid, String username, MultipartFile multipartFile, VehiculoFotografiaMetadata metadata);
+    void eliminarVehiculoFotografia(String uuid, String vehiculoUuid, String fotografiaUuid, String username);
 }

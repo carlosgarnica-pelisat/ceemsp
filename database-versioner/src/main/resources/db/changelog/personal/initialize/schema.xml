@@ -5,7 +5,7 @@
 
     <changeSet id="2021-11-15-crear-tabla-personal" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="PERSONAL">
+        <createTable tableName="personal">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="EMPRESA" type="int"></column>
@@ -45,10 +45,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="PERSONAL" columnNames="ID" />
-        <addAutoIncrement tableName="PERSONAL" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="personal" columnNames="ID" />
+        <addAutoIncrement tableName="personal" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="PERSONAL" columnNames="UUID" />
+        <addUniqueConstraint tableName="personal" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

@@ -21,6 +21,8 @@ export default class Empresa implements Deserializable {
 
   formasEjecucion: EmpresaFormaEjecucion[];
   modalidades: EmpresaModalidad[];
+  tieneArmas: boolean;
+  tieneCanes: boolean;
 
   deserialize(input: any): this {
     Object.assign(this, input);

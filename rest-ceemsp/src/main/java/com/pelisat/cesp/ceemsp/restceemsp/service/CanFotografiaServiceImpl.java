@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 @Service
 public class CanFotografiaServiceImpl implements CanFotografiaService {
 
-    private final Logger logger = LoggerFactory.getLogger(VehiculoFotografiaService.class);
+    private final Logger logger = LoggerFactory.getLogger(CanFotografiaService.class);
     private final CanFotografiaRepository canFotografiaRepository;
     private final DaoToDtoConverter daoToDtoConverter;
     private final DtoToDaoConverter dtoToDaoConverter;
@@ -63,7 +64,7 @@ public class CanFotografiaServiceImpl implements CanFotografiaService {
 
         logger.info("Obteniendo el metadata de las fotos del can [{}]", canUuid);
 
-        Can can = canRepository.getByUuidAndEliminadoFalse(canUuid);
+        Can can = canRepository.getByUuid(canUuid);
         if(can == null) {
             logger.warn("el can no existe en la base de datos");
             throw new NotFoundResourceException();
@@ -101,6 +102,7 @@ public class CanFotografiaServiceImpl implements CanFotografiaService {
     }
 
     @Override
+    @Transactional
     public void guardarCanFotografia(String uuid, String personalUuid, String username, MultipartFile multipartFile, CanFotografiaMetadata metadata) {
         if (StringUtils.isBlank(uuid) || StringUtils.isBlank(personalUuid) || StringUtils.isBlank(username) || multipartFile == null) {
             logger.warn("El uuid de la empresa, el can o la foto vienen como nulos o vacios");
@@ -126,10 +128,52 @@ public class CanFotografiaServiceImpl implements CanFotografiaService {
             ruta = archivosService.guardarArchivoMultipart(multipartFile, TipoArchivoEnum.FOTOGRAFIA_CAN, uuid);
             canFotografia.setRuta(ruta);
             canFotografiaRepository.save(canFotografia);
+
+            if(!can.isFotografiaCapturada()) {
+                can.setFotografiaCapturada(true);
+                daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+                canRepository.save(can);
+            }
         } catch (IOException ioException) {
             logger.warn(ioException.getMessage());
             archivosService.eliminarArchivo(ruta);
             throw new InvalidDataException();
+        }
+    }
+
+    @Override
+    @Transactional
+    public void eliminarCanFotografia(String uuid, String canUuid, String fotografiaUuid, String username) {
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(canUuid) || StringUtils.isBlank(fotografiaUuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la fotografia del can con uuid [{}]", fotografiaUuid);
+
+        Can can = canRepository.getByUuidAndEliminadoFalse(canUuid);
+        if(can == null) {
+            logger.warn("El can no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        CanFotografia canFotografia = canFotografiaRepository.getByUuidAndEliminadoFalse(fotografiaUuid);
+        if(canFotografia == null) {
+            logger.warn("La fotografia esta eliminada o no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(username);
+        archivosService.eliminarArchivo(canFotografia.getRuta());
+        canFotografia.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, canFotografia, usuarioDto.getId());
+        canFotografiaRepository.save(canFotografia);
+
+        List<CanFotografia> fotografias = canFotografiaRepository.getAllByCanAndEliminadoFalse(can.getId());
+        if(fotografias.size() == 0) {
+            can.setFotografiaCapturada(false);
+            daoHelper.fulfillAuditorFields(false, can, usuarioDto.getId());
+            canRepository.save(can);
         }
     }
 }

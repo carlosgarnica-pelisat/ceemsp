@@ -5,13 +5,15 @@
 
     <changeSet id="2021-09-15-crear-tabla-modalidades" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="MODALIDADES">
+        <createTable tableName="modalidades">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="NOMBRE" type="VARCHAR(500)"></column>
             <column name="DESCRIPCION" type="varchar(500)"></column>
             <column name="TIPO" type="varchar(8)"></column>
             <column name="SUBCATEGORIAS" type="bit"></column>
+            <column name="CANES" type="BIT"></column>
+            <column name="ARMAS" type="BIT"></column>
             <column name="ELIMINADO" type="bit" defaultValue="0"></column>
             <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
             <column name="CREADO_POR" type="int"></column>
@@ -20,20 +22,22 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="MODALIDADES" columnNames="ID" />
-        <addAutoIncrement tableName="MODALIDADES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="modalidades" columnNames="ID" />
+        <addAutoIncrement tableName="modalidades" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="MODALIDADES" columnNames="UUID" />
+        <addUniqueConstraint tableName="modalidades" columnNames="UUID" />
 
-        <!-- FULFILLING THE DEFAULT MODALIDADES -->
-        <insert tableName="MODALIDADES">
+        <!-- FULFILLING THE DEFAULT modalidades -->
+        <insert tableName="modalidades">
             <column name="ID" value="1"></column>
             <column name="UUID" value="8qVslFYQv6Y7"></column>
             <column name="NOMBRE" value="I. Proteccion y vigilancia"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada para proteccion y vigilancia de bienes inmuebles"></column>
+            <column name="DESCRIPCION" value=""></column>
             <column name="TIPO" value="SPSMD"></column>
             <column name="SUBCATEGORIAS" valueBoolean="true"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -41,13 +45,15 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="2"></column>
             <column name="UUID" value="C5UZeWnvwoD3"></column>
             <column name="NOMBRE" value="II. Custodia y vigilancia de bienes o valores"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada para custodia y vigilancia de bienes o valores"></column>
+            <column name="DESCRIPCION" value=""></column>
             <column name="TIPO" value="SPSMD"></column>
             <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -55,13 +61,15 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="3"></column>
             <column name="UUID" value="TatIlZssdGc7"></column>
             <column name="NOMBRE" value="III. Traslado y proteccion de bienes o valores"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada para traslado y proteccion de bienes o valores"></column>
+            <column name="DESCRIPCION" value=""></column>
             <column name="TIPO" value="SPSMD"></column>
             <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -69,13 +77,15 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="4"></column>
             <column name="UUID" value="nz7gBBr2Wnov"></column>
             <column name="NOMBRE" value="IV. La instalacion de blindajes en todo tipo de vehiculos automotores y en equipos"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada para instalacion de blindaje en vehiculos automotores y equipos"></column>
+            <column name="DESCRIPCION" value=""></column>
             <column name="TIPO" value="SPSMD"></column>
             <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -83,13 +93,15 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="5"></column>
             <column name="UUID" value="i2lWx906HsTg"></column>
-            <column name="NOMBRE" value="V. Sistemas de alarmas, instalacion y monitoreo electronico, exceptuandose la instalacion y comercializacion de alarmas en vehiculos automotores"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada para sistemas de alarmas, instalacion y monitoreo."></column>
+            <column name="NOMBRE" value="V. Sistemas de alarmas, instalacion y monitoreo electronico, y cualquier recurso tecnológico en general para proteger y vigilar bienes o personas, exceptuandose la instalacion y comercializacion de alarmas en vehiculos automotores o cuando unicamente se brinde planes de asistencia que no represente una actividad de monitoreo constante y permanente"></column>
+            <column name="DESCRIPCION" value=""></column>
             <column name="TIPO" value="SPSMD"></column>
             <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -97,27 +109,15 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
+        <insert tableName="modalidades">
             <column name="ID" value="6"></column>
-            <column name="UUID" value="lj2S2aamRG9s"></column>
-            <column name="NOMBRE" value="VI. Los particulares que se dediquen a la comercializacion de prendas de vestir, accesorios, dispositivos, aparatos, sistemas o procedimientos tecnicos especializados relacionados con la seguridad privada, de conformidad a lo senalado en el reglamento de seguridad privada"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada para comercializacion de prendas de vestir, accesorios, dispositivos, aparatos, sistemas o procedimientos tecnicos."></column>
-            <column name="TIPO" value="SPSMD"></column>
-            <column name="SUBCATEGORIAS" valueBoolean="false"></column>
-            <column name="ELIMINADO" valueBoolean="false"></column>
-            <column name="CREADO_POR" value="1"></column>
-            <column name="FECHA_CREACION" value="NOW()"></column>
-            <column name="ACTUALIZADO_POR" value="1"></column>
-            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
-        </insert>
-
-        <insert tableName="MODALIDADES">
-            <column name="ID" value="7"></column>
             <column name="UUID" value="sLc0KKfwVAVj"></column>
             <column name="NOMBRE" value="I. Seguridad privada a personas"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada para seguridad privada a personas bajo el registro federal"></column>
+            <column name="DESCRIPCION" value="Consistente en la proteccion, custodia, salvaguarda, defensa de la vida y de la integridad corporal del prestatario"></column>
             <column name="TIPO" value="EAFJAL"></column>
             <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="true"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -125,13 +125,15 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
-            <column name="ID" value="8"></column>
+        <insert tableName="modalidades">
+            <column name="ID" value="7"></column>
             <column name="UUID" value="F4UOomdZA704"></column>
             <column name="NOMBRE" value="II. Seguridad privada en los bienes"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada para seguridad privada a personas bajo el registro federal"></column>
+            <column name="DESCRIPCION" value="Consistente en el cuidado y proteccion de bienes muebles e inmuebles"></column>
             <column name="TIPO" value="EAFJAL"></column>
             <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="true"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -139,13 +141,15 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
-            <column name="ID" value="9"></column>
+        <insert tableName="modalidades">
+            <column name="ID" value="8"></column>
             <column name="UUID" value="PCe0g0GgRpQe"></column>
             <column name="NOMBRE" value="III. Seguridad privada en el traslado de bienes o valores"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada para la seguridad en el traslado de bienes o valores"></column>
+            <column name="DESCRIPCION" value="Consistente en la prestacion de servicios de custodia, vigilancia, cuidado y proteccion de bienes muebles o valores, incluyendo su traslado"></column>
             <column name="TIPO" value="EAFJAL"></column>
             <column name="SUBCATEGORIAS" valueBoolean="true"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="true"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -153,13 +157,15 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
-            <column name="ID" value="10"></column>
+        <insert tableName="modalidades">
+            <column name="ID" value="9"></column>
             <column name="UUID" value="1Uy141PVMQfU"></column>
             <column name="NOMBRE" value="IV. Servicios de alarmas y monitoreo electronico"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada para los servicios de alarmas y monitoreo electronico"></column>
+            <column name="DESCRIPCION" value=""></column>
             <column name="TIPO" value="EAFJAL"></column>
             <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -167,13 +173,15 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
-            <column name="ID" value="11"></column>
+        <insert tableName="modalidades">
+            <column name="ID" value="10"></column>
             <column name="UUID" value="QyUGOzpv2F5r"></column>
             <column name="NOMBRE" value="V. Seguridad de la informacion"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada en la seguridad de la informacion"></column>
+            <column name="DESCRIPCION" value=""></column>
             <column name="TIPO" value="EAFJAL"></column>
             <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -181,13 +189,15 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
-            <column name="ID" value="12"></column>
+        <insert tableName="modalidades">
+            <column name="ID" value="11"></column>
             <column name="UUID" value="keUeOBas1UQk"></column>
             <column name="NOMBRE" value="VI. Sistemas de prevencion y responsabilidades"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada para los sistemas de prevencion y responsabilidades"></column>
+            <column name="DESCRIPCION" value=""></column>
             <column name="TIPO" value="EAFJAL"></column>
             <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -195,13 +205,15 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
-            <column name="ID" value="13"></column>
+        <insert tableName="modalidades">
+            <column name="ID" value="12"></column>
             <column name="UUID" value="TTESb2VftWYC"></column>
             <column name="NOMBRE" value="VII. Actividad vinculada con servicios de seguridad privada"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada en los servicios de seguridad privada."></column>
+            <column name="DESCRIPCION" value=""></column>
             <column name="TIPO" value="EAFJAL"></column>
             <column name="SUBCATEGORIAS" valueBoolean="true"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>
@@ -209,13 +221,109 @@
             <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
         </insert>
 
-        <insert tableName="MODALIDADES">
-            <column name="ID" value="14"></column>
+        <!-- RESPRO -->
+        <insert tableName="modalidades">
+            <column name="ID" value="13"></column>
             <column name="UUID" value="uyVC9fZ0gaDH"></column>
             <column name="NOMBRE" value="I. Proteccion y vigilancia"></column>
-            <column name="DESCRIPCION" value="Modalidad enfocada para proteccion y vigilancia de servicios propios."></column>
+            <column name="DESCRIPCION" value=""></column>
             <column name="TIPO" value="RESPRO"></column>
             <column name="SUBCATEGORIAS" valueBoolean="true"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <insert tableName="modalidades">
+            <column name="ID" value="20"></column>
+            <column name="UUID" value="lj2S2aamRG9t"></column>
+            <column name="NOMBRE" value="IX. Los particulares que se dediquen a la comercializacion de prendas de vestir, accesorios, dispositivos, aparatos, sistemas o procedimientos tecnicos especializados relacionados con la seguridad privada"></column>
+            <column name="DESCRIPCION" value=""></column>
+            <column name="TIPO" value="RESPRO"></column>
+            <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+
+        <!-- AP -->
+        <insert tableName="modalidades">
+            <column name="ID" value="14"></column>
+            <column name="UUID" value="aKs25U092npE"></column>
+            <column name="NOMBRE" value="I. Proteccion y vigilancia"></column>
+            <column name="DESCRIPCION" value=""></column>
+            <column name="TIPO" value="AP"></column>
+            <column name="SUBCATEGORIAS" valueBoolean="true"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="modalidades">
+            <column name="ID" value="15"></column>
+            <column name="UUID" value="8fK66ME5mlbE"></column>
+            <column name="NOMBRE" value="II. Custodia y vigilancia de bienes o valores"></column>
+            <column name="DESCRIPCION" value=""></column>
+            <column name="TIPO" value="AP"></column>
+            <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="modalidades">
+            <column name="ID" value="16"></column>
+            <column name="UUID" value="bZV4tUEYvrLI"></column>
+            <column name="NOMBRE" value="III. Traslado y proteccion de bienes o valores"></column>
+            <column name="DESCRIPCION" value=""></column>
+            <column name="TIPO" value="AP"></column>
+            <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="modalidades">
+            <column name="ID" value="17"></column>
+            <column name="UUID" value="piowZ17vgYER"></column>
+            <column name="NOMBRE" value="IV. La instalacion de blindajes en todo tipo de vehiculos automotores y en equipos"></column>
+            <column name="DESCRIPCION" value=""></column>
+            <column name="TIPO" value="AP"></column>
+            <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
+            <column name="ELIMINADO" valueBoolean="false"></column>
+            <column name="CREADO_POR" value="1"></column>
+            <column name="FECHA_CREACION" value="NOW()"></column>
+            <column name="ACTUALIZADO_POR" value="1"></column>
+            <column name="FECHA_ACTUALIZACION" value="NOW()"></column>
+        </insert>
+        <insert tableName="modalidades">
+            <column name="ID" value="18"></column>
+            <column name="UUID" value="IGT0IcLZGfVU"></column>
+            <column name="NOMBRE" value="V. Sistemas de alarmas, instalacion y monitoreo electronico, exceptuandose la instalacion y comercializacion de alarmas en vehiculos automotores o cuando unicamente se brinde planes de asistencia que no represente una actividad de monitoreo constante y permanente"></column>
+            <column name="DESCRIPCION" value=""></column>
+            <column name="TIPO" value="AP"></column>
+            <column name="SUBCATEGORIAS" valueBoolean="false"></column>
+            <column name="CANES" valueBoolean="false"></column>
+            <column name="ARMAS" valueBoolean="false"></column>
             <column name="ELIMINADO" valueBoolean="false"></column>
             <column name="CREADO_POR" value="1"></column>
             <column name="FECHA_CREACION" value="NOW()"></column>

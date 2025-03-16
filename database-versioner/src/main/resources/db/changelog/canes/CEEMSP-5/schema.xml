@@ -5,7 +5,7 @@
 
     <changeSet id="2021-11-14-agregar-columnas-nombre-asignaciones" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <addColumn tableName="CANES">
+        <addColumn tableName="canes">
             <column name="NOMBRE" type="VARCHAR(50)"></column>
             <column name="RAZA_OTRO" type="VARCHAR(50)"></column>
             <column name="RAZON_SOCIAL" type="VARCHAR(100)"></column>

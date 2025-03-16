@@ -1,3 +1,7 @@
 .fakelink {
   cursor: pointer;
 }
+
+.p-column-filter-overlay-menu {
+  z-index: 10000 !important;
+}

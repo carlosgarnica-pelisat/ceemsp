@@ -4,23 +4,28 @@
       <div class="card card1">
         <div class="row justify-content-center my-auto">
           <div class="col-md-8 col-10 my-5">
-            <div class="row justify-content-center px-3 mb-3"><img id="logo" src="assets/logo.png">
+            <div class="row justify-content-center px-3 mb-3"><img id="logo" src="assets/logo-ajustado.png">
             </div>
             <h4 class="mb-5 text-center heading">Empresas</h4>
             <h6 class="msg-info">Ingresa tus datos a continuacion para iniciar sesion</h6>
             <form [formGroup]="loginForm">
               <div class="form-group">
                 <label class="form-control-label text-muted">Correo electronico o registro</label>
-                <input type="email" id="inputEmail" name="email" placeholder="Correo electronico" class="form-control" autofocus formControlName="email" #email>
+                <input type="email" id="inputEmail" name="email" placeholder="Correo electronico" class="form-control"
+                       autofocus formControlName="email" #email>
               </div>
               <div class="form-group">
                 <label class="form-control-label text-muted">Contraseña</label>
-                <input type="password" id="psw" name="password" class="form-control" placeholder="Contraseña" formControlName="password" #password>
+                <input type="password" id="psw" name="password" class="form-control" placeholder="Contraseña"
+                       formControlName="password" #password>
               </div>
               <div class="row justify-content-center my-3 px-3">
                 <button (click)="login()" class="btn-block btn-color" type="submit">Iniciar sesion</button>
               </div>
-              <div class="row justify-content-center my-2"><a href="#"><small class="text-muted">Necesito ayuda</small></a>
+              <div class="row justify-content-center my-2">
+                <a href="assets/formato_restablecimiento_contrasena_siesp.docx" target="_blank">
+                  <small class="text-muted">Si has olvidado tu contraseña, haz clic para descargar el formato de restablecimiento</small>
+                </a>
               </div>
             </form>
           </div>
@@ -28,16 +33,43 @@
       </div>
       <div class="card card2">
         <div class="my-auto mx-md-5 px-md-5 right">
-          <h3 class="text-white">{{comunicadoGeneral?.titulo}}</h3>
-          <small class="text-white" [innerHTML]="comunicadoGeneral?.descripcion">
-          </small>
-          <hr>
-          <a style="cursor: pointer;" class="text-white" (click)="verHistorialComunicados(mostrarHistorialComunicadosModal)">Ver historico de comunicados</a><br>
-          <a style="cursor: pointer;" class="text-white" (click)="verHistorialComunicados(mostrarHistorialComunicadosModal)">Directorio telefonico</a>
+          <div class="row">
+            <div class="col-sm-12" style="max-height: 600px; overflow: hidden; ">
+              <h3 class="text-white">{{comunicadoGeneral?.titulo}}</h3>
+              <small class="text-white" [innerHTML]="comunicadoGeneral?.descripcion | sanitizeHtml">
+              </small>
+            </div>
+            <div class="col-sm-12">
+              <small class="text-white"><a style="cursor: pointer;" (click)="mostrarComunicadoCompleto()">Leer
+                mas</a></small>
+              <hr style="border: 1px solid #fff;">
+              <a style="cursor: pointer;" class="text-white"
+                 (click)="verHistorialComunicados(mostrarHistorialComunicadosModal)">Ver histórico de comunicados</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+  <ng-template #mostrarComunicadoCompletoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarComunicadoCompletoModal">{{comunicadoGeneral?.titulo}} </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <small [innerHTML]="comunicadoGeneral?.descripcion  | sanitizeHtml">
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
 
   <ng-template #mostrarHistorialComunicadosModal let-modal>
     <div class="modal-header">
@@ -48,52 +80,59 @@
     </div>
     <div class="modal-body">
       <div class="row">
-        <div class="col-sm-6">
-          <label for="titulo">
-            <b>Titulo</b>
-          </label>
-          <input id="titulo" class="form-control" placeholder="Ejemplo: Vacaciones" type="text">
-        </div>
-        <div class="col-sm-2">
-          <label for="mes">
-            <b>Selecciona mes</b>
-          </label>
-          <select id="mes" class="form-control">
-            <option value="12">Diciembre</option>
-            <option value="11">Noviembre</option>
-            <option value="10">Octubre</option>
-            <option value="09">Septiembre</option>
-            <option value="08">Agosto</option>
-            <option value="07">Julio</option>
-            <option value="06">Junio</option>
-            <option value="05">Mayo</option>
-            <option value="04">Abril</option>
-            <option value="03">Marzo</option>
-            <option value="02">Febrero</option>
-            <option value="01">Enero</option>
-          </select>
-        </div>
-        <div class="col-sm-2">
-          <label for="ano">
-            <b>Selecciona ano</b>
-          </label>
-          <select id="ano" class="form-control">
-            <option value="2022">2022</option>
-            <option value="2021">2021</option>
-            <option value="2020">2020</option>
-            <option value="2019">2019</option>
-          </select>
-        </div>
-        <div class="col-sm-2">
-          <br>
-          <button class="btn btn-primary">Buscar</button>
+        <div class="col-sm-12">
+          <form [formGroup]="buscarComunicadoForm">
+            <div class="form-row">
+              <div class="col-sm-6">
+                <label for="titulo">
+                  <b>Título</b>
+                </label>
+                <input id="titulo" class="form-control" placeholder="Ejemplo: Vacaciones" type="text" formControlName="titulo">
+              </div>
+              <div class="col-sm-2">
+                <label for="mes">
+                  <b>Mes</b>
+                </label>
+                <select id="mes" class="form-control" formControlName="mes">
+                  <option value="12">Diciembre</option>
+                  <option value="11">Noviembre</option>
+                  <option value="10">Octubre</option>
+                  <option value="9">Septiembre</option>
+                  <option value="8">Agosto</option>
+                  <option value="7">Julio</option>
+                  <option value="6">Junio</option>
+                  <option value="5">Mayo</option>
+                  <option value="4">Abril</option>
+                  <option value="3">Marzo</option>
+                  <option value="2">Febrero</option>
+                  <option value="1">Enero</option>
+                </select>
+              </div>
+              <div class="col-sm-2">
+                <label for="ano">
+                  <b>Año</b>
+                </label>
+                <select id="ano" class="form-control" formControlName="ano">
+                  <option value="2023">2023</option>
+                  <option value="2022">2022</option>
+                  <option value="2021">2021</option>
+                  <option value="2020">2020</option>
+                  <option value="2019">2019</option>
+                </select>
+              </div>
+              <div class="col-sm-2">
+                <button class="btn btn-primary" style="margin-top: 32px;" (click)="buscarComunicados(buscarComunicadoForm)" >Buscar</button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
       <hr>
-      <div class="row" >
+      <div class="row">
         <div class="col-sm-4">
           <div class="list-group">
-            <a *ngFor="let c of comunicadosGenerales" class="list-group-item list-group-item-action fakelink" [ngClass]="{ 'active': comunicadoUuid === c?.uuid }" (click)="obtenerComunicado(c?.uuid)">
+            <a *ngFor="let c of comunicadosGenerales" class="list-group-item list-group-item-action fakelink"
+               [ngClass]="{ 'active': comunicadoUuid === c?.uuid }" (click)="obtenerComunicado(c?.uuid)">
               <b>{{c?.titulo?.length > 25 ? c?.titulo?.slice(0, 25) + "..." : c?.titulo}}</b><br>
               Publicado el {{c?.fechaPublicacion}}
             </a>
@@ -105,7 +144,7 @@
             <div class="col-sm-12">
               <h4>{{comunicado?.titulo}}</h4>
             </div>
-            <div class="col-sm-12" [innerHTML]="comunicado?.descripcion">
+            <div class="col-sm-12" [innerHTML]="comunicado?.descripcion | sanitizeHtml">
 
             </div>
           </div>
@@ -115,7 +154,7 @@
       <div class="row">
         <div class="col-sm-12">
           <p class="text-center"><i>Solo se muestran los ultimos 5 comunicados. Utilice el formulario de arriba para
-          buscar comunicados anteriores</i></p>
+            buscar comunicados anteriores</i></p>
         </div>
       </div>
     </div>

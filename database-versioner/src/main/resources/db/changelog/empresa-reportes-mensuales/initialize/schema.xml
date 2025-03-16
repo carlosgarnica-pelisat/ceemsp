@@ -1,0 +1,56 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2023-04-16-crear-tabla-empresas-reportes-mensuales" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="empresas_reportes_mensuales">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="varchar(12)"></column>
+            <column name="EMPRESA" type="int"></column>
+            <column name="PERSONAL_ACTIVOS" type="int"></column>
+            <column name="PERSONAL_ALTAS" type="int"></column>
+            <column name="PERSONAL_BAJAS" type="int"></column>
+            <column name="PERSONAL_TOTAL" type="int"></column>
+            <column name="CLIENTES_ACTIVOS" type="int"></column>
+            <column name="CLIENTES_ALTAS" type="int"></column>
+            <column name="CLIENTES_BAJAS" type="int"></column>
+            <column name="CLIENTES_TOTAL" type="int"></column>
+            <column name="VEHICULOS_ACTIVOS" type="int"></column>
+            <column name="VEHICULOS_ALTAS" type="int"></column>
+            <column name="VEHICULOS_BAJAS" type="int"></column>
+            <column name="VEHICULOS_TOTAL" type="int"></column>
+            <column name="EQUIPO_ACTIVOS" type="int"></column>
+            <column name="EQUIPO_ALTAS" type="int"></column>
+            <column name="EQUIPO_BAJAS" type="int"></column>
+            <column name="EQUIPO_TOTAL" type="int"></column>
+            <column name="UNIFORMES_ACTIVOS" type="int"></column>
+            <column name="UNIFORMES_ALTAS" type="int"></column>
+            <column name="UNIFORMES_BAJAS" type="int"></column>
+            <column name="UNIFORMES_TOTAL" type="int"></column>
+            <column name="INCIDENCIAS_REPORTADAS" type="int"></column>
+            <column name="INCIDENCIAS_TOTAL" type="int"></column>
+            <column name="CANES_ASIGNADOS" type="int"></column>
+            <column name="CANES_INSTALACIONES" type="int"></column>
+            <column name="CANES_ALTAS" type="int"></column>
+            <column name="CANES_BAJAS" type="int"></column>
+            <column name="CANES_TOTAL" type="int"></column>
+            <column name="CADENA_ORIGINAL" type="text"></column>
+            <column name="SELLO" type="text"></column>
+            <column name="SELLO_SALT" type="VARCHAR(10)"></column>
+            <column name="ELIMINADO" type="bit" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="int"></column>
+            <column name="FECHA_ACTUALIZACION" type="datetime" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="int"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="empresas_reportes_mensuales" columnNames="ID" />
+        <addAutoIncrement tableName="empresas_reportes_mensuales" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="empresas_reportes_mensuales" columnNames="UUID" />
+    </changeSet>
+</databaseChangeLog>

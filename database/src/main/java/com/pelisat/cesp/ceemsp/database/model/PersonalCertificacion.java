@@ -31,4 +31,7 @@ public class PersonalCertificacion extends CommonModel {
 
     @Column(name = "FECHA_FIN", nullable = false)
     private LocalDate fechaFin;
+
+    @Column(name = "RUTA_ARCHIVO", nullable = false)
+    private String rutaArchivo;
 }

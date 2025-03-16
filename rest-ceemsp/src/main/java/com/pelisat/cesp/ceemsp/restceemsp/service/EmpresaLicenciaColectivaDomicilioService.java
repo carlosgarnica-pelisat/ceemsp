@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface EmpresaLicenciaColectivaDomicilioService {
     List<EmpresaDomicilioDto> obtenerDomiciliosPorLicenciaColectiva(String empresaUuid, String licenciaColectivaUuid);
+    List<EmpresaDomicilioDto> obtenerTodosDomiciliosPorLicenciaColectiva(String empresaUuid, String licenciaColectivaUuid);
     EmpresaDomicilioDto guardarDomicilioEnLicenciaColectiva(String empresaUuid, String licenciaColectivaUuid, String username, EmpresaDomicilioDto empresaDomicilioDto);
     EmpresaDomicilioDto eliminarDomicilioEnLicenciaColectiva(String empresaUuid, String licenciaColectivaUuid, String domicilioUuid, String username);
 }

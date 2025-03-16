@@ -1,0 +1,26 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2024-06-18-cambiar-indices-unicos" author="carlos.garnica@pelisat.com.mx">
+        <dropUniqueConstraint
+                constraintName="CURP"
+                tableName="empresas"/>
+
+        <dropUniqueConstraint
+                constraintName="RFC"
+                tableName="empresas"/>
+
+        <!-- Crear la nueva llave única compuesta -->
+        <addUniqueConstraint
+                columnNames="CURP, UUID"
+                constraintName="unique_curp_uuid"
+                tableName="empresas"/>
+
+        <addUniqueConstraint
+                columnNames="RFC, UUID"
+                constraintName="unique_rfc_uuid"
+                tableName="empresas"/>
+    </changeSet>
+</databaseChangeLog>

@@ -5,6 +5,8 @@ import com.pelisat.cesp.ceemsp.database.dto.EmpresaEquipoDto;
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.CommonModel;
 import com.pelisat.cesp.ceemsp.database.model.EmpresaEquipo;
+import com.pelisat.cesp.ceemsp.database.model.EmpresaEquipoMovimiento;
+import com.pelisat.cesp.ceemsp.database.repository.EmpresaEquipoMovimientoRepository;
 import com.pelisat.cesp.ceemsp.database.repository.EmpresaEquipoRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.MissingRelationshipException;
@@ -16,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,10 +34,12 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
     private final UsuarioService usuarioService;
     private final EquipoService equipoService;
     private final DaoHelper<CommonModel> daoHelper;
+    private final EmpresaEquipoMovimientoRepository empresaEquipoMovimientoRepository;
 
     public EmpresaEquipoServiceImpl(DaoToDtoConverter daoToDtoConverter, DtoToDaoConverter dtoToDaoConverter,
                                     EmpresaEquipoRepository empresaEquipoRepository, EmpresaService empresaService,
-                                    UsuarioService usuarioService, EquipoService equipoService, DaoHelper<CommonModel> daoHelper) {
+                                    UsuarioService usuarioService, EquipoService equipoService, DaoHelper<CommonModel> daoHelper,
+                                    EmpresaEquipoMovimientoRepository empresaEquipoMovimientoRepository) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.dtoToDaoConverter = dtoToDaoConverter;
         this.empresaEquipoRepository = empresaEquipoRepository;
@@ -42,6 +47,7 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
         this.usuarioService = usuarioService;
         this.equipoService = equipoService;
         this.daoHelper = daoHelper;
+        this.empresaEquipoMovimientoRepository = empresaEquipoMovimientoRepository;
     }
 
     @Override
@@ -63,7 +69,7 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
 
     @Override
     public EmpresaEquipoDto obtenerEquipoPorUuid(String empresaUuid, String equipoUuid) {
-        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(empresaUuid)) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(equipoUuid)) {
             logger.warn("El uuid de la empresa o del equipo vienen como nulos o vacios");
             throw new InvalidDataException();
         }
@@ -82,12 +88,16 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
             throw new MissingRelationshipException();
         }
 
+        List<EmpresaEquipoMovimiento> movimientos = empresaEquipoMovimientoRepository.getAllByEmpresaEquipoAndEliminadoFalse(empresaEquipo.getId());
+
         EmpresaEquipoDto empresaEquipoDto = daoToDtoConverter.convertDaoToDtoEmpresaEquipo(empresaEquipo);
         empresaEquipoDto.setEquipo(equipoService.obtenerEquipoPorId(empresaEquipo.getEquipo()));
+        empresaEquipoDto.setMovimientos(movimientos.stream().map(daoToDtoConverter::convertDaoToDtoEmpresaEquipoMovimiento).collect(Collectors.toList()));
         return empresaEquipoDto;
     }
 
     @Override
+    @Transactional
     public EmpresaEquipoDto guardarEquipo(String empresaUuid, String usuario, EmpresaEquipoDto empresaEquipoDto) {
         if(StringUtils.isBlank(usuario) || StringUtils.isBlank(empresaUuid) || empresaEquipoDto == null) {
             logger.warn("El usuario, la empresa o el uniforme a crear vienen como nulos o vacios");
@@ -104,6 +114,64 @@ public class EmpresaEquipoServiceImpl implements EmpresaEquipoService {
         empresaEquipo.setEmpresa(empresaDto.getId());
         empresaEquipo.setEquipo(empresaEquipoDto.getEquipo().getId());
         empresaEquipo.setCantidad(empresaEquipoDto.getCantidad());
+        EmpresaEquipo empresaEquipoCreado = empresaEquipoRepository.save(empresaEquipo);
+
+        EmpresaEquipoMovimiento empresaEquipoMovimiento = dtoToDaoConverter.convertDtoToDaoEmpresaEquipoMovimiento(empresaEquipoDto.getMovimientos().get(0));
+        empresaEquipoMovimiento.setEmpresaEquipo(empresaEquipoCreado.getId());
+        daoHelper.fulfillAuditorFields(true, empresaEquipoMovimiento, usuarioDto.getId());
+        empresaEquipoMovimientoRepository.save(empresaEquipoMovimiento);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaEquipo(empresaEquipoCreado);
+    }
+
+    @Override
+    @Transactional
+    public EmpresaEquipoDto modificarEquipo(String empresaUuid, String equipoUuid, String usuario, EmpresaEquipoDto empresaEquipoDto) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(equipoUuid) || StringUtils.isBlank(usuario) || empresaEquipoDto == null) {
+            logger.warn("Alguno de los parametros viene como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando el equipo con el uuid [{}]", equipoUuid);
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(usuario);
+        EmpresaEquipo empresaEquipo = empresaEquipoRepository.findByUuidAndEliminadoFalse(equipoUuid);
+        if(empresaEquipo == null) {
+            logger.warn("El equipo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaEquipo.setCantidad(empresaEquipoDto.getCantidad());
+        daoHelper.fulfillAuditorFields(false, empresaEquipo, usuarioDto.getId());
+        EmpresaEquipo empresaEquipoCreado = empresaEquipoRepository.save(empresaEquipo);
+
+        EmpresaEquipoMovimiento empresaEquipoMovimiento = dtoToDaoConverter.convertDtoToDaoEmpresaEquipoMovimiento(empresaEquipoDto.getMovimientos().get(0));
+        empresaEquipoMovimiento.setEmpresaEquipo(empresaEquipoCreado.getId());
+        daoHelper.fulfillAuditorFields(true, empresaEquipoMovimiento, usuarioDto.getId());
+        empresaEquipoMovimientoRepository.save(empresaEquipoMovimiento);
+
+        return daoToDtoConverter.convertDaoToDtoEmpresaEquipo(empresaEquipoCreado);
+    }
+
+    @Override
+    @Transactional
+    public EmpresaEquipoDto eliminarEquipo(String empresaUuid, String equipoUuid, String usuario) {
+        if(StringUtils.isBlank(empresaUuid) || StringUtils.isBlank(equipoUuid) || StringUtils.isBlank(usuario)) {
+            logger.warn("Alguno de los parametros viene como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando el equipo con el uuid [{}]", equipoUuid);
+
+        UsuarioDto usuarioDto = usuarioService.getUserByEmail(usuario);
+        EmpresaEquipo empresaEquipo = empresaEquipoRepository.findByUuidAndEliminadoFalse(equipoUuid);
+        if(empresaEquipo == null) {
+            logger.warn("El equipo no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        empresaEquipo.setEliminado(true);
+        daoHelper.fulfillAuditorFields(false, empresaEquipo, usuarioDto.getId());
         EmpresaEquipo empresaEquipoCreado = empresaEquipoRepository.save(empresaEquipo);
 
         return daoToDtoConverter.convertDaoToDtoEmpresaEquipo(empresaEquipoCreado);

@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -79,7 +80,7 @@ public class ArmaClaseServiceImpl implements ArmaClaseService {
             throw new InvalidDataException();
         }
 
-        logger.info("Consultando la clase del arma con el id [{}]", id);
+        logger.debug("Consultando la clase del arma con el id [{}]", id);
 
         ArmaClase armaClase = armaClaseRepository.getOne(id);
 
@@ -92,6 +93,7 @@ public class ArmaClaseServiceImpl implements ArmaClaseService {
     }
 
     @Override
+    @Transactional
     public ArmaClaseDto crearNuevo(ArmaClaseDto armaClaseDto, String username) {
         if(armaClaseDto == null || StringUtils.isBlank(username)) {
             logger.warn("La clase del arma o el usuario estan viniendo como nulos o vacios");
@@ -109,12 +111,59 @@ public class ArmaClaseServiceImpl implements ArmaClaseService {
     }
 
     @Override
+    @Transactional
     public ArmaClaseDto modificar(ArmaClaseDto armaClaseDto, String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || armaClaseDto == null) {
+            logger.warn("Alguno de los campos vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando la clase del arma con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        ArmaClase armaClase = armaClaseRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(armaClase == null) {
+            logger.warn("La marca no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        armaClase.setNombre(armaClaseDto.getNombre());
+        armaClase.setDescripcion(armaClaseDto.getDescripcion());
+        armaClase.setFechaActualizacion(LocalDateTime.now());
+        armaClase.setActualizadoPor(usuario.getId());
+
+        armaClaseRepository.save(armaClase);
+
+        return daoToDtoConverter.convertDaoToDtoArmaClase(armaClase);
     }
 
     @Override
+    @Transactional
     public ArmaClaseDto eliminar(String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la clase del arma con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        ArmaClase armaClase = armaClaseRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(armaClase == null) {
+            logger.warn("La clase del arma no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        armaClase.setEliminado(true);
+        armaClase.setFechaActualizacion(LocalDateTime.now());
+        armaClase.setActualizadoPor(usuario.getId());
+
+        armaClaseRepository.save(armaClase);
+
+        return daoToDtoConverter.convertDaoToDtoArmaClase(armaClase);
     }
 }

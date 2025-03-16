@@ -35,6 +35,13 @@ public class EmpresaLicenciaColectivaController {
         return empresaLicenciaColectivaService.obtenerLicenciasColectivasPorEmpresa(empresaUuid);
     }
 
+    @GetMapping(value = EMPRESA_LICENCIAS_URI + "/eliminados", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<EmpresaLicenciaColectivaDto> obtenerLicenciasColectivasEliminadasPorEmpresa(
+            @PathVariable(value = "empresaUuid") String empresaUuid
+    ) {
+        return empresaLicenciaColectivaService.obtenerLicenciasColectivasEliminadasPorEmpresa(empresaUuid);
+    }
+
     @GetMapping(value = EMPRESA_LICENCIAS_URI + "/{licenciaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public EmpresaLicenciaColectivaDto obtenerLicenciaColectiva(
             @PathVariable(value = "empresaUuid") String empresaUuid,
@@ -58,6 +65,21 @@ public class EmpresaLicenciaColectivaController {
         return new ResponseEntity<>(isr, httpHeaders, HttpStatus.OK);
     }
 
+    @GetMapping(value = EMPRESA_LICENCIAS_URI + "/{licenciaUuid}/documentos/fundatorios")
+    public ResponseEntity<InputStreamResource> descargarDocumentoFundatorio(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "licenciaUuid") String licenciaUuid
+    ) throws Exception {
+        File file = empresaLicenciaColectivaService.descargarDocumentoFundatorio(empresaUuid, licenciaUuid);
+        HttpHeaders httpHeaders = new HttpHeaders();
+
+        httpHeaders.setContentType(MediaType.APPLICATION_PDF);
+        httpHeaders.setContentLength(file.length());
+        httpHeaders.setContentDispositionFormData("attachment", file.getName());
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(file));
+        return new ResponseEntity<>(isr, httpHeaders, HttpStatus.OK);
+    }
+
     @PostMapping(value = EMPRESA_LICENCIAS_URI, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public EmpresaLicenciaColectivaDto guardarLicenciaColectiva(
             @PathVariable(value = "empresaUuid") String empresaUuid,
@@ -69,24 +91,27 @@ public class EmpresaLicenciaColectivaController {
         return empresaLicenciaColectivaService.guardarLicenciaColectiva(empresaUuid, username, new Gson().fromJson(licencia, EmpresaLicenciaColectivaDto.class), archivo);
     }
 
-    @PutMapping(value = EMPRESA_LICENCIAS_URI + "/{licenciaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_LICENCIAS_URI + "/{licenciaUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public EmpresaLicenciaColectivaDto modificarLicenciaColectiva(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "licenciaUuid") String licenciaUuid,
             HttpServletRequest httpServletRequest,
-            @RequestBody EmpresaLicenciaColectivaDto empresaLicenciaColectivaDto
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
+            @RequestParam("licencia") String licencia
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
-        return empresaLicenciaColectivaService.modificarLicenciaColectiva(empresaUuid, licenciaUuid, username, empresaLicenciaColectivaDto);
+        return empresaLicenciaColectivaService.modificarLicenciaColectiva(empresaUuid, licenciaUuid, username, new Gson().fromJson(licencia, EmpresaLicenciaColectivaDto.class), archivo);
     }
 
-    @DeleteMapping(value = EMPRESA_LICENCIAS_URI + "/{licenciaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = EMPRESA_LICENCIAS_URI + "/{licenciaUuid}/borrar", produces = MediaType.APPLICATION_JSON_VALUE)
     public EmpresaLicenciaColectivaDto eliminarLicenciaColectiva(
             @PathVariable(value = "empresaUuid") String empresaUuid,
             @PathVariable(value = "licenciaUuid") String licenciaUuid,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo,
+            @RequestParam("licencia") String licencia,
             HttpServletRequest httpServletRequest
     ) throws Exception {
         String username = jwtUtils.getUserFromToken(httpServletRequest.getHeader("Authorization"));
-        return empresaLicenciaColectivaService.eliminarLicenciaColectiva(empresaUuid, licenciaUuid, username);
+        return empresaLicenciaColectivaService.eliminarLicenciaColectiva(empresaUuid, licenciaUuid, username, new Gson().fromJson(licencia, EmpresaLicenciaColectivaDto.class), archivo);
     }
 }

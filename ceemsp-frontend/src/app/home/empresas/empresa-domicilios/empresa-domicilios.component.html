@@ -3,9 +3,9 @@
 
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Domicilios</h1>
+    <h1 class="h3 mb-0 text-gray-800">Domicilios <span *ngIf="mostrandoEliminados">(eliminados)</span></h1>
     <div class="btn-group">
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalCrear(crearDomicilioModal)">Nueva direccion</button>
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalCrear(crearDomicilioModal)">Nuevo domicilio</button>
       <div class="dropdown">
         <button class="d-none d-sm-inline-block btn btn-sm btn-secondary dropdown-toggle" type="button" id="mostrarColumnasDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Mostrar / Ocultar columnas
@@ -19,7 +19,10 @@
           Opciones
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar direcciones como Excel (csv)</a>
+          <a class="dropdown-item" *ngIf="!mostrandoEliminados" (click)="mostrarEliminados()">Mostrar eliminados</a>
+          <a class="dropdown-item" *ngIf="mostrandoEliminados" (click)="ocultarEliminados()">Ocultar eliminados</a>
+          <a class="dropdown-item" (click)="exportGridData('CSV')">Descargar como CSV</a>
+          <a class="dropdown-item" (click)="generarReporteExcel()">Descargar como Excel</a>
         </div>
       </div>
     </div>
@@ -29,19 +32,26 @@
   <div class="row">
     <div class="col-sm-3">
       <div class="list-group">
-        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action">
-          Detalles
+        <a routerLink="/home/empresas/{{uuid}}" class="list-group-item list-group-item-action flex-column align-items-start">
+          <p class="mb-1">
+            <b>Registro: </b>{{empresa?.registro}}<br>
+            <b>Nombre comercial: </b> {{empresa?.nombreComercial}}<br>
+            <b>Razon social: </b> {{empresa?.razonSocial}}<br>
+          </p>
         </a>
+        <a routerLink="/home/empresas/{{uuid}}/acuerdos" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Acuerdos</a>
         <a routerLink="/home/empresas/{{uuid}}/domicilios" class="list-group-item list-group-item-action active">Domicilios</a>
-        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action">Legal</a>
-        <a routerLink="/home/empresas/{{uuid}}/licencias" class="list-group-item list-group-item-action">Licencias colectivas / Armas</a>
-        <a routerLink="/home/empresas/{{uuid}}/canes" class="list-group-item list-group-item-action">Canes</a>
-        <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehiculos</a>
+        <a routerLink="/home/empresas/{{uuid}}/legal" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Legal</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/licencias" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneArmas">Licencias colectivas / Armas</a>
+        <a routerLink="/home/empresas/{{empresa?.uuid}}/canes" class="list-group-item list-group-item-action" *ngIf="empresa?.tieneCanes">Canes</a>
+        <a routerLink="/home/empresas/{{uuid}}/vehiculos" class="list-group-item list-group-item-action">Vehículos</a>
         <a routerLink="/home/empresas/{{uuid}}/incidencias" class="list-group-item list-group-item-action">Incidencias</a>
-        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action">Clientes</a>
+        <a routerLink="/home/empresas/{{uuid}}/clientes" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Clientes</a>
         <a routerLink="/home/empresas/{{uuid}}/personal" class="list-group-item list-group-item-action">Personal</a>
         <a routerLink="/home/empresas/{{uuid}}/equipo" class="list-group-item list-group-item-action">Equipo / Fornituras</a>
         <a routerLink="/home/empresas/{{uuid}}/uniformes" class="list-group-item list-group-item-action">Uniformes</a>
+        <a routerLink="/home/empresas/{{uuid}}/visitas" class="list-group-item list-group-item-action" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Visitas</a>
+        <a routerLink="/home/empresas/{{uuid}}/reportes-mensuales" class="list-group-item list-group-item-action">Reportes mensuales</a>
       </div>
     </div>
     <div class="col-sm-9" style="background: white">
@@ -60,7 +70,7 @@
 
   <ng-template #mostrarDetallesDomicilioModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title" id="mostrarDetallesDomicilioModal">Detalles del domicilio </h4>
+      <h4 class="modal-title" id="mostrarDetallesDomicilioModal">Detalles del domicilio {{domicilio?.nombre}} <span *ngIf="domicilio?.eliminado">(eliminado)</span> </h4>
       <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
         <span aria-hidden="true">×</span>
       </button>
@@ -68,31 +78,127 @@
     <div class="modal-body">
       <div class="row">
         <div class="col-sm-12">
+          <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'DETALLES' }" (click)="cambiarPestana('DETALLES')">Detalles</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fakelink" [ngClass]="{ 'active': pestanaActual === 'TELEFONOS' }" (click)="cambiarPestana('TELEFONOS')">Teléfonos</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row" *ngIf="pestanaActual === 'DETALLES'">
+        <div class="col-sm-12">
           <table class="table">
             <tr>
               <td><b>Nombre del domicilio:</b></td>
               <td>{{domicilio?.nombre}}</td>
             </tr>
             <tr>
-              <td><b>Direccion completa:</b></td>
-              <td>{{domicilio?.domicilio1 + " " + domicilio?.numeroExterior + " " + domicilio.numeroInterior + ". Colonia: " + domicilio?.domicilio2 + ", " + domicilio?.domicilio3 + ", " + domicilio?.domicilio4 }}</td>
+              <td><b>Dirección completa:</b></td>
+              <td>{{domicilio?.domicilio1 + " " + domicilio?.numeroExterior + ((domicilio?.numeroInterior !== "") ? " Int. " + domicilio?.numeroInterior : "") + ". Colonia: " + domicilio?.domicilio2 + ", " + domicilio?.domicilio3 + ", " + domicilio?.domicilio4 }}</td>
             </tr>
-            <tr>
-              <td><b>Telefono de contacto (fijo):</b></td>
-              <td>{{domicilio?.telefonoFijo }}</td>
+            <tr *ngIf="domicilio?.eliminado">
+              <td><b>Motivo de la baja:</b></td>
+              <td>{{domicilio?.motivoBaja}}</td>
             </tr>
-            <tr>
-              <td><b>Telefono de contacto (movil):</b></td>
-              <td>{{domicilio?.telefonoMovil}}</td>
+            <tr *ngIf="domicilio?.eliminado">
+              <td><b>Fecha de baja:</b></td>
+              <td>{{domicilio?.fechaBaja}}</td>
             </tr>
-
+            <tr *ngIf="domicilio?.eliminado">
+              <td><b>Observaciones de baja:</b></td>
+              <td>{{domicilio?.observacionesBaja}}</td>
+            </tr>
+            <tr *ngIf="usuarioActual.rol !== 'CEEMSP_USER'">
+              <td><b>Fecha de creación:</b></td>
+              <td>{{domicilio?.fechaCreacion}}</td>
+            </tr>
+            <tr *ngIf="usuarioActual.rol === 'CEEMSP_SUPERUSER'">
+              <td><b>Última actualización:</b></td>
+              <td>{{domicilio?.fechaActualizacion}}</td>
+            </tr>
           </table>
+        </div>
+      </div>
+      <div class="row" *ngIf="(domicilio?.latitud !== null && domicilio?.longitud !== null) && pestanaActual === 'DETALLES'">
+        <div class="col-sm-12">
+          <agm-map [latitude]="stringToNumber(this.domicilio?.latitud)" [longitude]="stringToNumber(this.domicilio?.longitud)" [zoom]="16">
+            <agm-marker [latitude]="stringToNumber(this.domicilio?.latitud)" [longitude]="stringToNumber(this.domicilio?.longitud)">
+              <agm-info-window>Aquí se encuentra el domicilio</agm-info-window>
+            </agm-marker>
+          </agm-map>
+        </div>
+      </div>
+      <div class="row" *ngIf="pestanaActual === 'TELEFONOS'">
+        <div class="col-sm-12">
+          <p-table #tablaEmpresaModalidades [value]="domicilio?.telefonos" [autoLayout]="true" [resizableColumns]="true" [globalFilterFields]="['tipoTelefono','telefono']"
+                   [paginator]="true" [rows]="5" currentPageReportTemplate="Mostrando los resultados del {first} to {last} de un total de {totalRecords}" [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-sm-6">
+                  <h5 style="margin-top: 6px;">Teléfonos del domicilio</h5>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control" type="text" (input)="tablaEmpresaModalidades.filterGlobal($event.target.value, 'contains')" placeholder="Buscar telefono" />
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="tipoTelefono"><b>Tipo <p-sortIcon field="tipoTelefono"></p-sortIcon></b></th>
+                <th pSortableColumn="telefono"><b>Teléfono <p-sortIcon field="telefono"></p-sortIcon></b></th>
+                <th><b>Opciones</b></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="3">No hay telefonos creados en este momento. <a class="fakelink" (click)="mostrarModalAgregarTelefono()" *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'">Da clic aquí para crear uno</a></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-telefono>
+              <tr>
+                <td>{{telefono?.tipoTelefono}}</td>
+                <td>{{telefono?.telefono}}</td>
+                <td>
+                  <fa-icon [icon]="faPencil" *ngIf="!domicilio?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarEditarTelefonoForm(telefono?.uuid)"></fa-icon>
+                  <fa-icon [icon]="faTrash" *ngIf="!domicilio?.eliminado && usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" (click)="mostrarModalEliminarTelefono(telefono?.uuid)"></fa-icon>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+              <div class="row">
+                <div class="col-sm-6">
+                  <p style="margin-top: 6px; margin-bottom: 0px;">Hay en total {{domicilio?.telefonos?.length}} teléfonos</p>
+                </div>
+              </div>
+            </ng-template>
+          </p-table>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="mostrarModificarDomicilioModal()">Modificar</button>
-      <button type="button" class="btn btn-danger" (click)="mostrarEliminarEmpresaModal()">Eliminar</button>
+      <button class="btn btn-primary" (click)="descargarDocumentoFundatorio()" *ngIf="domicilio?.eliminado && (domicilio?.documentoFundatorioBaja !== null)">Descargar documento fundatorio</button>
+      <button class="btn btn-primary" *ngIf="(usuarioActual?.rol !== 'CEEMSP_READ_ONLY') && (!domicilio?.eliminado && pestanaActual === 'DETALLES')" (click)="mostrarModificarDomicilioModal()">Modificar</button>
+      <button type="button" class="btn btn-danger" *ngIf="(usuarioActual?.rol !== 'CEEMSP_READ_ONLY') && (!domicilio?.eliminado && pestanaActual === 'DETALLES')" (click)="mostrarEliminarEmpresaModal()">Eliminar</button>
+      <button class="btn btn-primary" *ngIf="(usuarioActual?.rol !== 'CEEMSP_READ_ONLY') && (!domicilio?.eliminado && pestanaActual === 'TELEFONOS')" (click)="mostrarModalAgregarTelefono()">Agregar teléfono</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarDomicilioTelefonoModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarDomicilioTelefonoModal">Eliminando el teléfono </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Estás a punto de eliminar el télefono. Toma en cuenta que esta operación no se puede deshacer. ¿Deseas continuar?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmarEliminarTelefono()">Si, eliminar</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como está</button>
     </div>
   </ng-template>
 
@@ -104,15 +210,54 @@
       </button>
     </div>
     <div class="modal-body">
+      <form [formGroup]="motivosEliminacionForm">
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="motivoBaja">
+              <b>Motivo de la baja *</b>
+              <span
+                *ngIf="motivosEliminacionForm.controls['motivoBaja'].invalid && (motivosEliminacionForm.controls['motivoBaja'].dirty || motivosEliminacionForm.controls['motivoBaja'].touched)">
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="motivosEliminacionForm.controls['motivoBaja'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                  </span>
+            </label>
+            <input id="motivoBaja" type="text" class="form-control" placeholder="Ej. Motivo de la baja" formControlName="motivoBaja" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="fechaBaja">
+              <b>Fecha de la baja *</b>
+            </label>
+            <span
+              *ngIf="motivosEliminacionForm.controls['fechaBaja'].invalid && (motivosEliminacionForm.controls['fechaBaja'].dirty || motivosEliminacionForm.controls['fechaBaja'].touched)">
+              <i *ngIf="motivosEliminacionForm.controls['fechaBaja'].errors.required" class="text-danger"> - Campo requerido</i>
+            </span>
+            <input id="fechaBaja" type="date" class="form-control" formControlName="fechaBaja" [max]="fechaDeHoy" #nombre>
+          </div>
+          <div class="col-sm-4">
+            <label for="documentoFundatorioBaja">
+              <b>Documento fundatorio</b>
+            </label>
+            <input id="documentoFundatorioBaja" class="form-control" formControlName="file" type="file" accept="application/pdf" (change)="onFileChange($event)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="observacionesBaja">
+              <b>Observaciones</b>
+            </label>
+            <textarea id="observacionesBaja" type="text" class="form-control" placeholder="Describir detalladamente la razon de la baja" formControlName="observacionesBaja" #descripcion></textarea>
+          </div>
+        </div>
+      </form>
       <div class="row">
         <div class="col-sm-12">
-          <p>Estas a punto de eliminar un domicilio. Esta operacion no puede ser deshecha. Deseas continuar?</p>
+          <p><br><b>Estás a punto de eliminar un domicilio. Toma en cuenta que esta operación no podra deshacerse. ¿Deseas continuar?</b></p>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmarEliminarDomicilio()">Si, eliminar</button>
-      <button type="button" class="btn btn-info" (click)="modal.close('Save click')">No, dejarlo como esta</button>
+      <button class="btn btn-danger" (click)="confirmarEliminarDomicilio(motivosEliminacionForm)">Si, eliminar</button>
+      <button type="button" class="btn btn-primary" (click)="modal.close('Save click')">No, dejarlo como está</button>
     </div>
   </ng-template>
 
@@ -140,16 +285,16 @@
                 <input id="nombreEditar" type="text" class="form-control" placeholder="Ej. Sucursal del norte, Matriz" formControlName="nombre" #nombre>
               </div>
               <div class="col-sm-3">
-                <label for="matriz">
+                <label for="matrizEditar">
                   <b>Tipo *</b>
                   <span
                     *ngIf="modificarDomicilioForm.controls['matriz'].invalid && (modificarDomicilioForm.controls['matriz'].dirty || modificarDomicilioForm.controls['matriz'].touched)">
                     <i *ngIf="modificarDomicilioForm.controls['matriz'].errors.required" class="text-danger"> - Campo requerido</i>
                   </span>
                 </label>
-                <select id="matriz" formControlName="matriz" class="form-control">
-                  <option value="true">MATRIZ</option>
-                  <option value="false">SUCURSAL</option>
+                <select id="matrizEditar" formControlName="matriz" class="form-control">
+                  <option value="true">Matriz</option>
+                  <option value="false">Sucursal</option>
                 </select>
               </div>
             </div>
@@ -159,14 +304,14 @@
                 <label>
                   <b>Estado *</b>
                 </label>
-                <div class="dropdown" id="customer">
+                <div class="dropdown" id="estadoEditar">
                   <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
                     {{estado === undefined ? 'Ninguno' : estado?.nombre}}
                   </a>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                     <form [formGroup]="estadoSearchForm" class="px-4 py-3">
-                      <label for="estadoSearchQuery"><b>Buscar por nombre</b></label>
-                      <input type="text" class="form-control" id="estadoSearchQuery" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
+                      <label for="estadoSearchQueryEditar"><b>Buscar por nombre</b></label>
+                      <input type="text" class="form-control" id="estadoSearchQueryEditar" placeholder="Ej. Jalisco" [(ngModel)]="estadoQuery"
                              [ngModelOptions]="{standalone: true}" autocomplete="off">
                     </form>
                     <div class="dropdown-divider"></div>
@@ -183,12 +328,12 @@
                   <b>Municipio *</b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
+                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre.substring(0, 20)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="municipioSearchForm" class="px-4 py-3">
-                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
-                    <input type="text" class="form-control" id="municipioSearchQuery" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
+                    <label for="municipioSearchQueryEditar"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="municipioSearchQueryEditar" placeholder="Ej. Guadalajara" [(ngModel)]="municipioQuery"
                            [ngModelOptions]="{standalone: true}" autocomplete="off">
                   </form>
                   <div class="dropdown-divider"></div>
@@ -199,17 +344,17 @@
                   <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-6">
                 <label>
                   <b>Localidad *</b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
+                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre.substring(0, 60)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="localidadSearchForm" class="px-4 py-3">
-                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
-                    <input type="text" class="form-control" id="localidadSearchQuery" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
+                    <label for="localidadSearchQueryEditar"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="localidadSearchQueryEditar" placeholder="Ej. Copalita" [(ngModel)]="localidadQuery"
                            [ngModelOptions]="{standalone: true}" autocomplete="off">
                   </form>
                   <div class="dropdown-divider"></div>
@@ -220,17 +365,20 @@
                   <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-3">
+            </div>
+
+            <div class="row">
+              <div class="col-sm-6">
                 <label>
                   <b>Colonia *</b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{colonia === undefined ? 'Ninguno' : colonia?.nombre}}
+                  {{colonia === undefined ? 'Ninguno' : colonia?.nombre.substring(0, 60)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="municipioSearchForm" class="px-4 py-3">
-                    <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
-                    <input type="text" class="form-control" id="coloniaSearchQuery" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
+                    <label for="coloniaSearchQueryEditar"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="coloniaSearchQueryEditar" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
                            [ngModelOptions]="{standalone: true}" autocomplete="off">
                   </form>
                   <div class="dropdown-divider"></div>
@@ -241,20 +389,17 @@
                   <a class="dropdown-item" *ngIf="colonia !== undefined" (click)="eliminarColonia()">Quitar</a>
                 </div>
               </div>
-            </div>
-
-            <div class="row">
-              <div class="col-sm-4">
+              <div class="col-sm-6">
                 <label>
                   <b>Calle * </b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{calle === undefined ? 'Ninguno' : calle?.nombre}}
+                  {{calle === undefined ? 'Ninguno' : calle?.nombre.substring(0, 60)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="calleSearchForm" class="px-4 py-3">
-                    <label for="calleSearchQuery"><b>Buscar por nombre</b></label>
-                    <input type="text" class="form-control" id="calleSearchQuery" placeholder="Ej. Av. Empresarios" [(ngModel)]="calleQuery"
+                    <label for="calleSearchQueryEditar"><b>Buscar por nombre</b></label>
+                    <input type="text" class="form-control" id="calleSearchQueryEditar" placeholder="Ej. Av. Empresarios" [(ngModel)]="calleQuery"
                            [ngModelOptions]="{standalone: true}" (keyup)="obtenerCalles($event)" autocomplete="off">
                   </form>
                   <div class="dropdown-divider"></div>
@@ -265,81 +410,111 @@
                   <a class="dropdown-item" *ngIf="calle !== undefined" (click)="eliminarCalle()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-1">
-                <label for="numeroExterior">
-                  <b>N. Ext * </b>
+            </div>
+            <div class="row">
+
+              <div class="col-sm-3">
+                <label for="numeroExteriorEditar">
+                  <b>No. Ext * </b>
                   <span
-                    *ngIf="nuevoDomicilioForm.controls['numeroExterior'].invalid && (modificarDomicilioForm.controls['numeroExterior'].dirty || nuevoDomicilioForm.controls['numeroExterior'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['numeroExterior'].errors.required" class="text-danger"> - Campo requerido</i>
-                    <i *ngIf="nuevoDomicilioForm.controls['numeroExterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    *ngIf="modificarDomicilioForm.controls['numeroExterior'].invalid && (modificarDomicilioForm.controls['numeroExterior'].dirty || modificarDomicilioForm.controls['numeroExterior'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['numeroExterior'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="modificarDomicilioForm.controls['numeroExterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                   </span>
                 </label>
-                <input id="numeroExterior" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
+                <input id="numeroExteriorEditar" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
               </div>
-              <div class="col-sm-1">
-                <label for="numeroInterior">
-                  <b>N. Int * </b>
+              <div class="col-sm-3">
+                <label for="numeroInteriorEditar">
+                  <b>No. Int</b>
                   <span
-                    *ngIf="nuevoDomicilioForm.controls['numeroInterior'].invalid && (modificarDomicilioForm.controls['numeroExterior'].dirty || nuevoDomicilioForm.controls['numeroInterior'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    *ngIf="modificarDomicilioForm.controls['numeroInterior'].invalid && (modificarDomicilioForm.controls['numeroExterior'].dirty || modificarDomicilioForm.controls['numeroInterior'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                   </span>
                 </label>
-                <input id="numeroInterior" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
+                <input id="numeroInteriorEditar" type="text" class="form-control" placeholder="Ej. A" formControlName="numeroInterior" #numeroInterior>
               </div>
 
               <div class="col-sm-3">
-                <label for="codigoPostal">
-                  <b>Codigo Postal *</b>
+                <label for="codigoPostalEditar">
+                  <b>Código Postal *</b>
                   <span
-                    *ngIf="nuevoDomicilioForm.controls['codigoPostal'].invalid && (modificarDomicilioForm.controls['codigoPostal'].dirty || nuevoDomicilioForm.controls['codigoPostal'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['codigoPostal'].errors.required" class="text-danger"> - Campo requerido</i>
-                    <i *ngIf="nuevoDomicilioForm.controls['codigoPostal'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
-                    <i *ngIf="nuevoDomicilioForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    *ngIf="modificarDomicilioForm.controls['codigoPostal'].invalid && (modificarDomicilioForm.controls['codigoPostal'].dirty || modificarDomicilioForm.controls['codigoPostal'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['codigoPostal'].errors.required" class="text-danger"> - Campo requerido</i>
+                    <i *ngIf="modificarDomicilioForm.controls['codigoPostal'].errors.minlength" class="text-danger"> - Faltan caracteres</i>
+                    <i *ngIf="modificarDomicilioForm.controls['codigoPostal'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                   </span>
                 </label>
-                <input id="codigoPostal" type="number" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
+                <input id="codigoPostalEditar" type="number" class="form-control" placeholder="Ej. 45010" formControlName="codigoPostal" #codigoPostal>
               </div>
               <div class="col-sm-3">
-                <label for="domicilio4">
+                <label for="domicilio4Editar">
                   <b>Referencia</b>
                   <span
-                    *ngIf="nuevoDomicilioForm.controls['domicilio4'].invalid && (modificarDomicilioForm.controls['domicilio4'].dirty || nuevoDomicilioForm.controls['domicilio4'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['domicilio4'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
+                    *ngIf="modificarDomicilioForm.controls['domicilio4'].invalid && (modificarDomicilioForm.controls['domicilio4'].dirty || modificarDomicilioForm.controls['domicilio4'].touched)">
+                    <i *ngIf="modificarDomicilioForm.controls['domicilio4'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
                   </span>
                 </label>
-                <input id="domicilio4" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-sm-3">
-                <label for="telefonoFijoEditar">
-                  <b>Telefono Fijo</b>
-                  <span
-                    *ngIf="modificarDomicilioForm.controls['telefonoFijo'].invalid && (modificarDomicilioForm.controls['telefonoFijo'].dirty || modificarDomicilioForm.controls['telefonoFijo'].touched)">
-                    <i *ngIf="modificarDomicilioForm.controls['telefonoFijo'].errors.required" class="text-danger"> - Campo requerido</i>
-                  </span>
-                </label>
-                <input id="telefonoFijoEditar" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoFijo" appPhoneMask #telefonoFijo>
-              </div>
-              <div class="col-sm-3">
-                <label for="telefonoMovilEditar">
-                  <b>Telefono Movil</b>
-                  <span
-                    *ngIf="modificarDomicilioForm.controls['telefonoMovil'].invalid && (modificarDomicilioForm.controls['telefonoMovil'].dirty || modificarDomicilioForm.controls['telefonoMovil'].touched)">
-                    <i *ngIf="modificarDomicilioForm.controls['telefonoMovil'].errors.required" class="text-danger"> - Campo requerido</i>
-                  </span>
-                </label>
-                <input id="telefonoMovilEditar" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoMovil" appPhoneMask #telefonoMovil>
+                <input id="domicilio4Editar" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
               </div>
             </div>
           </form>
         </div>
       </div>
+      <div class="row" *ngIf="domicilioUbicado">
+        <div class="col-sm-12">
+          <agm-map [latitude]="this.latitude" [longitude]="this.longitude" [zoom]="16">
+            <agm-marker [latitude]="this.latitude" [longitude]="this.longitude" [markerDraggable]="true"
+                        (dragEnd)="markerDragEnd($event)">
+              <agm-info-window>Aquí se encuentra el domicilio</agm-info-window>
+            </agm-marker>
+          </agm-map>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-primary" (click)="ubicarDomicilio(modificarDomicilioForm)">Ubicar en el mapa</button>
       <button class="btn btn-primary" (click)="modificarDomicilio(modificarDomicilioForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #agregarTelefonoModal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="agregarTelefonoModal">Nuevo teléfono </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="crearTelefonoForm">
+        <div class="form-row">
+          <div class="col-sm-6">
+            <b>Tipo de teléfono *</b>
+            <span
+              *ngIf="crearTelefonoForm.controls['tipoTelefono'].invalid && (crearTelefonoForm.controls['tipoTelefono'].dirty || crearTelefonoForm.controls['tipoTelefono'].touched)">
+                        <i *ngIf="crearTelefonoForm.controls['tipoTelefono'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+            <select id="tipoTelefono" class="form-control" formControlName="tipoTelefono">
+              <option value="FIJO">Teléfono fijo</option>
+              <option value="CELULAR">Celular</option>
+              <option value="FAX">Fax</option>
+            </select>
+          </div>
+          <div class="col-sm-6">
+            <b>Teléfono *</b>
+            <span
+              *ngIf="crearTelefonoForm.controls['telefono'].invalid && (crearTelefonoForm.controls['telefono'].dirty || crearTelefonoForm.controls['telefono'].touched)">
+                        <i *ngIf="crearTelefonoForm.controls['telefono'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+            <input id="telefono" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefono" appPhoneMask #telefonoFijo>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="guardarTelefono(crearTelefonoForm)">Guardar</button>
+      <button class="btn btn-danger" (click)="modal.close()">Cancelar</button>
     </div>
   </ng-template>
 
@@ -375,8 +550,8 @@
                   </span>
                 </label>
                 <select id="matriz" formControlName="matriz" class="form-control">
-                  <option value="true">MATRIZ</option>
-                  <option value="false">SUCURSAL</option>
+                  <option value="true">Matriz</option>
+                  <option value="false">Sucursal</option>
                 </select>
               </div>
             </div>
@@ -410,7 +585,7 @@
                   <b>Municipio *</b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre}}
+                  {{municipio === undefined ? 'Ninguno' : municipio?.nombre.substring(0, 20)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="municipioSearchForm" class="px-4 py-3">
@@ -426,12 +601,12 @@
                   <a class="dropdown-item" *ngIf="estado !== undefined" (click)="eliminarMunicipio()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-6">
                 <label>
                   <b>Localidad *</b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre}}
+                  {{localidad === undefined ? 'Ninguno' : localidad?.nombre.substring(0, 60)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="localidadSearchForm" class="px-4 py-3">
@@ -447,14 +622,16 @@
                   <a class="dropdown-item" *ngIf="localidad !== undefined" (click)="eliminarLocalidad()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-3">
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
                 <label>
                   <b>Colonia *</b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{colonia === undefined ? 'Ninguno' : colonia?.nombre}}
+                  {{colonia === undefined ? 'Ninguno' : colonia?.nombre.substring(0, 60)}}
                 </a>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="municipioSearchForm" class="px-4 py-3">
                     <label for="municipioSearchQuery"><b>Buscar por nombre</b></label>
                     <input type="text" class="form-control" id="coloniaSearchQuery" placeholder="Ej. Puerta de Hierro" [(ngModel)]="coloniaQuery"
@@ -468,15 +645,12 @@
                   <a class="dropdown-item" *ngIf="colonia !== undefined" (click)="eliminarColonia()">Quitar</a>
                 </div>
               </div>
-            </div>
-
-            <div class="row">
-              <div class="col-sm-4">
+              <div class="col-sm-6">
                 <label>
                   <b>Calle * </b>
                 </label>
                 <a href="" class="btn btn-outline-info dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false" style="width: 100%;">
-                  {{calle === undefined ? 'Ninguno' : calle?.nombre}}
+                  {{calle === undefined ? 'Ninguno' : calle?.nombre.substring(0, 60)}}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-y: scroll; max-height: 300px;">
                   <form [formGroup]="calleSearchForm" class="px-4 py-3">
@@ -492,9 +666,11 @@
                   <a class="dropdown-item" *ngIf="calle !== undefined" (click)="eliminarCalle()">Quitar</a>
                 </div>
               </div>
-              <div class="col-sm-1">
+            </div>
+            <div class="row">
+              <div class="col-sm-3">
                 <label for="numeroExterior">
-                  <b>N. Ext * </b>
+                  <b>No. Ext * </b>
                   <span
                     *ngIf="nuevoDomicilioForm.controls['numeroExterior'].invalid && (nuevoDomicilioForm.controls['numeroExterior'].dirty || nuevoDomicilioForm.controls['numeroExterior'].touched)">
                     <i *ngIf="nuevoDomicilioForm.controls['numeroExterior'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -503,9 +679,9 @@
                 </label>
                 <input id="numeroExterior" type="text" class="form-control" placeholder="Ej. 1000" formControlName="numeroExterior" #numeroExterior>
               </div>
-              <div class="col-sm-1">
+              <div class="col-sm-3">
                 <label for="numeroInterior">
-                  <b>N. Int * </b>
+                  <b>No. Int </b>
                   <span
                     *ngIf="nuevoDomicilioForm.controls['numeroInterior'].invalid && (nuevoDomicilioForm.controls['numeroExterior'].dirty || nuevoDomicilioForm.controls['numeroInterior'].touched)">
                     <i *ngIf="nuevoDomicilioForm.controls['numeroInterior'].errors.maxlength" class="text-danger"> - Longitud excedida</i>
@@ -516,7 +692,7 @@
 
               <div class="col-sm-3">
                 <label for="codigoPostal">
-                  <b>Codigo Postal *</b>
+                  <b>Código Postal *</b>
                   <span
                   *ngIf="nuevoDomicilioForm.controls['codigoPostal'].invalid && (nuevoDomicilioForm.controls['codigoPostal'].dirty || nuevoDomicilioForm.controls['codigoPostal'].touched)">
                     <i *ngIf="nuevoDomicilioForm.controls['codigoPostal'].errors.required" class="text-danger"> - Campo requerido</i>
@@ -537,33 +713,23 @@
                 <input id="domicilio4" type="text" class="form-control" placeholder="Ej. Entre Calles, Edificio" formControlName="domicilio4" #domicilio4>
               </div>
             </div>
-            <div class="row">
-              <div class="col-sm-3">
-                <label for="telefonoFijo">
-                  <b>Telefono Fijo</b>
-                  <span
-                    *ngIf="nuevoDomicilioForm.controls['telefonoFijo'].invalid && (nuevoDomicilioForm.controls['telefonoFijo'].dirty || nuevoDomicilioForm.controls['telefonoFijo'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['telefonoFijo'].errors.required" class="text-danger"> - Campo requerido</i>
-                  </span>
-                </label>
-                <input id="telefonoFijo" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoFijo" appPhoneMask #telefonoFijo>
-              </div>
-              <div class="col-sm-3">
-                <label for="telefonoMovil">
-                  <b>Telefono Movil</b>
-                  <span
-                    *ngIf="nuevoDomicilioForm.controls['telefonoMovil'].invalid && (nuevoDomicilioForm.controls['telefonoMovil'].dirty || nuevoDomicilioForm.controls['telefonoMovil'].touched)">
-                    <i *ngIf="nuevoDomicilioForm.controls['telefonoMovil'].errors.required" class="text-danger"> - Campo requerido</i>
-                  </span>
-                </label>
-                <input id="telefonoMovil" type="text" class="form-control" placeholder="Ej. 3312345678" formControlName="telefonoMovil" appPhoneMask #telefonoMovil>
-              </div>
-            </div>
           </form>
+        </div>
+      </div>
+
+      <div class="row" *ngIf="domicilioUbicado">
+        <div class="col-sm-12">
+          <agm-map [latitude]="this.latitude" [longitude]="this.longitude" [zoom]="16">
+            <agm-marker [latitude]="this.latitude" [longitude]="this.longitude" [markerDraggable]="true"
+            (dragEnd)="markerDragEnd($event)">
+              <agm-info-window>Aquí se encuentra el domicilio</agm-info-window>
+            </agm-marker>
+          </agm-map>
         </div>
       </div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-primary" (click)="ubicarDomicilio(nuevoDomicilioForm)">Ubicar en el mapa</button>
       <button class="btn btn-primary" (click)="guardarDomicilio(nuevoDomicilioForm)">Guardar</button>
       <button type="button" class="btn btn-danger" (click)="modal.close('Save click')">Cerrar</button>
     </div>

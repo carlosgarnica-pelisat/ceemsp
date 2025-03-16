@@ -26,7 +26,6 @@ public class Can extends CommonModel {
     @Enumerated(EnumType.STRING)
     private CanGeneroEnum genero;
 
-    // TODO: Cambiar a relationships de JPA
     @Column(name = "RAZA", nullable = false)
     private Integer raza;
 
@@ -82,4 +81,28 @@ public class Can extends CommonModel {
 
     @Column(name = "MOTIVOS")
     private String motivos;
+
+    @Column(name = "MOTIVO_BAJA")
+    private String motivoBaja;
+
+    @Column(name = "OBSERVACIONES_BAJA")
+    private String observacionesBaja;
+
+    @Column(name = "DOCUMENTO_FUNDATORIO_BAJA")
+    private String documentoFundatorioBaja;
+
+    @Column(name = "FECHA_BAJA")
+    private LocalDate fechaBaja;
+
+    @Column(name = "FOTOGRAFIA_CAPTURADA")
+    private boolean fotografiaCapturada;
+
+    @Column(name = "ADIESTRAMIENTO_CAPTURADO")
+    private boolean adiestramientoCapturado;
+
+    @Column(name = "VACUNACION_CAPTURADA")
+    private boolean vacunacionCapturada;
+
+    @Column(name = "CONSTANCIA_CAPTURADA")
+    private boolean constanciaCapturada;
 }

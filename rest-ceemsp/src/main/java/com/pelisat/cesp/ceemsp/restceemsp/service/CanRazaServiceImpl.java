@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -84,6 +85,7 @@ public class CanRazaServiceImpl implements CanRazaService {
     }
 
     @Override
+    @Transactional
     public CanRazaDto crearNuevo(CanRazaDto canRazaDto, String username) {
         if(canRazaDto == null || StringUtils.isBlank(username)) {
             logger.warn("El usuario o la raza a ser creada vienen como nulos o vacios");
@@ -112,11 +114,35 @@ public class CanRazaServiceImpl implements CanRazaService {
     }
 
     @Override
+    @Transactional
     public CanRazaDto modificar(CanRazaDto canRazaDto, String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || canRazaDto == null || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando can raza con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+        CanRaza canRaza = canRazaRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(canRaza == null) {
+            logger.warn("La raza no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        canRaza.setNombre(canRazaDto.getNombre());
+        canRaza.setDescripcion(canRazaDto.getDescripcion());
+        canRaza.setFechaActualizacion(LocalDateTime.now());
+        canRaza.setActualizadoPor(usuario.getId());
+
+        canRazaRepository.save(canRaza);
+
+        return daoToDtoConverter.convertDaoToDtoCanRaza(canRaza);
     }
 
     @Override
+    @Transactional
     public CanRazaDto eliminar(String uuid, String username) {
         if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
             logger.warn("El usuario o el uuid estan viniendo como nulos o vacios");
@@ -125,7 +151,7 @@ public class CanRazaServiceImpl implements CanRazaService {
 
         logger.info("Eliminando Can Raza con el uuid [{}]", uuid);
 
-        UsuarioDto usuario = usuarioService.getUserByUsername(username);
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
 
         if(usuario == null) {
             logger.warn("El usuario no existe en la base de datos");

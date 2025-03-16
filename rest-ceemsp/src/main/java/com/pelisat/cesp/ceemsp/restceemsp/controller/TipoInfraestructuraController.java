@@ -43,4 +43,23 @@ public class TipoInfraestructuraController {
         String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
         return tipoInfraestructuraService.guardarTipoInfraestructura(tipoInfraestructuraDto, username);
     }
+
+    @PutMapping(value = TIPO_INFRAESTRUCTURA_URI +  "/{tipoInfraestructuraUuid}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public TipoInfraestructuraDto modificarTipoInfraestructura(
+            HttpServletRequest request,
+            @RequestBody TipoInfraestructuraDto tipoInfraestructuraDto,
+            @PathVariable(value = "tipoInfraestructuraUuid") String tipoInfraestructuraUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return tipoInfraestructuraService.modificarTipoInfraestructura(tipoInfraestructuraUuid, tipoInfraestructuraDto, username);
+    }
+
+    @DeleteMapping(value = TIPO_INFRAESTRUCTURA_URI +  "/{tipoInfraestructuraUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public TipoInfraestructuraDto eliminarTipoInfraestructura(
+            HttpServletRequest request,
+            @PathVariable(value = "tipoInfraestructuraUuid") String tipoInfraestructuraUuid
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        return tipoInfraestructuraService.eliminarTipoInfraestructura(tipoInfraestructuraUuid, username);
+    }
 }

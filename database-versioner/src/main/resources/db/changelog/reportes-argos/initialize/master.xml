@@ -1,0 +1,30 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2023-10-18-crear-tabla-reportes" author="carlos.garnica@pelisat.com.mx">
+        <!-- This part will hold the catalogos tables -->
+        <createTable tableName="reportes_argos">
+            <column name="ID" type="int"></column>
+            <column name="UUID" type="VARCHAR(12)"></column>
+            <column name="TIPO" type="varchar(50)"></column>
+            <column name="STATUS" type="VARCHAR(50)"></column>
+            <column name="RUTA_ARCHIVO" type="VARCHAR(512)"></column>
+            <column name="RAZON" type="TEXT"></column>
+            <column name="ELIMINADO" type="BIT" defaultValue="0"></column>
+            <column name="FECHA_CREACION" type="DATETIME" defaultValueComputed="NOW()"></column>
+            <column name="CREADO_POR" type="INT"></column>
+            <column name="FECHA_ACTUALIZACION" type="DATETIME" defaultValueComputed="NOW()"></column>
+            <column name="ACTUALIZADO_POR" type="INT"></column>
+        </createTable>
+
+        <!-- Adding the primary key and the autoincrement -->
+        <addPrimaryKey tableName="reportes_argos" columnNames="ID" />
+        <addAutoIncrement tableName="reportes_argos" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+
+        <!-- Setting the unique constraints -->
+        <addUniqueConstraint tableName="reportes_argos" columnNames="UUID" />
+
+    </changeSet>
+</databaseChangeLog>

@@ -5,7 +5,7 @@
 
     <changeSet id="2021-10-30-crear-tabla-clientes" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="CLIENTES">
+        <createTable tableName="clientes">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="EMPRESA" type="int"></column>
@@ -26,11 +26,11 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="CLIENTES" columnNames="ID" />
-        <addAutoIncrement tableName="CLIENTES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="clientes" columnNames="ID" />
+        <addAutoIncrement tableName="clientes" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="CLIENTES" columnNames="UUID" />
+        <addUniqueConstraint tableName="clientes" columnNames="UUID" />
 
 
     </changeSet>

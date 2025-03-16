@@ -39,4 +39,22 @@ public class EmpresaEscritura extends CommonModel {
 
     @Column(name = "RUTA_ARCHIVO", nullable = false)
     private String rutaArchivo;
+
+    @Column(name = "CURP")
+    private String curp;
+
+    @Column(name = "APELLIDO_PATERNO")
+    private String apellidoPaterno;
+
+    @Column(name = "APELLIDO_MATERNO")
+    private String apellidoMaterno;
+
+    @Column(name = "ESTADO_CATALOGO", nullable = false)
+    private int estadoCatalogo;
+
+    @Column(name = "MUNICIPIO_CATALOGO", nullable = false)
+    private int municipioCatalogo;
+
+    @Column(name = "LOCALIDAD_CATALOGO", nullable = false)
+    private int localidadCatalogo;
 }

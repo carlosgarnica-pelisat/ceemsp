@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
 @Component
-public class DaoHelper<T extends CommonModel> {
+public class  DaoHelper<T extends CommonModel> {
     public void fulfillAuditorFields(boolean createdAlso, T entity, int userId) {
         entity.setActualizadoPor(userId);
         entity.setFechaActualizacion(LocalDateTime.now());

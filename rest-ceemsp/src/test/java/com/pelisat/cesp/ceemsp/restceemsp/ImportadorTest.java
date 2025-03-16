@@ -27,6 +27,9 @@ public class ImportadorTest {
     private EstadoRepository estadoRepository;
 
     @Autowired
+    private PersonalNacionalidadRepository personalNacionalidadRepository;
+
+    @Autowired
     private MunicipioRepository municipioRepository;
 
     @Autowired
@@ -40,10 +43,10 @@ public class ImportadorTest {
 
     private final Logger logger = LoggerFactory.getLogger(ImportadorTest.class);
 
-    @Ignore
     @Test
+    @Ignore
     public void importarColonias() throws Exception {
-        Scanner sc = new Scanner(new File("colonias.csv"));
+        Scanner sc = new Scanner(new File("colonias-BK.csv"));
         sc.useDelimiter("\n");
 
         while(sc.hasNext()) {
@@ -86,6 +89,27 @@ public class ImportadorTest {
                 calleRepository.save(calle);
             } catch (Exception ex) {
                 logger.warn("El dato no se pudo insertar. Motivo: {}", ex.getMessage());
+            }
+        }
+    }
+
+    @Ignore
+    @Test
+    public void importarNacionalidades() throws Exception {
+        Scanner sc = new Scanner(new File("nacionalidades.csv"));
+        sc.useDelimiter("\n");
+
+        while(sc.hasNext()) {
+            String csvRow = sc.next();
+            String[] csvValues = csvRow.split(",");
+            try {
+                PersonalNacionalidad nacionalidad = new PersonalNacionalidad();
+                nacionalidad.setUuid(RandomStringUtils.randomAlphanumeric(12));
+                nacionalidad.setNombre(csvValues[1].replace("\r", ""));
+                daoHelper.fulfillAuditorFields(true, nacionalidad, 1);
+                personalNacionalidadRepository.save(nacionalidad);
+            } catch(Exception ex) {
+                logger.warn("El dato no de ha podido guardar");
             }
         }
     }

@@ -1,23 +1,22 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
+import com.pelisat.cesp.ceemsp.database.model.ActualizarContrasenaDto;
 
 import java.util.List;
 
 public interface UsuarioService {
     List<UsuarioDto> getAllUsers();
-
+    List<UsuarioDto> obtenerUsuariosInternos();
+    List<UsuarioDto> obtenerUsuariosNoEmpresas();
+    List<UsuarioDto> obtenerUsuariosEmpresas();
     UsuarioDto saveUser(UsuarioDto usuarioDto, String username);
-
     UsuarioDto getUserByUuid(String uuid);
-
     UsuarioDto getUserByUsername(String username);
-
     UsuarioDto getUserByEmail(String email);
-
     UsuarioDto getUserById(int id);
-
     UsuarioDto updateUserByUuid(String uuid, UsuarioDto usuarioDto, String username);
-
     UsuarioDto deleteUser(String uuid, String username);
+
+    UsuarioDto actualizarContrasena(String username, ActualizarContrasenaDto actualizarContrasenaDto);
 }

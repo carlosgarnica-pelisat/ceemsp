@@ -16,7 +16,19 @@ export class ComunicadosGeneralesService {
     return this.http.get(`${this.uri}/comunicados-generales`)
   }
 
+  obtenerComunicadoPorUuid(uuid: string) {
+    return this.http.get(`${this.uri}/comunicados-generales/${uuid}`)
+  }
+
   guardarComunicado(comunicadoGeneral: ComunicadoGeneral) {
     return this.http.post(`${this.uri}/comunicados-generales`, comunicadoGeneral);
+  }
+
+  modificarComunicado(uuid: string, comunicadoGeneral: ComunicadoGeneral) {
+    return this.http.put(`${this.uri}/comunicados-generales/${uuid}`, comunicadoGeneral)
+  }
+
+  eliminarComunicado(uuid: string) {
+    return this.http.delete(`${this.uri}/comunicados-generales/${uuid}`)
   }
 }

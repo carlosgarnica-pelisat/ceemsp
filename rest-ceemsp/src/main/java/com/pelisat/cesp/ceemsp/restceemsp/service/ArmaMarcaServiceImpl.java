@@ -5,6 +5,7 @@ import com.pelisat.cesp.ceemsp.database.dto.UsuarioDto;
 import com.pelisat.cesp.ceemsp.database.model.ArmaClase;
 import com.pelisat.cesp.ceemsp.database.model.ArmaMarca;
 import com.pelisat.cesp.ceemsp.database.model.ArmaTipo;
+import com.pelisat.cesp.ceemsp.database.model.CanTipoAdiestramiento;
 import com.pelisat.cesp.ceemsp.database.repository.ArmaClaseRepository;
 import com.pelisat.cesp.ceemsp.database.repository.ArmaMarcaRepository;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -74,13 +76,14 @@ public class ArmaMarcaServiceImpl implements ArmaMarcaService {
             throw new InvalidDataException();
         }
 
-        logger.info("Obteniendo la marca del arma con el id [{}]", id);
+        logger.debug("Obteniendo la marca del arma con el id [{}]", id);
 
         ArmaMarca armaMarca = armaMarcaRepository.getOne(id);
         return daoToDtoConverter.convertDaoToDtoArmaMarca(armaMarca);
     }
 
     @Override
+    @Transactional
     public ArmaMarcaDto crearNuevo(ArmaMarcaDto armaMarcaDto, String username) {
         if(armaMarcaDto == null || StringUtils.isBlank(username)) {
             logger.warn("La marca del arma o el usuario estan viniendo como nulos o vacios");
@@ -109,12 +112,59 @@ public class ArmaMarcaServiceImpl implements ArmaMarcaService {
     }
 
     @Override
+    @Transactional
     public ArmaMarcaDto modificar(ArmaMarcaDto armaMarcaDto, String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username) || armaMarcaDto == null) {
+            logger.warn("Alguno de los campos vienen como nulos o vacios");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Modificando la marca del arma con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        ArmaMarca armaMarca = armaMarcaRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(armaMarca == null) {
+            logger.warn("La marca no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        armaMarca.setNombre(armaMarcaDto.getNombre());
+        armaMarca.setDescripcion(armaMarcaDto.getDescripcion());
+        armaMarca.setFechaActualizacion(LocalDateTime.now());
+        armaMarca.setActualizadoPor(usuario.getId());
+
+        armaMarcaRepository.save(armaMarca);
+
+        return daoToDtoConverter.convertDaoToDtoArmaMarca(armaMarca);
     }
 
     @Override
+    @Transactional
     public ArmaMarcaDto eliminar(String uuid, String username) {
-        return null;
+        if(StringUtils.isBlank(uuid) || StringUtils.isBlank(username)) {
+            logger.warn("Alguno de los parametros viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Eliminando la marca del arma con el uuid [{}]", uuid);
+
+        UsuarioDto usuario = usuarioService.getUserByEmail(username);
+
+        ArmaMarca armaMarca = armaMarcaRepository.getByUuidAndEliminadoFalse(uuid);
+
+        if(armaMarca == null) {
+            logger.warn("El adiestramiento no existe en la base de datos");
+            throw new NotFoundResourceException();
+        }
+
+        armaMarca.setEliminado(true);
+        armaMarca.setFechaActualizacion(LocalDateTime.now());
+        armaMarca.setActualizadoPor(usuario.getId());
+
+        armaMarcaRepository.save(armaMarca);
+
+        return daoToDtoConverter.convertDaoToDtoArmaMarca(armaMarca);
     }
 }

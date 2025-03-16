@@ -1,14 +1,13 @@
 package com.pelisat.cesp.ceemsp.database.dto;
 
+import com.pelisat.cesp.ceemsp.database.dto.metadata.CanFotografiaMetadata;
 import com.pelisat.cesp.ceemsp.database.type.CanGeneroEnum;
 import com.pelisat.cesp.ceemsp.database.type.CanOrigenEnum;
 import com.pelisat.cesp.ceemsp.database.type.CanStatusEnum;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -32,12 +31,30 @@ public class CanDto {
     private String razonSocial;
     private String fechaInicio;
     private String fechaFin;
-    private PersonaDto elementoAsignado;
     private ClienteDto clienteAsignado;
+    private PersonaDto elementoAsignado;
     private ClienteDomicilioDto clienteDomicilio;
     private String motivos;
+    private boolean eliminado;
+    private String fechaCreacion;
+    private String fechaActualizacion;
 
-    List<CanAdiestramientoDto> adiestramientos;
-    List<CanCartillaVacunacionDto> cartillasVacunacion;
-    List<CanConstanciaSaludDto> constanciasSalud;
+    private String motivoBaja;
+    private String observacionesBaja;
+    private String documentoFundatorioBaja;
+    private String fechaBaja;
+    private boolean fotografiaCapturada;
+    private boolean adiestramientoCapturado;
+    private boolean vacunacionCapturada;
+    private boolean constanciaCapturada;
+
+    private EmpresaDto empresa;
+
+    private List<CanAdiestramientoDto> adiestramientos;
+    private List<CanCartillaVacunacionDto> cartillasVacunacion;
+    private List<CanConstanciaSaludDto> constanciasSalud;
+    private List<CanFotografiaMetadata> fotografias;
+    private Boolean eliminadoIncidencia;
+    private String fechaCreacionIncidencia;
+    private String fechaEliminacionIncidencia;
 }

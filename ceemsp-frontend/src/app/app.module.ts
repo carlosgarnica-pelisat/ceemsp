@@ -47,6 +47,7 @@ import { SanitizeHtmlPipe } from './_pipes/sanitize-html.pipe';
 import {NgxPrintModule} from "ngx-print";
 import { EmpresaEquipoComponent } from './home/empresas/empresa-equipo/empresa-equipo.component';
 import { EquipoComponent } from './home/catalogos/equipo/equipo.component';
+import { UsuariosComponent } from "./home/configuracion/usuarios/usuarios.component";
 import { UniformesComponent } from './home/catalogos/equipo/uniformes/uniformes.component';
 import { EmpresaUniformesComponent } from './home/empresas/empresa-uniformes/empresa-uniformes.component';
 import {PdfViewerModule} from "ng2-pdf-viewer";
@@ -54,6 +55,44 @@ import { PhoneMaskDirective } from './_directives/phone-mask.directive';
 import { NumberMaskDirective } from './_directives/number-mask.directive';
 import { RfcDirective } from './_directives/rfc.directive';
 import { BuscarNombrePipe } from './_pipes/buscar-nombre.pipe';
+import {GoogleChartsModule} from "angular-google-charts";
+import { AcercaComponent } from './home/configuracion/acerca/acerca.component';
+import { BotonEmpresaDomiciliosComponent } from './_components/botones/boton-empresa-domicilios/boton-empresa-domicilios.component';
+import { BotonEmpresaLegalComponent } from './_components/botones/boton-empresa-legal/boton-empresa-legal.component';
+import { BotonEmpresaLicenciasComponent } from './_components/botones/boton-empresa-licencias/boton-empresa-licencias.component';
+import { BotonEmpresaCanesComponent } from './_components/botones/boton-empresa-canes/boton-empresa-canes.component';
+import { BotonEmpresaVehiculosComponent } from './_components/botones/boton-empresa-vehiculos/boton-empresa-vehiculos.component';
+import { BotonEmpresaIncidenciasComponent } from './_components/botones/boton-empresa-incidencias/boton-empresa-incidencias.component';
+import { BotonEmpresaClientesComponent } from './_components/botones/boton-empresa-clientes/boton-empresa-clientes.component';
+import { BotonEmpresaPersonalComponent } from './_components/botones/boton-empresa-personal/boton-empresa-personal.component';
+import { BotonEmpresaEquiposComponent } from './_components/botones/boton-empresa-equipos/boton-empresa-equipos.component';
+import { BotonEmpresaUniformesComponent } from './_components/botones/boton-empresa-uniformes/boton-empresa-uniformes.component';
+import { BotonCatalogosComponent } from './_components/botones/boton-catalogos/boton-catalogos.component';
+import { EmpresaAcuerdosComponent } from './home/empresas/empresa-acuerdos/empresa-acuerdos.component';
+import { BotonEmpresaAcuerdosComponent } from './_components/botones/boton-empresa-acuerdos/boton-empresa-acuerdos.component';
+import { GoogleMapsModule } from "@angular/google-maps";
+import {AgmCoreModule} from "@agm/core";
+import { ModalidadArmadaPipe } from './_pipes/modalidad-armada.pipe';
+import { BotonBuzonSalidaComponent } from './_components/botones/boton-buzon-salida/boton-buzon-salida.component';
+import { BuscarRazonSocialPipe } from './_pipes/buscar-razon-social.pipe';
+import { BuscarNombresPipe } from './_pipes/buscar-nombres.pipe';
+import {DataTablesModule} from "angular-datatables";
+import {TableModule} from "primeng/table";
+import { EmpresaVisitasComponent } from './home/empresas/empresa-visitas/empresa-visitas.component';
+import { ClientesComponent } from './home/catalogos/clientes/clientes.component';
+import { BotonEmpresaVisitasComponent } from './_components/botones/boton-empresa-visitas/boton-empresa-visitas.component';
+import { BotonVisitasComponent } from './_components/botones/boton-visitas/boton-visitas.component';
+import { MultilineCellComponent } from './_components/cell-renderers/multiline-cell/multiline-cell.component';
+import { ValidarAcuseComponent } from './validar-acuse/validar-acuse.component';
+import { EmpresaReportesMensualesComponent } from './home/empresas/empresa-reportes-mensuales/empresa-reportes-mensuales.component';
+import { BusquedaComponent } from './home/busqueda/busqueda.component';
+import { VentanasComponent } from './home/ventanas/ventanas.component';
+import { BotonVentanaComponent } from './_components/botones/boton-ventana/boton-ventana.component';
+import { ValidarReporteComponent } from './validar-reporte/validar-reporte.component';
+import { PerfilComponent } from './home/perfil/perfil.component';
+import { BuscarPlacasPipe } from './_pipes/buscar-placas.pipe';
+import { BuscarMatriculaPipe } from './_pipes/buscar-matricula.pipe';
+import { UsuariosEmpresaComponent } from './home/configuracion/usuarios-empresa/usuarios-empresa.component';
 
 @NgModule({
   declarations: [
@@ -98,27 +137,69 @@ import { BuscarNombrePipe } from './_pipes/buscar-nombre.pipe';
     PhoneMaskDirective,
     NumberMaskDirective,
     RfcDirective,
-    BuscarNombrePipe
+    BuscarNombrePipe,
+    UsuariosComponent,
+    AcercaComponent,
+    BotonEmpresaDomiciliosComponent,
+    BotonEmpresaLegalComponent,
+    BotonEmpresaLicenciasComponent,
+    BotonEmpresaCanesComponent,
+    BotonEmpresaVehiculosComponent,
+    BotonEmpresaIncidenciasComponent,
+    BotonEmpresaClientesComponent,
+    BotonEmpresaPersonalComponent,
+    BotonEmpresaEquiposComponent,
+    BotonEmpresaUniformesComponent,
+    BotonCatalogosComponent,
+    EmpresaAcuerdosComponent,
+    BotonEmpresaAcuerdosComponent,
+    ModalidadArmadaPipe,
+    BotonBuzonSalidaComponent,
+    BuscarRazonSocialPipe,
+    BuscarNombresPipe,
+    EmpresaVisitasComponent,
+    ClientesComponent,
+    BotonEmpresaVisitasComponent,
+    BotonVisitasComponent,
+    MultilineCellComponent,
+    ValidarAcuseComponent,
+    EmpresaReportesMensualesComponent,
+    BusquedaComponent,
+    VentanasComponent,
+    BotonVentanaComponent,
+    ValidarReporteComponent,
+    PerfilComponent,
+    BuscarPlacasPipe,
+    BuscarMatriculaPipe,
+    UsuariosEmpresaComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    NgbModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    FormsModule,
-    FontAwesomeModule,
-    AgGridModule,
-    CKEditorModule,
-    NgxPrintModule,
-    PdfViewerModule
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        NgbModule,
+        ReactiveFormsModule,
+        HttpClientModule,
+        FormsModule,
+        FontAwesomeModule,
+        AgGridModule,
+        CKEditorModule,
+        NgxPrintModule,
+        PdfViewerModule,
+        GoogleChartsModule,
+        GoogleMapsModule,
+        AgmCoreModule.forRoot({
+            apiKey: 'AIzaSyB7dj4T5sXyKfmMfAjivi4lJnndOV_T5yY',
+            libraries: ['geometry', 'places']
+        }),
+        DataTablesModule,
+      TableModule
+    ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     SanitizeHtmlPipe
   ],
-  exports: [SanitizeHtmlPipe],
+  exports: [SanitizeHtmlPipe, PhoneMaskDirective, BuscarNombrePipe, BuscarNombresPipe, BuscarPlacasPipe, BuscarMatriculaPipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

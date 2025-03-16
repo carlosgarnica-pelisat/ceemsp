@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface EmpresaUniformeElementoRepository extends JpaRepository<EmpresaUniformeElemento, Integer> {
     List<EmpresaUniformeElemento> findAllByUniformeAndEliminadoFalse(int uniforme);
+    EmpresaUniformeElemento findByUuidAndEliminadoFalse(String uuid);
 }

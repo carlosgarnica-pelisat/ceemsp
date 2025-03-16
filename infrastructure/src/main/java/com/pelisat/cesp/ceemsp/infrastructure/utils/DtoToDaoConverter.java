@@ -162,6 +162,21 @@ public class DtoToDaoConverter {
         return vehiculoSubmarca;
     }
 
+    public Submodalidad convertDtoToDaoSubmodalidad(SubmodalidadDto submodalidadDto) {
+        if(submodalidadDto == null) {
+            logger.warn("La submodalidad viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        Submodalidad submodalidad = modelMapper.map(submodalidadDto, Submodalidad.class);
+        if(StringUtils.isBlank(submodalidadDto.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            submodalidad.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return submodalidad;
+    }
+
     public VehiculoTipo convertDtoToDaoVehiculoTipo(VehiculoTipoDto vehiculoTipoDto) {
         if(vehiculoTipoDto == null) {
             logger.warn("El tipo de vehiculo viene como vacio o nulo");
@@ -221,6 +236,13 @@ public class DtoToDaoConverter {
             logger.warn("La escritura de la empresa viene como vacia o nula");
             throw new InvalidDataException();
         }
+
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.typeMap(EmpresaEscrituraDto.class, EmpresaEscritura.class)
+                .addMappings(mapper -> mapper.skip(EmpresaEscritura::setEstadoCatalogo))
+                .addMappings(mapper -> mapper.skip(EmpresaEscritura::setMunicipioCatalogo))
+                .addMappings(mapper -> mapper.skip(EmpresaEscritura::setLocalidadCatalogo));
 
         EmpresaEscritura empresaEscritura = modelMapper.map(empresaEscrituraDto, EmpresaEscritura.class);
         if(StringUtils.isBlank(empresaEscritura.getUuid())) {
@@ -433,7 +455,9 @@ public class DtoToDaoConverter {
                 .addMappings(mapper -> mapper.skip(Vehiculo::setMarca))
                 .addMappings(mapper -> mapper.skip(Vehiculo::setSubmarca))
                 .addMappings(mapper -> mapper.skip(Vehiculo::setTipo))
-                .addMappings(mapper -> mapper.skip(Vehiculo::setUso));
+                .addMappings(mapper -> mapper.skip(Vehiculo::setUso))
+                .addMappings(mapper -> mapper.skip(Vehiculo::setDomicilio))
+                .addMappings(mapper -> mapper.skip(Vehiculo::setPersonalAsignado));
 
         Vehiculo vehiculo = modelMapper.map(vehiculoDto, Vehiculo.class);
         if(StringUtils.isBlank(vehiculo.getUuid())) {
@@ -487,7 +511,8 @@ public class DtoToDaoConverter {
                 .addMappings(mapper -> mapper.skip(Can::setClienteAsignado))
                 .addMappings(mapper -> mapper.skip(Can::setDomicilioAsignado))
                 .addMappings(mapper -> mapper.skip(Can::setDomicilioClienteAsignado))
-                .addMappings(mapper -> mapper.skip(Can::setRaza));
+                .addMappings(mapper -> mapper.skip(Can::setRaza))
+                .addMappings(mapper -> mapper.skip(Can::setElementoAsignado));
 
         Can can = modelMapper.map(canDto, Can.class);
         if(StringUtils.isBlank(can.getUuid())) {
@@ -506,7 +531,9 @@ public class DtoToDaoConverter {
                 .addMappings(mapper -> mapper.skip(Arma::setBunker))
                 .addMappings(mapper -> mapper.skip(Arma::setMarca))
                 .addMappings(mapper -> mapper.skip(Arma::setClase))
-                .addMappings(mapper -> mapper.skip(Arma::setLicenciaColectiva));
+                .addMappings(mapper -> mapper.skip(Arma::setLicenciaColectiva))
+                .addMappings(mapper -> mapper.skip(Arma::setPersonal))
+                .addMappings(mapper -> mapper.skip(Arma::setEliminado));
 
         Arma arma = modelMapper.map(armaDto, Arma.class);
         if(StringUtils.isBlank(armaDto.getUuid())) {
@@ -701,6 +728,37 @@ public class DtoToDaoConverter {
         return empresaUniformeElemento;
     }
 
+    public EmpresaUniformeElementoMovimiento convertDtoToDaoEmpresaUniformeElementoMovimiento(EmpresaUniformeElementoMovimientoDto empresaUniformeElementoMovimientoDto) {
+        if(empresaUniformeElementoMovimientoDto == null) {
+            logger.warn("El movimiento a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        EmpresaUniformeElementoMovimiento empresaUniformeElementoMovimiento = modelMapper.map(empresaUniformeElementoMovimientoDto, EmpresaUniformeElementoMovimiento.class);
+
+        if(StringUtils.isBlank(empresaUniformeElementoMovimiento.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresaUniformeElementoMovimiento.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaUniformeElementoMovimiento;
+    }
+
+    public EmpresaEquipoMovimiento convertDtoToDaoEmpresaEquipoMovimiento(EmpresaEquipoMovimientoDto empresaEquipoMovimientoDto) {
+        if(empresaEquipoMovimientoDto == null) {
+            logger.warn("El movimiento a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        EmpresaEquipoMovimiento empresaEquipoMovimiento = modelMapper.map(empresaEquipoMovimientoDto, EmpresaEquipoMovimiento.class);
+        if(StringUtils.isBlank(empresaEquipoMovimiento.getUuid())) {
+            logger.info("El uuid viene como nulo. Generando uno nuevo");
+            empresaEquipoMovimiento.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaEquipoMovimiento;
+    }
+
     public EmpresaEquipo convertDtoToDaoEmpresaEquipo(EmpresaEquipoDto empresaEquipoDto) {
         if(empresaEquipoDto == null) {
             logger.warn("El equipo a convertir viene como nulo o vacio");
@@ -732,7 +790,13 @@ public class DtoToDaoConverter {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         modelMapper.typeMap(VisitaDto.class, Visita.class)
                 .addMappings(mapper -> mapper.skip(Visita::setEmpresa))
-                .addMappings(mapper -> mapper.skip(Visita::setResponsable));
+                .addMappings(mapper -> mapper.skip(Visita::setResponsable))
+                .addMappings(mapper -> mapper.skip(Visita::setEstadoCatalogo))
+                .addMappings(mapper -> mapper.skip(Visita::setMunicipioCatalogo))
+                .addMappings(mapper -> mapper.skip(Visita::setLocalidadCatalogo))
+                .addMappings(mapper -> mapper.skip(Visita::setColoniaCatalogo))
+                .addMappings(mapper -> mapper.skip(Visita::setCalleCatalogo))
+                .addMappings(mapper -> mapper.skip(Visita::setEmpresaDomicilio));
 
         Visita visita = modelMapper.map(visitaDto, Visita.class);
 
@@ -742,5 +806,112 @@ public class DtoToDaoConverter {
         }
 
         return visita;
+    }
+
+    public BuzonInterno convertDtoToDaoBuzonInterno(BuzonInternoDto buzonInternoDto) {
+        if(buzonInternoDto == null) {
+            logger.warn("El buzon interno a convertir viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        BuzonInterno buzonInterno = modelMapper.map(buzonInternoDto, BuzonInterno.class);
+
+        if(StringUtils.isBlank(buzonInterno.getUuid())) {
+            logger.info("El uuid viene como nulo o vacio. Generando uno nuevo");
+            buzonInterno.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return buzonInterno;
+    }
+
+    public EmpresaDomicilioTelefono convertDtoToDaoEmpresaDomicilioTelefono(EmpresaDomicilioTelefonoDto empresaDomicilioTelefonoDto) {
+        if(empresaDomicilioTelefonoDto == null) {
+            logger.warn("El telefono a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        EmpresaDomicilioTelefono empresaDomicilioTelefono = modelMapper.map(empresaDomicilioTelefonoDto, EmpresaDomicilioTelefono.class);
+
+        if(StringUtils.isBlank(empresaDomicilioTelefono.getUuid())) {
+            logger.info("El uuid viene como nulo o vacio. Generando uno nuevo");
+            empresaDomicilioTelefono.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return empresaDomicilioTelefono;
+    }
+
+    public Acuerdo convertDtoToDaoAcuerdo(AcuerdoDto acuerdoDto) {
+        if(acuerdoDto == null) {
+            logger.warn("El acuerdo a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.typeMap(AcuerdoDto.class, Acuerdo.class)
+                .addMappings(mapper -> mapper.skip(Acuerdo::setEmpresa));
+
+        Acuerdo acuerdo = modelMapper.map(acuerdoDto, Acuerdo.class);
+
+        if(StringUtils.isBlank(acuerdo.getUuid())) {
+            logger.info("El uuid viene como nulo o vacio. Generando uno nuevo");
+            acuerdo.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return acuerdo;
+    }
+
+    public BuzonInternoDestinatario convertDtoToDaoBuzonInternoDestinatario(BuzonInternoDestinatarioDto buzonInternoDestinatarioDto) {
+        if(buzonInternoDestinatarioDto == null) {
+            logger.warn("El destinatario a convertir viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.typeMap(BuzonInternoDestinatarioDto.class, BuzonInternoDestinatario.class)
+                .addMappings(mapper -> mapper.skip(BuzonInternoDestinatario::setEmpresa))
+                .addMappings(mapper -> mapper.skip(BuzonInternoDestinatario::setUsuario));
+
+        BuzonInternoDestinatario buzonInternoDestinatario = modelMapper.map(buzonInternoDestinatarioDto, BuzonInternoDestinatario.class);
+
+        if(StringUtils.isBlank(buzonInternoDestinatario.getUuid())) {
+            logger.info("El uuid viene como nulo o vacion. Generando uno nuevo");
+            buzonInternoDestinatario.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return buzonInternoDestinatario;
+    }
+
+    public ClienteFormaEjecucion convertDtoToDaoClienteFormaEjecucion(ClienteFormaEjecucionDto clienteFormaEjecucionDto) {
+        if(clienteFormaEjecucionDto == null) {
+            logger.warn("La forma de ejecucion para el cliente viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        ClienteFormaEjecucion clienteFormaEjecucion = modelMapper.map(clienteFormaEjecucionDto, ClienteFormaEjecucion.class);
+
+        if(StringUtils.isBlank(clienteFormaEjecucion.getUuid())) {
+            logger.info("El uuid viene como nulo o vacio. Generando uno nuevo");
+            clienteFormaEjecucion.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return clienteFormaEjecucion;
+    }
+
+    public Ventana convertDtoToDaoVentana(VentanaDto ventanaDto) {
+        if(ventanaDto == null) {
+            logger.warn("La ventana viene como nula o vacia");
+            throw new InvalidDataException();
+        }
+
+        Ventana ventana = modelMapper.map(ventanaDto, Ventana.class);
+
+        if(StringUtils.isBlank(ventana.getUuid())) {
+            logger.info("El uuid viene como nulo o vacio. Generando uno nuevo");
+            ventana.setUuid(RandomStringUtils.randomAlphanumeric(MAXIMUM_UUID_CHARS));
+        }
+
+        return ventana;
     }
 }

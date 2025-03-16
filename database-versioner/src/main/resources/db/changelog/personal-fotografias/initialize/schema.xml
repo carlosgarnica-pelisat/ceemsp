@@ -5,7 +5,7 @@
 
     <changeSet id="2021-11-23-crear-tabla-personal-fotografias" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="PERSONAL_FOTOGRAFIAS">
+        <createTable tableName="personal_fotografias">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="PERSONAL" type="int"></column>
@@ -18,11 +18,11 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="PERSONAL_FOTOGRAFIAS" columnNames="ID" />
-        <addAutoIncrement tableName="PERSONAL_FOTOGRAFIAS" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="personal_fotografias" columnNames="ID" />
+        <addAutoIncrement tableName="personal_fotografias" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="PERSONAL_FOTOGRAFIAS" columnNames="UUID" />
+        <addUniqueConstraint tableName="personal_fotografias" columnNames="UUID" />
 
     </changeSet>
 </databaseChangeLog>

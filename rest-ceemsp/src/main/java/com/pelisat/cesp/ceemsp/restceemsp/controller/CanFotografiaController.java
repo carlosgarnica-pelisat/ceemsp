@@ -72,4 +72,15 @@ public class CanFotografiaController {
                 new Gson().fromJson(metadataArchivo, CanFotografiaMetadata.class)
         );
     }
+
+    @DeleteMapping(value = CAN_FOTOGRAFIAS_URI + "/{fotografiaUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public void eliminarFotografiaCan(
+            @PathVariable(value = "empresaUuid") String empresaUuid,
+            @PathVariable(value = "canUuid") String canUuid,
+            @PathVariable(value = "fotografiaUuid") String fotografiaUuid,
+            HttpServletRequest request
+    ) throws Exception {
+        String username = jwtUtils.getUserFromToken(request.getHeader("Authorization"));
+        canFotografiaService.eliminarCanFotografia(empresaUuid, canUuid, fotografiaUuid, username);
+    }
 }

@@ -23,4 +23,10 @@ public class Modalidad extends CommonModel {
 
     @Column(name = "SUBCATEGORIAS", nullable = false)
     private Boolean subcategorias;
+
+    @Column(name = "CANES")
+    private Boolean canes;
+
+    @Column(name = "ARMAS")
+    private Boolean armas;
 }

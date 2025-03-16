@@ -1,0 +1,12 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2023-10-12-cambiar-longitud-descripcion" author="carlos.garnica@pelisat.com.mx">
+        <modifyDataType
+                columnName="DESCRIPCION"
+                newDataType="VARCHAR(300)"
+                tableName="empresas_uniformes" />
+    </changeSet>
+</databaseChangeLog>

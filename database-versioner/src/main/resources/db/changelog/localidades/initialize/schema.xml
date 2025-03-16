@@ -5,7 +5,7 @@
 
     <changeSet id="2022-02-26-crear-tabla-localidades" author="carlos.garnica@pelisat.com.mx">
         <!-- This part will hold the catalogos tables -->
-        <createTable tableName="LOCALIDADES">
+        <createTable tableName="localidades">
             <column name="ID" type="int"></column>
             <column name="UUID" type="varchar(12)"></column>
             <column name="MUNICIPIO" type="INT"></column>
@@ -19,10 +19,10 @@
         </createTable>
 
         <!-- Adding the primary key and the autoincrement -->
-        <addPrimaryKey tableName="LOCALIDADES" columnNames="ID" />
-        <addAutoIncrement tableName="LOCALIDADES" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
+        <addPrimaryKey tableName="localidades" columnNames="ID" />
+        <addAutoIncrement tableName="localidades" columnName="ID" columnDataType="int" startWith="1" incrementBy="1"/>
 
         <!-- Setting the unique constraints -->
-        <addUniqueConstraint tableName="LOCALIDADES" columnNames="UUID" />
+        <addUniqueConstraint tableName="localidades" columnNames="UUID" />
     </changeSet>
 </databaseChangeLog>

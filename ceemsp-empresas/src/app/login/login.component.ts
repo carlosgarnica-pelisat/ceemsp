@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {EmailValidator, FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {AuthenticationService} from "../_services/authentication.service";
@@ -16,6 +16,7 @@ import {ModalDismissReasons, NgbModal, NgbModalRef} from "@ng-bootstrap/ng-boots
 })
 export class LoginComponent implements OnInit {
 
+  buscarComunicadoForm: FormGroup;
   loginForm: FormGroup | undefined;
   loading = false;
   submitted = false;
@@ -30,6 +31,8 @@ export class LoginComponent implements OnInit {
   comunicado: ComunicadoGeneral;
 
   private credential: Credential = new Credential();
+
+  @ViewChild('mostrarComunicadoCompletoModal') mostrarComunicadoCompletoModal;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -50,6 +53,12 @@ export class LoginComponent implements OnInit {
       email: ['', Validators.required],
       password: ['', Validators.required]
     });
+
+    this.buscarComunicadoForm = this.formBuilder.group({
+      titulo: [''],
+      mes: [''],
+      ano: ['']
+    })
 
     this.obtenerComunicadosGenerales()
 
@@ -72,6 +81,10 @@ export class LoginComponent implements OnInit {
     }, (error) => {
       this.closeResult = `Dismissed ${this.getDismissReason(error)}`
     })
+  }
+
+  mostrarComunicadoCompleto() {
+    this.modalService.open(this.mostrarComunicadoCompletoModal, {size: "xl"})
   }
 
   get f() {
@@ -114,6 +127,25 @@ export class LoginComponent implements OnInit {
     }, (error) => {
       console.log(error);
     });
+  }
+
+  buscarComunicados(form) {
+    let titulo = form.controls['titulo'].value;
+    let mes = form.controls['mes'].value;
+    let ano = form.controls['ano'].value;
+
+    // creando las fechas
+    let fechaInicio = new Date(parseInt(ano), parseInt(mes) - 1, 1)
+    let fechaFin = new Date(parseInt(ano), parseInt(mes), 0);
+
+    this.publicService.buscarComunicados(titulo, mes, ano).subscribe((data: ComunicadoGeneral[]) => {
+      this.comunicado = undefined;
+      this.comunicadosGenerales = data;
+      this.comunicadoUuid = undefined;
+      form.reset();
+    }, (error) => {
+      console.error(error);
+    })
   }
 
   obtenerComunicado(uuid) {

@@ -7,10 +7,9 @@ import java.util.List;
 
 public interface PersonalPuestoDeTrabajoService {
     List<PersonalPuestoDeTrabajoDto> obtenerTodos();
-
     PersonalPuestoDeTrabajoDto obtenerPorUuid(String uuid);
-
     PersonalPuestoDeTrabajoDto obtenerPorId(Integer id);
-
     PersonalPuestoDeTrabajoDto crearNuevo(PersonalPuestoDeTrabajoDto personalPuestoDeTrabajoDto, String username);
+    PersonalPuestoDeTrabajoDto modificar(String uuid, String username, PersonalPuestoDeTrabajoDto personalPuestoDeTrabajoDto);
+    PersonalPuestoDeTrabajoDto eliminar(String uuid, String username);
 }

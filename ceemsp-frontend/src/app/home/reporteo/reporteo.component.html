@@ -1,1 +1,174 @@
-<p>reporteo works!</p>
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Reporteo</h1>
+    <div class="btn-group">
+      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" (click)="mostrarModalNuevoReporte()">Programar reporte</button>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <div class="col-sm-12">
+
+      <ag-grid-angular
+        style="height: 80vh; width: 100%;"
+        class="ag-theme-alpine"
+        [rowData]="rowData"
+        [columnDefs]="columnDefs"
+        (gridReady)="onGridReady($event)"
+        [frameworkComponents]="frameworkComponents"
+        (rowDoubleClicked)="mostrarModalDetalles($event.data)"
+        #agGrid
+      ></ag-grid-angular>
+    </div>
+  </div>
+
+  <ng-template #modalReportePorUuid let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modalReportePorUuid">Viendo reporte programado </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <tr>
+              <td><b>Tipo</b></td>
+              <td>{{reporte.tipo}}</td>
+            </tr>
+            <tr>
+              <td><b>Status</b></td>
+              <td>{{reporte.status}}</td>
+            </tr>
+            <tr *ngIf="reporte?.status === 'ERROR'">
+              <td><b>Razon de falla</b></td>
+              <td>{{reporte.razon}}</td>
+            </tr>
+            <tr>
+              <td><b>Fecha de inicio</b></td>
+              <td>{{reporte.fechaCreacion}}</td>
+            </tr>
+            <tr>
+              <td><b>Ultima actualizacion</b></td>
+              <td>{{reporte.fechaActualizacion}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="descargarReporte()" *ngIf="reporte.status === 'COMPLETADO'">Descargar</button>
+      <button class="btn btn-danger" (click)="mostrarEliminarReporteModal()">Eliminar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #mostrarModalCrearNuevoReporte let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="mostrarFotoPersonaModal">Programar nuevo reporte </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="reporteForm">
+        <div class="row">
+          <div class="col-sm-12">
+            <label for="tipo">
+              <b>Tipo de reporte *</b>
+              <span
+                *ngIf="reporteForm.controls['tipo'].invalid && (reporteForm.controls['tipo'].dirty || reporteForm.controls['tipo'].touched)">
+                        <i *ngIf="reporteForm.controls['tipo'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+            </label>
+            <select id="tipo" formControlName="tipo" class="form-control" (change)="cambiarTipoReporte($event.target)">
+              <option value="" disabled selected></option>
+              <option *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" value="LISTADO_NOMINAL">Listado nominal</option>
+              <option value="PADRON_ESTATAL">Padron estatal</option>
+              <option *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" value="INTERCAMBIO_INFORMACION">Intercambio de informacion</option>
+              <option *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" value="ACUERDOS">Acuerdos</option>
+              <option value="PERSONAL">Personal</option>
+              <option *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" value="ESCRITURAS">Escrituras</option>
+              <option value="CANES">Canes</option>
+              <option value="VEHICULOS">Vehiculos</option>
+              <option *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" value="CLIENTES">Clientes</option>
+              <option value="ARMAS">Armas</option>
+              <option value="LICENCIAS_COLECTIVAS">Licencias colectivas</option>
+              <option *ngIf="usuarioActual?.rol !== 'CEEMSP_READ_ONLY'" value="VISITAS">Visitas</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row" *ngIf="requiereFecha">
+          <div class="col-sm-12">
+            <input id="fechaPersonalizada" formControlName="fechaInicio" type="checkbox" [(ngModel)]="fechaPersonalizada" (change)="cambiarFechaPersonalizada()"><label class="form-check-label" for="fechaPersonalizada"> <b>Fecha personalizada</b></label>
+          </div>
+        </div>
+
+        <div class="row" *ngIf="fechaPersonalizada">
+
+          <div class="col-sm-6">
+            <label for="fechaInicio">
+              <b>Fecha de Inicio *</b>
+              <span
+                *ngIf="reporteForm.controls['fechaInicio'].invalid && (reporteForm.controls['fechaInicio'].dirty || reporteForm.controls['fechaInicio'].touched)">
+                        <i *ngIf="reporteForm.controls['fechaInicio'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+            </label>
+            <input class="form-control" id="fechaInicio" formControlName="fechaInicio" type="date" placeholder="Fecha de inicio" value="01-01-2023" [max]="fechaDeHoy">
+          </div>
+          <div class="col-sm-6">
+            <label for="fechaFin">
+              <b>Fecha de Fin *</b>
+              <span
+                *ngIf="reporteForm.controls['fechaFin'].invalid && (reporteForm.controls['fechaFin'].dirty || reporteForm.controls['fechaFin'].touched)">
+                        <i *ngIf="reporteForm.controls['fechaFin'].errors.required" class="text-danger"> - Campo requerido</i>
+                      </span>
+            </label>
+            <input class="form-control" id="fechaFin" formControlName="fechaFin" type="date" placeholder="Fecha de fin" [value]="fechaDeHoy" [max]="fechaDeHoy">
+          </div>
+        </div>
+      </form>
+
+      <div class="row">
+        <div class="col-sm-12">
+          <p>
+            Al programar el reporte se pondra en una cola para ser procesado. <br>
+            Los reportes comienzan a ser procesados cada aproximadamente 10 minutos. <br>
+            El tiempo de conclusion del reporte tardara en funcion de la cantidad de informacion a procesar.
+            Le recomendamos verificar el status de su reporte cada 10 minutos para verificar el status de su reporte.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="programarReporte(reporteForm)">Programar</button>
+      <button class="btn btn-danger" (click)="modal.close()">Cancelar</button>
+    </div>
+  </ng-template>
+
+  <ng-template #eliminarReporteModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="eliminarReporteModal">Eliminar reporte programado </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12">
+          <p>Estas a punto de eliminar este reporte, toma en cuenta que si el reporte esta sin procesar no generara ningun archivo y, si ya fue generado
+          sera eliminado junto con el archivo. Esta operacion no puede deshacerse, deseas continuar?</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="eliminarReporte()">Si, eliminar</button>
+      <button class="btn btn-primary" (click)="this.modal.close()">No, dejarlo como esta</button>
+    </div>
+  </ng-template>
+</div>

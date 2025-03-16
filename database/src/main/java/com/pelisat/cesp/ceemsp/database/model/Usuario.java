@@ -21,18 +21,21 @@ public class Usuario extends CommonModel {
     @Column(name = "PASSWORD", nullable = false)
     private String password;
 
-    @Column(name = "NOMBRES", nullable = false)
+    @Column(name = "NOMBRES", nullable = true)
     private String nombres;
 
-    @Column(name = "APELLIDOS", nullable = false)
+    @Column(name = "APELLIDOS", nullable = true)
     private String apellidos;
+
+    @Column(name = "APELLIDO_MATERNO")
+    private String apellidoMaterno;
 
     @Column(name = "EMPRESA")
     private Integer empresa;
 
     @Column(name = "ROL")
     @Enumerated(EnumType.STRING)
-    RolTypeEnum rol;
+    private RolTypeEnum rol;
 
     public Usuario() {
         super();

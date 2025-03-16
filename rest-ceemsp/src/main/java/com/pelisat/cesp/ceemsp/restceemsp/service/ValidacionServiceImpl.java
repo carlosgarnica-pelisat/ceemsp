@@ -1,23 +1,19 @@
 package com.pelisat.cesp.ceemsp.restceemsp.service;
 
 import com.pelisat.cesp.ceemsp.database.dto.*;
-import com.pelisat.cesp.ceemsp.database.model.Empresa;
-import com.pelisat.cesp.ceemsp.database.model.EmpresaEscritura;
-import com.pelisat.cesp.ceemsp.database.model.Personal;
-import com.pelisat.cesp.ceemsp.database.model.Vehiculo;
-import com.pelisat.cesp.ceemsp.database.repository.EmpresaEscrituraRepository;
-import com.pelisat.cesp.ceemsp.database.repository.EmpresaRepository;
-import com.pelisat.cesp.ceemsp.database.repository.PersonaRepository;
-import com.pelisat.cesp.ceemsp.database.repository.VehiculoRepository;
+import com.pelisat.cesp.ceemsp.database.model.*;
+import com.pelisat.cesp.ceemsp.database.repository.*;
+import com.pelisat.cesp.ceemsp.database.type.ArmaStatusEnum;
+import com.pelisat.cesp.ceemsp.database.type.EmpresaStatusEnum;
 import com.pelisat.cesp.ceemsp.infrastructure.exception.InvalidDataException;
 import com.pelisat.cesp.ceemsp.infrastructure.utils.DaoToDtoConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -28,16 +24,21 @@ public class ValidacionServiceImpl implements ValidacionService {
     private final EmpresaRepository empresaRepository;
     private final PersonaRepository personaRepository;
     private final VehiculoRepository vehiculoRepository;
+    private final UsuarioRepository usuarioRepository;
     private final EmpresaEscrituraRepository empresaEscrituraRepository;
+    private final ArmaRepository armaRepository;
 
     @Autowired
     public ValidacionServiceImpl(DaoToDtoConverter daoToDtoConverter, EmpresaRepository empresaRepository, PersonaRepository personaRepository,
-                                 VehiculoRepository vehiculoRepository, EmpresaEscrituraRepository empresaEscrituraRepository) {
+                                 VehiculoRepository vehiculoRepository, EmpresaEscrituraRepository empresaEscrituraRepository,
+                                 UsuarioRepository usuarioRepository, ArmaRepository armaRepository) {
         this.daoToDtoConverter = daoToDtoConverter;
         this.empresaRepository = empresaRepository;
         this.personaRepository = personaRepository;
         this.vehiculoRepository = vehiculoRepository;
         this.empresaEscrituraRepository = empresaEscrituraRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.armaRepository = armaRepository;
     }
 
     @Override
@@ -101,7 +102,16 @@ public class ValidacionServiceImpl implements ValidacionService {
             }
         }
 
-        // TODO: Agregar el RFC a la persona y hacer la busqueda
+        if(StringUtils.isNotBlank(existePersonaDto.getRfc())) {
+            logger.info("Buscando la persona con el RFC[{}]", existePersonaDto.getRfc());
+            Personal personal = personaRepository.getByRfcAndEliminadoFalse(existePersonaDto.getRfc());
+            if(personal != null) {
+                logger.info("Se encontro la persona por medio del RFC");
+                existePersonaDto.setExiste(true);
+                existePersonaDto.setPersona(daoToDtoConverter.convertDaoToDtoPersona(personal));
+            }
+        }
+
         return existePersonaDto;
     }
 
@@ -112,7 +122,7 @@ public class ValidacionServiceImpl implements ValidacionService {
             throw new InvalidDataException();
         }
 
-        if(StringUtils.isBlank(existeEmpresaDto.getRfc()) && StringUtils.isBlank(existeEmpresaDto.getCurp())) {
+        if(StringUtils.isBlank(existeEmpresaDto.getRfc()) && StringUtils.isBlank(existeEmpresaDto.getCurp()) && StringUtils.isBlank(existeEmpresaDto.getRegistro())) {
             logger.warn("El parametro a realizar la busqueda viene como nulo o vacio");
             throw new InvalidDataException();
         }
@@ -122,7 +132,7 @@ public class ValidacionServiceImpl implements ValidacionService {
 
         if(StringUtils.isNotBlank(existeEmpresaDto.getRfc())) {
             logger.info("Buscando la empresa con el RFC [{}]", existeEmpresaDto.getRfc());
-            Empresa empresa = empresaRepository.getByRfcAndEliminadoFalse(existeEmpresaDto.getRfc());
+            Empresa empresa = empresaRepository.findFirstByRfcContainingAndStatusIn(existeEmpresaDto.getRfc(), Arrays.asList(EmpresaStatusEnum.ACTIVA));
             if(empresa != null) {
                 logger.info("La empresa fue encontrada con el RFC");
                 existeEmpresaDto.setExiste(true);
@@ -132,9 +142,19 @@ public class ValidacionServiceImpl implements ValidacionService {
 
         if(StringUtils.isNotBlank(existeEmpresaDto.getCurp())) {
             logger.info("Buscando la empresa con el CURP [{}]", existeEmpresaDto.getCurp());
-            Empresa empresa = empresaRepository.getByCurpAndEliminadoFalse(existeEmpresaDto.getCurp());
+            Empresa empresa = empresaRepository.findFirstByCurpContainingAndStatusIn(existeEmpresaDto.getCurp(), Arrays.asList(EmpresaStatusEnum.ACTIVA));
             if(empresa != null) {
                 logger.info("La empresa fue encontrada con el CURP");
+                existeEmpresaDto.setExiste(true);
+                existeEmpresaDto.setEmpresa(daoToDtoConverter.convertDaoToDtoEmpresa(empresa));
+            }
+        }
+
+        if(StringUtils.isNotBlank(existeEmpresaDto.getRegistro())) {
+            logger.info("Buscando la empresa con el registro [{}]", existeEmpresaDto.getRegistro());
+            Empresa empresa = empresaRepository.getByRegistroAndEliminadoFalse(existeEmpresaDto.getRegistro());
+            if(empresa != null) {
+                logger.info("La empresa fue encontrada con el registro");
                 existeEmpresaDto.setExiste(true);
                 existeEmpresaDto.setEmpresa(daoToDtoConverter.convertDaoToDtoEmpresa(empresa));
             }
@@ -169,5 +189,75 @@ public class ValidacionServiceImpl implements ValidacionService {
         }
 
         return existeEscrituraDto;
+    }
+
+    @Override
+    public ExisteUsuarioDto buscarUsuario(ExisteUsuarioDto existeUsuarioDto) {
+        if(existeUsuarioDto == null) {
+            logger.warn("El objeto para buscar la existencia del vehiculo no existe.");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Consultando usuario con usernamme [{}] y correo [{}]", existeUsuarioDto.getUsername(), existeUsuarioDto.getEmail());
+        ExisteUsuarioDto response = new ExisteUsuarioDto();
+
+        Usuario usuarioPorEmail = usuarioRepository.getUsuarioByEmailAndEliminadoFalse(existeUsuarioDto.getEmail());
+        if(usuarioPorEmail != null) {
+            logger.info("Se ha encontrado por email");
+            response.setExiste(true);
+            response.setUsuario(daoToDtoConverter.convertDaoToDtoUser(usuarioPorEmail));
+            return response;
+        }
+
+        response.setExiste(false);
+        return response;
+    }
+
+    @Override
+    public ExisteArmaDto buscarArma(ExisteArmaDto existeArmaDto) {
+        if(existeArmaDto == null) {
+            logger.warn("El objeto a realizar la consulta viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        if(StringUtils.isBlank(existeArmaDto.getMatricula()) && StringUtils.isBlank(existeArmaDto.getSerie())) {
+            logger.warn("El parametro a realizar la busqueda viene como nulo o vacio");
+            throw new InvalidDataException();
+        }
+
+        logger.info("Buscando la empresa registrada");
+        existeArmaDto.setExiste(false);
+
+        if(StringUtils.isNotBlank(existeArmaDto.getSerie())) {
+            logger.info("Buscando el arma con la serie [{}]", existeArmaDto.getSerie());
+            Arma arma = armaRepository.getFirstBySerieAndEliminadoFalse(existeArmaDto.getSerie());
+            if(arma != null) {
+                logger.info("El arma fue encontrada con el numero de serie");
+                existeArmaDto.setExiste(true);
+                existeArmaDto.setArma(daoToDtoConverter.convertDaoToDtoArma(arma));
+            }
+        }
+
+        if(StringUtils.isNotBlank(existeArmaDto.getMatricula())) {
+            logger.info("Buscando el arma con la Matricula [{}]", existeArmaDto.getMatricula());
+            Arma arma = armaRepository.getFirstByMatricula(existeArmaDto.getMatricula());
+            if(arma != null && !arma.getEliminado()) {
+                logger.info("El arma se encuentra activa");
+                existeArmaDto.setExiste(true);
+                existeArmaDto.setArma(daoToDtoConverter.convertDaoToDtoArma(arma));
+            }
+            else if(arma != null && arma.getEliminado() && arma.getStatus() == ArmaStatusEnum.CUSTODIA) {
+                logger.info("El arma se encuentra marcada como custodia.");
+                existeArmaDto.setExiste(true);
+                existeArmaDto.setArma(daoToDtoConverter.convertDaoToDtoArma(arma));
+            }
+            else if(arma != null && arma.getEliminado() && (StringUtils.equals(arma.getMotivoBaja(), "ROBO") || StringUtils.equals(arma.getMotivoBaja(), "INSERVIBLE") || StringUtils.equals(arma.getMotivoBaja(), "CUSTODIA") || StringUtils.containsIgnoreCase(arma.getObservacionesBaja(), "incidencia"))) {
+                logger.info("El arma no se encuentra activa pero fue marcada como ROBO, INSERVIBLE O ASEGURAMIENTO");
+                existeArmaDto.setExiste(true);
+                existeArmaDto.setArma(daoToDtoConverter.convertDaoToDtoArma(arma));
+            }
+        }
+
+        return existeArmaDto;
     }
 }
